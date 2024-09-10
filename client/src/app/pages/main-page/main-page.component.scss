@@ -1,40 +1,85 @@
 .container {
     min-height: 100vh;
     height: auto;
+    background-image: url('../../../assets/img/background/title_page_bgd10.jpg');
+    background-size: cover;
+    background-position: left;
+    background-repeat: no-repeat;
 }
 
 .justified {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    // align-items: center;
+}
+
+.game-logo {
+    margin-top: 5%;
+    margin-left: 9%;
+    width: 24%;
+}
+
+.title-pg-links {
+    text-align: left;
+    align-self: flex-start;
+    margin-left: 12%;
+    // padding: 3%;
 }
 
 .button {
-    margin-top: 10px;
-    text-align: center;
+    margin: 0px;
+    padding: 10px 10px 8px 15px;
+    text-align: left;
+    color: rgb(255, 255, 255);
+    font-size: 25px;
+    font-family: 'papyrus';
+    font-weight: bold;
+    width: 150%;
+
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+    transition: all 0.3s ease;
 }
 
+.button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.1s ease;
+    z-index: -1;
+}
+
+.button:hover::after {
+    background: linear-gradient(to right, rgba(222, 207, 129, 0.9), rgba(0, 0, 0, 0));
+    border-radius: 5px;
+}
+
+.button:hover {
+    color: black;
+}
 .team-name {
     margin-top: 0.25em;
     margin-bottom: 0.25em;
-    color: green;
+    color: white;
 }
 
 .header-item {
     justify-content: center;
     text-align: center;
+    color: white;
 }
 
 .footer-item {
     text-align: center;
 }
 
-.footer-item p :nth-child(even) {
-    color: orange;
-}
-.footer-item p :nth-child(odd) {
-    color: blue;
+.footer-item p {
+    color: white;
 }
 
 .server-message {
