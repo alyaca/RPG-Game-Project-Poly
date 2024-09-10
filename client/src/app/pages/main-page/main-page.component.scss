@@ -28,11 +28,11 @@
 }
 
 .button {
-    margin: 0px;
-    padding: 10px 10px 8px 15px;
+    margin: 0;
+    padding: 5% 2% 2% 10%;
     text-align: left;
     color: rgb(255, 255, 255);
-    font-size: 25px;
+    font-size: 175%;
     font-family: 'papyrus';
     font-weight: bold;
     width: 150%;
@@ -44,7 +44,6 @@
 }
 
 .button::after {
-    content: '';
     position: absolute;
     top: 0;
     left: 0;
