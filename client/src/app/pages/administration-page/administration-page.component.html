@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+    <header>
+        <img src="https://bit.ly/3QofL1J" alt="Logo Projet" />
+        <div class="pageTitle">Administration</div>
+    </header>
+
+    <body>
+        <div id="options">
+            <p class="description">Options</p>
+            <div class="buttons">
+                <button class="button" routerLink="/gameEdit">Création de jeu</button>
+                <button class="button" disabled routerLink="/gameEdit">Modification de jeu</button>
+                <button class="button" disabled>Supprimer jeu</button>
+            </div>
+        </div>
+        <div id="gameList">
+            <div class="title">Tous les jeux disponibles</div>
+            <div class="table-container">
+                <table>
+                    <!--faire boucle pour toutes les donnees-->
+                    <tr>
+                        <!--td = cellule
+                        <img src="https://bit.ly/3QofL1J" alt="Logo Projet" /> -->
+                        <td>Image</td>
+                        <!--td = ligne-->
+                        <td>
+                            <p>Auteur</p>
+                            <p>description</p>
+                            <p>description</p>
+                            <p>taille</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Image 1</td>
+                        <td>
+                            <p>Auteur</p>
+                            <p>description</p>
+                            <p>description</p>
+                            <p>taille</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Image 3</td>
+                        <td>
+                            <p>Auteur</p>
+                            <p>description</p>
+                            <p>description</p>
+                            <p>taille</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Image 4</td>
+                        <td>
+                            <p>Auteur</p>
+                            <p>description</p>
+                            <p>description</p>
+                            <p>taille</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
