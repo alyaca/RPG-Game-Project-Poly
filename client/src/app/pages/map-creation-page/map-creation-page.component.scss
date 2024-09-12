@@ -1,0 +1,13 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+}
+
+.grid-element {
+    border: solid;
+    border-radius: 2px;
+}
+
+#logo-img {
+    height: 5vh;
+}

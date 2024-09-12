@@ -1,0 +1,27 @@
+<div class="map-creation-page-container">
+    <img id="logo-img" src="https://bit.ly/3QofL1J" alt="Logo Projet" />
+    <div class="grid-container">
+        <div class="grid-element" id="name-description-inputs-container">
+            <label for="nameInput"> Nom de la carte</label>
+            <br />
+            <input type="text" id="nameInput" />
+            <br />
+            <label for="descriptionInput"> Description de la carte </label>
+            <br />
+            <input type="text" id="descriptionInput" />
+            <div class="grid-element" id="buttons-container">Boutons</div>
+        </div>
+        <div class="grid-element" id="game-grid-and-toolbar-container">
+            <div class="grid-element" id="game-grid-container">
+                <app-edition-game-grid></app-edition-game-grid>
+            </div>
+            <div class="grid-element" id="toolbar-container">
+                <app-edition-toolbar></app-edition-toolbar>
+            </div>
+        </div>
+        <div class="grid-element" id="size-items-container">
+            <div class="grid-element" id="size-container">Taille</div>
+            <div class="grid-element" id="items-container">Items</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+.tools-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 7vh;
+    column-gap: 30px;
+    align-items: center;
+}
+
+.tool {
+    align-self: center;
+    margin-left: 35px;
+    margin-top: 2px;
+    width: 35px;
+    position: relative;
+}
+
+.hidden-description-to-show {
+    display: none;
+}
+
+#water-tool:hover + #water-tool-description {
+    display: inline-block;
+    position: absolute;
+    width: 400%;
+}
+
+#ice-tool:hover + #ice-tool-description {
+    display: inline-block;
+    position: absolute;
+    width: 400%;
+}
+
+#wall-tool:hover + #wall-tool-description {
+    display: inline-block;
+    position: absolute;
+    width: 400%;
+}
+
+#door-tool:hover + #door-tool-description {
+    display: inline-block;
+    position: absolute;
+    width: 400%;
+}
