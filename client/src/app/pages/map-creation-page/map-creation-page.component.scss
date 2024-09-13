@@ -1,11 +1,33 @@
+.background {
+    min-width: 100vh;
+    min-height: 100vh;
+    height: auto;
+    width: auto;
+    background-size: cover;
+    background-position: left;
+    background-repeat: no-repeat;
+    background-image: url('/assets/images/Background-image-test.jpg');
+}
+
+//To change
+.page-title {
+    font-size: x-large;
+    font-family: Papyrus;
+}
+
+div {
+    color: white;
+    font-family: 'Franklin Gothic Medium';
+}
+
+label {
+    color: white;
+    font-family: 'Franklin Gothic Medium';
+}
+
 .grid-container {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;
-}
-
-.grid-element {
-    border: solid;
-    border-radius: 2px;
 }
 
 #logo-img {

@@ -7,15 +7,28 @@
 }
 
 .tool {
-    align-self: center;
     margin-left: 35px;
     margin-top: 2px;
     width: 35px;
     position: relative;
 }
 
+img {
+    max-height: 100%;
+    max-width: 100%;
+}
+
 .hidden-description-to-show {
+    font-family: 'Franklin Gothic Medium';
     display: none;
+    bottom: 0.3rem;
+    right: 2.25rem;
+    border-bottom: solid 6px black;
+    border-right: solid 6px black;
+    border-radius: 0.75rem;
+    color: black;
+    padding: 20%;
+    background: linear-gradient(to bottom right, rgb(226, 217, 58), rgb(207, 184, 72));
 }
 
 #water-tool:hover + #water-tool-description {
