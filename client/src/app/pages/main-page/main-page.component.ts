@@ -24,7 +24,6 @@ export class MainPageComponent {
             title: 'Hello from the client',
             body: 'Time is : ' + new Date().toString(),
         };
-        // Important de ne pas oublier "subscribe" ou l'appel ne sera jamais lancé puisque personne l'observe
         this.communicationService.basicPost(newTimeMessage).subscribe({
             next: (response) => {
                 const responseString = `Le serveur a reçu la requête a retourné un code ${response.status} : ${response.statusText}`;
@@ -36,16 +35,17 @@ export class MainPageComponent {
             },
         });
     }
-
     getMessagesFromServer(): void {
         this.communicationService
             .basicGet()
-            // Cette étape transforme l'objet Message en un seul string
             .pipe(
                 map((message: Message) => {
                     return `${message.title} ${message.body}`;
                 }),
             )
             .subscribe(this.message);
+    }
+    showAlert(): void {
+        alert('hello');
     }
 }
