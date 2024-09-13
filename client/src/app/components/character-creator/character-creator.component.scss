@@ -1,0 +1,139 @@
+.popup {
+    background-color: gray;
+    display: flex;
+    width: 90%;
+    height: 90%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.choices {
+    //background-color: blue;
+    max-width: 55%;
+    max-height: 100%;
+}
+
+.icons-container {
+    //background-color: red;
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    max-width: 100%;
+    max-height: 85%;
+}
+
+.icon {
+    width: 20%;
+    height: auto;
+    border-radius: 35%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    margin-left: 1%;
+}
+
+.attributes-box {
+    background-color: chartreuse;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: lightgray;
+    flex-direction: column;
+    width: 100%;
+}
+
+.arrows-container {
+    background-color: pink;
+    display: flex;
+    align-items: center;
+    //justify-content: space-between;
+    width: 50%;
+}
+
+.attribute {
+    background-color: brown;
+    width: 30%;
+}
+
+.initial-value {
+    max-width: 20%;
+    background-color: aqua;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.arrows-container button {
+    background-color: chocolate;
+    max-width: 30%;
+}
+
+.character-info {
+    flex: 2;
+    //background-color: lightgreen;
+    max-width: 50%;
+    max-height: 90%;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+
+    border-style: solid;
+    border-width: 5px;
+    border-color: black;
+}
+.image-wrapper {
+    // background-color: black;
+    width: 100%;
+    height: 60%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.charactor-info img {
+    max-width: 50%;
+    height: 10%;
+    max-width: 10%;
+    max-height: 10%;
+}
+
+.icon:hover {
+    // background-color: yellow;
+    transform: scale(1.1);
+}
+
+.icon img {
+    width: 100%;
+    height: 100%;
+}
+
+#name {
+    font-weight: bold;
+    font-size: x-large;
+    font-family: Papyrus;
+}
+#description {
+    font-size: medium;
+    font-family: Papyrus;
+}
+
+.arrow {
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    //margin: 2px;
+}
+
+.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+}
