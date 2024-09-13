@@ -1,0 +1,59 @@
+.game-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    width: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    box-sizing: border-box;
+}
+
+.game {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid black;
+    height: 25vh;
+    width: 50rem;
+    margin: 0 0 4% 0;
+    position: relative;
+    background-color: rgb(255, 255, 255);
+    color: black;
+    box-shadow: 1rem 1rem 0 black;
+    transform: skewX(-5deg);
+}
+
+.game:hover {
+    transition: 0.3s;
+    box-shadow: 1rem 1rem 0 rgba(222, 207, 129, 0.9);
+}
+
+.game-name {
+    font-weight: 900;
+    font-size: x-large;
+}
+
+.game-description {
+    margin-top: 0;
+    font-weight: 600;
+}
+
+.game-image {
+    width: 20rem;
+    height: 100%;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 2rem;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    font-weight: 600;
+}
