@@ -1,0 +1,32 @@
+    <div class="page-element background">
+        <div class="left-container">
+            <div class="map-input">
+                <label for="mapName">Nom de la carte : </label>
+                <input id="mapName" type="text" [(ngModel)]="mapName" minlength="3" maxlength="30" />
+            </div>
+            <div class="map-input">
+                <label for="mapDescription">Description de la carte : </label>
+                <textarea id="mapDescription" type="text" minlength="10" maxlength="256"></textarea>
+            </div>
+        </div>
+        <div class="grid-container"></div>
+        <div class="right-container">
+            <div class="map-sizes">
+                <span class="title">Taille de la carte </span>
+                <mat-button-toggle-group         
+                    [(value)]="selectedSize" 
+                    (change)="onSelectionChange($event)" 
+                    hideSingleSelectionIndicator
+                >
+                    <mat-button-toggle value="small">Petite</mat-button-toggle>
+                    <mat-button-toggle value="medium">Moyenne</mat-button-toggle>
+                    <mat-button-toggle value="large">Grande</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <app-editor-objects-container 
+                [randomItemCount]="randomItemCount" 
+                [spawnPointCount]="spawnPointCount"
+            >
+            </app-editor-objects-container>
+        </div>
+    </div>

@@ -1,0 +1,77 @@
+.background {
+    background: rgba(0, 0, 0, .35) url('/assets/images/backgrounds/olympus.png');
+    background-blend-mode: darken;
+    background-size: cover;
+    background-position: left;
+    background-repeat: no-repeat;
+}
+
+label {
+    color: black;
+    font-weight: bold;
+    margin-bottom: 3%;
+    font-family: Papyrus;
+}
+
+#mapDescription{
+    height: 18vh;
+    resize: none;
+    background-color: rgb(235, 235, 235);
+}
+
+#mapName {
+    background-color: rgb(235, 235, 235);
+}
+
+.map-input {
+    display: flex;
+    flex-direction: column;
+    margin: 4%;
+    background-image: url('/assets/images/backgrounds/parchment.png');
+    background-size: cover;
+    background-repeat: no-repeat; 
+    background-position: center;
+    padding: 2%;
+    border:8px outset #CBAD85 ; 
+    width: 35vh;
+}
+
+.page-element {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 10px;
+    height: 100%;
+}
+
+.right-container {
+    margin-top: 5%;
+    margin-left: 20%;
+}
+
+.map-sizes {
+    padding: 10px;
+    border: 2px solid;
+    margin-bottom: 20px;
+    width: 85%;
+    background-image: url('/assets/images/backgrounds/parchment.png');
+    background-size: cover;
+    background-repeat: no-repeat; 
+    background-position: center;
+    padding: 2%;
+    border:8px outset #CBAD85 ; 
+}
+
+.title {
+    margin: 10px;
+    font-family: Papyrus;
+    color: black;
+    font-size: 18px;
+    font-weight: 500;
+    font-weight: bold;
+}
+
+.mat-button-toggle-group {
+    margin: 10px;
+    font-family: Papyrus;
+    font-weight: bold;
+}
