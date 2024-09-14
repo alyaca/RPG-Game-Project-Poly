@@ -17,6 +17,7 @@ export const NB_ITEMS_LARGE_MAP = 6;
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink],
 })
 export class MapCreationPageComponent {
+    mapName: string = '';
     randomItemCount: number = 2;
     spawnPointCount: number = 2;
     selectedSize: string = 'small';
