@@ -17,7 +17,6 @@ export const NB_ITEMS_LARGE_MAP = 6;
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink],
 })
 export class MapCreationPageComponent {
-    mapName: string = '';
     randomItemCount: number = 2;
     spawnPointCount: number = 2;
     selectedSize: string = 'small';
@@ -28,15 +27,19 @@ export class MapCreationPageComponent {
     }
 
     updateItemCount() {
-        if (this.selectedSize === 'small') {
-            this.randomItemCount = NB_ITEMS_SMALL_MAP;
-            this.spawnPointCount = NB_ITEMS_SMALL_MAP;
-        } else if (this.selectedSize === 'medium') {
-            this.randomItemCount = NB_ITEMS_MEDIUM_MAP;
-            this.spawnPointCount = NB_ITEMS_MEDIUM_MAP;
-        } else {
-            this.randomItemCount = NB_ITEMS_LARGE_MAP;
-            this.spawnPointCount = NB_ITEMS_LARGE_MAP;
+        switch (this.selectedSize) {
+            case 'small':
+                this.randomItemCount = NB_ITEMS_SMALL_MAP;
+                this.spawnPointCount = NB_ITEMS_SMALL_MAP;
+                break;
+            case 'medium':
+                this.randomItemCount = NB_ITEMS_MEDIUM_MAP;
+                this.spawnPointCount = NB_ITEMS_MEDIUM_MAP;
+                break;
+            case 'large':
+                this.randomItemCount = NB_ITEMS_LARGE_MAP;
+                this.spawnPointCount = NB_ITEMS_LARGE_MAP;
+                break;
         }
     }
 }
