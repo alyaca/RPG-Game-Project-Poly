@@ -16,9 +16,9 @@ if (environment.production) {
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'map', component: MapCreationPageComponent },
     { path: 'home', component: MainPageComponent },
     { path: 'game', component: GamePageComponent },
+    { path: 'map', component: MapCreationPageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: '**', redirectTo: '/home' },
 ];

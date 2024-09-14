@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { MapCreationPageComponent } from './map-creation-page.component';
 
 describe('MapCreationPageComponent', () => {
     let component: MapCreationPageComponent;
     let fixture: ComponentFixture<MapCreationPageComponent>;
+
+    const NB_OBJECTS_SMALL_MAP = 2;
+    const NB_OBJECTS_MEDIUM_MAP = 4;
+    const NB_OBJECTS_LARGE_MAP = 6;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -18,5 +21,38 @@ describe('MapCreationPageComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    describe('Selected map size', () => {
+        it('should update selectedSize and call updateItemCount on selection change', () => {
+            spyOn(component, 'updateItemCount');
+
+            const mockEvent = { value: 'medium' };
+            component.onSelectionChange(mockEvent);
+
+            expect(component.selectedSize).toBe('medium');
+            expect(component.updateItemCount).toHaveBeenCalled();
+        });
+
+        it('should set randomItemCount and spawnPointCount to NB_OBJECTS_SMALL_MAP when selectedSize is small', () => {
+            component.selectedSize = 'small';
+            component.updateItemCount();
+            expect(component.randomItemCount).toBe(NB_OBJECTS_SMALL_MAP);
+            expect(component.spawnPointCount).toBe(NB_OBJECTS_SMALL_MAP);
+        });
+
+        it('should set randomItemCount and spawnPointCount to NB_OBJECTS_MEDIUM_MAP when selectedSize is medium', () => {
+            component.selectedSize = 'medium';
+            component.updateItemCount();
+            expect(component.randomItemCount).toBe(NB_OBJECTS_MEDIUM_MAP);
+            expect(component.spawnPointCount).toBe(NB_OBJECTS_MEDIUM_MAP);
+        });
+
+        it('should set randomItemCount and spawnPointCount to NB_OBJECTS_LARGE_MAP when selectedSize is large', () => {
+            component.selectedSize = 'large';
+            component.updateItemCount();
+            expect(component.randomItemCount).toBe(NB_OBJECTS_LARGE_MAP);
+            expect(component.spawnPointCount).toBe(NB_OBJECTS_LARGE_MAP);
+        });
     });
 });

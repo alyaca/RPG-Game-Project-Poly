@@ -1,9 +1,32 @@
 .background {
-    background: rgba(0, 0, 0, .35) url('/assets/images/backgrounds/olympus.png');
-    background-blend-mode: darken;
+    background-image: url('/assets/img/background/title_page_bgd10.jpg');
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
+    min-width: 100vh;
+    min-height: 100vh;
+}
+
+.button {
+    border: none;
+    display: block;
+    margin-bottom: 4%;
+    margin-left: 5%;
+    padding: 2%;
+    font-family: Papyrus;
+    font-weight: bold;
+    border-bottom: 5px solid #575757;
+    border-right: 5px solid #575757;
+    border-radius: 2rem;
+    background: linear-gradient(to right, #fed876, #b39134);
+    width: 55%;
+    font-size: 1.1vw;
+    cursor: pointer;
+}
+
+button:hover {
+    background: linear-gradient(to right, #e6c067, #8d742b);
+    color: white;
 }
 
 label {
@@ -13,39 +36,41 @@ label {
     font-family: Papyrus;
 }
 
-#mapDescription{
+.game-logo {
+    height: 8vh;
+    padding-left: 3vh;
+}
+
+#mapDescription {
     height: 18vh;
     resize: none;
     background-color: rgb(235, 235, 235);
+    border: 1px solid;
 }
 
 #mapName {
     background-color: rgb(235, 235, 235);
+    border: 1px solid;
+}
+
+.mat-button-toggle-group {
+    margin: 10px;
+    font-family: Papyrus;
+    font-weight: bold;
 }
 
 .map-input {
     display: flex;
     flex-direction: column;
-    margin: 4%;
+    margin-bottom: 4%;
+    margin-left: 5%;
     background-image: url('/assets/images/backgrounds/parchment.png');
     background-size: cover;
-    background-repeat: no-repeat; 
+    background-repeat: no-repeat;
     background-position: center;
     padding: 2%;
-    border:8px outset #CBAD85 ; 
-    width: 35vh;
-}
-
-.page-element {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    gap: 10px;
-    height: 100%;
-}
-
-.right-container {
-    margin-top: 5%;
-    margin-left: 20%;
+    border: 8px outset #cbad85;
+    width: 70%;
 }
 
 .map-sizes {
@@ -55,10 +80,29 @@ label {
     width: 85%;
     background-image: url('/assets/images/backgrounds/parchment.png');
     background-size: cover;
-    background-repeat: no-repeat; 
+    background-repeat: no-repeat;
     background-position: center;
     padding: 2%;
-    border:8px outset #CBAD85 ; 
+    border: 8px outset #cbad85;
+}
+
+.page-element {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 10px;
+    height: 100%;
+}
+
+#return-button {
+    margin-top: 30%;
+}
+
+.right-container {
+    margin-left: 20%;
+}
+
+#save-button {
+    margin-top: 15%;
 }
 
 .title {
@@ -67,11 +111,5 @@ label {
     color: black;
     font-size: 18px;
     font-weight: 500;
-    font-weight: bold;
-}
-
-.mat-button-toggle-group {
-    margin: 10px;
-    font-family: Papyrus;
     font-weight: bold;
 }

@@ -14,8 +14,7 @@ export const NB_ITEMS_LARGE_MAP = 6;
     standalone: true,
     templateUrl: './map-creation-page.component.html',
     styleUrls: ['./map-creation-page.component.scss'],
-    imports: [MatButtonToggleModule,
-        EditorObjectsContainerComponent, FormsModule, RouterLink],
+    imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink],
 })
 export class MapCreationPageComponent {
     mapName: string = '';
@@ -29,16 +28,13 @@ export class MapCreationPageComponent {
     }
 
     updateItemCount() {
-        if(this.selectedSize === 'small') {
+        if (this.selectedSize === 'small') {
             this.randomItemCount = NB_ITEMS_SMALL_MAP;
             this.spawnPointCount = NB_ITEMS_SMALL_MAP;
-        }
-        else if (this.selectedSize === 'medium') {
+        } else if (this.selectedSize === 'medium') {
             this.randomItemCount = NB_ITEMS_MEDIUM_MAP;
             this.spawnPointCount = NB_ITEMS_MEDIUM_MAP;
-
-        }
-        else {
+        } else {
             this.randomItemCount = NB_ITEMS_LARGE_MAP;
             this.spawnPointCount = NB_ITEMS_LARGE_MAP;
         }
