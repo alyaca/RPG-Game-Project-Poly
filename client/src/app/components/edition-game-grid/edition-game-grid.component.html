@@ -1,4 +1,4 @@
-<div id="map-grid" class="game-grid-container" style="grid-template-columns: repeat({{ height }}, 1fr)">
+<div id="map-grid" style="grid-template-columns: repeat({{ height }}, 1fr)">
     @for (tiles of gridArray; track $index) {
     <div class="tile" id="{{ $index }}">
         <img src="assets/images/GroundTile-test.jpg" />

@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import { MatButtonToggle } from '@angular/material/button-toggle';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { EditionGameGridComponent } from '../edition-game-grid/edition-game-grid.component';
-
 @Component({
     selector: 'app-edition-toolbar',
     standalone: true,
-    imports: [EditionGameGridComponent, MatButtonToggle],
+    imports: [EditionGameGridComponent, MatButtonToggle, MatButtonToggleGroup],
     templateUrl: './edition-toolbar.component.html',
     styleUrl: './edition-toolbar.component.scss',
 })

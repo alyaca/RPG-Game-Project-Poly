@@ -1,10 +1,10 @@
-.game-grid-container {
+#map-grid {
     height: 85.5vh;
     display: grid;
 }
 
 .tile {
-    border: solid 0.2px black;
+    border: solid 1px black;
     font-size: 0;
     position: relative;
 }

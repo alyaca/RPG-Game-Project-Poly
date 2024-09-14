@@ -4,53 +4,74 @@
     height: 7vh;
     column-gap: 30px;
     align-items: center;
+    width: 50%;
+    position: absolute;
+}
+
+img {
+    width: 40px;
+    height: 40px;
+}
+
+mat-button-toggle {
+    font-family: 'Franklin Gothic Medium';
+}
+
+mat-button-toggle#water-tool {
+    background: linear-gradient(to bottom right, rgb(0, 149, 255), rgb(0, 217, 255));
+}
+
+mat-button-toggle#ice-tool {
+    background: linear-gradient(to bottom right, rgb(215, 251, 255), rgb(38, 94, 107));
+}
+
+mat-button-toggle#wall-tool {
+    background: linear-gradient(to bottom right, rgb(255, 132, 0), rgb(153, 108, 66));
+}
+
+mat-button-toggle#door-tool {
+    background: linear-gradient(to bottom right, rgb(0, 255, 251), rgb(255, 255, 255));
 }
 
 .tool {
     margin-left: 35px;
     margin-top: 2px;
-    width: 35px;
     position: relative;
-}
-
-img {
-    max-height: 100%;
-    max-width: 100%;
 }
 
 .hidden-description-to-show {
     font-family: 'Franklin Gothic Medium';
     display: none;
-    bottom: 0.3rem;
-    right: 2.25rem;
+    bottom: 1rem;
+    right: 8.5rem;
     border-bottom: solid 6px black;
     border-right: solid 6px black;
     border-radius: 0.75rem;
     color: black;
-    padding: 20%;
+    padding: 10%;
     background: linear-gradient(to bottom right, rgb(226, 217, 58), rgb(207, 184, 72));
 }
 
 #water-tool:hover + #water-tool-description {
     display: inline-block;
     position: absolute;
-    width: 400%;
+    width: 100%;
 }
 
 #ice-tool:hover + #ice-tool-description {
     display: inline-block;
     position: absolute;
-    width: 400%;
+    width: 100%;
 }
 
 #wall-tool:hover + #wall-tool-description {
     display: inline-block;
     position: absolute;
-    width: 400%;
+    width: 100%;
 }
 
 #door-tool:hover + #door-tool-description {
     display: inline-block;
     position: absolute;
-    width: 400%;
+    width: 100%;
 }
