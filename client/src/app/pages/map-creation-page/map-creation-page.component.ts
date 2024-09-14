@@ -13,7 +13,7 @@ export const NB_ITEMS_LARGE_MAP = 6;
     selector: 'app-map-creation-page',
     standalone: true,
     templateUrl: './map-creation-page.component.html',
-    styleUrls: ['./map-creation-page.component.scss'],
+    styleUrls: ['./map-creation-page.component2.scss'],
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink],
 })
 export class MapCreationPageComponent {
