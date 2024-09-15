@@ -1,0 +1,20 @@
+<body>
+    <div class="dialog-content">
+        <p>{{ data.firstQuestion }}</p>
+        <div class="button">
+            <button>{{ data.gameMode[0] }}</button>
+            <button disabled>{{ data.gameMode[1] }}</button>
+        </div>
+        <p>{{ data.secondQuestion }}</p>
+        <div class="gameSize">
+            <button>{{ data.gameSize[0] }}</button>
+            <button>{{ data.gameSize[1] }}</button>
+            <button>{{ data.gameSize[2] }}</button>
+        </div>
+
+        <div class="options">
+            <button mat-button (click)="close()">{{ data.option[0] }}</button>
+            <button mat-button (click)="changePage()">{{ data.option[1] }}</button>
+        </div>
+    </div>
+</body>

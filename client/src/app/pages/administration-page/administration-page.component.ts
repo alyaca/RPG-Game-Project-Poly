@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
+import { PopUpComponent } from '../../components/popUp/popUp.component';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 
@@ -70,5 +72,21 @@ export class AdministrationPageComponent {
 
     getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
         this.HoverGame = game;
+    }
+
+    constructor(public dialog: MatDialog) {}
+
+    openPopUp(): void {
+        this.dialog.open(PopUpComponent, {
+            width: '25%',
+            height: '30%',
+            data: {
+                firstQuestion: 'Choisir un mode de jeu:',
+                secondQuestion: 'Choisir la taille du jeu:',
+                gameMode: ['Classique', 'CTF'],
+                gameSize: ['10x10', '15x15', '20x20'],
+                option: ['Annuler', 'Création'],
+            },
+        });
     }
 }

@@ -31,7 +31,7 @@
             </div>
             <div class="descriptionContainer">
                 <div class="creationButton">
-                    <button class="button" routerLink="/edit">Création de jeu</button>
+                    <button class="button" mat-raised-button (click)="openPopUp()">Création de jeu</button>
                 </div>
                 <div id="descriptionCard">
                     <img [src]="HoverGame.src" />
