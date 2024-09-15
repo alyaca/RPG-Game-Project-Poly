@@ -8,7 +8,7 @@ import { Component } from '@angular/core';
     styleUrl: './edition-game-grid.component.scss',
 })
 export class EditionGameGridComponent {
-    gridArray: Array<number>;
+    gridArray: number[];
     height: number = 10;
     width: number = 10;
 

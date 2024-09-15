@@ -14,22 +14,16 @@ export class ContainerToolsComponent {
     selectedButton: ToolButtonComponent | null = null;
 
     toggleButton(buttonToActivate: ToolButtonComponent) {
-        if (this.selectedButton == null) {
+        if (this.selectedButton === null) {
             this.selectedButton = buttonToActivate;
             buttonToActivate.toggleActivation();
-
-            console.log(buttonToActivate.isActive);
-        } else if (this.selectedButton == buttonToActivate) {
+        } else if (this.selectedButton === buttonToActivate) {
             this.selectedButton.toggleActivation();
             this.selectedButton = null;
-
-            console.log(buttonToActivate.isActive);
         } else {
             this.selectedButton.toggleActivation();
             this.selectedButton = buttonToActivate;
             buttonToActivate.toggleActivation();
-
-            console.log(buttonToActivate.isActive);
         }
     }
 }
