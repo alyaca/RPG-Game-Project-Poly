@@ -1,5 +1,5 @@
 .background {
-    background-image: url('/assets/img/background/title_page_bgd10.jpg');
+    background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
@@ -7,30 +7,72 @@
     min-height: 100vh;
 }
 
+.buttons-container {
+    text-align: left;
+    margin-left: 2em;
+}
+
 .button {
     border: none;
-    display: block;
-    margin-bottom: 4%;
-    margin-left: 5%;
-    padding: 2%;
-    font-family: Papyrus;
+    margin: 0;
+    padding: 4% 7% 2% 7%;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    font-size: 1.4vw;
+    font-family: 'papyrus';
     font-weight: bold;
-    border-bottom: 5px solid #575757;
-    border-right: 5px solid #575757;
-    border-radius: 2rem;
-    background: linear-gradient(to right, #fed876, #b39134);
-    width: 55%;
-    font-size: 1.1vw;
+    width: 70%;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
     cursor: pointer;
 }
 
-button:hover {
-    background: linear-gradient(to right, #e6c067, #8d742b);
+.button::after {
+    background: transparent;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.1s ease;
+    z-index: -1;
+    color: black;
+}
+
+.button:hover {
+    color: black;
+}
+
+.button:hover::after {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(222, 207, 129, 1) 30%, rgba(163, 147, 71, 1) 70%, rgba(0, 0, 0, 0) 100%);
+}
+
+.input-box {
+    background: none;
     color: white;
+    border: 0.05rem solid rgb(135, 125, 79);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin: 0;
+    font-family: Papyrus;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#mapDescription {
+    resize: none;
+    height: 18vh;
+}
+
+.map-description-box {
+    height: 120%;
 }
 
 label {
-    color: black;
+    color: rgb(222, 207, 129);
     font-weight: bold;
     margin-bottom: 3%;
     font-family: Papyrus;
@@ -39,18 +81,6 @@ label {
 .game-logo {
     height: 8vh;
     padding-left: 3vh;
-}
-
-#mapDescription {
-    height: 18vh;
-    resize: none;
-    background-color: rgb(235, 235, 235);
-    border: 1px solid;
-}
-
-#mapName {
-    background-color: rgb(235, 235, 235);
-    border: 1px solid;
 }
 
 .mat-button-toggle-group {
@@ -64,12 +94,7 @@ label {
     flex-direction: column;
     margin-bottom: 4%;
     margin-left: 5%;
-    background-image: url('/assets/images/backgrounds/parchment.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
     padding: 2%;
-    border: 8px outset #cbad85;
     width: 70%;
 }
 
@@ -78,12 +103,8 @@ label {
     border: 2px solid;
     margin-bottom: 20px;
     width: 85%;
-    background-image: url('/assets/images/backgrounds/parchment.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
     padding: 2%;
-    border: 8px outset #cbad85;
+    border: none;
 }
 
 .page-element {
@@ -94,7 +115,7 @@ label {
 }
 
 #return-button {
-    margin-top: 30%;
+    margin-top: 3.5em;
 }
 
 .right-container {
@@ -102,14 +123,40 @@ label {
 }
 
 #save-button {
-    margin-top: 15%;
+    margin-top: 30%;
 }
 
 .title {
+    text-align: center;
+    padding-left: 1.5rem;
+    color: white;
     margin: 10px;
     font-family: Papyrus;
-    color: black;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 500;
     font-weight: bold;
+}
+
+.switch-group {
+    border-radius: 3rem;
+    border: none;
+    border-bottom: 0.4rem solid black;
+    border-right: 0.4rem solid black;
+}
+
+.switch {
+    background: linear-gradient(to top, rgb(30, 30, 30), rgb(59, 59, 59) 35%, rgb(105, 105, 105) 65%, rgb(30, 30, 30));
+    transition: background-color 0.3s ease;
+    color: white;
+}
+
+.switch:hover {
+    background: gray;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    transform: translateY(2px);
+}
+
+.switch.mat-button-toggle-checked {
+    color: black;
+    background: linear-gradient(to top, rgba(89, 84, 31, 1), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgba(89, 84, 31, 1) 100%);
 }
