@@ -1,13 +1,20 @@
 .active {
-    border: 2px solid white;
+    border: none;
+    background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+    transform: translateY(1px);
 }
 
 .inactive {
-    border: hidden;
+    border: none;
+    border-bottom: 3px solid rgb(157, 157, 157);
+    border-right: 2px solid rgb(157, 157, 157);
+    color:white;
+    background: linear-gradient(to right, rgb(30, 30, 30), rgb(59, 59, 59) 35%, rgb(66, 66, 66) 65%, rgb(30, 30, 30));
 }
 
 button {
     font-family: 'Franklin Gothic Medium';
-    background: linear-gradient(to bottom right, #fed876, #b39134);
     width: 100%;
+    border-radius: 1.2rem;
+    height: 2.25rem;
 }

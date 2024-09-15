@@ -15,9 +15,10 @@ img {
     border-radius: 0.75rem;
     color: black;
     padding: 1%;
-    background: linear-gradient(to bottom right, #fed876, #b39134);
+    background: linear-gradient(to right, rgb(156, 148, 66), rgb(217, 204, 136) 35%, rgba(222, 207, 129, 1) 65%, rgb(161, 154, 79) 100%);
     width: 20vh;
     height: 20vh;
+    z-index: 9999;
 }
 
 #water-tool:hover + #water-tool-description {

@@ -1,10 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { ContainerToolsComponent } from '../container-tools/container-tools.component';
+import { ToolButtonService } from '../../services/tool-button.service';
 
 @Component({
     selector: 'app-tool-button',
     standalone: true,
-    imports: [ContainerToolsComponent],
     templateUrl: './tool-button.component.html',
     styleUrl: './tool-button.component.scss',
 })
@@ -13,18 +12,14 @@ export class ToolButtonComponent {
     isActive: boolean = false;
     class: string = 'inactive';
 
-    constructor(public container: ContainerToolsComponent) {}
+    constructor(private toolButtonService: ToolButtonService) {}
 
     toggleSelf() {
-        this.container.toggleButton(this);
+        this.toolButtonService.toggleButton(this);
     }
 
     toggleActivation() {
         this.isActive = !this.isActive;
-        if (this.isActive) {
-            this.class = 'active';
-        } else {
-            this.class = 'inactive';
-        }
+        this.class = this.isActive ? 'active' : 'inactive';
     }
 }

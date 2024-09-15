@@ -11,19 +11,4 @@ import { ToolButtonComponent } from '../tool-button/tool-button.component';
 export class ContainerToolsComponent {
     names: string[] = ["Tuile d'eau", 'Tuile de glace', 'Tuile de mur', 'Tuile de porte'];
     ids: string[] = ['water-tool', 'ice-tool', 'wall-tool', 'door-tool'];
-    selectedButton: ToolButtonComponent | null = null;
-
-    toggleButton(buttonToActivate: ToolButtonComponent) {
-        if (this.selectedButton === null) {
-            this.selectedButton = buttonToActivate;
-            buttonToActivate.toggleActivation();
-        } else if (this.selectedButton === buttonToActivate) {
-            this.selectedButton.toggleActivation();
-            this.selectedButton = null;
-        } else {
-            this.selectedButton.toggleActivation();
-            this.selectedButton = buttonToActivate;
-            buttonToActivate.toggleActivation();
-        }
-    }
 }
