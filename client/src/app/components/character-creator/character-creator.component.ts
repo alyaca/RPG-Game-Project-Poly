@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AttributesService } from '@app/services/attributes.service';
 
 @Component({
@@ -11,7 +12,10 @@ import { AttributesService } from '@app/services/attributes.service';
     styleUrl: './character-creator.component.scss',
 })
 export class CharacterCreatorComponent {
-    constructor(private attributesService: AttributesService) {}
+    constructor(
+        private attributesService: AttributesService,
+        private router: Router,
+    ) {}
     avatars = [
         { src: '../../../assets/characters/Athena.jpg', name: 'Athena', description: 'TODO' },
         { src: '../../../assets/characters/Hera.jpg', name: 'Hera', description: 'TODO' },
@@ -33,16 +37,12 @@ export class CharacterCreatorComponent {
         this.clickedAvatar = avatar;
     }
 
-    test() {
-        this.attributesService.getAttributsValue('a');
-    }
-
     addHealth() {
-        this.attributesService.setHealth(6);
+        this.attributesService.setHealth('6');
     }
 
     addspeed() {
-        this.attributesService.setSpeed(6);
+        this.attributesService.setSpeed('6');
     }
 
     setAttack(attackValue: string) {
@@ -57,10 +57,16 @@ export class CharacterCreatorComponent {
         return this.attributesService.getAttributsValue(chosenAttribute);
     }
 
-    saveChoices() {}
+    saveChoices() {
+        if (this.attributesService.saveAttributesValue()) {
+            this.router.navigate(['/waiting']);
+            this.attributesService.resetAttributes();
+        }
+    }
 
     @Output() close = new EventEmitter<void>();
     closeComponent() {
         this.close.emit();
+        this.attributesService.resetAttributes();
     }
 }

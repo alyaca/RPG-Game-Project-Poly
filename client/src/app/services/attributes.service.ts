@@ -5,8 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class AttributesService {
     attributes = [
-        { attributeName: 'health', value: 4 },
-        { attributeName: 'speed', value: 4 },
+        { attributeName: 'health', value: '4' },
+        { attributeName: 'speed', value: '4' },
         { attributeName: 'attack', value: '?' },
         { attributeName: 'defense', value: '?' },
     ];
@@ -25,20 +25,20 @@ export class AttributesService {
         return undefined;
     }
 
-    setHealth(healthValue: number) {
+    setHealth(healthValue: string) {
         const health = this.findAttribut('health');
         if (health) {
-            if (this.getAttributsValue('speed') == 6) {
-                this.setSpeed(4);
+            if (this.getAttributsValue('speed') == '6') {
+                this.setSpeed('4');
             }
             health.value = healthValue;
         }
     }
-    setSpeed(speedValue: number) {
+    setSpeed(speedValue: string) {
         const speed = this.findAttribut('speed');
         if (speed) {
-            if (this.getAttributsValue('health') == 6) {
-                this.setHealth(4);
+            if (this.getAttributsValue('health') == '6') {
+                this.setHealth('4');
             }
             speed.value = speedValue;
         }
@@ -65,5 +65,27 @@ export class AttributesService {
                 this.setAttack('1-6');
             }
         }
+    }
+    saveAttributesValue() {
+        const foundAttribute4 = this.attributes.find((attr) => attr.value === '1-4');
+        const foundAttribute6 = this.attributes.find((attr) => attr.value === '1-6');
+        const badAttribut = this.attributes.filter((attr) => attr.value === '4').length;
+        if (badAttribut > 1) return;
+        if (foundAttribute4 && foundAttribute6) {
+            foundAttribute4.value = (Math.floor(Math.random() * 4) + 1).toString();
+            foundAttribute6.value = (Math.floor(Math.random() * 6) + 1).toString();
+            localStorage.setItem('attributes', JSON.stringify(this.attributes));
+            return true;
+        } else {
+            return;
+        }
+    }
+    resetAttributes() {
+        this.attributes = [
+            { attributeName: 'health', value: '4' },
+            { attributeName: 'speed', value: '4' },
+            { attributeName: 'attack', value: '?' },
+            { attributeName: 'defense', value: '?' },
+        ];
     }
 }
