@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SIZE_SMALL_MAP } from '@app/constants';
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -9,8 +10,8 @@ import { Component } from '@angular/core';
 })
 export class EditionGameGridComponent {
     gridArray: number[];
-    height: number = 10;
-    width: number = 10;
+    height: number = SIZE_SMALL_MAP;
+    width: number = SIZE_SMALL_MAP;
 
     constructor() {
         this.gridArray = Array(this.height * this.width).fill(1);

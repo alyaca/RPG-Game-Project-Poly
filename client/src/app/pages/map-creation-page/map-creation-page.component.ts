@@ -5,11 +5,7 @@ import { RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
-
-// TODO : Avoir un fichier séparé pour les constantes!
-export const NB_ITEMS_SMALL_MAP = 2;
-export const NB_ITEMS_MEDIUM_MAP = 4;
-export const NB_ITEMS_LARGE_MAP = 6;
+import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 
 @Component({
     selector: 'app-map-creation-page',
@@ -19,8 +15,8 @@ export const NB_ITEMS_LARGE_MAP = 6;
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
 export class MapCreationPageComponent {
-    randomItemCount: number = 2;
-    spawnPointCount: number = 2;
+    randomItemCount: number = NB_ITEMS_SMALL_MAP;
+    spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     selectedSize: string = 'small';
 
     onSelectionChange(event: any) {

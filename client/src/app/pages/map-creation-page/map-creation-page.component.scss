@@ -6,7 +6,7 @@
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
-    background-image: url('../../../assets/images/backgrounds/title_page_bgd11.jpg');
+    background-image: url(/assets/images/backgrounds/title_page_bgd10.jpg);
 }
 
 #logo-img {
@@ -16,7 +16,7 @@
 #game-grid-background-gradient {
     border-style: solid;
     border-width: 3px;
-    border-image: linear-gradient(to bottom right, rgb(230, 229, 216), rgb(163, 129, 19));
+    border-image: linear-gradient(to bottom right, rgb(157, 146, 44), rgb(168, 98, 24));
     border-image-slice: 200;
 }
 
@@ -171,5 +171,5 @@ label {
 
 .switch.mat-button-toggle-checked {
     color: black;
-    background: linear-gradient(to top, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+    background: linear-gradient(to top, rgba(89, 84, 31, 1), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgba(89, 84, 31, 1) 100%);
 }
