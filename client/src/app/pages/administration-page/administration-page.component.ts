@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 
@@ -15,9 +16,9 @@ export interface Game {
 @Component({
     selector: 'app-administration-page',
     standalone: true,
-    imports: [CommonModule],
     templateUrl: './administration-page.component.html',
     styleUrls: ['./administration-page.component.scss'],
+    imports: [CommonModule, RouterLink],
 })
 export class AdministrationPageComponent {
     get games(): Game[] {

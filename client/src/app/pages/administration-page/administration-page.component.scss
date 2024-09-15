@@ -1,5 +1,5 @@
 html {
-    background-image: url(../../../assets/image/olympus2.webp);
+    background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
     background-blend-mode: darken;
     background-size: cover;
     background-color: rgb(0, 0, 0, 0.25);
@@ -70,9 +70,9 @@ header img {
 }
 
 .game:hover {
-    border: none;
-    transition: 0.1s;
-    box-shadow: 10px 10px 0 rgba(222, 207, 129, 0.9);
+    //border: none;
+    transition: 0.3s;
+    box-shadow: 6px 6px 0 rgba(222, 207, 129, 0.9);
 }
 
 .game p {
