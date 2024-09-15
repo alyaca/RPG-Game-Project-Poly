@@ -46,20 +46,24 @@ export class AttributesService {
     setAttack(attackValue: string) {
         const attack = this.findAttribut('attack');
         if (attack) {
+            attack.value = attackValue;
             if (this.getAttributsValue('defense') == '1-6' && attackValue == '1-6') {
                 this.setDefense('1-4');
+            } else if (this.getAttributsValue('defense') == '1-4' && attackValue == '1-4') {
+                this.setDefense('1-6');
             }
-            attack.value = attackValue;
         }
     }
 
     setDefense(defenseValue: string) {
         const defense = this.findAttribut('defense');
         if (defense) {
+            defense.value = defenseValue;
             if (this.getAttributsValue('attack') == '1-6' && defenseValue == '1-6') {
                 this.setAttack('1-4');
+            } else if (this.getAttributsValue('attack') == '1-4' && defenseValue == '1-4') {
+                this.setAttack('1-6');
             }
-            defense.value = defenseValue;
         }
     }
 }

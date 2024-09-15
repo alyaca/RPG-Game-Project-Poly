@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AttributesService } from '@app/services/attributes.service';
 
@@ -27,18 +27,11 @@ export class CharacterCreatorComponent {
         { src: '../../../assets/characters/Zeus.jpg', name: 'Zues', description: 'TODO' },
     ];
 
-    //attributes = ['health', 'speed', 'attack', 'defense'];
-
     clickedAvatar: { src: string; name: string; description: string } = this.avatars[0];
 
     getClickedImage(avatar: { src: string; name: string; description: string }) {
         this.clickedAvatar = avatar;
     }
-
-    healthValue = 4;
-    speedValue = 4;
-    attackValue = 4;
-    defenseValue = 4;
 
     test() {
         this.attributesService.getAttributsValue('a');
@@ -52,7 +45,22 @@ export class CharacterCreatorComponent {
         this.attributesService.setSpeed(6);
     }
 
+    setAttack(attackValue: string) {
+        this.attributesService.setAttack(attackValue);
+    }
+
+    setDefense(defenseValue: string) {
+        this.attributesService.setDefense(defenseValue);
+    }
+
     getAttributsValue(chosenAttribute: string) {
         return this.attributesService.getAttributsValue(chosenAttribute);
+    }
+
+    saveChoices() {}
+
+    @Output() close = new EventEmitter<void>();
+    closeComponent() {
+        this.close.emit();
     }
 }
