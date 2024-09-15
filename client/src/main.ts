@@ -21,7 +21,6 @@ const routes: Routes = [
     { path: 'map', component: MapCreationPageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: 'map', component: MapCreationPageComponent },
-    { path: 'edit', component: MapCreationPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

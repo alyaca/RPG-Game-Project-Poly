@@ -6,27 +6,7 @@
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
-    background-image: url('../../../assets/img/background/title_page_bgd11.jpg');
-}
-
-.page-title {
-    font-size: x-large;
-    font-family: Papyrus;
-}
-
-div {
-    color: white;
-    font-family: 'Franklin Gothic Medium';
-}
-
-label {
-    color: white;
-    font-family: 'Franklin Gothic Medium';
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
+    background-image: url('../../../assets/images/backgrounds/title_page_bgd11.jpg');
 }
 
 #logo-img {
@@ -38,14 +18,6 @@ label {
     border-width: 3px;
     border-image: linear-gradient(to bottom right, rgb(157, 146, 44), rgb(168, 98, 24));
     border-image-slice: 200;
-}
-.background {
-    background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
-    background-size: cover;
-    background-position: left;
-    background-repeat: no-repeat;
-    min-width: 100vh;
-    min-height: 100vh;
 }
 
 .buttons-container {
