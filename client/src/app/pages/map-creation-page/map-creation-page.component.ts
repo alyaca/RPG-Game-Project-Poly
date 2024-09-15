@@ -1,13 +1,47 @@
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
+import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
+
+// TODO : Avoir un fichier séparé pour les constantes!
+export const NB_ITEMS_SMALL_MAP = 2;
+export const NB_ITEMS_MEDIUM_MAP = 4;
+export const NB_ITEMS_LARGE_MAP = 6;
 
 @Component({
-    selector: 'app-edition-page',
+    selector: 'app-map-creation-page',
     standalone: true,
-    imports: [RouterLink, EditionGameGridComponent, EditionToolbarComponent],
     templateUrl: './map-creation-page.component.html',
-    styleUrl: './map-creation-page.component.scss',
+    styleUrls: ['./map-creation-page.component.scss'],
+    imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
-export class MapCreationPageComponent {}
+export class MapCreationPageComponent {
+    randomItemCount: number = 2;
+    spawnPointCount: number = 2;
+    selectedSize: string = 'small';
+
+    onSelectionChange(event: any) {
+        this.selectedSize = event.value;
+        this.updateItemCount();
+    }
+
+    updateItemCount() {
+        switch (this.selectedSize) {
+            case 'small':
+                this.randomItemCount = NB_ITEMS_SMALL_MAP;
+                this.spawnPointCount = NB_ITEMS_SMALL_MAP;
+                break;
+            case 'medium':
+                this.randomItemCount = NB_ITEMS_MEDIUM_MAP;
+                this.spawnPointCount = NB_ITEMS_MEDIUM_MAP;
+                break;
+            case 'large':
+                this.randomItemCount = NB_ITEMS_LARGE_MAP;
+                this.spawnPointCount = NB_ITEMS_LARGE_MAP;
+                break;
+        }
+    }
+}

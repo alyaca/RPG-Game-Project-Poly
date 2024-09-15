@@ -18,8 +18,10 @@ const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
     { path: 'game', component: GamePageComponent },
+    { path: 'map', component: MapCreationPageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: 'map', component: MapCreationPageComponent },
+    { path: 'edit', component: MapCreationPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
