@@ -1,0 +1,54 @@
+app-tool-button {
+    margin-top: 10%;
+}
+
+img {
+    width: 40px;
+    height: 40px;
+}
+
+.hidden-description-to-show {
+    font-family: 'Franklin Gothic Medium';
+    display: none;
+    border-bottom: solid 6px black;
+    border-right: solid 6px black;
+    border-radius: 0.75rem;
+    color: black;
+    padding: 1%;
+    background: linear-gradient(to bottom right, #fed876, #b39134);
+    width: 20vh;
+    height: 20vh;
+}
+
+#water-tool:hover + #water-tool-description {
+    display: inline-block;
+    position: absolute;
+    bottom: 1rem;
+    left: -11rem;
+}
+
+#ice-tool:hover + #ice-tool-description {
+    display: inline-block;
+    position: absolute;
+    bottom: 1rem;
+}
+
+#wall-tool:hover + #wall-tool-description {
+    display: inline-block;
+    position: absolute;
+    bottom: 1rem;
+    left: 13.5rem;
+    height: 22vh;
+}
+
+#door-tool:hover + #door-tool-description {
+    display: inline-block;
+    position: absolute;
+    bottom: 1rem;
+    left: 26rem;
+    height: 26vh;
+}
+
+app-tool-button {
+    width: 100%;
+}
