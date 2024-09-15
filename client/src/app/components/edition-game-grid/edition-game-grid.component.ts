@@ -8,7 +8,6 @@ import { Component } from '@angular/core';
     styleUrl: './edition-game-grid.component.scss',
 })
 export class EditionGameGridComponent {
-    // Default values for the map size, representing the smallest size available
     gridArray: Array<number>;
     height: number = 10;
     width: number = 10;

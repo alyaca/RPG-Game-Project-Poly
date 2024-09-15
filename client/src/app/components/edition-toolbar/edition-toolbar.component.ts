@@ -10,12 +10,4 @@ import { ToolButtonComponent } from '../tool-button/tool-button.component';
     templateUrl: './edition-toolbar.component.html',
     styleUrl: './edition-toolbar.component.scss',
 })
-export class EditionToolbarComponent {
-    // tileTypes: Array<string> = ['water', 'ice', 'wall', 'door'];
-    // tileImgPaths: Array<string> = [
-    //     'assets/images/WaterTile-test.jpg',
-    //     'assets/images/IceTile-test.jpg',
-    //     'assets/images/WallTile-Test.jpg',
-    //     'assets/images/DoorTile-test.jpg',
-    // ];
-}
+export class EditionToolbarComponent {}

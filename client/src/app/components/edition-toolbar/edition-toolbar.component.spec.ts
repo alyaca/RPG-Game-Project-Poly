@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EditionToolbarComponent } from './edition-toolbar.component';
 
 describe('EditionToolbarComponent', () => {
-  let component: EditionToolbarComponent;
-  let fixture: ComponentFixture<EditionToolbarComponent>;
+    let component: EditionToolbarComponent;
+    let fixture: ComponentFixture<EditionToolbarComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [EditionToolbarComponent]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [EditionToolbarComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(EditionToolbarComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(EditionToolbarComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

@@ -4,7 +4,7 @@ import { ContainerToolsComponent } from '../container-tools/container-tools.comp
 @Component({
     selector: 'app-tool-button',
     standalone: true,
-    imports: [],
+    imports: [ContainerToolsComponent],
     templateUrl: './tool-button.component.html',
     styleUrl: './tool-button.component.scss',
 })
@@ -13,7 +13,7 @@ export class ToolButtonComponent {
     isActive: boolean = false;
     class: string = 'inactive';
 
-    constructor(private container: ContainerToolsComponent) {}
+    constructor(public container: ContainerToolsComponent) {}
 
     toggleSelf() {
         this.container.toggleButton(this);
