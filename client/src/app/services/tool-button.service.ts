@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ToolButtonComponent } from '../components/tool-button/tool-button.component';
+import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
 
 @Injectable({
     providedIn: 'root',

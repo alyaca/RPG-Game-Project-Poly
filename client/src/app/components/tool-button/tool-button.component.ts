@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ToolButtonService } from '../../services/tool-button.service';
+import { ToolButtonService } from '@app/services/tool-button.service';
 
 @Component({
     selector: 'app-tool-button',

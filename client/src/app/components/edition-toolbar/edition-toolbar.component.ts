@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ContainerToolsComponent } from '../container-tools/container-tools.component';
+import { ContainerToolsComponent } from '@app/components/container-tools/container-tools.component';
 @Component({
     selector: 'app-edition-toolbar',
     standalone: true,

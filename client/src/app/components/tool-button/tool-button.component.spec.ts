@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ContainerToolsComponent } from '../container-tools/container-tools.component';
+import { ContainerToolsComponent } from '@app/components/container-tools/container-tools.component';
 import { ToolButtonComponent } from './tool-button.component';
 
 describe('ToolButtonComponent', () => {
