@@ -106,14 +106,18 @@ body img {
     font-weight: bold;
 }
 
-.gameDescription img {
-    margin-left: 30%;
+#visibility {
+    padding-left: 15%;
+}
+
+#visibility button {
+    background: transparent;
+    border: none;
 }
 
 #buttonContainer {
     display: flex;
     justify-content: center;
-    margin-top: 3%;
 }
 
 button {
@@ -121,15 +125,25 @@ button {
 }
 
 .descriptionContainer {
-    margin-left: 8%;
-    margin-top: 3%;
+    display: grid;
+    height: 50%;
+    width: 35%;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    justify-items: center;
+    margin-top: 7%;
 }
 
 .creationButton {
-    text-align: right;
-    height: 10%;
+    text-align: left;
+    height: 15vh;
+    width: 40vh;
 }
 
+.creationButton button {
+    width: 50%;
+}
 .button {
     height: 70%;
     width: 30%;
@@ -152,8 +166,6 @@ button {
     width: 35vh;
     background-color: white;
     opacity: 0.8;
-    margin-top: 4%;
-    margin-left: 14%; //essayer d'alligner de maniere dynamique
 }
 
 #descriptionCard p {
