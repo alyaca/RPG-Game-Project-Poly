@@ -5,7 +5,7 @@ import { ToolButtonComponent } from '@app/components/tool-button/tool-button.com
     providedIn: 'root',
 })
 export class ToolButtonService {
-    private selectedButton: ToolButtonComponent | null = null;
+    selectedButton: ToolButtonComponent | null = null;
 
     toggleButton(buttonToActivate: ToolButtonComponent) {
         if (this.selectedButton === null) {
