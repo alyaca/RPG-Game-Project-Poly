@@ -23,6 +23,11 @@
                                 <p>{{ game.size }}</p>
                                 <p>{{ game.mode }}</p>
                                 <p>{{ game.date }}</p>
+                                @if (game.visibility) {
+                                <img src="../../../assets/image/visible icone.png" alt="visible" style="width: 20px; height: 20px" />
+                                } @else {
+                                <img src="../../../assets/image/not visible icone.png" alt="visible" style="width: 20px; height: 20px" />
+                                }
                             </div>
                         </div>
                     </div>
@@ -44,8 +49,14 @@
                     <p>Description du jeu</p>
                 </div>
                 <div id="buttonContainer">
-                    <button id="editButton" disabled routerLink="/edit">Modification de jeu</button>
-                    <button id="deleteButton" disabled>Supprimer jeu</button>
+                    <button id="editButton" disabled routerLink="/edit">
+                        Modification de jeu
+                        <img src="../../../assets/image/modifier-le-texte.png" alt="modifier" style="width: 20px; height: 20px" />
+                    </button>
+                    <button id="deleteButton" disabled>
+                        Supprimer Jeu
+                        <img src="../../../assets/image/poubelle-de-recyclage.png" alt="Supprimer" style="width: 20px; height: 20px" />
+                    </button>
                 </div>
             </div>
         </div>

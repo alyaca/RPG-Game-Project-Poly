@@ -13,6 +13,7 @@ export interface Game {
     description: string;
     mode: string;
     date: string;
+    visibility: boolean;
 }
 
 @Component({
@@ -32,6 +33,7 @@ export class AdministrationPageComponent {
                 description: ' Game description 1',
                 mode: ' normal',
                 date: '11/09/2024',
+                visibility: true,
             },
             {
                 src: '../../../assets/image/image2.webp',
@@ -40,6 +42,7 @@ export class AdministrationPageComponent {
                 description: ' Game description 2',
                 mode: ' normal',
                 date: '11/09/2024',
+                visibility: false,
             },
             {
                 src: '../../../assets/image/image3.webp',
@@ -48,6 +51,7 @@ export class AdministrationPageComponent {
                 description: ' Game description 3',
                 mode: ' normal',
                 date: '11/09/2024',
+                visibility: true,
             },
             {
                 src: '../../../assets/image/image4.webp',
@@ -56,6 +60,7 @@ export class AdministrationPageComponent {
                 description: ' Game description 4',
                 mode: ' normal',
                 date: '11/09/2024',
+                visibility: false,
             },
             {
                 src: '../../../assets/image/image4.webp',
@@ -64,13 +69,14 @@ export class AdministrationPageComponent {
                 description: ' Game description 5',
                 mode: ' normal',
                 date: '11/09/2024',
+                visibility: true,
             },
         ];
     }
 
-    Game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
+    Game: { src: string; name: string; size: number; description: string; mode: string; date: string; visibility: boolean } = this.games[0];
 
-    getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
+    getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string; visibility: boolean }) {
         this.Game = game;
     }
 
@@ -101,8 +107,8 @@ export class AdministrationPageComponent {
 
     openPopUp(): void {
         this.dialog.open(PopUpComponent, {
-            width: '25%',
-            height: '30%',
+            width: '30%',
+            height: '35%',
             data: {
                 firstQuestion: 'Choisir un mode de jeu:',
                 secondQuestion: 'Choisir la taille du jeu:',
