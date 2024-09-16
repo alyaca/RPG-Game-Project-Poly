@@ -6,7 +6,7 @@
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
-    background-image: url(/assets/images/backgrounds/title_page_bgd10.jpg);
+    background-image: url(/assets/images/backgrounds/title_page_bgd11.jpg);
 }
 
 #logo-img {
@@ -16,7 +16,7 @@
 #game-grid-background-gradient {
     border-style: solid;
     border-width: 3px;
-    border-image: linear-gradient(to bottom right, rgb(157, 146, 44), rgb(168, 98, 24));
+    border-image: linear-gradient(to bottom right, rgb(220, 214, 150), rgb(72, 65, 31));
     border-image-slice: 200;
 }
 
@@ -75,6 +75,10 @@
     font-size: 16px;
 }
 
+.input-box:hover {
+    background: linear-gradient(to right, rgba(111, 109, 56, 0.4), rgba(177, 168, 131, 0.1))
+}
+
 #mapDescription {
     resize: none;
     height: 18vh;
@@ -89,6 +93,10 @@ label {
     font-weight: bold;
     margin-bottom: 3%;
     font-family: Papyrus;
+}
+
+label:hover {
+    color: white;
 }
 
 .game-logo {
@@ -150,6 +158,10 @@ label {
     font-weight: bold;
 }
 
+.title:hover {
+    color: rgb(222, 207, 129);
+}
+
 .switch-group {
     border-radius: 3rem;
     border: none;
@@ -164,7 +176,8 @@ label {
 }
 
 .switch:hover {
-    background: gray;
+    background: linear-gradient(to top, rgb(68, 68, 68), rgb(165, 165, 165) 35%, rgb(183, 183, 183) 65%, rgb(57, 57, 57) 100%);
+    color: black;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
     transform: translateY(2px);
 }
