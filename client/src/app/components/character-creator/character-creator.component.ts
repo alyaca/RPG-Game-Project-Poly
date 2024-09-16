@@ -17,23 +17,24 @@ export class CharacterCreatorComponent {
         private router: Router,
     ) {}
     avatars = [
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena', description: 'TODO' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera', description: 'TODO' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues', description: 'TODO' },
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena', description: 'TODO' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera', description: 'TODO' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues', description: 'TODO' },
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena', description: 'TODO' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera', description: 'TODO' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues', description: 'TODO' },
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena', description: 'TODO' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera', description: 'TODO' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues', description: 'TODO' },
+        //TODO: Add the other avatars
+        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
+        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
+        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
+        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
+        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
+        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
+        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
+        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
+        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
+        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
+        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
+        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
     ];
 
-    clickedAvatar: { src: string; name: string; description: string } = this.avatars[0];
+    clickedAvatar: { src: string; name: string } = this.avatars[0];
 
-    getClickedImage(avatar: { src: string; name: string; description: string }) {
+    getClickedImage(avatar: { src: string; name: string }) {
         this.clickedAvatar = avatar;
     }
 
