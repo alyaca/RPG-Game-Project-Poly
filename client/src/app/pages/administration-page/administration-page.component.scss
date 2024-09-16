@@ -106,7 +106,7 @@ body img {
     font-weight: bold;
 }
 
-.options {
+#buttonContainer {
     display: flex;
     justify-content: center;
     margin-top: 3%;
@@ -175,4 +175,8 @@ button {
 
 .descriptionBox p {
     margin: 8%;
+}
+
+.selected {
+    border: 2px solid yellow;
 }

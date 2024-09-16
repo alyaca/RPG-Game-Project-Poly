@@ -68,10 +68,33 @@ export class AdministrationPageComponent {
         ];
     }
 
-    HoverGame: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
+    Game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
 
     getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
-        this.HoverGame = game;
+        this.Game = game;
+    }
+
+    enableButton() {
+        const editButton = document.getElementById('editButton') as HTMLButtonElement;
+        editButton.disabled = false;
+        const deleteButton = document.getElementById('deleteButton') as HTMLButtonElement;
+        deleteButton.disabled = false;
+        console.log('ca rentre dans la fonction');
+    }
+
+    selectedElement: HTMLElement | null = null;
+
+    selectedGame(event: Event): void {
+        if (this.selectedElement) {
+            this.selectedElement.classList.remove('selected');
+        }
+
+        const target = (event.target as HTMLElement).closest('.game');
+        if (target) {
+            this.selectedElement = target as HTMLElement;
+            this.selectedElement.classList.add('selected');
+            this.enableButton();
+        }
     }
 
     constructor(public dialog: MatDialog) {}

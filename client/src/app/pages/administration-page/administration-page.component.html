@@ -13,7 +13,7 @@
                 </div>
                 <div class="gameList">
                     @for (game of games; track game.name) {
-                    <div class="game" (mouseenter)="getHoveredGame(game)">
+                    <div class="game" (mouseenter)="getHoveredGame(game)" (click)="selectedGame($event)">
                         <img src="{{ game.src }}" />
                         <div class="info-container">
                             <div class="gameName">
@@ -34,20 +34,18 @@
                     <button class="button" mat-raised-button (click)="openPopUp()">Création de jeu</button>
                 </div>
                 <div id="descriptionCard">
-                    <img [src]="HoverGame.src" />
+                    <img [src]="Game.src" />
                     <div class="descriptionBox">
-                        <p>{{ HoverGame.description }}</p>
+                        <p>{{ Game.description }}</p>
                     </div>
                 </div>
 
                 <div class="title">
                     <p>Description du jeu</p>
                 </div>
-                <div class="options">
-                    <button disabled routerLink="/gameEdit">Modification de jeu</button>
-                    <button disabled>Supprimer jeu</button>
-                    <button disabled>Visibilité</button>
-                    <button disabled>Exporter</button>
+                <div id="buttonContainer">
+                    <button id="editButton" disabled routerLink="/edit">Modification de jeu</button>
+                    <button id="deleteButton" disabled>Supprimer jeu</button>
                 </div>
             </div>
         </div>
