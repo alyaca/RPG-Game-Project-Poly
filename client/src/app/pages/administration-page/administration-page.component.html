@@ -23,11 +23,19 @@
                                 <p>{{ game.size }}</p>
                                 <p>{{ game.mode }}</p>
                                 <p>{{ game.date }}</p>
-                                @if (game.visibility) {
-                                <img src="../../../assets/image/visible icone.png" alt="visible" style="width: 20px; height: 20px" />
-                                } @else {
-                                <img src="../../../assets/image/not visible icone.png" alt="visible" style="width: 20px; height: 20px" />
-                                }
+                                <div id="visibility" (click)="gameVisibility(game)">
+                                    <button>
+                                        <img
+                                            [src]="
+                                                game.visibility
+                                                    ? '../../../assets/image/visible icone.png'
+                                                    : '../../../assets/image/not visible icone.png'
+                                            "
+                                            alt="visibility"
+                                            style="width: 25px; height: 25px"
+                                        />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -35,9 +43,6 @@
                 </div>
             </div>
             <div class="descriptionContainer">
-                <div class="creationButton">
-                    <button class="button" mat-raised-button (click)="openPopUp()">Création de jeu</button>
-                </div>
                 <div id="descriptionCard">
                     <img [src]="Game.src" />
                     <div class="descriptionBox">
@@ -58,6 +63,10 @@
                         <img src="../../../assets/image/poubelle-de-recyclage.png" alt="Supprimer" style="width: 20px; height: 20px" />
                     </button>
                 </div>
+            </div>
+            <div class="creationButton">
+                <button class="button" mat-raised-button (click)="openPopUp()">Création de jeu</button>
+                <!--changer de place -->
             </div>
         </div>
 

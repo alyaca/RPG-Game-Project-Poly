@@ -74,9 +74,9 @@ export class AdministrationPageComponent {
         ];
     }
 
-    Game: { src: string; name: string; size: number; description: string; mode: string; date: string; visibility: boolean } = this.games[0];
+    Game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
 
-    getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string; visibility: boolean }) {
+    getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
         this.Game = game;
     }
 
@@ -117,5 +117,9 @@ export class AdministrationPageComponent {
                 option: ['Annuler', 'Création'],
             },
         });
+    }
+
+    gameVisibility(game: { visibility: boolean }) {
+        game.visibility = !game.visibility; //changer une fois qu'on a la database
     }
 }
