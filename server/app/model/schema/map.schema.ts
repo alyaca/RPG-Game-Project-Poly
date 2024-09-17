@@ -40,7 +40,7 @@ export class Map {
 
     @ApiProperty()
     @Prop({ type: [String], required: true })
-    itemPlacement: string[];
+    itemPlacement: number[];
 
     @ApiProperty()
     @Prop({ type: Date, required: true })

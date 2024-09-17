@@ -35,7 +35,7 @@ export class MapController {
         description: 'Return NOT_FOUND http status when no visible maps are found',
     })
     @Get('/visible')
-    async visibleMaps(@Res() response: Response) {
+    async allVisibleMaps(@Res() response: Response) {
         try {
             const allVisibleMaps = await this.mapService.getAllVisibleMaps();
             response.status(HttpStatus.OK).json(allVisibleMaps);
