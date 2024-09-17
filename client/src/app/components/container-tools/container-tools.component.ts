@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
+import { ToolButtonComponent } from '../tool-button/tool-button.component';
+import { ToolService } from '@app/services/tool.service';
 
 @Component({
     selector: 'app-container-tools',
@@ -9,6 +10,11 @@ import { ToolButtonComponent } from '@app/components/tool-button/tool-button.com
     styleUrl: './container-tools.component.scss',
 })
 export class ContainerToolsComponent {
-    names: string[] = ["Tuile d'eau", 'Tuile de glace', 'Tuile de mur', 'Tuile de porte'];
-    ids: string[] = ['water-tool', 'ice-tool', 'wall-tool', 'door-tool'];
+    constructor(public toolService: ToolService) { }
+    tileIds: string[] = this.toolService.tileIds;
+    tileNames: string[] = ["Tuile d'eau", 'Tuile de glace', 'Tuile de mur', 'Tuile de porte'];
+
+    onSelectTile(tile: string) {
+      this.toolService.setSelectedTile(tile);
+    }
 }
