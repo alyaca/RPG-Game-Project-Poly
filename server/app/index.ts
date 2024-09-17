@@ -11,7 +11,7 @@ const bootstrap = async () => {
 
     const config = new DocumentBuilder()
         .setTitle('Cadriciel Serveur')
-        .setDescription('Serveur du projet de base pour le cours de LOG2990')
+        .setDescription('Serveur du projet pour le cours de LOG2990')
         .setVersion('1.0.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
