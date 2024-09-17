@@ -1,7 +1,7 @@
+import { Map, MapDocument } from '@app/model/schema/map.schema';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Map, MapDocument } from '../../model/schema/map.schema';
 
 @Injectable()
 export class MapService {

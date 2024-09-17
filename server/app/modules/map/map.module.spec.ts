@@ -1,8 +1,8 @@
+import { MapController } from '@app/controllers/map/map.controller';
+import { MapService } from '@app/services/map/map.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { MapController } from '../../controllers/map/map.controller';
-import { MapService } from '../../services/map/map.service';
 import { MapModule } from './map.module';
 
 describe('MapModule', () => {
@@ -32,7 +32,7 @@ describe('MapModule', () => {
         controller = module.get<MapController>(MapController);
     });
 
-    //ensure that we clean ressources after the test
+    // ensure that we clean ressources after the test
     afterAll(async () => {
         await module.close();
         await mongoServer.stop();

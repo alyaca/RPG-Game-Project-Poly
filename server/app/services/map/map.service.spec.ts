@@ -1,9 +1,9 @@
+import { Map, MapDocument, mapSchema } from '@app/model/schema/map.schema';
 import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { Map, MapDocument, mapSchema } from '../../model/schema/map.schema';
 import { MapService } from './map.service';
 
 describe('MapService', () => {
@@ -22,7 +22,7 @@ describe('MapService', () => {
             imports: [
                 MongooseModule.forRootAsync({
                     useFactory: () => ({
-                        uri: mongoServer.getUri(),
+                        uri,
                     }),
                 }),
                 MongooseModule.forFeature([{ name: Map.name, schema: mapSchema }]),
@@ -52,7 +52,7 @@ describe('MapService', () => {
     });
 
     it('getAllMaps should return all maps in database', async () => {
-        const maps = getFakeMaps(5);
+        const maps = getFakeMaps(GENERATE_COUNT);
         await mapModel.create(maps);
         expect((await service.getAllMaps()).length).toBeGreaterThan(0);
     });
@@ -62,7 +62,7 @@ describe('MapService', () => {
     });
 
     it('getAllVisibleMaps should return all visible maps in database', async () => {
-        const maps = getFakeMaps(5);
+        const maps = getFakeMaps(GENERATE_COUNT);
         await mapModel.create(maps);
         expect((await service.getAllVisibleMaps()).length).toBeGreaterThan(0);
     });
@@ -72,6 +72,20 @@ describe('MapService', () => {
     });
 });
 
+const MODES = ['CTF', 'Normal'];
+const GENERATE_COUNT = 5;
+const BASE_36 = 36;
+const TILE_COUNT = 10;
+const ITEM_PLACEMENT_COUNT = 15;
+const DIMENSION = 20;
+const NB_PLAYERS = 6;
+const ARRAY_LENGTH = 6;
+const ITEMS_LENGTH = 4;
+
+const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
+
+const getRandomArray = (length: number, maxValue: number): number[] => Array.from({ length }, () => Math.floor(Math.random() * maxValue));
+
 const getFakeMaps = (count: number): Map[] => {
     const maps: Map[] = [];
     for (let i = 0; i < count; i++) {
@@ -80,17 +94,14 @@ const getFakeMaps = (count: number): Map[] => {
             name: getRandomString(),
             description: getRandomString(),
             visible: isVisible,
-            mode: 'CTF',
-            nbPlayers: 6,
+            mode: MODES[Math.floor(Math.random() * MODES.length)],
+            nbPlayers: NB_PLAYERS,
             image: 'Kratos.img',
-            tiles: [0, 1, 2, 3, 4, 5],
-            dimension: 20,
-            itemPlacement: [0, 1, 0, 10],
+            tiles: getRandomArray(ARRAY_LENGTH, TILE_COUNT),
+            dimension: DIMENSION,
+            itemPlacement: getRandomArray(ITEMS_LENGTH, ITEM_PLACEMENT_COUNT),
             lastModification: new Date(),
         });
     }
     return maps;
 };
-
-const BASE_36 = 36;
-const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
