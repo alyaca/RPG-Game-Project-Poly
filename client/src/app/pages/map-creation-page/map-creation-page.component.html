@@ -1,5 +1,5 @@
 <div class="background">
-    <img class="game-logo" src="../../../assets/images/logo/Age_Of_Mythology.png" alt="Logo Projet" />
+    <img class="game-logo" src="/assets/images/logo/Age_Of_Mythology.png" alt="Logo Projet" />
     <div class="page-element">
         <div class="left-container">
             <div class="map-input">
@@ -17,13 +17,23 @@
                     placeholder="Entrez la description de votre carte"
                 ></textarea>
             </div>
+
             <div class="buttons-container">
                 <button class="button" id="save-button">Sauvegarder</button>
                 <button class="button" id="reset-button">Réinitialiser</button>
                 <button class="button" id="return-button">Retour</button>
             </div>
         </div>
-        <div class="grid-container"></div>
+        <div class="grid-element" id="game-grid-and-toolbar-container">
+            <div id="game-grid-background-gradient">
+                <div class="grid-element" id="game-grid-container">
+                    <app-edition-game-grid></app-edition-game-grid>
+                </div>
+            </div>
+            <div class="grid-element" id="toolbar-container">
+                <app-edition-toolbar></app-edition-toolbar>
+            </div>
+        </div>
         <div class="right-container">
             <div class="map-sizes">
                 <span class="title">Taille de la carte </span>

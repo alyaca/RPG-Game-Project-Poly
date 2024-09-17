@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-editor-objects-container',
     standalone: true,
     templateUrl: './editor-objects-container.component.html',
-    styleUrls: ['./editor-objects-container.component2.scss'],
+    styleUrls: ['./editor-objects-container.component.scss'],
     imports: [FormsModule, RouterLink],
 })
 export class EditorObjectsContainerComponent {
