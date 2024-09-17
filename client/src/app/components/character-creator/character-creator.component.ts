@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AttributesService } from '@app/services/attributes.service';
 
@@ -12,12 +13,14 @@ import { AttributesService } from '@app/services/attributes.service';
     styleUrl: './character-creator.component.scss',
 })
 export class CharacterCreatorComponent {
-    constructor(
-        private attributesService: AttributesService,
-        private router: Router,
-    ) {}
+    @Output() closeComponentEvent = new EventEmitter<void>();
+    closeComponent() {
+        this.closeComponentEvent.emit();
+        this.attributesService.resetAttributes();
+    }
+
     avatars = [
-        //TODO: Add the other avatars
+        // TODO: Add the other avatars
         { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
         { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
         { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
@@ -31,6 +34,12 @@ export class CharacterCreatorComponent {
         { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
         { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
     ];
+
+    constructor(
+        private attributesService: AttributesService,
+        private router: Router,
+        private snackBar: MatSnackBar,
+    ) {}
 
     clickedAvatar: { src: string; name: string } = this.avatars[0];
 
@@ -62,12 +71,10 @@ export class CharacterCreatorComponent {
         if (this.attributesService.saveAttributesValue()) {
             this.router.navigate(['/waiting']);
             this.attributesService.resetAttributes();
+        } else {
+            this.snackBar.open('Veuillez sélectionner les valeurs des attributs souhaités', 'Fermer', {
+                duration: 2000,
+            });
         }
-    }
-
-    @Output() close = new EventEmitter<void>();
-    closeComponent() {
-        this.close.emit();
-        this.attributesService.resetAttributes();
     }
 }

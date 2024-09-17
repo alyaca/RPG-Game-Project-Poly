@@ -68,9 +68,9 @@ describe('CharacterCreatorComponent', () => {
     });
 
     it('should emit close event and call resetAttributes when closeComponent is called', () => {
-        spyOn(component.close, 'emit');
+        spyOn(component.closeComponentEvent, 'emit');
         component.closeComponent();
-        expect(component.close.emit).toHaveBeenCalled();
+        expect(component.closeComponentEvent.emit).toHaveBeenCalled();
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
     });
 });

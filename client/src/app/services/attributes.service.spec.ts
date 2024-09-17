@@ -19,9 +19,9 @@ describe('AttributesService', () => {
         expect(attribute).toEqual({ attributeName: 'health', value: '4' });
     });
 
-    it('should return the correct attribute object for attack with a default value of ?', () => {
+    it('should return the correct attribute object for attack with a default value of 4', () => {
         const value = service.getAttributsValue('attack');
-        expect(value).toEqual('?');
+        expect(value).toEqual('4');
     });
 
     it('should return undefined for unknown attribute', () => {
@@ -125,7 +125,7 @@ describe('AttributesService', () => {
         const defense = service.getAttributsValue('defense');
         expect(health).toEqual('4');
         expect(speed).toEqual('4');
-        expect(attack).toEqual('?');
-        expect(defense).toEqual('?');
+        expect(attack).toEqual('4');
+        expect(defense).toEqual('4');
     });
 });
