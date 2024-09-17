@@ -72,8 +72,8 @@ export class AttributesService {
     saveAttributesValue() {
         const foundAttribute4 = this.attributes.find((attr) => attr.value === this.dice4);
         const foundAttribute6 = this.attributes.find((attr) => attr.value === this.dice6);
-        const badAttribut = this.attributes.filter((attr) => attr.value === this.defaultAttribute).length;
-        if (badAttribut > 1) return false;
+        const missingAttributs = this.attributes.filter((attr) => attr.value === this.defaultAttribute).length;
+        if (missingAttributs > 1) return false;
         if (foundAttribute4 && foundAttribute6) {
             foundAttribute4.value = Math.floor(Math.random() * Number(this.defaultAttribute) + 1).toString();
             foundAttribute6.value = Math.floor(Math.random() * Number(this.highAttribute) + 1).toString();
