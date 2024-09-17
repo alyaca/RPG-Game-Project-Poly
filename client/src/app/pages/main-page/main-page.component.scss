@@ -1,7 +1,7 @@
 .container {
     min-height: 100vh;
     height: auto;
-    background-image: url('../../../assets/images/backgrounds/title_page_bgd10.jpg');
+    background-image: url('/assets/images/backgrounds/title_page_bgd10.jpg');
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
@@ -34,6 +34,7 @@
     font-family: 'papyrus';
     font-weight: bold;
     width: 150%;
+    cursor: pointer;
 
     position: relative;
     display: inline-block;
@@ -61,17 +62,16 @@
     color: black;
 }
 
-
 @media only screen and (max-width: 1000px) {
-    .game-logo{
+    .game-logo {
         align-items: center;
         margin-top: 5%;
         width: 80%;
     }
-    .title-page-links{
+    .title-page-links {
         align-items: center;
     }
-    .button{
+    .button {
         width: 100%;
     }
 }

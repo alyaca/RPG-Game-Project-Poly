@@ -1,9 +1,8 @@
 .game-list {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 70vh;
+    height: 67vh;
     width: 100%;
     overflow-y: auto;
     scrollbar-width: none;
@@ -16,12 +15,16 @@
     border: 1px solid black;
     height: 25vh;
     width: 50rem;
-    margin: 0 0 4% 0;
+    margin: 0 0 2% 0;
     position: relative;
     background-color: rgb(255, 255, 255);
     color: black;
     box-shadow: 1rem 1rem 0 black;
     transform: skewX(-5deg);
+}
+
+.selected {
+    box-shadow: 1rem 1rem 0 rgba(222, 207, 129, 0.9);
 }
 
 .game:hover {

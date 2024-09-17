@@ -1,5 +1,5 @@
 export interface Game {
-    id: number;
+    _id: number;
     name: string;
     description: string;
     visible: boolean;

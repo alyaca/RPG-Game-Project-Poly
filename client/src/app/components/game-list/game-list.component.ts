@@ -1,19 +1,25 @@
+import { CommonModule, NgClass } from '@angular/common';
 import { Component } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 
 @Component({
     selector: 'app-game-list',
     standalone: true,
-    imports: [],
+    imports: [CommonModule, NgClass],
     templateUrl: './game-list.component.html',
     styleUrl: './game-list.component.scss',
 })
 export class GameListComponent {
     games: Array<Game> = [];
+    isSelected: boolean = false;
+
+    selectGame() {
+        this.isSelected = !this.isSelected;
+    }
 
     getGames() {
         const testGame1: Game = {
-            id: 0,
+            _id: 0,
             name: 'Ali',
             description: 'Un jeu de stratégie passionnant dans un monde médiéval.',
             visible: true,
@@ -23,7 +29,7 @@ export class GameListComponent {
             dimension: '15x15',
         };
         const testGame2: Game = {
-            id: 1,
+            _id: 1,
             name: 'Adventure Quest',
             description: "Partez à l'aventure dans des mondes mystérieux avec vos amis.",
             visible: true,
@@ -33,7 +39,7 @@ export class GameListComponent {
             dimension: '20x20',
         };
         const testGame3: Game = {
-            id: 2,
+            _id: 2,
             name: 'Adventure Quest',
             description: "Partez à l'aventure dans des mondes mystérieux avec vos amis.",
             visible: true,
@@ -43,7 +49,7 @@ export class GameListComponent {
             dimension: '20x20',
         };
         const testGame4: Game = {
-            id: 3,
+            _id: 3,
             name: 'Adventure Quest',
             description: "Partez à l'aventure dans des mondes mystérieux avec vos amis.",
             visible: true,
