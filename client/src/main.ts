@@ -23,6 +23,7 @@ const routes: Routes = [
     { path: 'material', component: MaterialPageComponent },
     { path: 'admin', component: AdministrationPageComponent },
     { path: 'edit', component: MapCreationPageComponent },
+    { path: 'map', component: MapCreationPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
