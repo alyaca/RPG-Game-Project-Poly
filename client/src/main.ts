@@ -22,7 +22,7 @@ const routes: Routes = [
     { path: 'game', component: GamePageComponent },
     { path: 'map', component: MapCreationPageComponent },
     { path: 'material', component: MaterialPageComponent },
-    { path: 'edit', component: MapCreationPageComponent},
+    { path: 'map', component: MapCreationPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
