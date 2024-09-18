@@ -11,7 +11,7 @@ import { GameListService } from './game-list.service';
 describe('GameListService', () => {
     let httpMock: HttpTestingController;
     let service: GameListService;
-    const apiUrl: string = `${environment.serverUrl}/maps/visible`;
+    const apiUrl = `${environment.serverUrl}/maps/visible`;
     let selectedGameSubject: BehaviorSubject<Game | null>;
 
     beforeEach(() => {
@@ -22,7 +22,6 @@ describe('GameListService', () => {
         service = TestBed.inject(GameListService);
         httpMock = TestBed.inject(HttpTestingController);
         selectedGameSubject = service['selectedGameSubject'];
-        
     });
 
     afterEach(() => {
@@ -51,8 +50,6 @@ describe('GameListService', () => {
             },
         ];
 
-
-
         service.getAllVisibleMaps().subscribe((maps) => {
             expect(maps.length).toBeGreaterThan(0);
             expect(maps[0].dimension).toBe('20x20');
@@ -64,7 +61,7 @@ describe('GameListService', () => {
     });
 
     it('should deselect all games and select a new game', () => {
-        const gameToSelect: Game = mockGames[0]; 
+        const gameToSelect: Game = mockGames[0];
 
         spyOn(service, 'deselectGame').and.callThrough();
 

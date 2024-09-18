@@ -14,26 +14,20 @@ describe('GameListComponent', () => {
     beforeEach(async () => {
         selectedGameSubject = new BehaviorSubject<Game | null>(null);
 
-        const gameListServiceSpy = jasmine.createSpyObj('GameListService', [
-            'getAllVisibleMaps',
-            'selectGame',
-            'deselectGame'
-        ]);
+        const gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllVisibleMaps', 'selectGame', 'deselectGame']);
 
         gameListServiceSpy.getAllVisibleMaps.and.returnValue(of(mockGames));
-        gameListServiceSpy.selectGame.and.callFake((game: Game, games: Game[]) => {
+        gameListServiceSpy.selectGame.and.callFake((game: Game) => {
             game.isSelected = true;
         });
         gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
-            games.forEach(game => game.isSelected = false);
+            games.forEach((game) => (game.isSelected = false));
         });
         gameListServiceSpy.selectedGame$ = selectedGameSubject.asObservable(); // Utilise BehaviorSubject
 
         await TestBed.configureTestingModule({
             imports: [GameListComponent],
-            providers: [
-                { provide: GameListService, useValue: gameListServiceSpy }
-            ],
+            providers: [{ provide: GameListService, useValue: gameListServiceSpy }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameListComponent);
@@ -61,7 +55,7 @@ describe('GameListComponent', () => {
     });
 
     it('should select a game and deselect others', () => {
-        const gameToSelect: Game = mockGames[0]; 
+        const gameToSelect: Game = mockGames[0];
 
         component.selectGame(gameToSelect);
 
@@ -76,10 +70,10 @@ describe('GameListComponent', () => {
     });
 
     it('should deselect all games if the selected game is clicked again', () => {
-        const selectedGame = mockGames[1]; 
+        const selectedGame = mockGames[1];
         selectedGame.isSelected = true;
 
-        component.selectGame(selectedGame); 
+        component.selectGame(selectedGame);
 
         expect(gameListService.deselectGame).toHaveBeenCalledWith(mockGames);
         mockGames.forEach((game) => {
@@ -89,7 +83,7 @@ describe('GameListComponent', () => {
 
     it('should update selectedGame when gameListService emits a new selection', () => {
         const mockSelectedGame: Game = mockGames[0];
-        selectedGameSubject.next(mockSelectedGame); 
+        selectedGameSubject.next(mockSelectedGame);
 
         component.ngOnInit();
 

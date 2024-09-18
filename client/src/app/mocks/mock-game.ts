@@ -1,7 +1,7 @@
 import { Game } from '@app/interfaces/game';
 
 export const mockGames: Game[] = [
-    { 
+    {
         _id: '1',
         name: 'Map1',
         description: 'Description1',
@@ -13,9 +13,9 @@ export const mockGames: Game[] = [
         dimension: '20x20',
         itemPlacement: [0, 1],
         isSelected: false,
-        lastModification: new Date(), 
+        lastModification: new Date(),
     },
-    { 
+    {
         _id: '2',
         name: 'Map2',
         description: 'Description2',
@@ -27,6 +27,6 @@ export const mockGames: Game[] = [
         dimension: '15x15',
         itemPlacement: [0, 1],
         isSelected: false,
-        lastModification: new Date(), 
+        lastModification: new Date(),
     },
 ];
