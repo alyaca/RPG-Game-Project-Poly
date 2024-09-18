@@ -1,6 +1,15 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { SIZE_SMALL_MAP } from '@app/constants';
 import { ToolService } from '@app/services/tool.service';
+
+enum TileType {
+    Ground = 1,
+    Ice = 2,
+    Wall = 3,
+    Water = 4,
+    ClosedDoor = 5,
+    OpenDoor = 6,
+}
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -9,7 +18,7 @@ import { ToolService } from '@app/services/tool.service';
     templateUrl: './edition-game-grid.component.html',
     styleUrl: './edition-game-grid.component.scss',
 })
-export class EditionGameGridComponent {
+export class EditionGameGridComponent implements OnChanges {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     gridArray: number[][];
@@ -27,10 +36,10 @@ export class EditionGameGridComponent {
         return this.toolService.getSelectedTile();
     }
 
-    ngOnChanges(changes: any) {
+    ngOnChanges(changes: SimpleChanges) {
         if (changes['selectedSize']) {
             this.updateDimensions();
-            this.gridArray = this.createNewMap(this.height, this.width);
+            this.gridArray = this.createNewMap();
         }
         if (changes['resetTrigger'] && this.resetTrigger) {
             this.resetGrid();
@@ -48,30 +57,30 @@ export class EditionGameGridComponent {
             this.height = 20;
             this.width = 20;
         } else {
-            console.error('Map size not valid');
+            alert('invalid map size chosen');
         }
     }
 
     getTileImage(value: number): string {
         switch (value) {
-            case 1:
-                return '/assets/images/tiles/GroundTile-test.jpg';
-            case 2:
+            case TileType.Ground:
+                return '/assets/images/tiles/grass3.jpg';
+            case TileType.Ice:
                 return '/assets/images/tiles/ice2.jpg';
-            case 3:
-                return '/assets/images/tiles/WallTile-Test.jpg';
-            case 4:
-                return '/assets/images/tiles/WaterTile-test.jpg';
-            case 5:
-                return '/assets/images/tiles/closed-door.jpg';
-            case 6:
-                return '/assets/images/tiles/open-door.jpg';
+            case TileType.Wall:
+                return '/assets/images/tiles/wall3.jpg';
+            case TileType.Water:
+                return '/assets/images/tiles/water3.jpg';
+            case TileType.ClosedDoor:
+                return '/assets/images/tiles/closed-door3.jpg';
+            case TileType.OpenDoor:
+                return '/assets/images/tiles/open-door3.jpg';
             default:
                 return '';
         }
     }
 
-    createNewMap(n: number, m: number): number[][] {
+    createNewMap(): number[][] {
         return Array.from({ length: this.height }, () => Array(this.width).fill(1));
     }
 
@@ -81,27 +90,24 @@ export class EditionGameGridComponent {
 
         switch (this.selectedTile) {
             case 'ice-tile':
-                this.gridArray[row][col] = 2;
+                this.gridArray[row][col] = TileType.Ice;
                 break;
             case 'wall-tile':
-                this.gridArray[row][col] = 3;
+                this.gridArray[row][col] = TileType.Wall;
                 break;
             case 'water-tile':
-                this.gridArray[row][col] = 4;
+                this.gridArray[row][col] = TileType.Water;
                 break;
             case 'door-tile':
-                if (this.gridArray[row][col] === 5) this.gridArray[row][col] = 6;
-                else {
-                    this.gridArray[row][col] = 5;
-                }
+                this.gridArray[row][col] = this.gridArray[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
                 break;
             default:
-                console.error('Tile type does not exist');
+                break;
         }
     }
 
     resetGrid() {
-        this.gridArray = this.createNewMap(this.height, this.width);
+        this.gridArray = this.createNewMap();
     }
 
     removeTile(event: MouseEvent, row: number, col: number) {
@@ -124,7 +130,7 @@ export class EditionGameGridComponent {
     }
 
     onMouseMove(row: number, col: number) {
-        if (this.isMouseDown){
+        if (this.isMouseDown) {
             this.onTileClick(row, col);
         }
     }

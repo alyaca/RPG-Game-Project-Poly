@@ -13,6 +13,15 @@ describe('EditionGameGridComponent', () => {
 
         fixture = TestBed.createComponent(EditionGameGridComponent);
         component = fixture.componentInstance;
+
+        component.height = 3;
+        component.width = 3;
+        component.gridArray = [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ];
+
         fixture.detectChanges();
     });
 
@@ -21,6 +30,9 @@ describe('EditionGameGridComponent', () => {
     });
 
     it('should have the correct number of tiles', () => {
-        expect(component.gridArray.length).toEqual(component.height * component.width);
+        const nRows = component.gridArray.length;
+        const nCols = component.gridArray[0]?.length || 0;
+
+        expect(nRows * nCols).toEqual(component.height * component.width);
     });
 });

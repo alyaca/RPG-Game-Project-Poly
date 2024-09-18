@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterLink } from '@angular/router';
@@ -15,18 +15,17 @@ import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@ap
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
 export class MapCreationPageComponent {
-    randomItemCount: number = NB_ITEMS_SMALL_MAP;
-    spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
-
+    randomItemCount: number = NB_ITEMS_SMALL_MAP;
+    spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
         this.updateItemCount();
-        this.selectedSizeChange.emit(this.selectedSize);  
-        this.resetTrigger = false;  
+        this.selectedSizeChange.emit(this.selectedSize);
+        this.resetTrigger = false;
     }
 
     updateItemCount() {
@@ -51,6 +50,6 @@ export class MapCreationPageComponent {
 
     handleReset() {
         this.resetTrigger = true; // Trigger the reset in child component
-        setTimeout(() => this.resetTrigger = false, 0); // Reset trigger state after a short delay
+        setTimeout(() => (this.resetTrigger = false), 0); // Reset trigger state after a short delay
     }
 }
