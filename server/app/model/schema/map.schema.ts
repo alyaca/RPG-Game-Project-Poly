@@ -43,6 +43,10 @@ export class Map {
     itemPlacement: number[];
 
     @ApiProperty()
+    @Prop({ required: true })
+    isSelected: boolean;
+
+    @ApiProperty()
     @Prop({ type: Date, required: true })
     lastModification: Date;
 }

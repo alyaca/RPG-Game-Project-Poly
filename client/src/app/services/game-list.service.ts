@@ -23,7 +23,6 @@ export class GameListService {
             map((maps: Game[]) => {
                 return maps.map((game: Game) => ({
                     ...game,
-                    isSelected: false,
                     dimension: `${game.dimension}x${game.dimension}`,
                 }));
             }),

@@ -100,6 +100,7 @@ const getFakeMaps = (count: number): Map[] => {
             tiles: getRandomArray(ARRAY_LENGTH, TILE_COUNT),
             dimension: DIMENSION,
             itemPlacement: getRandomArray(ITEMS_LENGTH, ITEM_PLACEMENT_COUNT),
+            isSelected: false,
             lastModification: new Date(),
         });
     }
