@@ -27,11 +27,9 @@ export class EditorObjectsContainerComponent {
         },
         {
             id: 'item-3',
-            name: 'Boite de Pandora',
-            image: 'assets/images/objects/pandoras-box.jpg',
-            description:
-                'Le joueur équipant cet objet subit -3 attaque immédiatement, cependant, à chaque tour son attribut attaque' +
-                'incrémente de 2 jusqua la fin de la partie',
+            name: 'Sandales ailées',
+            image: 'assets/images/objects/winged-sandals.jpg',
+            description: 'x2 rapidité si les points de vie actuels du jouer est inférieur ou égal à 33% de ses points de vie totaux',
         },
         { id: 'item-4', name: 'Foudre de Zeus', image: 'assets/images/objects/zeus-lightning.jpg', description: 'x1.5 attaque' },
         {
@@ -42,22 +40,22 @@ export class EditorObjectsContainerComponent {
         },
         {
             id: 'item-6',
-            name: 'Lyre de Orpheus',
-            image: 'assets/images/objects/lyre-of-orpheus.jpg',
-            description: 'Modifie le dé du joueur qui équipe cet objet : les valeurs équiprobables possibles sont 1, 2, 3, 5, 5, 7',
+            name: 'kunée',
+            image: 'assets/images/objects/helm-of-darkness.jpg',
+            description: 'vole 1 vie de chaque autre joueur',
         },
         {
             id: 'random-item',
             name: 'Random Item',
-            image: 'assets/images/objects/helm-of-darkness.jpg',
-            description: 'Random item',
+            image: 'assets/images/objects/dice.jpg',
+            description: 'ajoute un item aléatoire',
             count: 2,
         },
         {
             id: 'spawn-point',
             name: 'Point de départ',
-            image: 'assets/images/objects/winged-sandals.jpg',
-            description: 'Spawn point',
+            image: 'assets/images/objects/tree.jpg',
+            description: 'désigne le point de départ du jouer',
             count: 2,
         },
     ]; // temporary data structure

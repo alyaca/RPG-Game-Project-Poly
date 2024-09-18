@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { MapCreationPageComponent } from './map-creation-page.component';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('MapCreationPageComponent', () => {
     let component: MapCreationPageComponent;
@@ -9,6 +11,15 @@ describe('MapCreationPageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [MapCreationPageComponent],
+            providers: [
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        paramMap: of({}),
+                        snapshot: { paramMap: { get: () => 'map' } },
+                    },
+                },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(MapCreationPageComponent);

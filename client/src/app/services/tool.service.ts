@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class ToolService {
     tileIds: string[] = ['water-tile', 'ice-tile', 'wall-tile', 'door-tile'];
     selectedTile: string;
-  
-    constructor() { }
-  
+
     setSelectedTile(tile: string) {
-      this.selectedTile = tile;
+        this.selectedTile = tile;
     }
-  
+
     getSelectedTile() {
-      return this.selectedTile;
+        return this.selectedTile;
     }
 }
 
