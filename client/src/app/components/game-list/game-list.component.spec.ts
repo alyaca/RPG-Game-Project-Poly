@@ -8,14 +8,13 @@ import { GameListComponent } from './game-list.component';
 describe('GameListComponent', () => {
     let component: GameListComponent;
     let fixture: ComponentFixture<GameListComponent>;
-    let gameListService: jasmine.SpyObj<GameListService>;
+    let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let selectedGameSubject: BehaviorSubject<Game | null>;
 
     beforeEach(async () => {
         selectedGameSubject = new BehaviorSubject<Game | null>(null);
 
-        const gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllVisibleMaps', 'selectGame', 'deselectGame']);
-
+        gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllVisibleMaps', 'selectGame', 'deselectGame']);
         gameListServiceSpy.getAllVisibleMaps.and.returnValue(of(mockGames));
         gameListServiceSpy.selectGame.and.callFake((game: Game) => {
             game.isSelected = true;
@@ -23,7 +22,7 @@ describe('GameListComponent', () => {
         gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
-        gameListServiceSpy.selectedGame$ = selectedGameSubject.asObservable(); // Utilise BehaviorSubject
+        gameListServiceSpy.selectedGame$ = selectedGameSubject.asObservable();
 
         await TestBed.configureTestingModule({
             imports: [GameListComponent],
@@ -32,15 +31,7 @@ describe('GameListComponent', () => {
 
         fixture = TestBed.createComponent(GameListComponent);
         component = fixture.componentInstance;
-        gameListService = TestBed.inject(GameListService) as jasmine.SpyObj<GameListService>;
-
         fixture.detectChanges();
-    });
-
-    afterEach(() => {
-        gameListService.getAllVisibleMaps.calls.reset();
-        gameListService.selectGame.calls.reset();
-        gameListService.deselectGame.calls.reset();
     });
 
     it('should create', () => {
@@ -48,9 +39,7 @@ describe('GameListComponent', () => {
     });
 
     it('should get games on initialization', () => {
-        component.ngOnInit();
-
-        expect(gameListService.getAllVisibleMaps).toHaveBeenCalled();
+        expect(gameListServiceSpy.getAllVisibleMaps).toHaveBeenCalled();
         expect(component.games).toEqual(mockGames);
     });
 
@@ -59,7 +48,7 @@ describe('GameListComponent', () => {
 
         component.selectGame(gameToSelect);
 
-        expect(gameListService.selectGame).toHaveBeenCalledWith(gameToSelect, mockGames);
+        expect(gameListServiceSpy.selectGame).toHaveBeenCalledWith(gameToSelect, mockGames);
         expect(gameToSelect.isSelected).toBeTrue();
 
         mockGames.forEach((game) => {
@@ -75,7 +64,7 @@ describe('GameListComponent', () => {
 
         component.selectGame(selectedGame);
 
-        expect(gameListService.deselectGame).toHaveBeenCalledWith(mockGames);
+        expect(gameListServiceSpy.deselectGame).toHaveBeenCalledWith(mockGames);
         mockGames.forEach((game) => {
             expect(game.isSelected).toBeFalse();
         });
@@ -85,7 +74,7 @@ describe('GameListComponent', () => {
         const mockSelectedGame: Game = mockGames[0];
         selectedGameSubject.next(mockSelectedGame);
 
-        component.ngOnInit();
+        fixture.detectChanges(); // Assure-toi que les changements sont détectés
 
         expect(component.gameSelected).toEqual(mockSelectedGame);
     });
