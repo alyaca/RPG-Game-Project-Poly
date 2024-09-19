@@ -1,0 +1,27 @@
+body {
+    background-color: rgba(222, 207, 129, 0.9);
+    font-family: 'Papyrus';
+    font-weight: bold;
+}
+
+.dialog-content {
+    display: grid;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.gameSize {
+    display: flex;
+    justify-content: space-between;
+    width: 60%;
+    margin: 4% 0;
+}
+
+button {
+    margin-right: 8%;
+}
+.options button {
+    margin-top: 15%;
+}
