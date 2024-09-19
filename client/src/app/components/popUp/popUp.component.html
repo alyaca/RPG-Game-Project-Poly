@@ -1,20 +1,20 @@
 <body>
     <div class="dialog-content">
-        <p>{{ data.firstQuestion }}</p>
+        <p>Choisir un mode de jeu:</p>
         <div class="button">
-            <button>{{ data.gameMode[0] }}</button>
-            <button disabled>{{ data.gameMode[1] }}</button>
+            <button>Classique</button>
+            <button disabled>CTF</button>
         </div>
-        <p>{{ data.secondQuestion }}</p>
+        <p>Choisir la taille du jeu:</p>
         <div class="gameSize">
-            <button>{{ data.gameSize[0] }}</button>
-            <button>{{ data.gameSize[1] }}</button>
-            <button>{{ data.gameSize[2] }}</button>
+            <button>10x10</button>
+            <button>15x15</button>
+            <button>20x20</button>
         </div>
 
         <div class="options">
-            <button mat-button (click)="close()">{{ data.option[0] }}</button>
-            <button mat-button (click)="changePage()">{{ data.option[1] }}</button>
+            <button mat-button (click)="close()">Annuler</button>
+            <button mat-button (click)="changePage()">Création</button>
         </div>
     </div>
 </body>
