@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { AttributesService } from '@app/services/attributes.service';
 import { CharacterCreatorComponent } from './character-creator.component';
@@ -9,6 +11,7 @@ describe('CharacterCreatorComponent', () => {
     let fixture: ComponentFixture<CharacterCreatorComponent>;
     let attributesServiceSpy: SpyObj<AttributesService>;
     let routerSpy: jasmine.SpyObj<Router>;
+    //let snackBar: jasmine.SpyObj<MatSnackBarModule>;
 
     beforeEach(async () => {
         attributesServiceSpy = jasmine.createSpyObj('AttributesService', [
@@ -22,8 +25,13 @@ describe('CharacterCreatorComponent', () => {
             'resetAttributes',
         ]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        TestBed.overrideProvider(AttributesService, { useValue: attributesServiceSpy });
-        TestBed.overrideProvider(Router, { useValue: routerSpy });
+        await TestBed.configureTestingModule({
+            imports: [MatSnackBarModule, BrowserAnimationsModule],
+            providers: [
+                { provide: AttributesService, useValue: attributesServiceSpy },
+                { provide: Router, useValue: routerSpy },
+            ],
+        }).compileComponents();
         fixture = TestBed.createComponent(CharacterCreatorComponent);
         component = fixture.componentInstance;
         fixture.autoDetectChanges();
