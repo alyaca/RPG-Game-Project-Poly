@@ -1,0 +1,15 @@
+<div class="game-list">
+    @for (game of games; track game._id) {
+    <div [ngClass]="{ game: true, selected: game.isSelected }" (click)="selectGame(game)">
+        <img class="game-image" src="{{ game.image }}" alt="test" />
+        <div class="info-container">
+            <p class="game-name">{{ game.name }}</p>
+            <p class="game-description">{{ game.description }}</p>
+            <div class="game-info">
+                <p>{{ game.mode }}</p>
+                <p>{{ game.dimension }}</p>
+            </div>
+        </div>
+    </div>
+    }
+</div>
