@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
+import { GameAdminstrationService } from '@app/services/game-adminstration.service';
 import { PopUpComponent } from '../../components/popUp/popUp.component';
 
 // TODO : Avoir un fichier séparé pour les constantes!
@@ -24,10 +25,17 @@ export interface Game {
     imports: [CommonModule, RouterLink],
 })
 export class AdministrationPageComponent {
+    game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
+
+    constructor(
+        public dialog: MatDialog,
+        private gameAdminstrationService: GameAdminstrationService,
+    ) {}
+
     get games(): Game[] {
         return [
             {
-                src: '../../../assets/image/image1.webp',
+                src: '../../../assets/images/tiles/DoorTile-test.jpg',
                 name: ' Game 1',
                 size: 10,
                 description: ' Game description 1',
@@ -36,7 +44,7 @@ export class AdministrationPageComponent {
                 visibility: true,
             },
             {
-                src: '../../../assets/image/image2.webp',
+                src: '../../../assets/images/tiles/GroundTile-test.jpg',
                 name: ' Game 2',
                 size: 13,
                 description: ' Game description 2',
@@ -45,7 +53,7 @@ export class AdministrationPageComponent {
                 visibility: false,
             },
             {
-                src: '../../../assets/image/image3.webp',
+                src: '../../../assets/images/tiles/IceTile-test.jpg',
                 name: ' Game 3',
                 size: 13,
                 description: ' Game description 3',
@@ -54,7 +62,7 @@ export class AdministrationPageComponent {
                 visibility: true,
             },
             {
-                src: '../../../assets/image/image4.webp',
+                src: '../../../assets/images/tiles/WallTile-Test.jpg',
                 name: ' Game 4',
                 size: 13,
                 description: ' Game description 4',
@@ -63,7 +71,7 @@ export class AdministrationPageComponent {
                 visibility: false,
             },
             {
-                src: '../../../assets/image/image4.webp',
+                src: '../../../assets/images/tiles/WaterTile-test.jpg',
                 name: ' Game 5',
                 size: 13,
                 description: ' Game description 5',
@@ -74,52 +82,18 @@ export class AdministrationPageComponent {
         ];
     }
 
-    Game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
-
-    getHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
-        this.Game = game;
+    setHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
+        this.game = game;
     }
-
-    enableButton() {
-        const editButton = document.getElementById('editButton') as HTMLButtonElement;
-        editButton.disabled = false;
-        const deleteButton = document.getElementById('deleteButton') as HTMLButtonElement;
-        deleteButton.disabled = false;
-        console.log('ca rentre dans la fonction');
-    }
-
-    selectedElement: HTMLElement | null = null;
-
-    selectedGame(event: Event): void {
-        if (this.selectedElement) {
-            this.selectedElement.classList.remove('selected');
-        }
-
-        const target = (event.target as HTMLElement).closest('.game');
-        if (target) {
-            this.selectedElement = target as HTMLElement;
-            this.selectedElement.classList.add('selected');
-            this.enableButton();
-        }
-    }
-
-    constructor(public dialog: MatDialog) {}
 
     openPopUp(): void {
         this.dialog.open(PopUpComponent, {
             width: '30%',
             height: '35%',
-            data: {
-                firstQuestion: 'Choisir un mode de jeu:',
-                secondQuestion: 'Choisir la taille du jeu:',
-                gameMode: ['Classique', 'CTF'],
-                gameSize: ['10x10', '15x15', '20x20'],
-                option: ['Annuler', 'Création'],
-            },
         });
     }
 
     gameVisibility(game: { visibility: boolean }) {
-        game.visibility = !game.visibility; //changer une fois qu'on a la database
+        this.gameAdminstrationService.gameVisibility(game);
     }
 }
