@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { WaitingPageComponent } from './waiting-page.component';
 
 describe('WaitingPageComponent', () => {
-  let component: WaitingPageComponent;
-  let fixture: ComponentFixture<WaitingPageComponent>;
+    let component: WaitingPageComponent;
+    let fixture: ComponentFixture<WaitingPageComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [WaitingPageComponent]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [WaitingPageComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(WaitingPageComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(WaitingPageComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
