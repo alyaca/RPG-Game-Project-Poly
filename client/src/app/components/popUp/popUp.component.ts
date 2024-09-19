@@ -17,7 +17,7 @@ export class PopUpComponent {
     }
 
     changePage(): void {
-        this.router.navigate(['/edit']);
+        this.router.navigate(['/edit-map']);
         this.dialogRef.close();
     }
 }

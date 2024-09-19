@@ -39,7 +39,7 @@ describe('PopUpComponent', () => {
 
     it('should navigate to the map creation page and close the dialog when changePage() is called', () => {
         component.changePage();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/edit']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/edit-map']);
         expect(dialogRefSpy.close).toHaveBeenCalled();
     });
 });
