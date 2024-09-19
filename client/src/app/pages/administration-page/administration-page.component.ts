@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
+import { PopUpComponent } from '@app/components/popUp/popUp.component';
 import { GameAdminstrationService } from '@app/services/game-adminstration.service';
-import { PopUpComponent } from '../../components/popUp/popUp.component';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 

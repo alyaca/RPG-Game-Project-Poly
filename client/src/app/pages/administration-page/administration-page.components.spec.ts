@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
+import { PopUpComponent } from '@app/components/popUp/popUp.component';
 import { GameAdminstrationService } from '@app/services/game-adminstration.service';
-import { PopUpComponent } from '../../components/popUp/popUp.component';
 import { AdministrationPageComponent } from './administration-page.component';
 
 describe('AdministrationPageComponent', () => {
