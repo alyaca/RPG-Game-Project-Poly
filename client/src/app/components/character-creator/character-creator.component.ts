@@ -15,18 +15,18 @@ import { AttributesService } from '@app/services/attributes.service';
 export class CharacterCreatorComponent {
     @Output() closeCharactorCreator = new EventEmitter<void>();
     avatars = [
-        { src: '../../../assets/img/characters/Athena.webp', name: 'Athena' },
-        { src: '../../../assets/img/characters/Hera.webp', name: 'Hera' },
+        { src: '../../../assets/img/characters/Hestia.webp', name: 'Hestia' },
         { src: '../../../assets/img/characters/Zeus.webp', name: 'Zues' },
-        { src: '../../../assets/img/characters/Apollo.webp', name: 'Apollo' },
-        { src: '../../../assets/img/characters/Aphrodlte.webp', name: 'Aphrodlte' },
-        { src: '../../../assets/img/characters/Ares.webp', name: 'Ares' },
+        { src: '../../../assets/img/characters/Hera.webp', name: 'Hera' },
+        { src: '../../../assets/img/characters/Poseidon.webp', name: 'Poseidon' },
         { src: '../../../assets/img/characters/Artemis.webp', name: 'Artemis' },
         { src: '../../../assets/img/characters/Demeter.webp', name: 'Demeter' },
-        { src: '../../../assets/img/characters/Hephaestus.webp', name: 'Hephaestus' },
         { src: '../../../assets/img/characters/Hermes.webp', name: 'Hermes' },
-        { src: '../../../assets/img/characters/Hestia.webp', name: 'Hestia' },
-        { src: '../../../assets/img/characters/Poseidon.webp', name: 'Poseidon' },
+        { src: '../../../assets/img/characters/Athena.webp', name: 'Athena' },
+        { src: '../../../assets/img/characters/Hephaestus.webp', name: 'Hephaestus' },
+        { src: '../../../assets/img/characters/Apollo.webp', name: 'Apollo' },
+        { src: '../../../assets/img/characters/Ares.webp', name: 'Ares' },
+        { src: '../../../assets/img/characters/Aphrodite.webp', name: 'Aphrodlte' },
     ];
     clickedAvatar: { src: string; name: string } = this.avatars[0];
     constructor(
