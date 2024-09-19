@@ -11,7 +11,6 @@ describe('CharacterCreatorComponent', () => {
     let fixture: ComponentFixture<CharacterCreatorComponent>;
     let attributesServiceSpy: SpyObj<AttributesService>;
     let routerSpy: jasmine.SpyObj<Router>;
-    //let snackBar: jasmine.SpyObj<MatSnackBarModule>;
 
     beforeEach(async () => {
         attributesServiceSpy = jasmine.createSpyObj('AttributesService', [
@@ -71,7 +70,7 @@ describe('CharacterCreatorComponent', () => {
         attributesServiceSpy.saveAttributesValue.and.returnValue(true);
         component.saveChoices();
         expect(attributesServiceSpy.saveAttributesValue).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page']);
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
     });
 

@@ -4,8 +4,12 @@
         <hr class="line-separator" />
         <app-game-list></app-game-list>
         <div class="button-group">
+            @if(!isComponentVisible){
             <p class="button" routerLink="/">Retour</p>
-            <p class="button">Créer</p>
+            <p class="button" (click)="showComponent()">Créer</p>
+            } @if (isComponentVisible) {
+            <app-character-creator (closeCharactorCreator)="hideComponent()"></app-character-creator>
+            }
         </div>
     </div>
 </body>

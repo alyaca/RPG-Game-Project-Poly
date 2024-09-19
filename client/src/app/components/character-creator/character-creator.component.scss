@@ -6,7 +6,10 @@
     border-bottom: 8px black;
     border-right: 8px black;
     border-radius: 5%;
-    background-image: linear-gradient(to top, rgb(18, 18, 17),rgb(40, 36, 36) 50%, #514c3e);
+    background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
+    position: absolute;
+    bottom: 10%;
+    left: 10%;
 }
 
 .button-container {
@@ -28,11 +31,11 @@
     color: white;
     font-family: 'papyrus';
     font-size: 20px;
-    flex: 1; /* Allow buttons to expand and fill the space */
+    flex: 1;
 }
 
-.button-container button:hover{
-    background-image: linear-gradient(to left,rgba(0, 0, 0, 0), rgba(236, 231, 131, 0.9) 30%, rgba(250, 235, 119, 0.8) 70%, rgba(0, 0, 0, 0) 100%);
+.button-container button:hover {
+    background-image: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(236, 231, 131, 0.9) 30%, rgba(250, 235, 119, 0.8) 70%, rgba(0, 0, 0, 0) 100%);
     border: none;
     color: black;
     font-family: 'papyrus';
@@ -58,8 +61,6 @@
     height: 100%;
     justify-content: center;
     align-items: center;
-    // border: 2px solid #dfad6b;
-    // border-radius: 5%;
 }
 
 .attributes-box {
@@ -94,22 +95,20 @@
     flex-wrap: wrap;
     position: relative;
     max-width: 100%;
-    // height: 100%;
-    margin-top: 0%; 
-    margin-left: 5%; 
+    margin-top: 0%;
+    margin-left: 5%;
 }
 
 .icon {
-    width: 21%; 
-    height: 21%; 
-    border-radius: 20%; 
+    width: 20%;
+    border-radius: 20%;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 3%;
+    margin-top: 1%;
     margin-bottom: 1%;
-    margin-left: 3%;
+    margin-left: 4%;
     border-bottom: 0.5rem solid black;
     border-right: 0.5rem solid black;
     position: relative;
@@ -137,7 +136,7 @@
 .initial-value .tooltiptext {
     visibility: hidden;
     width: 120px;
-    background-image: linear-gradient(to left, rgb(85, 88, 44), rgb(255, 249, 144)30%, rgb(255, 252, 186));
+    background-image: linear-gradient(to left, rgb(85, 88, 44), rgb(255, 249, 144) 30%, rgb(255, 252, 186));
     color: black;
     text-align: center;
     border-radius: 5px;
@@ -177,9 +176,9 @@
     max-height: 10%;
 }
 
-.icon:hover{
+.icon:hover {
     border-right: 0.5rem solid black;
-    border-bottom: none; 
+    border-bottom: none;
     transform: translateY(0.5rem);
 }
 
