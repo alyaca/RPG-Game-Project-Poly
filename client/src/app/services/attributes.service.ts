@@ -75,8 +75,8 @@ export class AttributesService {
         const missingAttributs = this.attributes.filter((attr) => attr.value === this.defaultAttribute).length;
         if (missingAttributs > 1) return false;
         if (foundAttribute4 && foundAttribute6) {
-            foundAttribute4.value = Math.floor(Math.random() * Number(this.defaultAttribute) + 1).toString();
-            foundAttribute6.value = Math.floor(Math.random() * Number(this.highAttribute) + 1).toString();
+            foundAttribute4.value = Math.floor(4 + Math.random() * Number(this.defaultAttribute) + 1).toString();
+            foundAttribute6.value = Math.floor(4 + Math.random() * Number(this.highAttribute) + 1).toString();
             localStorage.setItem('attributes', JSON.stringify(this.attributes));
             return true;
         } else {

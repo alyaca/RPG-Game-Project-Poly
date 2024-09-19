@@ -12,7 +12,6 @@ describe('MapModule', () => {
     let mongoServer: MongoMemoryServer;
 
     beforeAll(async () => {
-        // Create an in-memory MongoDB server
         mongoServer = await MongoMemoryServer.create();
 
         module = await Test.createTestingModule({
@@ -26,13 +25,10 @@ describe('MapModule', () => {
             ],
         }).compile();
 
-        // Get the service instance
         service = module.get<MapService>(MapService);
-        // Get the controller instance
         controller = module.get<MapController>(MapController);
     });
 
-    // ensure that we clean ressources after the test
     afterAll(async () => {
         await module.close();
         await mongoServer.stop();

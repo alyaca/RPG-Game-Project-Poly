@@ -26,7 +26,7 @@ export class CharacterCreatorComponent {
         { src: '../../../assets/img/characters/Hephaestus.webp', name: 'Hephaestus' },
         { src: '../../../assets/img/characters/Apollo.webp', name: 'Apollo' },
         { src: '../../../assets/img/characters/Ares.webp', name: 'Ares' },
-        { src: '../../../assets/img/characters/Aphrodite.webp', name: 'Aphrodlte' },
+        { src: '../../../assets/img/characters/Aphrodite.webp', name: 'Aphrodlite' },
     ];
     clickedAvatar: { src: string; name: string } = this.avatars[0];
     constructor(
@@ -66,7 +66,7 @@ export class CharacterCreatorComponent {
 
     saveChoices() {
         if (this.attributesService.saveAttributesValue()) {
-            this.router.navigate(['/waiting']);
+            this.router.navigate(['/waiting-page']);
             this.attributesService.resetAttributes();
         } else {
             this.snackBar.open('Veuillez sélectionner les valeurs des attributs souhaités', 'Fermer', {

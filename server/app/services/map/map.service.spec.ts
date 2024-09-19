@@ -13,11 +13,9 @@ describe('MapService', () => {
     let connection: Connection;
 
     beforeAll(async () => {
-        // Set up MongoMemoryServer
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
 
-        // Create a testing module with MongooseModule
         const module: TestingModule = await Test.createTestingModule({
             imports: [
                 MongooseModule.forRootAsync({
@@ -35,13 +33,11 @@ describe('MapService', () => {
         connection = await module.get(getConnectionToken());
     });
 
-    // Deletes values from database after each test
     afterEach(async () => {
         await mapModel.deleteMany({});
     });
 
     afterAll(async () => {
-        // Clean up
         await connection.close();
         await mongoServer.stop({ doCleanup: true });
     });
