@@ -2,16 +2,18 @@
     <div class="choice-info">
         <div class="choices">
             <div class="icons-container">
-                <div class="icon" *ngFor="let avatar of avatars">
+                @for( avatar of avatars; track avatar){
+                <div class="icon">
                     <img [src]="avatar.src" (click)="getClickedImage(avatar)" />
                 </div>
+                }
             </div>
         </div>
         <div class="character-info">
             <div class="image-wrapper">
-                <img class="decoration" [src]="'assets/img/FeuillesG.webp'" />
+                <img class="decoration" [src]="'assets/img/leaves/leafL.webp'" />
                 <img [src]="clickedAvatar.src" />
-                <img class="decoration" [src]="'assets/img/FeuillesD.webp'" />
+                <img class="decoration" [src]="'assets/img/leaves/leafR.webp'" />
             </div>
             <div class="attributes-box">
                 <div class="arrows-container">

@@ -67,10 +67,16 @@ describe('CharacterCreatorComponent', () => {
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
     });
 
-    it('should emit close event and call resetAttributes when closeComponent is called', () => {
-        spyOn(component.closeComponentEvent, 'emit');
+    it('should not emit closeCharactorCreator event if saveAttributesValue return false', () => {
+        attributesServiceSpy.saveAttributesValue.and.returnValue(false);
+        component.saveChoices();
+        expect(attributesServiceSpy.resetAttributes).toHaveBeenCalledTimes(0);
+    });
+
+    it('should emit closeCharactorCreator event and call resetAttributes when closeComponent is called', () => {
+        spyOn(component.closeCharactorCreator, 'emit');
         component.closeComponent();
-        expect(component.closeComponentEvent.emit).toHaveBeenCalled();
+        expect(component.closeCharactorCreator.emit).toHaveBeenCalled();
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
     });
 });

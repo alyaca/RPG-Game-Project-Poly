@@ -13,35 +13,32 @@ import { AttributesService } from '@app/services/attributes.service';
     styleUrl: './character-creator.component.scss',
 })
 export class CharacterCreatorComponent {
-    @Output() closeComponentEvent = new EventEmitter<void>();
-    closeComponent() {
-        this.closeComponentEvent.emit();
-        this.attributesService.resetAttributes();
-    }
-
+    @Output() closeCharactorCreator = new EventEmitter<void>();
     avatars = [
-        // TODO: Add the other avatars
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
-        { src: '../../../assets/characters/Athena.jpg', name: 'Athena' },
-        { src: '../../../assets/characters/Hera.jpg', name: 'Hera' },
-        { src: '../../../assets/characters/Zeus.jpg', name: 'Zues' },
+        { src: '../../../assets/img/characters/Athena.webp', name: 'Athena' },
+        { src: '../../../assets/img/characters/Hera.webp', name: 'Hera' },
+        { src: '../../../assets/img/characters/Zeus.webp', name: 'Zues' },
+        { src: '../../../assets/img/characters/Apollo.webp', name: 'Apollo' },
+        { src: '../../../assets/img/characters/Aphrodlte.webp', name: 'Aphrodlte' },
+        { src: '../../../assets/img/characters/Ares.webp', name: 'Ares' },
+        { src: '../../../assets/img/characters/Artemis.webp', name: 'Artemis' },
+        { src: '../../../assets/img/characters/Demeter.webp', name: 'Demeter' },
+        { src: '../../../assets/img/characters/Hephaestus.webp', name: 'Hephaestus' },
+        { src: '../../../assets/img/characters/Hermes.webp', name: 'Hermes' },
+        { src: '../../../assets/img/characters/Hestia.webp', name: 'Hestia' },
+        { src: '../../../assets/img/characters/Poseidon.webp', name: 'Poseidon' },
     ];
-
+    clickedAvatar: { src: string; name: string } = this.avatars[0];
     constructor(
         private attributesService: AttributesService,
         private router: Router,
         private snackBar: MatSnackBar,
     ) {}
 
-    clickedAvatar: { src: string; name: string } = this.avatars[0];
+    closeComponent() {
+        this.closeCharactorCreator.emit();
+        this.attributesService.resetAttributes();
+    }
 
     getClickedImage(avatar: { src: string; name: string }) {
         this.clickedAvatar = avatar;
