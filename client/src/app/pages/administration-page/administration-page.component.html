@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <header>
-        <img src="../../../assets/image/Age_Of_Mythology.webp" alt="Logo Projet" />
+        <img src="../../../assets/images/logo/Age_Of_Mythology.png" alt="Logo Projet" />
         <div class="pageTitle">Administration</div>
     </header>
 
@@ -13,29 +13,39 @@
                 </div>
                 <div class="gameList">
                     @for (game of games; track game.name) {
-                    <div class="game" (mouseenter)="getHoveredGame(game)" (click)="selectedGame($event)">
+                    <div class="game" (mouseenter)="setHoveredGame(game)">
                         <img src="{{ game.src }}" />
-                        <div class="info-container">
-                            <div class="gameName">
-                                <p>{{ game.name }}</p>
+                        <div class="gameInfo">
+                            <div class="info-container">
+                                <div class="gameName">
+                                    <p>{{ game.name }}</p>
+                                </div>
+                                <div class="gameDescription">
+                                    <p>{{ game.size }}</p>
+                                    <p>{{ game.mode }}</p>
+                                    <p>{{ game.date }}</p>
+                                </div>
                             </div>
-                            <div class="gameDescription">
-                                <p>{{ game.size }}</p>
-                                <p>{{ game.mode }}</p>
-                                <p>{{ game.date }}</p>
+                            <div class="options">
                                 <div id="visibility" (click)="gameVisibility(game)">
                                     <button>
                                         <img
                                             [src]="
                                                 game.visibility
-                                                    ? '../../../assets/image/visible icone.png'
-                                                    : '../../../assets/image/not visible icone.png'
+                                                    ? '../../../assets/images/icones/visible icone.png'
+                                                    : '../../../assets/images/icones/not visible icone.png'
                                             "
                                             alt="visibility"
                                             style="width: 25px; height: 25px"
                                         />
                                     </button>
                                 </div>
+                                <button id="editButton" disabled routerLink="/edit">
+                                    <img src="../../../assets/images/icones/modify.png" alt="modifier" style="width: 20px; height: 20px" />
+                                </button>
+                                <button id="deleteButton" disabled>
+                                    <img src="../../../assets/images/icones/trash.png" alt="Supprimer" style="width: 20px; height: 20px" />
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -43,35 +53,24 @@
                 </div>
             </div>
             <div class="descriptionContainer">
+                <div class="creationButton">
+                    <button class="button" mat-raised-button (click)="openPopUp()">Création d'un nouveau jeu</button>
+                </div>
                 <div id="descriptionCard">
-                    <img [src]="Game.src" />
+                    <img [src]="game.src" />
                     <div class="descriptionBox">
-                        <p>{{ Game.description }}</p>
+                        <p>{{ game.description }}</p>
                     </div>
                 </div>
 
                 <div class="title">
                     <p>Description du jeu</p>
                 </div>
-                <div id="buttonContainer">
-                    <button id="editButton" disabled routerLink="/edit">
-                        Modification de jeu
-                        <img src="../../../assets/image/modifier-le-texte.png" alt="modifier" style="width: 20px; height: 20px" />
-                    </button>
-                    <button id="deleteButton" disabled>
-                        Supprimer Jeu
-                        <img src="../../../assets/image/poubelle-de-recyclage.png" alt="Supprimer" style="width: 20px; height: 20px" />
-                    </button>
-                </div>
-            </div>
-            <div class="creationButton">
-                <button class="button" mat-raised-button (click)="openPopUp()">Création de jeu</button>
-                <!--changer de place -->
             </div>
         </div>
 
         <footer>
-            <button routerLink="/home">Retour</button>
+            <button class="button" routerLink="/home">Retour</button>
         </footer>
     </body>
 </html>
