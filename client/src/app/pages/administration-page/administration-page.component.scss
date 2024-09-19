@@ -70,7 +70,6 @@ header img {
 }
 
 .game:hover {
-    //border: none;
     transition: 0.3s;
     box-shadow: 6px 6px 0 rgba(222, 207, 129, 0.9);
 }
@@ -106,8 +105,16 @@ body img {
     font-weight: bold;
 }
 
+.gameInfo {
+    display: flex;
+}
+
 #visibility {
-    padding-left: 15%;
+    margin-bottom: 0%;
+}
+
+button {
+    cursor: pointer;
 }
 
 #visibility button {
@@ -120,43 +127,30 @@ body img {
     justify-content: center;
 }
 
-button {
-    margin-right: 5%;
+.options {
+    display: grid;
+    padding-left: 130%;
 }
 
+.options button {
+    background: transparent;
+    border: none;
+}
 .descriptionContainer {
+    padding-top: 3%;
     display: grid;
     height: 50%;
-    width: 35%;
+    width: 50%;
     align-items: center;
     justify-content: center;
     align-content: center;
     justify-items: center;
-    margin-top: 7%;
 }
 
 .creationButton {
-    text-align: left;
+    text-align: center;
     height: 15vh;
-    width: 40vh;
-}
-
-.creationButton button {
-    width: 50%;
-}
-.button {
-    height: 70%;
-    width: 30%;
-    background-color: rgba(222, 207, 129, 0.9);
-}
-
-.button:hover {
-    background-color: rgba(222, 207, 129, 0.9);
-}
-
-.button:hover {
-    background: linear-gradient(to right, rgba(222, 207, 129, 0.9), rgba(0, 0, 0, 0));
-    border-radius: 5px;
+    width: 60vh;
 }
 
 #descriptionCard {
@@ -193,6 +187,46 @@ button {
     margin: 8%;
 }
 
-.selected {
-    border: 2px solid yellow;
+footer button {
+    text-align: left;
+    margin-left: 2em;
+    margin-top: 1%;
+    width: 20%;
+}
+
+.button {
+    border: none;
+    margin: 0;
+    padding: 4% 7% 2% 7%;
+    text-align: center;
+    color: rgb(255, 255, 255);
+    font-size: 1.4vw;
+    font-family: 'papyrus';
+    font-weight: bold;
+    width: 70%;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.button::after {
+    background: transparent;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.1s ease;
+    z-index: -1;
+    color: black;
+}
+
+.button:hover {
+    color: black;
+}
+
+.button:hover::after {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(222, 207, 129, 1) 30%, rgba(163, 147, 71, 1) 70%, rgba(0, 0, 0, 0) 100%);
 }
