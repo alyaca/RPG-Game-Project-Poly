@@ -3,6 +3,7 @@ import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { Routes, provideRouter } from '@angular/router';
+import { AdministrationPageComponent } from '@app/pages/administration-page/administration-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreateGamePageComponent } from '@app/pages/create-game-page/create-game-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
@@ -20,6 +21,8 @@ const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'game-creation', component: CreateGamePageComponent },
     { path: 'home', component: MainPageComponent },
+    { path: 'admin', component: AdministrationPageComponent },
+    { path: 'edit-map', component: MapCreationPageComponent },
     { path: 'game', component: GamePageComponent },
     { path: 'map', component: MapCreationPageComponent },
     { path: 'material', component: MaterialPageComponent },
