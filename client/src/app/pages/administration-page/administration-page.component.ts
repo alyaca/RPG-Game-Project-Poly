@@ -77,7 +77,7 @@ export class AdministrationPageComponent {
                 date: '11/09/2024',
                 visibility: true,
             },
-        ]; //Temporary data for testing
+        ]; // Temporary data for testing
     }
 
     setHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
@@ -87,7 +87,7 @@ export class AdministrationPageComponent {
     openPopUp(): void {
         this.dialog.open(PopUpComponent, {
             width: '30%',
-            height: '35%', // TODO: Les constantes seront mises dans un fichier séparé prochainement
+            height: '35%', // TODO: The constants will be moved to a separate file eventually
         });
     }
 
