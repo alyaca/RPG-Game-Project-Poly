@@ -1,0 +1,54 @@
+<div class="background">
+    <img class="game-logo" src="/assets/images/logo/Age_Of_Mythology.png" alt="Logo Projet" />
+    <div class="page-element">
+        <div class="left-container">
+            <div class="map-input">
+                <label for="mapName">Nom de la carte : </label>
+                <input class="input-box" id="mapName" type="text" minlength="3" maxlength="30" placeholder="Entrez le nom de votre carte" />
+            </div>
+            <div class="map-input">
+                <label for="mapDescription">Description de la carte : </label>
+                <textarea
+                    class="input-box map-description-box"
+                    id="mapDescription"
+                    type="text"
+                    minlength="10"
+                    maxlength="256"
+                    placeholder="Entrez la description de votre carte"
+                ></textarea>
+            </div>
+
+            <div class="buttons-container">
+                <button class="button" id="save-button">Sauvegarder</button>
+                <button class="button" id="reset-button">Réinitialiser</button>
+                <button class="button" id="return-button">Retour</button>
+            </div>
+        </div>
+        <div class="grid-element" id="game-grid-and-toolbar-container">
+            <div id="game-grid-background-gradient">
+                <div class="grid-element" id="game-grid-container">
+                    <app-edition-game-grid></app-edition-game-grid>
+                </div>
+            </div>
+            <div class="grid-element" id="toolbar-container">
+                <app-edition-toolbar></app-edition-toolbar>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="map-sizes">
+                <span class="title">Taille de la carte </span>
+                <mat-button-toggle-group
+                    class="switch-group"
+                    [(value)]="selectedSize"
+                    (change)="onSelectionChange($event)"
+                    hideSingleSelectionIndicator
+                >
+                    <mat-button-toggle class="switch" value="small">Petite</mat-button-toggle>
+                    <mat-button-toggle class="switch" value="medium">Moyenne</mat-button-toggle>
+                    <mat-button-toggle class="switch" value="large">Grande</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
+            <app-editor-objects-container [randomItemCount]="randomItemCount" [spawnPointCount]="spawnPointCount"> </app-editor-objects-container>
+        </div>
+    </div>
+</div>
