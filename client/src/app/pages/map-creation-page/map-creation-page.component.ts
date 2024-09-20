@@ -19,7 +19,7 @@ export class MapCreationPageComponent {
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     selectedSize: string = 'small';
 
-    onSelectionChange(event: any) {
+    onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
         this.updateItemCount();
     }

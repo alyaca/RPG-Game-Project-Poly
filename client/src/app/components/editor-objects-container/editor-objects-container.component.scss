@@ -15,6 +15,7 @@
     border: none;
     border-bottom: 0.25rem solid black;
     border-right: 0.25rem solid black;
+    z-index: 1;
 }
 
 .image-container img:hover {
@@ -52,6 +53,7 @@
     width: 28%;
     height: 28%;
     font-weight: bold;
+    z-index: 2;
 }
 
 .object-description {
@@ -105,4 +107,8 @@
     font-size: 26px;
     font-weight: bold;
     margin: 10px;
+}
+
+.title:hover {
+    cursor: default;
 }
