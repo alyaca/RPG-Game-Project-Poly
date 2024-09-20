@@ -49,7 +49,7 @@ export class MapCreationPageComponent {
     }
 
     handleReset() {
-        this.resetTrigger = true; 
-        setTimeout(() => (this.resetTrigger = false), 0); 
+        this.resetTrigger = true;
+        setTimeout(() => (this.resetTrigger = false), 0);
     }
 }

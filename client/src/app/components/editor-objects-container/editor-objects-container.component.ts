@@ -60,5 +60,5 @@ export class EditorObjectsContainerComponent {
             description: 'désigne le point de départ du jouer',
             count: 2,
         },
-    ]; 
+    ];
 }
