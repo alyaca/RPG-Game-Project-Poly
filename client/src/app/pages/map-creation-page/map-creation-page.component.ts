@@ -49,7 +49,7 @@ export class MapCreationPageComponent {
     }
 
     handleReset() {
-        this.resetTrigger = true; // Trigger the reset in child component
-        setTimeout(() => (this.resetTrigger = false), 0); // Reset trigger state after a short delay
+        this.resetTrigger = true; 
+        setTimeout(() => (this.resetTrigger = false), 0); 
     }
 }

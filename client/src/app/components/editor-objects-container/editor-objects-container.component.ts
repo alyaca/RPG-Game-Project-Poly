@@ -12,6 +12,8 @@ import { RouterLink } from '@angular/router';
 export class EditorObjectsContainerComponent {
     @Input() randomItemCount: number = 0;
     @Input() spawnPointCount: number = 0;
+
+    // temporary data structure
     gameObjects = [
         {
             id: 'item-1',
@@ -58,5 +60,5 @@ export class EditorObjectsContainerComponent {
             description: 'désigne le point de départ du jouer',
             count: 2,
         },
-    ]; // temporary data structure
+    ]; 
 }
