@@ -1,6 +1,6 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { SIZE_SMALL_MAP } from '@app/constants';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { ToolService } from '@app/services/tool.service';
+import { GameCreationService } from '../../services/game-creation.service';
 
 enum TileType {
     Ground = 1,
@@ -18,29 +18,35 @@ enum TileType {
     templateUrl: './edition-game-grid.component.html',
     styleUrl: './edition-game-grid.component.scss',
 })
-export class EditionGameGridComponent implements OnChanges, OnDestroy {
-    @Input() selectedSize: string;
+export class EditionGameGridComponent implements OnChanges, OnDestroy, OnInit {
+    @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     gridArray: number[][];
-    height: number = SIZE_SMALL_MAP;
-    width: number = SIZE_SMALL_MAP;
+    height: number;
+    width: number;
 
     selectedRow: number = 0;
     selectedCol: number = 0;
 
     isMouseDown: boolean = false;
 
-    constructor(private toolService: ToolService) {}
+    constructor(
+        private toolService: ToolService,
+        private gameCreationService: GameCreationService,
+    ) {}
 
     get selectedTile() {
         return this.toolService.getSelectedTile();
     }
+    ngOnInit() {
+        this.gameCreationService.selectedSize$.subscribe((size) => {
+            this.selectedSize = size;
+        });
+        this.updateDimensions();
+        this.gridArray = this.createNewMap();
+    }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['selectedSize']) {
-            this.updateDimensions();
-            this.gridArray = this.createNewMap();
-        }
         if (changes['resetTrigger'] && this.resetTrigger) {
             this.resetGrid();
         }

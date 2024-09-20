@@ -1,8 +1,8 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { GameCreationService } from '../../services/game-creation.service';
 
 @Component({
     selector: 'app-pop-up',
@@ -19,21 +19,12 @@ export class PopUpComponent {
     constructor(
         public dialogRef: MatDialogRef<PopUpComponent>,
         private router: Router,
+        private gameCreationService: GameCreationService,
     ) {}
-
-    /*ngOnChanges(changes: SimpleChanges) {
-        if (changes['selectedSize']) {
-            this.determineMapSize();
-            this.gridArray = this.createNewMap();
-        }
-        if (changes['resetTrigger'] && this.resetTrigger) {
-            this.resetGrid();
-        }
-    }*/
 
     selectSize(size: string): void {
         this.selectedSize = size;
-        console.log(size);
+        this.gameCreationService.setSelectedSize(size);
     }
 
     selectMode(mode: string): void {
@@ -46,7 +37,7 @@ export class PopUpComponent {
     }
 
     changePage(): void {
-        this.router.navigate(['/edit-map'], { queryParams: { size: this.selectSize, mode: this.selectMode } });
+        this.router.navigate(['/edit-map']);
         this.dialogRef.close();
     }
 }
