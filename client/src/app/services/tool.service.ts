@@ -8,7 +8,7 @@ export class ToolService {
     selectedTile: string;
 
     setSelectedTile(tile: string) {
-        this.selectedTile = this.selectedTile !== tile ? tile : "";
+        this.selectedTile = this.selectedTile !== tile ? tile : '';
     }
 
     getSelectedTile() {
