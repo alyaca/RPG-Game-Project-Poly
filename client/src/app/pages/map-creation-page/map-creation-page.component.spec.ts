@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterModule } from '@angular/router';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { MapCreationPageComponent } from './map-creation-page.component';
 
@@ -8,7 +9,7 @@ describe('MapCreationPageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [MapCreationPageComponent],
+            imports: [MapCreationPageComponent, RouterModule.forRoot([])],
         }).compileComponents();
 
         fixture = TestBed.createComponent(MapCreationPageComponent);

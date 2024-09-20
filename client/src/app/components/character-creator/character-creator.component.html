@@ -1,0 +1,64 @@
+<div class="popup">
+    <div class="choice-info">
+        <div class="choices">
+            <div class="icons-container">
+                @for( avatar of avatars; track avatar){
+                <div class="icon">
+                    <img [src]="avatar.src" (click)="getClickedImage(avatar)" />
+                </div>
+                }
+            </div>
+        </div>
+        <div class="character-info">
+            <div class="image-wrapper">
+                <img class="decoration" [src]="'assets/img/leaves/leafL.webp'" />
+                <img class="selected-avatar" [src]="clickedAvatar.src" />
+                <img class="decoration" [src]="'assets/img/leaves/leafR.webp'" />
+            </div>
+            <div class="attributes-box">
+                <div class="arrows-container">
+                    <p class="attribute">Vie</p>
+                    <div class="initial-value">
+                        {{ getAttributsValue('health') }}
+                        <div class="tooltiptext">Augmentez la valeur de l'attribut vie ou rapidité de +2</div>
+                    </div>
+                    <button (click)="addHealth()">+2</button>
+                </div>
+                <div class="arrows-container">
+                    <p class="attribute">Rapidité</p>
+                    <div class="initial-value">
+                        {{ getAttributsValue('speed') }}
+                        <div class="tooltiptext">Augmentez la valeur de l'attribut vie ou rapidité de +2</div>
+                    </div>
+                    <button (click)="addspeed()">+2</button>
+                </div>
+                <div class="arrows-container">
+                    <p class="attribute">Attaque</p>
+                    <div class="initial-value">
+                        {{ getAttributsValue('attack') }}
+                        <div class="tooltiptext">
+                            Choisissez un des attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces (D6) ou à 4 faces (D4)
+                        </div>
+                    </div>
+                    <button (click)="setAttack('1-4')">D4</button>
+                    <button (click)="setAttack('1-6')">D6</button>
+                </div>
+                <div class="arrows-container">
+                    <p class="attribute">Defense</p>
+                    <div class="initial-value">
+                        {{ getAttributsValue('defense') }}
+                        <div class="tooltiptext">
+                            Choisissez un des attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces (D6) ou à 4 faces (D4)
+                        </div>
+                    </div>
+                    <button (click)="setDefense('1-4')">D4</button>
+                    <button (click)="setDefense('1-6')">D6</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="button-container">
+        <button (click)="closeComponent()">quitter</button>
+        <button (click)="saveChoices()">confirmer</button>
+    </div>
+</div>
