@@ -2,21 +2,14 @@
     <span class="title">Objets</span>
     <div class="object-grid-container">
         <div class="objects">
-            @for (item of gameObjects; track item.id) {
-            <div class="object">
-                <div class="image-container" id="{{ item.id }}">
-                    @if(item.id === 'random-item') {
-                    <div class="object-count" id="random-item">{{ randomItemCount }}</div>
-                    } @if(item.id === 'spawn-point') {
-                    <div class="object-count">{{ spawnPointCount }}</div>
-                    }
-                    <img [src]="item.image" alt="Image" />
-                </div>
-                <div class="object-description-container">
-                    <p class="object-name">{{ item?.name }}</p>
-                    <p class="object-description">{{ item.description }}</p>
-                </div>
-            </div>
+            @for (item of objects; track item.id) {
+            <app-game-object
+                [id]="item.id"
+                [imageUrl]="item.image"
+                [name]="item.name"
+                [description]="item.description"
+                [count]="item.count"
+            ></app-game-object>
             }
         </div>
     </div>

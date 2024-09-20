@@ -1,0 +1,12 @@
+<div class="object">
+    <div class="image-container" id="{{ id }}">
+        @if(id === 'spawn-point' || id === 'random-item') {
+        <div class="object-count" id="count">{{ count }}</div>
+        }
+        <img [src]="imageUrl" alt="{{ name }}" />
+    </div>
+    <div class="object-description-container">
+        <p class="object-name">{{ name }}</p>
+        <p class="object-description">{{ description }}</p>
+    </div>
+</div>
