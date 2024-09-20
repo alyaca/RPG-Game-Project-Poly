@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
-import { MapCreationPageComponent } from './map-creation-page.component';
 import { ActivatedRoute } from '@angular/router';
+import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { of } from 'rxjs';
+import { MapCreationPageComponent } from './map-creation-page.component';
 
 describe('MapCreationPageComponent', () => {
     let component: MapCreationPageComponent;
