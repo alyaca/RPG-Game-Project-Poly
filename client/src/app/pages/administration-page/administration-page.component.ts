@@ -33,7 +33,7 @@ export class AdministrationPageComponent {
     get games(): Game[] {
         return [
             {
-                src: '/assets/images/tiles/DoorTile-test.jpg',
+                src: '/assets/images/map/sample-map.jpg',
                 name: ' Game 1',
                 size: 10,
                 description: ' Game description 1',
@@ -42,7 +42,7 @@ export class AdministrationPageComponent {
                 visibility: true,
             },
             {
-                src: '/assets/images/tiles/GroundTile-test.jpg',
+                src: '/assets/images/map/sample-map.jpg',
                 name: ' Game 2',
                 size: 13,
                 description: ' Game description 2',
@@ -51,7 +51,7 @@ export class AdministrationPageComponent {
                 visibility: false,
             },
             {
-                src: '/assets/images/tiles/IceTile-test.jpg',
+                src: '/assets/images/map/sample-map.jpg',
                 name: ' Game 3',
                 size: 13,
                 description: ' Game description 3',
@@ -60,7 +60,7 @@ export class AdministrationPageComponent {
                 visibility: true,
             },
             {
-                src: '/assets/images/tiles/WallTile-Test.jpg',
+                src: '/assets/images/map/sample-map.jpg',
                 name: ' Game 4',
                 size: 13,
                 description: ' Game description 4',
@@ -69,7 +69,7 @@ export class AdministrationPageComponent {
                 visibility: false,
             },
             {
-                src: '/assets/images/tiles/WaterTile-test.jpg',
+                src: '/assets/images/map/sample-map.jpg',
                 name: ' Game 5',
                 size: 13,
                 description: ' Game description 5',

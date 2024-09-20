@@ -64,17 +64,17 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     getTileImage(value: number): string {
         switch (value) {
             case TileType.Ground:
-                return '/assets/images/tiles/grass3.jpg';
+                return '/assets/images/tiles/grass.jpg';
             case TileType.Ice:
-                return '/assets/images/tiles/ice2.jpg';
+                return '/assets/images/tiles/ice.jpg';
             case TileType.Wall:
-                return '/assets/images/tiles/wall3.jpg';
+                return '/assets/images/tiles/wall.jpg';
             case TileType.Water:
-                return '/assets/images/tiles/water3.jpg';
+                return '/assets/images/tiles/water.jpg';
             case TileType.ClosedDoor:
-                return '/assets/images/tiles/closed-door3.jpg';
+                return '/assets/images/tiles/closed-door.jpg';
             case TileType.OpenDoor:
-                return '/assets/images/tiles/open-door3.jpg';
+                return '/assets/images/tiles/open-door.jpg';
             default:
                 return '';
         }
