@@ -44,7 +44,7 @@ describe('GameListComponent', () => {
     });
 
     it('should select a game and deselect others', () => {
-        const gameToSelect: Game = mockGames[0];
+        const gameToSelect: Game = { ...mockGames[0] };
 
         component.selectGame(gameToSelect);
 

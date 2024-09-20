@@ -9,7 +9,7 @@
     border: none;
     border-bottom: 3px solid rgb(157, 157, 157);
     border-right: 2px solid rgb(157, 157, 157);
-    color:white;
+    color: white;
     background: linear-gradient(to right, rgb(30, 30, 30), rgb(59, 59, 59) 35%, rgb(66, 66, 66) 65%, rgb(30, 30, 30));
 }
 
@@ -20,7 +20,7 @@ button {
     height: 2.25rem;
 }
 
-button:hover{
+button.inactive:hover {
     transform: translateY(2px);
     border: none;
     background: linear-gradient(to right, rgb(168, 168, 168), rgb(86, 86, 86));

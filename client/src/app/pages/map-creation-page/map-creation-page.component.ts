@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterLink } from '@angular/router';
@@ -15,13 +15,17 @@ import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@ap
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
 export class MapCreationPageComponent {
+    @Input() selectedSize: string = 'small';
+    @Output() selectedSizeChange = new EventEmitter<string>();
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
-    selectedSize: string = 'small';
+    resetTrigger: boolean = false;
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
         this.updateItemCount();
+        this.selectedSizeChange.emit(this.selectedSize);
+        this.resetTrigger = false;
     }
 
     updateItemCount() {
@@ -29,15 +33,23 @@ export class MapCreationPageComponent {
             case 'small':
                 this.randomItemCount = NB_ITEMS_SMALL_MAP;
                 this.spawnPointCount = NB_ITEMS_SMALL_MAP;
+                this.selectedSize = 'small';
                 break;
             case 'medium':
                 this.randomItemCount = NB_ITEMS_MEDIUM_MAP;
                 this.spawnPointCount = NB_ITEMS_MEDIUM_MAP;
+                this.selectedSize = 'medium';
                 break;
             case 'large':
                 this.randomItemCount = NB_ITEMS_LARGE_MAP;
                 this.spawnPointCount = NB_ITEMS_LARGE_MAP;
+                this.selectedSize = 'large';
                 break;
         }
+    }
+
+    handleReset() {
+        this.resetTrigger = true;
+        setTimeout(() => (this.resetTrigger = false), 0);
     }
 }

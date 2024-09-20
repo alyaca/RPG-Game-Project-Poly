@@ -1,7 +1,17 @@
-<div id="map-grid" style="grid-template-columns: repeat({{ height }}, 1fr)">
-    @for (tiles of gridArray; track $index) {
-    <div class="tile" id="{{ $index }}">
-        <img src="/assets/images/tiles/GroundTile-test.jpg" />
-    </div>
+<div id="map-grid" [style.grid-template-columns]="'repeat(' + height + ', 1fr)'" (mouseleave)="onMouseUp()">
+    @for (row of gridArray; let rowIndex = $index; track $index) { 
+      @for (col of row; let colIndex = $index; track $index) {
+        <div
+            class="tile"
+            [id]="'tile-' + rowIndex + '-' + colIndex"
+            (mousedown)="onMouseDown($event, rowIndex, colIndex)"
+            (mouseup)="onMouseUp()"
+            (mousemove)="onMouseMove(rowIndex, colIndex)"
+            (contextmenu)="removeTile($event, rowIndex, colIndex)"
+        >
+          <img [src]="getTileImage(col)" draggable="false" />
+        </div>
+      } 
     }
 </div>
+
