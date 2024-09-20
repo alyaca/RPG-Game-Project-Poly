@@ -1,15 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { SIZE_SMALL_MAP } from '@app/constants';
 import { ToolService } from '@app/services/tool.service';
-
-enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Wall = 3,
-    Water = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
+import { MapValidatorService, TileType } from '@app/services/map-validator.service';
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -21,6 +13,7 @@ enum TileType {
 export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
+    @Input() saveTrigger: boolean = false;
     gridArray: number[][];
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
@@ -30,7 +23,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     isMouseDown: boolean = false;
 
-    constructor(private toolService: ToolService) {}
+    constructor(
+        private toolService: ToolService,
+        private mapValidatorService: MapValidatorService,
+    ) {}
 
     get selectedTile() {
         return this.toolService.getSelectedTile();
@@ -43,6 +39,9 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
         if (changes['resetTrigger'] && this.resetTrigger) {
             this.resetGrid();
+        }
+        if (changes['saveTrigger'] && this.saveTrigger) {
+            this.mapValidatorService.validateMap(this.gridArray);
         }
     }
 
@@ -134,6 +133,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
             this.onTileClick(row, col);
         }
     }
+
     ngOnDestroy() {
         this.toolService.selectedTile = '';
     }

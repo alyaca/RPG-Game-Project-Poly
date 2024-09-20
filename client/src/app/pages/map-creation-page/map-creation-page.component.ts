@@ -20,6 +20,7 @@ export class MapCreationPageComponent {
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
+    saveTrigger: boolean = false;
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
@@ -51,5 +52,10 @@ export class MapCreationPageComponent {
     handleReset() {
         this.resetTrigger = true;
         setTimeout(() => (this.resetTrigger = false), 0);
+    }
+
+    handleSave() {
+        this.saveTrigger = true;
+        setTimeout(() => (this.saveTrigger = false), 0);
     }
 }
