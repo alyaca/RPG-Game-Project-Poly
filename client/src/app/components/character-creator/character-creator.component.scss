@@ -107,7 +107,7 @@
     justify-content: center;
     align-items: center;
     margin-top: 1%;
-    margin-bottom: 1%;
+    margin-bottom: 3%;
     margin-left: 4%;
     border-bottom: 0.5rem solid black;
     border-right: 0.5rem solid black;
@@ -177,9 +177,9 @@
 }
 
 .icon:hover {
-    border-right: 0.5rem solid black;
-    border-bottom: none;
-    transform: translateY(0.5rem);
+    border-bottom: 0.5rem solid rgb(255, 249, 144);
+    border-right: 0.5rem solid rgb(255, 249, 144);
+    transform: translateY(0.3rem);
 }
 
 .icon img {
