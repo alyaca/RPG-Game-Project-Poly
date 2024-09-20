@@ -2,14 +2,14 @@
     <div class="dialog-content">
         <p>Choisir un mode de jeu:</p>
         <div class="button">
-            <button>Classique</button>
-            <button disabled>CTF</button>
+            <button [ngClass]="{ select: selectedMode === 'classic' }" (click)="selectMode('classic')">Classique</button>
+            <button disabled="{ select: selectedMode === 'CTF' }" (click)="selectMode('CTF')">CTF</button>
         </div>
         <p>Choisir la taille du jeu:</p>
-        <div class="gameSize">
-            <button>10x10</button>
-            <button>15x15</button>
-            <button>20x20</button>
+        <div class="game-size">
+            <button id="small-map" [ngClass]="{ selected: selectedSize === 'small' }" (click)="selectSize('small')">10x10</button>
+            <button id="medium-map" [ngClass]="{ selected: selectedSize === 'medium' }" (click)="selectSize('medium')">15x15</button>
+            <button id="large-map" [ngClass]="{ selected: selectedSize === 'large' }" (click)="selectSize('large')">20x20</button>
         </div>
 
         <div class="options">

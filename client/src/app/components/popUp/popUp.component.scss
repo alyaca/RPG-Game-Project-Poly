@@ -12,7 +12,7 @@ body {
     text-align: center;
 }
 
-.gameSize {
+.game-size {
     display: flex;
     justify-content: space-between;
     width: 60%;
@@ -24,4 +24,12 @@ button {
 }
 .options button {
     margin-top: 15%;
+}
+
+button.selected {
+    border: 2px solid black;
+}
+
+button.select {
+    border: 2px solid black;
 }
