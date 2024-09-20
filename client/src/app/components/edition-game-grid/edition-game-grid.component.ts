@@ -28,7 +28,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     selectedRow: number = 0;
     selectedCol: number = 0;
 
-    isMouseDown: boolean = false; // Track if mouse is down
+    isMouseDown: boolean = false;
 
     constructor(private toolService: ToolService) {}
 
