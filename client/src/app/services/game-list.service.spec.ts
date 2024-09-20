@@ -61,7 +61,7 @@ describe('GameListService', () => {
     });
 
     it('should deselect all games and select a new game', () => {
-        const gameToSelect: Game = mockGames[0];
+        const gameToSelect: Game = { ...mockGames[0] };
 
         spyOn(service, 'deselectGame').and.callThrough();
 
