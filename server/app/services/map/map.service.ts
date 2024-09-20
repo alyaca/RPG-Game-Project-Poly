@@ -7,12 +7,10 @@ import { Model } from 'mongoose';
 export class MapService {
     constructor(@InjectModel(Map.name) private mapModel: Model<MapDocument>) {}
 
-    // fetch all maps
     async getAllMaps(): Promise<Map[]> {
         return await this.mapModel.find();
     }
 
-    // fetch only visible maps
     async getAllVisibleMaps(): Promise<Map[]> {
         return await this.mapModel.find({ visible: true });
     }

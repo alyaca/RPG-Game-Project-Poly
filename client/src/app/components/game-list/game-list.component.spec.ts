@@ -74,7 +74,7 @@ describe('GameListComponent', () => {
         const mockSelectedGame: Game = mockGames[0];
         selectedGameSubject.next(mockSelectedGame);
 
-        fixture.detectChanges(); // Assure-toi que les changements sont détectés
+        fixture.detectChanges();
 
         expect(component.gameSelected).toEqual(mockSelectedGame);
     });

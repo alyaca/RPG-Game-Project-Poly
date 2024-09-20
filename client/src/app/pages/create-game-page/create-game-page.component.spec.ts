@@ -43,4 +43,14 @@ describe('CreateGamePageComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should set isComponentVisible to true when showComponent is called', () => {
+        component.showComponent();
+        expect(component.isComponentVisible).toBeTrue();
+    });
+
+    it('should set isComponentVisible to false when hideComponent is called', () => {
+        component.hideComponent();
+        expect(component.isComponentVisible).toBeFalse();
+    });
 });

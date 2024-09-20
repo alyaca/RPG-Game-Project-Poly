@@ -29,7 +29,7 @@ describe('MapController', () => {
         expect(controller).toBeDefined();
     });
 
-    it('allMaps() should return all maps', async () => {
+    it('allMaps should return all maps', async () => {
         const fakeMaps: Map[] = [new Map(), new Map()];
         mapService.getAllMaps.resolves(fakeMaps);
 
@@ -46,7 +46,7 @@ describe('MapController', () => {
         await controller.allMaps(res);
     });
 
-    it('allMaps() should return NOT_FOUND when service unable to fetch maps', async () => {
+    it('allMaps should return NOT_FOUND when service unable to fetch maps', async () => {
         mapService.getAllMaps.rejects();
 
         const res = {} as unknown as Response;
@@ -59,7 +59,7 @@ describe('MapController', () => {
         await controller.allMaps(res);
     });
 
-    it('allVisibleMaps() should return only visible maps', async () => {
+    it('allVisibleMaps should return only visible maps', async () => {
         const fakeMaps: Map[] = [{ visible: true } as Map, { visible: true } as Map];
 
         mapService.getAllVisibleMaps.resolves(fakeMaps);
@@ -77,7 +77,7 @@ describe('MapController', () => {
         await controller.allVisibleMaps(res);
     });
 
-    it('visibleMaps() should return NOT_FOUND when service unable to fetch visible maps', async () => {
+    it('visibleMaps should return NOT_FOUND when service unable to fetch visible maps', async () => {
         mapService.getAllVisibleMaps.rejects();
 
         const res = {} as unknown as Response;
