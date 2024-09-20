@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { SIZE_SMALL_MAP } from '@app/constants';
 import { ToolService } from '@app/services/tool.service';
 
@@ -18,7 +18,7 @@ enum TileType {
     templateUrl: './edition-game-grid.component.html',
     styleUrl: './edition-game-grid.component.scss',
 })
-export class EditionGameGridComponent implements OnChanges {
+export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     gridArray: number[][];
@@ -133,5 +133,8 @@ export class EditionGameGridComponent implements OnChanges {
         if (this.isMouseDown) {
             this.onTileClick(row, col);
         }
+    }
+    ngOnDestroy() {
+        this.toolService.selectedTile = '';
     }
 }

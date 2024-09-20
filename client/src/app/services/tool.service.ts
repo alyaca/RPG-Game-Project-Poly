@@ -8,12 +8,10 @@ export class ToolService {
     selectedTile: string;
 
     setSelectedTile(tile: string) {
-        this.selectedTile = tile;
+        this.selectedTile = this.selectedTile !== tile ? tile : "";
     }
 
     getSelectedTile() {
         return this.selectedTile;
     }
 }
-
-// DO NOT FORGET TO MAKE TEST FILE FOR THIS SERVICE!!!
