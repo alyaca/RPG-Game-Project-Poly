@@ -1,15 +1,32 @@
 <div class="game-list">
     @for (game of games; track game._id) {
     <div [ngClass]="{ game: true, selected: game.isSelected }" (click)="selectGame(game)">
-        <img class="game-image" src="{{ game.image }}" alt="test" />
+        <div class="tooltip">
+            @if(usingPage === "administration-page"){
+            <div class="tooltiptext">{{ game.description }}</div>
+            }
+            <img class="game-image" src="{{ game.image }}" alt="test" />
+        </div>
         <div class="info-container">
             <p class="game-name">{{ game.name }}</p>
+            @if(usingPage === 'game-list'){
             <p class="game-description">{{ game.description }}</p>
+            }
+            <!--<p class="game-description">{{ usingPage }}</p> -->
             <div class="game-info">
                 <p>{{ game.mode }}</p>
                 <p>{{ game.dimension }}</p>
             </div>
         </div>
+        @if(usingPage === "administration-page"){
+        <div class="properties-icons">
+            @if(game.visible){
+            <img src="../../../assets/images/icones/visible.png" (click)="changeVisibility(game)" alt="visible" />
+            }@else {<img src="../../../assets/images/icones/hidden.png" (click)="changeVisibility(game)" alt="hidden" />}
+            <img src="../../../assets/images/icones/modification.png" alt="modification" />
+            <img src="../../../assets/images/icones/trash.png" alt="trash" />
+        </div>
+        }
     </div>
     }
 </div>

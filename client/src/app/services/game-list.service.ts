@@ -13,6 +13,7 @@ export class GameListService {
 
     private selectedGameSubject = new BehaviorSubject<Game | null>(null);
     private apiUrl = `${environment.serverUrl}/maps/visible`;
+    private allMapsApiUrl = `${environment.serverUrl}/maps`;
 
     constructor(private http: HttpClient) {
         this.selectedGame$ = this.selectedGameSubject.asObservable();
@@ -29,6 +30,10 @@ export class GameListService {
         );
     }
 
+    getAllGames() {
+        return this.http.get<Game[]>(`${this.allMapsApiUrl}`);
+    }
+
     selectGame(game: Game, games: Game[]) {
         this.deselectGame(games);
         this.selectedGameSubject.next(game);
@@ -38,5 +43,9 @@ export class GameListService {
     deselectGame(games: Game[]) {
         this.selectedGameSubject.next(null);
         games.forEach((game) => (game.isSelected = false));
+    }
+
+    changeVisibility(game: Game) {
+        game.visible = !game.visible;
     }
 }
