@@ -1,76 +1,11 @@
-<!doctype html>
-<html lang="en">
-    <header>
-        <img src="../../../assets/images/logo/Age_Of_Mythology.png" alt="Logo Projet" />
-        <div class="pageTitle">Administration</div>
-    </header>
-
-    <body>
-        <div id="container">
-            <div id="listContainer">
-                <div class="title">
-                    <p>Liste de jeux</p>
-                </div>
-                <div class="gameList">
-                    @for (game of games; track game.name) {
-                    <div class="game" (mouseenter)="setHoveredGame(game)">
-                        <img src="{{ game.src }}" />
-                        <div class="gameInfo">
-                            <div class="info-container">
-                                <div class="gameName">
-                                    <p>{{ game.name }}</p>
-                                </div>
-                                <div class="gameDescription">
-                                    <p>{{ game.size }}</p>
-                                    <p>{{ game.mode }}</p>
-                                    <p>{{ game.date }}</p>
-                                </div>
-                            </div>
-                            <div class="options">
-                                <div id="visibility" (click)="gameVisibility(game)">
-                                    <button>
-                                        <img
-                                            [src]="
-                                                game.visibility
-                                                    ? '../../../assets/images/icones/visible icone.png'
-                                                    : '../../../assets/images/icones/not visible icone.png'
-                                            "
-                                            alt="visibility"
-                                            style="width: 25px; height: 25px"
-                                        />
-                                    </button>
-                                </div>
-                                <button id="editButton" disabled routerLink="/edit">
-                                    <img src="../../../assets/images/icones/modify.png" alt="modifier" style="width: 20px; height: 20px" />
-                                </button>
-                                <button id="deleteButton" disabled>
-                                    <img src="../../../assets/images/icones/trash.png" alt="Supprimer" style="width: 20px; height: 20px" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    }
-                </div>
-            </div>
-            <div class="descriptionContainer">
-                <div class="creationButton">
-                    <button class="button" mat-raised-button (click)="openPopUp()">Création d'un nouveau jeu</button>
-                </div>
-                <div id="descriptionCard">
-                    <img [src]="game.src" />
-                    <div class="descriptionBox">
-                        <p>{{ game.description }}</p>
-                    </div>
-                </div>
-
-                <div class="title">
-                    <p>Description du jeu</p>
-                </div>
-            </div>
+<body class="background">
+    <div class="create-game-page">
+        <div class="title">Administration</div>
+        <hr class="line-separator" />
+        <app-game-list [usingPage]="'administration-page'"></app-game-list>
+        <div class="button-group">
+            <p class="button" routerLink="/">Retour</p>
+            <p class="button" routerLink="/edit-map">Créer un nouveau jeu</p>
         </div>
-
-        <footer>
-            <button class="button" routerLink="/home">Retour</button>
-        </footer>
-    </body>
-</html>
+    </div>
+</body>

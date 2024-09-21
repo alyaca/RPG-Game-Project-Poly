@@ -2,8 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
-import { PopUpComponent } from '@app/components/popUp/popUp.component';
-import { GameAdminstrationService } from '@app/services/game-adminstration.service';
+import { GameListComponent } from '@app/components/game-list/game-list.component';
 
 export interface Game {
     src: string;
@@ -20,78 +19,8 @@ export interface Game {
     standalone: true,
     templateUrl: './administration-page.component.html',
     styleUrls: ['./administration-page.component.scss'],
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, GameListComponent],
 })
 export class AdministrationPageComponent {
-    game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
-
-    constructor(
-        public dialog: MatDialog,
-        private gameAdminstrationService: GameAdminstrationService,
-    ) {}
-
-    get games(): Game[] {
-        return [
-            {
-                src: '/assets/images/map/sample-map.jpg',
-                name: ' Game 1',
-                size: 10,
-                description: ' Game description 1',
-                mode: ' normal',
-                date: '11/09/2024',
-                visibility: true,
-            },
-            {
-                src: '/assets/images/map/sample-map.jpg',
-                name: ' Game 2',
-                size: 13,
-                description: ' Game description 2',
-                mode: ' normal',
-                date: '11/09/2024',
-                visibility: false,
-            },
-            {
-                src: '/assets/images/map/sample-map.jpg',
-                name: ' Game 3',
-                size: 13,
-                description: ' Game description 3',
-                mode: ' normal',
-                date: '11/09/2024',
-                visibility: true,
-            },
-            {
-                src: '/assets/images/map/sample-map.jpg',
-                name: ' Game 4',
-                size: 13,
-                description: ' Game description 4',
-                mode: ' normal',
-                date: '11/09/2024',
-                visibility: false,
-            },
-            {
-                src: '/assets/images/map/sample-map.jpg',
-                name: ' Game 5',
-                size: 13,
-                description: ' Game description 5',
-                mode: ' normal',
-                date: '11/09/2024',
-                visibility: true,
-            },
-        ]; // Temporary data for testing
-    }
-
-    setHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
-        this.game = game;
-    }
-
-    openPopUp(): void {
-        this.dialog.open(PopUpComponent, {
-            width: '30%',
-            height: '35%', // TODO: The constants will be moved to a separate file eventually
-        });
-    }
-
-    gameVisibility(game: { visibility: boolean }) {
-        this.gameAdminstrationService.gameVisibility(game);
-    }
+    constructor(public dialog: MatDialog) {}
 }
