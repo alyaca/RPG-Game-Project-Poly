@@ -7,8 +7,8 @@ export interface Game {
     nbPlayers: number;
     image: string;
     dimension: string;
-    tiles: number[];
-    itemPlacement: number[];
+    tiles: number[][];
+    itemPlacement: number[][];
     isSelected: boolean;
     lastModification: Date;
 }

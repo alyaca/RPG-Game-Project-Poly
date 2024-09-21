@@ -22,6 +22,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     gridArray: number[][];
+    itemArray: number[][];
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
 

@@ -23,7 +23,7 @@ export interface Game {
     imports: [CommonModule, RouterLink],
 })
 export class AdministrationPageComponent {
-    game: { src: string; name: string; size: number; description: string; mode: string; date: string } = this.games[0];
+    game: { src: string; name: string; size: number; description: string; mode: string; date: string; visibility: boolean } = this.games[0];
 
     constructor(
         public dialog: MatDialog,
@@ -80,7 +80,7 @@ export class AdministrationPageComponent {
         ]; // Temporary data for testing
     }
 
-    setHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string }) {
+    setHoveredGame(game: { src: string; name: string; size: number; description: string; mode: string; date: string; visibility: boolean }) {
         this.game = game;
     }
 
