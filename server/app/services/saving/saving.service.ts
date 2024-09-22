@@ -9,8 +9,13 @@ export class SavingService {
 
     async addMapToDb(mapToAdd: any) {
         console.log(mapToAdd);
-        await this.mapModel.insertMany(mapToAdd);
+        return await this.mapModel.create(mapToAdd);
     }
 
-    async replaceMapInDb(mapToAdd: any) {}
+    async replaceMapInDb(mapToAdd: any) {
+        console.log('BALLS');
+        const maps = await this.mapModel.find();
+        console.log(maps);
+        return await this.mapModel.replaceOne(maps, mapToAdd);
+    }
 }

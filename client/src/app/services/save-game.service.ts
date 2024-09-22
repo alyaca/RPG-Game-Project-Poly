@@ -11,11 +11,11 @@ export class SaveGameService {
 
     constructor(private http: HttpClient) {}
 
-    startPutRequest(gameToSave: Game) {
-        return this.http.put(this.apiURL, gameToSave);
+    replaceExistingMap(gameToSave: Game) {
+        return this.http.put<Game>(this.apiURL, gameToSave);
     }
 
-    startPostRequest(gameToSave: Game) {
-        return this.http.post(this.apiURL, gameToSave);
+    addNewGame(gameToSave: Game) {
+        return this.http.post<Game>(this.apiURL, gameToSave);
     }
 }

@@ -91,6 +91,7 @@ export class MapCreationPageComponent {
                     break;
             }
 
+            // TO CHANGE WITH THE COMPONENT/SERVICE THAT GHADI CREATED
             if (this.adminGamePage.game == null) {
                 // need a new way to check if it's a new map or not
                 // if game doesn't exist, will have to get some info from admin page
@@ -108,7 +109,7 @@ export class MapCreationPageComponent {
                     isSelected: false,
                     lastModification: new Date(),
                 };
-                this.saveGameSerivce.startPostRequest(this.game);
+                this.saveGameSerivce.addNewGame(this.game);
             } else {
                 this.game = {
                     _id: '2',
@@ -119,12 +120,34 @@ export class MapCreationPageComponent {
                     nbPlayers: nbPlayersNewMap,
                     image: base64Image,
                     dimension: this.gameGridComponent.height.toString(),
-                    tiles: this.gameGridComponent.gridArray,
-                    itemPlacement: this.gameGridComponent.itemArray, // doesn't exist yet in the game grid component
+                    tiles: [
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
+                    ], //this.gameGridComponent.gridArray,
+                    itemPlacement: [
+                        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+                        [0, 0, 0, 0, 4, 0, 6, 0, 7, 0],
+                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    ], //this.gameGridComponent.itemArray, // doesn't exist yet in the game grid component
                     isSelected: false,
                     lastModification: new Date(),
                 };
-                this.saveGameSerivce.startPutRequest(this.game);
+                this.saveGameSerivce.replaceExistingMap(this.game).subscribe((data) => (this.game._id = data._id));
             }
         });
     }
