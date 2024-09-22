@@ -28,33 +28,9 @@ describe('AdministrationPageComponent', () => {
             'changeVisibility',
         ]);
 
-        gameListServiceSpy.getAllVisibleMaps.and.returnValue(of(mockGames));
-        gameListServiceSpy.getAllGames.and.returnValue(of(mockGames));
         gameListServiceSpy.isListeEmpty.and.returnValue(of(false));
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
-
         gameListServiceSpy.selectedGame$ = new BehaviorSubject<Game | null>(null).asObservable();
-
-        gameListServiceSpy.selectGame.and.callFake((game: Game, games: Game[]) => {
-            game.isSelected = true;
-        });
-        gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
-            games.forEach((game) => (game.isSelected = false));
-        });
-        gameListServiceSpy.setSelectedGame.and.callFake((usingPage: string, game: Game, games: Game[]) => {
-            gameListServiceSpy.selectGame(game, games);
-        });
-
-        activatedRouteMock = jasmine.createSpyObj('ActivatedRoute', [], {
-            snapshot: {
-                paramMap: {
-                    get: jasmine.createSpy('get').and.callFake((key: string) => {
-                        const mockParams = { id: '123', name: 'mockName' };
-                        return mockParams[key as keyof typeof mockParams];
-                    }),
-                },
-            },
-        });
 
         await TestBed.configureTestingModule({
             imports: [AdministrationPageComponent, GameListComponent],
