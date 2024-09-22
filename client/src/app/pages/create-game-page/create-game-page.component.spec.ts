@@ -16,7 +16,7 @@ describe('CreateGamePageComponent', () => {
 
     beforeEach(async () => {
         selectedGameSubject = new BehaviorSubject<Game | null>(null);
-        gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllVisibleMaps', 'selectGame', 'deselectGame']);
+        gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllVisibleMaps', 'selectGame', 'deselectGame', 'getGames']);
         gameListServiceSpy.getAllVisibleMaps.and.returnValue(of(mockGames));
         activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], { snapshot: { paramMap: { get: () => 'mockValue' } } });
         gameListServiceSpy.selectGame.and.callFake((game: Game) => {
@@ -26,6 +26,7 @@ describe('CreateGamePageComponent', () => {
             games.forEach((game) => (game.isSelected = false));
         });
         gameListServiceSpy.selectedGame$ = selectedGameSubject.asObservable();
+        gameListServiceSpy.getGames.and.returnValue(of(mockGames));
 
         await TestBed.configureTestingModule({
             imports: [CreateGamePageComponent, GameListComponent],
