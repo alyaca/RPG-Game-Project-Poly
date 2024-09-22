@@ -43,7 +43,7 @@ export class Map {
     itemPlacement: number[];
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ required: false })
     isSelected: boolean;
 
     @ApiProperty()

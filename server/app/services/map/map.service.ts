@@ -11,7 +11,16 @@ export class MapService {
         return await this.mapModel.find();
     }
 
-    async getAllVisibleMaps(): Promise<Map[]> {
+    async getVisibleMaps(): Promise<Map[]> {
         return await this.mapModel.find({ visible: true });
+    }
+
+    async updateMap(id: string, updateData: Partial<Map>): Promise<Map | null> {
+        const map = await this.mapModel.findById(id);
+        if (!map) {
+            return null;
+        }
+        Object.assign(map, updateData);
+        return await map.save();
     }
 }
