@@ -32,7 +32,7 @@ export class Map {
 
     @ApiProperty()
     @Prop({ type: [Number], required: true })
-    tiles: number[];
+    tiles: number[][];
 
     @ApiProperty()
     @Prop({ required: true })
@@ -40,7 +40,7 @@ export class Map {
 
     @ApiProperty()
     @Prop({ type: [String], required: true })
-    itemPlacement: number[];
+    itemPlacement: number[][];
 
     @ApiProperty()
     @Prop({ required: true })

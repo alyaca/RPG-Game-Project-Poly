@@ -1,12 +1,16 @@
 import { Map } from '@app/model/schema/map.schema';
 import { MapService } from '@app/services/map/map.service';
-import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
+import { SavingService } from '@app/services/saving/saving.service';
+import { Body, Controller, Get, HttpStatus, Post, Put, Res } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @Controller('maps')
 export class MapController {
-    constructor(private readonly mapService: MapService) {}
+    constructor(
+        private readonly mapService: MapService,
+        private savingService: SavingService,
+    ) {}
 
     @ApiOkResponse({
         description: 'Returns all maps',
@@ -41,6 +45,40 @@ export class MapController {
             response.status(HttpStatus.OK).json(allVisibleMaps);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'Map successfully created',
+        type: Map,
+    })
+    @ApiBadRequestResponse({
+        description: 'Map was not created',
+    })
+    @Post('/')
+    async addMap(@Res() response: Response) {
+        try {
+            const hasBeenCreated = await this.savingService.addMapToDb(Body); //idk yet
+            response.status(HttpStatus.CREATED).json(hasBeenCreated);
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'Map succesfully replaced in the databse',
+        type: Map,
+    })
+    @ApiBadRequestResponse({
+        description: 'Map was not replaced correctly',
+    })
+    @Put('/')
+    async replaceMap(@Res() response: Response) {
+        try {
+            const hasBeenCreated = await this.savingService.replaceMapInDb(Body);
+            response.status(HttpStatus.CREATED).json(hasBeenCreated);
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 }
