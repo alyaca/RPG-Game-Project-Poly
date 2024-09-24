@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -12,15 +12,23 @@ export class GameListService {
     selectedGame$: Observable<Game | null>;
 
     private selectedGameSubject = new BehaviorSubject<Game | null>(null);
-    private apiUrl = `${environment.serverUrl}/maps/visible`;
     private allMapsApiUrl = `${environment.serverUrl}/maps`;
 
     constructor(private http: HttpClient) {
         this.selectedGame$ = this.selectedGameSubject.asObservable();
     }
 
-    getAllVisibleMaps(): Observable<Game[]> {
-        return this.http.get<Game[]>(`${this.apiUrl}`).pipe(
+    getGames(usingPage: string) {
+        if (usingPage === 'game-list') {
+            return this.getAllVisibleMaps();
+        } else {
+            return this.getAllGames();
+        }
+    }
+
+    getAllVisibleMaps() {
+        const apiUrl = `${this.allMapsApiUrl}/visible`;
+        return this.http.get<Game[]>(`${apiUrl}`).pipe(
             map((maps: Game[]) => {
                 return maps.map((game: Game) => ({
                     ...game,
@@ -30,8 +38,26 @@ export class GameListService {
         );
     }
 
-    getAllGames() {
+    getAllGames(): Observable<Game[]> {
         return this.http.get<Game[]>(`${this.allMapsApiUrl}`);
+    }
+
+    isListeEmpty(): Observable<boolean> {
+        return this.getAllGames().pipe(
+            map((gamesFetched) => {
+                return gamesFetched.length === 0;
+            }),
+        );
+    }
+
+    setSelectedGame(usingPage: string, game: Game, games: Game[]) {
+        if (usingPage === 'game-list') {
+            if (game.isSelected) {
+                this.deselectGame(games);
+            } else {
+                this.selectGame(game, games);
+            }
+        }
     }
 
     selectGame(game: Game, games: Game[]) {
@@ -45,7 +71,58 @@ export class GameListService {
         games.forEach((game) => (game.isSelected = false));
     }
 
-    changeVisibility(game: Game) {
-        game.visible = !game.visible;
+    performChangeVisibility(game: Game): Observable<boolean> {
+        const newVisibleValue = !game.visible;
+        const url = `${this.allMapsApiUrl}/${game._id}`;
+        const updateData = { visible: newVisibleValue };
+        return this.http.patch<Game>(url, updateData).pipe(
+            map((updatedGame) => {
+                game.visible = updatedGame.visible;
+                return true;
+            }),
+            catchError(() => {
+                return of(false);
+            }),
+        );
+    }
+
+    changeVisibility(game: Game): Observable<boolean> {
+        return this.checkIfGameExists(game).pipe(
+            switchMap((exists) => {
+                if (exists) {
+                    return this.performChangeVisibility(game);
+                } else {
+                    return of(false);
+                }
+            }),
+        );
+    }
+
+    deleteGame(game: Game): Observable<boolean> {
+        return this.checkIfGameExists(game).pipe(
+            switchMap((exists) => {
+                if (exists) {
+                    return this.performDeleteGame(game);
+                } else {
+                    return of(false);
+                }
+            }),
+        );
+    }
+
+    private checkIfGameExists(game: Game): Observable<boolean> {
+        return this.getAllGames().pipe(
+            map((games: Game[]) => games.some((g) => g._id === game._id)),
+            catchError(() => {
+                return of(false);
+            }),
+        );
+    }
+
+    private performDeleteGame(game: Game): Observable<boolean> {
+        return this.http.delete<void>(`${this.allMapsApiUrl}/${game._id}`).pipe(
+            map(() => true),
+            catchError(() => of(false)),
+        );
     }
 }
