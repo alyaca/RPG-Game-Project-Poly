@@ -1,0 +1,11 @@
+<div id="dialog-box">
+    <h2 mat-dialog-title id="title">Alerte</h2>
+    <mat-dialog-content>
+        <p class="message">{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions class="dialog-actions">
+        <button class="button" mat-button (click)="onClose()">{{ data.confirm ? 'Quitter cette page' : 'Fermer' }}</button>
+        <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()">Rester sur cette page</button>
+    </mat-dialog-actions>
+  </div>
+  

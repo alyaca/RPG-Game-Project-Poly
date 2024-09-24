@@ -6,6 +6,10 @@ import { EditionGameGridComponent } from '@app/components/edition-game-grid/edit
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import { Router } from '@angular/router';
+
+import { MatDialog } from '@angular/material/dialog';
+import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component'; 
 
 @Component({
     selector: 'app-map-creation-page',
@@ -21,6 +25,8 @@ export class MapCreationPageComponent {
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
+
+    constructor(private dialog: MatDialog, private router: Router) {}
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
@@ -57,5 +63,20 @@ export class MapCreationPageComponent {
     handleSave() {
         this.saveTrigger = true;
         setTimeout(() => (this.saveTrigger = false), 0);
+    }
+
+    handleExit() {
+        const dialogRef = this.dialog.open(EditionDialogComponent, {
+            data: {
+              message: 'Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?',
+              confirm: true,
+            },
+          });
+        
+          dialogRef.afterClosed().subscribe(result => {
+            if (result === 'leave') {
+              this.router.navigate(['/admin']);
+            } 
+          });
     }
 }

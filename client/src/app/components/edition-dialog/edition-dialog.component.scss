@@ -1,0 +1,33 @@
+#dialog-box {
+    //background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+    background: linear-gradient(to left, rgb(49, 45, 34), rgb(79, 73, 62));
+    color: white;
+}
+
+#title {
+    font-family: papyrus;
+    color: white;
+    height: 1%;
+}
+
+.message {
+    font-family: papyrus;
+    color: white;
+}
+
+.dialog-actions {
+    display: flex;              
+    justify-content: center;     
+    gap: 1rem;                   
+  }
+
+.button {
+    font-family: 'Franklin Gothic Medium';
+    background-color: #d1d1d1;
+    border: 2px solid rgb(161, 164, 125);
+}
+
+.button:hover {
+    color: white;
+    background: linear-gradient(to right, rgb(147, 140, 68), rgb(100, 90, 43));
+}

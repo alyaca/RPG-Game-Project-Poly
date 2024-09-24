@@ -23,7 +23,7 @@
             <div class="buttons-container">
                 <button class="button" id="save-button" (click)="handleSave()">Sauvegarder</button>
                 <button class="button" id="reset-button" (click)="handleReset()">Réinitialiser</button>
-                <button class="button" id="return-button" routerLink="/admin" routerLink="">Retour</button>
+                <button class="button" id="return-button" (click)="handleExit()" >Retour</button>
             </div>
         </div>
         <div class="grid-element" id="game-grid-and-toolbar-container">

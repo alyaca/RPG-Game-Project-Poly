@@ -16,7 +16,7 @@ describe('EditionGameGridComponent', () => {
 
         component.height = 3;
         component.width = 3;
-        component.gridArray = [
+        component.tilesGrid = [
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1],
@@ -30,8 +30,8 @@ describe('EditionGameGridComponent', () => {
     });
 
     it('should have the correct number of tiles', () => {
-        const nRows = component.gridArray.length;
-        const nCols = component.gridArray[0]?.length || 0;
+        const nRows = component.tilesGrid.length;
+        const nCols = component.tilesGrid[0]?.length || 0;
 
         expect(nRows * nCols).toEqual(component.height * component.width);
     });

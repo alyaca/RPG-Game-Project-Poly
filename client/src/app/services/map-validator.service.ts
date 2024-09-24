@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component'; 
 
 export enum TileType {
     Ground = 1,
@@ -13,23 +15,26 @@ export enum TileType {
     providedIn: 'root',
 })
 export class MapValidatorService {
+    constructor(private dialog: MatDialog) {}
+
     validateMap(array: number[][]) {
         const errorMessages: string[] = [];
 
         if (!this.hasSufficientTerrainTiles(array)) {
-            errorMessages.push('il nya pas assez de tuiles de terrain');
+            errorMessages.push('il n\'y a pas assez de tuiles de terrain');
         }
 
         if (!this.validateAllDoors(array)) {
-            errorMessages.push('au moins une porte nest pas valide');
+            errorMessages.push('au moins une porte n\'est pas valide');
         }
 
         if (!this.isEveryTileAccessible(array)) {
-            errorMessages.push('PAS toutes les tuiles de terrain sont accessibles');
+            errorMessages.push('as toutes les tuiles de terrain sont accessibles');
         }
 
-        alert(errorMessages.length > 0 ? errorMessages.join(' et ') : 'votre carte est valide');
-        // alert(this.isEveryTileAccessible() ? 'toutes les tuiles de terrain sont accessibles!' : 'Erreur: PAS toutes les tuiles de terrain sont accessibles!')
+        // Use MatDialog instead of alert
+        const message = errorMessages.length > 0 ? errorMessages.join(' et ') : 'Votre carte est valide';
+        this.openDialog(message);
     }
 
     isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
@@ -49,10 +54,8 @@ export class MapValidatorService {
     validateAllDoors(array: number[][]): boolean {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
-                if (array[row][col] > TileType.Wall) {
-                    if (!this.isDoorPlacementValid(array, row, col)) {
-                        return false;
-                    }
+                if (array[row][col] > TileType.Wall && !this.isDoorPlacementValid(array, row, col)) {
+                    return false;
                 }
             }
         }
@@ -130,5 +133,11 @@ export class MapValidatorService {
         }
 
         return true; // All non-wall tiles are accessible
+    }
+
+    openDialog(message: string) {
+        this.dialog.open(EditionDialogComponent, {
+            data: { message }
+        });
     }
 }

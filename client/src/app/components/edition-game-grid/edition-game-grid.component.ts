@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { SIZE_SMALL_MAP } from '@app/constants';
+import { SIZE_SMALL_MAP, SIZE_MEDIUM_MAP, SIZE_LARGE_MAP } from '@app/constants';
 import { ToolService } from '@app/services/tool.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator.service';
 
@@ -14,7 +14,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
-    gridArray: number[][];
+    tilesGrid: number[][];
+    // create itemArray
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
 
@@ -33,28 +34,28 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['selectedSize']) {
+        if (changes.selectedSize) {
             this.updateDimensions();
-            this.gridArray = this.createNewMap();
+            this.tilesGrid = this.createNewMap();
         }
         if (changes['resetTrigger'] && this.resetTrigger) {
             this.resetGrid();
         }
         if (changes['saveTrigger'] && this.saveTrigger) {
-            this.mapValidatorService.validateMap(this.gridArray);
+            this.mapValidatorService.validateMap(this.tilesGrid);
         }
     }
 
     updateDimensions() {
         if (this.selectedSize === 'small') {
-            this.height = 10;
-            this.width = 10;
+            this.height = SIZE_SMALL_MAP;
+            this.width = SIZE_SMALL_MAP;
         } else if (this.selectedSize === 'medium') {
-            this.height = 15;
-            this.width = 15;
+            this.height = SIZE_MEDIUM_MAP;
+            this.width = SIZE_MEDIUM_MAP;
         } else if (this.selectedSize === 'large') {
-            this.height = 20;
-            this.width = 20;
+            this.height = SIZE_LARGE_MAP;
+            this.width = SIZE_LARGE_MAP;
         } else {
             alert('invalid map size chosen');
         }
@@ -80,7 +81,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     createNewMap(): number[][] {
-        return Array.from({ length: this.height }, () => Array(this.width).fill(1));
+        return Array.from({ length: this.height }, () => Array(this.width).fill(TileType.Ground));
     }
 
     onTileClick(row: number, col: number) {
@@ -89,16 +90,16 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
         switch (this.selectedTile) {
             case 'ice-tile':
-                this.gridArray[row][col] = TileType.Ice;
+                this.tilesGrid[row][col] = TileType.Ice;
                 break;
             case 'wall-tile':
-                this.gridArray[row][col] = TileType.Wall;
+                this.tilesGrid[row][col] = TileType.Wall;
                 break;
             case 'water-tile':
-                this.gridArray[row][col] = TileType.Water;
+                this.tilesGrid[row][col] = TileType.Water;
                 break;
             case 'door-tile':
-                this.gridArray[row][col] = this.gridArray[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
+                this.tilesGrid[row][col] = this.tilesGrid[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
                 break;
             default:
                 break;
@@ -106,13 +107,13 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     resetGrid() {
-        this.gridArray = this.createNewMap();
+        this.tilesGrid = this.createNewMap();
     }
 
     removeTile(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        if (this.gridArray[row][col] !== 1) {
-            this.gridArray[row][col] = 1;
+        if (this.tilesGrid[row][col] !== TileType.Ground) {
+            this.tilesGrid[row][col] = TileType.Ground;
         }
     }
     // event.button -> 0: left click ; 1: middle click ; 2: right click

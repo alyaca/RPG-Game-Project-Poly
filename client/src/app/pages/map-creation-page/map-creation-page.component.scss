@@ -13,13 +13,6 @@
     height: 5vh;
 }
 
-#game-grid-background-gradient {
-    border-style: solid;
-    border-width: 3px;
-    border-image: linear-gradient(to bottom right, rgb(220, 214, 150), rgb(72, 65, 31));
-    border-image-slice: 200;
-}
-
 .buttons-container {
     text-align: left;
     margin-left: 2em;
@@ -96,8 +89,8 @@ label {
 }
 
 .game-logo {
-    height: 8vh;
-    padding-left: 3vh;
+    width: 15%;
+    height: 30%;
 }
 
 .mat-button-toggle-group {
@@ -177,4 +170,13 @@ label {
 .switch.mat-button-toggle-checked {
     color: black;
     background: linear-gradient(to top, rgba(89, 84, 31, 1), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgba(89, 84, 31, 1) 100%);
+}
+
+.left-container {
+    margin-left: 2%;
+}
+
+.right-container {
+    margin-top: -15%;
+    margin-right: 8%;
 }

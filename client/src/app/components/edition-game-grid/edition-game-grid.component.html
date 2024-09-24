@@ -1,5 +1,5 @@
 <div id="map-grid" [style.grid-template-columns]="'repeat(' + height + ', 1fr)'" (mouseleave)="onMouseUp()">
-    @for (row of gridArray; let rowIndex = $index; track $index) { 
+    @for (row of tilesGrid; let rowIndex = $index; track $index) { 
       @for (col of row; let colIndex = $index; track $index) {
         <div
             class="tile"
