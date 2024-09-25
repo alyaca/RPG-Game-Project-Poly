@@ -11,6 +11,11 @@ export class MapService {
         return await this.mapModel.find();
     }
 
+    async getMapById(id: string): Promise<Map | null> {
+        const map = await this.mapModel.findById(id);
+        return map;
+    }
+
     async getVisibleMaps(): Promise<Map[]> {
         return await this.mapModel.find({ visible: true });
     }
@@ -22,5 +27,10 @@ export class MapService {
         }
         Object.assign(map, updateData);
         return await map.save();
+    }
+
+    async deleteMap(id: string): Promise<boolean> {
+        const result = await this.mapModel.deleteOne({ _id: id }).exec();
+        return result.deletedCount === 1;
     }
 }
