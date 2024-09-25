@@ -5,7 +5,7 @@
         <app-game-list [usingPage]="'administration-page'"></app-game-list>
         <div class="button-group">
             <p class="button" routerLink="/">Retour</p>
-            <p class="button" routerLink="/edit-map">Créer un nouveau jeu</p>
+            <p class="button" (click)="openPopUp()">Créer un nouveau jeu</p>
         </div>
     </div>
 </body>
