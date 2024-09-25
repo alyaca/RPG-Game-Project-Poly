@@ -60,11 +60,11 @@ describe('MapService', () => {
     it('getAllVisibleMaps should return all visible maps in database', async () => {
         const maps = getFakeMaps(GENERATE_COUNT);
         await mapModel.create(maps);
-        expect((await service.getAllVisibleMaps()).length).toBeGreaterThan(0);
+        expect((await service.getVisibleMaps()).length).toBeGreaterThan(0);
     });
 
     it('getAllVisibleMaps should return empty array if there is no maps in database', async () => {
-        expect(await service.getAllVisibleMaps()).toEqual([]);
+        expect(await service.getVisibleMaps()).toEqual([]);
     });
 });
 
