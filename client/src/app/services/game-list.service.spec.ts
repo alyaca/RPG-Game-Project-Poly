@@ -122,24 +122,6 @@ describe('GameListService', () => {
         req.flush(mockGames);
     });
 
-    it('should return true if the game list is empty', () => {
-        service.isListeEmpty().subscribe((isEmpty) => {
-            expect(isEmpty).toBeTrue();
-        });
-        const req = httpMock.expectOne(allMapsApiUrl);
-        expect(req.request.method).toBe('GET');
-        req.flush([]);
-    });
-
-    it('should return false if the game list is not empty', () => {
-        service.isListeEmpty().subscribe((isEmpty) => {
-            expect(isEmpty).toBeFalse();
-        });
-        const req = httpMock.expectOne(allMapsApiUrl);
-        expect(req.request.method).toBe('GET');
-        req.flush(mockGames);
-    });
-
     it('should deselect all games if the selected game is already selected and usingPage is "game-list"', () => {
         const games = [...mockGames];
         const selectedGame = games[0];

@@ -28,7 +28,6 @@ describe('AdministrationPageComponent', () => {
             'changeVisibility',
         ]);
 
-        gameListServiceSpy.isListeEmpty.and.returnValue(of(false));
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
         gameListServiceSpy.selectedGame$ = new BehaviorSubject<Game | null>(null).asObservable();
 
@@ -48,17 +47,5 @@ describe('AdministrationPageComponent', () => {
 
     it('should be created', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should redirect to "/edit-map" if the game list is empty', () => {
-        gameListServiceSpy.isListeEmpty.and.returnValue(of(true));
-        component.ngOnInit();
-        expect(routerMock.navigate).toHaveBeenCalledWith(['/edit-map']);
-    });
-
-    it('should NOT redirect if the game list is not empty', () => {
-        gameListServiceSpy.isListeEmpty.and.returnValue(of(false));
-        component.ngOnInit();
-        expect(routerMock.navigate).not.toHaveBeenCalled();
     });
 });

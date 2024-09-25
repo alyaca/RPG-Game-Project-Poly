@@ -42,14 +42,6 @@ export class GameListService {
         return this.http.get<Game[]>(`${this.allMapsApiUrl}`);
     }
 
-    isListeEmpty(): Observable<boolean> {
-        return this.getAllGames().pipe(
-            map((gamesFetched) => {
-                return gamesFetched.length === 0;
-            }),
-        );
-    }
-
     setSelectedGame(usingPage: string, game: Game, games: Game[]) {
         if (usingPage === 'game-list') {
             if (game.isSelected) {
