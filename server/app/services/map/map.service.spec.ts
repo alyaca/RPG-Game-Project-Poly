@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { MapService } from './map.service';
 
 describe('MapService', () => {
@@ -66,6 +66,27 @@ describe('MapService', () => {
     it('getAllVisibleMaps should return empty array if there is no maps in database', async () => {
         expect(await service.getVisibleMaps()).toEqual([]);
     });
+
+    it('updateMap should update a map in database', async () => {
+        const maps = getFakeMaps(GENERATE_COUNT);
+        await mapModel.create(maps);
+        const map = (await service.getAllMaps())[0];
+        const updatedMap = await service.updateMap(map._id, { name: 'name2' });
+        expect(updatedMap.name).toEqual('name2');
+    });
+    const id = new mongoose.Types.ObjectId().toHexString();
+    it('updateMap should return null if map is not found', async () => {
+        const updatedMap = await service.updateMap(id, { name: 'name2' });
+        expect(updatedMap).toBeNull();
+    });
+
+    it('deleteMap should delete a map in database', async () => {
+        const maps = getFakeMaps(GENERATE_COUNT);
+        await mapModel.create(maps);
+        const map = (await service.getAllMaps())[0];
+        const result = await service.deleteMap(map._id);
+        expect(result).toBeTruthy();
+    });
 });
 
 const MODES = ['CTF', 'Normal'];
@@ -87,6 +108,7 @@ const getFakeMaps = (count: number): Map[] => {
     for (let i = 0; i < count; i++) {
         const isVisible = i % 2 === 0;
         maps.push({
+            _id: new mongoose.Types.ObjectId().toHexString(),
             name: getRandomString(),
             description: getRandomString(),
             visible: isVisible,

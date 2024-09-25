@@ -11,11 +11,6 @@ export class MapService {
         return await this.mapModel.find();
     }
 
-    async getMapById(id: string): Promise<Map | null> {
-        const map = await this.mapModel.findById(id);
-        return map;
-    }
-
     async getVisibleMaps(): Promise<Map[]> {
         return await this.mapModel.find({ visible: true });
     }
