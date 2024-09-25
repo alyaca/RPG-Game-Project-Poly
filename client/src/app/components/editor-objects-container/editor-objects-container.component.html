@@ -2,13 +2,15 @@
     <span class="title">Objets</span>
     <div class="object-grid-container">
         <div class="objects">
-            @for (item of objects; track item.id) {
+            @for (item of gameObjects; track item.id;) {
             <app-game-object
                 [id]="item.id"
                 [imageUrl]="item.image"
                 [name]="item.name"
                 [description]="item.description"
-                [count]="item.count"
+                [count]="getItemCount(item.id)"
+                draggable="true"
+                (dragstart)="onDragStart($event, item)"
             ></app-game-object>
             }
         </div>

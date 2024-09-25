@@ -1,5 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { GameObjectComponent } from '@app/components/game-object/game-object.component';
 import { SIZE_SMALL_MAP } from '@app/constants';
+import { GameObject } from '@app/interfaces/gameObject';
 import { ToolService } from '@app/services/tool.service';
 
 enum TileType {
@@ -11,10 +13,21 @@ enum TileType {
     OpenDoor = 6,
 }
 
+enum ObjectType {
+    Trident = 1,
+    Armor = 2,
+    Sandal = 3,
+    Lightning = 4,
+    Xiphos = 5,
+    Kunee = 6,
+    Random = 7,
+    Spawn = 8,
+}
+
 @Component({
     selector: 'app-edition-game-grid',
     standalone: true,
-    imports: [],
+    imports: [GameObjectComponent],
     templateUrl: './edition-game-grid.component.html',
     styleUrl: './edition-game-grid.component.scss',
 })
@@ -30,7 +43,12 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     isMouseDown: boolean = false;
 
-    constructor(private toolService: ToolService) {}
+    currentDraggedObject: GameObject;
+    objectsPosition: number[][];
+
+    constructor(private toolService: ToolService) {
+        this.objectsPosition = Array.from({ length: this.height }, () => Array(this.width).fill(0));
+    }
 
     get selectedTile() {
         return this.toolService.getSelectedTile();
@@ -43,6 +61,34 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
         if (changes['resetTrigger'] && this.resetTrigger) {
             this.resetGrid();
+        }
+    }
+
+    allowDrop(event: DragEvent) {
+        event.preventDefault();
+    }
+
+    onDrop(event: DragEvent, row: number, col: number) {
+        const data = event.dataTransfer?.getData('text/plain');
+        if (data) {
+            this.currentDraggedObject = JSON.parse(data);
+            switch (this.currentDraggedObject.id) {
+                case 'spawn-point':
+                    this.objectsPosition[row][col] = ObjectType.Spawn;
+                    break;
+                default:
+                    console.log(this.currentDraggedObject.id);
+                    break;
+            }
+        }
+    }
+
+    getObjectImage(value: number): string {
+        switch (value) {
+            case ObjectType.Spawn:
+                return 'assets/images/objects/tree.jpg';
+            default:
+                return '';
         }
     }
 

@@ -14,7 +14,7 @@
                         id="mapDescription"
                         type="text"
                         minlength="10"
-                        maxlength="256"
+                        maxlength="150"
                         placeholder="Entrez la description de votre carte"
                     ></textarea>
                 </div>
@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="right-container">
-            <div class="map-sizes">
+            <!-- <div class="map-sizes">
                 <span class="title">Taille de la carte </span>
                 <mat-button-toggle-group
                     class="switch-group"
@@ -49,8 +49,8 @@
                     <mat-button-toggle class="switch" value="medium">Moyenne</mat-button-toggle>
                     <mat-button-toggle class="switch" value="large">Grande</mat-button-toggle>
                 </mat-button-toggle-group>
-            </div>
-            <app-editor-objects-container [randomItemCount]="randomItemCount" [spawnPointCount]="spawnPointCount"> </app-editor-objects-container>
+            </div> -->
+            <app-editor-objects-container></app-editor-objects-container>
         </div>
     </div>
 </div>
