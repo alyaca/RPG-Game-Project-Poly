@@ -66,14 +66,15 @@
     height: 100%;
     position: absolute;
     right: 2%;
+    top: 5%;
     display: flex;
     flex-direction: column;
 }
 .properties-icons img {
     max-width: 90%;
-    max-height: 25%;
-    margin-top: 22%;
-    margin-bottom: 22%;
+    max-height: 15%;
+    margin-top: 15%;
+    margin-bottom: 15%;
 }
 
 .properties-icons img:hover {
