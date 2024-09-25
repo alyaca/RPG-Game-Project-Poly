@@ -1,15 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
-import { Router } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
-import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component'; 
+import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component';
+// import { MapValidatorService } from '@app/services/map-validator.service';
 
 @Component({
     selector: 'app-map-creation-page',
@@ -21,12 +21,19 @@ import { EditionDialogComponent } from '@app/components/edition-dialog/edition-d
 export class MapCreationPageComponent {
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
+
+    mapName: string = '';
+    mapDescription: string = '';
+
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
-    constructor(private dialog: MatDialog, private router: Router) {}
+    constructor(
+        private dialog: MatDialog,
+        private router: Router,
+    ) {}
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
@@ -57,26 +64,40 @@ export class MapCreationPageComponent {
 
     handleReset() {
         this.resetTrigger = true;
+        this.updateMapName('');
+        this.updateMapDescription('');
         setTimeout(() => (this.resetTrigger = false), 0);
     }
 
     handleSave() {
         this.saveTrigger = true;
-        setTimeout(() => (this.saveTrigger = false), 0);
+        setTimeout(
+            () =>
+                // this.mapValidatorService.validateMap(this.mapData.tilesGrid, this.mapData.name, this.mapData.description)
+                (this.saveTrigger = false),
+            0,
+        );
     }
 
     handleExit() {
         const dialogRef = this.dialog.open(EditionDialogComponent, {
             data: {
-              message: 'Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?',
-              confirm: true,
+                message: 'Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?',
+                confirm: true,
             },
-          });
-        
-          dialogRef.afterClosed().subscribe(result => {
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
             if (result === 'leave') {
-              this.router.navigate(['/admin']);
-            } 
-          });
+                this.router.navigate(['/admin']);
+            }
+        });
+    }
+
+    updateMapName(newName: string) {
+        this.mapName = newName;
+    }
+    updateMapDescription(newDescription: string) {
+        this.mapDescription = newDescription;
     }
 }

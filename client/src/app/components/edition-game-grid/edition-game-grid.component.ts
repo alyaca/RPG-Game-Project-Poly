@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/
 import { SIZE_SMALL_MAP, SIZE_MEDIUM_MAP, SIZE_LARGE_MAP } from '@app/constants';
 import { ToolService } from '@app/services/tool.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator.service';
+// import { TileType } from '@app/services/map-validator.service';
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -14,6 +15,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
+
+    @Input() mapName: string;
+    @Input() mapDescription: string;
+
     tilesGrid: number[][];
     // create itemArray
     height: number = SIZE_SMALL_MAP;
@@ -42,7 +47,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
             this.resetGrid();
         }
         if (changes['saveTrigger'] && this.saveTrigger) {
-            this.mapValidatorService.validateMap(this.tilesGrid);
+            this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
         }
     }
 

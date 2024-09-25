@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component'; 
+import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component';
 
 export enum TileType {
     Ground = 1,
@@ -17,23 +17,26 @@ export enum TileType {
 export class MapValidatorService {
     constructor(private dialog: MatDialog) {}
 
-    validateMap(array: number[][]) {
+    validateMap(array: number[][], title: string, description: string) {
         const errorMessages: string[] = [];
 
         if (!this.hasSufficientTerrainTiles(array)) {
-            errorMessages.push('il n\'y a pas assez de tuiles de terrain');
+            errorMessages.push("il n'y a pas assez de tuiles de terrain");
         }
 
         if (!this.validateAllDoors(array)) {
-            errorMessages.push('au moins une porte n\'est pas valide');
+            errorMessages.push("au moins une porte n'est pas valide");
         }
 
         if (!this.isEveryTileAccessible(array)) {
-            errorMessages.push('as toutes les tuiles de terrain sont accessibles');
+            errorMessages.push('pas toutes les tuiles de terrain sont accessibles');
         }
 
-        // Use MatDialog instead of alert
-        const message = errorMessages.length > 0 ? errorMessages.join(' et ') : 'Votre carte est valide';
+        if (!this.validateTextInput(title, description)) {
+            errorMessages.push('le titre ou la description de la carte est vide');
+        }
+
+        const message = errorMessages.length > 0 ? errorMessages.join(' et ') : 'Sauvegarde réussie';
         this.openDialog(message);
     }
 
@@ -137,7 +140,11 @@ export class MapValidatorService {
 
     openDialog(message: string) {
         this.dialog.open(EditionDialogComponent, {
-            data: { message }
+            data: { message },
         });
+    }
+
+    validateTextInput(title: string, description: string) {
+        return title?.trim() !== '' && description?.trim() !== '';
     }
 }
