@@ -62,7 +62,7 @@ describe('MapController', () => {
     it('allVisibleMaps should return only visible maps', async () => {
         const fakeMaps: Map[] = [{ visible: true } as Map, { visible: true } as Map];
 
-        mapService.getAllVisibleMaps.resolves(fakeMaps);
+        mapService.getVisibleMaps.resolves(fakeMaps);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -74,11 +74,11 @@ describe('MapController', () => {
             return res;
         };
 
-        await controller.allVisibleMaps(res);
+        await controller.visibleMaps(res);
     });
 
     it('visibleMaps should return NOT_FOUND when service unable to fetch visible maps', async () => {
-        mapService.getAllVisibleMaps.rejects();
+        mapService.getVisibleMaps.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -87,6 +87,76 @@ describe('MapController', () => {
         };
         res.send = () => res;
 
-        await controller.allVisibleMaps(res);
+        await controller.visibleMaps(res);
+    });
+
+    it('should return 200 OK and the updated map when update is successful ', async () => {
+        const testMap = new Map();
+        mapService.updateMap.resolves(testMap);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (map) => {
+            expect(map).toEqual(testMap);
+            return res;
+        };
+        await controller.updateMap('id', {}, res);
+    });
+
+    it('should return 404 NOT FOUND when the map does not exist', async () => {
+        mapService.updateMap.resolves(null);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.updateMap('id', {}, res);
+    });
+
+    it('should return 500 INTERNAL SERVER ERROR when an exception occurs during update ', async () => {
+        mapService.updateMap.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            return res;
+        };
+        res.send = () => res;
+        await controller.updateMap('id', {}, res);
+    });
+
+    it('should return 204 NO CONTENT when delete is successful', async () => {
+        mapService.deleteMap.resolves(true);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NO_CONTENT);
+            return res;
+        };
+        res.send = () => res;
+        await controller.deleteMap('id', res);
+    });
+
+    it('should return 404 NOT FOUND when the map does not exist', async () => {
+        mapService.deleteMap.resolves(false);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.deleteMap('id', res);
+    });
+
+    it('should return 500 INTERNAL SERVER ERROR when an exception occurs during delete', async () => {
+        mapService.deleteMap.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            return res;
+        };
+        res.send = () => res;
+        await controller.deleteMap('id', res);
     });
 });
