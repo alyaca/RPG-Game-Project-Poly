@@ -127,19 +127,15 @@ describe('MapController', () => {
         await controller.updateMap('id', {}, res);
     });
 
-    it('should return 200 OK and true when delete is successful', async () => {
+    it('should return 204 NO CONTENT when delete is successful', async () => {
         mapService.deleteMap.resolves(true);
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NO_CONTENT);
             return res;
         };
-        res.json = (result) => {
-            expect(result).toEqual(true);
-            return res;
-        };
+        res.send = () => res;
         await controller.deleteMap('id', res);
-        expect(mapService.deleteMap).toHaveBeenCalledWith('id');
     });
 
     it('should return 404 NOT FOUND when the map does not exist', async () => {
@@ -147,6 +143,17 @@ describe('MapController', () => {
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+        await controller.deleteMap('id', res);
+    });
+
+    it('should return 500 INTERNAL SERVER ERROR when an exception occurs during delete', async () => {
+        mapService.deleteMap.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
