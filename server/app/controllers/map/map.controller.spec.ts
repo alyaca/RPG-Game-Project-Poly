@@ -62,7 +62,7 @@ describe('MapController', () => {
     it('allVisibleMaps should return only visible maps', async () => {
         const fakeMaps: Map[] = [{ visible: true } as Map, { visible: true } as Map];
 
-        mapService.getAllVisibleMaps.resolves(fakeMaps);
+        mapService.getVisibleMaps.resolves(fakeMaps);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -74,11 +74,11 @@ describe('MapController', () => {
             return res;
         };
 
-        await controller.allVisibleMaps(res);
+        await controller.visibleMaps(res);
     });
 
     it('visibleMaps should return NOT_FOUND when service unable to fetch visible maps', async () => {
-        mapService.getAllVisibleMaps.rejects();
+        mapService.getVisibleMaps.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -87,6 +87,6 @@ describe('MapController', () => {
         };
         res.send = () => res;
 
-        await controller.allVisibleMaps(res);
+        await controller.visibleMaps(res);
     });
 });
