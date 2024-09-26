@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
-import { Game } from '@app/interfaces/game';
+import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
 import { BehaviorSubject, of } from 'rxjs';
@@ -19,7 +19,7 @@ describe('AdministrationPageComponent', () => {
 
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'isListeEmpty',
-            'getAllVisibleMaps',
+            'getAllVisibleGames',
             'selectGame',
             'deselectGame',
             'getGames',
@@ -29,7 +29,7 @@ describe('AdministrationPageComponent', () => {
         ]);
 
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
-        gameListServiceSpy.selectedGame$ = new BehaviorSubject<Game | null>(null).asObservable();
+        gameListServiceSpy.selectedGame$ = new BehaviorSubject<Map | null>(null).asObservable();
 
         await TestBed.configureTestingModule({
             imports: [AdministrationPageComponent, GameListComponent],
