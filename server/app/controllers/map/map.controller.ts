@@ -1,7 +1,7 @@
 import { Map } from '@app/model/schema/map.schema';
 import { MapService } from '@app/services/map/map.service';
 import { SavingService } from '@app/services/saving/saving.service';
-import { Body, Controller, Get, HttpStatus, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Put, Req, Res } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -56,9 +56,9 @@ export class MapController {
         description: 'Map was not created',
     })
     @Post('/')
-    async addMap(@Res() response: Response) {
+    async addMap(@Res() response: Response, @Req() request: Request) {
         try {
-            const hasBeenCreated = await this.savingService.addMapToDb(Body); //idk yet
+            const hasBeenCreated = await this.savingService.addMapToDb(request.body); //idk yet
             response.status(HttpStatus.CREATED).json(hasBeenCreated);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);

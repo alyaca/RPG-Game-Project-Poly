@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
     providedIn: 'root',
 })
 export class SaveGameService {
-    private apiURL = `${environment.serverUrl}`;
+    private apiURL = `${environment.serverUrl}/maps`;
 
     constructor(private http: HttpClient) {}
 

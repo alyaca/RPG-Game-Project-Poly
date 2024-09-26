@@ -5,18 +5,18 @@ import { RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
+import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { Game } from '@app/interfaces/game';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
-import { AdministrationPageComponent } from '../administration-page/administration-page.component';
 
 @Component({
     selector: 'app-map-creation-page',
     standalone: true,
     templateUrl: './map-creation-page.component.html',
     styleUrls: ['./map-creation-page.component.scss'],
-    providers: [EditionGameGridComponent, AdministrationPageComponent],
+    providers: [EditionGameGridComponent, GameListComponent],
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
 export class MapCreationPageComponent {
@@ -30,7 +30,7 @@ export class MapCreationPageComponent {
     game: Game;
 
     constructor(
-        private adminGamePage: AdministrationPageComponent,
+        private adminGamePage: GameListComponent,
         private gameGridComponent: EditionGameGridComponent,
         private saveGameSerivce: SaveGameService,
     ) {}
@@ -69,15 +69,14 @@ export class MapCreationPageComponent {
 
     takeScreenshot() {
         html2canvas(this.canvas.nativeElement).then((canvas) => {
+            canvas.height = 80;
+            canvas.width = 80;
             const base64Image = canvas.toDataURL('mapScreenshot.png');
 
             const mapName = <HTMLInputElement>document.getElementById('mapName');
             const mapDescription = <HTMLTextAreaElement>document.getElementById('mapDescription');
             //TODO:
-            // Create service to call server service to create a post/put request.
-            // The request will be called be depending on if the game was selected in the admin page.
-            // if it was selected (check service GameSelected attribute is not null) then it's put to replace the existing game
-            // if there wasn't any game selected, post will be called to add the new game.
+            // Need to find a way to get the updated informations for the sizes, the gridArray and the itemArray.
             let nbPlayersNewMap: number = 0;
             switch (this.gameGridComponent.height) {
                 case 10:
@@ -90,9 +89,7 @@ export class MapCreationPageComponent {
                     nbPlayersNewMap = 6;
                     break;
             }
-
-            // TO CHANGE WITH THE COMPONENT/SERVICE THAT GHADI CREATED
-            if (this.adminGamePage.game == null) {
+            if (this.adminGamePage.gameSelected == null) {
                 // need a new way to check if it's a new map or not
                 // if game doesn't exist, will have to get some info from admin page
                 this.game = {
@@ -109,14 +106,14 @@ export class MapCreationPageComponent {
                     isSelected: false,
                     lastModification: new Date(),
                 };
-                this.saveGameSerivce.addNewGame(this.game);
+                this.saveGameSerivce.addNewGame(this.game).subscribe((data) => (this.game._id = data._id));
             } else {
                 this.game = {
                     _id: '2',
                     name: mapName.value,
                     description: mapDescription.value,
-                    visible: this.adminGamePage.game.visibility,
-                    mode: this.adminGamePage.game.mode,
+                    visible: this.adminGamePage.gameSelected.visible,
+                    mode: this.adminGamePage.gameSelected.mode,
                     nbPlayers: nbPlayersNewMap,
                     image: base64Image,
                     dimension: this.gameGridComponent.height.toString(),

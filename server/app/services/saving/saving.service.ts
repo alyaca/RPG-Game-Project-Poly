@@ -9,13 +9,10 @@ export class SavingService {
 
     async addMapToDb(mapToAdd: any) {
         console.log(mapToAdd);
-        return await this.mapModel.create(mapToAdd);
+        return await this.mapModel.create(mapToAdd); // Model.create() no longer accepts a callback
     }
 
     async replaceMapInDb(mapToAdd: any) {
-        console.log('BALLS');
-        const maps = await this.mapModel.find();
-        console.log(maps);
-        return await this.mapModel.replaceOne(maps, mapToAdd);
+        return await this.mapModel.findOneAndReplace(mapToAdd._id, mapToAdd);
     }
 }
