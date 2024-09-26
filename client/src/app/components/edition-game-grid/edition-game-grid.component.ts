@@ -1,5 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { SIZE_SMALL_MAP } from '@app/constants';
+import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { Game } from '@app/interfaces/game';
+import { SaveGameService } from '@app/services/save-game.service';
 import { ToolService } from '@app/services/tool.service';
 
 enum TileType {
@@ -22,6 +24,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     gridArray: number[][];
+    itemArray: number[][]; // will have to store the items present on the map
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
 
@@ -30,7 +33,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     isMouseDown: boolean = false;
 
-    constructor(private toolService: ToolService) {}
+    constructor(
+        private toolService: ToolService,
+        private saveGameService: SaveGameService,
+    ) {}
 
     get selectedTile() {
         return this.toolService.getSelectedTile();
@@ -48,14 +54,14 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     updateDimensions() {
         if (this.selectedSize === 'small') {
-            this.height = 10;
-            this.width = 10;
+            this.height = SIZE_SMALL_MAP;
+            this.width = SIZE_SMALL_MAP;
         } else if (this.selectedSize === 'medium') {
-            this.height = 15;
-            this.width = 15;
+            this.height = SIZE_MEDIUM_MAP;
+            this.width = SIZE_MEDIUM_MAP;
         } else if (this.selectedSize === 'large') {
-            this.height = 20;
-            this.width = 20;
+            this.height = SIZE_LARGE_MAP;
+            this.width = SIZE_LARGE_MAP;
         } else {
             alert('invalid map size chosen');
         }
@@ -136,5 +142,54 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
     ngOnDestroy() {
         this.toolService.selectedTile = '';
+    }
+
+    saveGame(image: string, mapName: string, mapDescription: string, selectedMap: Game | null) {
+        if (selectedMap == null) {
+            let playerNumber = 2;
+            switch (this.height) {
+                case 10: {
+                    playerNumber = 2;
+                    break;
+                }
+                case 15: {
+                    playerNumber = 4;
+                    break;
+                }
+                case 20: {
+                    playerNumber = 6;
+                    break;
+                }
+            }
+            const mapToStore = {
+                name: mapName,
+                description: mapDescription,
+                visible: true,
+                mode: 'normal', //will have to get it from admin
+                nbPlayers: playerNumber,
+                image: image,
+                tiles: this.gridArray,
+                dimension: this.height, // will have to get it from admin, consequently, the nb of players will also change.
+                itemPlacement: this.itemArray,
+                isSelected: false,
+                lastModification: new Date(),
+            };
+            this.saveGameService.addNewGame(mapToStore).subscribe();
+        } else {
+            const mapToReplace = {
+                name: mapName,
+                description: mapDescription,
+                visible: selectedMap.visible,
+                mode: selectedMap.mode,
+                nbPlayers: selectedMap.nbPlayers,
+                image: image,
+                tiles: this.gridArray,
+                dimension: selectedMap.dimension,
+                itemPlacement: this.itemArray,
+                isSelected: false,
+                lastModification: new Date(),
+            };
+            this.saveGameService.replaceGame(selectedMap._id, mapToReplace).subscribe();
+        }
     }
 }

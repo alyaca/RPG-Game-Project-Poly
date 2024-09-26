@@ -21,14 +21,14 @@
             </form>
 
             <div class="buttons-container">
-                <button class="button" id="save-button">Sauvegarder</button>
+                <button class="button" id="save-button" (click)="infoToSave()">Sauvegarder</button>
                 <button class="button" id="reset-button" (click)="handleReset()">Réinitialiser</button>
                 <button class="button" id="return-button" routerLink="/admin" routerLink="">Retour</button>
             </div>
         </div>
         <div class="grid-element" id="game-grid-and-toolbar-container">
             <div id="game-grid-background-gradient">
-                <div class="grid-element" id="game-grid-container">
+                <div class="grid-element" id="game-grid-container" #gameGrid>
                     <app-edition-game-grid [selectedSize]="selectedSize" [resetTrigger]="resetTrigger"></app-edition-game-grid>
                 </div>
             </div>

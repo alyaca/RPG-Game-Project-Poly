@@ -1,18 +1,29 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
+import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import html2canvas from 'html2canvas';
 
 @Component({
     selector: 'app-map-creation-page',
     standalone: true,
     templateUrl: './map-creation-page.component.html',
     styleUrls: ['./map-creation-page.component.scss'],
-    imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
+    providers: [EditionGameGridComponent, GameListComponent],
+    imports: [
+        GameListComponent,
+        MatButtonToggleModule,
+        EditorObjectsContainerComponent,
+        FormsModule,
+        RouterLink,
+        EditionGameGridComponent,
+        EditionToolbarComponent,
+    ],
 })
 export class MapCreationPageComponent {
     @Input() selectedSize: string = 'small';
@@ -20,6 +31,13 @@ export class MapCreationPageComponent {
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
+
+    @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
+
+    constructor(
+        private gameGridComponent: EditionGameGridComponent,
+        private gameList: GameListComponent,
+    ) {}
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
@@ -51,5 +69,18 @@ export class MapCreationPageComponent {
     handleReset() {
         this.resetTrigger = true;
         setTimeout(() => (this.resetTrigger = false), 0);
+    }
+
+    infoToSave() {
+        html2canvas(this.canvas.nativeElement).then((canvas) => {
+            canvas.height = 80;
+            canvas.width = 80;
+            const base64image = canvas.toDataURL('mapScreenshot.png');
+
+            const mapName = <HTMLInputElement>document.getElementById('mapName');
+            const mapDescription = <HTMLTextAreaElement>document.getElementById('mapDescription');
+
+            this.gameGridComponent.saveGame(base64image, mapName.value, mapDescription.value, this.gameList.gameSelected);
+        });
     }
 }

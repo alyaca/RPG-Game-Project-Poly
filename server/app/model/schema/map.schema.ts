@@ -7,8 +7,8 @@ export type MapDocument = Map & Document;
 @Schema()
 export class Map {
     @ApiProperty()
-    @Prop({ type: MongooseSchema.Types.ObjectId })
-    _id?: string;
+    // @Prop({ type: MongooseSchema.Types.ObjectId })
+    _id?: MongooseSchema.Types.ObjectId;
 
     @ApiProperty()
     @Prop({ required: true })
@@ -35,16 +35,16 @@ export class Map {
     image: string;
 
     @ApiProperty()
-    @Prop({ type: [Number], required: true })
-    tiles: number[];
+    @Prop({ required: true })
+    tiles: number[][];
 
     @ApiProperty()
     @Prop({ required: true })
     dimension: number;
 
     @ApiProperty()
-    @Prop({ type: [String], required: true })
-    itemPlacement: number[];
+    @Prop({ required: true })
+    itemPlacement: number[][];
 
     @ApiProperty()
     @Prop({ required: false })
