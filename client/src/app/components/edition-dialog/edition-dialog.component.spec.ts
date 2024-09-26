@@ -33,7 +33,7 @@ describe('EditionDialogComponent', () => {
     });
 
     it('should close dialog with "close" when onClose is called with confirm false', () => {
-        component.data.confirm = false; // Change confirm to false
+        component.data.confirm = false; 
         component.onClose();
         expect(dialogRefSpy.close).toHaveBeenCalledWith('close');
     });
@@ -44,6 +44,6 @@ describe('EditionDialogComponent', () => {
     });
 
     it('should have injected data correctly', () => {
-        expect(component.data).toEqual({ message: 'Test message', confirm: true });
+        expect(component.data).toEqual({ message: 'Test message', title: 'title', confirm: true });
     });
 });

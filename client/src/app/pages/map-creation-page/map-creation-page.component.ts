@@ -72,11 +72,7 @@ export class MapCreationPageComponent {
     handleSave() {
         this.saveTrigger = true;
         setTimeout(
-            () =>
-                // this.mapValidatorService.validateMap(this.mapData.tilesGrid, this.mapData.name, this.mapData.description)
-                (this.saveTrigger = false),
-            0,
-        );
+            () =>(this.saveTrigger = false),0);
     }
 
     handleExit() {

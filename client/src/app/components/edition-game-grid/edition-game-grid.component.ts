@@ -34,7 +34,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         private mapValidatorService: MapValidatorService,
     ) {}
 
-    get selectedTile() {
+    get selectedTile(): string {
         return this.toolService.getSelectedTile();
     }
 
@@ -104,7 +104,9 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
                 this.tilesGrid[row][col] = TileType.Water;
                 break;
             case 'door-tile':
-                this.tilesGrid[row][col] = this.tilesGrid[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
+                if (this.isTileOnEdgeOfMap(row, col) && this.isPointingNonDoorTile(row, col)){
+                    this.tilesGrid[row][col] = TileType.ClosedDoor;
+                }
                 break;
             default:
                 break;
@@ -142,5 +144,13 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     ngOnDestroy() {
         this.toolService.selectedTile = '';
+    }
+
+    isTileOnEdgeOfMap(row: number, col: number): boolean{
+        return !(col === 0 || col === this.height - 1 || row === 0 || row === this.height - 1);
+    }
+
+    isPointingNonDoorTile(row: number, col: number): boolean{
+        return this.tilesGrid[row][col] !== TileType.ClosedDoor && this.tilesGrid[row][col] !== TileType.OpenDoor
     }
 }

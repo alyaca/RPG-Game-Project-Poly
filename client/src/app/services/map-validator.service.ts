@@ -36,8 +36,12 @@ export class MapValidatorService {
             errorMessages.push('le titre ou la description de la carte est vide');
         }
 
-        const message = errorMessages.length > 0 ? errorMessages.join(' et ') : 'Sauvegarde réussie';
-        this.openDialog(message);
+        const message = errorMessages.length > 0
+        ? '<ul><li>' + errorMessages.join('</li><li>') + '</li></ul>'
+        : 'Sauvegarde réussie';
+
+        const dialogTitle: string = errorMessages.length > 0 ? 'Carte invalide' : 'Carte valide'; 
+        this.openDialog(message, dialogTitle);
     }
 
     isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
@@ -79,45 +83,33 @@ export class MapValidatorService {
 
     isEveryTileAccessible(array: number[][]): boolean {
         const visited = Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
-
-        // Directions for moving up, down, left, right
         const directions = [
-            { x: 0, y: 1 }, // Right
-            { x: 1, y: 0 }, // Down
-            { x: 0, y: -1 }, // Left
-            { x: -1, y: 0 }, // Up
+            { x: 0, y: 1 }, 
+            { x: 1, y: 0 }, 
+            { x: 0, y: -1 }, 
+            { x: -1, y: 0 }, 
         ];
-
         const dfs = (row: number, col: number) => {
-            // Mark the current tile as visited
             visited[row][col] = true;
-
-            // Explore all four directions
             for (const direction of directions) {
                 const newRow = row + direction.x;
                 const newCol = col + direction.y;
-
-                // Check bounds and whether the tile is non-wall and not visited
                 if (
                     newRow >= 0 &&
                     newRow < array.length &&
                     newCol >= 0 &&
                     newCol < array[0].length &&
                     !visited[newRow][newCol] &&
-                    array[newRow][newCol] !== TileType.Wall // Non-wall tile
+                    array[newRow][newCol] !== TileType.Wall
                 ) {
                     dfs(newRow, newCol);
                 }
             }
         };
-
-        // Find the first non-wall tile to start the DFS
         let startFound = false;
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] !== TileType.Wall) {
-                    // Non-wall tile
-                    // Start DFS from the first found non-wall tile
                     dfs(row, col);
                     startFound = true;
                     break;
@@ -125,26 +117,24 @@ export class MapValidatorService {
             }
             if (startFound) break;
         }
-
-        // Check if all non-wall tiles were visited
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] !== TileType.Wall && !visited[row][col]) {
-                    return false; // Found an accessible non-wall tile that wasn't visited
+                    return false;
                 }
             }
         }
 
-        return true; // All non-wall tiles are accessible
+        return true; 
     }
 
-    openDialog(message: string) {
+    openDialog(message: string, title: string) {
         this.dialog.open(EditionDialogComponent, {
-            data: { message },
+            data: { message, title },
         });
     }
 
-    validateTextInput(title: string, description: string) {
+    validateTextInput(title: string, description: string): boolean {
         return title?.trim() !== '' && description?.trim() !== '';
     }
 }
