@@ -9,7 +9,7 @@ import { GameListComponent } from '@app/components/game-list/game-list.component
     standalone: true,
     imports: [GameListComponent, RouterLink, CharacterCreatorComponent, CommonModule],
     templateUrl: './create-game-page.component.html',
-    styleUrl: './create-game-page.component.scss',
+    styleUrls: ['./create-game-page.component.scss', '../../../common/css/game-list-page.scss']
 })
 export class CreateGamePageComponent {
     isComponentVisible: boolean = false;
