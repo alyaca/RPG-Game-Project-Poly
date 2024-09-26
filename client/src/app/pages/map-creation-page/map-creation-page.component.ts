@@ -1,15 +1,14 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { RouterLink, Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 
 import { MatDialog } from '@angular/material/dialog';
-import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component';
-// import { MapValidatorService } from '@app/services/map-validator.service';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 @Component({
     selector: 'app-map-creation-page',
@@ -71,12 +70,11 @@ export class MapCreationPageComponent {
 
     handleSave() {
         this.saveTrigger = true;
-        setTimeout(
-            () =>(this.saveTrigger = false),0);
+        setTimeout(() => (this.saveTrigger = false), 0);
     }
 
     handleExit() {
-        const dialogRef = this.dialog.open(EditionDialogComponent, {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
             data: {
                 message: 'Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?',
                 confirm: true,

@@ -4,23 +4,23 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-    selector: 'app-edition-dialog',
+    selector: 'app-simple-dialog',
     standalone: true,
     imports: [CommonModule, MatDialogModule, MatButtonModule],
-    templateUrl: './edition-dialog.component.html',
-    styleUrl: './edition-dialog.component.scss',
+    templateUrl: './simple-dialog.component.html',
+    styleUrl: './simple-dialog.component.scss',
 })
-export class EditionDialogComponent implements OnInit {
-    dialogTitle: string = "";
+export class SimpleDialogComponent implements OnInit {
+    dialogTitle: string = '';
     constructor(
-        public dialogRef: MatDialogRef<EditionDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { message: string; title: string, confirm: boolean },
+        public dialogRef: MatDialogRef<SimpleDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: { message: string; title: string; confirm: boolean },
     ) {}
 
     ngOnInit(): void {
         this.data.title = this.data.confirm ? 'Quitter cette page?' : this.data.title;
-    } 
-    
+    }
+
     onClose() {
         this.dialogRef.close(this.data.confirm ? 'leave' : 'close');
     }

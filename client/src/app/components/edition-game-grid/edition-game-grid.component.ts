@@ -1,8 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { SIZE_SMALL_MAP, SIZE_MEDIUM_MAP, SIZE_LARGE_MAP } from '@app/constants';
+import { SIZE_SMALL_MAP } from '@app/constants';
 import { ToolService } from '@app/services/tool.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator.service';
-// import { TileType } from '@app/services/map-validator.service';
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -20,7 +19,6 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() mapDescription: string;
 
     tilesGrid: number[][];
-    // create itemArray
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
 
@@ -39,30 +37,11 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.selectedSize) {
-            this.updateDimensions();
-            this.tilesGrid = this.createNewMap();
-        }
-        if (changes['resetTrigger'] && this.resetTrigger) {
+        if (changes.resetTrigger) {
             this.resetGrid();
         }
-        if (changes['saveTrigger'] && this.saveTrigger) {
+        if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
-        }
-    }
-
-    updateDimensions() {
-        if (this.selectedSize === 'small') {
-            this.height = SIZE_SMALL_MAP;
-            this.width = SIZE_SMALL_MAP;
-        } else if (this.selectedSize === 'medium') {
-            this.height = SIZE_MEDIUM_MAP;
-            this.width = SIZE_MEDIUM_MAP;
-        } else if (this.selectedSize === 'large') {
-            this.height = SIZE_LARGE_MAP;
-            this.width = SIZE_LARGE_MAP;
-        } else {
-            alert('invalid map size chosen');
         }
     }
 
@@ -104,7 +83,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
                 this.tilesGrid[row][col] = TileType.Water;
                 break;
             case 'door-tile':
-                if (this.isTileOnEdgeOfMap(row, col) && this.isPointingNonDoorTile(row, col)){
+                if (!this.isTileOnEdgeOfMap(row, col) && this.isPointingNonDoorTile(row, col)) {
                     this.tilesGrid[row][col] = TileType.ClosedDoor;
                 }
                 break;
@@ -123,7 +102,6 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
             this.tilesGrid[row][col] = TileType.Ground;
         }
     }
-    // event.button -> 0: left click ; 1: middle click ; 2: right click
 
     onMouseDown(event: MouseEvent, row: number, col: number) {
         if (event.button === 0) {
@@ -146,11 +124,11 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         this.toolService.selectedTile = '';
     }
 
-    isTileOnEdgeOfMap(row: number, col: number): boolean{
-        return !(col === 0 || col === this.height - 1 || row === 0 || row === this.height - 1);
+    isTileOnEdgeOfMap(row: number, col: number): boolean {
+        return col === 0 || col === this.height - 1 || row === 0 || row === this.height - 1;
     }
 
-    isPointingNonDoorTile(row: number, col: number): boolean{
-        return this.tilesGrid[row][col] !== TileType.ClosedDoor && this.tilesGrid[row][col] !== TileType.OpenDoor
+    isPointingNonDoorTile(row: number, col: number): boolean {
+        return this.tilesGrid[row][col] !== TileType.ClosedDoor && this.tilesGrid[row][col] !== TileType.OpenDoor;
     }
 }

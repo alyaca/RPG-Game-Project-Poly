@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { EditionDialogComponent } from '@app/components/edition-dialog/edition-dialog.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 export enum TileType {
     Ground = 1,
@@ -15,32 +15,30 @@ export enum TileType {
     providedIn: 'root',
 })
 export class MapValidatorService {
+    errorMessages: string[] = [];
     constructor(private dialog: MatDialog) {}
 
     validateMap(array: number[][], title: string, description: string) {
-        const errorMessages: string[] = [];
-
+        this.errorMessages = [];
         if (!this.hasSufficientTerrainTiles(array)) {
-            errorMessages.push("il n'y a pas assez de tuiles de terrain");
+            this.errorMessages.push("il n'y a pas assez de tuiles de terrain");
         }
 
         if (!this.validateAllDoors(array)) {
-            errorMessages.push("au moins une porte n'est pas valide");
+            this.errorMessages.push("au moins une porte n'est pas valide");
         }
 
         if (!this.isEveryTileAccessible(array)) {
-            errorMessages.push('pas toutes les tuiles de terrain sont accessibles');
+            this.errorMessages.push('pas toutes les tuiles de terrain sont accessibles');
         }
 
         if (!this.validateTextInput(title, description)) {
-            errorMessages.push('le titre ou la description de la carte est vide');
+            this.errorMessages.push('le titre ou la description de la carte est vide');
         }
 
-        const message = errorMessages.length > 0
-        ? '<ul><li>' + errorMessages.join('</li><li>') + '</li></ul>'
-        : 'Sauvegarde réussie';
+        const message = this.errorMessages.length > 0 ? '<ul><li>' + this.errorMessages.join('</li><li>') + '</li></ul>' : 'Sauvegarde réussie';
 
-        const dialogTitle: string = errorMessages.length > 0 ? 'Carte invalide' : 'Carte valide'; 
+        const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Carte valide';
         this.openDialog(message, dialogTitle);
     }
 
@@ -84,10 +82,10 @@ export class MapValidatorService {
     isEveryTileAccessible(array: number[][]): boolean {
         const visited = Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
         const directions = [
-            { x: 0, y: 1 }, 
-            { x: 1, y: 0 }, 
-            { x: 0, y: -1 }, 
-            { x: -1, y: 0 }, 
+            { x: 0, y: 1 },
+            { x: 1, y: 0 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
         ];
         const dfs = (row: number, col: number) => {
             visited[row][col] = true;
@@ -125,11 +123,11 @@ export class MapValidatorService {
             }
         }
 
-        return true; 
+        return true;
     }
 
     openDialog(message: string, title: string) {
-        this.dialog.open(EditionDialogComponent, {
+        this.dialog.open(SimpleDialogComponent, {
             data: { message, title },
         });
     }

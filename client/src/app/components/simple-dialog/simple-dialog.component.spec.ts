@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { EditionDialogComponent } from './edition-dialog.component';
+import { SimpleDialogComponent } from './simple-dialog.component';
 
-describe('EditionDialogComponent', () => {
-    let component: EditionDialogComponent;
-    let fixture: ComponentFixture<EditionDialogComponent>;
-    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<EditionDialogComponent>>;
+describe('SimpleDialogComponent', () => {
+    let component: SimpleDialogComponent;
+    let fixture: ComponentFixture<SimpleDialogComponent>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<SimpleDialogComponent>>;
 
     beforeEach(async () => {
         dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
@@ -18,7 +18,7 @@ describe('EditionDialogComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(EditionDialogComponent);
+        fixture = TestBed.createComponent(SimpleDialogComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -33,7 +33,7 @@ describe('EditionDialogComponent', () => {
     });
 
     it('should close dialog with "close" when onClose is called with confirm false', () => {
-        component.data.confirm = false; 
+        component.data.confirm = false;
         component.onClose();
         expect(dialogRefSpy.close).toHaveBeenCalledWith('close');
     });
@@ -43,7 +43,18 @@ describe('EditionDialogComponent', () => {
         expect(dialogRefSpy.close).toHaveBeenCalledWith('cancel');
     });
 
-    it('should have injected data correctly', () => {
-        expect(component.data).toEqual({ message: 'Test message', title: 'title', confirm: true });
+    it('should set title to "Quitter cette page?" if confirm is true', () => {
+        component.data.confirm = true;
+        component.ngOnInit();
+
+        expect(component.data.title).toBe('Quitter cette page?');
+    });
+
+    it('should not change title if confirm is false', () => {
+        component.data.title = 'Test Title';
+        component.data.confirm = false;
+        component.ngOnInit();
+
+        expect(component.data.title).toBe('Test Title');
     });
 });
