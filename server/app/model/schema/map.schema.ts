@@ -11,7 +11,7 @@ export class Map {
     _id?: string;
 
     @ApiProperty()
-    @Prop({ type: String , required: true })
+    @Prop({ type: String, required: true })
     name: string;
 
     @ApiProperty()
@@ -19,7 +19,7 @@ export class Map {
     description: string;
 
     @ApiProperty()
-    @Prop({ type: Boolean, required: true})
+    @Prop({ type: Boolean, required: true })
     visible: boolean;
 
     @ApiProperty()
@@ -47,7 +47,7 @@ export class Map {
     itemPlacement: number[][];
 
     @ApiProperty()
-    @Prop({ type: Boolean ,required: false })
+    @Prop({ type: Boolean, required: false })
     isSelected: boolean;
 
     @ApiProperty()
