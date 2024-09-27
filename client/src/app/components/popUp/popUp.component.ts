@@ -1,21 +1,17 @@
-import { CommonModule, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { GameCreationService } from '../../services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation.service';
 
 @Component({
     selector: 'app-pop-up',
-    standalone: true,
     templateUrl: './popUp.component.html',
     styleUrls: ['./popUp.component.scss'],
-    imports: [NgClass, CommonModule],
 })
 export class PopUpComponent {
-    @Input() selectedSize: string;
-    @Input() selectedMode: string;
+    selectedSize: string;
+    selectedMode: string;
 
-    //gridArray: number[][];
     constructor(
         public dialogRef: MatDialogRef<PopUpComponent>,
         private router: Router,
@@ -29,7 +25,11 @@ export class PopUpComponent {
 
     selectMode(mode: string): void {
         this.selectedMode = mode;
-        console.log(mode);
+        this.gameCreationService.setSelectedMode(mode);
+    }
+
+    isSubmitDisabled(): boolean {
+        return !this.selectedMode || !this.selectedSize;
     }
 
     close(): void {
