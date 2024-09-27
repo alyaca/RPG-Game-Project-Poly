@@ -38,10 +38,10 @@ export class CreateGamePageComponent implements OnDestroy {
             });
             return;
         }
-        this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((doesGameExist: boolean) => {
-            if (doesGameExist) {
+        this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((game: Map | null) => {
+            if (game) {
                 this.isCharacterFormVisible = true;
-                this.gameListService.chosenGameSubject.next(this.selectedGame);
+                this.gameListService.chosenGameSubject.next(game);
             } else {
                 this.snackBar.open("Le jeu sélectionné n'existe pas ou a été caché", 'Fermer', {
                     duration: 2000,

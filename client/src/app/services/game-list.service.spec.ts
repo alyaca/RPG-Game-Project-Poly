@@ -42,9 +42,9 @@ describe('GameListService', () => {
                 mode: 'CTF',
                 nbPlayers: 6,
                 image: 'img1',
-                tiles: [0, 1],
+                tiles: [[0, 1]],
                 dimension: 20,
-                itemPlacement: [0, 1],
+                itemPlacement: [[0, 1]],
                 isSelected: false,
                 lastModification: new Date(),
             },
@@ -227,7 +227,7 @@ describe('GameListService', () => {
 
         service.getAllVisibleGames = jasmine.createSpy().and.returnValue(of([mockGame]));
         service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
-            expect(result).toBeTrue();
+            expect(result).toEqual(mockGame);
         });
     });
 
@@ -236,7 +236,7 @@ describe('GameListService', () => {
 
         service.getAllVisibleGames = jasmine.createSpy().and.returnValue(of([]));
         service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
-            expect(result).toBeFalse();
+            expect(result).toEqual(null);
         });
     });
 
@@ -246,7 +246,7 @@ describe('GameListService', () => {
         service.getAllVisibleGames = jasmine.createSpy().and.returnValue(throwError(() => new Error('Error fetching games')));
 
         service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
-            expect(result).toBeFalse();
+            expect(result).toEqual(null);
         });
     });
 

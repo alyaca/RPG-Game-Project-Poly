@@ -101,11 +101,15 @@ const ITEMS_LENGTH = 4;
 
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 
-const getRandomArray = (length: number, maxValue: number): number[] => Array.from({ length }, () => Math.floor(Math.random() * maxValue));
+const getRandom2DArray = (rows: number, cols: number, maxValue: number): number[][] => 
+    Array.from({ length: rows }, () => 
+        Array.from({ length: cols }, () => Math.floor(Math.random() * maxValue))
+    );
 
 const getFakeMaps = (count: number): Map[] => {
     const maps: Map[] = [];
     for (let i = 0; i < count; i++) {
+        const array2D = getRandom2DArray(2, 2, 6);
         const isVisible = i % 2 === 0;
         maps.push({
             _id: new mongoose.Types.ObjectId().toHexString(),
@@ -115,9 +119,9 @@ const getFakeMaps = (count: number): Map[] => {
             mode: MODES[Math.floor(Math.random() * MODES.length)],
             nbPlayers: NB_PLAYERS,
             image: 'Kratos.img',
-            tiles: getRandomArray(ARRAY_LENGTH, TILE_COUNT),
+            tiles: array2D,
             dimension: DIMENSION,
-            itemPlacement: getRandomArray(ITEMS_LENGTH, ITEM_PLACEMENT_COUNT),
+            itemPlacement: array2D,
             isSelected: false,
             lastModification: new Date(),
         });
