@@ -88,3 +88,11 @@
     border-bottom: 0.25rem solid black;
     border-right: 0.25rem solid black;
 }
+
+.hidden {
+    display: none;
+}
+
+.image-container:hover + .hidden-description {
+    opacity: 0;
+}

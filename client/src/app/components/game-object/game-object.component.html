@@ -1,11 +1,11 @@
 <div class="object">
     <div class="image-container" [ngClass]="{ disabled: count === 0 }" id="{{ id }}">
         @if(id === 7 || id === 8) {
-        <div class="object-count" id="count">{{ count }}</div>
+        <div class="object-count" id="count" [ngClass]="{ hidden: count === 0 }">{{ count }}</div>
         }
         <img [src]="imageUrl" alt="{{ name }}" />
     </div>
-    <div class="object-description-container">
+    <div class="object-description-container" [ngClass]="{ 'hidden-description': isDragging }">
         <p class="object-name">{{ name }}</p>
         <p class="object-description">{{ description }}</p>
     </div>

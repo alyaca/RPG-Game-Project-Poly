@@ -9,8 +9,10 @@
                 [name]="item.name"
                 [description]="item.description"
                 [count]="item.count"
+                [isDragging]="isDragging"
                 draggable="true"
                 (dragstart)="onDragStart($event, item)"
+                (dragend)="onDragEnd($event)"
             ></app-game-object>
             }
         </div>

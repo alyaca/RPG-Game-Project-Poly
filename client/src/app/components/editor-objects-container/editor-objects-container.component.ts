@@ -15,10 +15,9 @@ import { GameObjectManagerService } from '@app/services/game-object-manager/game
 })
 export class EditorObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
-
+    isDragging: boolean = false;
     mapSize: string = 'small';
     showDescription: boolean = true;
-    isSmaller: boolean = false;
     constructor(private gameObjectManagerService: GameObjectManagerService) {}
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
@@ -27,6 +26,11 @@ export class EditorObjectsContainerComponent implements OnInit {
             return;
         }
         this.gameObjectManagerService.setDraggedObject(gameObject);
+        this.isDragging = true;
+    }
+
+    onDragEnd(event: DragEvent) {
+        this.isDragging = false;
     }
 
     ngOnInit() {
