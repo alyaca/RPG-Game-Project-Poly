@@ -2,7 +2,7 @@
     <div class="create-game-page">
         <div class="title">Créer une nouvelle partie</div>
         <hr class="line-separator" />
-        <app-game-list></app-game-list>
+        <app-game-list [usingPage]="'game-list'"> </app-game-list>
         <div class="button-group">
             @if(!isComponentVisible){
             <p class="button" routerLink="/">Retour</p>
