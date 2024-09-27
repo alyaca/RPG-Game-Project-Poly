@@ -21,25 +21,29 @@ export class MapValidatorService {
     validateMap(array: number[][], title: string, description: string) {
         this.errorMessages = [];
         if (!this.hasSufficientTerrainTiles(array)) {
-            this.errorMessages.push("il n'y a pas assez de tuiles de terrain");
+            this.errorMessages.push("- Il n'y a pas assez de tuiles de terrain");
         }
 
         if (!this.validateAllDoors(array)) {
-            this.errorMessages.push("au moins une porte n'est pas valide");
+            this.errorMessages.push("- Au moins une porte n'est pas valide: ");
+            this.errorMessages.push("chacun doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
         }
 
         if (!this.isEveryTileAccessible(array)) {
-            this.errorMessages.push('pas toutes les tuiles de terrain sont accessibles');
+            this.errorMessages.push('- Pas toutes les tuiles de terrain sont accessibles');
         }
 
         if (!this.validateTextInput(title, description)) {
-            this.errorMessages.push('le titre ou la description de la carte est vide');
+            this.errorMessages.push('- Le titre ou la description de la carte est vide');
         }
 
-        const message = this.errorMessages.length > 0 ? '<ul><li>' + this.errorMessages.join('</li><li>') + '</li></ul>' : 'Sauvegarde réussie';
+        const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
 
-        const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Carte valide';
-        this.openDialog(message, dialogTitle);
+        if (dialogTitle === 'Sauvegarde réussie') {
+            this.errorMessages = ["Vous allez être redirigé vers la page d'administration"];
+        }
+
+        this.openDialog(this.errorMessages, dialogTitle);
     }
 
     isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
@@ -126,9 +130,9 @@ export class MapValidatorService {
         return true;
     }
 
-    openDialog(message: string, title: string) {
+    openDialog(errorMessages: string[], title: string) {
         this.dialog.open(SimpleDialogComponent, {
-            data: { message, title },
+            data: { messages: errorMessages, title },
         });
     }
 

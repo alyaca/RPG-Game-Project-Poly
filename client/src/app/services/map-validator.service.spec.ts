@@ -30,7 +30,7 @@ describe('MapValidatorService', () => {
 
             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
                 data: {
-                    message: "<ul><li>il n'y a pas assez de tuiles de terrain</li></ul>",
+                    messages: ["- Il n'y a pas assez de tuiles de terrain"],
                     title: 'Carte invalide',
                 },
             });
@@ -46,8 +46,8 @@ describe('MapValidatorService', () => {
 
             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
                 data: {
-                    message: 'Sauvegarde réussie',
-                    title: 'Carte valide',
+                    messages: ["Vous allez être redirigé vers la page d'administration"],
+                    title: 'Sauvegarde réussie',
                 },
             });
         });
@@ -169,7 +169,7 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
 
-            expect(service['errorMessages']).toContain("au moins une porte n'est pas valide");
+            expect(service['errorMessages']).toContain("- Au moins une porte n'est pas valide: ");
         });
 
         it('should add error message when isEveryTileAccessible returns false', () => {
@@ -179,7 +179,7 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
 
-            expect(service['errorMessages']).toContain('pas toutes les tuiles de terrain sont accessibles');
+            expect(service['errorMessages']).toContain('- Pas toutes les tuiles de terrain sont accessibles');
         });
 
         it('should add error message when validateTextInput returns false', () => {
@@ -189,7 +189,7 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Wall]], '', '');
 
-            expect(service['errorMessages']).toContain('le titre ou la description de la carte est vide');
+            expect(service['errorMessages']).toContain('- Le titre ou la description de la carte est vide');
         });
     });
 });
