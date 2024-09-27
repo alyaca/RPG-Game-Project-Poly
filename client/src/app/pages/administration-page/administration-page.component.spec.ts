@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
-import { PopUpComponent } from '@app/components/popUp/popUp.component';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
 import { of } from 'rxjs';
@@ -54,6 +54,6 @@ describe('AdministrationPageComponent', () => {
 
     it('should open PopUpComponent when openPopUp() is called', () => {
         component.openPopUp();
-        expect(dialogSpy.open).toHaveBeenCalledWith(PopUpComponent, { width: '40%', height: '50%' });
+        expect(dialogSpy.open).toHaveBeenCalledWith(CreationDialogComponent, { width: '40%', height: '50%' });
     });
 });

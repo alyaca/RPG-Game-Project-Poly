@@ -4,16 +4,16 @@ import { Router } from '@angular/router';
 import { GameCreationService } from '@app/services/game-creation.service';
 
 @Component({
-    selector: 'app-pop-up',
-    templateUrl: './popUp.component.html',
-    styleUrls: ['./popUp.component.scss'],
+    selector: 'app-creation-dialog',
+    templateUrl: './creation-dialog.component.html',
+    styleUrls: ['./creation-dialog.component.scss'],
 })
-export class PopUpComponent {
+export class CreationDialogComponent {
     selectedSize: string;
     selectedMode: string;
 
     constructor(
-        public dialogRef: MatDialogRef<PopUpComponent>,
+        public dialogRef: MatDialogRef<CreationDialogComponent>,
         private router: Router,
         private gameCreationService: GameCreationService,
     ) {}

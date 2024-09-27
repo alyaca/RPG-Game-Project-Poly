@@ -1,21 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { PopUpComponent } from './popUp.component';
+import { CreationDialogComponent } from './creation-dialog.component';
 
 describe('PopUpComponent', () => {
-    let component: PopUpComponent;
-    let fixture: ComponentFixture<PopUpComponent>;
-    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<PopUpComponent>>;
+    let component: CreationDialogComponent;
+    let fixture: ComponentFixture<CreationDialogComponent>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<CreationDialogComponent>>;
     let routerSpy: jasmine.SpyObj<Router>;
-    // let gameCreationServiceSpy: GameCreationService;
 
     beforeEach(async () => {
         dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
         await TestBed.configureTestingModule({
-            declarations: [PopUpComponent],
+            declarations: [CreationDialogComponent],
             providers: [
                 { provide: MatDialogRef, useValue: dialogRefSpy },
                 { provide: Router, useValue: routerSpy },
@@ -24,7 +23,7 @@ describe('PopUpComponent', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(PopUpComponent);
+        fixture = TestBed.createComponent(CreationDialogComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
