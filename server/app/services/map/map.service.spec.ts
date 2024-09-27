@@ -92,24 +92,21 @@ describe('MapService', () => {
 const MODES = ['CTF', 'Normal'];
 const GENERATE_COUNT = 5;
 const BASE_36 = 36;
-const TILE_COUNT = 10;
-const ITEM_PLACEMENT_COUNT = 15;
+const TILE_COUNT = 6;
 const DIMENSION = 20;
 const NB_PLAYERS = 6;
-const ARRAY_LENGTH = 6;
-const ITEMS_LENGTH = 4;
+const COLUMN_LENGTH = 2;
+const ROW_LENGTH = 2;
 
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 
-const getRandom2DArray = (rows: number, cols: number, maxValue: number): number[][] => 
-    Array.from({ length: rows }, () => 
-        Array.from({ length: cols }, () => Math.floor(Math.random() * maxValue))
-    );
+const getRandom2DArray = (rows: number, cols: number, maxValue: number): number[][] =>
+    Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * maxValue)));
 
 const getFakeMaps = (count: number): Map[] => {
     const maps: Map[] = [];
     for (let i = 0; i < count; i++) {
-        const array2D = getRandom2DArray(2, 2, 6);
+        const array2D = getRandom2DArray(ROW_LENGTH, COLUMN_LENGTH, TILE_COUNT);
         const isVisible = i % 2 === 0;
         maps.push({
             _id: new mongoose.Types.ObjectId().toHexString(),
