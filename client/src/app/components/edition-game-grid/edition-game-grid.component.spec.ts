@@ -138,11 +138,6 @@ describe('EditionGameGridComponent', () => {
         expect(toolServiceSpy.selectedTile).toBe('');
     });
 
-    it('should check if tile is on edge of map', () => {
-        expect(component.isTileOnEdgeOfMap(0, 0)).toBeTrue();
-        expect(component.isTileOnEdgeOfMap(1, 1)).toBeFalse();
-    });
-
     it('should check if pointing non-door tile', () => {
         component.tilesGrid[0][0] = TileType.Ground;
         expect(component.isPointingNonDoorTile(0, 0)).toBeTruthy();
