@@ -9,15 +9,12 @@ import { environment } from 'src/environments/environment';
     providedIn: 'root',
 })
 export class GameListService {
-    selectedGame$: Observable<Map | null>;
-
     selectedGameSubject = new BehaviorSubject<Map | null>(null);
+    chosenGameSubject = new BehaviorSubject<Map | null>(null);
     private allMapsApiUrl = `${environment.serverUrl}/maps`;
     private visibleMapsUrl = `${this.allMapsApiUrl}/visible`;
 
-    constructor(private http: HttpClient) {
-        this.selectedGame$ = this.selectedGameSubject.asObservable();
-    }
+    constructor(private http: HttpClient) {}
 
     getGames(usingPage: string) {
         if (usingPage === 'game-list') {

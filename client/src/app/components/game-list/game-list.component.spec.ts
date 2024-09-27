@@ -4,18 +4,16 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { GameListComponent } from './game-list.component';
 
 describe('GameListComponent', () => {
     let component: GameListComponent;
     let fixture: ComponentFixture<GameListComponent>;
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
-    let selectedGameSubject: BehaviorSubject<Map | null>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
-        selectedGameSubject = new BehaviorSubject<Map | null>(null);
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
@@ -48,7 +46,6 @@ describe('GameListComponent', () => {
         gameListServiceSpy.deselectGame.and.callFake((games: Map[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
-        gameListServiceSpy.selectedGame$ = selectedGameSubject.asObservable();
 
         await TestBed.configureTestingModule({
             imports: [GameListComponent],
@@ -80,13 +77,6 @@ describe('GameListComponent', () => {
                 expect(game.isSelected).toBeFalse();
             }
         });
-    });
-
-    it('should update selectedGame when gameListService emits a new selection', () => {
-        const mockSelectedGame: Map = mockGames[0];
-        selectedGameSubject.next(mockSelectedGame);
-        fixture.detectChanges();
-        expect(component.gameSelected).toEqual(mockSelectedGame);
     });
 
     it('should call changeVisibility and handle error message on failure', () => {

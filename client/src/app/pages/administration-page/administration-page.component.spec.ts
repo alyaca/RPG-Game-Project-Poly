@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
-import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AdministrationPageComponent } from './administration-page.component';
 
 describe('AdministrationPageComponent', () => {
@@ -29,7 +28,6 @@ describe('AdministrationPageComponent', () => {
         ]);
 
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
-        gameListServiceSpy.selectedGame$ = new BehaviorSubject<Map | null>(null).asObservable();
 
         await TestBed.configureTestingModule({
             imports: [AdministrationPageComponent, GameListComponent],
