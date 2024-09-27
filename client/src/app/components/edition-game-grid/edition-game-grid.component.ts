@@ -27,6 +27,9 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     isMouseDown: boolean = false;
 
+    previousRow: number | null = null;
+    previousCol: number | null = null;
+
     constructor(
         private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
@@ -69,6 +72,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     onTileClick(row: number, col: number) {
+        if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
+            return;
+        }
+
         this.selectedRow = row;
         this.selectedCol = col;
 
@@ -83,13 +90,13 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
                 this.tilesGrid[row][col] = TileType.Water;
                 break;
             case 'door-tile':
-                if (this.isPointingNonDoorTile(row, col)) {
-                    this.tilesGrid[row][col] = TileType.ClosedDoor;
-                }
+                this.tilesGrid[row][col] = this.tilesGrid[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
                 break;
             default:
                 break;
         }
+        this.previousRow = row;
+        this.previousCol = col;
     }
 
     resetGrid() {
@@ -112,6 +119,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     onMouseUp() {
         this.isMouseDown = false;
+        this.previousRow = null;
+        this.previousCol = null;
     }
 
     onMouseMove(row: number, col: number) {
