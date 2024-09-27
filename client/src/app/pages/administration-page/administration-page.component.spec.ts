@@ -3,10 +3,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { PopUpComponent } from '@app/components/popUp/popUp.component';
-import { Game } from '@app/interfaces/game';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AdministrationPageComponent } from './administration-page.component';
 
 describe('AdministrationPageComponent', () => {
@@ -23,7 +22,7 @@ describe('AdministrationPageComponent', () => {
 
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'isListeEmpty',
-            'getAllVisibleMaps',
+            'getAllVisibleGames',
             'selectGame',
             'deselectGame',
             'getGames',
@@ -33,7 +32,6 @@ describe('AdministrationPageComponent', () => {
         ]);
 
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
-        gameListServiceSpy.selectedGame$ = new BehaviorSubject<Game | null>(null).asObservable();
 
         await TestBed.configureTestingModule({
             imports: [AdministrationPageComponent, GameListComponent, MatDialogModule],

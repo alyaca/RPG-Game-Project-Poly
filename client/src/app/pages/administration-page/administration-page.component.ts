@@ -9,7 +9,7 @@ import { PopUpComponent } from '@app/components/popUp/popUp.component';
     selector: 'app-administration-page',
     standalone: true,
     templateUrl: './administration-page.component.html',
-    styleUrls: ['./administration-page.component.scss'],
+    styleUrls: ['./administration-page.component.scss', '../../../common/css/game-list-page.scss'],
     imports: [CommonModule, RouterLink, GameListComponent],
 })
 export class AdministrationPageComponent {
