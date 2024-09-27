@@ -12,5 +12,5 @@ export class GameObjectComponent {
     @Input() name: string;
     @Input() description: string;
     @Input() count?: number;
-    @Input() id: string;
+    @Input() id: number;
 }

@@ -8,7 +8,7 @@
                 [imageUrl]="item.image"
                 [name]="item.name"
                 [description]="item.description"
-                [count]="getItemCount(item.id)"
+                [count]="item.count"
                 draggable="true"
                 (dragstart)="onDragStart($event, item)"
             ></app-game-object>

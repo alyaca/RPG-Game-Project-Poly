@@ -8,7 +8,7 @@
         (mousemove)="onMouseMove(rowIndex, colIndex)"
         (contextmenu)="removeTile($event, rowIndex, colIndex)"
         (drop)="onDrop($event, rowIndex, colIndex)"
-        (dragover)="allowDrop($event)"
+        (dragover)="onDragOver($event)"
     >
         <img class="tile-image" [src]="getTileImage(col)" draggable="false" />
         @if(objectsPosition[rowIndex][colIndex] > 0) {

@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
-import { SIZE_SMALL_MAP } from '@app/constants';
+import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
+import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { ToolService } from '@app/services/tool.service';
 
 enum TileType {
@@ -11,17 +12,6 @@ enum TileType {
     Water = 4,
     ClosedDoor = 5,
     OpenDoor = 6,
-}
-
-enum ObjectType {
-    Trident = 1,
-    Armor = 2,
-    Sandal = 3,
-    Lightning = 4,
-    Xiphos = 5,
-    Kunee = 6,
-    Random = 7,
-    Spawn = 8,
 }
 
 @Component({
@@ -46,7 +36,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     currentDraggedObject: GameObject;
     objectsPosition: number[][];
 
-    constructor(private toolService: ToolService) {
+    constructor(
+        private toolService: ToolService,
+        private gameObjectManagerService: GameObjectManagerService,
+    ) {
         this.objectsPosition = Array.from({ length: this.height }, () => Array(this.width).fill(0));
     }
 
@@ -56,7 +49,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['selectedSize']) {
-            this.updateDimensions();
+            // this.updateDimensions();
             this.gridArray = this.createNewMap();
         }
         if (changes['resetTrigger'] && this.resetTrigger) {
@@ -64,48 +57,56 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
     }
 
-    allowDrop(event: DragEvent) {
+    onDragOver(event: DragEvent) {
         event.preventDefault();
     }
 
     onDrop(event: DragEvent, row: number, col: number) {
-        const data = event.dataTransfer?.getData('text/plain');
-        if (data) {
-            this.currentDraggedObject = JSON.parse(data);
-            switch (this.currentDraggedObject.id) {
-                case 'spawn-point':
-                    this.objectsPosition[row][col] = ObjectType.Spawn;
-                    break;
-                default:
-                    console.log(this.currentDraggedObject.id);
-                    break;
+        event.preventDefault();
+        const gameObject = this.gameObjectManagerService.getDraggedObject();
+        if (gameObject) {
+            this.objectsPosition[row][col] = gameObject.id;
+            if (gameObject.count) {
+                this.updateObjectCount(gameObject);
             }
         }
     }
 
-    getObjectImage(value: number): string {
-        switch (value) {
-            case ObjectType.Spawn:
-                return 'assets/images/objects/tree.jpg';
-            default:
-                return '';
+    updateObjectCount(gameObject: GameObject) {
+        for (let row = 0; row < this.objectsPosition.length; row++) {
+            for (let col = 0; col < this.objectsPosition[row].length; col++) {
+                if (this.objectsPosition[row][col] === gameObject.id && gameObject.count) {
+                    gameObject.count--;
+                }
+            }
         }
     }
 
-    updateDimensions() {
-        if (this.selectedSize === 'small') {
-            this.height = 10;
-            this.width = 10;
-        } else if (this.selectedSize === 'medium') {
-            this.height = 15;
-            this.width = 15;
-        } else if (this.selectedSize === 'large') {
-            this.height = 20;
-            this.width = 20;
-        } else {
-            alert('invalid map size chosen');
+    getObjectImage(id: number): string {
+        if (ObjectType.Spawn) {
+            const gameObject = this.gameObjectManagerService.getObjectById(id);
+            if (gameObject) {
+                return gameObject.image;
+            }
         }
+
+        return '';
     }
+
+    // updateDimensions() {
+    //     if (this.selectedSize === 'small') {
+    //         this.height = 10;
+    //         this.width = 10;
+    //     } else if (this.selectedSize === 'medium') {
+    //         this.height = 15;
+    //         this.width = 15;
+    //     } else if (this.selectedSize === 'large') {
+    //         this.height = 20;
+    //         this.width = 20;
+    //     } else {
+    //         alert('invalid map size chosen');
+    //     }
+    // }
 
     getTileImage(value: number): string {
         switch (value) {
