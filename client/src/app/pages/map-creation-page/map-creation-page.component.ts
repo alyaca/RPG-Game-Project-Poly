@@ -7,6 +7,7 @@ import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
 @Component({
@@ -14,7 +15,7 @@ import html2canvas from 'html2canvas';
     standalone: true,
     templateUrl: './map-creation-page.component.html',
     styleUrls: ['./map-creation-page.component.scss'],
-    providers: [EditionGameGridComponent, GameListComponent],
+    providers: [EditionGameGridComponent, GameListComponent, SaveGameService],
     imports: [
         GameListComponent,
         MatButtonToggleModule,
@@ -35,8 +36,9 @@ export class MapCreationPageComponent {
     @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
 
     constructor(
-        private gameGridComponent: EditionGameGridComponent,
         private gameList: GameListComponent,
+        private gameGrid: EditionGameGridComponent,
+        private saveGameService: SaveGameService,
     ) {}
 
     onSelectionChange(event: { value: string }) {
@@ -71,16 +73,18 @@ export class MapCreationPageComponent {
         setTimeout(() => (this.resetTrigger = false), 0);
     }
 
-    infoToSave() {
+    startSaving() {
+        let base64image = '';
         html2canvas(this.canvas.nativeElement).then((canvas) => {
             canvas.height = 80;
             canvas.width = 80;
-            const base64image = canvas.toDataURL('mapScreenshot.png');
+            base64image = canvas.toDataURL('mapScreenshot.png');
 
-            const mapName = <HTMLInputElement>document.getElementById('mapName');
-            const mapDescription = <HTMLTextAreaElement>document.getElementById('mapDescription');
-
-            this.gameGridComponent.saveGame(base64image, mapName.value, mapDescription.value, this.gameList.gameSelected);
+            // this.gameGridComponent.saveGame(base64image, mapName.value, mapDescription.value, this.gameList.gameSelected);
         });
+
+        const mapName = <HTMLInputElement>document.getElementById('mapName');
+        const mapDescription = <HTMLTextAreaElement>document.getElementById('mapDescription');
+        this.saveGameService.saveGame(base64image, mapName.value, mapDescription.value, this.gameList.gameSelected, this.gameGrid);
     }
 }

@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { Game } from '@app/interfaces/game';
-import { SaveGameService } from '@app/services/save-game.service';
 import { ToolService } from '@app/services/tool.service';
 
 enum TileType {
@@ -33,10 +32,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     isMouseDown: boolean = false;
 
-    constructor(
-        private toolService: ToolService,
-        private saveGameService: SaveGameService,
-    ) {}
+    constructor(private toolService: ToolService) {}
 
     get selectedTile() {
         return this.toolService.getSelectedTile();
@@ -145,51 +141,51 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     saveGame(image: string, mapName: string, mapDescription: string, selectedMap: Game | null) {
-        if (selectedMap == null) {
-            let playerNumber = 2;
-            switch (this.height) {
-                case 10: {
-                    playerNumber = 2;
-                    break;
-                }
-                case 15: {
-                    playerNumber = 4;
-                    break;
-                }
-                case 20: {
-                    playerNumber = 6;
-                    break;
-                }
-            }
-            const mapToStore = {
-                name: mapName,
-                description: mapDescription,
-                visible: true,
-                mode: 'normal', //will have to get it from admin
-                nbPlayers: playerNumber,
-                image: image,
-                tiles: this.gridArray,
-                dimension: this.height, // will have to get it from admin, consequently, the nb of players will also change.
-                itemPlacement: this.itemArray,
-                isSelected: false,
-                lastModification: new Date(),
-            };
-            this.saveGameService.addNewGame(mapToStore).subscribe();
-        } else {
-            const mapToReplace = {
-                name: mapName,
-                description: mapDescription,
-                visible: selectedMap.visible,
-                mode: selectedMap.mode,
-                nbPlayers: selectedMap.nbPlayers,
-                image: image,
-                tiles: this.gridArray,
-                dimension: selectedMap.dimension,
-                itemPlacement: this.itemArray,
-                isSelected: false,
-                lastModification: new Date(),
-            };
-            this.saveGameService.replaceGame(selectedMap._id, mapToReplace).subscribe();
-        }
+        // if (selectedMap == null) {
+        //     let playerNumber = 2;
+        //     switch (this.height) {
+        //         case 10: {
+        //             playerNumber = 2;
+        //             break;
+        //         }
+        //         case 15: {
+        //             playerNumber = 4;
+        //             break;
+        //         }
+        //         case 20: {
+        //             playerNumber = 6;
+        //             break;
+        //         }
+        //     }
+        //     const mapToStore = {
+        //         name: mapName,
+        //         description: mapDescription,
+        //         visible: true,
+        //         mode: 'normal', //will have to get it from admin
+        //         nbPlayers: playerNumber,
+        //         image: image,
+        //         tiles: this.gridArray,
+        //         dimension: this.height, // will have to get it from admin, consequently, the nb of players will also change.
+        //         itemPlacement: this.itemArray,
+        //         isSelected: false,
+        //         lastModification: new Date(),
+        //     };
+        //     this.saveGameService.addNewGame(mapToStore).subscribe();
+        // } else {
+        //     const mapToReplace = {
+        //         name: mapName,
+        //         description: mapDescription,
+        //         visible: selectedMap.visible,
+        //         mode: selectedMap.mode,
+        //         nbPlayers: selectedMap.nbPlayers,
+        //         image: image,
+        //         tiles: this.gridArray,
+        //         dimension: selectedMap.dimension,
+        //         itemPlacement: this.itemArray,
+        //         isSelected: false,
+        //         lastModification: new Date(),
+        //     };
+        //     this.saveGameService.replaceGame(selectedMap._id, mapToReplace).subscribe();
+        // }
     }
 }
