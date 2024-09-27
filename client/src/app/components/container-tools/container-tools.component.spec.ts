@@ -3,33 +3,33 @@ import { ContainerToolsComponent } from '@app/components/container-tools/contain
 import { ToolService } from '@app/services/tool.service';
 
 class MockToolService {
-  selectedTile: string | null = null;
+    selectedTile: string | null = null;
 
-  setSelectedTile(tile: string) {
-    this.selectedTile = tile;
-  }
+    setSelectedTile(tile: string) {
+        this.selectedTile = tile;
+    }
 }
 
 describe('ContainerToolsComponent', () => {
-  let component: ContainerToolsComponent;
-  let fixture: ComponentFixture<ContainerToolsComponent>;
-  let toolService: MockToolService;
+    let component: ContainerToolsComponent;
+    let fixture: ComponentFixture<ContainerToolsComponent>;
+    let toolService: MockToolService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [{ provide: ToolService, useClass: MockToolService }]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [{ provide: ToolService, useClass: MockToolService }],
+        });
+
+        fixture = TestBed.createComponent(ContainerToolsComponent);
+        component = fixture.componentInstance;
+        toolService = TestBed.inject(ToolService);
     });
 
-    fixture = TestBed.createComponent(ContainerToolsComponent);
-    component = fixture.componentInstance;
-    toolService = TestBed.inject(ToolService);
-  });
+    it('should set the selected tile when onSelectTile is called', () => {
+        const tile = 'exampleTile';
 
-  it('should set the selected tile when onSelectTile is called', () => {
-    const tile = 'exampleTile';
+        component.onSelectTile(tile);
 
-    component.onSelectTile(tile);
-
-    expect(toolService.selectedTile).toBe(tile);
-  });
+        expect(toolService.selectedTile).toBe(tile);
+    });
 });
