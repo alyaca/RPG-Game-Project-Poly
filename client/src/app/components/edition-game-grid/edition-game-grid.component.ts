@@ -67,16 +67,18 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         if (gameObject) {
             this.objectsPosition[row][col] = gameObject.id;
             if (gameObject.count) {
-                this.updateObjectCount(gameObject);
+                this.decrementeObjectCount(gameObject);
             }
         }
     }
 
-    updateObjectCount(gameObject: GameObject) {
+    decrementeObjectCount(gameObject: GameObject) {
         for (let row = 0; row < this.objectsPosition.length; row++) {
             for (let col = 0; col < this.objectsPosition[row].length; col++) {
-                if (this.objectsPosition[row][col] === gameObject.id && gameObject.count) {
-                    gameObject.count--;
+                if (this.objectsPosition[row][col] === gameObject.id) {
+                    if (gameObject.count && gameObject.count > 0) {
+                        gameObject.count--;
+                    }
                 }
             }
         }
@@ -89,24 +91,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
                 return gameObject.image;
             }
         }
-
         return '';
     }
-
-    // updateDimensions() {
-    //     if (this.selectedSize === 'small') {
-    //         this.height = 10;
-    //         this.width = 10;
-    //     } else if (this.selectedSize === 'medium') {
-    //         this.height = 15;
-    //         this.width = 15;
-    //     } else if (this.selectedSize === 'large') {
-    //         this.height = 20;
-    //         this.width = 20;
-    //     } else {
-    //         alert('invalid map size chosen');
-    //     }
-    // }
 
     getTileImage(value: number): string {
         switch (value) {
@@ -159,6 +145,14 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     removeTile(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
+
+        const gameObjectId = this.objectsPosition[row][col];
+        const gameObject = this.gameObjectManagerService.getGameObjects().find((obj) => obj.id === gameObjectId);
+
+        if (gameObjectId != 0 && gameObject) {
+            this.objectsPosition[row][col] = 0;
+            gameObject.count++;
+        }
         if (this.gridArray[row][col] !== 1) {
             this.gridArray[row][col] = 1;
         }

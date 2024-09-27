@@ -3,5 +3,5 @@ export interface GameObject {
     name: string;
     image: string;
     description: string;
-    count?: number;
+    count: number;
 }
