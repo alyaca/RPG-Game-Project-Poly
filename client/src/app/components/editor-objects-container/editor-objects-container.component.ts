@@ -22,8 +22,11 @@ export class EditorObjectsContainerComponent implements OnInit {
     constructor(private gameObjectManagerService: GameObjectManagerService) {}
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
+        if (gameObject.count === 0) {
+            event.preventDefault();
+            return;
+        }
         this.gameObjectManagerService.setDraggedObject(gameObject);
-        // event.dataTransfer?.setData('text/plain', JSON.stringify(gameObject));
     }
 
     ngOnInit() {

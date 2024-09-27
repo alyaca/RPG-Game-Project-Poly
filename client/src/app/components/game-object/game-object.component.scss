@@ -77,3 +77,14 @@
 .object {
     position: relative;
 }
+
+.disabled {
+    filter: grayscale(100%) brightness(50%);
+    cursor: default;
+}
+
+.disabled img:hover {
+    transform: none;
+    border-bottom: 0.25rem solid black;
+    border-right: 0.25rem solid black;
+}

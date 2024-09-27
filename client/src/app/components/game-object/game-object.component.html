@@ -1,5 +1,5 @@
 <div class="object">
-    <div class="image-container" id="{{ id }}">
+    <div class="image-container" [ngClass]="{ disabled: count === 0 }" id="{{ id }}">
         @if(id === 7 || id === 8) {
         <div class="object-count" id="count">{{ count }}</div>
         }
