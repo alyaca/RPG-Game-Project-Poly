@@ -15,6 +15,7 @@ describe('CreateGamePageComponent', () => {
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
     let selectedGameSubject: BehaviorSubject<Map | null>;
+    let chosenGameSubject: BehaviorSubject<Map | null>;
     let mockMap: Map;
 
     beforeEach(async () => {
@@ -34,6 +35,7 @@ describe('CreateGamePageComponent', () => {
         };
 
         selectedGameSubject = new BehaviorSubject<Map | null>(null);
+        chosenGameSubject = new BehaviorSubject<Map | null>(null);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'getAllVisibleGames',
             'selectGame',
@@ -52,7 +54,6 @@ describe('CreateGamePageComponent', () => {
         gameListServiceSpy.deselectGame.and.callFake((games: Map[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
-        gameListServiceSpy.selectedGame$ = selectedGameSubject.asObservable();
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
 
         await TestBed.configureTestingModule({
@@ -71,6 +72,7 @@ describe('CreateGamePageComponent', () => {
 
     afterEach(() => {
         selectedGameSubject.next(null);
+        chosenGameSubject.next(null);
     });
 
     it('should create the component', () => {
@@ -79,12 +81,14 @@ describe('CreateGamePageComponent', () => {
 
     it('should set isCharacterFormVisible to true when showCharacterForm is called and the visible game exist', () => {
         selectedGameSubject.next(mockMap);
+        chosenGameSubject.next(mockMap);
         gameListServiceSpy.checkIfVisibleGameExists.and.returnValue(of(true));
 
         component.showCharacterForm();
 
         expect(component.isCharacterFormVisible).toBeTrue();
         expect(snackBarSpy.open).not.toHaveBeenCalled();
+        // expect(chosenGameSubject.getValue()).toEqual(mockMap);
     });
 
     it('should show snack bar if no game is selected', () => {

@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
     standalone: true,
     imports: [GameListComponent, RouterLink, CharacterCreatorComponent, CommonModule],
     templateUrl: './create-game-page.component.html',
-    styleUrls: ['./create-game-page.component.scss', '../../../common/css/game-list-page.scss'],
+    styleUrl: '../../../common/css/game-list-page.scss',
 })
 export class CreateGamePageComponent implements OnDestroy {
     isCharacterFormVisible: boolean = false;
@@ -41,6 +41,7 @@ export class CreateGamePageComponent implements OnDestroy {
         this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((doesGameExist: boolean) => {
             if (doesGameExist) {
                 this.isCharacterFormVisible = true;
+                this.gameListService.chosenGameSubject.next(this.selectedGame);
             } else {
                 this.snackBar.open("Le jeu sélectionné n'existe pas ou a été caché", 'Fermer', {
                     duration: 2000,
@@ -54,6 +55,7 @@ export class CreateGamePageComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
+        this.gameListService.selectedGameSubject.next(null);
         this.subscription.unsubscribe();
     }
 }

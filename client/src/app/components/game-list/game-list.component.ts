@@ -50,9 +50,6 @@ export class GameListComponent implements OnInit {
 
     ngOnInit() {
         this.getGames();
-        this.gameListService.selectedGame$.subscribe((selectedGame) => {
-            this.gameSelected = selectedGame;
-        });
     }
 
     changeVisibility(game: Map) {
