@@ -5,7 +5,15 @@
             <form #mapForm="ngForm">
                 <div class="map-input">
                     <label for="mapName">Nom de la carte : </label>
-                    <input class="input-box" id="mapName" type="text" minlength="3" maxlength="30" placeholder="Entrez le nom de votre carte" />
+                    <input
+                        #mapName
+                        class="input-box"
+                        id="mapName"
+                        type="text"
+                        minlength="3"
+                        maxlength="30"
+                        placeholder="Entrez le nom de votre carte"
+                    />
                 </div>
                 <div class="map-input">
                     <label for="mapDescription">Description de la carte : </label>
@@ -16,6 +24,7 @@
                         minlength="10"
                         maxlength="256"
                         placeholder="Entrez la description de votre carte"
+                        #mapDescription
                     ></textarea>
                 </div>
             </form>

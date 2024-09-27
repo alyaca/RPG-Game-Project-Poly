@@ -35,6 +35,9 @@ export class MapCreationPageComponent {
 
     @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
 
+    @ViewChild('mapDescription') mapDescription: ElementRef<HTMLTextAreaElement>;
+    @ViewChild('mapName') mapName: ElementRef<HTMLInputElement>;
+
     constructor(
         private gameList: GameListComponent,
         private gameGrid: EditionGameGridComponent,
@@ -79,12 +82,13 @@ export class MapCreationPageComponent {
             canvas.height = 80;
             canvas.width = 80;
             base64image = canvas.toDataURL('mapScreenshot.png');
-
-            // this.gameGridComponent.saveGame(base64image, mapName.value, mapDescription.value, this.gameList.gameSelected);
         });
-
-        const mapName = <HTMLInputElement>document.getElementById('mapName');
-        const mapDescription = <HTMLTextAreaElement>document.getElementById('mapDescription');
-        this.saveGameService.saveGame(base64image, mapName.value, mapDescription.value, this.gameList.gameSelected, this.gameGrid);
+        this.saveGameService.saveGame(
+            base64image,
+            this.mapName.nativeElement.value,
+            this.mapDescription.nativeElement.value,
+            this.gameList.gameSelected,
+            this.gameGrid,
+        );
     }
 }
