@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { ToolService } from '@app/services/tool.service';
-import { GameCreationService } from '../../services/game-creation.service';
 
 enum TileType {
     Ground = 1,
@@ -25,8 +26,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy, OnInit {
     height: number;
     width: number;
 
-    selectedRow: number = 0;
-    selectedCol: number = 0;
+    selectedRow: number;
+    selectedCol: number;
 
     isMouseDown: boolean = false;
 
@@ -54,14 +55,14 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy, OnInit {
 
     updateDimensions() {
         if (this.selectedSize === 'small') {
-            this.height = 10;
-            this.width = 10;
+            this.height = SIZE_SMALL_MAP;
+            this.width = SIZE_SMALL_MAP;
         } else if (this.selectedSize === 'medium') {
-            this.height = 15;
-            this.width = 15;
+            this.height = SIZE_MEDIUM_MAP;
+            this.width = SIZE_MEDIUM_MAP;
         } else if (this.selectedSize === 'large') {
-            this.height = 20;
-            this.width = 20;
+            this.height = SIZE_LARGE_MAP;
+            this.width = SIZE_LARGE_MAP;
         } else {
             alert('invalid map size chosen');
         }
