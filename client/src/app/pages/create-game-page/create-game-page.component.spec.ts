@@ -27,15 +27,12 @@ describe('CreateGamePageComponent', () => {
             mode: 'CTF',
             nbPlayers: 6,
             image: 'img1',
-            tiles: [0, 1],
+            tiles: [[0, 1]],
             dimension: 20,
-            itemPlacement: [0, 1],
+            itemPlacement: [[0, 1]],
             isSelected: false,
             lastModification: new Date(),
         };
-
-        selectedGameSubject = new BehaviorSubject<Map | null>(null);
-        chosenGameSubject = new BehaviorSubject<Map | null>(null);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'getAllVisibleGames',
             'selectGame',
@@ -43,9 +40,12 @@ describe('CreateGamePageComponent', () => {
             'getGames',
             'checkIfVisibleGameExists',
         ]);
+        selectedGameSubject = new BehaviorSubject<Map | null>(null);
+        chosenGameSubject = new BehaviorSubject<Map | null>(null);
         Object.defineProperty(gameListServiceSpy, 'selectedGameSubject', { value: selectedGameSubject });
+        Object.defineProperty(gameListServiceSpy, 'chosenGameSubject', { value: chosenGameSubject });
+
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
-        activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], { snapshot: { paramMap: { get: () => 'mockValue' } } });
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
         gameListServiceSpy.selectGame.and.callFake((game: Map) => {
@@ -71,8 +71,8 @@ describe('CreateGamePageComponent', () => {
     });
 
     afterEach(() => {
-        selectedGameSubject.next(null);
-        chosenGameSubject.next(null);
+        gameListServiceSpy.selectedGameSubject.next(null);
+        gameListServiceSpy.chosenGameSubject.next(null);
     });
 
     it('should create the component', () => {
@@ -80,15 +80,14 @@ describe('CreateGamePageComponent', () => {
     });
 
     it('should set isCharacterFormVisible to true when showCharacterForm is called and the visible game exist', () => {
-        selectedGameSubject.next(mockMap);
-        chosenGameSubject.next(mockMap);
-        gameListServiceSpy.checkIfVisibleGameExists.and.returnValue(of(true));
+        gameListServiceSpy.selectedGameSubject.next(mockMap);
+        gameListServiceSpy.chosenGameSubject.next(mockMap);
+        gameListServiceSpy.checkIfVisibleGameExists.and.returnValue(of(mockMap));
 
         component.showCharacterForm();
 
         expect(component.isCharacterFormVisible).toBeTrue();
         expect(snackBarSpy.open).not.toHaveBeenCalled();
-        // expect(chosenGameSubject.getValue()).toEqual(mockMap);
     });
 
     it('should show snack bar if no game is selected', () => {
@@ -108,7 +107,7 @@ describe('CreateGamePageComponent', () => {
     it('should show snack bar if selected game does not exist', () => {
         selectedGameSubject.next(mockMap);
 
-        gameListServiceSpy.checkIfVisibleGameExists.and.returnValue(of(false));
+        gameListServiceSpy.checkIfVisibleGameExists.and.returnValue(of(null));
 
         component.showCharacterForm();
 

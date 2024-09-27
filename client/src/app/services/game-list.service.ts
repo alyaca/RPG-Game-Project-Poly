@@ -101,11 +101,11 @@ export class GameListService {
         );
     }
 
-    checkIfVisibleGameExists(game: Map): Observable<boolean> {
+    checkIfVisibleGameExists(game: Map): Observable<Map | null> {
         return this.getAllVisibleGames().pipe(
-            map((games: Map[]) => games.some((g) => g._id === game._id)),
+            map((games: Map[]) => games.find((g) => g._id === game._id) || null),
             catchError(() => {
-                return of(false);
+                return of(null);
             }),
         );
     }
