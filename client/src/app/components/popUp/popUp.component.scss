@@ -1,11 +1,16 @@
-body {
-    background-color: rgba(222, 207, 129, 0.9);
+#pop-up {
+    background: linear-gradient(to left, rgba(49, 45, 34, 1), rgba(79, 73, 62, 1));
     font-family: 'Papyrus';
     font-weight: bold;
+    color: white;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
 }
 
+
 .dialog-content {
-    display: grid;
+    display: grid; 
     justify-content: center;
     flex-direction: column;
     align-items: center;
@@ -15,21 +20,53 @@ body {
 .size-container{
     display: grid;
     align-items: center;
+    width: 120%;
+}
+
+
+.title{
+    font-size: 130%;
+    margin-bottom: 5%;
+    margin-top: 8%;
+    margin-bottom: 5%;
 }
 
 button {
+    font-family: 'Papyrus';
+    font-size: 110%;
+    font-weight: 900;
     margin-right: 8%;
     margin-bottom: 5%;
+    background: linear-gradient(to right, rgb(164, 156, 113), rgb(224, 216, 173));
+    color: black;
+    border: 1px solid black;
+    border-radius: 3 rem;
 }
 
 button.selected {
     border: 2px solid black;
+    color: white;
+    font-size: 110%;
+    font-weight: 900;
+    background: linear-gradient(to right,  rgb(193, 189, 166), rgb(168, 164, 143));
+    
 }
 
 button.select {
     border: 2px solid black;
+    font-weight: 900;
+    color: white;
+    background: linear-gradient(to right,  rgb(193, 189, 166), rgb(168, 164, 143));
 }
 
 .game-size{
     display: flex;
+}
+
+.options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 8%;
 }

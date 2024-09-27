@@ -56,6 +56,6 @@ describe('AdministrationPageComponent', () => {
 
     it('should open PopUpComponent when openPopUp() is called', () => {
         component.openPopUp();
-        expect(dialogSpy.open).toHaveBeenCalledWith(PopUpComponent, { width: '30%', height: '35%' });
+        expect(dialogSpy.open).toHaveBeenCalledWith(PopUpComponent, { width: '40%', height: '50%' });
     });
 });

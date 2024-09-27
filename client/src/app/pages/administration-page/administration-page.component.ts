@@ -16,8 +16,8 @@ export class AdministrationPageComponent {
     constructor(private dialog: MatDialog) {}
     openPopUp(): void {
         this.dialog.open(PopUpComponent, {
-            width: '30%',
-            height: '35%',
+            width: '40%',
+            height: '50%',
         });
     }
 }
