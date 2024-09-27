@@ -96,7 +96,7 @@ export class MapController {
     @Post('/')
     async addMap(@Req() request: Request, @Res() response: Response) {
         try {
-            const hasBeenCreated = await this.savingService.addMapToDb(request.body); //idk yet
+            const hasBeenCreated = await this.savingService.addMapToDb(request.body);
             response.status(HttpStatus.CREATED).json(hasBeenCreated);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
