@@ -6,9 +6,9 @@ export interface Map {
     mode: string;
     nbPlayers: number;
     image: string;
-    tiles: number[];
+    tiles: number[][];
     dimension: number;
-    itemPlacement: number[];
+    itemPlacement: number[][];
     isSelected: boolean;
     lastModification: Date;
 }
