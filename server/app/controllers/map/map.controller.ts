@@ -94,7 +94,7 @@ export class MapController {
         description: 'Map was not created',
     })
     @Post('/')
-    async addMap(@Res() response: Response, @Req() request: Request) {
+    async addMap(@Req() request: Request, @Res() response: Response) {
         try {
             const hasBeenCreated = await this.savingService.addMapToDb(request.body); //idk yet
             response.status(HttpStatus.CREATED).json(hasBeenCreated);
@@ -111,9 +111,9 @@ export class MapController {
         description: 'Map was not replaced correctly',
     })
     @Put('/')
-    async replaceMap(@Res() response: Response) {
+    async replaceMap(@Req() request: Request, @Res() response: Response) {
         try {
-            const hasBeenCreated = await this.savingService.replaceMapInDb(Body);
+            const hasBeenCreated = await this.savingService.replaceMapInDb(request.body);
             response.status(HttpStatus.CREATED).json(hasBeenCreated);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);

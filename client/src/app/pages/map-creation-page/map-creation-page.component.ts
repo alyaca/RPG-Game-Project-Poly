@@ -7,6 +7,7 @@ import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import { Info } from '@app/interfaces/info';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
@@ -29,20 +30,28 @@ import html2canvas from 'html2canvas';
 export class MapCreationPageComponent {
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
+    @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
+    @ViewChild('mapDescription') mapDescription: ElementRef<HTMLTextAreaElement>;
+    @ViewChild('mapName') mapName: ElementRef<HTMLInputElement>;
+    grid: number[][];
+    items: number[][];
+    height: number;
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
 
-    @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
-
-    @ViewChild('mapDescription') mapDescription: ElementRef<HTMLTextAreaElement>;
-    @ViewChild('mapName') mapName: ElementRef<HTMLInputElement>;
-
     constructor(
         private gameList: GameListComponent,
-        private gameGrid: EditionGameGridComponent,
         private saveGameService: SaveGameService,
     ) {}
+
+    setGrid(newGrid: number[][]) {
+        this.grid = newGrid;
+    }
+
+    setHeight(newHeight: number) {
+        this.height = newHeight;
+    }
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
@@ -77,18 +86,17 @@ export class MapCreationPageComponent {
     }
 
     startSaving() {
-        let base64image = '';
-        html2canvas(this.canvas.nativeElement).then((canvas) => {
-            canvas.height = 80;
-            canvas.width = 80;
-            base64image = canvas.toDataURL('mapScreenshot.png');
+        html2canvas(this.canvas.nativeElement, { scale: 0.25 }).then((canvas) => {
+            const base64image = canvas.toDataURL(`/server/assets/thumbnails/${this.mapName.nativeElement.value}.png`);
+            const infoTransferred: Info = {
+                image: base64image,
+                name: this.mapName.nativeElement.value,
+                description: this.mapDescription.nativeElement.value,
+                grid: this.grid,
+                items: this.items,
+                height: this.height,
+            };
+            this.saveGameService.saveGame(infoTransferred, this.gameList.gameSelected);
         });
-        this.saveGameService.saveGame(
-            base64image,
-            this.mapName.nativeElement.value,
-            this.mapDescription.nativeElement.value,
-            this.gameList.gameSelected,
-            this.gameGrid,
-        );
     }
 }

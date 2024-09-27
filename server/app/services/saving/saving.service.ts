@@ -8,10 +8,18 @@ export class SavingService {
     constructor(@InjectModel(Map.name) private mapModel: Model<MapDocument>) {}
 
     async addMapToDb(mapToAdd: any) {
-        return (await this.mapModel.create(mapToAdd)).save();
+        const existsAlready = await this.mapModel.find({ name: mapToAdd.name });
+        if (existsAlready.length == 0) {
+            return (await this.mapModel.create(mapToAdd)).save();
+        }
+        return false;
     }
 
     async replaceMapInDb(mapToAdd: any) {
-        return (await this.mapModel.findOneAndReplace({ _id: mapToAdd._id }, mapToAdd)).save();
+        const nameExistsAlready = await this.mapModel.find({ name: mapToAdd.name });
+        if (nameExistsAlready.length == 0) {
+            return await this.mapModel.findOneAndReplace({ _id: mapToAdd._id }, mapToAdd);
+        }
+        return false;
     }
 }

@@ -11,43 +11,43 @@ export class Map {
     _id?: MongooseSchema.Types.ObjectId;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     name: string;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     description: string;
 
     @ApiProperty()
-    @Prop({ required: true, type: Boolean })
+    @Prop({ type: Boolean, required: true })
     visible: boolean;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     mode: string;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: Number, required: true })
     nbPlayers: number;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     image: string;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: [[Number]], required: true })
     tiles: number[][];
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: Number, required: true })
     dimension: number;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: [[Number]], required: true })
     itemPlacement: number[][];
 
     @ApiProperty()
-    @Prop({ required: false })
+    @Prop({ type: Boolean, required: false })
     isSelected: boolean;
 
     @ApiProperty()

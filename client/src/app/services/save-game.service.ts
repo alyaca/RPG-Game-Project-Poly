@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
+import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { Game } from '@app/interfaces/game';
+import { Info } from '@app/interfaces/info';
+import { Map } from '@app/interfaces/map';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -12,72 +14,53 @@ export class SaveGameService {
 
     constructor(private http: HttpClient) {}
 
-    saveGame(image: string, mapName: string, mapDescription: string, selectedMap: Game | null, gridComponent: EditionGameGridComponent) {
-        console.log(gridComponent.gridArray);
-
+    saveGame(informations: Info, selectedMap: Game | Map | null) {
         if (selectedMap == null) {
             let playerNumber = 2;
-            switch (gridComponent.height) {
-                case 10: {
-                    playerNumber = 2;
+            switch (informations.height) {
+                case SIZE_SMALL_MAP: {
+                    playerNumber = NB_ITEMS_SMALL_MAP;
                     break;
                 }
-                case 15: {
-                    playerNumber = 4;
+                case SIZE_MEDIUM_MAP: {
+                    playerNumber = NB_ITEMS_MEDIUM_MAP;
                     break;
                 }
-                case 20: {
-                    playerNumber = 6;
+                case SIZE_LARGE_MAP: {
+                    playerNumber = NB_ITEMS_LARGE_MAP;
                     break;
                 }
             }
             const mapToStore = {
-                name: mapName,
-                description: mapDescription,
+                name: informations.name,
+                description: informations.description,
                 visible: true,
-                mode: 'normal', //will have to get it from admin
+                mode: 'normal', // will have to get it from admin
                 nbPlayers: playerNumber,
-                image: image,
-                tiles: gridComponent.gridArray,
-                dimension: gridComponent.height, // will have to get it from admin, consequently, the nb of players will also change.
-                itemPlacement: gridComponent.itemArray,
+                image: informations.image,
+                tiles: informations.grid,
+                dimension: informations.height, // will have to get it from admin, consequently, the nb of players will also change.
+                itemPlacement: informations.items,
                 isSelected: false,
                 lastModification: new Date(),
             };
-            return this.http.post(this.apiURL, mapToStore);
+            return this.http.post(this.apiURL, mapToStore).subscribe();
         } else {
             const mapToReplace = {
-                name: mapName,
-                description: mapDescription,
+                _id: selectedMap._id,
+                name: informations.name,
+                description: informations.description,
                 visible: selectedMap.visible,
                 mode: selectedMap.mode,
                 nbPlayers: selectedMap.nbPlayers,
-                image: image,
-                tiles: gridComponent.gridArray,
+                image: informations.image,
+                tiles: informations.grid,
                 dimension: selectedMap.dimension,
-                itemPlacement: gridComponent,
+                itemPlacement: informations.items,
                 isSelected: false,
                 lastModification: new Date(),
             };
-            return this.http.post(this.apiURL, mapToReplace);
+            return this.http.put(this.apiURL, mapToReplace).subscribe();
         }
     }
 }
-
-// replaceGame(gameId: string, mapToReplace: any) {
-//     const newMapObject: Map = {
-//         _id: gameId,
-//         name: mapToReplace.name,
-//         description: mapToReplace.description,
-//         visible: mapToReplace.visible,
-//         mode: mapToReplace.mode,
-//         nbPlayers: mapToReplace.nbPlayers,
-//         image: mapToReplace.image,
-//         dimension: mapToReplace.dimension,
-//         tiles: mapToReplace.tiles,
-//         itemPlacement: mapToReplace.itemPlacement,
-//         isSelected: mapToReplace.isSelected,
-//         lastModification: mapToReplace.lastModification,
-//     };
-//     return this.http.put(this.apiURL, newMapObject);
-// }
