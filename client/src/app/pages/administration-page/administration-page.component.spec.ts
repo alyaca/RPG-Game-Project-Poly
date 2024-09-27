@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
+import { PopUpComponent } from '@app/components/popUp/popUp.component';
 import { Game } from '@app/interfaces/game';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
@@ -13,9 +15,11 @@ describe('AdministrationPageComponent', () => {
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let routerMock: jasmine.SpyObj<Router>;
     let activatedRouteMock: jasmine.SpyObj<ActivatedRoute>;
+    let dialogSpy: jasmine.SpyObj<MatDialog>;
 
     beforeEach(async () => {
         routerMock = jasmine.createSpyObj('Router', ['navigate']);
+        dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
 
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'isListeEmpty',
@@ -32,8 +36,9 @@ describe('AdministrationPageComponent', () => {
         gameListServiceSpy.selectedGame$ = new BehaviorSubject<Game | null>(null).asObservable();
 
         await TestBed.configureTestingModule({
-            imports: [AdministrationPageComponent, GameListComponent],
+            imports: [AdministrationPageComponent, GameListComponent, MatDialogModule],
             providers: [
+                { provide: MatDialog, useValue: dialogSpy },
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerMock },
                 { provide: ActivatedRoute, useValue: activatedRouteMock },
@@ -47,5 +52,10 @@ describe('AdministrationPageComponent', () => {
 
     it('should be created', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should open PopUpComponent when openPopUp() is called', () => {
+        component.openPopUp();
+        expect(dialogSpy.open).toHaveBeenCalledWith(PopUpComponent, { width: '30%', height: '35%' });
     });
 });
