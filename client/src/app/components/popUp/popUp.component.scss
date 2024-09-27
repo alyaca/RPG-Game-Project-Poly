@@ -12,18 +12,14 @@ body {
     text-align: center;
 }
 
-.game-size {
-    display: flex;
-    justify-content: space-between;
-    width: 60%;
-    margin: 4% 0;
+.size-container{
+    display: grid;
+    align-items: center;
 }
 
 button {
     margin-right: 8%;
-}
-.options button {
-    margin-top: 15%;
+    margin-bottom: 5%;
 }
 
 button.selected {
@@ -32,4 +28,8 @@ button.selected {
 
 button.select {
     border: 2px solid black;
+}
+
+.game-size{
+    display: flex;
 }
