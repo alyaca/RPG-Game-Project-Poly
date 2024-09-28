@@ -7,9 +7,9 @@
             (mousedown)="onMouseDown($event, rowIndex, colIndex)"
             (mouseup)="onMouseUp()"
             (mousemove)="onMouseMove(rowIndex, colIndex)"
-            (contextmenu)="removeTile($event, rowIndex, colIndex)"
+            (contextmenu)="tileService.removeTile($event, rowIndex, colIndex, this.tilesGrid)"
         >
-          <img [src]="getTileImage(col)" draggable="false" />
+          <img [src]="tileService.getTileImage(col)" draggable="false" />
         </div>
       } 
     }

@@ -138,12 +138,6 @@ describe('EditionGameGridComponent', () => {
         expect(toolServiceSpy.selectedTile).toBe('');
     });
 
-    it('should check if pointing non-door tile', () => {
-        component.tilesGrid[0][0] = TileType.Ground;
-        expect(component.isPointingNonDoorTile(0, 0)).toBeTruthy();
-        component.tilesGrid[0][0] = TileType.OpenDoor;
-        expect(component.isPointingNonDoorTile(0, 0)).toBeFalsy();
-    });
     describe('getTileImage', () => {
         it('should return the correct image path for each tile type', () => {
             expect(component.getTileImage(TileType.Ground)).toBe('/assets/images/tiles/grass.jpg');
