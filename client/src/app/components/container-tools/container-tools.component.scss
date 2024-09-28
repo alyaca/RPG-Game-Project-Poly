@@ -15,11 +15,11 @@ img {
     border-right: solid 6px black;
     border-radius: 0.75rem;
     color: black;
-    padding: 3%;
-    background: linear-gradient(to right, rgba(89, 84, 31, 1), rgb(180, 164, 85) 25%, rgba(222, 207, 129, 1) 75%, rgba(89, 84, 31, 1) 100%);
-    font-size: small;
-    width: 20vh;
-    height: 16vh;
+    padding: 1%;
+    background: linear-gradient(to left, rgb(138, 135, 93), rgb(194, 185, 134) 25%, rgb(224, 216, 173) 75%, rgb(124, 121, 83) 100%);
+    font-size: 12px;
+    width: 24vh;
+    height: 20vh;
     z-index: 9999;
 }
 
