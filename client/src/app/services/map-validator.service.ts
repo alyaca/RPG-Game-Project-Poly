@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { MIN_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MAX_LEN_MAP_DESCRIPTION } from '@app/constants';
 
 export enum TileType {
     Ground = 1,
@@ -21,7 +22,7 @@ export class MapValidatorService {
     validateMap(array: number[][], title: string, description: string) {
         this.errorMessages = [];
         if (!this.hasSufficientTerrainTiles(array)) {
-            this.errorMessages.push("- Il n'y a pas assez de tuiles de terrain");
+            this.errorMessages.push('- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)');
         }
 
         if (!this.validateAllDoors(array)) {
@@ -33,8 +34,16 @@ export class MapValidatorService {
             this.errorMessages.push('- Pas toutes les tuiles de terrain sont accessibles');
         }
 
-        if (!this.validateTextInput(title, description)) {
-            this.errorMessages.push('- Le titre ou la description de la carte est vide');
+        if (!this.validateTitleLength(title)) {
+            this.errorMessages.push(
+                '- Le titre de la carte doit avoir une longueur entre 3 et 30 charactères et ne pas uniquement contenir des espaces',
+            );
+        }
+
+        if (!this.validateDescriptionLength(description)) {
+            this.errorMessages.push(
+                '- La description de la carte doit avoir une longueur entre 10 et 256 charactères et ne pas uniquement contenir des espaces',
+            );
         }
 
         const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
@@ -136,7 +145,15 @@ export class MapValidatorService {
         });
     }
 
-    validateTextInput(title: string, description: string): boolean {
-        return title?.trim() !== '' && description?.trim() !== '';
+    containsAcharacter(text: string): boolean {
+        return text?.trim() !== '' && text?.trim() !== '';
+    }
+
+    validateTitleLength(title: string) {
+        return title.length > MIN_LEN_MAP_TITLE && title.length < MAX_LEN_MAP_TITLE && this.containsAcharacter(title);
+    }
+
+    validateDescriptionLength(description: string) {
+        return description.length > MIN_LEN_MAP_DESCRIPTION && description.length < MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
     }
 }
