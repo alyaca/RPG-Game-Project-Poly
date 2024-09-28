@@ -1,22 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { SaveGameService } from '@app/services/save-game.service';
 import { of } from 'rxjs';
 import { MapCreationPageComponent } from './map-creation-page.component';
 
+import SpyObj = jasmine.SpyObj;
+
 describe('MapCreationPageComponent', () => {
-    let saveGameService: SaveGameService;
+    let saveGameServiceSpy: SpyObj<SaveGameService>;
     let component: MapCreationPageComponent;
     let fixture: ComponentFixture<MapCreationPageComponent>;
-    let gameList: GameListComponent;
-    let http: HttpClient;
+    // let gameList: GameListComponent;
+    // let http: HttpClient;
 
     beforeEach(async () => {
-        saveGameService = new SaveGameService(http);
-        component = new MapCreationPageComponent(gameList, saveGameService);
+        // saveGameService = new SaveGameService(http);
+        // component = new MapCreationPageComponent(gameList, saveGameService);
         await TestBed.configureTestingModule({
             imports: [MapCreationPageComponent, HttpClient],
             providers: [
@@ -29,6 +30,7 @@ describe('MapCreationPageComponent', () => {
                 },
             ],
         }).compileComponents();
+        TestBed.overrideProvider(SaveGameService, { useValue: saveGameServiceSpy });
 
         fixture = TestBed.createComponent(MapCreationPageComponent);
         component = fixture.componentInstance;
@@ -69,6 +71,26 @@ describe('MapCreationPageComponent', () => {
             component.updateItemCount();
             expect(component.randomItemCount).toBe(NB_ITEMS_LARGE_MAP);
             expect(component.spawnPointCount).toBe(NB_ITEMS_LARGE_MAP);
+        });
+
+        it('should set the grid attribute correctly', () => {
+            const mockGridValue = [
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            ];
+            component.setGrid(mockGridValue);
+            expect(component.grid).toBe(mockGridValue);
+        });
+
+        it('should set the height attribute correctly', () => {
+            const mockHeightValue = 15;
+            component.setHeight(mockHeightValue);
+            expect(component.height).toBe(mockHeightValue);
+        });
+
+        it('should call the saveGame function from the service', () => {
+            component.startSaving();
+            expect(saveGameServiceSpy.saveGame).toHaveBeenCalled();
         });
     });
 });
