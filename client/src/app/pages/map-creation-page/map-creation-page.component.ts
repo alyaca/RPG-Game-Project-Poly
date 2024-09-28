@@ -87,7 +87,7 @@ export class MapCreationPageComponent {
 
     startSaving() {
         html2canvas(this.canvas.nativeElement, { scale: 0.25 }).then((canvas) => {
-            const base64image = canvas.toDataURL(`/server/assets/thumbnails/${this.mapName.nativeElement.value}.png`);
+            const base64image = canvas.toDataURL();
             const infoTransferred: Info = {
                 image: base64image,
                 name: this.mapName.nativeElement.value,
