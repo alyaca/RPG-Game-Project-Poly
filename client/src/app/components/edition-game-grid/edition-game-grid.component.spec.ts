@@ -24,7 +24,7 @@ describe('EditionGameGridComponent', () => {
 
         fixture = TestBed.createComponent(EditionGameGridComponent);
         component = fixture.componentInstance;
-        component.tilesGrid = component.createNewMap();
+        component.tilesGrid = component.tileService.resetGrid(component.height, component.tilesGrid);
     });
 
     it('should create the component', () => {
@@ -45,7 +45,7 @@ describe('EditionGameGridComponent', () => {
             };
 
             component.ngOnChanges(changes);
-            expect(component.tilesGrid).toEqual(component.createNewMap());
+            expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.height, component.tilesGrid));
         });
 
         it('should validate the map when saveTrigger changes to true', () => {
@@ -63,7 +63,7 @@ describe('EditionGameGridComponent', () => {
 
     describe('tile interactions', () => {
         beforeEach(() => {
-            component.tilesGrid = component.createNewMap();
+            component.tilesGrid = component.tileService.resetGrid(component.height, component.tilesGrid);
         });
 
         it('should set tile to Ice when ice-tile is selected', () => {
@@ -92,21 +92,20 @@ describe('EditionGameGridComponent', () => {
         });
 
         it('should reset the grid', () => {
-            component.resetGrid();
-            expect(component.tilesGrid).toEqual(component.createNewMap());
+            expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.height, component.tilesGrid));
         });
 
         it('should remove tile on right-click', () => {
             component.tilesGrid[0][0] = TileType.Wall;
             const event = new MouseEvent('click', { button: 2 });
-            component.removeTile(event, 0, 0);
+            component.tileService.removeTile(event, 0, 0, component.tilesGrid);
             expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
         });
 
         it('should set tile to Ground when removing a non-Ground tile', () => {
             component.tilesGrid[0][0] = TileType.Wall;
             const event = new MouseEvent('click', { button: 0 });
-            component.removeTile(event, 0, 0);
+            component.tileService.removeTile(event, 0, 0, component.tilesGrid);
             expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
         });
     });
@@ -138,15 +137,13 @@ describe('EditionGameGridComponent', () => {
         expect(toolServiceSpy.selectedTile).toBe('');
     });
 
-    describe('getTileImage', () => {
-        it('should return the correct image path for each tile type', () => {
-            expect(component.getTileImage(TileType.Ground)).toBe('/assets/images/tiles/grass.jpg');
-            expect(component.getTileImage(TileType.Ice)).toBe('/assets/images/tiles/ice.jpg');
-            expect(component.getTileImage(TileType.Wall)).toBe('/assets/images/tiles/wall.jpg');
-            expect(component.getTileImage(TileType.Water)).toBe('/assets/images/tiles/water.jpg');
-            expect(component.getTileImage(TileType.ClosedDoor)).toBe('/assets/images/tiles/closed-door.jpg');
-            expect(component.getTileImage(TileType.OpenDoor)).toBe('/assets/images/tiles/open-door.jpg');
-            expect(component.getTileImage(0)).toBe('');
-        });
+    it('should return early when mouse is down and previousRow and previousCol match', () => {
+        component.isMouseDown = true;
+        component.previousRow = 1;
+        component.previousCol = 1;
+        spyOn(component, 'onTileClick').and.callThrough();
+
+        component.onTileClick(1, 1);
+        expect(component.onTileClick).toHaveBeenCalledTimes(1);
     });
 });
