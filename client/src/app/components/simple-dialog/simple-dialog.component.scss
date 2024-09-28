@@ -1,0 +1,36 @@
+#dialog-box {
+    background: linear-gradient(to left, rgb(49, 45, 34), rgb(79, 73, 62));
+    color: white;
+}
+
+#title {
+    font-family: papyrus;
+    font-weight: 900;
+    text-align: center;
+    color: black;
+    height: 1%;
+    font-size: 20px;
+    background: linear-gradient(to left, rgb(138, 135, 93), rgb(164, 156, 113) 25%, rgb(224, 216, 173) 75%, rgb(124, 121, 83) 100%);
+    margin-top: -1%;
+}
+
+.dialog-actions {
+    display: flex;              
+    justify-content: center;     
+    gap: 1rem;                   
+  }
+
+.button {
+    font-weight: 900;
+    font-family: 'Papyrus';
+    background: linear-gradient(to right, rgb(164, 156, 113), rgb(224, 216, 173))
+}
+
+.button:hover {
+    color: white;
+    background: linear-gradient(to right, rgb(93, 89, 64), rgb(122, 118, 94));
+}
+
+.messages-container {
+    margin-top: 3%;
+}

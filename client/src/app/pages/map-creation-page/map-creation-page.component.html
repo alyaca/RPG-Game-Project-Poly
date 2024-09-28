@@ -1,11 +1,18 @@
 <div class="background">
-    <img class="game-logo" src="/assets/images/logo/Age_Of_Mythology.png" alt="Logo Projet" />
     <div class="page-element">
         <div class="left-container">
             <form #mapForm="ngForm">
                 <div class="map-input">
                     <label for="mapName">Nom de la carte : </label>
-                    <input class="input-box" id="mapName" type="text" minlength="3" maxlength="30" placeholder="Entrez le nom de votre carte" />
+                    <input class="input-box" 
+                        id="mapName" 
+                        type="text" 
+                        maxlength={{maxLenMapTitle}}
+                        placeholder="Entrez le nom de votre carte" 
+                        [(ngModel)] = "mapName"
+                        (ngModelChange)="updateMapName($event)"
+                        name="mapName"
+                        />
                 </div>
                 <div class="map-input">
                     <label for="mapDescription">Description de la carte : </label>
@@ -13,23 +20,31 @@
                         class="input-box map-description-box"
                         id="mapDescription"
                         type="text"
-                        minlength="10"
-                        maxlength="256"
+                        maxlength= {{maxLenMapDescription}}
                         placeholder="Entrez la description de votre carte"
+                        [(ngModel)] = "mapDescription"
+                        (ngModelChange)="updateMapDescription($event)"
+                        name="mapDescription"
                     ></textarea>
                 </div>
             </form>
 
             <div class="buttons-container">
-                <button class="button" id="save-button">Sauvegarder</button>
+                <button class="button" id="save-button" (click)="handleSave()">Sauvegarder</button>
                 <button class="button" id="reset-button" (click)="handleReset()">Réinitialiser</button>
-                <button class="button" id="return-button" routerLink="/admin" routerLink="">Retour</button>
+                <button class="button" id="return-button" (click)="handleExit()" >Retour</button>
             </div>
         </div>
         <div class="grid-element" id="game-grid-and-toolbar-container">
             <div id="game-grid-background-gradient">
                 <div class="grid-element" id="game-grid-container">
-                    <app-edition-game-grid [selectedSize]="selectedSize" [resetTrigger]="resetTrigger"></app-edition-game-grid>
+                    <app-edition-game-grid 
+                        [selectedSize]="selectedSize" 
+                        [resetTrigger]="resetTrigger" 
+                        [saveTrigger]="saveTrigger"
+                        [mapName]="mapName"
+                        [mapDescription]="mapDescription"
+                        ></app-edition-game-grid>
                 </div>
             </div>
             <div class="grid-element" id="toolbar-container">
@@ -37,19 +52,6 @@
             </div>
         </div>
         <div class="right-container">
-            <div class="map-sizes">
-                <span class="title">Taille de la carte </span>
-                <mat-button-toggle-group
-                    class="switch-group"
-                    [(value)]="selectedSize"
-                    (change)="onSelectionChange($event)"
-                    hideSingleSelectionIndicator
-                >
-                    <mat-button-toggle class="switch" value="small">Petite</mat-button-toggle>
-                    <mat-button-toggle class="switch" value="medium">Moyenne</mat-button-toggle>
-                    <mat-button-toggle class="switch" value="large">Grande</mat-button-toggle>
-                </mat-button-toggle-group>
-            </div>
             <app-editor-objects-container [randomItemCount]="randomItemCount" [spawnPointCount]="spawnPointCount"> </app-editor-objects-container>
         </div>
     </div>
