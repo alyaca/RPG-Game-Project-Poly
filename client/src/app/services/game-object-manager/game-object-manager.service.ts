@@ -16,6 +16,8 @@ export class GameObjectManagerService {
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
     objects$ = this.gameObjectsSubject.asObservable();
+
+    //if edition set with the corresponding array
     objectsArray: number[][] = Array.from({ length: this.height }, () => Array(this.width).fill(0));
 
     getObjectById(id: number): GameObject | undefined {

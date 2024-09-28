@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
-import { SIZE_SMALL_MAP } from '@app/constants';
+import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { ToolService } from '@app/services/tool.service';
 
@@ -70,9 +70,14 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     onDrop(event: DragEvent, row: number, col: number) {
         event.preventDefault();
         const gameObject = this.gameObjectManagerService.draggedObject;
-        if (gameObject) {
+        if (gameObject && this.isValidTileForObject(row, col)) {
             this.gameObjectManagerService.updateObjectGridPosition(gameObject, row, col);
         }
+    }
+
+    isValidTileForObject(row: number, col: number): boolean {
+        const invalidTileTypes = [TileType.Wall, TileType.OpenDoor, TileType.ClosedDoor];
+        return this.objectsArray[row][col] === NO_OBJECT && !invalidTileTypes.includes(this.gridArray[row][col]);
     }
 
     //Sprint 1: Only the spawn point
