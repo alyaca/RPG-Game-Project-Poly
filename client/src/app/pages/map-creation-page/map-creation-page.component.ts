@@ -36,9 +36,12 @@ export class MapCreationPageComponent {
     grid: number[][];
     items: number[][];
     height: number;
+    baseImage: string;
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
+
+    infoTransferred: Info;
 
     constructor(
         private gameList: GameListComponent,
@@ -87,16 +90,16 @@ export class MapCreationPageComponent {
 
     startSaving() {
         html2canvas(this.canvas.nativeElement, { scale: 0.25 }).then((canvas) => {
-            const base64image = canvas.toDataURL();
-            const infoTransferred: Info = {
-                image: base64image,
+            this.baseImage = canvas.toDataURL();
+            this.infoTransferred = {
+                image: this.baseImage,
                 name: this.mapName.nativeElement.value,
                 description: this.mapDescription.nativeElement.value,
                 grid: this.grid,
                 items: this.items,
                 height: this.height,
             };
-            this.saveGameService.saveGame(infoTransferred, this.gameList.gameSelected);
+            this.saveGameService.saveGame(this.infoTransferred, this.gameList.gameSelected);
         });
     }
 }

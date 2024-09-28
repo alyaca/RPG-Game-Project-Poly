@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { SaveGameService } from '@app/services/save-game.service';
@@ -12,15 +13,13 @@ describe('MapCreationPageComponent', () => {
     let saveGameServiceSpy: SpyObj<SaveGameService>;
     let component: MapCreationPageComponent;
     let fixture: ComponentFixture<MapCreationPageComponent>;
-    // let gameList: GameListComponent;
-    // let http: HttpClient;
 
     beforeEach(async () => {
-        // saveGameService = new SaveGameService(http);
-        // component = new MapCreationPageComponent(gameList, saveGameService);
+        saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveGame']);
         await TestBed.configureTestingModule({
-            imports: [MapCreationPageComponent, HttpClient],
+            imports: [MapCreationPageComponent],
             providers: [
+                provideHttpClient(),
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -72,7 +71,9 @@ describe('MapCreationPageComponent', () => {
             expect(component.randomItemCount).toBe(NB_ITEMS_LARGE_MAP);
             expect(component.spawnPointCount).toBe(NB_ITEMS_LARGE_MAP);
         });
+    });
 
+    describe('Setters', () => {
         it('should set the grid attribute correctly', () => {
             const mockGridValue = [
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -87,10 +88,16 @@ describe('MapCreationPageComponent', () => {
             component.setHeight(mockHeightValue);
             expect(component.height).toBe(mockHeightValue);
         });
+    });
 
-        it('should call the saveGame function from the service', () => {
-            component.startSaving();
-            expect(saveGameServiceSpy.saveGame).toHaveBeenCalled();
+    describe('Saving start process', () => {
+        it('clicking the "Sauvegarder" button should call startSaving', () => {
+            spyOn(component, 'startSaving');
+            const saveButton = fixture.debugElement.query(By.css('#save-button'));
+            saveButton.triggerEventHandler('click');
+            expect(component.startSaving).toHaveBeenCalled();
         });
+
+        // lines 93-102 not tested and i don't know how to fucking test them
     });
 });
