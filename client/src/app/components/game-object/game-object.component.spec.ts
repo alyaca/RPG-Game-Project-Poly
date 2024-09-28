@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { GameObjectComponent } from './game-object.component';
 
 describe('EditorObjectsComponent', () => {

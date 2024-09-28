@@ -9,16 +9,15 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class GameObjectManagerService {
     objects: GameObject[] = gameObjects;
-    private gameObjectsSubject = new BehaviorSubject<GameObject[]>(this.objects);
     dragStartPosition: { row: number; col: number } | null = null;
     selectedTile: { row: number; col: number } | null = null;
     draggedObject: GameObject | null = null;
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
-    objects$ = this.gameObjectsSubject.asObservable();
-
-    //if edition set with the corresponding array
+    // if edition set with the corresponding array
     objectsArray: number[][] = Array.from({ length: this.height }, () => Array(this.width).fill(0));
+    private gameObjectsSubject = new BehaviorSubject<GameObject[]>(this.objects);
+    objects$ = this.gameObjectsSubject.asObservable();
 
     getObjectById(id: number): GameObject | undefined {
         return this.objects.find((obj) => obj.id === id);
@@ -47,6 +46,14 @@ export class GameObjectManagerService {
         }
         gameObject.count++;
         this.resetDrag();
+    }
+
+    removeObjectByClick(row: number, col: number) {
+        this.selectedTile = { row, col };
+        const gameObject = this.getGameObjectOnTile(row, col);
+        if (gameObject?.id !== NO_OBJECT && gameObject) {
+            this.removeObjectFromGrid(gameObject);
+        }
     }
 
     resetDrag() {

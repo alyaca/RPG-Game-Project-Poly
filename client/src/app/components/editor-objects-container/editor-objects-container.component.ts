@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
-import { OBJECT_COUNT_MAP } from '@app/constants';
+import { OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 @Component({
@@ -37,7 +37,7 @@ export class EditorObjectsContainerComponent implements OnInit {
         this.isDragging = true;
     }
 
-    onDragEnd(event: DragEvent) {
+    onDragEnd() {
         this.isDragging = false;
     }
 
@@ -55,7 +55,7 @@ export class EditorObjectsContainerComponent implements OnInit {
 
     setItemCount() {
         this.gameObjects.forEach((item) => {
-            if (item.id === 7 || item.id === 8) {
+            if (item.id === ObjectType.Random || item.id === ObjectType.Spawn) {
                 item.count = OBJECT_COUNT_MAP[this.mapSize];
             }
         });

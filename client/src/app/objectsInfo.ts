@@ -49,7 +49,7 @@ export const gameObjects: GameObject[] = [
         name: 'Random Item',
         image: 'assets/images/objects/dice.jpg',
         description: 'Ajoute un item aléatoire',
-        count: -1, //to check
+        count: -1,
     },
     {
         id: ObjectType.Spawn,

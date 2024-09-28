@@ -1,7 +1,13 @@
 #map-grid {
-    height: 81.5vh;
+    height: 85vh;
+    width: 85vh;
     display: grid;
     position: relative;
+    margin-top: 3%;
+    border-style: solid;
+    border-width: 3px;
+    border-image: linear-gradient(to bottom right, rgb(220, 214, 150), rgb(72, 65, 31));
+    border-image-slice: 200;
 }
 
 #map-grid::before {
