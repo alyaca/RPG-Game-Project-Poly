@@ -150,10 +150,10 @@ export class MapValidatorService {
     }
 
     validateTitleLength(title: string) {
-        return title.length > MIN_LEN_MAP_TITLE && title.length < MAX_LEN_MAP_TITLE && this.containsAcharacter(title);
+        return title.length >= MIN_LEN_MAP_TITLE && title.length <= MAX_LEN_MAP_TITLE && this.containsAcharacter(title);
     }
 
     validateDescriptionLength(description: string) {
-        return description.length > MIN_LEN_MAP_DESCRIPTION && description.length < MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
+        return description.length >= MIN_LEN_MAP_DESCRIPTION && description.length <= MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
     }
 }
