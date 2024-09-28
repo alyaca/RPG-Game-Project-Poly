@@ -11,8 +11,13 @@
         (dragover)="onDragOver($event)"
     >
         <img class="tile-image" [src]="getTileImage(col)" draggable="false" />
-        @if(objectsPosition[rowIndex][colIndex] > 0) {
-        <img class="overlay-object" [src]="getObjectImage(objectsPosition[rowIndex][colIndex])" draggable="true" />
+        @if(objectsArray[rowIndex][colIndex] > 0) {
+        <img
+            class="overlay-object"
+            [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
+            draggable="true"
+            (dragstart)="onDragStart($event, rowIndex, colIndex)"
+        />
         }
     </div>
     } }

@@ -27,3 +27,6 @@ export enum ObjectType {
     Random = 7,
     Spawn = 8,
 }
+
+//For no object in grid
+export const NO_OBJECT = 0;

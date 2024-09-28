@@ -18,14 +18,22 @@ export class EditorObjectsContainerComponent implements OnInit {
     isDragging: boolean = false;
     mapSize: string = 'small';
     showDescription: boolean = true;
+
     constructor(private gameObjectManagerService: GameObjectManagerService) {}
+
+    ngOnInit() {
+        this.gameObjectManagerService.objects$.subscribe((data) => {
+            this.gameObjects = data;
+        });
+        this.setItemCount();
+    }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
         if (gameObject.count === 0) {
             event.preventDefault();
             return;
         }
-        this.gameObjectManagerService.setDraggedObject(gameObject);
+        this.gameObjectManagerService.draggedObject = gameObject;
         this.isDragging = true;
     }
 
@@ -33,11 +41,16 @@ export class EditorObjectsContainerComponent implements OnInit {
         this.isDragging = false;
     }
 
-    ngOnInit() {
-        this.gameObjectManagerService.objects$.subscribe((data) => {
-            this.gameObjects = data;
-        });
-        this.setItemCount();
+    onDragOver(event: DragEvent) {
+        event.preventDefault();
+    }
+
+    onDrop(event: DragEvent, gameObjectId: number) {
+        event.preventDefault();
+        const gameObject = this.gameObjectManagerService.draggedObject;
+        if (gameObject?.id === gameObjectId) {
+            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+        }
     }
 
     setItemCount() {

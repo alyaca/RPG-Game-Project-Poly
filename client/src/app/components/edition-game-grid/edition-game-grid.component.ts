@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
-import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
-import { GameObject } from '@app/interfaces/gameObject';
+import { SIZE_SMALL_MAP } from '@app/constants';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { ToolService } from '@app/services/tool.service';
 
@@ -32,15 +31,13 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     selectedCol: number = 0;
 
     isMouseDown: boolean = false;
-
-    currentDraggedObject: GameObject;
-    objectsPosition: number[][];
+    objectsArray: number[][];
 
     constructor(
         private toolService: ToolService,
         private gameObjectManagerService: GameObjectManagerService,
     ) {
-        this.objectsPosition = Array.from({ length: this.height }, () => Array(this.width).fill(0));
+        this.objectsArray = this.gameObjectManagerService.objectsArray;
     }
 
     get selectedTile() {
@@ -57,40 +54,35 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
     }
 
+    onDragStart(event: DragEvent, row: number, col: number) {
+        console.log('dragstart form grid');
+        this.gameObjectManagerService.dragStartPosition = { row, col };
+        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
+        if (gameObject) {
+            this.gameObjectManagerService.draggedObject = gameObject;
+        }
+    }
+
     onDragOver(event: DragEvent) {
         event.preventDefault();
     }
 
     onDrop(event: DragEvent, row: number, col: number) {
         event.preventDefault();
-        const gameObject = this.gameObjectManagerService.getDraggedObject();
+        const gameObject = this.gameObjectManagerService.draggedObject;
         if (gameObject) {
-            this.objectsPosition[row][col] = gameObject.id;
-            if (gameObject.count) {
-                this.decrementeObjectCount(gameObject);
-            }
+            this.gameObjectManagerService.updateObjectGridPosition(gameObject, row, col);
         }
     }
 
-    decrementeObjectCount(gameObject: GameObject) {
-        for (let row = 0; row < this.objectsPosition.length; row++) {
-            for (let col = 0; col < this.objectsPosition[row].length; col++) {
-                if (this.objectsPosition[row][col] === gameObject.id) {
-                    if (gameObject.count && gameObject.count > 0) {
-                        gameObject.count--;
-                    }
-                }
-            }
-        }
-    }
-
+    //Sprint 1: Only the spawn point
     getObjectImage(id: number): string {
-        if (ObjectType.Spawn) {
-            const gameObject = this.gameObjectManagerService.getObjectById(id);
-            if (gameObject) {
-                return gameObject.image;
-            }
+        // if (ObjectType.Spawn === id) {
+        const gameObject = this.gameObjectManagerService.getObjectById(id);
+        if (gameObject) {
+            return gameObject.image;
         }
+        // }
         return '';
     }
 
@@ -145,15 +137,12 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     removeTile(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
+        this.gameObjectManagerService.selectedTile = { row, col };
+        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
 
-        const gameObjectId = this.objectsPosition[row][col];
-        const gameObject = this.gameObjectManagerService.getGameObjects().find((obj) => obj.id === gameObjectId);
-
-        if (gameObjectId != 0 && gameObject) {
-            this.objectsPosition[row][col] = 0;
-            gameObject.count++;
-        }
-        if (this.gridArray[row][col] !== 1) {
+        if (gameObject?.id != 0 && gameObject) {
+            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+        } else if (this.gridArray[row][col] !== 1) {
             this.gridArray[row][col] = 1;
         }
     }

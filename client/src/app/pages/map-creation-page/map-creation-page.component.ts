@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterLink } from '@angular/router';
@@ -20,6 +20,10 @@ export class MapCreationPageComponent {
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
     resetTrigger: boolean = false;
+
+    onDragOver(event: DragEvent) {
+        event.preventDefault();
+    }
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;

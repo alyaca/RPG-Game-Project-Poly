@@ -87,6 +87,7 @@
     transform: none;
     border-bottom: 0.25rem solid black;
     border-right: 0.25rem solid black;
+    box-shadow: none;
 }
 
 .hidden {
@@ -94,5 +95,5 @@
 }
 
 .image-container:hover + .hidden-description {
-    opacity: 0;
+    display: none;
 }
