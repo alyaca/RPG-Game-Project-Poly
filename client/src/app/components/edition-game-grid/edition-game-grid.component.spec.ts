@@ -1,6 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-//import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { SimpleChange, SimpleChanges } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MapValidatorService, TileType } from '@app/services/map-validator.service';
 import { ToolService } from '@app/services/tool.service';
 import { EditionGameGridComponent } from './edition-game-grid.component';
@@ -31,48 +30,6 @@ describe('EditionGameGridComponent', () => {
     it('should create the component', () => {
         expect(component).toBeTruthy();
     });
-
-    /*it('should set map to small size values', () => {
-        component.selectedSize = 'small';
-        component.updateDimensions();
-        expect(component.height).toEqual(SIZE_SMALL_MAP);
-        expect(component.width).toEqual(SIZE_SMALL_MAP);
-    });
-
-    it('should set map to medium size values', () => {
-        component.selectedSize = 'medium';
-        component.updateDimensions();
-        expect(component.height).toEqual(SIZE_MEDIUM_MAP);
-        expect(component.width).toEqual(SIZE_MEDIUM_MAP);
-    });
-
-    it('should set map to large size values', () => {
-        component.selectedSize = 'large';
-        component.updateDimensions();
-        expect(component.height).toEqual(SIZE_LARGE_MAP);
-        expect(component.width).toEqual(SIZE_LARGE_MAP);
-    });
-
-    it('should set map to small size values', () => {
-        component.selectedSize = 'small';
-        component.updateDimensions();
-        expect(component.height).toEqual(SIZE_SMALL_MAP);
-        expect(component.width).toEqual(SIZE_SMALL_MAP);
-    });
-
-    it('should set map to medium size values', () => {
-        component.selectedSize = 'medium';
-        component.updateDimensions();
-        expect(component.height).toEqual(SIZE_MEDIUM_MAP);
-        expect(component.width).toEqual(SIZE_MEDIUM_MAP);
-    });
-
-    it('should set map to large size values', () => {
-        component.selectedSize = 'large';
-        component.updateDimensions();
-        expect(component.height).toEqual(SIZE_LARGE_MAP);
-        expect(component.width).toEqual(SIZE_LARGE_MAP);
-    });*/
 
     it('should initialize properties correctly', () => {
         expect(component.selectedRow).toBe(0);
