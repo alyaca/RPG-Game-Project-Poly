@@ -22,9 +22,7 @@ export class EditorObjectsContainerComponent implements OnInit {
     constructor(private gameObjectManagerService: GameObjectManagerService) {}
 
     ngOnInit() {
-        this.gameObjectManagerService.objects$.subscribe((data) => {
-            this.gameObjects = data;
-        });
+        this.gameObjects = this.gameObjectManagerService.objects;
         this.setItemCount();
     }
 

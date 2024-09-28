@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TileType } from '@app/services/map-validator.service';
+import { TileType } from '@app/services/map-validator/map-validator.service';
 
 @Injectable({
     providedIn: 'root',

@@ -11,13 +11,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 @Component({
-    selector: 'app-map-creation-page',
+    selector: 'app-map-editor-page',
     standalone: true,
-    templateUrl: './map-creation-page.component.html',
-    styleUrls: ['./map-creation-page.component.scss'],
+    templateUrl: './map-editor-page.component.html',
+    styleUrls: ['./map-editor-page.component.scss'],
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
-export class MapCreationPageComponent {
+export class MapEditorPageComponent {
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
 

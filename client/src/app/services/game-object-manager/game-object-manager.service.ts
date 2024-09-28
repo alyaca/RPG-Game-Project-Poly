@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -14,10 +13,11 @@ export class GameObjectManagerService {
     draggedObject: GameObject | null = null;
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
-    // if edition set with the corresponding array
-    objectsArray: number[][] = Array.from({ length: this.height }, () => Array(this.width).fill(0));
-    private gameObjectsSubject = new BehaviorSubject<GameObject[]>(this.objects);
-    objects$ = this.gameObjectsSubject.asObservable();
+    objectsArray: number[][];
+
+    initObjectsArray(mapSize: number) {
+        this.objectsArray = Array.from({ length: mapSize }, () => Array(mapSize).fill(NO_OBJECT));
+    }
 
     getObjectById(id: number): GameObject | undefined {
         return this.objects.find((obj) => obj.id === id);

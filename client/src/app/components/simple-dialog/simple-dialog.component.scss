@@ -15,15 +15,15 @@
 }
 
 .dialog-actions {
-    display: flex;              
-    justify-content: center;     
-    gap: 1rem;                   
-  }
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
 
 .button {
     font-weight: 900;
     font-family: 'Papyrus';
-    background: linear-gradient(to right, rgb(164, 156, 113), rgb(224, 216, 173))
+    background: linear-gradient(to right, rgb(164, 156, 113), rgb(224, 216, 173));
 }
 
 .button:hover {

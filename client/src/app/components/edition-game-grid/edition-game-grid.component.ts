@@ -2,8 +2,8 @@ import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
 import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
-import { MapValidatorService, TileType } from '@app/services/map-validator.service';
-import { TileService } from '@app/services/tile.service';
+import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool.service';
 
 @Component({
@@ -40,6 +40,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         public tileService: TileService,
         private gameObjectManagerService: GameObjectManagerService,
     ) {
+        this.gameObjectManagerService.initObjectsArray(this.height);
         this.objectsArray = this.gameObjectManagerService.objectsArray;
     }
 

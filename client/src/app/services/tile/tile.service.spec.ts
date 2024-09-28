@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from './tile.service';
-import { TileType } from '@app/services/map-validator.service';
 
 describe('TileService', () => {
     let service: TileService;

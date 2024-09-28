@@ -1,13 +1,12 @@
 <div id="dialog-box">
-    <h2 mat-dialog-title id="title"> {{data.title}} </h2>
+    <h2 mat-dialog-title id="title">{{ data.title }}</h2>
     <mat-dialog-content class="messages-container">
         @for (message of data.messages; track message){
-            <app-simple-dialog-message [message]="message"></app-simple-dialog-message>
+        <app-simple-dialog-message [message]="message"></app-simple-dialog-message>
         }
     </mat-dialog-content>
     <mat-dialog-actions class="dialog-actions">
         <button class="button" mat-button (click)="onClose()">{{ data.confirm ? 'Quitter cette page' : 'Fermer' }}</button>
         <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()">Rester sur cette page</button>
     </mat-dialog-actions>
-  </div>
-  
+</div>

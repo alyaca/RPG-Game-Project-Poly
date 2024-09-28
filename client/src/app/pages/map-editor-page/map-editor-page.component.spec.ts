@@ -3,11 +3,11 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { of } from 'rxjs';
-import { MapCreationPageComponent } from './map-creation-page.component';
+import { MapEditorPageComponent } from './map-editor-page.component';
 
-describe('MapCreationPageComponent', () => {
-    let component: MapCreationPageComponent;
-    let fixture: ComponentFixture<MapCreationPageComponent>;
+describe('MapEditorPageComponent', () => {
+    let component: MapEditorPageComponent;
+    let fixture: ComponentFixture<MapEditorPageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
 
@@ -30,7 +30,7 @@ describe('MapCreationPageComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(MapCreationPageComponent);
+        fixture = TestBed.createComponent(MapEditorPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

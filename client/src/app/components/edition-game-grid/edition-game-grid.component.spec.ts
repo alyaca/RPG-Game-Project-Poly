@@ -1,8 +1,8 @@
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EditionGameGridComponent } from './edition-game-grid.component';
+import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { ToolService } from '@app/services/tool.service';
-import { MapValidatorService, TileType } from '@app/services/map-validator.service';
-import { SimpleChanges, SimpleChange } from '@angular/core';
+import { EditionGameGridComponent } from './edition-game-grid.component';
 
 describe('EditionGameGridComponent', () => {
     let component: EditionGameGridComponent;
