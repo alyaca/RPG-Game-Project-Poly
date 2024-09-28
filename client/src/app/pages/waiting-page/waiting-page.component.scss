@@ -1,0 +1,169 @@
+#waiting-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-image: linear-gradient(to top, rgb(19, 19, 18), rgb(54, 48, 48) 60%, #514c3e);
+    color: white;
+}
+
+header {
+    //background-color: lightblue;
+    flex: 0 0 10%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 50%;
+}
+
+main {
+    //background-color: lightseagreen;
+    flex: 0 0 80%;
+}
+
+footer {
+    //background-color: lightgreen;
+    flex: 0 0 10%;
+}
+
+#players-container {
+    flex: 1; /* Each div takes equal width (or adjust accordingly) */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1%;
+}
+
+.player {
+    height: 80%;
+    width: 14.5%;
+    background-color: lightpink;
+    color: black;
+    background: linear-gradient(to bottom, rgba(225, 202, 88, 0.9), rgba(249, 229, 126, 0.9) 33%, rgba(167, 153, 85, 0.9) 67%, rgba(0, 0, 0, 0));
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 5%;
+}
+
+#footer-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 25%;
+}
+
+.chat-box {
+    height: 5%;
+    width: 10%;
+    position: relative;
+    display: inline-block;
+}
+
+#chat-input {
+    background: none;
+    color: white;
+    border: 0.05rem solid rgb(135, 125, 79);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin: 0;
+    font-family: Papyrus;
+    font-weight: bold;
+    font-size: 16px;
+    width: 250%;
+}
+
+.past-messages {
+    color: black;
+    position: absolute;
+    bottom: 100%;
+    background: linear-gradient(to bottom, rgba(212, 212, 212, 0.9), rgba(206, 206, 206, 0.8) 33%, rgba(159, 159, 159, 0.7) 67%, rgba(0, 0, 0, 0));
+    padding: 10px;
+    display: none;
+    z-index: 10;
+    width: 250%;
+    height: 1000%;
+}
+
+.chat-box:hover .past-messages {
+    display: block; /* Shows the box when hovering */
+}
+
+#start-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18%;
+}
+
+#start {
+    padding: 8.5% 15%;
+    margin-left: 10%;
+    border-radius: 2rem;
+    color: black;
+    border: 1px solid gray;
+    background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+}
+
+#start:hover {
+    color: white;
+    border: 1px solid gray;
+    background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
+}
+
+#lock {
+    width: 10%;
+}
+
+.add-bot {
+    height: 80%;
+    width: 14.5%;
+    background: linear-gradient(to bottom, rgba(187, 187, 187, 0.9), rgba(223, 223, 223, 0.9) 33%, rgba(162, 162, 162, 0.9) 67%, rgba(0, 0, 0, 0));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25%;
+    color: black;
+}
+
+.add-bot-button {
+    margin-top: -50%;
+    height: 10%;
+    width: 25%;
+    border-radius: 50%;
+}
+
+.big {
+    height: 80%;
+}
+
+.medium {
+    height: 70%;
+}
+
+.small {
+    height: 60%;
+}
+
+#quit-button {
+    color: rgba(222, 207, 129, 1);
+    font-size: 1.2rem;
+    background: none;
+    padding: 2.5% 5%;
+    border: 2px solid rgba(222, 207, 129, 1);
+    border-radius: 1.8rem;
+}
+
+.player img{
+    width: 60%;
+    border-radius: 1rem;
+}
+
+.attribute {
+    margin-bottom: 5%;
+}
