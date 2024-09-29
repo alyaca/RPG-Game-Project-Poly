@@ -10,13 +10,13 @@ describe('WaitingPageComponent', () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [WaitingPageComponent], 
+            imports: [WaitingPageComponent],
             providers: [
                 {
                     provide: ActivatedRoute,
                     useValue: {
                         params: of({}),
-                        snapshot: { paramMap: { get: () => null } }, 
+                        snapshot: { paramMap: { get: () => null } },
                     },
                 },
             ],
