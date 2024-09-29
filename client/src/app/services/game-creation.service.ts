@@ -24,7 +24,7 @@ export class GameCreationService {
         return localStorage.getItem('selectedMapSize');
     }
 
-    updateDimensions() {
+    updateDimensions(): number | void {
         const size = this.getStoredSize();
         if (size === 'small') {
             return SIZE_SMALL_MAP;
@@ -33,7 +33,7 @@ export class GameCreationService {
         } else if (size === 'large') {
             return SIZE_LARGE_MAP;
         } else {
-            return localStorage.setItem('selectedMapSize', 'Mauvaise taille de carte, veuillez réessayer');
+            localStorage.setItem('selectedMapSize', 'Mauvaise taille de carte, veuillez réessayer');
         }
     }
 }
