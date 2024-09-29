@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
-import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 
 export enum TileType {
     Ground = 1,
@@ -21,9 +21,9 @@ export class MapValidatorService {
     mapObjects: number[][];
     constructor(
         private dialog: MatDialog,
-        private gameObjectManagerService: GameObjectManagerService,
+        private gameObjectService: GameObjectService,
     ) {
-        gameObjectManagerService.initObjectsArray(SIZE_SMALL_MAP);
+        gameObjectService.initObjectsArray(SIZE_SMALL_MAP);
     }
 
     validateMap(array: number[][], title: string, description: string) {
@@ -169,7 +169,7 @@ export class MapValidatorService {
     }
 
     areAllSpawnPointsPlaced(): boolean {
-        this.mapObjects = this.gameObjectManagerService.objectsArray;
+        this.mapObjects = this.gameObjectService.objectsArray;
         let spawnObjectCount = 0;
         for (const row of this.mapObjects) {
             for (const cell of row) {
@@ -178,6 +178,6 @@ export class MapValidatorService {
                 }
             }
         }
-        return spawnObjectCount === this.gameObjectManagerService.maxCount;
+        return spawnObjectCount === this.gameObjectService.maxCount;
     }
 }

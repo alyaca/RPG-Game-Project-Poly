@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
 import { GameObject } from '@app/interfaces/gameObject';
-import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button.service';
 
 @Component({
@@ -21,13 +21,13 @@ export class EditorObjectsContainerComponent implements OnInit {
     showDescription: boolean = true;
 
     constructor(
-        private gameObjectManagerService: GameObjectManagerService,
+        private gameObjectService: GameObjectService,
         private toolButtonService: ToolButtonService,
     ) {}
 
     ngOnInit() {
-        this.gameObjects = this.gameObjectManagerService.objects;
-        this.gameObjectManagerService.resetObjectsCount();
+        this.gameObjects = this.gameObjectService.objects;
+        this.gameObjectService.resetObjectsCount();
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
@@ -40,7 +40,7 @@ export class EditorObjectsContainerComponent implements OnInit {
             event.preventDefault();
             return;
         }
-        this.gameObjectManagerService.draggedObject = gameObject;
+        this.gameObjectService.draggedObject = gameObject;
         this.isDraggingFromContainer = true;
     }
 
@@ -54,12 +54,12 @@ export class EditorObjectsContainerComponent implements OnInit {
 
     onDrop(event: DragEvent, gameObjectId: number) {
         event.preventDefault();
-        const gameObject = this.gameObjectManagerService.draggedObject;
+        const gameObject = this.gameObjectService.draggedObject;
         if (this.isDraggingFromContainer) {
             return;
         }
         if (gameObject?.id === gameObjectId) {
-            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+            this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
 }

@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
 import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
-import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button.service';
@@ -40,11 +40,11 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
-        private gameObjectManagerService: GameObjectManagerService,
+        private gameObjectService: GameObjectService,
         private toolButtonService: ToolButtonService,
     ) {
-        this.gameObjectManagerService.initObjectsArray(this.height);
-        this.objectsArray = this.gameObjectManagerService.objectsArray;
+        this.gameObjectService.initObjectsArray(this.height);
+        this.objectsArray = this.gameObjectService.objectsArray;
         this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
     }
 
@@ -55,8 +55,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
             this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
-            this.objectsArray = this.gameObjectManagerService.initObjectsArray(this.height);
-            this.gameObjectManagerService.resetObjectsCount();
+            this.objectsArray = this.gameObjectService.initObjectsArray(this.height);
+            this.gameObjectService.resetObjectsCount();
         }
         if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
@@ -68,10 +68,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         this.deactivateTileApplicator();
 
         this.isMouseDown = false;
-        this.gameObjectManagerService.dragStartPosition = { row, col };
-        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
+        this.gameObjectService.dragStartPosition = { row, col };
+        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
         if (gameObject) {
-            this.gameObjectManagerService.draggedObject = gameObject;
+            this.gameObjectService.draggedObject = gameObject;
         }
     }
 
@@ -81,9 +81,9 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     onDrop(event: DragEvent, row: number, col: number) {
         event.preventDefault();
-        const gameObject = this.gameObjectManagerService.draggedObject;
+        const gameObject = this.gameObjectService.draggedObject;
         if (gameObject && this.objectsArray[row][col] === NO_OBJECT && this.isValidTileForObject(row, col)) {
-            this.gameObjectManagerService.updateObjectGridPosition(gameObject, row, col);
+            this.gameObjectService.updateObjectGridPosition(gameObject, row, col);
         }
         this.isMouseDown = false;
         this.isDraggingObject = false;
@@ -96,7 +96,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     getObjectImage(id: number): string {
-        const gameObject = this.gameObjectManagerService.getObjectById(id);
+        const gameObject = this.gameObjectService.getObjectById(id);
         if (gameObject) {
             return gameObject.image;
         }
@@ -106,7 +106,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
         this.removeTile(event, row, col);
-        this.gameObjectManagerService.removeObjectByClick(event, row, col);
+        this.gameObjectService.removeObjectByClick(event, row, col);
     }
 
     onTileClick(row: number, col: number) {
@@ -119,10 +119,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         this.selectedCol = col;
         this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
 
-        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
+        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
         if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
-            this.gameObjectManagerService.selectedTile = { row, col };
-            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+            this.gameObjectService.selectedTile = { row, col };
+            this.gameObjectService.removeObjectFromGrid(gameObject);
         }
         this.previousRow = row;
         this.previousCol = col;

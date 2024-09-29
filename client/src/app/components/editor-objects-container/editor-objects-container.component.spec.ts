@@ -2,23 +2,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
 import { ITEM_COUNT } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
-import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button.service';
 import { EditorObjectsContainerComponent } from './editor-objects-container.component';
 
 describe('EditorObjectsContainerComponent', () => {
     let component: EditorObjectsContainerComponent;
     let fixture: ComponentFixture<EditorObjectsContainerComponent>;
-    let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectManagerService>;
+    let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
 
     beforeEach(async () => {
-        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', ['removeObjectFromGrid', 'resetObjectsCount']);
+        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', ['removeObjectFromGrid', 'resetObjectsCount']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton']);
 
         await TestBed.configureTestingModule({
             providers: [
-                { provide: GameObjectManagerService, useValue: gameObjectManagerServiceSpy },
+                { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: ToolButtonService, useValue: toolButtonServiceSpy },
             ],
         }).compileComponents();

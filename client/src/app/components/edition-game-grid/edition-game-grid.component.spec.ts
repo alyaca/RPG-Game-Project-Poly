@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_OBJECT, ObjectType } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { gameObjects } from '@app/objectsInfo';
-import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { ToolService } from '@app/services/tool.service';
 import { EditionGameGridComponent } from './edition-game-grid.component';
@@ -13,12 +13,12 @@ describe('EditionGameGridComponent', () => {
     let fixture: ComponentFixture<EditionGameGridComponent>;
     let toolServiceSpy: jasmine.SpyObj<ToolService>;
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
-    let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectManagerService>;
+    let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
 
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile']);
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
-        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
+        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', [
             'initObjectsArray',
             'getObjectById',
             'getGameObjectOnTile',
@@ -33,7 +33,7 @@ describe('EditionGameGridComponent', () => {
             providers: [
                 { provide: ToolService, useValue: toolServiceSpy },
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
-                { provide: GameObjectManagerService, useValue: gameObjectManagerServiceSpy },
+                { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
             ],
         }).compileComponents();
 

@@ -6,7 +6,7 @@ import { gameObjects } from '@app/objectsInfo';
 @Injectable({
     providedIn: 'root',
 })
-export class GameObjectManagerService {
+export class GameObjectService {
     objects: GameObject[] = gameObjects;
     dragStartPosition: { row: number; col: number } | null = null;
     selectedTile: { row: number; col: number } | null = null;
