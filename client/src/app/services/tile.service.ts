@@ -1,0 +1,57 @@
+import { Injectable } from '@angular/core';
+import { TileType } from '@app/services/map-validator.service';
+
+@Injectable({
+    providedIn: 'root',
+})
+export class TileService {
+    getTileImage(value: number): string {
+        switch (value) {
+            case TileType.Ground:
+                return '/assets/images/tiles/grass.jpg';
+            case TileType.Ice:
+                return '/assets/images/tiles/ice.jpg';
+            case TileType.Wall:
+                return '/assets/images/tiles/wall.jpg';
+            case TileType.Water:
+                return '/assets/images/tiles/water.jpg';
+            case TileType.ClosedDoor:
+                return '/assets/images/tiles/closed-door.jpg';
+            case TileType.OpenDoor:
+                return '/assets/images/tiles/open-door.jpg';
+            default:
+                return '';
+        }
+    }
+
+    setTile(selectedTile: string, row: number, col: number, array: number[][]) {
+        switch (selectedTile) {
+            case 'ice-tile':
+                array[row][col] = TileType.Ice;
+                break;
+            case 'wall-tile':
+                array[row][col] = TileType.Wall;
+                break;
+            case 'water-tile':
+                array[row][col] = TileType.Water;
+                break;
+            case 'door-tile':
+                array[row][col] = array[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
+                break;
+            default:
+                break;
+        }
+    }
+
+    removeTile(event: MouseEvent, row: number, col: number, array: number[][]) {
+        event.preventDefault();
+        if (array[row][col] !== TileType.Ground) {
+            array[row][col] = TileType.Ground;
+        }
+    }
+
+    resetGrid(mapSize: number, array: number[][]): number[][] {
+        array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
+        return array;
+    }
+}
