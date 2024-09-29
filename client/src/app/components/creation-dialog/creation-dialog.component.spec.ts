@@ -61,7 +61,7 @@ describe('PopUpComponent', () => {
         expect(result).toBe(true);
     });
 
-    it('the subit button should be desabled when the mode is not selected ', () => {
+    it('the submit button should be desabled when the mode is not selected ', () => {
         const size = 'small';
         component.selectSize(size);
         const result = component.isSubmitDisabled();
