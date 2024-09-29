@@ -49,12 +49,12 @@ describe('PopUpComponent', () => {
         expect(dialogRefSpy.close).toHaveBeenCalled();
     });
 
-    it('the subit button should be desabled when the mode and size is not selected', () => {
+    it('the submit button should be desabled when the mode and size is not selected', () => {
         const result = component.isSubmitDisabled();
         expect(result).toBe(true);
     });
 
-    it('the subit button should be desabled when the size is not selected ', () => {
+    it('the submit button should be desabled when the size is not selected ', () => {
         const mode = 'classic';
         component.selectMode(mode);
         const result = component.isSubmitDisabled();
