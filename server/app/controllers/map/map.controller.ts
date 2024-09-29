@@ -97,7 +97,11 @@ export class MapController {
     async addMap(@Body() newMap: Partial<Map>, @Res() response: Response) {
         try {
             const hasBeenCreated = await this.savingService.addMapToDb(newMap);
-            response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            if (hasBeenCreated !== null) {
+                response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
+            }
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
@@ -114,7 +118,11 @@ export class MapController {
     async replaceMap(@Body() mapToReplace: Partial<Map>, @Res() response: Response) {
         try {
             const hasBeenCreated = await this.savingService.replaceMapInDb(mapToReplace);
-            response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            if (hasBeenCreated !== null) {
+                response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
+            }
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
