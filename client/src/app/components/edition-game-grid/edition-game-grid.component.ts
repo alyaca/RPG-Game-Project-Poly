@@ -29,10 +29,13 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     selectedCol: number = 0;
 
     isMouseDown: boolean = false;
+    isDraggingObject: boolean = false;
     objectsArray: number[][];
 
     previousRow: number | null = null;
     previousCol: number | null = null;
+
+    tempSelectedTile: string | null = null;
 
     constructor(
         private toolService: ToolService,
@@ -61,6 +64,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     onDragStart(event: DragEvent, row: number, col: number) {
+        this.isDraggingObject = true;
+        this.tempSelectedTile = this.toolService.getSelectedTile();
+        this.toolService.setSelectedTile("");
+
         this.isMouseDown = false;
         this.gameObjectManagerService.dragStartPosition = { row, col };
         const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
@@ -80,6 +87,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
             this.gameObjectManagerService.updateObjectGridPosition(gameObject, row, col);
         }
         this.isMouseDown = false;
+        this.isDraggingObject = false;
     }
 
     isValidTileForObject(row: number, col: number): boolean {
@@ -102,18 +110,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     onTileClick(row: number, col: number) {
+        if (this.isDraggingObject) return;
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
-            return;
-        }
-
-
-        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
-        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
-            this.gameObjectManagerService.selectedTile = { row, col };
-            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
-        }
-
-        if (this.objectsArray[row][col] !== NO_OBJECT){
             return;
         }
 
@@ -121,12 +119,18 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         this.selectedCol = col;
         this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
 
+        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
+        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
+            this.gameObjectManagerService.selectedTile = { row, col };
+            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+        }
+        
         this.previousRow = row;
         this.previousCol = col;
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {
-        if (event.button === 0) {
+        if (event.button === 0 && !this.isDraggingObject) {
             this.isMouseDown = true;
             this.onTileClick(row, col);
         }
@@ -139,7 +143,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     onMouseMove(row: number, col: number) {
-        if (this.isMouseDown) {
+        if (this.isMouseDown && !this.isDraggingObject) {
             this.onTileClick(row, col);
         }
     }
@@ -155,3 +159,4 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
     }
 }
+
