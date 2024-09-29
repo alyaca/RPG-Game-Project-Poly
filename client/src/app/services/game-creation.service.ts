@@ -33,7 +33,7 @@ export class GameCreationService {
         } else if (size === 'large') {
             return SIZE_LARGE_MAP;
         } else {
-            return alert('invalid map size chosen');
+            return localStorage.setItem('selectedMapSize', 'Mauvaise taille de carte, veuillez réessayer');
         }
     }
 }

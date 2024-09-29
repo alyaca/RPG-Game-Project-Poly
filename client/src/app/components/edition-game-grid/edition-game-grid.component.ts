@@ -20,9 +20,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() mapDescription: string;
 
     tilesGrid: number[][];
-    height = this.gameCreationService.updateDimensions() as number;
-    width = this.gameCreationService.updateDimensions() as number;
-
+    height: number;
+    width: number;
     selectedRow: number = 0;
     selectedCol: number = 0;
 
@@ -43,6 +42,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        this.height = this.gameCreationService.updateDimensions() as number;
+        this.width = this.gameCreationService.updateDimensions() as number;
         if (changes.resetTrigger) {
             this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
         }
