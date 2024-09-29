@@ -48,7 +48,8 @@ export class GameObjectManagerService {
         this.resetDrag();
     }
 
-    removeObjectByClick(row: number, col: number) {
+    removeObjectByClick(event: MouseEvent, row: number, col: number) {
+        event.preventDefault();
         this.selectedTile = { row, col };
         const gameObject = this.getGameObjectOnTile(row, col);
         if (gameObject?.id !== NO_OBJECT && gameObject) {

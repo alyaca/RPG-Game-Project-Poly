@@ -84,18 +84,16 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     // Sprint 1: Only the spawn point
     getObjectImage(id: number): string {
-        // if (ObjectType.Spawn === id) {
         const gameObject = this.gameObjectManagerService.getObjectById(id);
         if (gameObject) {
             return gameObject.image;
         }
-        // }
         return '';
     }
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        this.gameObjectManagerService.removeObjectByClick(row, col);
+        this.gameObjectManagerService.removeObjectByClick(event, row, col);
         this.tileService.removeTile(event, row, col, this.tilesGrid);
     }
 
@@ -103,11 +101,15 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
             return;
         }
-
         this.selectedRow = row;
         this.selectedCol = col;
-
         this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
+
+        const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
+        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
+            this.gameObjectManagerService.selectedTile = { row, col };
+            this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+        }
 
         this.previousRow = row;
         this.previousCol = col;
