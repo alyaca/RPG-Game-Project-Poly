@@ -23,6 +23,16 @@ export class GameObjectManagerService {
         return this.objectsArray;
     }
 
+    resetObjectsCount() {
+        this.objects.forEach((object) => {
+            if (this.countableObjects.includes(object.id)) {
+                object.count = OBJECT_COUNT_MAP['small']; // voir avec le service
+            } else {
+                object.count = ITEM_COUNT;
+            }
+        });
+    }
+
     getObjectById(id: number): GameObject | undefined {
         return this.objects.find((obj) => obj.id === id);
     }
@@ -48,8 +58,8 @@ export class GameObjectManagerService {
         } else if (this.dragStartPosition) {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
         }
-        const maxAllowedCount = this.countableObjects.includes(gameObject.id) ? this.maxCount : ITEM_COUNT;
-        if (gameObject.count + 1 <= maxAllowedCount) {
+        const maxObjectCount = this.countableObjects.includes(gameObject.id) ? this.maxCount : ITEM_COUNT;
+        if (gameObject.count + 1 <= maxObjectCount) {
             gameObject.count++;
         }
         this.resetDrag();
@@ -59,6 +69,7 @@ export class GameObjectManagerService {
         event.preventDefault();
         this.selectedTile = { row, col };
         const gameObject = this.getGameObjectOnTile(row, col);
+
         if (gameObject?.id !== NO_OBJECT && gameObject) {
             this.removeObjectFromGrid(gameObject);
         }

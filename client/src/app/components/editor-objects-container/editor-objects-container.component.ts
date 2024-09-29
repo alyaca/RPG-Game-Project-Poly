@@ -3,7 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
-import { OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 @Component({
@@ -23,7 +22,7 @@ export class EditorObjectsContainerComponent implements OnInit {
 
     ngOnInit() {
         this.gameObjects = this.gameObjectManagerService.objects;
-        this.setItemCount();
+        this.gameObjectManagerService.resetObjectsCount();
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
@@ -49,13 +48,5 @@ export class EditorObjectsContainerComponent implements OnInit {
         if (gameObject?.id === gameObjectId) {
             this.gameObjectManagerService.removeObjectFromGrid(gameObject);
         }
-    }
-
-    setItemCount() {
-        this.gameObjects.forEach((item) => {
-            if (item.id === ObjectType.Random || item.id === ObjectType.Spawn) {
-                item.count = OBJECT_COUNT_MAP[this.mapSize];
-            }
-        });
     }
 }

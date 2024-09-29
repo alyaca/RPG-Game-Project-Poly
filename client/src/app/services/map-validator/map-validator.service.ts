@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
-import { GameObjectManagerService } from '../game-object-manager/game-object-manager.service';
+import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 
 export enum TileType {
     Ground = 1,

@@ -53,7 +53,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
             this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
             this.objectsArray = this.gameObjectManagerService.initObjectsArray(this.height);
-            
+            this.gameObjectManagerService.resetObjectsCount();
         }
         if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
@@ -81,7 +81,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     isValidTileForObject(row: number, col: number): boolean {
-        const validTileType = [TileType.Ground, TileType.Ice, TileType.Water]
+        const validTileType = [TileType.Ground, TileType.Ice, TileType.Water];
         return validTileType.includes(this.tilesGrid[row][col]);
     }
 
