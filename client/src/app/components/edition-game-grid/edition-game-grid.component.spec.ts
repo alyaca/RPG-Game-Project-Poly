@@ -14,17 +14,26 @@ describe('EditionGameGridComponent', () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile']);
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
 
+        const tileServiceMock = {
+            resetGrid: jasmine.createSpy('resetGrid').and.callFake((height: number) => {
+                return Array.from({ length: height }, () => Array.from({ length: 5 }, () => TileType.Ground));
+            }),
+        };
+
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
                 { provide: ToolService, useValue: toolServiceSpy },
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
+                { provide: 'TileService', useValue: tileServiceMock },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(EditionGameGridComponent);
         component = fixture.componentInstance;
-        component.tilesGrid = component.tileService.resetGrid(component.height, component.tilesGrid);
+
+        component.height = 5;
+        component.tilesGrid = tileServiceMock.resetGrid(component.height, component.tilesGrid);
     });
 
     it('should create the component', () => {
