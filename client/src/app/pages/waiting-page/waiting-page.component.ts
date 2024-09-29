@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MAX_ACCESS_CODE_VALUE, ACCESS_CODE_LENGTH } from '@app/constants';
 
 @Component({
     selector: 'app-waiting-page',
@@ -10,8 +11,8 @@ import { RouterLink } from '@angular/router';
 })
 export class WaitingPageComponent implements OnInit {
     accessCode: string = '';
-    private readonly maxRandom = 10000;
-    private readonly accesCodeLenght = 4;
+    maxRandom = MAX_ACCESS_CODE_VALUE;
+    private readonly accesCodeLength = ACCESS_CODE_LENGTH;
 
     ngOnInit() {
         this.accessCode = this.generateAccesCode();
@@ -19,6 +20,6 @@ export class WaitingPageComponent implements OnInit {
 
     generateAccesCode(): string {
         const code = Math.floor(Math.random() * this.maxRandom);
-        return code.toString().padStart(this.accesCodeLenght, '0');
+        return code.toString().padStart(this.accesCodeLength, '0');
     }
 }

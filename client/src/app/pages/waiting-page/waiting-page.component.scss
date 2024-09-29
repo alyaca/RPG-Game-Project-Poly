@@ -210,7 +210,6 @@ footer {
 }
 
 .admin {
-    //background: linear-gradient(to right, rgb(73, 14, 14), rgb(142, 19, 19) 35%, rgb(129, 26, 26) 65%, rgb(64, 16, 16));
     background: linear-gradient(to bottom, rgb(73, 14, 14), rgb(142, 19, 19) 35%, rgb(129, 26, 26) 65%, rgba(0, 0, 0, 0));
     color: white;
 }
@@ -219,7 +218,6 @@ footer {
     margin-bottom: 5%;
 }
 
-///////////
 .switch {
     position: relative;
     display: inline-block;
@@ -243,7 +241,7 @@ footer {
     bottom: 0;
     background-color: #ccc;
     transition: 0.4s;
-    border-radius: 2rem; 
+    border-radius: 2rem;
 }
 
 .slider:before {

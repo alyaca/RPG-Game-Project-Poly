@@ -13,3 +13,7 @@ export const MIN_LEN_MAP_TITLE = 3;
 export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 256;
+
+// Constants for waiting page access code generation
+export const ACCESS_CODE_LENGTH = 4;
+export const MAX_ACCESS_CODE_VALUE = 10000;
