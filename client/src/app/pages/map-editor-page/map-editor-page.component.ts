@@ -9,6 +9,7 @@ import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 
 @Component({
     selector: 'app-map-editor-page',
@@ -33,10 +34,19 @@ export class MapEditorPageComponent {
     constructor(
         private dialog: MatDialog,
         private router: Router,
+        private gameObjectService: GameObjectService,
     ) {}
 
     onDragOver(event: DragEvent) {
         event.preventDefault();
+    }
+
+    onDropOutside(event: DragEvent) {
+        event.preventDefault();
+        const gameObject = this.gameObjectService.draggedObject;
+        if (gameObject?.id) {
+            this.gameObjectService.removeObjectFromGrid(gameObject);
+        }
     }
 
     onSelectionChange(event: { value: string }) {

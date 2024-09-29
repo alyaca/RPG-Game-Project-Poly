@@ -1,4 +1,4 @@
-<div class="background" (dragover)="onDragOver($event)">
+<div class="background" (dragover)="onDragOver($event)" (drop)="onDropOutside($event)">
     <div class="page-element">
         <div class="left-container">
             <form #mapForm="ngForm">
