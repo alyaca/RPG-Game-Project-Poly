@@ -92,8 +92,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
+        this.removeTile(event, row, col);
         this.gameObjectManagerService.removeObjectByClick(event, row, col);
-        this.tileService.removeTile(event, row, col, this.tilesGrid);
     }
 
     onTileClick(row: number, col: number) {
@@ -135,5 +135,12 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     ngOnDestroy() {
         this.toolService.selectedTile = '';
+    }
+
+    removeTile(event: MouseEvent, row: number, col: number) {
+        event.preventDefault();
+        if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
+            this.tilesGrid[row][col] = TileType.Ground;
+        }
     }
 }

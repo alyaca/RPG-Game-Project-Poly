@@ -43,13 +43,6 @@ export class TileService {
         }
     }
 
-    removeTile(event: MouseEvent, row: number, col: number, array: number[][]) {
-        event.preventDefault();
-        if (array[row][col] !== TileType.Ground) {
-            array[row][col] = TileType.Ground;
-        }
-    }
-
     resetGrid(mapSize: number, array: number[][]): number[][] {
         array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
         return array;
