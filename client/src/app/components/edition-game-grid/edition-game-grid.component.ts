@@ -61,6 +61,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     onDragStart(event: DragEvent, row: number, col: number) {
+        this.isMouseDown = false;
         this.gameObjectManagerService.dragStartPosition = { row, col };
         const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
         if (gameObject) {
@@ -78,6 +79,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         if (gameObject && this.objectsArray[row][col] === NO_OBJECT && this.isValidTileForObject(row, col)) {
             this.gameObjectManagerService.updateObjectGridPosition(gameObject, row, col);
         }
+        this.isMouseDown = false;
     }
 
     isValidTileForObject(row: number, col: number): boolean {
@@ -103,15 +105,21 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
             return;
         }
-        this.selectedRow = row;
-        this.selectedCol = col;
-        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
+
 
         const gameObject = this.gameObjectManagerService.getGameObjectOnTile(row, col);
         if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
             this.gameObjectManagerService.selectedTile = { row, col };
             this.gameObjectManagerService.removeObjectFromGrid(gameObject);
         }
+
+        if (this.objectsArray[row][col] !== NO_OBJECT){
+            return;
+        }
+
+        this.selectedRow = row;
+        this.selectedCol = col;
+        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
 
         this.previousRow = row;
         this.previousCol = col;
