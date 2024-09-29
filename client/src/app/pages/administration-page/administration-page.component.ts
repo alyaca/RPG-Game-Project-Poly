@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
+import { HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
 
 @Component({
     selector: 'app-administration-page',
@@ -16,8 +17,8 @@ export class AdministrationPageComponent {
     constructor(private dialog: MatDialog) {}
     openPopUp(): void {
         this.dialog.open(CreationDialogComponent, {
-            width: '40%',
-            height: '50%',
+            width: WIDTH_DIALOG,
+            height: HEIGHT_DIALOG,
         });
     }
 }
