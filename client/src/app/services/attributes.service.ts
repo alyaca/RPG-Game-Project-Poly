@@ -4,11 +4,11 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class AttributesService {
-    private readonly defaultAttribute = '4';
-    private readonly highAttribute = '6';
+    readonly defaultAttribute = '4';
+    readonly highAttribute = '6';
+    name: string = '';
     private readonly dice4 = '1-4';
     private readonly dice6 = '1-6';
-
     private attributes = [
         { attributeName: 'health', value: this.defaultAttribute },
         { attributeName: 'speed', value: this.defaultAttribute },
@@ -25,7 +25,26 @@ export class AttributesService {
         if (attribute) {
             return attribute.value;
         }
-        return undefined;
+        return;
+    }
+
+    isButtonSelected(buttonName: string) {
+        switch (buttonName) {
+            case 'health':
+                return this.getAttributsValue('health') === this.highAttribute;
+            case 'speed':
+                return this.getAttributsValue('speed') === this.highAttribute;
+            case 'attack4':
+                return this.getAttributsValue('attack') === this.dice4;
+            case 'attack6':
+                return this.getAttributsValue('attack') === this.dice6;
+            case 'defense4':
+                return this.getAttributsValue('defense') === this.dice4;
+            case 'defense6':
+                return this.getAttributsValue('defense') === this.dice6;
+            default:
+                return undefined;
+        }
     }
 
     setHealth(healthValue: string) {
@@ -69,24 +88,56 @@ export class AttributesService {
             }
         }
     }
-    saveAttributesValue() {
+    setCharacterName(name: string) {
+        this.name = name;
+    }
+
+    saveAttributesValue(): undefined | string {
+        const nameCheck = this.validateName();
+        if (nameCheck !== true) return nameCheck;
+        localStorage.setItem('name', this.name);
+
+        const attributeCheck = this.validateAttributes();
+        if (attributeCheck !== true) return attributeCheck;
+        this.saveAttributes();
+        this.resetAttributes();
+        return;
+    }
+
+    validateName(): true | string {
+        if (!this.name.trim()) {
+            return 'Le nom du personnage est requis';
+        }
+        return true;
+    }
+
+    validateAttributes(): true | string {
+        const missingAttributs = this.attributes.filter((attr) => attr.value === this.defaultAttribute).length;
+        if (missingAttributs > 1) {
+            return 'Veuillez sélectionner les valeurs des attributs souhaités';
+        }
+        return true;
+    }
+
+    saveAttributes(): void {
         const foundAttribute4 = this.attributes.find((attr) => attr.value === this.dice4);
         const foundAttribute6 = this.attributes.find((attr) => attr.value === this.dice6);
-        const missingAttributs = this.attributes.filter((attr) => attr.value === this.defaultAttribute).length;
-        if (missingAttributs > 1) return false;
         if (foundAttribute4 && foundAttribute6) {
-            foundAttribute4.value = Math.floor(parseInt(this.defaultAttribute, 10) + Math.random() * Number(this.defaultAttribute) + 1).toString();
-            foundAttribute6.value = Math.floor(parseInt(this.defaultAttribute, 10) + Math.random() * Number(this.highAttribute) + 1).toString();
+            foundAttribute4.value = this.generateRandomAttributes();
+            foundAttribute6.value = this.generateRandomAttributes();
             localStorage.setItem('attributes', JSON.stringify(this.attributes));
-            return true;
-        } else {
-            return false;
         }
     }
+
+    generateRandomAttributes() {
+        return Math.floor(parseInt(this.defaultAttribute, 10) + Math.random() * Number(this.defaultAttribute) + 1).toString();
+    }
+
     resetAttributes() {
         this.setHealth(this.defaultAttribute);
         this.setSpeed(this.defaultAttribute);
         this.setAttack(this.defaultAttribute);
         this.setDefense(this.defaultAttribute);
+        this.name = '';
     }
 }
