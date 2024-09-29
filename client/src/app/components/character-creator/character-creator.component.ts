@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { AttributesService } from '@app/services/attributes.service';
@@ -8,7 +8,7 @@ import { AttributesService } from '@app/services/attributes.service';
 @Component({
     selector: 'app-character-creator',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule],
+    imports: [ReactiveFormsModule, CommonModule, FormsModule],
     templateUrl: './character-creator.component.html',
     styleUrl: './character-creator.component.scss',
 })
@@ -16,7 +16,7 @@ export class CharacterCreatorComponent {
     @Output() closeCharactorCreator = new EventEmitter<void>();
     avatars = [
         { src: '../../../assets/img/characters/Hestia.webp', name: 'Hestia' },
-        { src: '../../../assets/img/characters/Zeus.webp', name: 'Zues' },
+        { src: '../../../assets/img/characters/Zeus.webp', name: 'Zeus' },
         { src: '../../../assets/img/characters/Hera.webp', name: 'Hera' },
         { src: '../../../assets/img/characters/Poseidon.webp', name: 'Poseidon' },
         { src: '../../../assets/img/characters/Artemis.webp', name: 'Artemis' },
@@ -26,14 +26,20 @@ export class CharacterCreatorComponent {
         { src: '../../../assets/img/characters/Hephaestus.webp', name: 'Hephaestus' },
         { src: '../../../assets/img/characters/Apollo.webp', name: 'Apollo' },
         { src: '../../../assets/img/characters/Ares.webp', name: 'Ares' },
-        { src: '../../../assets/img/characters/Aphrodite.webp', name: 'Aphrodlite' },
+        { src: '../../../assets/img/characters/Aphrodite.webp', name: 'Aphrodite' },
     ];
     clickedAvatar: { src: string; name: string } = this.avatars[0];
+    characterName: string = '';
+    private highAttribute = '6';
     constructor(
         private attributesService: AttributesService,
         private router: Router,
         private snackBar: MatSnackBar,
     ) {}
+
+    setName(name: string) {
+        this.characterName = name;
+    }
 
     closeComponent() {
         this.closeCharactorCreator.emit();
@@ -44,12 +50,15 @@ export class CharacterCreatorComponent {
         this.clickedAvatar = avatar;
     }
 
+    isButtonSelected(buttonName: string) {
+        return this.attributesService.isButtonSelected(buttonName);
+    }
     addHealth() {
-        this.attributesService.setHealth('6');
+        this.attributesService.setHealth(this.highAttribute);
     }
 
     addspeed() {
-        this.attributesService.setSpeed('6');
+        this.attributesService.setSpeed(this.highAttribute);
     }
 
     setAttack(attackValue: string) {
@@ -65,12 +74,13 @@ export class CharacterCreatorComponent {
     }
 
     saveChoices() {
-        if (this.attributesService.saveAttributesValue()) {
+        this.attributesService.setCharacterName(this.characterName);
+        const saveStatus = this.attributesService.saveAttributesValue();
+        if (saveStatus === undefined) {
             this.router.navigate(['/waiting-page']);
-            this.attributesService.resetAttributes();
         } else {
-            this.snackBar.open('Veuillez sélectionner les valeurs des attributs souhaités', 'Fermer', {
-                duration: 2000,
+            this.snackBar.open(saveStatus as string, 'Fermer', {
+                duration: 3000,
             });
         }
     }
