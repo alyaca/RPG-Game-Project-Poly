@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
+import { NO_OBJECT, OBJECT_COUNT_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
 
@@ -14,9 +14,11 @@ export class GameObjectManagerService {
     height: number = SIZE_SMALL_MAP;
     width: number = SIZE_SMALL_MAP;
     objectsArray: number[][];
+    maxCount: number;
 
     initObjectsArray(mapSize: number) {
         this.objectsArray = Array.from({ length: mapSize }, () => Array(mapSize).fill(NO_OBJECT));
+        this.maxCount = OBJECT_COUNT_MAP[mapSize];
     }
 
     getObjectById(id: number): GameObject | undefined {
@@ -44,7 +46,9 @@ export class GameObjectManagerService {
         } else if (this.dragStartPosition) {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
         }
-        gameObject.count++;
+        if (gameObject.count + 1 <= this.maxCount) {
+            gameObject.count++;
+        }
         this.resetDrag();
     }
 

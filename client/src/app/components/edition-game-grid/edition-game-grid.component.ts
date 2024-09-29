@@ -72,17 +72,16 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     onDrop(event: DragEvent, row: number, col: number) {
         event.preventDefault();
         const gameObject = this.gameObjectManagerService.draggedObject;
-        if (gameObject && this.isValidTileForObject(row, col)) {
+        if (gameObject && this.objectsArray[row][col] === NO_OBJECT && this.isValidTileForObject(row, col)) {
             this.gameObjectManagerService.updateObjectGridPosition(gameObject, row, col);
         }
     }
 
     isValidTileForObject(row: number, col: number): boolean {
-        const invalidTileTypes = [TileType.Wall, TileType.OpenDoor, TileType.ClosedDoor];
-        return this.objectsArray[row][col] === NO_OBJECT && !invalidTileTypes.includes(this.tilesGrid[row][col]);
+        const validTileType = [TileType.Ground, TileType.Ice, TileType.Water]
+        return validTileType.includes(this.tilesGrid[row][col]);
     }
 
-    // Sprint 1: Only the spawn point
     getObjectImage(id: number): string {
         const gameObject = this.gameObjectManagerService.getObjectById(id);
         if (gameObject) {
