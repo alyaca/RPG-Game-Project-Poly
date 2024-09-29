@@ -84,7 +84,7 @@ describe('SaveGameService', () => {
             nbPlayers: dummyMap.nbPlayers,
             image: dummyInfo.image,
             tiles: dummyInfo.grid,
-            dimension: dummyInfo.height,
+            dimension: dummyMap.dimension,
             itemPlacement: dummyInfo.items,
             isSelected: false,
             lastModification: jasmine.any(Date),

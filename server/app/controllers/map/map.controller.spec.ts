@@ -1,5 +1,6 @@
 import { Map } from '@app/model/schema/map.schema';
 import { MapService } from '@app/services/map/map.service';
+import { SavingService } from '@app/services/saving/saving.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
@@ -10,8 +11,11 @@ describe('MapController', () => {
     let controller: MapController;
     let mapService: SinonStubbedInstance<MapService>;
 
+    let savingService: SinonStubbedInstance<SavingService>;
+
     beforeEach(async () => {
         mapService = createStubInstance(MapService);
+        savingService = createStubInstance(SavingService);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [MapController],
             providers: [
@@ -19,6 +23,7 @@ describe('MapController', () => {
                     provide: MapService,
                     useValue: mapService,
                 },
+                { provide: SavingService, useValue: savingService },
             ],
         }).compile();
 
@@ -158,5 +163,61 @@ describe('MapController', () => {
         };
         res.send = () => res;
         await controller.deleteMap('id', res);
+    });
+
+    it('should return 201 CREATED when adding a map', async () => {
+        const testMap = new Map();
+        savingService.addMapToDb.resolves(testMap);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CREATED);
+            return res;
+        };
+        res.json = (map) => {
+            expect(map).toEqual(testMap);
+            return res;
+        };
+        await controller.addMap(testMap, res);
+    });
+
+    it('should return 201 CREATED when replacing an existing map', async () => {
+        const testMap = new Map();
+        savingService.replaceMapInDb.resolves(testMap);
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CREATED);
+            return res;
+        };
+        res.json = (map) => {
+            expect(map).toEqual(testMap);
+            return res;
+        };
+        await controller.replaceMap(testMap, res);
+    });
+
+    it('should return 400 BAD REQUEST when an attribute is missing in addNewMap', async () => {
+        const testMap = new Map();
+        testMap.name = undefined;
+        savingService.addMapToDb.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+        await controller.addMap(testMap, res);
+    });
+
+    it('should return 400 BAD_REQUEST when the _id is missing in replaceMapInDb', async () => {
+        const testMap = new Map();
+        testMap._id = undefined;
+        savingService.replaceMapInDb.rejects();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+        await controller.replaceMap(testMap, res);
     });
 });

@@ -1,7 +1,7 @@
 import { Map } from '@app/model/schema/map.schema';
 import { MapService } from '@app/services/map/map.service';
 import { SavingService } from '@app/services/saving/saving.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -94,9 +94,9 @@ export class MapController {
         description: 'Map was not created',
     })
     @Post('/')
-    async addMap(@Req() request: Request, @Res() response: Response) {
+    async addMap(@Body() newMap: Partial<Map>, @Res() response: Response) {
         try {
-            const hasBeenCreated = await this.savingService.addMapToDb(request.body);
+            const hasBeenCreated = await this.savingService.addMapToDb(newMap);
             response.status(HttpStatus.CREATED).json(hasBeenCreated);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
@@ -111,9 +111,9 @@ export class MapController {
         description: 'Map was not replaced correctly',
     })
     @Put('/')
-    async replaceMap(@Req() request: Request, @Res() response: Response) {
+    async replaceMap(@Body() mapToReplace: Partial<Map>, @Res() response: Response) {
         try {
-            const hasBeenCreated = await this.savingService.replaceMapInDb(request.body);
+            const hasBeenCreated = await this.savingService.replaceMapInDb(mapToReplace);
             response.status(HttpStatus.CREATED).json(hasBeenCreated);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
