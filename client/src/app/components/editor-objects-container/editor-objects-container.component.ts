@@ -14,7 +14,7 @@ import { GameObjectManagerService } from '@app/services/game-object-manager/game
 })
 export class EditorObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
-    isDragging: boolean = false;
+    isDraggingFromContainer: boolean = false;
     mapSize: string = 'small';
     showDescription: boolean = true;
 
@@ -31,11 +31,11 @@ export class EditorObjectsContainerComponent implements OnInit {
             return;
         }
         this.gameObjectManagerService.draggedObject = gameObject;
-        this.isDragging = true;
+        this.isDraggingFromContainer = true;
     }
 
     onDragEnd() {
-        this.isDragging = false;
+        this.isDraggingFromContainer = false;
     }
 
     onDragOver(event: DragEvent) {
@@ -45,8 +45,12 @@ export class EditorObjectsContainerComponent implements OnInit {
     onDrop(event: DragEvent, gameObjectId: number) {
         event.preventDefault();
         const gameObject = this.gameObjectManagerService.draggedObject;
+        if (this.isDraggingFromContainer) {
+            return;
+        }
         if (gameObject?.id === gameObjectId) {
             this.gameObjectManagerService.removeObjectFromGrid(gameObject);
+            console.log(gameObject);
         }
     }
 }
