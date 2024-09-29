@@ -1,6 +1,7 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NO_OBJECT, ObjectType } from '@app/constants';
+import { NO_OBJECT, ObjectType } from '@app/constants';
+import { mockObjects } from '@app/mocks/mock-object';
 import { gameObjects } from '@app/objectsInfo';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
@@ -126,17 +127,16 @@ describe('EditionGameGridComponent', () => {
         it('should remove object if tile is a wall', () => {
             const mockRow = 0;
             const mockCol = 0;
-            const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: ITEM_COUNT, image: 'mock/image.png' };
             component.tilesGrid[0][0] = TileType.Wall;
             component.objectsArray = [
                 [ObjectType.Armor, NO_OBJECT],
                 [ObjectType.Lightning, NO_OBJECT],
             ];
-            gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(mockGameObject);
+            gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(mockObjects[0]);
             component.onTileClick(mockRow, mockCol);
 
             expect(gameObjectManagerServiceSpy.selectedTile).toEqual({ row: mockRow, col: mockCol });
-            expect(gameObjectManagerServiceSpy.removeObjectFromGrid).toHaveBeenCalledWith(mockGameObject);
+            expect(gameObjectManagerServiceSpy.removeObjectFromGrid).toHaveBeenCalledWith(mockObjects[0]);
         });
     });
 
@@ -196,10 +196,9 @@ describe('EditionGameGridComponent', () => {
         it('should call updateObjectGridPosition on drop when tile is valid ', () => {
             const mockRow = 2;
             const mockCol = 3;
-            const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: ITEM_COUNT, image: 'mock/image.png' };
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             spyOn(component, 'isValidTileForObject').and.returnValue(true);
-            gameObjectManagerServiceSpy.draggedObject = mockGameObject;
+            gameObjectManagerServiceSpy.draggedObject = mockObjects[0];
 
             component.onDrop(mockEvent, mockRow, mockCol);
 
@@ -222,10 +221,9 @@ describe('EditionGameGridComponent', () => {
     });
 
     it('should return the correct image path for an existing object', () => {
-        const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: 5, image: 'mock/image.png' };
-        gameObjectManagerServiceSpy.getObjectById.and.returnValue(mockGameObject);
-        const result = component.getObjectImage(mockGameObject.id);
-        expect(result).toBe(mockGameObject.image);
+        gameObjectManagerServiceSpy.getObjectById.and.returnValue(mockObjects[0]);
+        const result = component.getObjectImage(mockObjects[0].id);
+        expect(result).toBe(mockObjects[0].image);
     });
 
     it('should return an empty string for a non-existing object', () => {

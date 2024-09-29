@@ -4,9 +4,8 @@ import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
-import { ToolService } from '@app/services/tool.service';
 import { ToolButtonService } from '@app/services/tool-button.service';
-
+import { ToolService } from '@app/services/tool.service';
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -88,7 +87,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
         this.isMouseDown = false;
         this.isDraggingObject = false;
-        this.toolService.setSelectedTile("");
+        this.toolService.setSelectedTile('');
     }
 
     isValidTileForObject(row: number, col: number): boolean {
@@ -159,7 +158,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
     }
 
-    deactivateTileApplicator(){
+    deactivateTileApplicator() {
         this.toolService.setSelectedTile('');
 
         if (this.toolButtonService.selectedButton) {

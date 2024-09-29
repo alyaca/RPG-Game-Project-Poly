@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
 import { ITEM_COUNT } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { ToolButtonService } from '@app/services/tool-button.service';
-import { ToolButtonComponent } from '../tool-button/tool-button.component';
 import { EditorObjectsContainerComponent } from './editor-objects-container.component';
 
 describe('EditorObjectsContainerComponent', () => {
