@@ -88,6 +88,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
         this.isMouseDown = false;
         this.isDraggingObject = false;
+        this.toolService.setSelectedTile("");
     }
 
     isValidTileForObject(row: number, col: number): boolean {
