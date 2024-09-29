@@ -13,17 +13,20 @@ header {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 50%;
+    gap: 10%;
+    font-size: 1.12rem;
+    font-family: papyrus;
+    font-weight: 900;
 }
 
 main {
     //background-color: lightseagreen;
-    flex: 0 0 80%;
+    flex: 0 0 75%;
 }
 
 footer {
     //background-color: lightgreen;
-    flex: 0 0 10%;
+    flex: 0 0 15%;
 }
 
 #players-container {
@@ -38,15 +41,26 @@ footer {
 .player {
     height: 80%;
     width: 14.5%;
-    background-color: lightpink;
     color: black;
-    background: linear-gradient(to bottom, rgba(225, 202, 88, 0.9), rgba(249, 229, 126, 0.9) 33%, rgba(167, 153, 85, 0.9) 67%, rgba(0, 0, 0, 0));
+    //background: linear-gradient(to top, rgba(0, 0, 0, 0), rgb(194, 185, 134) 25%, rgb(224, 216, 173) 75%, rgb(124, 121, 83) 100%);
+    background: linear-gradient(to bottom, rgba(133, 111, 54, 1), rgba(255, 228, 94, 1) 33%, rgba(255, 228, 94, 0.8) 67%, rgba(0, 0, 0, 0));
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    gap: 5%;
+    gap: 1%;
+    border-top: 0.1rem solid rgb(141, 133, 75);
+}
+
+.player::before {
+    content: ''; /* Necessary for the pseudo-element to be rendered */
+    position: absolute;
+    top: -3%; /* Distance above the element */
+    left: 0;
+    width: 100%; /* Full width of the element */
+    height: 1%; /* Thickness of the 'border' */
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(255, 228, 94, 1) 10%, rgba(255, 228, 94, 0.8) 90%, rgba(0, 0, 0, 0));
 }
 
 #footer-container {
@@ -67,7 +81,7 @@ footer {
 #chat-input {
     background: none;
     color: white;
-    border: 0.05rem solid rgb(135, 125, 79);
+    border: 0.075rem solid rgb(135, 125, 79);
     border-radius: 0.75rem;
     padding: 0.5rem;
     margin: 0;
@@ -82,15 +96,18 @@ footer {
     position: absolute;
     bottom: 100%;
     background: linear-gradient(to bottom, rgba(212, 212, 212, 0.9), rgba(206, 206, 206, 0.8) 33%, rgba(159, 159, 159, 0.7) 67%, rgba(0, 0, 0, 0));
-    padding: 10px;
     display: none;
     z-index: 10;
     width: 250%;
     height: 1000%;
 }
 
+.msg {
+    margin: 5%;
+}
+
 .chat-box:hover .past-messages {
-    display: block; /* Shows the box when hovering */
+    display: block;
 }
 
 #start-container {
@@ -101,12 +118,15 @@ footer {
 }
 
 #start {
-    padding: 8.5% 15%;
+    padding: 8.5% 10% 6.5% 10%;
     margin-left: 10%;
     border-radius: 2rem;
     color: black;
     border: 1px solid gray;
     background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+    font-family: papyrus;
+    font-size: 1rem;
+    font-weight: 900;
 }
 
 #start:hover {
@@ -129,10 +149,13 @@ footer {
     justify-content: center;
     gap: 25%;
     color: black;
+    text-align: center;
+    font-family: papyrus;
+    font-weight: 900;
 }
 
 .add-bot-button {
-    margin-top: -50%;
+    margin-top: -65%;
     height: 10%;
     width: 25%;
     border-radius: 50%;
@@ -140,14 +163,17 @@ footer {
 
 .big {
     height: 80%;
+    width: 16%;
 }
 
 .medium {
     height: 70%;
+    width: 14%;
 }
 
 .small {
     height: 60%;
+    width: 12%;
 }
 
 #quit-button {
@@ -159,11 +185,103 @@ footer {
     border-radius: 1.8rem;
 }
 
-.player img{
-    width: 60%;
-    border-radius: 1rem;
+#quit-button:hover {
+    background: linear-gradient(to right, rgba(187, 187, 187, 0.9), rgba(223, 223, 223, 0.9) 33%, rgba(162, 162, 162, 0.9) 67%, rgb(116, 116, 116));
+    color: black;
+    border: 2px solid black;
+}
+
+.player-name {
+    //background: linear-gradient(to right, rgba(135, 135, 135, 1), rgb(194, 185, 134) 25%, rgb(224, 216, 173) 75%, rgb(124, 121, 83) 100%);
+    background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
+    width: 100%;
+    text-align: center;
+    padding: 2%;
+    color: white;
+    font-family: papyrus;
+    font-weight: 900;
+    font-size: 20px;
+}
+
+.player img {
+    width: 90%;
+    border-radius: 2rem;
+    border: 2px solid black;
+    background-color: none;
 }
 
 .attribute {
     margin-bottom: 5%;
+}
+
+///////////
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 6rem;
+    height: 2.5rem;
+    margin-top: -7%;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 2rem; 
+}
+
+.slider:before {
+    position: absolute;
+    content: '';
+    height: 2rem;
+    width: 2rem;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    background-image: url('../../../assets/images/icones/unlocked.png'); /* Default image */
+    background-size: 110%;
+    background-position: center;
+}
+
+input:checked + .slider {
+    background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+}
+
+input:checked + .slider:before {
+    transform: translateX(3.5rem);
+    background-image: url('../../../assets/images/icones/locked.png'); /* Default image */
+    background-size: cover;
+    background-position: center;
+}
+
+.slider {
+    box-shadow: 0 0 1px #000;
+}
+
+#lock-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: papyrus;
+    font-weight: 900;
+}
+
+.chat-icon {
+    width: 2rem;
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 1rem; /* Space between icon and input */
 }

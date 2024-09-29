@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [],
+    imports: [RouterLink],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
