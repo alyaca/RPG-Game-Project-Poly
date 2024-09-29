@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/game-object/game-object.component';
 import { GameObject } from '@app/interfaces/gameObject';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
+import { ToolButtonService } from '@app/services/tool-button.service';
+
 @Component({
     selector: 'app-editor-objects-container',
     standalone: true,
@@ -18,7 +20,10 @@ export class EditorObjectsContainerComponent implements OnInit {
     mapSize: string = 'small';
     showDescription: boolean = true;
 
-    constructor(private gameObjectManagerService: GameObjectManagerService) {}
+    constructor(
+        private gameObjectManagerService: GameObjectManagerService,
+        private toolButtonService: ToolButtonService,
+    ) {}
 
     ngOnInit() {
         this.gameObjects = this.gameObjectManagerService.objects;
@@ -26,6 +31,11 @@ export class EditorObjectsContainerComponent implements OnInit {
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
+        if (this.toolButtonService.selectedButton) {
+            this.toolButtonService.selectedButton.toggleActivation();
+            this.toolButtonService.selectedButton = null;
+        }
+
         if (gameObject.count === 0) {
             event.preventDefault();
             return;

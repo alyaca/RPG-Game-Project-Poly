@@ -5,6 +5,8 @@ import { GameObjectManagerService } from '@app/services/game-object-manager/game
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool.service';
+import { ToolButtonService } from '@app/services/tool-button.service';
+
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -35,13 +37,12 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     previousRow: number | null = null;
     previousCol: number | null = null;
 
-    tempSelectedTile: string | null = null;
-
     constructor(
         private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
         private gameObjectManagerService: GameObjectManagerService,
+        private toolButtonService: ToolButtonService,
     ) {
         this.gameObjectManagerService.initObjectsArray(this.height);
         this.objectsArray = this.gameObjectManagerService.objectsArray;
@@ -65,8 +66,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     onDragStart(event: DragEvent, row: number, col: number) {
         this.isDraggingObject = true;
-        this.tempSelectedTile = this.toolService.getSelectedTile();
-        this.toolService.setSelectedTile('');
+        this.deactivateTileApplicator();
 
         this.isMouseDown = false;
         this.gameObjectManagerService.dragStartPosition = { row, col };
@@ -156,6 +156,15 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         event.preventDefault();
         if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
             this.tilesGrid[row][col] = TileType.Ground;
+        }
+    }
+
+    deactivateTileApplicator(){
+        this.toolService.setSelectedTile('');
+
+        if (this.toolButtonService.selectedButton) {
+            this.toolButtonService.selectedButton.toggleActivation();
+            this.toolButtonService.selectedButton = null;
         }
     }
 }
