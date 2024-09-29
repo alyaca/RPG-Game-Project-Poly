@@ -67,31 +67,4 @@ describe('TileService', () => {
             expect(array[0][0]).toBe(TileType.Ground);
         });
     });
-
-    describe('removeTile', () => {
-        let array: number[][];
-        let mockEvent: MouseEvent;
-
-        beforeEach(() => {
-            array = [
-                [TileType.Wall, TileType.Water],
-                [TileType.Ice, TileType.ClosedDoor],
-            ];
-            mockEvent = new MouseEvent('contextmenu', { cancelable: true });
-        });
-
-        it('should reset the tile to Ground if it is not Ground', () => {
-            service.removeTile(mockEvent, 0, 0, array);
-            expect(array[0][0]).toBe(TileType.Ground);
-
-            service.removeTile(mockEvent, 1, 1, array);
-            expect(array[1][1]).toBe(TileType.Ground);
-        });
-
-        it('should not change the tile if it is already Ground', () => {
-            array[0][0] = TileType.Ground;
-            service.removeTile(mockEvent, 0, 0, array);
-            expect(array[0][0]).toBe(TileType.Ground);
-        });
-    });
 });

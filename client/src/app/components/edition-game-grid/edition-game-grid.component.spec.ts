@@ -114,14 +114,14 @@ describe('EditionGameGridComponent', () => {
         it('should remove tile on right-click', () => {
             component.tilesGrid[0][0] = TileType.Wall;
             const event = new MouseEvent('click', { button: 2 });
-            component.tileService.removeTile(event, 0, 0, component.tilesGrid);
+            component.removeTile(event, 0, 0);
             expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
         });
 
         it('should set tile to Ground when removing a non-Ground tile', () => {
             component.tilesGrid[0][0] = TileType.Wall;
             const event = new MouseEvent('click', { button: 0 });
-            component.tileService.removeTile(event, 0, 0, component.tilesGrid);
+            component.removeTile(event, 0, 0);
             expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
         });
 

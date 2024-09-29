@@ -42,6 +42,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     ) {
         this.gameObjectManagerService.initObjectsArray(this.height);
         this.objectsArray = this.gameObjectManagerService.objectsArray;
+        this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
     }
 
     get selectedTile(): string {
@@ -49,8 +50,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.resetTrigger) {
+        if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
             this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
+            this.objectsArray = this.gameObjectManagerService.initObjectsArray(this.height);
+            
         }
         if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);

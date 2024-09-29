@@ -19,6 +19,7 @@ export class GameObjectManagerService {
     initObjectsArray(mapSize: number) {
         this.objectsArray = Array.from({ length: mapSize }, () => Array(mapSize).fill(NO_OBJECT));
         this.maxCount = OBJECT_COUNT_MAP[mapSize];
+        return this.objectsArray;
     }
 
     getObjectById(id: number): GameObject | undefined {
