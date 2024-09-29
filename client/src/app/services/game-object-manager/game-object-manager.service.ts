@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NO_OBJECT, OBJECT_COUNT_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
 
@@ -15,10 +15,11 @@ export class GameObjectManagerService {
     width: number = SIZE_SMALL_MAP;
     objectsArray: number[][];
     maxCount: number;
+    countableObjects = [ObjectType.Random, ObjectType.Spawn];
 
     initObjectsArray(mapSize: number) {
         this.objectsArray = Array.from({ length: mapSize }, () => Array(mapSize).fill(NO_OBJECT));
-        this.maxCount = OBJECT_COUNT_MAP[mapSize];
+        this.maxCount = OBJECT_COUNT_MAP['small']; // voir avec le service de kimia
         return this.objectsArray;
     }
 
@@ -47,7 +48,8 @@ export class GameObjectManagerService {
         } else if (this.dragStartPosition) {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
         }
-        if (gameObject.count + 1 <= this.maxCount) {
+        const maxAllowedCount = this.countableObjects.includes(gameObject.id) ? this.maxCount : ITEM_COUNT;
+        if (gameObject.count + 1 <= maxAllowedCount) {
             gameObject.count++;
         }
         this.resetDrag();

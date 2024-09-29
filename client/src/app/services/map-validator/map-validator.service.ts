@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
+import { GameObjectManagerService } from '../game-object-manager/game-object-manager.service';
 
 export enum TileType {
     Ground = 1,
@@ -17,7 +18,13 @@ export enum TileType {
 })
 export class MapValidatorService {
     errorMessages: string[] = [];
-    constructor(private dialog: MatDialog) {}
+    mapObjects: number[][];
+    constructor(
+        private dialog: MatDialog,
+        private gameObjectManagerService: GameObjectManagerService,
+    ) {
+        gameObjectManagerService.initObjectsArray(SIZE_SMALL_MAP);
+    }
 
     validateMap(array: number[][], title: string, description: string) {
         this.errorMessages = [];
@@ -44,6 +51,10 @@ export class MapValidatorService {
             this.errorMessages.push(
                 '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
             );
+        }
+
+        if (!this.areAllSpawnPointsPlaced()) {
+            this.errorMessages.push('- Tous les points de départ doivent être placés sur la carte.');
         }
 
         const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
@@ -155,5 +166,18 @@ export class MapValidatorService {
 
     validateDescriptionLength(description: string) {
         return description.length >= MIN_LEN_MAP_DESCRIPTION && description.length <= MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
+    }
+
+    areAllSpawnPointsPlaced(): boolean {
+        this.mapObjects = this.gameObjectManagerService.objectsArray;
+        let spawnObjectCount = 0;
+        for (let row = 0; row < this.mapObjects.length; row++) {
+            for (let col = 0; col < this.mapObjects[row].length; col++) {
+                if (this.mapObjects[row][col] === ObjectType.Spawn) {
+                    spawnObjectCount++;
+                }
+            }
+        }
+        return spawnObjectCount === this.gameObjectManagerService.maxCount;
     }
 }
