@@ -7,7 +7,6 @@
 }
 
 header {
-    //background-color: lightblue;
     flex: 0 0 10%;
     display: flex;
     flex-direction: row;
@@ -20,17 +19,15 @@ header {
 }
 
 main {
-    //background-color: lightseagreen;
     flex: 0 0 75%;
 }
 
 footer {
-    //background-color: lightgreen;
     flex: 0 0 15%;
 }
 
 #players-container {
-    flex: 1; /* Each div takes equal width (or adjust accordingly) */
+    flex: 1;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -42,7 +39,6 @@ footer {
     height: 80%;
     width: 14.5%;
     color: black;
-    //background: linear-gradient(to top, rgba(0, 0, 0, 0), rgb(194, 185, 134) 25%, rgb(224, 216, 173) 75%, rgb(124, 121, 83) 100%);
     background: linear-gradient(to bottom, rgba(133, 111, 54, 1), rgba(255, 228, 94, 1) 33%, rgba(255, 228, 94, 0.8) 67%, rgba(0, 0, 0, 0));
     position: relative;
     display: flex;
@@ -54,12 +50,12 @@ footer {
 }
 
 .player::before {
-    content: ''; /* Necessary for the pseudo-element to be rendered */
+    content: ''; 
     position: absolute;
-    top: -3%; /* Distance above the element */
+    top: -3%; 
     left: 0;
-    width: 100%; /* Full width of the element */
-    height: 1%; /* Thickness of the 'border' */
+    width: 100%; 
+    height: 1%; 
     background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(255, 228, 94, 1) 10%, rgba(255, 228, 94, 0.8) 90%, rgba(0, 0, 0, 0));
 }
 
@@ -254,7 +250,7 @@ footer {
     background-color: white;
     transition: 0.4s;
     border-radius: 50%;
-    background-image: url('/assets/images/icones/unlocked.png'); /* Default image */
+    background-image: url('/assets/images/icones/unlocked.png');  
     background-size: 110%;
     background-position: center;
 }
@@ -265,7 +261,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(3.5rem);
-    background-image: url('/assets/images/icones/locked.png'); /* Default image */
+    background-image: url('/assets/images/icones/locked.png'); 
     background-size: cover;
     background-position: center;
 }
@@ -285,6 +281,6 @@ input:checked + .slider:before {
 
 .chat-icon {
     width: 2rem;
-    height: auto; /* Maintain aspect ratio */
-    margin-right: 1rem; /* Space between icon and input */
+    height: auto; 
+    margin-right: 1rem; 
 }
