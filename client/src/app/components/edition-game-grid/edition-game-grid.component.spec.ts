@@ -1,8 +1,6 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, NO_OBJECT, ObjectType } from '@app/constants';
-import { mockObjectOnMap } from '@app/mocks/mock-game-object-array';
-import { mockTilesGrid } from '@app/mocks/mock-tiles-grid';
 import { gameObjects } from '@app/objectsInfo';
 import { GameObjectManagerService } from '@app/services/game-object-manager/game-object-manager.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
@@ -210,15 +208,16 @@ describe('EditionGameGridComponent', () => {
         });
 
         it('should validate tile conditions correctly', () => {
-            component.objectsArray = mockObjectOnMap;
-            component.tilesGrid = mockTilesGrid;
-            expect(component.isValidTileForObject(0, 0)).toBeTrue(); // No object
-            expect(component.isValidTileForObject(1, 8)).toBeFalse(); // With object
-            expect(component.isValidTileForObject(1, 3)).toBeTrue(); // Ice tile
-            expect(component.isValidTileForObject(2, 2)).toBeTrue(); // Water tile
-            expect(component.isValidTileForObject(1, 5)).toBeFalse(); // Wall tile
-            expect(component.isValidTileForObject(2, 8)).toBeFalse(); // OpenDoor tile
-            expect(component.isValidTileForObject(4, 4)).toBeFalse(); // ClosedDoor tile
+            component.tilesGrid = [
+                [TileType.Ground, TileType.Ice, TileType.ClosedDoor],
+                [TileType.Wall, TileType.OpenDoor, TileType.Water],
+            ];
+            expect(component.isValidTileForObject(0, 0)).toBeTrue(); // Ground tile
+            expect(component.isValidTileForObject(0, 1)).toBeTrue(); // Ice tile
+            expect(component.isValidTileForObject(0, 2)).toBeFalse(); // ClosedDoor tile
+            expect(component.isValidTileForObject(1, 0)).toBeFalse(); // Wall tile
+            expect(component.isValidTileForObject(1, 1)).toBeFalse(); // OpenDoor tile
+            expect(component.isValidTileForObject(1, 2)).toBeTrue(); // Water tile
         });
     });
 

@@ -66,7 +66,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     onDragStart(event: DragEvent, row: number, col: number) {
         this.isDraggingObject = true;
         this.tempSelectedTile = this.toolService.getSelectedTile();
-        this.toolService.setSelectedTile("");
+        this.toolService.setSelectedTile('');
 
         this.isMouseDown = false;
         this.gameObjectManagerService.dragStartPosition = { row, col };
@@ -125,7 +125,6 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
             this.gameObjectManagerService.selectedTile = { row, col };
             this.gameObjectManagerService.removeObjectFromGrid(gameObject);
         }
-        
         this.previousRow = row;
         this.previousCol = col;
     }
@@ -160,4 +159,3 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         }
     }
 }
-

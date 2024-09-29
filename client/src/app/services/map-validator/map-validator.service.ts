@@ -171,9 +171,9 @@ export class MapValidatorService {
     areAllSpawnPointsPlaced(): boolean {
         this.mapObjects = this.gameObjectManagerService.objectsArray;
         let spawnObjectCount = 0;
-        for (let row = 0; row < this.mapObjects.length; row++) {
-            for (let col = 0; col < this.mapObjects[row].length; col++) {
-                if (this.mapObjects[row][col] === ObjectType.Spawn) {
+        for (const row of this.mapObjects) {
+            for (const cell of row) {
+                if (cell === ObjectType.Spawn) {
                     spawnObjectCount++;
                 }
             }

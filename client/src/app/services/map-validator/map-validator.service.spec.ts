@@ -21,13 +21,16 @@ describe('MapValidatorService', () => {
     });
 
     describe('validateMap', () => {
-        it('should open dialog with error message if the map has insufficient terrain tiles', () => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
+        beforeEach(() => {
             spyOn(service, 'validateAllDoors').and.returnValue(true);
             spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
             spyOn(service, 'validateTitleLength').and.returnValue(true);
             spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
+        });
 
+        it('should open dialog with error message if the map has insufficient terrain tiles', () => {
+            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
             service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
 
             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
@@ -40,11 +43,6 @@ describe('MapValidatorService', () => {
 
         it('should open dialog with success message if the map is valid', () => {
             spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-
             service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
 
             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {

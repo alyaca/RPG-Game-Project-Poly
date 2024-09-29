@@ -50,7 +50,6 @@ export class EditorObjectsContainerComponent implements OnInit {
         }
         if (gameObject?.id === gameObjectId) {
             this.gameObjectManagerService.removeObjectFromGrid(gameObject);
-            console.log(gameObject);
         }
     }
 }
