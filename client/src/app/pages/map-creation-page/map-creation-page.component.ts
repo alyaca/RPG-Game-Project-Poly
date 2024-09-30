@@ -144,7 +144,7 @@ export class MapCreationPageComponent implements OnInit {
     }
 
     startSaving() {
-        html2canvas(this.canvas.nativeElement, { scale: 0.25 }).then((canvas) => {
+        html2canvas(this.canvas.nativeElement, { scale: 0.2 }).then((canvas) => {
             this.baseImage = canvas.toDataURL();
             this.infoTransferred = {
                 image: this.baseImage,
