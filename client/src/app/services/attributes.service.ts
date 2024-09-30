@@ -22,10 +22,7 @@ export class AttributesService {
 
     getAttributsValue(chosenAttribute: string) {
         const attribute = this.findAttribut(chosenAttribute);
-        if (attribute) {
-            return attribute.value;
-        }
-        return undefined;
+        return attribute?.value;
     }
 
     setHealth(healthValue: string) {
@@ -39,12 +36,13 @@ export class AttributesService {
     }
     setSpeed(speedValue: string) {
         const speed = this.findAttribut('speed');
-        if (speed) {
-            if (this.getAttributsValue('health') === this.highAttribute && speedValue === this.highAttribute) {
-                this.setHealth(this.defaultAttribute);
-            }
-            speed.value = speedValue;
+        if (!speed) {
+            return;
         }
+        if (this.getAttributsValue('health') === this.highAttribute && speedValue === this.highAttribute) {
+            this.setHealth(this.defaultAttribute);
+        }
+        speed.value = speedValue;
     }
     setAttack(attackValue: string) {
         const attack = this.findAttribut('attack');

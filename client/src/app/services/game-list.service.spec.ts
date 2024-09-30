@@ -1,18 +1,18 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Game } from '@app/interfaces/game';
 import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { GameListService } from './game-list.service';
 
 describe('GameListService', () => {
     let httpMock: HttpTestingController;
     let service: GameListService;
-    const apiUrl = `${environment.serverUrl}/maps/visible`;
-    let selectedGameSubject: BehaviorSubject<Game | null>;
+    const allVisibleMapsUrl = `${environment.serverUrl}/maps/visible`;
+    let selectedGameSubject: BehaviorSubject<Map | null>;
+    const allMapsApiUrl = `${environment.serverUrl}/maps`;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -32,7 +32,7 @@ describe('GameListService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should get all visible maps and transform dimension', () => {
+    it('should get all visible maps', () => {
         const mockMaps: Map[] = [
             {
                 _id: 'abcdefg',
@@ -42,26 +42,26 @@ describe('GameListService', () => {
                 mode: 'CTF',
                 nbPlayers: 6,
                 image: 'img1',
-                tiles: [0, 1],
+                tiles: [[0, 1]],
                 dimension: 20,
-                itemPlacement: [0, 1],
+                itemPlacement: [[0, 1]],
                 isSelected: false,
                 lastModification: new Date(),
             },
         ];
 
-        service.getAllVisibleMaps().subscribe((maps) => {
+        service.getAllVisibleGames().subscribe((maps) => {
             expect(maps.length).toBeGreaterThan(0);
-            expect(maps[0].dimension).toBe('20x20');
+            expect(maps[0].visible).toBe(true);
         });
 
-        const req = httpMock.expectOne(apiUrl);
+        const req = httpMock.expectOne(allVisibleMapsUrl);
         expect(req.request.method).toBe('GET');
         req.flush(mockMaps);
     });
 
     it('should deselect all games and select a new game', () => {
-        const gameToSelect: Game = { ...mockGames[0] };
+        const gameToSelect: Map = { ...mockGames[0] };
 
         spyOn(service, 'deselectGame').and.callThrough();
 
@@ -92,5 +92,200 @@ describe('GameListService', () => {
         selectedGameSubject.subscribe((selectedGame) => {
             expect(selectedGame).toBeNull();
         });
+    });
+
+    it('should call getAllGames when usingPage is not "game-list"', () => {
+        spyOn(service, 'getAllGames').and.returnValue(of(mockGames));
+
+        service.getGames('other-page').subscribe((games: Map[]) => {
+            expect(games).toEqual(mockGames);
+        });
+        expect(service.getAllGames).toHaveBeenCalled();
+    });
+
+    it('should call getAllVisibleGames when usingPage is "game-list"', () => {
+        spyOn(service, 'getAllVisibleGames').and.returnValue(of(mockGames));
+
+        service.getGames('game-list').subscribe((games: Map[]) => {
+            expect(games).toEqual(mockGames);
+        });
+        expect(service.getAllVisibleGames).toHaveBeenCalled();
+    });
+
+    it('should retrieve all games from the API via GET', () => {
+        service.getAllGames().subscribe((games) => {
+            expect(games).toEqual(mockGames);
+        });
+        const req = httpMock.expectOne(allMapsApiUrl);
+        expect(req.request.method).toBe('GET');
+        req.flush(mockGames);
+    });
+
+    it('should deselect all games if the selected game is already selected and usingPage is "game-list"', () => {
+        const games = [...mockGames];
+        const selectedGame = games[0];
+        selectedGame.isSelected = true;
+        spyOn(service, 'deselectGame');
+        spyOn(service, 'selectGame');
+        service.setSelectedGame('game-list', selectedGame, games);
+        expect(service.deselectGame).toHaveBeenCalled();
+        expect(service.selectGame).not.toHaveBeenCalled();
+    });
+
+    it('should select all games if the selected game is already deselected and usingPage is "game-list"', () => {
+        const games = [...mockGames];
+        const selectedGame = games[0];
+        selectedGame.isSelected = false;
+        spyOn(service, 'deselectGame');
+        spyOn(service, 'selectGame');
+        service.setSelectedGame('game-list', selectedGame, games);
+        expect(service.deselectGame).not.toHaveBeenCalled();
+        expect(service.selectGame).toHaveBeenCalled();
+    });
+
+    it('should not select or deselect any game if usingPage is not "game-list"', () => {
+        const games = [...mockGames];
+        const gameToSelect = games[0];
+        spyOn(service, 'deselectGame');
+        spyOn(service, 'selectGame');
+        service.setSelectedGame('adminstration-page', gameToSelect, games);
+        expect(service.deselectGame).not.toHaveBeenCalled();
+        expect(service.selectGame).not.toHaveBeenCalled();
+    });
+
+    it('should toggle visibility of the game and return true on success', () => {
+        const game: Map = mockGames[0];
+        const updatedGame: Map = { ...game, visible: false };
+        service.performChangeVisibility(game).subscribe((result) => {
+            expect(result).toBeTrue();
+            expect(game.visible).toBe(false);
+        });
+        const req = httpMock.expectOne(`${allMapsApiUrl}/${game._id}`);
+        expect(req.request.method).toBe('PATCH');
+        expect(req.request.body).toEqual({ visible: false });
+
+        req.flush(updatedGame);
+    });
+
+    it('should return false and not change visibility on HTTP error', () => {
+        const game: Map = { ...mockGames[0], _id: '5555', visible: true };
+
+        service.performChangeVisibility(game).subscribe((result) => {
+            expect(result).toBeFalse();
+        });
+        const req = httpMock.expectOne(`${allMapsApiUrl}/${game._id}`);
+        expect(req.request.method).toBe('PATCH');
+        req.flush(null, { status: 500, statusText: 'Network error' });
+    });
+
+    it('should change visibility if the game exists', () => {
+        const game: Map = { ...mockGames[0], visible: true };
+        spyOn(service, 'performChangeVisibility').and.returnValue(of(true));
+        service.changeVisibility(game).subscribe((result) => {
+            expect(result).toBeTrue();
+            expect(service.performChangeVisibility).toHaveBeenCalledWith(game);
+        });
+        const req = httpMock.expectOne(`${allMapsApiUrl}`);
+        req.flush(mockGames);
+    });
+
+    it('should return false if the game does not exist when changing visibility', () => {
+        const game: Map = { ...mockGames[0], _id: '21', name: 'abc' };
+        service.changeVisibility(game).subscribe((result) => {
+            expect(result).toBeFalse();
+        });
+        const req = httpMock.expectOne(`${allMapsApiUrl}`);
+        req.flush(mockGames);
+    });
+
+    it('should delete the game if it exists and return true', () => {
+        const game: Map = mockGames[0];
+        service.deleteGame(game).subscribe((result) => {
+            expect(result).toBeTrue();
+        });
+        const checkExistsReq = httpMock.expectOne(allMapsApiUrl);
+        expect(checkExistsReq.request.method).toBe('GET');
+        checkExistsReq.flush([game]);
+
+        const deleteReq = httpMock.expectOne(`${allMapsApiUrl}/${game._id}`);
+        expect(deleteReq.request.method).toBe('DELETE');
+    });
+
+    it('should return false if the game does not exist', () => {
+        const game: Map = mockGames[0];
+
+        service.deleteGame(game).subscribe((result) => {
+            expect(result).toBeFalse();
+        });
+        const req = httpMock.expectOne(allMapsApiUrl);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should return true if the visible game exist', () => {
+        const mockGame: Map = { ...mockGames[0] };
+
+        service.getAllVisibleGames = jasmine.createSpy().and.returnValue(of([mockGame]));
+        service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
+            expect(result).toEqual(mockGame);
+        });
+    });
+
+    it('should return false if the visible game does NOT exist', () => {
+        const mockGame: Map = { ...mockGames[0] };
+
+        service.getAllVisibleGames = jasmine.createSpy().and.returnValue(of([]));
+        service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
+            expect(result).toEqual(null);
+        });
+    });
+
+    it('should return false when there is an error fetching visible games', () => {
+        const mockGame: Map = { ...mockGames[0] };
+
+        service.getAllVisibleGames = jasmine.createSpy().and.returnValue(throwError(() => new Error('Error fetching games')));
+
+        service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
+            expect(result).toEqual(null);
+        });
+    });
+
+    it('should return false if an error occurs during checkIfGameExists', () => {
+        const game: Map = { ...mockGames[0], _id: '21', name: 'abc' };
+
+        service.deleteGame(game).subscribe((result) => {
+            expect(result).toBeFalse();
+        });
+
+        const req = httpMock.expectOne(allMapsApiUrl);
+        expect(req.request.method).toBe('GET');
+        req.flush(null, { status: 500, statusText: 'Network error' });
+    });
+
+    it('should return false if an error occurs during performDeleteGame', () => {
+        const game: Map = mockGames[0];
+
+        service.deleteGame(game).subscribe((result) => {
+            expect(result).toBeFalse();
+        });
+        const checkExistsReq = httpMock.expectOne(allMapsApiUrl);
+        expect(checkExistsReq.request.method).toBe('GET');
+        checkExistsReq.flush([game]);
+
+        const deleteReq = httpMock.expectOne(`${allMapsApiUrl}/${game._id}`);
+        expect(deleteReq.request.method).toBe('DELETE');
+        deleteReq.flush(null, { status: 500, statusText: 'Network error' });
+    });
+
+    it('should return true when performDeleteGame successfully deletes the game', () => {
+        const game: Map = mockGames[0];
+
+        service['performDeleteGame'](game).subscribe((result) => {
+            expect(result).toBeTrue();
+        });
+
+        const req = httpMock.expectOne(`${allMapsApiUrl}/${game._id}`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush(null);
     });
 });

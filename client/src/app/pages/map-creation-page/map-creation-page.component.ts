@@ -1,13 +1,16 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { RouterLink } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { Router, RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { Game } from '@app/interfaces/game';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
@@ -19,12 +22,27 @@ import html2canvas from 'html2canvas';
     providers: [EditionGameGridComponent, GameListComponent],
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
-export class MapCreationPageComponent {
+export class MapCreationPageComponent implements OnInit {
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
+
+    mapName: string = '';
+    mapDescription: string = '';
+
+    maxLenMapTitle = MAX_LEN_MAP_TITLE;
+    maxLenMapDescription = MAX_LEN_MAP_DESCRIPTION;
+
     randomItemCount: number = NB_ITEMS_SMALL_MAP;
     spawnPointCount: number = NB_ITEMS_SMALL_MAP;
+
     resetTrigger: boolean = false;
+    saveTrigger: boolean = false;
+
+    constructor(
+        private dialog: MatDialog,
+        private router: Router,
+        private gameCreationService: GameCreationService,
+    ) {}
     @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
 
     game: Game;
@@ -64,7 +82,42 @@ export class MapCreationPageComponent {
 
     handleReset() {
         this.resetTrigger = true;
+        this.updateMapName('');
+        this.updateMapDescription('');
         setTimeout(() => (this.resetTrigger = false), 0);
+    }
+
+    handleSave() {
+        this.saveTrigger = true;
+        setTimeout(() => (this.saveTrigger = false), 0);
+    }
+
+    handleExit() {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            data: {
+                message: 'Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?',
+                confirm: true,
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === 'leave') {
+                this.router.navigate(['/administration']);
+            }
+        });
+    }
+
+    updateMapName(newName: string) {
+        this.mapName = newName;
+    }
+    updateMapDescription(newDescription: string) {
+        this.mapDescription = newDescription;
+    }
+
+    ngOnInit(): void {
+        if (!this.gameCreationService.sizeSubject.value) {
+            this.router.navigate(['/administration']);
+        }
     }
 
     takeScreenshot() {

@@ -1,49 +1,53 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 export type MapDocument = Map & Document;
 
 @Schema()
 export class Map {
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: MongooseSchema.Types.ObjectId })
+    _id?: string;
+
+    @ApiProperty()
+    @Prop({ type: String, required: true })
     name: string;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     description: string;
 
     @ApiProperty()
-    @Prop({ required: true, type: Boolean })
+    @Prop({ type: Boolean, required: true })
     visible: boolean;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     mode: string;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: Number, required: true })
     nbPlayers: number;
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: String, required: true })
     image: string;
 
     @ApiProperty()
-    @Prop({ type: [Number], required: true })
+    @Prop({ type: [[Number]], required: true })
     tiles: number[][];
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: Number, required: true })
     dimension: number;
 
     @ApiProperty()
-    @Prop({ type: [String], required: true })
+    @Prop({ type: [[Number]], required: true })
     itemPlacement: number[][];
 
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ type: Boolean, required: false })
     isSelected: boolean;
 
     @ApiProperty()

@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { MapService } from './map.service';
 
 describe('MapService', () => {
@@ -60,42 +60,65 @@ describe('MapService', () => {
     it('getAllVisibleMaps should return all visible maps in database', async () => {
         const maps = getFakeMaps(GENERATE_COUNT);
         await mapModel.create(maps);
-        expect((await service.getAllVisibleMaps()).length).toBeGreaterThan(0);
+        expect((await service.getVisibleMaps()).length).toBeGreaterThan(0);
     });
 
     it('getAllVisibleMaps should return empty array if there is no maps in database', async () => {
-        expect(await service.getAllVisibleMaps()).toEqual([]);
+        expect(await service.getVisibleMaps()).toEqual([]);
+    });
+
+    it('updateMap should update a map in database', async () => {
+        const maps = getFakeMaps(GENERATE_COUNT);
+        await mapModel.create(maps);
+        const map = (await service.getAllMaps())[0];
+        const updatedMap = await service.updateMap(map._id, { name: 'name2' });
+        expect(updatedMap.name).toEqual('name2');
+    });
+    const id = new mongoose.Types.ObjectId().toHexString();
+    it('updateMap should return null if map is not found', async () => {
+        const updatedMap = await service.updateMap(id, { name: 'name2' });
+        expect(updatedMap).toBeNull();
+    });
+
+    it('deleteMap should delete a map in database', async () => {
+        const maps = getFakeMaps(GENERATE_COUNT);
+        await mapModel.create(maps);
+        const map = (await service.getAllMaps())[0];
+        const result = await service.deleteMap(map._id);
+        expect(result).toBeTruthy();
     });
 });
 
 const MODES = ['CTF', 'Normal'];
 const GENERATE_COUNT = 5;
 const BASE_36 = 36;
-const TILE_COUNT = 10;
-const ITEM_PLACEMENT_COUNT = 15;
+const TILE_COUNT = 6;
 const DIMENSION = 20;
 const NB_PLAYERS = 6;
-const ARRAY_LENGTH = 6;
-const ITEMS_LENGTH = 4;
+const COLUMN_LENGTH = 2;
+const ROW_LENGTH = 2;
 
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 
-const getRandomArray = (length: number, maxValue: number): number[] => Array.from({ length }, () => Math.floor(Math.random() * maxValue));
+const getRandom2DArray = (rows: number, cols: number, maxValue: number): number[][] =>
+    Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * maxValue)));
 
 const getFakeMaps = (count: number): Map[] => {
     const maps: Map[] = [];
     for (let i = 0; i < count; i++) {
+        const array2D = getRandom2DArray(ROW_LENGTH, COLUMN_LENGTH, TILE_COUNT);
         const isVisible = i % 2 === 0;
         maps.push({
+            _id: new mongoose.Types.ObjectId().toHexString(),
             name: getRandomString(),
             description: getRandomString(),
             visible: isVisible,
             mode: MODES[Math.floor(Math.random() * MODES.length)],
             nbPlayers: NB_PLAYERS,
             image: 'Kratos.img',
-            tiles: getRandomArray(ARRAY_LENGTH, TILE_COUNT),
+            tiles: array2D,
             dimension: DIMENSION,
-            itemPlacement: getRandomArray(ITEMS_LENGTH, ITEM_PLACEMENT_COUNT),
+            itemPlacement: array2D,
             isSelected: false,
             lastModification: new Date(),
         });
