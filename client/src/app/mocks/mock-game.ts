@@ -1,6 +1,6 @@
-import { Game } from '@app/interfaces/game';
+import { Map } from '@app/interfaces/map';
 
-export const mockGames: Game[] = [
+export const mockGames: Map[] = [
     {
         _id: '1',
         name: 'Map1',
@@ -9,9 +9,15 @@ export const mockGames: Game[] = [
         mode: 'CTF',
         nbPlayers: 6,
         image: 'img1',
-        tiles: [0, 1],
-        dimension: '20x20',
-        itemPlacement: [0, 1],
+        tiles: [
+            [0, 1],
+            [0, 1],
+        ],
+        dimension: 20,
+        itemPlacement: [
+            [0, 1],
+            [0, 1],
+        ],
         isSelected: false,
         lastModification: new Date(),
     },
@@ -23,9 +29,15 @@ export const mockGames: Game[] = [
         mode: 'Normal',
         nbPlayers: 6,
         image: 'img1',
-        tiles: [0, 1],
-        dimension: '15x15',
-        itemPlacement: [0, 1],
+        tiles: [
+            [0, 1],
+            [0, 1],
+        ],
+        dimension: 15,
+        itemPlacement: [
+            [0, 1],
+            [0, 1],
+        ],
         isSelected: false,
         lastModification: new Date(),
     },
