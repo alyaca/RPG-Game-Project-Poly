@@ -1,8 +1,8 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { SIZE_SMALL_MAP } from '@app/constants';
-import { ToolService } from '@app/services/tool.service';
-import { TileService } from '@app/services/tile.service';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { MapValidatorService } from '@app/services/map-validator.service';
+import { TileService } from '@app/services/tile.service';
+import { ToolService } from '@app/services/tool.service';
 
 @Component({
     selector: 'app-edition-game-grid',
@@ -12,7 +12,7 @@ import { MapValidatorService } from '@app/services/map-validator.service';
     styleUrl: './edition-game-grid.component.scss',
 })
 export class EditionGameGridComponent implements OnChanges, OnDestroy {
-    @Input() selectedSize: string;
+    @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
 
@@ -20,9 +20,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     @Input() mapDescription: string;
 
     tilesGrid: number[][];
-    height: number = SIZE_SMALL_MAP;
-    width: number = SIZE_SMALL_MAP;
-
+    height: number;
+    width: number;
     selectedRow: number = 0;
     selectedCol: number = 0;
 
@@ -35,6 +34,7 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
+        private gameCreationService: GameCreationService,
     ) {}
 
     get selectedTile(): string {
@@ -42,6 +42,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        this.height = this.gameCreationService.updateDimensions() as number;
+        this.width = this.gameCreationService.updateDimensions() as number;
         if (changes.resetTrigger) {
             this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
         }
