@@ -88,7 +88,7 @@ export class MapCreationPageComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'leave') {
-                this.router.navigate(['/admin']);
+                this.router.navigate(['/administration']);
             }
         });
     }
