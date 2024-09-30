@@ -14,7 +14,6 @@ export class SaveGameService {
     constructor(private http: HttpClient) {}
 
     // Some information will have to be retrieved from the selectedMap coming from admin
-    // Some information will have to come from the admin map form creation
     saveGame(informations: Info, selectedMap: Map | null) {
         if (selectedMap == null) {
             let playerNumber;
