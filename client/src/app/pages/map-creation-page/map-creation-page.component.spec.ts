@@ -4,7 +4,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
+import { TileType } from '@app/services/map-validator.service';
 import { of } from 'rxjs';
 import { MapCreationPageComponent } from './map-creation-page.component';
 
@@ -140,23 +141,45 @@ describe('MapCreationPageComponent', () => {
     describe('Setters', () => {
         it('should set the grid attribute correctly', () => {
             const mockGridValue = [
-                [1, 2, 3, 4, 5, 6, 5, 4, 9, 10],
-                [3, 4, 5, 6, 7, 8, 9, 0, 1, 2],
+                [
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                ],
+                [
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                ],
             ];
             component.setGrid(mockGridValue);
             expect(component.tiles).toBe(mockGridValue);
         });
 
         it('should set the height attribute correctly', () => {
-            const mockHeightValue = 15;
+            const mockHeightValue = SIZE_MEDIUM_MAP;
             component.setHeight(mockHeightValue);
             expect(component.height).toBe(mockHeightValue);
         });
 
         it('should set the new items matrix correctly', () => {
             const mockItemsValue = [
-                [1, 0, 2, 0, 0, 0, 0, 0],
-                [0, 0, 2, 0, 0, 0, 3, 0, 0],
+                [NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+                [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
             ];
             component.setItems(mockItemsValue);
             expect(component.items).toBe(mockItemsValue);

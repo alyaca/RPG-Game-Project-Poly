@@ -2,9 +2,19 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import {
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
+    NO_ITEM,
+    RANDOM_ITEM,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+} from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { Map } from '@app/interfaces/map';
+import { TileType } from './map-validator.service';
 import { SaveGameService } from './save-game.service';
 
 describe('SaveGameService', () => {
@@ -14,8 +24,8 @@ describe('SaveGameService', () => {
         image: 'image file',
         name: 'a map',
         description: 'a map description',
-        grid: [[1, 2, 3, 4, 5, 6, 7]],
-        items: [[1, 23, 23, 23, 2, 3]],
+        grid: [[TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground]],
+        items: [[NO_ITEM, NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM]],
         height: 15,
     };
 
@@ -27,8 +37,8 @@ describe('SaveGameService', () => {
         mode: 'normal',
         image: 'image source',
         nbPlayers: NB_ITEMS_MEDIUM_MAP,
-        tiles: [[2, 3, 4, 5, 6, 6]],
-        itemPlacement: [[1, 3, 2, 0, 3, 0, 3]],
+        tiles: [[TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground]],
+        itemPlacement: [[NO_ITEM, NO_ITEM, RANDOM_ITEM, NO_ITEM, RANDOM_ITEM]],
         dimension: SIZE_MEDIUM_MAP,
         isSelected: false,
         lastModification: new Date(),
