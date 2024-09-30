@@ -2,28 +2,16 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Routes, provideRouter } from '@angular/router';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { CommunicationService } from '@app/services/communication.service';
-import SpyObj = jasmine.SpyObj;
 
 const routes: Routes = [];
 const NUMBER_OF_TEAM_MEMBERS = 6;
 
 describe('MainPageComponent', () => {
     let fixture: ComponentFixture<MainPageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
-
         await TestBed.configureTestingModule({
             imports: [MainPageComponent],
-            providers: [
-                {
-                    provide: CommunicationService,
-                    useValue: communicationServiceSpy,
-                },
-                provideHttpClientTesting(),
-                provideRouter(routes),
-            ],
+            providers: [provideHttpClientTesting(), provideRouter(routes)],
         }).compileComponents();
     });
     beforeEach(() => {
