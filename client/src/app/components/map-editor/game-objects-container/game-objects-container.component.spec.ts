@@ -44,7 +44,7 @@ describe('GameObjectsContainerComponent', () => {
             expect(component.isDraggingFromContainer).toBeTrue();
         });
 
-        it('should return when gameObject count is 0', async () => {
+        it('should return when gameObject count is 0', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             component.onDragStart(mockEvent, mockObjects[1]);
             expect(mockEvent.preventDefault).toHaveBeenCalled();
