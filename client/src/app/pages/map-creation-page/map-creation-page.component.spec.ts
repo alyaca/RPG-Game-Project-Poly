@@ -103,7 +103,7 @@ describe('MapCreationPageComponent', () => {
     });
 
     describe('handleExit', () => {
-        it('should navigate to /admin if user confirms exit in handleExit', () => {
+        it('should navigate to /administration if user confirms exit in handleExit', () => {
             const dialogRef: MatDialogRef<SimpleDialogComponent> = {
                 afterClosed: () => of('leave'),
                 close: jasmine.createSpy('close'),
@@ -115,7 +115,7 @@ describe('MapCreationPageComponent', () => {
 
             expect(dialogSpy.open).toHaveBeenCalled();
             dialogRef.afterClosed().subscribe(() => {
-                expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin']);
+                expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
             });
         });
     });
