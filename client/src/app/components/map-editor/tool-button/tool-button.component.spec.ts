@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ContainerToolsComponent } from '@app/components/container-tools/container-tools.component';
-import { ToolButtonService } from '@app/services/tool-button.service';
+import { ContainerToolsComponent } from '@app/components/map-editor/container-tools/container-tools.component';
+import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolButtonComponent } from './tool-button.component';
 
 import SpyObj = jasmine.SpyObj;

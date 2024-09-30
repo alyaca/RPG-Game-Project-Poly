@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
-import { ToolService } from '@app/services/tool.service';
+import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
+import { ToolService } from '@app/services/tool/tool.service';
 
 @Component({
     selector: 'app-container-tools',

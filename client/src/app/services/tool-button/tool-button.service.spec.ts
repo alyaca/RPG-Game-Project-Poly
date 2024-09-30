@@ -1,4 +1,4 @@
-import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
+import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
 import { ToolButtonService } from './tool-button.service';
 
 describe('ToolButtonService', () => {

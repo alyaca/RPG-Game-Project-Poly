@@ -1,20 +1,20 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
-import { GameObjectComponent } from '@app/components/game-object/game-object.component';
+import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
-import { ToolButtonService } from '@app/services/tool-button.service';
-import { ToolService } from '@app/services/tool.service';
+import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { ToolService } from '@app/services/tool/tool.service';
 
 @Component({
-    selector: 'app-edition-game-grid',
+    selector: 'app-game-grid',
     standalone: true,
     imports: [GameObjectComponent],
-    templateUrl: './edition-game-grid.component.html',
-    styleUrl: './edition-game-grid.component.scss',
+    templateUrl: './game-grid.component.html',
+    styleUrl: './game-grid.component.scss',
 })
-export class EditionGameGridComponent implements OnChanges, OnDestroy {
+export class GameGridComponent implements OnChanges, OnDestroy {
     @Input() selectedSize: string;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;

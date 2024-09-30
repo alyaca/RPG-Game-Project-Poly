@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ContainerToolsComponent } from '@app/components/container-tools/container-tools.component';
-import { ToolService } from '@app/services/tool.service';
+import { ContainerToolsComponent } from '@app/components/map-editor/container-tools/container-tools.component';
+import { ToolService } from '@app/services/tool/tool.service';
 
 class MockToolService {
     selectedTile: string | null = null;

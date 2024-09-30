@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ToolButtonComponent } from '@app/components/tool-button/tool-button.component';
+import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
 import { ITEM_COUNT } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { ToolButtonService } from '@app/services/tool-button.service';
-import { EditorObjectsContainerComponent } from './editor-objects-container.component';
+import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { GameObjectsContainerComponent } from './game-objects-container.component';
 
-describe('EditorObjectsContainerComponent', () => {
-    let component: EditorObjectsContainerComponent;
-    let fixture: ComponentFixture<EditorObjectsContainerComponent>;
+describe('GameObjectsContainerComponent', () => {
+    let component: GameObjectsContainerComponent;
+    let fixture: ComponentFixture<GameObjectsContainerComponent>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
 
@@ -23,7 +23,7 @@ describe('EditorObjectsContainerComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(EditorObjectsContainerComponent);
+        fixture = TestBed.createComponent(GameObjectsContainerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditionToolbarComponent } from './edition-toolbar.component';
+import { ToolbarComponent } from './toolbar.component';
 
-describe('EditionToolbarComponent', () => {
-    let component: EditionToolbarComponent;
-    let fixture: ComponentFixture<EditionToolbarComponent>;
+describe('ToolbarComponent', () => {
+    let component: ToolbarComponent;
+    let fixture: ComponentFixture<ToolbarComponent>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [EditionToolbarComponent],
+            imports: [ToolbarComponent],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(EditionToolbarComponent);
+        fixture = TestBed.createComponent(ToolbarComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -5,12 +5,12 @@ import { mockObjects } from '@app/mocks/mock-object';
 import { gameObjects } from '@app/objectsInfo';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
-import { ToolService } from '@app/services/tool.service';
-import { EditionGameGridComponent } from './edition-game-grid.component';
+import { ToolService } from '@app/services/tool/tool.service';
+import { GameGridComponent } from './game-grid.component';
 
-describe('EditionGameGridComponent', () => {
-    let component: EditionGameGridComponent;
-    let fixture: ComponentFixture<EditionGameGridComponent>;
+describe('GameGridComponent', () => {
+    let component: GameGridComponent;
+    let fixture: ComponentFixture<GameGridComponent>;
     let toolServiceSpy: jasmine.SpyObj<ToolService>;
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
@@ -37,7 +37,7 @@ describe('EditionGameGridComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(EditionGameGridComponent);
+        fixture = TestBed.createComponent(GameGridComponent);
         component = fixture.componentInstance;
         component.tilesGrid = component.tileService.resetGrid(component.height, component.tilesGrid);
     });
