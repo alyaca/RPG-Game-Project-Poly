@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { MapValidatorService } from '@app/services/map-validator.service';
 import { TileService } from '@app/services/tile.service';
@@ -18,6 +18,10 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
     @Input() mapName: string;
     @Input() mapDescription: string;
+
+    @Output() gridChange = new EventEmitter<number[][]>();
+    @Output() itemsChange = new EventEmitter<number[][]>();
+    @Output() heightChange = new EventEmitter<number>();
 
     tilesGrid: number[][];
     itemArray: number[][];
@@ -47,10 +51,18 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         this.width = this.gameCreationService.updateDimensions() as number;
         if (changes.resetTrigger) {
             this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
+            this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
+            this.sendInfoToMapCreationPage();
         }
+    }
+
+    sendInfoToMapCreationPage() {
+        this.gridChange.emit(this.tilesGrid);
+        this.itemsChange.emit(this.itemArray);
+        this.heightChange.emit(this.height);
     }
 
     onTileClick(row: number, col: number) {
@@ -65,6 +77,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
 
         this.previousRow = row;
         this.previousCol = col;
+
+        this.sendInfoToMapCreationPage();
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {

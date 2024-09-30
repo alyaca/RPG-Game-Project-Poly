@@ -1,7 +1,7 @@
 import { Map } from '@app/model/schema/map.schema';
 import { MapService } from '@app/services/map/map.service';
-import { Body, SavingService } from '@app/services/saving/saving.service';
-import { Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Req, Res } from '@nestjs/common';
+import { SavingService } from '@app/services/saving/saving.service';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -94,10 +94,14 @@ export class MapController {
         description: 'Map was not created',
     })
     @Post('/')
-    async addMap(@Res() response: Response, @Req() request: Request) {
+    async addMap(@Body() newMap: Partial<Map>, @Res() response: Response) {
         try {
-            const hasBeenCreated = await this.savingService.addMapToDb(request.body); //idk yet
-            response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            const hasBeenCreated = await this.savingService.addMapToDb(newMap);
+            if (hasBeenCreated !== null) {
+                response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
+            }
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
@@ -111,10 +115,14 @@ export class MapController {
         description: 'Map was not replaced correctly',
     })
     @Put('/')
-    async replaceMap(@Res() response: Response) {
+    async replaceMap(@Body() mapToReplace: Partial<Map>, @Res() response: Response) {
         try {
-            const hasBeenCreated = await this.savingService.replaceMapInDb(Body);
-            response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            const hasBeenCreated = await this.savingService.replaceMapInDb(mapToReplace);
+            if (hasBeenCreated !== null) {
+                response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
+            }
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }

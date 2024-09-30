@@ -1,13 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Document } from 'mongoose';
 
 export type MapDocument = Map & Document;
 
 @Schema()
 export class Map {
     @ApiProperty()
-    @Prop({ type: MongooseSchema.Types.ObjectId })
     _id?: string;
 
     @ApiProperty()

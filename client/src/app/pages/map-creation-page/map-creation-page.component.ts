@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,7 +9,7 @@ import { EditorObjectsContainerComponent } from '@app/components/editor-objects-
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
-import { Game } from '@app/interfaces/game';
+import { Info } from '@app/interfaces/info';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
@@ -25,9 +25,14 @@ import html2canvas from 'html2canvas';
 export class MapCreationPageComponent implements OnInit {
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
+    @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
 
     mapName: string = '';
     mapDescription: string = '';
+    items: number[][];
+    tiles: number[][];
+    height: number;
+    baseImage: string;
 
     maxLenMapTitle = MAX_LEN_MAP_TITLE;
     maxLenMapDescription = MAX_LEN_MAP_DESCRIPTION;
@@ -38,20 +43,27 @@ export class MapCreationPageComponent implements OnInit {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
+    infoTransferred: Info;
+
     constructor(
         private dialog: MatDialog,
         private router: Router,
         private gameCreationService: GameCreationService,
-    ) {}
-    @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
-
-    game: Game;
-
-    constructor(
         private adminGamePage: GameListComponent,
-        private gameGridComponent: EditionGameGridComponent,
         private saveGameSerivce: SaveGameService,
     ) {}
+
+    setGrid(newGrid: number[][]) {
+        this.tiles = newGrid;
+    }
+
+    setItems(newItemPlacement: number[][]) {
+        this.items = newItemPlacement;
+    }
+
+    setHeight(newHeight: number) {
+        this.height = newHeight;
+    }
 
     onSelectionChange(event: { value: string }) {
         this.selectedSize = event.value;
@@ -120,85 +132,18 @@ export class MapCreationPageComponent implements OnInit {
         }
     }
 
-    takeScreenshot() {
-        html2canvas(this.canvas.nativeElement).then((canvas) => {
-            canvas.height = 80;
-            canvas.width = 80;
-            const base64Image = canvas.toDataURL('mapScreenshot.png');
-
-            const mapName = <HTMLInputElement>document.getElementById('mapName');
-            const mapDescription = <HTMLTextAreaElement>document.getElementById('mapDescription');
-            //TODO:
-            // Need to find a way to get the updated informations for the sizes, the gridArray and the itemArray.
-            let nbPlayersNewMap: number = 0;
-            switch (this.gameGridComponent.height) {
-                case 10:
-                    nbPlayersNewMap = 2;
-                    break;
-                case 15:
-                    nbPlayersNewMap = 4;
-                    break;
-                case 20:
-                    nbPlayersNewMap = 6;
-                    break;
-            }
-            if (this.adminGamePage.gameSelected == null) {
-                // need a new way to check if it's a new map or not
-                // if game doesn't exist, will have to get some info from admin page
-                this.game = {
-                    _id: '1', //idk how to make it actually random
-                    name: mapName.value,
-                    description: mapDescription.value,
-                    visible: true, // by default true when creating a new map
-                    mode: 'normal', // comes from popUp component
-                    nbPlayers: nbPlayersNewMap,
-                    image: base64Image,
-                    dimension: this.gameGridComponent.height.toString(),
-                    tiles: this.gameGridComponent.gridArray,
-                    itemPlacement: this.gameGridComponent.itemArray, // doesn't exist yet in the component
-                    isSelected: false,
-                    lastModification: new Date(),
-                };
-                this.saveGameSerivce.addNewGame(this.game).subscribe((data) => (this.game._id = data._id));
-            } else {
-                this.game = {
-                    _id: '2',
-                    name: mapName.value,
-                    description: mapDescription.value,
-                    visible: this.adminGamePage.gameSelected.visible,
-                    mode: this.adminGamePage.gameSelected.mode,
-                    nbPlayers: nbPlayersNewMap,
-                    image: base64Image,
-                    dimension: this.gameGridComponent.height.toString(),
-                    tiles: [
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                        [1, 2, 3, 4, 1, 2, 3, 5, 6, 7],
-                    ], //this.gameGridComponent.gridArray,
-                    itemPlacement: [
-                        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
-                        [0, 0, 0, 0, 4, 0, 6, 0, 7, 0],
-                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [7, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    ], //this.gameGridComponent.itemArray, // doesn't exist yet in the game grid component
-                    isSelected: false,
-                    lastModification: new Date(),
-                };
-                this.saveGameSerivce.replaceExistingMap(this.game).subscribe((data) => (this.game._id = data._id));
-            }
+    startSaving() {
+        html2canvas(this.canvas.nativeElement, { scale: 0.25 }).then((canvas) => {
+            this.baseImage = canvas.toDataURL();
+            this.infoTransferred = {
+                image: this.baseImage,
+                name: this.mapName,
+                description: this.mapDescription,
+                grid: this.tiles,
+                items: this.items,
+                height: this.height,
+            };
+            this.saveGameSerivce.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
         });
     }
 }

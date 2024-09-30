@@ -1,10 +1,12 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
 import { of } from 'rxjs';
 import { MapCreationPageComponent } from './map-creation-page.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 describe('MapCreationPageComponent', () => {
     let component: MapCreationPageComponent;
@@ -19,6 +21,7 @@ describe('MapCreationPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
+                provideHttpClient(),
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -131,6 +134,41 @@ describe('MapCreationPageComponent', () => {
             const newDescription = 'New Map Description';
             component.updateMapDescription(newDescription);
             expect(component.mapDescription).toBe(newDescription);
+        });
+    });
+
+    describe('Setters', () => {
+        it('should set the grid attribute correctly', () => {
+            const mockGridValue = [
+                [1, 2, 3, 4, 5, 6, 5, 4, 9, 10],
+                [3, 4, 5, 6, 7, 8, 9, 0, 1, 2],
+            ];
+            component.setGrid(mockGridValue);
+            expect(component.tiles).toBe(mockGridValue);
+        });
+
+        it('should set the height attribute correctly', () => {
+            const mockHeightValue = 15;
+            component.setHeight(mockHeightValue);
+            expect(component.height).toBe(mockHeightValue);
+        });
+
+        it('should set the new items matrix correctly', () => {
+            const mockItemsValue = [
+                [1, 0, 2, 0, 0, 0, 0, 0],
+                [0, 0, 2, 0, 0, 0, 3, 0, 0],
+            ];
+            component.setItems(mockItemsValue);
+            expect(component.items).toBe(mockItemsValue);
+        });
+    });
+
+    describe('Saving start process', () => {
+        it('clicking the "Sauvegarder" button should call startSaving', () => {
+            spyOn(component, 'startSaving');
+            const saveButton = fixture.debugElement.query(By.css('#save-button'));
+            saveButton.triggerEventHandler('click');
+            expect(component.startSaving).toHaveBeenCalled();
         });
     });
 });

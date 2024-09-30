@@ -7,12 +7,18 @@ import { Model } from 'mongoose';
 export class SavingService {
     constructor(@InjectModel(Map.name) private mapModel: Model<MapDocument>) {}
 
-    async addMapToDb(mapToAdd: any) {
-        console.log(mapToAdd);
-        return await this.mapModel.create(mapToAdd); // Model.create() no longer accepts a callback
+    async addMapToDb(mapToAdd: Partial<Map>): Promise<Map | null> {
+        const existsAlready = await this.mapModel.find({ name: mapToAdd.name });
+        if (existsAlready.length === 0) {
+            return (await this.mapModel.create(mapToAdd)).save();
+        }
+        return null;
     }
-
-    async replaceMapInDb(mapToAdd: any) {
-        return await this.mapModel.findOneAndReplace(mapToAdd._id, mapToAdd);
+    async replaceMapInDb(mapToAdd: Partial<Map>): Promise<Map | null> {
+        const nameExistsAlready = await this.mapModel.find({ name: mapToAdd.name });
+        if (nameExistsAlready.length === 0) {
+            return await this.mapModel.findOneAndReplace({ _id: mapToAdd._id }, mapToAdd);
+        }
+        return null;
     }
 }
