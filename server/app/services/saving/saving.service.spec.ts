@@ -1,10 +1,10 @@
+import { EXISTING_MAP, MAP_TO_PUT, NEW_MAP_NO_ID } from '@app/mocks';
 import { MapDocument, mapSchema } from '@app/model/schema/map.schema';
 import { Logger } from '@nestjs/common';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
-import { EXISTING_MAP, MAP_TO_PUT, NEW_MAP_NO_ID } from './constants';
 import { SavingService } from './saving.service';
 
 describe('Saving service', () => {
