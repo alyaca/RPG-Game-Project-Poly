@@ -30,7 +30,7 @@ describe('MapValidatorService', () => {
     });
 
     describe('validateMap', () => {
-        it('should open dialog with error message if the map has insufficient terrain tiles', () => {
+        it('should open dialog with error message if the map has insufficient terrain tiles', (done) => {
             spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
             spyOn(service, 'validateAllDoors').and.returnValue(true);
             spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
@@ -47,10 +47,11 @@ describe('MapValidatorService', () => {
                         title: 'Carte invalide',
                     },
                 });
+                done();
             }, TEST_VALIDATION_DURATION);
         });
 
-        it('should open dialog with success message if the map is valid', () => {
+        it('should open dialog with success message if the map is valid', (done) => {
             spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
             spyOn(service, 'validateAllDoors').and.returnValue(true);
             spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
@@ -67,101 +68,102 @@ describe('MapValidatorService', () => {
                         title: 'Sauvegarde réussie',
                     },
                 });
+                done();
             }, TEST_VALIDATION_DURATION);
         });
     });
 
     describe('isDoorPlacementValid', () => {
         it('should return true for a valid door placement', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Wall, TileType.Ground, TileType.Wall],
                 [TileType.Wall, TileType.ClosedDoor, TileType.Wall],
                 [TileType.Wall, TileType.Ground, TileType.Wall],
             ];
 
-            expect(service.isDoorPlacementValid(map, 1, 1)).toBeTrue();
+            expect(service.isDoorPlacementValid(mockMap, 1, 1)).toBeTrue();
         });
 
         it('should return true for a valid door placement', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Wall, TileType.Wall, TileType.Wall],
                 [TileType.Ice, TileType.ClosedDoor, TileType.Ground],
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
 
-            expect(service.isDoorPlacementValid(map, 1, 1)).toBeTrue();
+            expect(service.isDoorPlacementValid(mockMap, 1, 1)).toBeTrue();
         });
 
         it('should return false for an invalid door placement', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Wall, TileType.Ground, TileType.Wall],
                 [TileType.Wall, TileType.ClosedDoor, TileType.Ground],
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
 
-            expect(service.isDoorPlacementValid(map, 1, 1)).toBeFalse();
+            expect(service.isDoorPlacementValid(mockMap, 1, 1)).toBeFalse();
         });
     });
 
     describe('validateAllDoors', () => {
         it('should return true if all doors are valid', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Wall, TileType.ClosedDoor, TileType.Wall],
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
             spyOn(service, 'isDoorPlacementValid').and.returnValue(true);
 
-            expect(service.validateAllDoors(map)).toBeTrue();
+            expect(service.validateAllDoors(mockMap)).toBeTrue();
         });
 
         it('should return false if any door is invalid', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Wall, TileType.ClosedDoor, TileType.Ground],
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
             spyOn(service, 'isDoorPlacementValid').and.returnValue(false);
 
-            expect(service.validateAllDoors(map)).toBeFalse();
+            expect(service.validateAllDoors(mockMap)).toBeFalse();
         });
     });
 
     describe('hasSufficientTerrainTiles', () => {
         it('should return true if more than half of the map contains terrain tiles', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
 
-            expect(service.hasSufficientTerrainTiles(map)).toBeTrue();
+            expect(service.hasSufficientTerrainTiles(mockMap)).toBeTrue();
         });
 
         it('should return false if less than half of the map contains terrain tiles', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Wall, TileType.Ground],
                 [TileType.Wall, TileType.Wall],
             ];
 
-            expect(service.hasSufficientTerrainTiles(map)).toBeFalse();
+            expect(service.hasSufficientTerrainTiles(mockMap)).toBeFalse();
         });
     });
 
     describe('isEveryTileAccessible', () => {
         it('should return true if all non-wall tiles are accessible', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
 
-            expect(service.isEveryTileAccessible(map)).toBeTrue();
+            expect(service.isEveryTileAccessible(mockMap)).toBeTrue();
         });
 
         it('should return false if any non-wall tile is inaccessible', () => {
-            const map = [
+            const mockMap = [
                 [TileType.Ground, TileType.Wall],
                 [TileType.Wall, TileType.Ground],
             ];
 
-            expect(service.isEveryTileAccessible(map)).toBeFalse();
+            expect(service.isEveryTileAccessible(mockMap)).toBeFalse();
         });
     });
 
