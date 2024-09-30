@@ -13,9 +13,11 @@ export class SaveGameService {
 
     constructor(private http: HttpClient) {}
 
+    // Some information will have to be retrieved from the selectedMap coming from admin
+    // Some information will have to come from the admin map form creation
     saveGame(informations: Info, selectedMap: Map | null) {
         if (selectedMap == null) {
-            let playerNumber = 2;
+            let playerNumber;
             switch (informations.height) {
                 case SIZE_SMALL_MAP: {
                     playerNumber = NB_ITEMS_SMALL_MAP;
@@ -34,11 +36,11 @@ export class SaveGameService {
                 name: informations.name,
                 description: informations.description,
                 visible: true,
-                mode: 'normal', // will have to get it from admin
+                mode: 'normal',
                 nbPlayers: playerNumber,
                 image: informations.image,
                 tiles: informations.grid,
-                dimension: informations.height, // will have to get it from admin, consequently, the nb of players will also change.
+                dimension: informations.height,
                 itemPlacement: informations.items,
                 isSelected: false,
                 lastModification: new Date(),

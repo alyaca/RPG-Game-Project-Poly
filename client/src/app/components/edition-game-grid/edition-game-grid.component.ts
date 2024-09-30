@@ -69,8 +69,8 @@ export class EditionGameGridComponent implements OnChanges, OnDestroy {
         this.previousRow = row;
         this.previousCol = col;
         this.gridChange.emit(this.tilesGrid);
-        this.heightChange.emit(this.height);
         this.itemsChange.emit(this.itemArray); // THIS NEEDS TO BE MOVED WHERE THE ITEMS ARE PLACED TO SEND THE MATRIX TO THE PAGE
+        this.heightChange.emit(this.height);
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {

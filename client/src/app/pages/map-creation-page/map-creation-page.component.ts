@@ -64,12 +64,12 @@ export class MapCreationPageComponent {
         this.grid = newGrid;
     }
 
-    setHeight(newHeight: number) {
-        this.height = newHeight;
-    }
-
     setItems(newItems: number[][]) {
         this.items = newItems;
+    }
+
+    setHeight(newHeight: number) {
+        this.height = newHeight;
     }
 
     onSelectionChange(event: { value: string }) {
