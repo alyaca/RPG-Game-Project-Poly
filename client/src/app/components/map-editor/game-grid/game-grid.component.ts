@@ -29,7 +29,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     selectedCol: number = 0;
 
     isMouseDown: boolean = false;
-    isDraggingObject: boolean = false;
     objectsArray: number[][];
 
     previousRow: number | null = null;
@@ -63,7 +62,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     onDragStart(event: DragEvent, row: number, col: number) {
-        this.isDraggingObject = true;
         this.toolService.deactivateTileApplicator();
 
         this.isMouseDown = false;
@@ -85,7 +83,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
             this.gameObjectService.updateObjectGridPosition(gameObject, row, col);
         }
         this.isMouseDown = false;
-        this.isDraggingObject = false;
         this.toolService.setSelectedTile('');
     }
 
@@ -109,7 +106,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     onTileClick(row: number, col: number) {
-        if (this.isDraggingObject) return;
+
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
             return;
         }
@@ -128,7 +125,8 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {
-        if (event.button === 0 && !this.isDraggingObject) {
+        console.log(this.toolService.selectedTile);
+        if (event.button === 0) {
             this.isMouseDown = true;
             this.onTileClick(row, col);
         }
@@ -141,7 +139,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     onMouseMove(row: number, col: number) {
-        if (this.isMouseDown && !this.isDraggingObject) {
+        if (this.isMouseDown) {
             this.onTileClick(row, col);
         }
     }
