@@ -7,17 +7,17 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class GameCreationService {
     sizeSubject = new BehaviorSubject<string | null>(null);
-    modeSubject = new BehaviorSubject<string | null>(null);    
+    modeSubject = new BehaviorSubject<string | null>(null);
 
     setSelectedSize(size: string) {
-        this.sizeSubject.next(size);                     
+        this.sizeSubject.next(size);
     }
 
     setSelectedMode(mode: string) {
         this.modeSubject.next(mode);
     }
 
-    getStoredSize(): string | null {        
+    getStoredSize(): string | null {
         return this.sizeSubject.value;
     }
 
@@ -29,6 +29,6 @@ export class GameCreationService {
             return SIZE_MEDIUM_MAP;
         } else if (size === 'large') {
             return SIZE_LARGE_MAP;
-        } 
+        }
     }
 }

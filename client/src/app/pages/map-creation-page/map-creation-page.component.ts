@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink  } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, MAX_LEN_MAP_TITLE, MAX_LEN_MAP_DESCRIPTION } from '@app/constants';
-
+import { GameCreationService } from '@app/services/game-creation.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
@@ -36,6 +36,7 @@ export class MapCreationPageComponent {
     constructor(
         private dialog: MatDialog,
         private router: Router,
+        private gameCreationService: GameCreationService,
     ) {}
 
     onSelectionChange(event: { value: string }) {
@@ -98,4 +99,10 @@ export class MapCreationPageComponent {
     updateMapDescription(newDescription: string) {
         this.mapDescription = newDescription;
     }
+
+    ngOnInit(): void {
+       if(!this.gameCreationService.sizeSubject.value) {
+        this.router.navigate(['/administration']);
+       }
+      }
 }

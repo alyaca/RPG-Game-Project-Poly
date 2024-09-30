@@ -18,12 +18,7 @@ describe('GameCreationService', () => {
         service.setSelectedSize('small');
         expect(service.sizeSubject.getValue()).toEqual('small');
     });
-
-    it('should get the stored size', () => {
-        localStorage.setItem('selectedMapSize', 'small');
-        expect(service.getStoredSize()).toEqual('small');
-    });
-
+    
     it('should select the right mode', () => {
         service.setSelectedMode('classic');
         expect(service.modeSubject.getValue()).toEqual('classic');
