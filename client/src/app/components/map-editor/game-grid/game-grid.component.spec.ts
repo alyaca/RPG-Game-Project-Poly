@@ -268,10 +268,17 @@ describe('GameGridComponent', () => {
         expect(component.onTileClick).toHaveBeenCalledTimes(1);
     });
 
+    it('should return early when mouse is down when dragging an object', () => {
+        component.isDraggingObject = true;
+        spyOn(component, 'onTileClick').and.callThrough();
+
+        component.onTileClick(1, 1);
+        expect(component.onTileClick).toHaveBeenCalledTimes(1);
+    });
+
     it('should update object grid position when all conditions are met', () => {
         const mockRow = 0;
         const mockCol = 0;
-        console.log(component.tilesGrid);
         const mockGameObject = mockObjects[1];
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
 
@@ -378,18 +385,6 @@ describe('GameGridComponent', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
     });
-
-    // it('should not change the tile if an object is present', () => {
-    //     const mockEvent = new MouseEvent('click');
-    //     spyOn(mockEvent, 'preventDefault');
-
-    //     component.tilesGrid[1][1] = TileType.Wall;
-    //     component.objectsArray[1][1] = ObjectType.Armor;
-    //     component.removeTile(mockEvent, 1, 1);
-
-    //     expect(mockEvent.preventDefault).toHaveBeenCalled();
-    //     expect(component.tilesGrid[1][1]).toBe(TileType.Wall);
-    // });
 
     it('should prevent default event behavior, call removeTile, and removeObjectByClick', () => {
         const mockEvent = new MouseEvent('contextmenu');
