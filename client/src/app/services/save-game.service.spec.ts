@@ -28,7 +28,7 @@ describe('SaveGameService', () => {
         image: 'image source',
         nbPlayers: NB_ITEMS_MEDIUM_MAP,
         tiles: [[2, 3, 4, 5, 6, 6]],
-        itemPlacement: [[12, 3, 232, 3, 3, 3, 3]],
+        itemPlacement: [[12, 3, 2, 3, 3, 3, 3]],
         dimension: 15,
         isSelected: false,
         lastModification: new Date(),

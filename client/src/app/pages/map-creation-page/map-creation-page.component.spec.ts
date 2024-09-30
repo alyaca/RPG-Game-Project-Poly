@@ -146,8 +146,8 @@ describe('MapCreationPageComponent', () => {
     describe('Setters', () => {
         it('should set the grid attribute correctly', () => {
             const mockGridValue = [
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                [1, 2, 3, 4, 5, 6, 5, 4, 9, 10],
+                [3, 4, 5, 6, 7, 8, 9, 0, 1, 2],
             ];
             component.setGrid(mockGridValue);
             expect(component.grid).toBe(mockGridValue);
@@ -176,7 +176,5 @@ describe('MapCreationPageComponent', () => {
             saveButton.triggerEventHandler('click');
             expect(component.startSaving).toHaveBeenCalled();
         });
-
-        // lines 93-102 not tested and i don't know how to fucking test them
     });
 });
