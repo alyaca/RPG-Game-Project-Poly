@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
@@ -8,13 +9,19 @@ import { MapValidatorService, TileType } from './map-validator.service';
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let httpMock: HttpTestingController;
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         TestBed.configureTestingModule({
-            providers: [provideHttpClient(), MapValidatorService, { provide: MatDialog, useValue: dialogSpy }],
+            providers: [provideHttpClientTesting(), provideHttpClient(), MapValidatorService, { provide: MatDialog, useValue: dialogSpy }],
         });
         service = TestBed.inject(MapValidatorService);
+        httpMock = TestBed.inject(HttpTestingController);
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     it('should be created', () => {
