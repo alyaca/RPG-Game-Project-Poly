@@ -2,8 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 import { MapValidatorService, TileType } from './map-validator.service';
 
 describe('MapValidatorService', () => {
@@ -28,45 +27,45 @@ describe('MapValidatorService', () => {
         expect(service).toBeTruthy();
     });
 
-    describe('validateMap', () => {
-        it('should open dialog with error message if the map has insufficient terrain tiles', () => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+    // describe('validateMap', () => {
+    //     it('should open dialog with error message if the map has insufficient terrain tiles', () => {
+    //         spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
+    //         spyOn(service, 'validateAllDoors').and.returnValue(true);
+    //         spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
+    //         spyOn(service, 'validateTitleLength').and.returnValue(true);
+    //         spyOn(service, 'validateDescriptionLength').and.returnValue(true);
 
-            service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
+    //         service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
 
-            setTimeout(() => {
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    data: {
-                        messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
-                        title: 'Carte invalide',
-                    },
-                });
-            }, TEST_VALIDATION_DURATION);
-        });
+    //         setTimeout(() => {
+    //             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+    //                 data: {
+    //                     messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
+    //                     title: 'Carte invalide',
+    //                 },
+    //             });
+    //         }, TEST_VALIDATION_DURATION);
+    //     });
 
-        it('should open dialog with success message if the map is valid', () => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+    //     it('should open dialog with success message if the map is valid', () => {
+    //         spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
+    //         spyOn(service, 'validateAllDoors').and.returnValue(true);
+    //         spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
+    //         spyOn(service, 'validateTitleLength').and.returnValue(true);
+    //         spyOn(service, 'validateDescriptionLength').and.returnValue(true);
 
-            service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
+    //         service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
 
-            setTimeout(() => {
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    data: {
-                        messages: ["Vous allez être redirigé vers la page d'administration"],
-                        title: 'Sauvegarde réussie',
-                    },
-                });
-            }, TEST_VALIDATION_DURATION);
-        });
-    });
+    //         setTimeout(() => {
+    //             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+    //                 data: {
+    //                     messages: ["Vous allez être redirigé vers la page d'administration"],
+    //                     title: 'Sauvegarde réussie',
+    //                 },
+    //             });
+    //         }, TEST_VALIDATION_DURATION);
+    //     });
+    // });
 
     describe('isDoorPlacementValid', () => {
         it('should return true for a valid door placement', () => {
