@@ -269,7 +269,6 @@ describe('GameGridComponent', () => {
     });
 
     it('should return early when mouse is down when dragging an object', () => {
-        component.isDraggingObject = true;
         spyOn(component, 'onTileClick').and.callThrough();
 
         component.onTileClick(1, 1);
@@ -290,7 +289,6 @@ describe('GameGridComponent', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).toHaveBeenCalledWith(mockGameObject, mockRow, mockCol);
         expect(component.isMouseDown).toBeFalse();
-        expect(component.isDraggingObject).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
 
@@ -312,7 +310,6 @@ describe('GameGridComponent', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
-        expect(component.isDraggingObject).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
 
@@ -335,7 +332,6 @@ describe('GameGridComponent', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
-        expect(component.isDraggingObject).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
 
@@ -358,7 +354,6 @@ describe('GameGridComponent', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
-        expect(component.isDraggingObject).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
 

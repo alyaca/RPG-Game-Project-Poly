@@ -106,7 +106,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     onTileClick(row: number, col: number) {
-
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
             return;
         }
@@ -125,7 +124,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {
-        console.log(this.toolService.selectedTile);
         if (event.button === 0) {
             this.isMouseDown = true;
             this.onTileClick(row, col);
