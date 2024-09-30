@@ -35,7 +35,7 @@ export class SaveGameService {
             const mapToStore = {
                 name: informations.name,
                 description: informations.description,
-                visible: true,
+                visible: false,
                 mode: 'normal',
                 nbPlayers: playerNumber,
                 image: informations.image,
@@ -51,7 +51,7 @@ export class SaveGameService {
                 _id: selectedMap._id,
                 name: informations.name,
                 description: informations.description,
-                visible: selectedMap.visible,
+                visible: false,
                 mode: selectedMap.mode,
                 nbPlayers: selectedMap.nbPlayers,
                 image: informations.image,

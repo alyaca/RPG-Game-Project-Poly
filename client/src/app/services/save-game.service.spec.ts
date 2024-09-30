@@ -35,7 +35,7 @@ describe('SaveGameService', () => {
         expect(request.request.body).toEqual({
             name: dummyInfo.name,
             description: dummyInfo.description,
-            visible: true,
+            visible: false,
             mode: 'normal',
             nbPlayers: NB_ITEMS_MEDIUM_MAP,
             image: dummyInfo.image,
@@ -57,7 +57,7 @@ describe('SaveGameService', () => {
             _id: dummyMap._id,
             name: dummyInfo.name,
             description: dummyInfo.description,
-            visible: dummyMap.visible,
+            visible: false,
             mode: dummyMap.mode,
             nbPlayers: dummyMap.nbPlayers,
             image: dummyInfo.image,

@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, VALIDATION_DURATION } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION } from '@app/constants';
 import { MapValidatorService, TileType } from './map-validator.service';
 
 describe('MapValidatorService', () => {
@@ -38,7 +38,7 @@ describe('MapValidatorService', () => {
                         title: 'Carte invalide',
                     },
                 });
-            }, VALIDATION_DURATION);
+            }, TEST_VALIDATION_DURATION);
         });
 
         it('should open dialog with success message if the map is valid', () => {
@@ -57,7 +57,7 @@ describe('MapValidatorService', () => {
                         title: 'Sauvegarde réussie',
                     },
                 });
-            }, VALIDATION_DURATION);
+            }, TEST_VALIDATION_DURATION);
         });
     });
 

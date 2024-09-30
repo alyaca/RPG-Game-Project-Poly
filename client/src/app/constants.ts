@@ -23,5 +23,7 @@ export const NO_ITEM = 0;
 export const RANDOM_ITEM = 1;
 
 // Constants for the map validation to check all the necessary stuff
-export const CHECK_BEFORE_SAVING_DELAY = 800;
+export const CHECK_BEFORE_SAVING_DELAY = 500;
 export const VALIDATION_DURATION = 500;
+
+export const TEST_VALIDATION_DURATION = 800;

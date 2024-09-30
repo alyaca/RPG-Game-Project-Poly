@@ -74,9 +74,10 @@ export class MapValidatorService {
     }
 
     isSameName(nameToCheck: string): Observable<boolean> {
+        const trimmedNameToCheck = nameToCheck.trim();
         return this.httpClient.get<Map[]>(this.apiURL).pipe(
             map((maps: Map[]) => {
-                const sameName = maps.filter((g) => g.name === nameToCheck);
+                const sameName = maps.filter((g) => g.name.trim() === trimmedNameToCheck);
                 return sameName.length > 0;
             }),
         );
