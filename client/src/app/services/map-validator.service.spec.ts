@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION, VALIDATION_DURATION } from '@app/constants';
 import { map, Observable } from 'rxjs';
 import { MapValidatorService, TileType } from './map-validator.service';
 
@@ -23,6 +23,10 @@ describe('MapValidatorService', () => {
 
     afterEach(() => {
         httpMock.verify();
+    });
+
+    afterAll(() => {
+        TestBed.resetTestingModule();
     });
 
     it('should be created', () => {
@@ -48,7 +52,7 @@ describe('MapValidatorService', () => {
                     },
                 });
                 done();
-            }, TEST_VALIDATION_DURATION);
+            }, VALIDATION_DURATION);
         });
 
         it('should open dialog with success message if the map is valid', (done) => {
