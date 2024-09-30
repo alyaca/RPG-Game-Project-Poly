@@ -57,7 +57,7 @@ export class CharacterCreatorComponent {
         this.attributesService.setHealth(this.highAttribute);
     }
 
-    addspeed() {
+    addSpeed() {
         this.attributesService.setSpeed(this.highAttribute);
     }
 

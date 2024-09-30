@@ -62,7 +62,7 @@ describe('CharacterCreatorComponent', () => {
     });
 
     it('should set speed to 6 when addSpeed is called', () => {
-        component.addspeed();
+        component.addSpeed();
         expect(attributesServiceSpy.setSpeed).toHaveBeenCalledWith('6');
     });
 
