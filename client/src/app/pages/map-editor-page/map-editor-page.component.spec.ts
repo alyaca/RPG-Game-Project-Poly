@@ -14,7 +14,6 @@ describe('MapEditorPageComponent', () => {
     beforeEach(async () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
@@ -37,6 +36,22 @@ describe('MapEditorPageComponent', () => {
 
     it('should create the component', () => {
         expect(component).toBeTruthy();
+    });
+
+    describe('drag drop event', () => {
+        it('should call event.preventDefault on drag over ', () => {
+            const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
+            component.onDragOver(mockEvent);
+            expect(mockEvent.preventDefault).toHaveBeenCalled();
+        });
+
+        it('should add object to container when drop outside grid', () => {
+            const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
+
+            component.onDropOutside(mockEvent);
+
+            expect(mockEvent.preventDefault).toHaveBeenCalled();
+        });
     });
 
     describe('handleReset', () => {

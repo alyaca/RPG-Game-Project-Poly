@@ -176,7 +176,7 @@ describe('GameGridComponent', () => {
             expect(gameObjectManagerServiceSpy.draggedObject).toEqual(gameObjects[0]);
         });
 
-        it('should call event.preventDefault on drag over ', () => {
+        it('should prevent default behaviour on drag over ', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             component.onDragOver(mockEvent);
             expect(mockEvent.preventDefault).toHaveBeenCalled();

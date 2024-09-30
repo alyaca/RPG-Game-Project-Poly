@@ -24,7 +24,7 @@ describe('GameObjectService', () => {
         });
 
         it('should return undefined if no object has the corresponding id', () => {
-            const result = service.getObjectById(9);
+            const result = service.getObjectById(NO_OBJECT);
             expect(result).toBeUndefined();
         });
     });
