@@ -9,7 +9,6 @@ import { Subscription } from 'rxjs';
     providedIn: 'root',
 })
 export class GameObjectService implements OnDestroy {
-    private sizeSubscription!: Subscription;
     countableObjects = [ObjectType.Random, ObjectType.Spawn];
     draggedObject: GameObject | null = null;
     dragStartPosition: { row: number; col: number } | null = null;
@@ -20,6 +19,7 @@ export class GameObjectService implements OnDestroy {
     mapSize: string | null;
     maxCount: number;
     selectedTile: { row: number; col: number } | null = null;
+    private sizeSubscription!: Subscription;
 
     constructor(private gameCreationService: GameCreationService) {
         this.sizeSubscription = this.gameCreationService.sizeSubject.subscribe(() => {
