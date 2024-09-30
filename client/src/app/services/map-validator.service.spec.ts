@@ -23,6 +23,7 @@ describe('MapValidatorService', () => {
 
     afterEach(() => {
         httpMock.verify();
+        TestBed.resetTestingModule();
     });
 
     afterAll(() => {
