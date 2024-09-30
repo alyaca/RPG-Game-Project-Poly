@@ -4,8 +4,8 @@ import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constant
 import { gameObjects } from '@app/objectsInfo';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
-import { ToolService } from '@app/services/tool/tool.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { ToolService } from '@app/services/tool/tool.service';
 import { GameGridComponent } from './game-grid.component';
 
 describe('GameGridComponent', () => {
@@ -14,7 +14,7 @@ describe('GameGridComponent', () => {
     let toolServiceSpy: jasmine.SpyObj<ToolService>;
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
-    let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>
+    let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
 
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile']);
@@ -30,7 +30,7 @@ describe('GameGridComponent', () => {
             'resetDrag,',
             'resetObjectsCount',
         ]);
-        
+
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
@@ -165,7 +165,6 @@ describe('GameGridComponent', () => {
     });
 
     describe('drag event', () => {
-        
         it('should set dragStartPosition and draggedObject on drag start', () => {
             const mockRow = 2;
             const mockCol = 3;
@@ -215,15 +214,14 @@ describe('GameGridComponent', () => {
                 [TileType.Ground, TileType.Ice, TileType.ClosedDoor],
                 [TileType.Wall, TileType.OpenDoor, TileType.Water],
             ];
-            expect(component.isValidTileForObject(0, 0)).toBeTrue(); 
-            expect(component.isValidTileForObject(0, 1)).toBeTrue(); 
-            expect(component.isValidTileForObject(0, 2)).toBeFalse(); 
-            expect(component.isValidTileForObject(1, 0)).toBeFalse(); 
-            expect(component.isValidTileForObject(1, 1)).toBeFalse(); 
-            expect(component.isValidTileForObject(1, 2)).toBeTrue(); 
+            expect(component.isValidTileForObject(0, 0)).toBeTrue();
+            expect(component.isValidTileForObject(0, 1)).toBeTrue();
+            expect(component.isValidTileForObject(0, 2)).toBeFalse();
+            expect(component.isValidTileForObject(1, 0)).toBeFalse();
+            expect(component.isValidTileForObject(1, 1)).toBeFalse();
+            expect(component.isValidTileForObject(1, 2)).toBeTrue();
         });
     });
-
 
     it('should return the correct image path for an existing object', () => {
         const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: 5, image: 'mock/image.png' };
@@ -253,165 +251,158 @@ describe('GameGridComponent', () => {
         expect(component.onTileClick).toHaveBeenCalledTimes(1);
     });
 
-
     it('should update object grid position when all conditions are met', () => {
         const mockRow = 2;
         const mockCol = 3;
         const mockGameObject = { id: 1, name: 'mockObject', description: 'test object', count: 1, image: 'mock/image.png' };
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-    
-        gameObjectManagerServiceSpy.draggedObject = mockGameObject; 
-        spyOn(component, 'isValidTileForObject').and.returnValue(true); 
-    
+
+        gameObjectManagerServiceSpy.draggedObject = mockGameObject;
+        spyOn(component, 'isValidTileForObject').and.returnValue(true);
+
         component.onDrop(mockEvent, mockRow, mockCol);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).toHaveBeenCalledWith(mockGameObject, mockRow, mockCol);
         expect(component.isMouseDown).toBeFalse();
         expect(component.isDraggingObject).toBeFalse();
-        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith("");
+        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
-    
+
     it('should not update object grid position when the gameObject is null', () => {
         const mockRow = 2;
         const mockCol = 3;
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-    
+
         component.objectsArray = [
             [NO_OBJECT, NO_OBJECT, NO_OBJECT],
             [NO_OBJECT, NO_OBJECT, NO_OBJECT],
-            [NO_OBJECT, NO_OBJECT, NO_OBJECT]
+            [NO_OBJECT, NO_OBJECT, NO_OBJECT],
         ];
-        gameObjectManagerServiceSpy.draggedObject = null; 
-        spyOn(component, 'isValidTileForObject').and.returnValue(true); 
-    
+        gameObjectManagerServiceSpy.draggedObject = null;
+        spyOn(component, 'isValidTileForObject').and.returnValue(true);
+
         component.onDrop(mockEvent, mockRow, mockCol);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
         expect(component.isDraggingObject).toBeFalse();
-        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith("");
+        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
-    
+
     it('should not update object grid position when the tile is not empty', () => {
         const mockRow = 2;
         const mockCol = 3;
         const mockGameObject = { id: 1, name: 'mockObject', description: 'test object', count: 1, image: 'mock/image.png' };
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-    
+
         component.objectsArray = [
             [NO_OBJECT, NO_OBJECT, NO_OBJECT],
             [NO_OBJECT, NO_OBJECT, NO_OBJECT],
-            [ObjectType.Armor, NO_OBJECT, NO_OBJECT] 
+            [ObjectType.Armor, NO_OBJECT, NO_OBJECT],
         ];
         gameObjectManagerServiceSpy.draggedObject = mockGameObject;
         spyOn(component, 'isValidTileForObject').and.returnValue(true);
-    
+
         component.onDrop(mockEvent, mockRow, mockCol);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
         expect(component.isDraggingObject).toBeFalse();
-        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith("");
+        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
-    
+
     it('should not update object grid position when the tile is invalid', () => {
         const mockRow = 2;
         const mockCol = 3;
         const mockGameObject = { id: 1, name: 'mockObject', description: 'test object', count: 1, image: 'mock/image.png' };
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-    
+
         component.objectsArray = [
             [NO_OBJECT, NO_OBJECT, NO_OBJECT],
             [NO_OBJECT, NO_OBJECT, NO_OBJECT],
-            [NO_OBJECT, NO_OBJECT, NO_OBJECT]
+            [NO_OBJECT, NO_OBJECT, NO_OBJECT],
         ];
         gameObjectManagerServiceSpy.draggedObject = mockGameObject;
-        spyOn(component, 'isValidTileForObject').and.returnValue(false); 
-    
+        spyOn(component, 'isValidTileForObject').and.returnValue(false);
+
         component.onDrop(mockEvent, mockRow, mockCol);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
         expect(component.isDraggingObject).toBeFalse();
-        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith("");
+        expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
 
     describe('ToolButtonService', () => {
-
         it('should toggle the selected button and set it to null when selectedButton is defined', () => {
             const mockButton = jasmine.createSpyObj('ToolButtonComponent', ['toggleActivation']);
-            toolButtonServiceSpy.selectedButton = mockButton; 
-    
-            component.deactivateTileApplicator(); 
+            toolButtonServiceSpy.selectedButton = mockButton;
+
+            component.deactivateTileApplicator();
             expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
             // expect(mockButton.toggleActivation).toHaveBeenCalled();
             expect(toolButtonServiceSpy.selectedButton).toBeNull();
         });
-    
+
         it('should not toggle any button or set selectedButton to null when no button is selected', () => {
             toolButtonServiceSpy.selectedButton = null;
-    
-            component.deactivateTileApplicator(); 
+
+            component.deactivateTileApplicator();
             expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
-            expect(toolButtonServiceSpy.selectedButton).toBeNull(); 
+            expect(toolButtonServiceSpy.selectedButton).toBeNull();
         });
     });
-    
 
-    
     it('should set the tile to Ground when conditions are met', () => {
         component.tilesGrid[1][0] = TileType.Wall;
         component.objectsArray[1][0] = NO_OBJECT;
-        const mockEvent = new MouseEvent('click', {button: 0});
-        spyOn(mockEvent, 'preventDefault'); 
+        const mockEvent = new MouseEvent('click', { button: 0 });
+        spyOn(mockEvent, 'preventDefault');
 
         component.removeTile(mockEvent, 1, 0);
 
-        expect(mockEvent.preventDefault).toHaveBeenCalled(); 
-        expect(component.tilesGrid[1][0]).toBe(TileType.Ground); 
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+        expect(component.tilesGrid[1][0]).toBe(TileType.Ground);
     });
 
     it('should not change the tile if it is already Ground', () => {
         const mockEvent = new MouseEvent('click');
-        spyOn(mockEvent, 'preventDefault'); 
+        spyOn(mockEvent, 'preventDefault');
 
         component.tilesGrid[0][0] = TileType.Ground;
-        component.objectsArray[0][0] = NO_OBJECT; 
+        component.objectsArray[0][0] = NO_OBJECT;
         component.removeTile(mockEvent, 0, 0);
 
-        expect(mockEvent.preventDefault).toHaveBeenCalled(); 
-        expect(component.tilesGrid[0][0]).toBe(TileType.Ground); 
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+        expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
     });
 
     it('should not change the tile if an object is present', () => {
         const mockEvent = new MouseEvent('click');
-        spyOn(mockEvent, 'preventDefault'); 
+        spyOn(mockEvent, 'preventDefault');
 
         component.tilesGrid[1][1] = TileType.Wall;
         component.objectsArray[1][1] = ObjectType.Armor;
         component.removeTile(mockEvent, 1, 1);
 
-        expect(mockEvent.preventDefault).toHaveBeenCalled(); 
-        expect(component.tilesGrid[1][1]).toBe(TileType.Wall); 
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+        expect(component.tilesGrid[1][1]).toBe(TileType.Wall);
     });
 
     it('should prevent default event behavior, call removeTile, and removeObjectByClick', () => {
         const mockEvent = new MouseEvent('contextmenu');
-        spyOn(mockEvent, 'preventDefault'); 
+        spyOn(mockEvent, 'preventDefault');
 
-        spyOn(component, 'removeTile'); 
-    
+        spyOn(component, 'removeTile');
+
         component.removeOnRightClick(mockEvent, 1, 1);
-    
-        expect(mockEvent.preventDefault).toHaveBeenCalled(); 
-        expect(component.removeTile).toHaveBeenCalledWith(mockEvent, 1, 1);
-        expect(gameObjectManagerServiceSpy.removeObjectByClick).toHaveBeenCalledWith(mockEvent, 1, 1); 
-    });
-    
-    
-});
 
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+        expect(component.removeTile).toHaveBeenCalledWith(mockEvent, 1, 1);
+        expect(gameObjectManagerServiceSpy.removeObjectByClick).toHaveBeenCalledWith(mockEvent, 1, 1);
+    });
+});

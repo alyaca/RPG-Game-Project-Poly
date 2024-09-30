@@ -40,9 +40,16 @@ export class MapEditorPageComponent {
         event.preventDefault();
     }
 
+    onDragEnd() {
+        this.gameObjectService.isDraggingFromContainer = false;
+    }
+
     onDropOutside(event: DragEvent) {
         event.preventDefault();
         const gameObject = this.gameObjectService.draggedObject;
+        if (this.gameObjectService.isDraggingFromContainer) {
+            return;
+        }
         if (gameObject?.id) {
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }

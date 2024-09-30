@@ -7,6 +7,7 @@ import { gameObjects } from '@app/objectsInfo';
     providedIn: 'root',
 })
 export class GameObjectService {
+    isDraggingFromContainer: boolean = false;
     objects: GameObject[] = gameObjects;
     dragStartPosition: { row: number; col: number } | null = null;
     selectedTile: { row: number; col: number } | null = null;
