@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
-import { ITEM_COUNT } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
@@ -44,9 +44,11 @@ describe('GameObjectsContainerComponent', () => {
             expect(component.isDraggingFromContainer).toBeTrue();
         });
 
-        it('should return when gameObject count is 0', () => {
+        it('should prevent default behavioour when gameObject count is 0', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-            component.onDragStart(mockEvent, mockObjects[1]);
+            const mockObject = mockObjects[1];
+            mockObject.count = NO_OBJECT;
+            component.onDragStart(mockEvent, mockObject);
             expect(mockEvent.preventDefault).toHaveBeenCalled();
         });
 
@@ -87,13 +89,10 @@ describe('GameObjectsContainerComponent', () => {
         });
     });
 
-    it('should prevent default behavior on drag over', () => {
-        const event = new DragEvent('dragover');
-        const preventDefaultSpy = spyOn(event, 'preventDefault');
-
-        component.onDragOver(event);
-
-        expect(preventDefaultSpy).toHaveBeenCalled();
+    it('should prevent default behaviour on drag over ', () => {
+        const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
+        component.onDragOver(mockEvent);
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 
     it('should set isDraggingFromContainer to false on drag end', () => {

@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { mockObjects } from '@app/mocks/mock-object';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -10,6 +12,7 @@ describe('MapEditorPageComponent', () => {
     let fixture: ComponentFixture<MapEditorPageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
+    let gameObjectService: GameObjectService;
 
     beforeEach(async () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -17,6 +20,7 @@ describe('MapEditorPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
+                GameObjectService,
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -28,10 +32,11 @@ describe('MapEditorPageComponent', () => {
                 { provide: Router, useValue: routerSpy },
             ],
         }).compileComponents();
-
+        gameObjectService = TestBed.inject(GameObjectService);
         fixture = TestBed.createComponent(MapEditorPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        gameObjectService.isDraggingFromContainer = true;
     });
 
     it('should create the component', () => {
@@ -47,10 +52,24 @@ describe('MapEditorPageComponent', () => {
 
         it('should add object to container when drop outside grid', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-
             component.onDropOutside(mockEvent);
-
             expect(mockEvent.preventDefault).toHaveBeenCalled();
+        });
+
+        it('should set isDraggingFromContainer to false on drag end', () => {
+            component.onDragEnd();
+            expect(gameObjectService.isDraggingFromContainer).toBeFalse();
+        });
+
+        it('should call removeObjectFromGrid if gameObject has id', () => {
+            gameObjectService.draggedObject = mockObjects[0];
+            gameObjectService.isDraggingFromContainer = false;
+            spyOn(gameObjectService, 'removeObjectFromGrid');
+            const event = new DragEvent('drop');
+
+            component.onDropOutside(event);
+
+            expect(gameObjectService.removeObjectFromGrid).toHaveBeenCalledWith(mockObjects[0]);
         });
     });
 

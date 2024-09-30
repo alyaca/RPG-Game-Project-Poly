@@ -55,12 +55,6 @@ export class MapEditorPageComponent {
         }
     }
 
-    onSelectionChange(event: { value: string }) {
-        this.selectedSize = event.value;
-        this.selectedSizeChange.emit(this.selectedSize);
-        this.resetTrigger = false;
-    }
-
     handleReset() {
         this.resetTrigger = true;
         this.updateMapName('');
