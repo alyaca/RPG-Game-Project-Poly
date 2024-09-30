@@ -36,3 +36,7 @@ export enum ObjectType {
 
 // For no object in grid
 export const NO_OBJECT = 0;
+
+// Constants for the size of the dialob box for the creation of a map
+export const WIDTH_DIALOG = '40%';
+export const HEIGHT_DIALOG = '50%';

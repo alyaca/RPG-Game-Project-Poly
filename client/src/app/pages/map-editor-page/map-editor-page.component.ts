@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { GameObjectsContainerComponent } from '@app/components/map-editor/game-o
 import { ToolbarComponent } from '@app/components/map-editor/toolbar/toolbar.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 
 @Component({
@@ -17,8 +18,8 @@ import { GameObjectService } from '@app/services/game-object/game-object.service
     styleUrls: ['./map-editor-page.component.scss'],
     imports: [MatButtonToggleModule, GameObjectsContainerComponent, FormsModule, RouterLink, GameGridComponent, ToolbarComponent],
 })
-export class MapEditorPageComponent {
-    @Input() selectedSize: string = 'small';
+export class MapEditorPageComponent implements OnInit {
+    @Input() selectedSize: string | null;
     @Output() selectedSizeChange = new EventEmitter<string>();
 
     mapName: string = '';
@@ -33,8 +34,11 @@ export class MapEditorPageComponent {
     constructor(
         private dialog: MatDialog,
         private router: Router,
+        private gameCreationService: GameCreationService,
         private gameObjectService: GameObjectService,
-    ) {}
+    ) {
+        this.selectedSize = gameCreationService.getStoredSize();
+    }
 
     onDragOver(event: DragEvent) {
         event.preventDefault();
@@ -77,7 +81,7 @@ export class MapEditorPageComponent {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'leave') {
-                this.router.navigate(['/admin']);
+                this.router.navigate(['/administration']);
             }
         });
     }
@@ -88,5 +92,11 @@ export class MapEditorPageComponent {
 
     updateMapDescription(newDescription: string) {
         this.mapDescription = newDescription;
+    }
+
+    ngOnInit(): void {
+        if (!this.gameCreationService.sizeSubject.value) {
+            this.router.navigate(['/administration']);
+        }
     }
 }

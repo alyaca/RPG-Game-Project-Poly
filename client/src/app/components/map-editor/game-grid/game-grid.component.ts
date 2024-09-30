@@ -1,10 +1,10 @@
 import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
+import { NO_OBJECT } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
-import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
 
 @Component({
@@ -15,7 +15,7 @@ import { ToolService } from '@app/services/tool/tool.service';
     styleUrl: './game-grid.component.scss',
 })
 export class GameGridComponent implements OnChanges, OnDestroy {
-    @Input() selectedSize: string;
+    @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
 
@@ -23,8 +23,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     @Input() mapDescription: string;
 
     tilesGrid: number[][];
-    height: number = SIZE_SMALL_MAP;
-    width: number = SIZE_SMALL_MAP;
+    gridSize: number;
 
     selectedRow: number = 0;
     selectedCol: number = 0;
@@ -41,11 +40,11 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
         private gameObjectService: GameObjectService,
-        private toolButtonService: ToolButtonService,
+        private gameCreationService: GameCreationService,
     ) {
-        this.gameObjectService.initObjectsArray(this.height);
-        this.objectsArray = this.gameObjectService.objectsArray;
-        this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
+        this.gridSize = this.gameCreationService.updateDimensions() as number;
+        this.objectsArray = this.gameObjectService.initObjectsArray();
+        this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
     }
 
     get selectedTile(): string {
@@ -54,8 +53,8 @@ export class GameGridComponent implements OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
-            this.tilesGrid = this.tileService.resetGrid(this.height, this.tilesGrid);
-            this.objectsArray = this.gameObjectService.initObjectsArray(this.height);
+            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+            this.objectsArray = this.gameObjectService.initObjectsArray();
             this.gameObjectService.resetObjectsCount();
         }
         if (changes.saveTrigger && this.saveTrigger) {
@@ -65,7 +64,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
 
     onDragStart(event: DragEvent, row: number, col: number) {
         this.isDraggingObject = true;
-        this.deactivateTileApplicator();
+        this.toolService.deactivateTileApplicator();
 
         this.isMouseDown = false;
         this.gameObjectService.dragStartPosition = { row, col };
@@ -155,15 +154,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         event.preventDefault();
         if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
             this.tilesGrid[row][col] = TileType.Ground;
-        }
-    }
-
-    deactivateTileApplicator() {
-        this.toolService.setSelectedTile('');
-
-        if (this.toolButtonService.selectedButton) {
-            this.toolButtonService.selectedButton.toggleActivation();
-            this.toolButtonService.selectedButton = null;
         }
     }
 }

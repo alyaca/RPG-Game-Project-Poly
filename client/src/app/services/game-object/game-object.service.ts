@@ -1,33 +1,45 @@
-import { Injectable } from '@angular/core';
-import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
+import { Injectable, OnDestroy } from '@angular/core';
+import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
+import { GameCreationService } from '@app/services/game-creation.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GameObjectService {
+export class GameObjectService implements OnDestroy {
+    private sizeSubscription!: Subscription;
+    countableObjects = [ObjectType.Random, ObjectType.Spawn];
+    draggedObject: GameObject | null = null;
+    dragStartPosition: { row: number; col: number } | null = null;
+    gridSize: number;
     isDraggingFromContainer: boolean = false;
     objects: GameObject[] = gameObjects;
-    dragStartPosition: { row: number; col: number } | null = null;
-    selectedTile: { row: number; col: number } | null = null;
-    draggedObject: GameObject | null = null;
-    height: number = SIZE_SMALL_MAP;
-    width: number = SIZE_SMALL_MAP;
     objectsArray: number[][];
+    mapSize: string | null;
     maxCount: number;
-    countableObjects = [ObjectType.Random, ObjectType.Spawn];
+    selectedTile: { row: number; col: number } | null = null;
 
-    initObjectsArray(mapSize: number) {
-        this.objectsArray = Array.from({ length: mapSize }, () => Array(mapSize).fill(NO_OBJECT));
-        this.maxCount = OBJECT_COUNT_MAP['small']; // voir avec le service de kimia
+    constructor(private gameCreationService: GameCreationService) {
+        this.sizeSubscription = this.gameCreationService.sizeSubject.subscribe(() => {
+            this.mapSize = this.gameCreationService.getStoredSize();
+            this.gridSize = this.gameCreationService.updateDimensions() as number;
+        });
+    }
+
+    initObjectsArray() {
+        this.objectsArray = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(NO_OBJECT));
+        if (this.mapSize) {
+            this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
+        }
         return this.objectsArray;
     }
 
     resetObjectsCount() {
         this.objects.forEach((object) => {
-            if (this.countableObjects.includes(object.id)) {
-                object.count = OBJECT_COUNT_MAP['small']; // voir avec le service
+            if (this.countableObjects.includes(object.id) && this.mapSize) {
+                object.count = OBJECT_COUNT_MAP[this.mapSize];
             } else {
                 object.count = ITEM_COUNT;
             }
@@ -79,5 +91,11 @@ export class GameObjectService {
     resetDrag() {
         this.dragStartPosition = null;
         this.draggedObject = null;
+    }
+
+    ngOnDestroy(): void {
+        if (this.sizeSubscription) {
+            this.sizeSubscription.unsubscribe();
+        }
     }
 }

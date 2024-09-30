@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, ObjectType } from '@app/constants';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 
 export enum TileType {
@@ -23,7 +23,7 @@ export class MapValidatorService {
         private dialog: MatDialog,
         private gameObjectService: GameObjectService,
     ) {
-        gameObjectService.initObjectsArray(SIZE_SMALL_MAP);
+        this.gameObjectService.initObjectsArray();
     }
 
     validateMap(array: number[][], title: string, description: string) {

@@ -1,17 +1,28 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType } from '@app/constants';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from './map-validator.service';
 
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let gameObjectServiceSpy: jasmine.SpyObj<GameObjectService>;
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray']);
+        gameObjectServiceSpy.objectsArray = [
+            [ObjectType.Sandal, ObjectType.Spawn],
+            [ObjectType.Spawn, NO_OBJECT],
+        ];
         TestBed.configureTestingModule({
-            providers: [MapValidatorService, { provide: MatDialog, useValue: dialogSpy }],
+            providers: [
+                MapValidatorService,
+                { provide: MatDialog, useValue: dialogSpy },
+                { provide: GameObjectService, useValue: gameObjectServiceSpy },
+            ],
         });
         service = TestBed.inject(MapValidatorService);
     });
@@ -197,6 +208,18 @@ describe('MapValidatorService', () => {
             );
         });
 
+        it('should add error message when areAllSpawnPointsPlaced returns false', () => {
+            spyOn(service, 'validateAllDoors').and.returnValue(true);
+            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
+            spyOn(service, 'validateTitleLength').and.returnValue(true);
+            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(false);
+
+            service.validateMap([[TileType.Wall]], '', '');
+
+            expect(service['errorMessages']).toContain('- Tous les points de départ doivent être placés sur la carte.');
+        });
+
         describe('containsAcharacter', () => {
             it('should return true for non-empty strings', () => {
                 expect(service.containsAcharacter('Hello')).toBeTrue();
@@ -246,6 +269,28 @@ describe('MapValidatorService', () => {
 
             it('should return false for descriptions that do not contain a character', () => {
                 expect(service.validateDescriptionLength('   ')).toBeFalse();
+            });
+        });
+
+        describe('areAllSpawnPointsPlaced', () => {
+            it('should return false if not all the spawn points are placed', () => {
+                gameObjectServiceSpy.objectsArray = [
+                    [ObjectType.Spawn, ObjectType.Spawn],
+                    [ObjectType.Spawn, NO_OBJECT],
+                ];
+                service.mapObjects = gameObjectServiceSpy.objectsArray;
+                gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
+                expect(service.areAllSpawnPointsPlaced()).toBeFalse();
+            });
+
+            it('should return true if all the spawn points are placed', () => {
+                gameObjectServiceSpy.objectsArray = [
+                    [ObjectType.Spawn, ObjectType.Spawn],
+                    [ObjectType.Spawn, ObjectType.Spawn],
+                ];
+                service.mapObjects = gameObjectServiceSpy.objectsArray;
+                gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
+                expect(service.areAllSpawnPointsPlaced()).toBeTrue();
             });
         });
     });

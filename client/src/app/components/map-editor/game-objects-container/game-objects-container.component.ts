@@ -17,7 +17,6 @@ import { ToolButtonService } from '@app/services/tool-button/tool-button.service
 export class GameObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
     isDraggingFromContainer: boolean = false;
-    mapSize: string = 'small';
     showDescription: boolean = true;
 
     constructor(
