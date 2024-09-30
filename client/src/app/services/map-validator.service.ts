@@ -1,7 +1,11 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MIN_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MAX_LEN_MAP_DESCRIPTION } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, VALIDATION_DURATION } from '@app/constants';
+import { Map } from '@app/interfaces/map';
+import { map, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export enum TileType {
     Ground = 1,
@@ -16,11 +20,23 @@ export enum TileType {
     providedIn: 'root',
 })
 export class MapValidatorService {
+    validMap: boolean;
     errorMessages: string[] = [];
-    constructor(private dialog: MatDialog) {}
+    apiURL = `${environment.serverUrl}/maps`;
+    constructor(
+        private dialog: MatDialog,
+        private httpClient: HttpClient,
+    ) {}
 
     validateMap(array: number[][], title: string, description: string) {
         this.errorMessages = [];
+
+        this.isSameName(title).subscribe((matchingMapExists: boolean) => {
+            if (matchingMapExists) {
+                this.errorMessages.push('- Une carte avec le même nom existe déjà');
+            }
+        });
+
         if (!this.hasSufficientTerrainTiles(array)) {
             this.errorMessages.push('- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)');
         }
@@ -45,14 +61,25 @@ export class MapValidatorService {
                 '- La description de la carte doit avoir une longueur entre 10 et 256 charactères et ne pas uniquement contenir des espaces',
             );
         }
+        setTimeout(() => {
+            const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
+            if (dialogTitle === 'Sauvegarde réussie') {
+                this.errorMessages = ["Vous allez être redirigé vers la page d'administration"];
+                this.validMap = true;
+            } else {
+                this.validMap = false;
+            }
+            this.openDialog(this.errorMessages, dialogTitle);
+        }, VALIDATION_DURATION);
+    }
 
-        const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
-
-        if (dialogTitle === 'Sauvegarde réussie') {
-            this.errorMessages = ["Vous allez être redirigé vers la page d'administration"];
-        }
-
-        this.openDialog(this.errorMessages, dialogTitle);
+    isSameName(nameToCheck: string): Observable<boolean> {
+        return this.httpClient.get<Map[]>(this.apiURL).pipe(
+            map((maps: Map[]) => {
+                const sameName = maps.filter((g) => g.name === nameToCheck);
+                return sameName.length > 0;
+            }),
+        );
     }
 
     isDoorPlacementValid(array: number[][], row: number, col: number): boolean {

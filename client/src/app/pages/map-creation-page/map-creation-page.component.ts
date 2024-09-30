@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,9 +8,17 @@ import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import {
+    CHECK_BEFORE_SAVING_DELAY,
+    MAX_LEN_MAP_DESCRIPTION,
+    MAX_LEN_MAP_TITLE,
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
+} from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { GameCreationService } from '@app/services/game-creation.service';
+import { MapValidatorService } from '@app/services/map-validator.service';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
@@ -45,12 +53,14 @@ export class MapCreationPageComponent implements OnInit {
 
     infoTransferred: Info;
 
+    private adminGamePage = inject(GameListComponent);
+    private saveGameService = inject(SaveGameService);
+    private mapValidator = inject(MapValidatorService);
+
     constructor(
         private dialog: MatDialog,
         private router: Router,
         private gameCreationService: GameCreationService,
-        private adminGamePage: GameListComponent,
-        private saveGameSerivce: SaveGameService,
     ) {}
 
     setGrid(newGrid: number[][]) {
@@ -100,6 +110,7 @@ export class MapCreationPageComponent implements OnInit {
     }
 
     handleSave() {
+        this.startSaving();
         this.saveTrigger = true;
         setTimeout(() => (this.saveTrigger = false), 0);
     }
@@ -143,7 +154,11 @@ export class MapCreationPageComponent implements OnInit {
                 items: this.items,
                 height: this.height,
             };
-            this.saveGameSerivce.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
+            setTimeout(() => {
+                if (this.mapValidator.validMap) {
+                    this.saveGameService.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
+                }
+            }, CHECK_BEFORE_SAVING_DELAY);
         });
     }
 }

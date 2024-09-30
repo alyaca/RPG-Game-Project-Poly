@@ -1,8 +1,9 @@
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, VALIDATION_DURATION } from '@app/constants';
 import { MapValidatorService, TileType } from './map-validator.service';
-import { MAX_LEN_MAP_TITLE, MAX_LEN_MAP_DESCRIPTION } from '@app/constants';
 
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
@@ -11,7 +12,7 @@ describe('MapValidatorService', () => {
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         TestBed.configureTestingModule({
-            providers: [MapValidatorService, { provide: MatDialog, useValue: dialogSpy }],
+            providers: [provideHttpClient(), MapValidatorService, { provide: MatDialog, useValue: dialogSpy }],
         });
         service = TestBed.inject(MapValidatorService);
     });
@@ -30,12 +31,14 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
 
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                data: {
-                    messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
-                    title: 'Carte invalide',
-                },
-            });
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
+                        title: 'Carte invalide',
+                    },
+                });
+            }, VALIDATION_DURATION);
         });
 
         it('should open dialog with success message if the map is valid', () => {
@@ -47,12 +50,14 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
 
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                data: {
-                    messages: ["Vous allez être redirigé vers la page d'administration"],
-                    title: 'Sauvegarde réussie',
-                },
-            });
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ["Vous allez être redirigé vers la page d'administration"],
+                        title: 'Sauvegarde réussie',
+                    },
+                });
+            }, VALIDATION_DURATION);
         });
     });
 
