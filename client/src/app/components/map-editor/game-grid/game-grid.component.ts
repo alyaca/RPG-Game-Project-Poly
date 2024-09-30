@@ -63,7 +63,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
 
     onDragStart(event: DragEvent, row: number, col: number) {
         this.toolService.deactivateTileApplicator();
-
+        this.gameObjectService.selectedTile = null;
         this.isMouseDown = false;
         this.gameObjectService.dragStartPosition = { row, col };
         const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
