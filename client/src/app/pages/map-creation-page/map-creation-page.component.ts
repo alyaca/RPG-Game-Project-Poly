@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { Router, RouterLink  } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EditionGameGridComponent } from '@app/components/edition-game-grid/edition-game-grid.component';
 import { EditionToolbarComponent } from '@app/components/edition-toolbar/edition-toolbar.component';
 import { EditorObjectsContainerComponent } from '@app/components/editor-objects-container/editor-objects-container.component';
@@ -17,7 +17,7 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
     styleUrls: ['./map-creation-page.component.scss'],
     imports: [MatButtonToggleModule, EditorObjectsContainerComponent, FormsModule, RouterLink, EditionGameGridComponent, EditionToolbarComponent],
 })
-export class MapCreationPageComponent {
+export class MapCreationPageComponent implements OnInit {
     @Input() selectedSize: string = 'small';
     @Output() selectedSizeChange = new EventEmitter<string>();
 
@@ -101,8 +101,8 @@ export class MapCreationPageComponent {
     }
 
     ngOnInit(): void {
-       if(!this.gameCreationService.sizeSubject.value) {
-        this.router.navigate(['/administration']);
-       }
-      }
+        if (!this.gameCreationService.sizeSubject.value) {
+            this.router.navigate(['/administration']);
+        }
+    }
 }
