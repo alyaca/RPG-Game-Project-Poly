@@ -1,13 +1,15 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterLink } from '@angular/router';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
+import { GameGridComponent } from '../map-editor/game-grid/game-grid.component';
 
 @Component({
     selector: 'app-game-list',
     standalone: true,
-    imports: [CommonModule, NgClass],
+    imports: [CommonModule, NgClass, RouterLink],
     templateUrl: './game-list.component.html',
     styleUrl: './game-list.component.scss',
 })
@@ -19,6 +21,7 @@ export class GameListComponent implements OnInit {
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
+        private gameGrid: GameGridComponent,
     ) {}
 
     selectGame(game: Map) {
@@ -35,6 +38,7 @@ export class GameListComponent implements OnInit {
 
     editGame(game: Map) {
         this.selectGame(game);
+        this.gameGrid.restoreMap(game);
     }
 
     getTrimedDate(game: Map) {

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
+import { Map } from '@app/interfaces/map';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
@@ -52,6 +53,10 @@ export class GameGridComponent implements OnChanges, OnDestroy {
 
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
+    }
+
+    restoreMap(map: Map) {
+        console.log('LFKAL:DKSALKDLASKDLD');
     }
 
     ngOnChanges(changes: SimpleChanges) {

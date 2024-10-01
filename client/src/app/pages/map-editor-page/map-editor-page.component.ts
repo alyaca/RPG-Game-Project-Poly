@@ -144,8 +144,9 @@ export class MapEditorPageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        if (!this.gameCreationService.sizeSubject.value) {
-            this.router.navigate(['/administration']);
-        }
+        // if (!this.gameCreationService.sizeSubject.value) {
+        //     this.router.navigate(['/administration']);
+        // }
+        console.log('BALLS');
     }
 }
