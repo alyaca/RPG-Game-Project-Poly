@@ -43,11 +43,11 @@ describe('ToolButtonComponent', () => {
 
     it('should return "inactive" when isActive is false', () => {
         component.isActive = false;
-        expect(component.class).toBe(''); 
+        expect(component.class).toBe('');
     });
 
     it('should return "active inactive" when isActive is true', () => {
         component.isActive = true;
-        expect(component.class).toBe('active'); 
+        expect(component.class).toBe('active');
     });
 });

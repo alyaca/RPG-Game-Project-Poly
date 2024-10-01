@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
     standalone: true,
     templateUrl: './tool-button.component.html',
     styleUrl: './tool-button.component.scss',
-    imports: [CommonModule]
+    imports: [CommonModule],
 })
 export class ToolButtonComponent {
     @Input() buttonName: string = '';
@@ -15,18 +15,18 @@ export class ToolButtonComponent {
 
     constructor(private toolButtonService: ToolButtonService) {}
 
+    get class() {
+        const baseClass = this.isActive ? 'active' : '';
+        const inactiveClass = this.getInactiveClass();
+        return `${baseClass} ${inactiveClass}`.trim();
+    }
+
     toggleSelf() {
         this.toolButtonService.toggleButton(this);
     }
 
     toggleActivation() {
         this.isActive = !this.isActive;
-    }
-
-    get class() {
-        const baseClass = this.isActive ? 'active' : '';
-        const inactiveClass = this.getInactiveClass();
-        return `${baseClass} ${inactiveClass}`.trim();
     }
 
     private getInactiveClass(): string {
