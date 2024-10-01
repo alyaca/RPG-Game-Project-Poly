@@ -17,6 +17,7 @@ export const MAX_LEN_MAP_DESCRIPTION = 256;
 // Constants for waiting page access code generation
 export const ACCESS_CODE_LENGTH = 4;
 export const MAX_ACCESS_CODE_VALUE = 10000;
+
 // Constants for the size of the dialob box for the creation of a map
 export const WIDTH_DIALOG = '40%';
 export const HEIGHT_DIALOG = '50%';
@@ -34,11 +35,14 @@ export const TEST_VALIDATION_DURATION = 800;
 
 // Constants for the character creator component to set the attributes
 export const HIGH_ATTRIBUTE = '6';
-export const MESSAGE_DURATION = 3000;
 
 
-// Constant for the time of the snakbar error message
-export const MESSAGE_NOTIFICATION_DURATION = 4000;
+// Constant for the time of the snakbar  message
+export const MESSAGE_DURATION_ERROR = 4000;
+export const MESSAGE_DURATION_CHARACTER_FORM = 2000; 
+export const MESSAGE_DURATION_SAVE_CHOICE = 3000;
+
 
 // Constant for the padding length of the date
-export const PAD_LENGTH=2;
+export const PAD_LENGTH = 2;
+

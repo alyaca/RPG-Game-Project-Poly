@@ -1,7 +1,7 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MESSAGE_NOTIFICATION_DURATION, PAD_LENGTH } from '@app/constants';
+import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 
@@ -78,7 +78,7 @@ export class GameListComponent implements OnInit {
 
     showErrorMessage() {
         this.snackBar.open('Jeu déjà supprimé par un autre utilisateur', 'Fermer', {
-            duration: MESSAGE_NOTIFICATION_DURATION,
+            duration: MESSAGE_DURATION_ERROR,
         });
     }
 

@@ -3,7 +3,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { HIGH_ATTRIBUTE, MESSAGE_DURATION } from '@app/constants';
+import { HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
 
 @Component({
@@ -81,7 +81,7 @@ export class CharacterCreatorComponent {
             this.router.navigate(['/waiting-page']);
         } else {
             this.snackBar.open(saveStatus as string, 'Fermer', {
-                duration: MESSAGE_DURATION,
+                duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
         }
     }
