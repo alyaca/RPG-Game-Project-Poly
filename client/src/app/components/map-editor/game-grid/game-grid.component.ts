@@ -96,6 +96,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         }
         this.isMouseDown = false;
         this.toolService.setSelectedTile('');
+        this.sendInfoToMapCreationPage();
     }
 
     isValidTileForObject(row: number, col: number): boolean {
@@ -115,6 +116,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         event.preventDefault();
         this.removeTile(event, row, col);
         this.gameObjectService.removeObjectByClick(event, row, col);
+        this.sendInfoToMapCreationPage();
     }
 
     onTileClick(row: number, col: number) {
