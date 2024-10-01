@@ -27,6 +27,8 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     @Output() gridChange = new EventEmitter<number[][]>();
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
+    @Output() mapNameChange = new EventEmitter<string>();
+    @Output() mapDescriptionChange = new EventEmitter<string>();
 
     tilesGrid: number[][];
     objectsArray: number[][];
@@ -72,8 +74,10 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
             this.gridSize = mapToEdit.dimension;
             this.tilesGrid = mapToEdit.tiles;
             this.objectsArray = mapToEdit.itemPlacement;
-            console.log(mapToEdit);
-            console.log(this.tilesGrid);
+            this.mapDescription = mapToEdit.description;
+            this.mapName = mapToEdit.name;
+            this.mapDescriptionChange.emit(this.mapDescription); 
+            this.mapNameChange.emit(this.mapName); 
             this.sendInfoToMapCreationPage();
         } else {
             console.error('Invalid map provided for loading');

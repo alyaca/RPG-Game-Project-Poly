@@ -143,10 +143,4 @@ export class MapEditorPageComponent {
         });
     }
 
-    // ngOnInit(): void {
-    //     // if (!this.gameCreationService.sizeSubject.value) {
-    //     //     this.router.navigate(['/administration']);
-    //     // }
-    //     //console.log('BALLS');
-    // }
 }
