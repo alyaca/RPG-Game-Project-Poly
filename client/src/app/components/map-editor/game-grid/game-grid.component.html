@@ -1,0 +1,24 @@
+<div id="map-grid" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" (mouseleave)="onMouseUp()">
+    @for (row of tilesGrid; let rowIndex = $index; track $index) { @for (col of row; let colIndex = $index; track $index) {
+    <div
+        class="tile"
+        [id]="'tile-' + rowIndex + '-' + colIndex"
+        (mousedown)="onMouseDown($event, rowIndex, colIndex)"
+        (mouseup)="onMouseUp()"
+        (mousemove)="onMouseMove(rowIndex, colIndex)"
+        (contextmenu)="removeOnRightClick($event, rowIndex, colIndex)"
+        (drop)="onDrop($event, rowIndex, colIndex)"
+        (dragover)="onDragOver($event)"
+    >
+        <img class="tile-image" [src]="tileService.getTileImage(col)" draggable="false" />
+        @if(objectsArray[rowIndex][colIndex] > 0) {
+        <img
+            class="overlay-object"
+            [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
+            draggable="true"
+            (dragstart)="onDragStart($event, rowIndex, colIndex)"
+        />
+        }
+    </div>
+    } }
+</div>

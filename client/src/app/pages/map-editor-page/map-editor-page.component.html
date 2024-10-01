@@ -1,0 +1,63 @@
+<div class="background" (dragover)="onDragOver($event)" (drop)="onDropOutside($event)" (dragend)="onDragEnd()">
+    <div class="page-element">
+        <div class="left-container">
+            <form #mapForm="ngForm">
+                <div class="map-input">
+                    <label for="mapName">Nom de la carte : </label>
+                    <input
+                        class="input-box"
+                        id="mapName"
+                        type="text"
+                        maxlength="{{ maxLenMapTitle }}"
+                        placeholder="Entrez le nom de votre carte"
+                        [(ngModel)]="mapName"
+                        (ngModelChange)="updateMapName($event)"
+                        name="mapName"
+                        #mapNameInput
+                    />
+                </div>
+                <div class="map-input">
+                    <label for="mapDescription">Description de la carte : </label>
+                    <textarea
+                        class="input-box map-description-box"
+                        id="mapDescription"
+                        type="text"
+                        maxlength="{{ maxLenMapDescription }}"
+                        placeholder="Entrez la description de votre carte"
+                        [(ngModel)]="mapDescription"
+                        (ngModelChange)="updateMapDescription($event)"
+                        name="mapDescription"
+                        #mapDescriptionInput
+                    ></textarea>
+                </div>
+            </form>
+            <div class="buttons-container">
+                <button class="button" id="save-button" (click)="handleSave()">Sauvegarder</button>
+                <button class="button" id="reset-button" (click)="handleReset()">Réinitialiser</button>
+                <button class="button" id="return-button" (click)="handleExit()">Retour</button>
+            </div>
+        </div>
+        <div class="grid-element" id="game-grid-and-toolbar-container">
+            <div id="game-grid-background-gradient">
+                <div class="grid-element" id="game-grid-container" #gameGrid>
+                    <app-game-grid
+                        [selectedSize]="selectedSize"
+                        [resetTrigger]="resetTrigger"
+                        [saveTrigger]="saveTrigger"
+                        [mapName]="mapName"
+                        [mapDescription]="mapDescription"
+                        (gridChange)="setGrid($event)"
+                        (itemsChange)="setItems($event)"
+                        (heightChange)="setHeight($event)"
+                    ></app-game-grid>
+                </div>
+            </div>
+            <div class="grid-element" id="toolbar-container">
+                <app-toolbar></app-toolbar>
+            </div>
+        </div>
+        <div class="right-container">
+            <app-game-objects-container></app-game-objects-container>
+        </div>
+    </div>
+</div>
