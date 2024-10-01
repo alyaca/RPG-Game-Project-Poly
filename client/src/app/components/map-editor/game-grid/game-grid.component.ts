@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy,  Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { Map } from '@app/interfaces/map';
@@ -7,6 +7,7 @@ import { GameObjectService } from '@app/services/game-object/game-object.service
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
+import { GameGridService } from '@app/services/game-grid.service';
 
 @Component({
     selector: 'app-game-grid',
@@ -44,19 +45,41 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
         private gameObjectService: GameObjectService,
+        private gameGridService: GameGridService,
         private gameCreationService: GameCreationService,
     ) {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         this.objectsArray = this.gameObjectService.initObjectsArray();
         this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+        this.gameGridService.mapToEdit$.subscribe((map: Map) => {
+            if (map) {
+                this.loadMap(map);
+                console.log('Map loaded in GameGridComponent:', map);
+            } else {
+                console.error('Received empty or undefined map');
+            }
+        });
     }
+
+    // ngOnInit() {
+
+    //   }
 
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
     }
 
-    restoreMap(map: Map) {
-        console.log('LFKAL:DKSALKDLASKDLD');
+    loadMap(mapToEdit: Map) {
+        if (mapToEdit) {
+            this.gridSize = mapToEdit.dimension;
+            this.objectsArray = mapToEdit.itemPlacement;
+            this.tilesGrid = mapToEdit.tiles;
+            this.sendInfoToMapCreationPage();
+        } else {
+            console.error("Map is null or undefined");
+        }
+        // this.sendInfoToMapCreationPage;
+        //console.log('allo');
     }
 
     ngOnChanges(changes: SimpleChanges) {

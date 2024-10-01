@@ -4,7 +4,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
-import { GameGridComponent } from '../map-editor/game-grid/game-grid.component';
+//import { GameGridComponent } from '../map-editor/game-grid/game-grid.component';
+import { GameGridService } from '@app/services/game-grid.service';
 
 @Component({
     selector: 'app-game-list',
@@ -21,7 +22,7 @@ export class GameListComponent implements OnInit {
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
-        private gameGrid: GameGridComponent,
+        private gameGridService: GameGridService,
     ) {}
 
     selectGame(game: Map) {
@@ -37,8 +38,7 @@ export class GameListComponent implements OnInit {
     }
 
     editGame(game: Map) {
-        this.selectGame(game);
-        this.gameGrid.restoreMap(game);
+        this.gameGridService.setMapToEdit(game);
     }
 
     getTrimedDate(game: Map) {
