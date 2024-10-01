@@ -42,6 +42,19 @@ export class GameListService {
         }
     }
 
+    // setSelectedGame(usingPage: string, game: Map, games: Map[]) {
+    //     if (usingPage === 'game-list') {
+    //         if (game.isSelected) {
+    //             this.deselectGame(games);
+    //         } else {
+    //             this.selectGame(game, games);
+    //         }
+    //     }
+    //     if (usingPage === 'administration-page') {
+    //         this.selectGame(game, games);
+    //     }
+    // }
+
     selectGame(game: Map, games: Map[]) {
         this.deselectGame(games);
         this.selectedGameSubject.next(game);
