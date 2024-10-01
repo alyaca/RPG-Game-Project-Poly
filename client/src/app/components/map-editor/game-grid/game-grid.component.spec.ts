@@ -2,6 +2,7 @@ import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, NO_OBJECT, ObjectType } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
+import { MOCK_ROW, MOCK_COLUMN } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objectsInfo';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
@@ -143,18 +144,18 @@ describe('GameGridComponent', () => {
         });
 
         it('should remove object if tile is a wall', () => {
-            const mockRow = 0;
-            const mockCol = 0;
             const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: ITEM_COUNT, image: 'mock/image.png' };
-            component.tilesGrid[0][0] = TileType.Wall;
+            component.tilesGrid[MOCK_ROW][MOCK_COLUMN] = TileType.Wall;
             component.objectsArray = [
-                [ObjectType.Armor, NO_OBJECT],
-                [ObjectType.Lightning, NO_OBJECT],
+                [ObjectType.Armor, NO_OBJECT, NO_OBJECT, NO_OBJECT],
+                [ObjectType.Armor, NO_OBJECT, NO_OBJECT, NO_OBJECT],
+                [ObjectType.Armor, NO_OBJECT, NO_OBJECT, ObjectType.Armor],
+                [ObjectType.Armor, NO_OBJECT, ObjectType.Armor, NO_OBJECT],
             ];
             gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(mockGameObject);
-            component.onTileClick(mockRow, mockCol);
+            component.onTileClick(MOCK_ROW, MOCK_COLUMN);
 
-            expect(gameObjectManagerServiceSpy.selectedTile).toEqual({ row: mockRow, col: mockCol });
+            expect(gameObjectManagerServiceSpy.selectedTile).toEqual({ row: MOCK_ROW, col: MOCK_COLUMN });
             expect(gameObjectManagerServiceSpy.removeObjectFromGrid).toHaveBeenCalledWith(mockGameObject);
         });
     });
@@ -183,15 +184,13 @@ describe('GameGridComponent', () => {
 
     describe('drag event', () => {
         it('should set dragStartPosition and draggedObject on drag start', () => {
-            const mockRow = 2;
-            const mockCol = 3;
             const mockDragEvent = new DragEvent('dragstart');
 
             gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(gameObjects[0]);
-            component.onDragStart(mockDragEvent, mockRow, mockCol);
+            component.onDragStart(mockDragEvent, MOCK_ROW, MOCK_COLUMN);
 
-            expect(gameObjectManagerServiceSpy.dragStartPosition).toEqual({ row: mockRow, col: mockCol });
-            expect(gameObjectManagerServiceSpy.getGameObjectOnTile).toHaveBeenCalledWith(mockRow, mockCol);
+            expect(gameObjectManagerServiceSpy.dragStartPosition).toEqual({ row: MOCK_ROW, col: MOCK_COLUMN });
+            expect(gameObjectManagerServiceSpy.getGameObjectOnTile).toHaveBeenCalledWith(MOCK_ROW, MOCK_COLUMN);
             expect(gameObjectManagerServiceSpy.draggedObject).toEqual(gameObjects[0]);
         });
 
@@ -202,25 +201,21 @@ describe('GameGridComponent', () => {
         });
 
         it('should call event.preventDefault on drop when tile is invalid ', () => {
-            const mockRow = 2;
-            const mockCol = 3;
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             spyOn(component, 'isValidTileForObject').and.returnValue(false);
-            component.onDrop(mockEvent, mockRow, mockCol);
+            component.onDrop(mockEvent, MOCK_ROW, MOCK_COLUMN);
 
             expect(mockEvent.preventDefault).toHaveBeenCalled();
             expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         });
 
         it('should call updateObjectGridPosition on drop when tile is valid ', () => {
-            const mockRow = 2;
-            const mockCol = 3;
             const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: ITEM_COUNT, image: 'mock/image.png' };
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             spyOn(component, 'isValidTileForObject').and.returnValue(true);
             gameObjectManagerServiceSpy.draggedObject = mockGameObject;
 
-            component.onDrop(mockEvent, mockRow, mockCol);
+            component.onDrop(mockEvent, MOCK_ROW, MOCK_COLUMN);
 
             expect(mockEvent.preventDefault).toHaveBeenCalled();
             expect(gameObjectManagerServiceSpy.updateObjectGridPosition).toHaveBeenCalled();
@@ -293,8 +288,6 @@ describe('GameGridComponent', () => {
     });
 
     it('should not update object grid position when the gameObject is null', () => {
-        const mockRow = 2;
-        const mockCol = 3;
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
 
         component.objectsArray = [
@@ -305,7 +298,7 @@ describe('GameGridComponent', () => {
         gameObjectManagerServiceSpy.draggedObject = null;
         spyOn(component, 'isValidTileForObject').and.returnValue(true);
 
-        component.onDrop(mockEvent, mockRow, mockCol);
+        component.onDrop(mockEvent, MOCK_ROW, MOCK_COLUMN);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
@@ -314,8 +307,6 @@ describe('GameGridComponent', () => {
     });
 
     it('should not update object grid position when the tile is not empty', () => {
-        const mockRow = 2;
-        const mockCol = 3;
         const mockGameObject = { id: 1, name: 'mockObject', description: 'test object', count: 1, image: 'mock/image.png' };
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
 
@@ -327,7 +318,7 @@ describe('GameGridComponent', () => {
         gameObjectManagerServiceSpy.draggedObject = mockGameObject;
         spyOn(component, 'isValidTileForObject').and.returnValue(true);
 
-        component.onDrop(mockEvent, mockRow, mockCol);
+        component.onDrop(mockEvent, MOCK_ROW, MOCK_COLUMN);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
@@ -336,8 +327,6 @@ describe('GameGridComponent', () => {
     });
 
     it('should not update object grid position when the tile is invalid', () => {
-        const mockRow = 2;
-        const mockCol = 3;
         const mockGameObject = { id: 1, name: 'mockObject', description: 'test object', count: 1, image: 'mock/image.png' };
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
 
@@ -349,7 +338,7 @@ describe('GameGridComponent', () => {
         gameObjectManagerServiceSpy.draggedObject = mockGameObject;
         spyOn(component, 'isValidTileForObject').and.returnValue(false);
 
-        component.onDrop(mockEvent, mockRow, mockCol);
+        component.onDrop(mockEvent, MOCK_ROW, MOCK_COLUMN);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
