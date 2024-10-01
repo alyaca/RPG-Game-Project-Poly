@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -22,14 +22,18 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     @Input() mapName: string;
     @Input() mapDescription: string;
 
+    @Output() gridChange = new EventEmitter<number[][]>();
+    @Output() itemsChange = new EventEmitter<number[][]>();
+    @Output() heightChange = new EventEmitter<number>();
+
     tilesGrid: number[][];
+    objectsArray: number[][];
     gridSize: number;
 
     selectedRow: number = 0;
     selectedCol: number = 0;
 
     isMouseDown: boolean = false;
-    objectsArray: number[][];
 
     previousRow: number | null = null;
     previousCol: number | null = null;
@@ -55,10 +59,18 @@ export class GameGridComponent implements OnChanges, OnDestroy {
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
             this.objectsArray = this.gameObjectService.initObjectsArray();
             this.gameObjectService.resetObjectsCount();
+            this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
+            this.sendInfoToMapCreationPage();
         }
+    }
+
+    sendInfoToMapCreationPage() {
+        this.gridChange.emit(this.tilesGrid);
+        this.itemsChange.emit(this.objectsArray);
+        this.heightChange.emit(this.gridSize);
     }
 
     onDragStart(event: DragEvent, row: number, col: number) {
@@ -121,6 +133,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         }
         this.previousRow = row;
         this.previousCol = col;
+        this.sendInfoToMapCreationPage();
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {

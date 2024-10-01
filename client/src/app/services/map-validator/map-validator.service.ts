@@ -1,8 +1,19 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, MIN_LEN_MAP_DESCRIPTION, MIN_LEN_MAP_TITLE, ObjectType } from '@app/constants';
+import {
+    MAX_LEN_MAP_DESCRIPTION,
+    MAX_LEN_MAP_TITLE,
+    MIN_LEN_MAP_DESCRIPTION,
+    MIN_LEN_MAP_TITLE,
+    ObjectType,
+    VALIDATION_DURATION,
+} from '@app/constants';
+import { Map } from '@app/interfaces/map';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { map, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export enum TileType {
     Ground = 1,
@@ -17,10 +28,13 @@ export enum TileType {
     providedIn: 'root',
 })
 export class MapValidatorService {
+    validMap: boolean;
     errorMessages: string[] = [];
     mapObjects: number[][];
+    apiURL = `${environment.serverUrl}/maps`;
     constructor(
         private dialog: MatDialog,
+        private httpClient: HttpClient,
         private gameObjectService: GameObjectService,
     ) {
         this.gameObjectService.initObjectsArray();
@@ -28,6 +42,13 @@ export class MapValidatorService {
 
     validateMap(array: number[][], title: string, description: string) {
         this.errorMessages = [];
+
+        this.isSameName(title).subscribe((matchingMapExists: boolean) => {
+            if (matchingMapExists) {
+                this.errorMessages.push('- Une carte avec le même nom existe déjà');
+            }
+        });
+
         if (!this.hasSufficientTerrainTiles(array)) {
             this.errorMessages.push('- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)');
         }
@@ -57,13 +78,27 @@ export class MapValidatorService {
             this.errorMessages.push('- Tous les points de départ doivent être placés sur la carte.');
         }
 
-        const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
+        setTimeout(() => {
+            const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
 
-        if (dialogTitle === 'Sauvegarde réussie') {
-            this.errorMessages = ["Vous allez être redirigé vers la page d'administration"];
-        }
+            if (dialogTitle === 'Sauvegarde réussie') {
+                this.errorMessages = ["Vous allez être redirigé vers la page d'administration"];
+                this.validMap = true;
+            } else {
+                this.validMap = false;
+            }
+            this.openDialog(this.errorMessages, dialogTitle);
+        }, VALIDATION_DURATION);
+    }
 
-        this.openDialog(this.errorMessages, dialogTitle);
+    isSameName(nameToCheck: string): Observable<boolean> {
+        const trimmedNameToCheck = nameToCheck.trim();
+        return this.httpClient.get<Map[]>(this.apiURL).pipe(
+            map((maps: Map[]) => {
+                const sameName = maps.filter((g) => g.name.trim() === trimmedNameToCheck);
+                return sameName.length > 0;
+            }),
+        );
     }
 
     isDoorPlacementValid(array: number[][], row: number, col: number): boolean {

@@ -1,9 +1,13 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { TileType } from '@app/services/map-validator/map-validator.service';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -20,6 +24,7 @@ describe('MapEditorPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
+                provideHttpClient(),
                 GameObjectService,
                 {
                     provide: ActivatedRoute,
@@ -131,6 +136,63 @@ describe('MapEditorPageComponent', () => {
             const newDescription = 'New Map Description';
             component.updateMapDescription(newDescription);
             expect(component.mapDescription).toBe(newDescription);
+        });
+    });
+
+    describe('Setters', () => {
+        it('should set the grid attribute correctly', () => {
+            const mockGridValue = [
+                [
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                ],
+                [
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                ],
+            ];
+            component.setGrid(mockGridValue);
+            expect(component.tiles).toBe(mockGridValue);
+        });
+
+        it('should set the height attribute correctly', () => {
+            const mockHeightValue = SIZE_MEDIUM_MAP;
+            component.setHeight(mockHeightValue);
+            expect(component.height).toBe(mockHeightValue);
+        });
+
+        it('should set the new items matrix correctly', () => {
+            const mockItemsValue = [
+                [NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+                [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+            ];
+            component.setItems(mockItemsValue);
+            expect(component.items).toBe(mockItemsValue);
+        });
+    });
+
+    describe('Saving start process', () => {
+        it('clicking the "Sauvegarder" button should call startSaving', () => {
+            spyOn(component, 'startSaving');
+            const saveButton = fixture.debugElement.query(By.css('#save-button'));
+            saveButton.triggerEventHandler('click');
+            expect(component.startSaving).toHaveBeenCalled();
         });
     });
 });

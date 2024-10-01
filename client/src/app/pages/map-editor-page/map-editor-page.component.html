@@ -13,6 +13,7 @@
                         [(ngModel)]="mapName"
                         (ngModelChange)="updateMapName($event)"
                         name="mapName"
+                        #mapNameInput
                     />
                 </div>
                 <div class="map-input">
@@ -26,10 +27,10 @@
                         [(ngModel)]="mapDescription"
                         (ngModelChange)="updateMapDescription($event)"
                         name="mapDescription"
+                        #mapDescriptionInput
                     ></textarea>
                 </div>
             </form>
-
             <div class="buttons-container">
                 <button class="button" id="save-button" (click)="handleSave()">Sauvegarder</button>
                 <button class="button" id="reset-button" (click)="handleReset()">Réinitialiser</button>
@@ -38,13 +39,16 @@
         </div>
         <div class="grid-element" id="game-grid-and-toolbar-container">
             <div id="game-grid-background-gradient">
-                <div class="grid-element" id="game-grid-container">
+                <div class="grid-element" id="game-grid-container" #gameGrid>
                     <app-game-grid
                         [selectedSize]="selectedSize"
                         [resetTrigger]="resetTrigger"
                         [saveTrigger]="saveTrigger"
                         [mapName]="mapName"
                         [mapDescription]="mapDescription"
+                        (gridChange)="setGrid($event)"
+                        (itemsChange)="setItems($event)"
+                        (heightChange)="setHeight($event)"
                     ></app-game-grid>
                 </div>
             </div>
