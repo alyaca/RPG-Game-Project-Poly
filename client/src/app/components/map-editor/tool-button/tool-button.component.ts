@@ -16,7 +16,6 @@ export enum TileButtonName {
     styleUrl: './tool-button.component.scss',
     imports: [CommonModule],
 })
-
 export class ToolButtonComponent {
     @Input() buttonName: string = '';
     isActive: boolean = false;
