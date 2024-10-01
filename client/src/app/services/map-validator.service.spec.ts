@@ -3,10 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION } from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION, VALIDATION_DURATION } from '@app/constants';
 import { map, Observable } from 'rxjs';
 import { MapValidatorService, TileType } from './map-validator.service';
-import { fakeAsync, tick } from '@angular/core/testing';
 
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
@@ -23,6 +22,7 @@ describe('MapValidatorService', () => {
     });
 
     afterEach(() => {
+        httpMock.verify();
         TestBed.resetTestingModule();
     });
 
@@ -36,7 +36,7 @@ describe('MapValidatorService', () => {
     });
 
     describe('validateMap', () => {
-        it('should open dialog with error message if the map has insufficient terrain tiles', fakeAsync(() => {
+        it('should open dialog with error message if the map has insufficient terrain tiles', (done) => {
             spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
             spyOn(service, 'validateAllDoors').and.returnValue(true);
             spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
@@ -46,17 +46,18 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
 
-            tick(TEST_VALIDATION_DURATION);
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
+                        title: 'Carte invalide',
+                    },
+                });
+                done();
+            }, VALIDATION_DURATION);
+        });
 
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                data: {
-                    messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
-                    title: 'Carte invalide',
-                },
-            });
-        }));
-
-        it('should open dialog with success message if the map is valid', fakeAsync(() => {
+        it('should open dialog with success message if the map is valid', (done) => {
             spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
             spyOn(service, 'validateAllDoors').and.returnValue(true);
             spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
@@ -66,15 +67,16 @@ describe('MapValidatorService', () => {
 
             service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
 
-            tick(TEST_VALIDATION_DURATION);
-
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                data: {
-                    messages: ["Vous allez être redirigé vers la page d'administration"],
-                    title: 'Sauvegarde réussie',
-                },
-            });
-        }));
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ["Vous allez être redirigé vers la page d'administration"],
+                        title: 'Sauvegarde réussie',
+                    },
+                });
+                done();
+            }, TEST_VALIDATION_DURATION);
+        });
     });
 
     describe('isDoorPlacementValid', () => {
@@ -219,57 +221,57 @@ describe('MapValidatorService', () => {
                 '- La description de la carte doit avoir une longueur entre 10 et 256 charactères et ne pas uniquement contenir des espaces',
             );
         });
-    });
 
-    describe('containsAcharacter', () => {
-        it('should return true for non-empty strings', () => {
-            expect(service.containsAcharacter('Hello')).toBeTrue();
-            expect(service.containsAcharacter(' A ')).toBeTrue();
+        describe('containsAcharacter', () => {
+            it('should return true for non-empty strings', () => {
+                expect(service.containsAcharacter('Hello')).toBeTrue();
+                expect(service.containsAcharacter(' A ')).toBeTrue();
+            });
+
+            it('should return false for empty strings', () => {
+                expect(service.containsAcharacter('')).toBeFalse();
+                expect(service.containsAcharacter('   ')).toBeFalse();
+            });
         });
 
-        it('should return false for empty strings', () => {
-            expect(service.containsAcharacter('')).toBeFalse();
-            expect(service.containsAcharacter('   ')).toBeFalse();
-        });
-    });
+        describe('validateTitleLength', () => {
+            it('should return true for valid titles', () => {
+                expect(service.validateTitleLength('Valid Title')).toBeTrue();
+                expect(service.validateTitleLength('Another Title')).toBeTrue();
+            });
 
-    describe('validateTitleLength', () => {
-        it('should return true for valid titles', () => {
-            expect(service.validateTitleLength('Valid Title')).toBeTrue();
-            expect(service.validateTitleLength('Another Title')).toBeTrue();
-        });
+            it('should return false for titles that are too short', () => {
+                expect(service.validateTitleLength('A')).toBeFalse();
+                expect(service.validateTitleLength('AB')).toBeFalse();
+            });
 
-        it('should return false for titles that are too short', () => {
-            expect(service.validateTitleLength('A')).toBeFalse();
-            expect(service.validateTitleLength('AB')).toBeFalse();
-        });
+            it('should return false for titles that are too long', () => {
+                const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1); // Generate a string longer than max
+                expect(service.validateTitleLength(longTitle)).toBeFalse();
+            });
 
-        it('should return false for titles that are too long', () => {
-            const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1); 
-            expect(service.validateTitleLength(longTitle)).toBeFalse();
-        });
-
-        it('should return false for titles that do not contain a character', () => {
-            expect(service.validateTitleLength('   ')).toBeFalse();
-        });
-    });
-
-    describe('validateDescriptionLength', () => {
-        it('should return true for valid descriptions', () => {
-            expect(service.validateDescriptionLength('This is a valid description.')).toBeTrue();
+            it('should return false for titles that do not contain a character', () => {
+                expect(service.validateTitleLength('   ')).toBeFalse();
+            });
         });
 
-        it('should return false for descriptions that are too short', () => {
-            expect(service.validateDescriptionLength('Too short')).toBeFalse();
-        });
+        describe('validateDescriptionLength', () => {
+            it('should return true for valid descriptions', () => {
+                expect(service.validateDescriptionLength('This is a valid description.')).toBeTrue();
+            });
 
-        it('should return false for descriptions that are too long', () => {
-            const longDescription = 'A'.repeat(MAX_LEN_MAP_DESCRIPTION + 1); 
-            expect(service.validateDescriptionLength(longDescription)).toBeFalse();
-        });
+            it('should return false for descriptions that are too short', () => {
+                expect(service.validateDescriptionLength('Too short')).toBeFalse();
+            });
 
-        it('should return false for descriptions that do not contain a character', () => {
-            expect(service.validateDescriptionLength('   ')).toBeFalse();
+            it('should return false for descriptions that are too long', () => {
+                const longDescription = 'A'.repeat(MAX_LEN_MAP_DESCRIPTION + 1); // Generate a string longer than max
+                expect(service.validateDescriptionLength(longDescription)).toBeFalse();
+            });
+
+            it('should return false for descriptions that do not contain a character', () => {
+                expect(service.validateDescriptionLength('   ')).toBeFalse();
+            });
         });
     });
 });
