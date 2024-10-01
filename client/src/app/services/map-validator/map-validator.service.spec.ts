@@ -12,8 +12,8 @@ import {
     TEST_VALIDATION_DURATION,
     VALIDATION_DURATION,
 } from '@app/constants';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { map, Observable } from 'rxjs';
-import { GameObjectService } from '../game-object/game-object.service';
 import { MapValidatorService, TileType } from './map-validator.service';
 
 describe('MapValidatorService', () => {
