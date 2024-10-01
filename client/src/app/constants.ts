@@ -37,6 +37,9 @@ export enum ObjectType {
 // For no object in grid
 export const NO_OBJECT = 0;
 
+// Constants for waiting page access code generation
+export const ACCESS_CODE_LENGTH = 4;
+export const MAX_ACCESS_CODE_VALUE = 10000;
 // Constants for the size of the dialob box for the creation of a map
 export const WIDTH_DIALOG = '40%';
 export const HEIGHT_DIALOG = '50%';
