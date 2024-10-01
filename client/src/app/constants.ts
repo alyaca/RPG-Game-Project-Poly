@@ -12,7 +12,30 @@ export const SIZE_LARGE_MAP = 20;
 export const MIN_LEN_MAP_TITLE = 3;
 export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
-export const MAX_LEN_MAP_DESCRIPTION = 256;
+export const MAX_LEN_MAP_DESCRIPTION = 128;
+
+export const OBJECT_COUNT_MAP: { [key: string]: number } = {
+    small: NB_ITEMS_SMALL_MAP,
+    medium: NB_ITEMS_MEDIUM_MAP,
+    large: NB_ITEMS_LARGE_MAP,
+};
+
+// Constants for initial count of game objects
+export const ITEM_COUNT = 1;
+
+export enum ObjectType {
+    Trident = 1,
+    Armor = 2,
+    Sandal = 3,
+    Lightning = 4,
+    Xiphos = 5,
+    Kunee = 6,
+    Random = 7,
+    Spawn = 8,
+}
+
+// For no object in grid
+export const NO_OBJECT = 0;
 
 // Constants for waiting page access code generation
 export const ACCESS_CODE_LENGTH = 4;

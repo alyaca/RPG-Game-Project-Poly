@@ -1,7 +1,7 @@
 import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { Map } from '@app/interfaces/map';
-import { TileType } from '@app/services/map-validator.service';
+import { TileType } from '@app/services/map-validator/map-validator.service';
 
 export const dummyInfo: Info = {
     image: 'image file',
