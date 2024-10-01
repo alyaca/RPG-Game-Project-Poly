@@ -43,9 +43,15 @@
 }
 
 .game-image {
-    width: 20rem;
-    height: 100%;
+    width: 25vh;
+    height: 25vh;
+    //object-fit: cover; 
+    margin: 0;
+    flex-shrink: 0; 
+    display: block; 
 }
+
+
 
 .info-container {
     display: flex;
