@@ -89,27 +89,30 @@ describe('AttributesService', () => {
         expect(defense).toEqual('1-6');
     });
 
-    it('should return true from saveAttributesValue when all attributes are set ', () => {
+    it('should return undefined from saveAttributesValue when all attributes are set ', () => {
+        spyOn(service, 'validateName').and.returnValue(true);
         service.setAttack('1-6');
         service.setDefense('1-4');
         service.setHealth('6');
         service.setSpeed('4');
         const isCompleted = service.saveAttributesValue();
-        expect(isCompleted).toEqual(true);
+        expect(isCompleted).toEqual(undefined);
     });
 
-    it('should return false from saveAttributesValue when not all attributes are set ', () => {
+    it('should return error message from saveAttributesValue when not all attributes are set ', () => {
+        spyOn(service, 'validateName').and.returnValue(true);
         service.setAttack('1-6');
         service.setDefense('1-4');
         const isCompleted = service.saveAttributesValue();
-        expect(isCompleted).toEqual(false);
+        expect(isCompleted).toEqual('Veuillez sélectionner les valeurs des attributs souhaités');
     });
 
-    it('should return false from saveAttributesValue when only some attributes are set ', () => {
+    it('should return error message from saveAttributesValue when only some attributes are set ', () => {
+        spyOn(service, 'validateName').and.returnValue(true);
         service.setHealth('6');
         service.setSpeed('4');
         const isCompleted = service.saveAttributesValue();
-        expect(isCompleted).toEqual(false);
+        expect(isCompleted).toEqual('Veuillez sélectionner les valeurs des attributs souhaités');
     });
 
     it('should reset all attributes to default values when resetAttributes is called ', () => {
@@ -127,5 +130,67 @@ describe('AttributesService', () => {
         expect(speed).toEqual('4');
         expect(attack).toEqual('4');
         expect(defense).toEqual('4');
+    });
+
+    it('should return true if health is selected and matches highAttribute', () => {
+        spyOn(service, 'getAttributsValue').and.returnValue('6');
+        expect(service.isButtonSelected('health')).toBeTrue();
+        expect(service.getAttributsValue).toHaveBeenCalledWith('health');
+    });
+
+    it('should return true if speed is selected and matches highAttribute', () => {
+        spyOn(service, 'getAttributsValue').and.returnValue('6');
+        expect(service.isButtonSelected('speed')).toBeTrue();
+        expect(service.getAttributsValue).toHaveBeenCalledWith('speed');
+    });
+
+    it('should return true if attack4 is selected and matches dice4', () => {
+        spyOn(service, 'getAttributsValue').and.returnValue('1-4');
+        expect(service.isButtonSelected('attack4')).toBeTrue();
+        expect(service.getAttributsValue).toHaveBeenCalledWith('attack');
+    });
+
+    it('should return true if attack6 is selected and matches dice6', () => {
+        spyOn(service, 'getAttributsValue').and.returnValue('1-6');
+        expect(service.isButtonSelected('attack6')).toBeTrue();
+        expect(service.getAttributsValue).toHaveBeenCalledWith('attack');
+    });
+
+    it('should return true if defense4 is selected and matches dice4', () => {
+        spyOn(service, 'getAttributsValue').and.returnValue('1-4');
+        expect(service.isButtonSelected('defense4')).toBeTrue();
+        expect(service.getAttributsValue).toHaveBeenCalledWith('defense');
+    });
+
+    it('should return true if defense6 is selected and matches dice6', () => {
+        spyOn(service, 'getAttributsValue').and.returnValue('1-6');
+        expect(service.isButtonSelected('defense6')).toBeTrue();
+        expect(service.getAttributsValue).toHaveBeenCalledWith('defense');
+    });
+
+    it('should return undefined for an unknown buttonName', () => {
+        const result = service.isButtonSelected('unknownButton');
+        expect(result).toBeUndefined();
+    });
+
+    it('should set character name to ABC when setName is called with ABC', () => {
+        service.setCharacterName('ABC');
+        expect(service.name).toEqual('ABC');
+    });
+
+    it('should return true if character name is valid', () => {
+        service.name = 'ABC';
+        expect(service.validateName()).toBeTrue();
+    });
+
+    it('should return error message if character name is invalid', () => {
+        service.name = '';
+        expect(service.validateName()).toEqual('Le nom du personnage est requis');
+    });
+
+    it('should return error message if character name is invalid', () => {
+        service.name = ' ';
+        service.saveAttributesValue();
+        expect(service.validateName()).toEqual('Le nom du personnage est requis');
     });
 });

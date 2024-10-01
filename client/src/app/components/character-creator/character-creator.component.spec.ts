@@ -22,6 +22,12 @@ describe('CharacterCreatorComponent', () => {
             'findAttribut',
             'saveAttributesValue',
             'resetAttributes',
+            'validateName',
+            'validateAttributes',
+            'saveAttributes',
+            'generateRandomAttributes',
+            'isButtonSelected',
+            'setCharacterName',
         ]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         await TestBed.configureTestingModule({
@@ -40,13 +46,23 @@ describe('CharacterCreatorComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should set heath to 6 when addHealth is called', () => {
+    it('should set characterName to ABC when setName is called with ABC', () => {
+        component.setName('ABC');
+        expect(component.characterName).toEqual('ABC');
+    });
+
+    it('should set health to 6 when addHealth is called', () => {
         component.addHealth();
         expect(attributesServiceSpy.setHealth).toHaveBeenCalledWith('6');
     });
 
+    it('should return 4 when getAttributsValue is called with health', () => {
+        attributesServiceSpy.getAttributsValue.and.returnValue('4');
+        expect(component.getAttributsValue('health')).toEqual('4');
+    });
+
     it('should set speed to 6 when addSpeed is called', () => {
-        component.addspeed();
+        component.addSpeed();
         expect(attributesServiceSpy.setSpeed).toHaveBeenCalledWith('6');
     });
 
@@ -67,15 +83,14 @@ describe('CharacterCreatorComponent', () => {
     });
 
     it('should call saveAttributesValue and navigate when saveChoices is called', () => {
-        attributesServiceSpy.saveAttributesValue.and.returnValue(true);
+        attributesServiceSpy.saveAttributesValue.and.returnValue(undefined);
         component.saveChoices();
         expect(attributesServiceSpy.saveAttributesValue).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page']);
-        expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
     });
 
     it('should not emit closeCharactorCreator event if saveAttributesValue return false', () => {
-        attributesServiceSpy.saveAttributesValue.and.returnValue(false);
+        attributesServiceSpy.saveAttributesValue.and.returnValue('Echec');
         component.saveChoices();
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalledTimes(0);
     });
