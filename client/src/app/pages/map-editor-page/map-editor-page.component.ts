@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
@@ -23,7 +23,7 @@ import html2canvas from 'html2canvas';
     providers: [GameListComponent, GameGridComponent],
     imports: [GameObjectsContainerComponent, FormsModule, RouterLink, GameGridComponent, ToolbarComponent],
 })
-export class MapEditorPageComponent implements OnInit {
+export class MapEditorPageComponent {
     @Input() selectedSize: string | null;
     @Output() selectedSizeChange = new EventEmitter<string>();
     @ViewChild('gameGrid') canvas: ElementRef<HTMLDivElement>;
@@ -143,10 +143,10 @@ export class MapEditorPageComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {
-        // if (!this.gameCreationService.sizeSubject.value) {
-        //     this.router.navigate(['/administration']);
-        // }
-        //console.log('BALLS');
-    }
+    // ngOnInit(): void {
+    //     // if (!this.gameCreationService.sizeSubject.value) {
+    //     //     this.router.navigate(['/administration']);
+    //     // }
+    //     //console.log('BALLS');
+    // }
 }
