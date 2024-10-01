@@ -3,13 +3,12 @@ import { GameObjectComponent } from '@app/components/map-editor/game-object/game
 import { NO_OBJECT } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameCreationService } from '@app/services/game-creation.service';
+import { GameGridService } from '@app/services/game-grid.service';
+import { GameListService } from '@app/services/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { GameGridService } from '@app/services/game-grid.service';
-import { GameListService } from '@app/services/game-list.service';
-
 @Component({
     selector: 'app-game-grid',
     standalone: true,
@@ -32,10 +31,10 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     tilesGrid: number[][];
     objectsArray: number[][];
     gridSize: number;
-
+    isLoaded: boolean = false;
     selectedRow: number = 0;
     selectedCol: number = 0;
-
+    hasMapToEdit: boolean = false;
     isMouseDown: boolean = false;
 
     previousRow: number | null = null;
@@ -49,20 +48,19 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
         public gameListService: GameListService,
         private gameGridService: GameGridService,
         private gameCreationService: GameCreationService,
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
-        this.objectsArray = this.gameObjectService.initObjectsArray();
         this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-        this.gameGridService.mapToEdit$.subscribe((map: Map) => {
-            if (map) {
-                this.loadMap(map);
-            } else {
-                console.error('Received empty or undefined map');
-            }
-        });
+        this.objectsArray = this.gameObjectService.initObjectsArray();
+
+        if (this.gameGridService.hasMapToEditSubject) {
+            this.loadMap(this.gameGridService.mapToEdit);
+            this.gameGridService.hasMapToEditSubject = false;
+        } else {
+            console.log('No map available for editing');
+        }
     }
 
     get selectedTile(): string {
@@ -70,22 +68,17 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     }
 
     loadMap(mapToEdit: Map) {
-        if (mapToEdit) {  
+        if (mapToEdit) {
             this.gridSize = mapToEdit.dimension;
-            this.objectsArray = mapToEdit.itemPlacement;
             this.tilesGrid = mapToEdit.tiles;
+            this.objectsArray = mapToEdit.itemPlacement;
             console.log(mapToEdit);
             console.log(this.tilesGrid);
             this.sendInfoToMapCreationPage();
         } else {
             console.error('Invalid map provided for loading');
         }
-        // this.gridSize = 3;
-        // this.tilesGrid = [[1,1,1],[1,1,1],[1,1,1]]
-        // this.objectsArray = [[1,1,1],[1,1,1],[1,1,1]]
     }
-
-
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {

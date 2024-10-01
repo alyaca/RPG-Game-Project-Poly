@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
 import { Map } from '@app/interfaces/map';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class GameGridService {
-  private mapToEditSubject = new Subject<Map>();
+    hasMapToEditSubject: boolean = false;
+    mapToEdit: Map;
 
-  mapToEdit$ = this.mapToEditSubject.asObservable();
-
-  setMapToEdit(map: Map) {
-    this.mapToEditSubject.next(map);
-  }
+    setMapToEdit(map: Map) {
+        this.mapToEdit = map;
+        this.hasMapToEditSubject = true;
+    }
 }
