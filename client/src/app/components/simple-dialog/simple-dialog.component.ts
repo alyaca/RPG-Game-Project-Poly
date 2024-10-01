@@ -30,7 +30,7 @@ export class SimpleDialogComponent implements OnInit {
     onClose() {
         this.dialogRef.close(this.data.confirm ? 'leave' : 'close');
         if (this.data.title === 'Sauvegarde réussie') {
-            this.router.navigate(['/admin']);
+            this.router.navigate(['/administration']);
         }
     }
 

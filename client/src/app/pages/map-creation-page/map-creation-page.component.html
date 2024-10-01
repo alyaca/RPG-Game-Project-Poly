@@ -4,15 +4,17 @@
             <form #mapForm="ngForm">
                 <div class="map-input">
                     <label for="mapName">Nom de la carte : </label>
-                    <input class="input-box" 
-                        id="mapName" 
-                        type="text" 
-                        maxlength={{maxLenMapTitle}}
-                        placeholder="Entrez le nom de votre carte" 
-                        [(ngModel)] = "mapName"
+                    <input
+                        class="input-box"
+                        id="mapName"
+                        type="text"
+                        maxlength="{{ maxLenMapTitle }}"
+                        placeholder="Entrez le nom de votre carte"
+                        [(ngModel)]="mapName"
                         (ngModelChange)="updateMapName($event)"
                         name="mapName"
-                        />
+                        #mapNameInput
+                    />
                 </div>
                 <div class="map-input">
                     <label for="mapDescription">Description de la carte : </label>
@@ -20,11 +22,12 @@
                         class="input-box map-description-box"
                         id="mapDescription"
                         type="text"
-                        maxlength= {{maxLenMapDescription}}
+                        maxlength="{{ maxLenMapDescription }}"
                         placeholder="Entrez la description de votre carte"
-                        [(ngModel)] = "mapDescription"
+                        [(ngModel)]="mapDescription"
                         (ngModelChange)="updateMapDescription($event)"
                         name="mapDescription"
+                        #mapDescriptionInput
                     ></textarea>
                 </div>
             </form>
@@ -32,19 +35,22 @@
             <div class="buttons-container">
                 <button class="button" id="save-button" (click)="handleSave()">Sauvegarder</button>
                 <button class="button" id="reset-button" (click)="handleReset()">Réinitialiser</button>
-                <button class="button" id="return-button" (click)="handleExit()" >Retour</button>
+                <button class="button" id="return-button" (click)="handleExit()">Retour</button>
             </div>
         </div>
         <div class="grid-element" id="game-grid-and-toolbar-container">
             <div id="game-grid-background-gradient">
-                <div class="grid-element" id="game-grid-container">
-                    <app-edition-game-grid 
-                        [selectedSize]="selectedSize" 
-                        [resetTrigger]="resetTrigger" 
+                <div class="grid-element" id="game-grid-container" #gameGrid>
+                    <app-edition-game-grid
+                        [selectedSize]="selectedSize"
+                        [resetTrigger]="resetTrigger"
                         [saveTrigger]="saveTrigger"
                         [mapName]="mapName"
                         [mapDescription]="mapDescription"
-                        ></app-edition-game-grid>
+                        (gridChange)="setGrid($event)"
+                        (itemsChange)="setItems($event)"
+                        (heightChange)="setHeight($event)"
+                    ></app-edition-game-grid>
                 </div>
             </div>
             <div class="grid-element" id="toolbar-container">

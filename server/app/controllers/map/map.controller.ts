@@ -1,12 +1,16 @@
 import { Map } from '@app/model/schema/map.schema';
 import { MapService } from '@app/services/map/map.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Res } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
+import { SavingService } from '@app/services/saving/saving.service';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Put, Res } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @Controller('maps')
 export class MapController {
-    constructor(private readonly mapService: MapService) {}
+    constructor(
+        private readonly mapService: MapService,
+        private savingService: SavingService,
+    ) {}
 
     @ApiOkResponse({
         description: 'Returns all maps',
@@ -79,6 +83,48 @@ export class MapController {
             }
         } catch (error) {
             response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'Map successfully created',
+        type: Map,
+    })
+    @ApiBadRequestResponse({
+        description: 'Map was not created',
+    })
+    @Post('/')
+    async addMap(@Body() newMap: Partial<Map>, @Res() response: Response) {
+        try {
+            const hasBeenCreated = await this.savingService.addMapToDb(newMap);
+            if (hasBeenCreated !== null) {
+                response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
+            }
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'Map succesfully replaced in the databse',
+        type: Map,
+    })
+    @ApiBadRequestResponse({
+        description: 'Map was not replaced correctly',
+    })
+    @Put('/')
+    async replaceMap(@Body() mapToReplace: Partial<Map>, @Res() response: Response) {
+        try {
+            const hasBeenCreated = await this.savingService.replaceMapInDb(mapToReplace);
+            if (hasBeenCreated !== null) {
+                response.status(HttpStatus.CREATED).json(hasBeenCreated);
+            } else {
+                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
+            }
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 }

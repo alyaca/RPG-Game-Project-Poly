@@ -1,8 +1,8 @@
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EditionGameGridComponent } from './edition-game-grid.component';
-import { ToolService } from '@app/services/tool.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator.service';
-import { SimpleChanges, SimpleChange } from '@angular/core';
+import { ToolService } from '@app/services/tool.service';
+import { EditionGameGridComponent } from './edition-game-grid.component';
 
 describe('EditionGameGridComponent', () => {
     let component: EditionGameGridComponent;
@@ -14,17 +14,26 @@ describe('EditionGameGridComponent', () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile']);
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
 
+        const tileServiceMock = {
+            resetGrid: jasmine.createSpy('resetGrid').and.callFake((height: number) => {
+                return Array.from({ length: height }, () => Array.from({ length: 5 }, () => TileType.Ground));
+            }),
+        };
+
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
                 { provide: ToolService, useValue: toolServiceSpy },
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
+                { provide: 'TileService', useValue: tileServiceMock },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(EditionGameGridComponent);
         component = fixture.componentInstance;
-        component.tilesGrid = component.tileService.resetGrid(component.height, component.tilesGrid);
+
+        component.height = 5;
+        component.tilesGrid = tileServiceMock.resetGrid(component.height, component.tilesGrid);
     });
 
     it('should create the component', () => {

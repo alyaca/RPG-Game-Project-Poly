@@ -1,10 +1,13 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP } from '@app/constants';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
+import { TileType } from '@app/services/map-validator.service';
 import { of } from 'rxjs';
 import { MapCreationPageComponent } from './map-creation-page.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 describe('MapCreationPageComponent', () => {
     let component: MapCreationPageComponent;
@@ -19,6 +22,7 @@ describe('MapCreationPageComponent', () => {
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
+                provideHttpClient(),
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -103,7 +107,7 @@ describe('MapCreationPageComponent', () => {
     });
 
     describe('handleExit', () => {
-        it('should navigate to /admin if user confirms exit in handleExit', () => {
+        it('should navigate to /administration if user confirms exit in handleExit', () => {
             const dialogRef: MatDialogRef<SimpleDialogComponent> = {
                 afterClosed: () => of('leave'),
                 close: jasmine.createSpy('close'),
@@ -115,7 +119,7 @@ describe('MapCreationPageComponent', () => {
 
             expect(dialogSpy.open).toHaveBeenCalled();
             dialogRef.afterClosed().subscribe(() => {
-                expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin']);
+                expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
             });
         });
     });
@@ -131,6 +135,63 @@ describe('MapCreationPageComponent', () => {
             const newDescription = 'New Map Description';
             component.updateMapDescription(newDescription);
             expect(component.mapDescription).toBe(newDescription);
+        });
+    });
+
+    describe('Setters', () => {
+        it('should set the grid attribute correctly', () => {
+            const mockGridValue = [
+                [
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                ],
+                [
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                    TileType.Ground,
+                ],
+            ];
+            component.setGrid(mockGridValue);
+            expect(component.tiles).toBe(mockGridValue);
+        });
+
+        it('should set the height attribute correctly', () => {
+            const mockHeightValue = SIZE_MEDIUM_MAP;
+            component.setHeight(mockHeightValue);
+            expect(component.height).toBe(mockHeightValue);
+        });
+
+        it('should set the new items matrix correctly', () => {
+            const mockItemsValue = [
+                [NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+                [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+            ];
+            component.setItems(mockItemsValue);
+            expect(component.items).toBe(mockItemsValue);
+        });
+    });
+
+    describe('Saving start process', () => {
+        it('clicking the "Sauvegarder" button should call startSaving', () => {
+            spyOn(component, 'startSaving');
+            const saveButton = fixture.debugElement.query(By.css('#save-button'));
+            saveButton.triggerEventHandler('click');
+            expect(component.startSaving).toHaveBeenCalled();
         });
     });
 });

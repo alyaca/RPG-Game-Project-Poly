@@ -60,10 +60,10 @@ describe('SimpleDialogComponent', () => {
         expect(component.data.title).toBe('Test Title');
     });
 
-    it('should navigate to /admin when title is "Sauvegarde réussie"', () => {
+    it('should navigate to /administion when title is "Sauvegarde réussie"', () => {
         component.data.title = 'Sauvegarde réussie';
         component.onClose();
         expect(dialogRefSpy.close).toHaveBeenCalledWith('leave');
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/admin']);
+        expect(mockRouter.navigate).toHaveBeenCalledWith(['/administration']);
     });
 });

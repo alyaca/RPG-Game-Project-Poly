@@ -1,6 +1,6 @@
 <div id="waiting-page">
     <header>
-        <h3>Titre de la partie</h3>
+        <h3 *ngIf="chosenGame">{{ chosenGame.name }}</h3>
         <h3>Code d'acces: {{ accessCode }}</h3>
     </header>
     <main>

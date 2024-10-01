@@ -1,23 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
+import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
-import { PopUpComponent } from '@app/components/popUp/popUp.component';
+import { HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
 
 @Component({
     selector: 'app-administration-page',
     standalone: true,
     templateUrl: './administration-page.component.html',
     styleUrls: ['./administration-page.component.scss', '../../../common/css/game-list-page.scss'],
-    imports: [CommonModule, RouterLink, GameListComponent, MatDialogModule],
+    imports: [CommonModule, RouterLink, GameListComponent],
 })
 export class AdministrationPageComponent {
     constructor(private dialog: MatDialog) {}
     openPopUp(): void {
-        this.dialog.open(PopUpComponent, {
-            width: '400px',
-            height: '250px',
+        this.dialog.open(CreationDialogComponent, {
+            width: WIDTH_DIALOG,
+            height: HEIGHT_DIALOG,
         });
     }
 }
