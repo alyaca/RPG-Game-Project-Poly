@@ -11,7 +11,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 })
 export class ContainerToolsComponent {
     tileIds: string[] = this.toolService.tileIds;
-    tileNames: string[] = ["Tuile d'eau", 'Tuile de glace', 'Tuile de mur', 'Tuile de porte'];
+    tileNames: string[] = ['Eau', 'Glace', 'Mur', 'Porte'];
     constructor(public toolService: ToolService) {}
     onSelectTile(tile: string) {
         this.toolService.setSelectedTile(tile);

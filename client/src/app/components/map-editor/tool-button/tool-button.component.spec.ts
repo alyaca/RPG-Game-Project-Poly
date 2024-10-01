@@ -40,4 +40,14 @@ describe('ToolButtonComponent', () => {
         component.toggleActivation();
         expect(component.isActive).toBeFalsy();
     });
+
+    it('should return "inactive" when isActive is false', () => {
+        component.isActive = false;
+        expect(component.class).toBe(''); 
+    });
+
+    it('should return "active inactive" when isActive is true', () => {
+        component.isActive = true;
+        expect(component.class).toBe('active'); 
+    });
 });
