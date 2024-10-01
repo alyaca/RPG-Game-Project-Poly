@@ -33,6 +33,10 @@ export class GameListComponent implements OnInit {
         });
     }
 
+    editGame(game: Map) {
+        this.selectGame(game);
+    }
+
     getTrimedDate(game: Map) {
         const date = new Date(game.lastModification);
 

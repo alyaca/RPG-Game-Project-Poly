@@ -134,6 +134,7 @@ export class MapEditorPageComponent implements OnInit {
                 items: this.items,
                 height: this.height,
             };
+            console.log(this.adminGamePage.gameSelected);
             setTimeout(() => {
                 if (this.mapValidator.validMap) {
                     this.saveGameService.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
