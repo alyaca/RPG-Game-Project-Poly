@@ -2,9 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-// import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-// import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE/* , TEST_VALIDATION_DURATION, VALIDATION_DURATION */ } from '@app/constants';
-// import { map, Observable } from 'rxjs';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, TEST_VALIDATION_DURATION, VALIDATION_DURATION } from '@app/constants';
+import { map, Observable } from 'rxjs';
 import { MapValidatorService, TileType } from './map-validator.service';
 
 describe('MapValidatorService', () => {
@@ -19,6 +19,7 @@ describe('MapValidatorService', () => {
         });
         service = TestBed.inject(MapValidatorService);
         httpMock = TestBed.inject(HttpTestingController);
+        service.isSameName = () => new Observable<boolean>().pipe(map(() => true));
     });
 
     afterEach(() => {
@@ -34,53 +35,6 @@ describe('MapValidatorService', () => {
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
-
-    /*
-    describe('validateMap', () => {
-        it('should open dialog with error message if the map has insufficient terrain tiles', (done) => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'isSameName').and.returnValue(new Observable<boolean>().pipe(map(() => true)));
-
-            service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
-
-            setTimeout(() => {
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    data: {
-                        messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
-                        title: 'Carte invalide',
-                    },
-                });
-                done();
-            }, VALIDATION_DURATION);
-        });
-
-        it('should open dialog with success message if the map is valid', (done) => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'isSameName').and.returnValue(new Observable<boolean>().pipe(map(() => true)));
-
-            service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
-
-            setTimeout(() => {
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    data: {
-                        messages: ["Vous allez être redirigé vers la page d'administration"],
-                        title: 'Sauvegarde réussie',
-                    },
-                });
-                done();
-            }, TEST_VALIDATION_DURATION);
-        });
-    });
-
-    */
 
     describe('isDoorPlacementValid', () => {
         it('should return true for a valid door placement', () => {
@@ -176,7 +130,6 @@ describe('MapValidatorService', () => {
         });
     });
 
-    /*
     describe('validateMap', () => {
         it('should add error message when validateAllDoors returns false', () => {
             spyOn(service, 'validateAllDoors').and.returnValue(false);
@@ -277,6 +230,45 @@ describe('MapValidatorService', () => {
                 expect(service.validateDescriptionLength('   ')).toBeFalse();
             });
         });
-    });  
-    */
+
+        it('should open dialog with error message if the map has insufficient terrain tiles', (done) => {
+            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
+            spyOn(service, 'validateAllDoors').and.returnValue(true);
+            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
+            spyOn(service, 'validateTitleLength').and.returnValue(true);
+            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+
+            service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
+
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
+                        title: 'Carte invalide',
+                    },
+                });
+                done();
+            }, VALIDATION_DURATION);
+        });
+
+        it('should open dialog with success message if the map is valid', (done) => {
+            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
+            spyOn(service, 'validateAllDoors').and.returnValue(true);
+            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
+            spyOn(service, 'validateTitleLength').and.returnValue(true);
+            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+
+            service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
+
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ["Vous allez être redirigé vers la page d'administration"],
+                        title: 'Sauvegarde réussie',
+                    },
+                });
+                done();
+            }, TEST_VALIDATION_DURATION);
+        });
+    });
 });
