@@ -1,6 +1,6 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NO_OBJECT, ObjectType } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { MOCK_ROW, MOCK_COLUMN } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objectsInfo';
@@ -33,16 +33,15 @@ describe('GameGridComponent', () => {
             'resetObjectsCount',
         ]);
 
-        const mockGridSize = 10;
         const tileServiceMock = {
             resetGrid: jasmine.createSpy('resetGrid').and.callFake((gridSize: number) => {
-                return Array.from({ length: gridSize }, () => Array.from({ length: mockGridSize }, () => TileType.Ground));
+                return Array.from({ length: gridSize }, () => Array.from({ length: SIZE_SMALL_MAP }, () => TileType.Ground));
             }),
         };
 
         const gameObjectServiceMock = {
             initObjectsArray: jasmine.createSpy('initObjectsArray').and.callFake(() => {
-                return Array.from({ length: mockGridSize }, () => Array.from({ length: mockGridSize }, () => NO_OBJECT));
+                return Array.from({ length: SIZE_SMALL_MAP }, () => Array.from({ length: SIZE_SMALL_MAP }, () => NO_OBJECT));
             }),
         };
 
@@ -59,10 +58,10 @@ describe('GameGridComponent', () => {
 
         fixture = TestBed.createComponent(GameGridComponent);
         component = fixture.componentInstance;
-        component.gridSize = mockGridSize;
+        component.gridSize = SIZE_SMALL_MAP;
         component.tilesGrid = tileServiceMock.resetGrid(component.gridSize, component.tilesGrid);
         component.objectsArray = gameObjectServiceMock.initObjectsArray();
-        gameObjectManagerServiceSpy.gridSize = mockGridSize;
+        gameObjectManagerServiceSpy.gridSize = SIZE_SMALL_MAP;
     });
 
     it('should create the component', () => {
