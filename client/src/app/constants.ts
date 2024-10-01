@@ -14,6 +14,9 @@ export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 256;
 
+// Constants for waiting page access code generation
+export const ACCESS_CODE_LENGTH = 4;
+export const MAX_ACCESS_CODE_VALUE = 10000;
 // Constants for the size of the dialob box for the creation of a map
 export const WIDTH_DIALOG = '40%';
 export const HEIGHT_DIALOG = '50%';
