@@ -17,3 +17,13 @@ export const MAX_LEN_MAP_DESCRIPTION = 256;
 // Constants for the size of the dialob box for the creation of a map
 export const WIDTH_DIALOG = '40%';
 export const HEIGHT_DIALOG = '50%';
+
+// Constants for tests
+export const NO_ITEM = 0;
+export const RANDOM_ITEM = 1;
+
+// Constants for the map validation to check all the necessary stuff
+export const CHECK_BEFORE_SAVING_DELAY = 500;
+export const VALIDATION_DURATION = 500;
+
+export const TEST_VALIDATION_DURATION = 800;
