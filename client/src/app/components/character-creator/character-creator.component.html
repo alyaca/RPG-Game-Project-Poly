@@ -22,7 +22,9 @@
                 <div class="arrows-container">
                     <div class="attribute">
                         Vie
-                        <div class="tooltiptext">Augmentez la valeur de l'attribut vie ou rapidité de +2</div>
+                        <div class="tooltiptext">
+                            Les points de vie du personnage correspond à cetattribut. Augmentez la valeur de l'attribut vie ou rapidité de +2.
+                        </div>
                     </div>
                     <div class="initial-value">4</div>
                     <button (click)="addHealth()" [disabled]="isButtonSelected('health')">+2</button>
@@ -30,7 +32,10 @@
                 <div class="arrows-container">
                     <div class="attribute">
                         Rapidité
-                        <div class="tooltiptext">Augmentez la valeur de l'attribut vie ou rapidité de +2</div>
+                        <div class="tooltiptext">
+                            Les point de rapidité servent à déterminer l’ordre des tours et correspond aussi aux points de mouvement par tour d’un
+                            personnage. Augmentez la valeur de l'attribut vie ou rapidité de +2.
+                        </div>
                     </div>
                     <div class="initial-value">4</div>
                     <button (click)="addSpeed()" [disabled]="isButtonSelected('speed')">+2</button>
@@ -39,7 +44,8 @@
                     <div class="attribute">
                         Attaque
                         <div class="tooltiptext">
-                            Choisissez un des attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces (D6) ou à 4 faces (D4)
+                            Les points d'attaque representent la force avec laquelle une attaque est faite sur l’adversaire. Choisissez un des
+                            attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces ou à 4 faces.
                         </div>
                     </div>
                     <div class="initial-value">4</div>
@@ -50,7 +56,8 @@
                     <div class="attribute">
                         Defénse
                         <div class="tooltiptext">
-                            Choisissez un des attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces (D6) ou à 4 faces (D4)
+                            Les points de défense représente la capacité à bloquer l’attaque d’un adversaire. Choisissez un des attributs attaque ou
+                            défense pour recevoir un bonus basé sur un dé à 6 faces ou à 4 faces.
                         </div>
                     </div>
                     <div class="initial-value">4</div>
