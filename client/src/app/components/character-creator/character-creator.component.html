@@ -26,7 +26,7 @@
                             Les points de vie du personnage correspond à cet attribut. Augmentez la valeur de l'attribut vie ou rapidité de +2.
                         </div>
                     </div>
-                    <div class="initial-value">4</div>
+                    <div class="initial-value">{{ getAttributsValue('health') }}</div>
                     <button (click)="addHealth()" [disabled]="isButtonSelected('health')">+2</button>
                 </div>
                 <div class="arrows-container">
@@ -37,7 +37,7 @@
                             personnage. Augmentez la valeur de l'attribut vie ou rapidité de +2.
                         </div>
                     </div>
-                    <div class="initial-value">4</div>
+                    <div class="initial-value">{{ getAttributsValue('speed') }}</div>
                     <button (click)="addSpeed()" [disabled]="isButtonSelected('speed')">+2</button>
                 </div>
                 <div class="arrows-container">
@@ -48,7 +48,7 @@
                             attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces ou à 4 faces.
                         </div>
                     </div>
-                    <div class="initial-value">4</div>
+                    <div class="initial-value">{{ getAttributsValue('attack') }}</div>
                     <button (click)="setAttack('1-4')" [disabled]="isButtonSelected('attack4')">+D4</button>
                     <button (click)="setAttack('1-6')" [disabled]="isButtonSelected('attack6')">+D6</button>
                 </div>
@@ -60,7 +60,7 @@
                             défense pour recevoir un bonus basé sur un dé à 6 faces ou à 4 faces.
                         </div>
                     </div>
-                    <div class="initial-value">4</div>
+                    <div class="initial-value">{{ getAttributsValue('defense') }}</div>
                     <button (click)="setDefense('1-4')" [disabled]="isButtonSelected('defense4')">+D4</button>
                     <button (click)="setDefense('1-6')" [disabled]="isButtonSelected('defense6')">+D6</button>
                 </div>
