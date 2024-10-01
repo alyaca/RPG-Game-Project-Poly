@@ -1,19 +1,22 @@
 import { Injectable } from '@angular/core';
 
+export enum AttributeValues {
+    DefaultAttribute = '4',
+    HighAttribute = '6',
+    Dice4 = '1-4',
+    Dice6 = '1-6',
+}
+
 @Injectable({
     providedIn: 'root',
 })
 export class AttributesService {
-    readonly defaultAttribute = '4';
-    readonly highAttribute = '6';
     name: string = '';
-    private readonly dice4 = '1-4';
-    private readonly dice6 = '1-6';
     private attributes = [
-        { attributeName: 'health', value: this.defaultAttribute },
-        { attributeName: 'speed', value: this.defaultAttribute },
-        { attributeName: 'attack', value: this.defaultAttribute },
-        { attributeName: 'defense', value: this.defaultAttribute },
+        { attributeName: 'health', value: AttributeValues.DefaultAttribute.toString() },
+        { attributeName: 'speed', value: AttributeValues.DefaultAttribute.toString() },
+        { attributeName: 'attack', value: AttributeValues.DefaultAttribute.toString() },
+        { attributeName: 'defense', value: AttributeValues.DefaultAttribute.toString() },
     ];
 
     findAttribut(chosenAttribute: string) {
@@ -31,17 +34,17 @@ export class AttributesService {
     isButtonSelected(buttonName: string) {
         switch (buttonName) {
             case 'health':
-                return this.getAttributsValue('health') === this.highAttribute;
+                return this.getAttributsValue('health') === AttributeValues.HighAttribute;
             case 'speed':
-                return this.getAttributsValue('speed') === this.highAttribute;
+                return this.getAttributsValue('speed') === AttributeValues.HighAttribute;
             case 'attack4':
-                return this.getAttributsValue('attack') === this.dice4;
+                return this.getAttributsValue('attack') === AttributeValues.Dice4;
             case 'attack6':
-                return this.getAttributsValue('attack') === this.dice6;
+                return this.getAttributsValue('attack') === AttributeValues.Dice6;
             case 'defense4':
-                return this.getAttributsValue('defense') === this.dice4;
+                return this.getAttributsValue('defense') === AttributeValues.Dice4;
             case 'defense6':
-                return this.getAttributsValue('defense') === this.dice6;
+                return this.getAttributsValue('defense') === AttributeValues.Dice6;
             default:
                 return undefined;
         }
@@ -50,8 +53,8 @@ export class AttributesService {
     setHealth(healthValue: string) {
         const health = this.findAttribut('health');
         if (health) {
-            if (this.getAttributsValue('speed') === this.highAttribute && healthValue === this.highAttribute) {
-                this.setSpeed(this.defaultAttribute);
+            if (this.getAttributsValue('speed') === AttributeValues.HighAttribute && healthValue === AttributeValues.HighAttribute) {
+                this.setSpeed(AttributeValues.DefaultAttribute);
             }
             health.value = healthValue;
         }
@@ -61,8 +64,8 @@ export class AttributesService {
         if (!speed) {
             return;
         }
-        if (this.getAttributsValue('health') === this.highAttribute && speedValue === this.highAttribute) {
-            this.setHealth(this.defaultAttribute);
+        if (this.getAttributsValue('health') === AttributeValues.HighAttribute && speedValue === AttributeValues.HighAttribute) {
+            this.setHealth(AttributeValues.DefaultAttribute);
         }
         speed.value = speedValue;
     }
@@ -70,10 +73,10 @@ export class AttributesService {
         const attack = this.findAttribut('attack');
         if (attack) {
             attack.value = attackValue;
-            if (this.getAttributsValue('defense') === this.dice6 && attackValue === this.dice6) {
-                this.setDefense(this.dice4);
-            } else if (this.getAttributsValue('defense') === this.dice4 && attackValue === this.dice4) {
-                this.setDefense(this.dice6);
+            if (this.getAttributsValue('defense') === AttributeValues.Dice6 && attackValue === AttributeValues.Dice6) {
+                this.setDefense(AttributeValues.Dice4);
+            } else if (this.getAttributsValue('defense') === AttributeValues.Dice4 && attackValue === AttributeValues.Dice4) {
+                this.setDefense(AttributeValues.Dice6);
             }
         }
     }
@@ -82,10 +85,10 @@ export class AttributesService {
         const defense = this.findAttribut('defense');
         if (defense) {
             defense.value = defenseValue;
-            if (this.getAttributsValue('attack') === this.dice6 && defenseValue === this.dice6) {
-                this.setAttack(this.dice4);
-            } else if (this.getAttributsValue('attack') === this.dice4 && defenseValue === this.dice4) {
-                this.setAttack(this.dice6);
+            if (this.getAttributsValue('attack') === AttributeValues.Dice6 && defenseValue === AttributeValues.Dice6) {
+                this.setAttack(AttributeValues.Dice4);
+            } else if (this.getAttributsValue('attack') === AttributeValues.Dice4 && defenseValue === AttributeValues.Dice4) {
+                this.setAttack(AttributeValues.Dice6);
             }
         }
     }
@@ -113,7 +116,7 @@ export class AttributesService {
     }
 
     validateAttributes(): true | string {
-        const missingAttributs = this.attributes.filter((attr) => attr.value === this.defaultAttribute).length;
+        const missingAttributs = this.attributes.filter((attr) => attr.value === AttributeValues.DefaultAttribute).length;
         if (missingAttributs > 1) {
             return 'Veuillez sélectionner les valeurs des attributs souhaités';
         }
@@ -121,8 +124,8 @@ export class AttributesService {
     }
 
     saveAttributes(): void {
-        const foundAttribute4 = this.attributes.find((attr) => attr.value === this.dice4);
-        const foundAttribute6 = this.attributes.find((attr) => attr.value === this.dice6);
+        const foundAttribute4 = this.attributes.find((attr) => attr.value === AttributeValues.Dice4);
+        const foundAttribute6 = this.attributes.find((attr) => attr.value === AttributeValues.Dice6);
         if (foundAttribute4 && foundAttribute6) {
             foundAttribute4.value = this.generateRandomAttributes();
             foundAttribute6.value = this.generateRandomAttributes();
@@ -130,15 +133,15 @@ export class AttributesService {
         }
     }
 
-    generateRandomAttributes() {
-        return Math.floor(parseInt(this.defaultAttribute, 10) + Math.random() * Number(this.defaultAttribute) + 1).toString();
+    generateRandomAttributes(): string {
+        return Math.floor(parseInt(AttributeValues.DefaultAttribute, 10) + Math.random() * Number(AttributeValues.DefaultAttribute) + 1).toString();
     }
 
     resetAttributes() {
-        this.setHealth(this.defaultAttribute);
-        this.setSpeed(this.defaultAttribute);
-        this.setAttack(this.defaultAttribute);
-        this.setDefense(this.defaultAttribute);
+        this.setHealth(AttributeValues.DefaultAttribute);
+        this.setSpeed(AttributeValues.DefaultAttribute);
+        this.setAttack(AttributeValues.DefaultAttribute);
+        this.setDefense(AttributeValues.DefaultAttribute);
         this.name = '';
     }
 }

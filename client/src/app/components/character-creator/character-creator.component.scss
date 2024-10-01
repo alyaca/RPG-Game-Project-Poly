@@ -126,6 +126,7 @@
     font-weight: bold;
     font-family: papyrus;
     color: white;
+    cursor: default;
 }
 
 .initial-value {
@@ -134,7 +135,7 @@
     text-align: center;
     flex-grow: 1;
     background: none;
-    cursor: pointer;
+    cursor: default;
     position: relative;
     display: inline-block;
 }
