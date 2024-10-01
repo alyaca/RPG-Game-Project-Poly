@@ -55,11 +55,10 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     ngOnInit() {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-        this.objectsArray = this.gameObjectService.initObjectsArray();
+        this.objectsArray = this.gameObjectService.createNewObjectsArray();
 
         if (this.gameGridService.hasMapToEditSubject) {
             this.loadMap(this.gameGridService.mapToEdit);
-            this.gameGridService.hasMapToEditSubject = false;
         } else {
             console.log('No map available for editing');
         }
@@ -76,8 +75,8 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
             this.objectsArray = mapToEdit.itemPlacement;
             this.mapDescription = mapToEdit.description;
             this.mapName = mapToEdit.name;
-            this.mapDescriptionChange.emit(this.mapDescription); 
-            this.mapNameChange.emit(this.mapName); 
+            this.mapDescriptionChange.emit(this.mapDescription);
+            this.mapNameChange.emit(this.mapName);
             this.sendInfoToMapCreationPage();
         } else {
             console.error('Invalid map provided for loading');
@@ -87,8 +86,7 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-            this.objectsArray = this.gameObjectService.initObjectsArray();
-            this.gameObjectService.resetObjectsCount();
+            this.objectsArray = this.gameObjectService.createNewObjectsArray();
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
@@ -189,6 +187,7 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
 
     ngOnDestroy() {
         this.toolService.selectedTile = '';
+        this.gameGridService.hasMapToEditSubject = false;
     }
 
     removeTile(event: MouseEvent, row: number, col: number) {

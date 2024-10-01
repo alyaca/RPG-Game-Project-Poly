@@ -14,10 +14,10 @@ export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 128;
 
-export const OBJECT_COUNT_MAP: { [key: string]: number } = {
-    small: NB_ITEMS_SMALL_MAP,
-    medium: NB_ITEMS_MEDIUM_MAP,
-    large: NB_ITEMS_LARGE_MAP,
+export const OBJECT_COUNT_MAP: { [key: number]: number } = {
+    10: NB_ITEMS_SMALL_MAP,
+    15: NB_ITEMS_MEDIUM_MAP,
+    20: NB_ITEMS_LARGE_MAP,
 };
 
 // Constants for initial count of game objects

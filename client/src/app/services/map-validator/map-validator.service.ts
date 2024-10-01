@@ -37,7 +37,7 @@ export class MapValidatorService {
         private httpClient: HttpClient,
         private gameObjectService: GameObjectService,
     ) {
-        this.gameObjectService.initObjectsArray();
+        this.gameObjectService.createNewObjectsArray();
     }
 
     validateMap(array: number[][], title: string, description: string) {

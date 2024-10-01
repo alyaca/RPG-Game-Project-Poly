@@ -134,7 +134,6 @@ export class MapEditorPageComponent {
                 items: this.items,
                 height: this.height,
             };
-            console.log(this.adminGamePage.gameSelected);
             setTimeout(() => {
                 if (this.mapValidator.validMap) {
                     this.saveGameService.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
@@ -142,5 +141,4 @@ export class MapEditorPageComponent {
             }, CHECK_BEFORE_SAVING_DELAY);
         });
     }
-
 }

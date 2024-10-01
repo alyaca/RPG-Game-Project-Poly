@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { GameObject } from '@app/interfaces/gameObject';
+import { GameGridService } from '@app/services/game-grid.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
@@ -22,11 +23,16 @@ export class GameObjectsContainerComponent implements OnInit {
     constructor(
         private gameObjectService: GameObjectService,
         private toolButtonService: ToolButtonService,
+        private gameGridService: GameGridService,
     ) {}
 
     ngOnInit() {
         this.gameObjects = this.gameObjectService.objects;
         this.gameObjectService.resetObjectsCount();
+        if (this.gameGridService.hasMapToEditSubject) {
+            const objectsArray = this.gameGridService.mapToEdit.itemPlacement;
+            this.gameObjectService.updateObjectsContainer(objectsArray, this.gameObjects);
+        }
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {

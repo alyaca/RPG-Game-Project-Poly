@@ -4,6 +4,7 @@ import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { Subscription } from 'rxjs';
+import { GameGridService } from '../game-grid.service';
 
 @Injectable({
     providedIn: 'root',
@@ -16,34 +17,53 @@ export class GameObjectService implements OnDestroy {
     isDraggingFromContainer: boolean = false;
     objects: GameObject[] = gameObjects;
     objectsArray: number[][];
-    mapSize: string | null;
     maxCount: number;
     selectedTile: { row: number; col: number } | null = null;
     private sizeSubscription!: Subscription;
 
-    constructor(private gameCreationService: GameCreationService) {
+    constructor(
+        private gameCreationService: GameCreationService,
+        private gameGridService: GameGridService,
+    ) {
         this.sizeSubscription = this.gameCreationService.sizeSubject.subscribe(() => {
-            this.mapSize = this.gameCreationService.getStoredSize();
             this.gridSize = this.gameCreationService.updateDimensions() as number;
         });
     }
 
-    initObjectsArray() {
+    createNewObjectsArray() {
         this.objectsArray = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(NO_OBJECT));
-        if (this.mapSize) {
-            this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
-        }
+        this.maxCount = OBJECT_COUNT_MAP[this.gridSize];
+
         return this.objectsArray;
     }
 
     resetObjectsCount() {
         this.objects.forEach((object) => {
-            if (this.countableObjects.includes(object.id) && this.mapSize) {
-                object.count = OBJECT_COUNT_MAP[this.mapSize];
+            if (this.countableObjects.includes(object.id) && this.gridSize) {
+                object.count = OBJECT_COUNT_MAP[this.gridSize];
             } else {
                 object.count = ITEM_COUNT;
             }
         });
+    }
+
+    updateObjectsContainer(objectArray: number[][], objectsInfo: GameObject[]) {
+        this.gridSize = this.gameGridService.mapToEdit.dimension;
+        this.objectsArray = this.gameGridService.mapToEdit.itemPlacement;
+        this.maxCount = OBJECT_COUNT_MAP[this.gridSize];
+        this.resetObjectsCount();
+
+        for (let row = 0; row < objectArray.length; row++) {
+            for (let col = 0; col < objectArray[row].length; col++) {
+                const tileId = objectArray[row][col];
+                if (tileId > 0) {
+                    const object = objectsInfo.find((obj) => obj.id === tileId);
+                    if (object && object.count > 0) {
+                        object.count--;
+                    }
+                }
+            }
+        }
     }
 
     getObjectById(id: number): GameObject | undefined {
