@@ -30,3 +30,15 @@ export const CHECK_BEFORE_SAVING_DELAY = 500;
 export const VALIDATION_DURATION = 500;
 
 export const TEST_VALIDATION_DURATION = 800;
+
+
+// Constants for the character creator component to set the attributes
+export const HIGH_ATTRIBUTE = '6';
+export const MESSAGE_DURATION = 3000;
+
+
+// Constant for the time of the snakbar error message
+export const MESSAGE_NOTIFICATION_DURATION = 4000;
+
+// Constant for the padding length of the date
+export const PAD_LENGTH=2;

@@ -3,10 +3,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { HIGH_ATTRIBUTE, MESSAGE_DURATION } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
 
-const highAttribute = '6';
-const messageDuration = 3000;
 @Component({
     selector: 'app-character-creator',
     standalone: true,
@@ -56,11 +55,11 @@ export class CharacterCreatorComponent {
         return this.attributesService.isButtonSelected(buttonName);
     }
     addHealth() {
-        this.attributesService.setHealth(highAttribute);
+        this.attributesService.setHealth(HIGH_ATTRIBUTE);
     }
 
     addSpeed() {
-        this.attributesService.setSpeed(highAttribute);
+        this.attributesService.setSpeed(HIGH_ATTRIBUTE);
     }
 
     setAttack(attackValue: string) {
@@ -82,7 +81,7 @@ export class CharacterCreatorComponent {
             this.router.navigate(['/waiting-page']);
         } else {
             this.snackBar.open(saveStatus as string, 'Fermer', {
-                duration: messageDuration,
+                duration: MESSAGE_DURATION,
             });
         }
     }
