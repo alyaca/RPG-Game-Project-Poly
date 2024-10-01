@@ -2,6 +2,13 @@ import { Component, Input } from '@angular/core';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { CommonModule } from '@angular/common';
 
+export enum TileButtonName {
+    Water = 'Eau',
+    Ice = 'Glace',
+    Door = 'Porte',
+    Wall = 'Mur',
+}
+
 @Component({
     selector: 'app-tool-button',
     standalone: true,
@@ -9,6 +16,7 @@ import { CommonModule } from '@angular/common';
     styleUrl: './tool-button.component.scss',
     imports: [CommonModule],
 })
+
 export class ToolButtonComponent {
     @Input() buttonName: string = '';
     isActive: boolean = false;
@@ -31,13 +39,13 @@ export class ToolButtonComponent {
 
     private getInactiveClass(): string {
         switch (this.buttonName) {
-            case 'Eau':
+            case TileButtonName.Water:
                 return 'water';
-            case 'Glace':
+            case TileButtonName.Ice:
                 return 'ice';
-            case 'Mur':
+            case TileButtonName.Wall:
                 return 'wall';
-            case 'Porte':
+            case TileButtonName.Door:
                 return 'door';
             default:
                 return '';
