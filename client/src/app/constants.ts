@@ -65,3 +65,7 @@ export const DICE_6 = '1-6';
 
 export const MAX_OBJ_COUNT_COEFF_1 = 0.4;
 export const MAX_OBJ_COUNT_COEFF_2 = 2;
+
+export const SMALL_MAP_MAX_OBJ_COUNT = 2;
+export const MEDIUM_MAP_MAX_OBJ_COUNT = 4;
+export const LARGE_MAP_MAX_OBJ_COUNT = 6;

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, SIZE_MEDIUM_MAP, OBJECT_COUNT_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP, SMALL_MAP_MAX_OBJ_COUNT } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from './game-object.service';
 import { GameGridService } from '@app/services/game-grid.service';
@@ -155,7 +155,7 @@ describe('GameObjectService', () => {
 
         expect(service.objects[0].count).toBe(ITEM_COUNT);
         expect(service.objects[1].count).toBe(ITEM_COUNT);
-        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[SIZE_SMALL_MAP]);
+        expect(service.objects[2].count).toBe(SMALL_MAP_MAX_OBJ_COUNT);
     });
 
     it('should update objects container and decrement object counts correctly', () => {
@@ -173,7 +173,7 @@ describe('GameObjectService', () => {
 
         expect(service.gridSize).toBe(SIZE_SMALL_MAP);
         expect(service.objectsArray).toEqual(gameGridServiceSpy.mapToEdit.itemPlacement);
-        expect(service.maxCount).toBe(OBJECT_COUNT_MAP[SIZE_SMALL_MAP]);
+        expect(service.maxCount).toBe(SMALL_MAP_MAX_OBJ_COUNT);
 
         expect(objectsInfo[0].count).toBe(1);
         expect(objectsInfo[1].count).toBe(0);
