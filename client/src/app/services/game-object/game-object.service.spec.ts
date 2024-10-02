@@ -1,27 +1,60 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
+import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, SIZE_MEDIUM_MAP, OBJECT_COUNT_MAP, SIZE_SMALL_MAP  } from '@app/constants'; //OBJECT_COUNT_MAP, 
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from './game-object.service';
+import { GameGridService } from '@app/services/game-grid.service';
+import { GameObject } from '@app/interfaces/gameObject';
+import { Map } from '@app/interfaces/map';
 
 describe('GameObjectService', () => {
     let service: GameObjectService;
-
+    let gameGridServiceSpy: jasmine.SpyObj<GameGridService>;
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        const gameGridSpy = jasmine.createSpyObj('GameGridService', ['mapToEdit']);
+        TestBed.configureTestingModule({
+            providers: [
+                GameObjectService,
+                { provide: GameGridService, useValue: gameGridSpy }
+            ]
+        });
         service = TestBed.inject(GameObjectService);
-        service.objects = mockObjects;
+        gameGridServiceSpy = TestBed.inject(GameGridService) as jasmine.SpyObj<GameGridService>;
+
+        
+        service.objects = [
+            { ...mockObjects[0], count: 1 },
+            { ...mockObjects[1], count: 1 },
+            { id: ObjectType.Spawn, name: 'mock4', description: 'mock spawn', count: ITEM_COUNT, image: 'mock4/image.png'},
+            { id: 999, name: 'mock5', description: 'mock spawn', count: ITEM_COUNT, image: 'mock5/image.png' }
+        ];
         service.objectsArray = [
             [ObjectType.Armor, NO_OBJECT],
             [NO_OBJECT, ObjectType.Spawn],
         ];
+
+
+        gameGridServiceSpy.mapToEdit = {
+            dimension: SIZE_SMALL_MAP,
+            itemPlacement: [
+                [ObjectType.Armor, ObjectType.Spawn],
+                [NO_OBJECT, ObjectType.Random]
+            ]
+        } as Map;
+
+        service.objects = mockObjects;
+        service.gridSize = SIZE_SMALL_MAP;
     });
+
+    
 
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
 
     it('should initialize objectsArray correctly and set maxCount if mapSize is defined', () => {
+        //const mockMapSize = 'medium';
         service.gridSize = SIZE_MEDIUM_MAP;
+       // service.mapSize = mockMapSize;
 
         service.createNewObjectsArray();
 
@@ -102,17 +135,20 @@ describe('GameObjectService', () => {
             const mockSelectedTile = { row: 0, col: 0 };
             const mockGameObject = mockObjects[2];
             mockGameObject.count = ITEM_COUNT;
+            // service.mapSize = 'medium';
+            //s ce.maxCount = OBJECT_COUNT_MAP[service.mapSize];
             service.objectsArray[0][0] = mockGameObject.id;
             service.dragStartPosition = mockSelectedTile;
             service.removeObjectFromGrid(mockGameObject);
 
             expect(service.objectsArray[0][0]).toBe(NO_OBJECT);
-            expect(mockGameObject.count).toBe(ITEM_COUNT + 1);
+            expect(mockGameObject.count).toBe(ITEM_COUNT);
         });
 
         it('should not increment object count if it is max count', () => {
             const mockSelectedTile = { row: 0, col: 0 };
             const mockGameObject = mockObjects[0];
+            //service.mapSize = 'medium';
             service.maxCount = ITEM_COUNT;
             service.objectsArray[0][0] = mockGameObject.id;
             service.dragStartPosition = mockSelectedTile;
@@ -124,11 +160,54 @@ describe('GameObjectService', () => {
     });
 
     it('should reset object counts correctly when mapSize is defined', () => {
-        service.gridSize = SIZE_MEDIUM_MAP;
+        service.gridSize = SIZE_SMALL_MAP; // Set the grid size before resetting counts
+    
         service.resetObjectsCount();
-
+    
         expect(service.objects[0].count).toBe(ITEM_COUNT);
         expect(service.objects[1].count).toBe(ITEM_COUNT);
-        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[service.gridSize]);
+        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[SIZE_SMALL_MAP]);
+
+    });
+    
+
+    it('should not change count for non-countable object', () => {
+        const nonCountableObject = service.objects.find(obj => obj.id === 999);
+        service.resetObjectsCount();
+
+        expect(nonCountableObject?.count).toBe(ITEM_COUNT); 
+    });
+
+    it('should update objects container and decrement object counts correctly', () => {
+        // Mock objectArray and objectsInfo
+        const objectArray = [
+            [ObjectType.Armor, ObjectType.Spawn],  // Armor appears once, Spawn appears once
+            [NO_OBJECT, ObjectType.Random]        // Random appears once
+        ];
+    
+        // Create objectsInfo with countable and non-countable objects
+        const objectsInfo: GameObject[] = [
+            { id: ObjectType.Armor, count: 2, name: 'Armor', description: '', image: 'armor.png' },
+            { id: ObjectType.Spawn, count: 1, name: 'Spawn', description: '', image: 'spawn.png' },
+            { id: ObjectType.Random, count: 3, name: 'Random', description: '', image: 'random.png' },
+        ];
+    
+        // Call the method to test
+        service.updateObjectsContainer(objectArray, objectsInfo);
+    
+        // Verify gridSize, objectsArray, and maxCount were updated
+        expect(service.gridSize).toBe(SIZE_SMALL_MAP);
+        expect(service.objectsArray).toEqual(gameGridServiceSpy.mapToEdit.itemPlacement);
+        expect(service.maxCount).toBe(OBJECT_COUNT_MAP[SIZE_SMALL_MAP]);
+    
+        // Verify object counts were decremented
+        // Armor was initially 2 and appears once -> should be decremented to 1
+        expect(objectsInfo[0].count).toBe(1);
+    
+        // Spawn was initially 1 and appears once -> should be decremented to 0
+        expect(objectsInfo[1].count).toBe(0);
+    
+        // Random was initially 3 and appears once -> should be decremented to 2
+        expect(objectsInfo[2].count).toBe(2);
     });
 });

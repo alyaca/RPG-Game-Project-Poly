@@ -25,7 +25,7 @@ describe('MapValidatorService', () => {
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['createNewObjectsArray']);
         gameObjectServiceSpy.objectsArray = [
             [ObjectType.Sandal, ObjectType.Spawn],
             [ObjectType.Spawn, NO_OBJECT],

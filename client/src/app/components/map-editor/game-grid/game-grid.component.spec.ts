@@ -9,6 +9,8 @@ import { MapValidatorService, TileType } from '@app/services/map-validator/map-v
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { GameGridComponent } from './game-grid.component';
+// import { HttpClientTestingModule } from '@angular/common/http/testing'; 
+import { HttpClient } from '@angular/common/http';
 
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
@@ -17,13 +19,14 @@ describe('GameGridComponent', () => {
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
+    let httpClientSpy: jasmine.SpyObj<ToolButtonService>
 
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
-            'initObjectsArray',
+            'createNewObjectsArray',
             'getObjectById',
             'getGameObjectOnTile',
             'updateObjectGridPosition',
@@ -46,6 +49,7 @@ describe('GameGridComponent', () => {
         };
 
         await TestBed.configureTestingModule({
+            imports: [],
             declarations: [],
             providers: [
                 { provide: ToolService, useValue: toolServiceSpy },
@@ -53,6 +57,7 @@ describe('GameGridComponent', () => {
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: 'TileService', useValue: tileServiceMock },
+                { provide: HttpClient, useValue: httpClientSpy}
             ],
         }).compileComponents();
 
