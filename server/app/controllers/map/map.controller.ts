@@ -99,8 +99,6 @@ export class MapController {
             const hasBeenCreated = await this.savingService.addMapToDb(newMap);
             if (hasBeenCreated !== null) {
                 response.status(HttpStatus.CREATED).json(hasBeenCreated);
-            } else {
-                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
             }
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
@@ -120,8 +118,6 @@ export class MapController {
             const hasBeenCreated = await this.savingService.replaceMapInDb(mapToReplace);
             if (hasBeenCreated !== null) {
                 response.status(HttpStatus.CREATED).json(hasBeenCreated);
-            } else {
-                response.status(HttpStatus.BAD_REQUEST).send('The request was not formulated correctly');
             }
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
