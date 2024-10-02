@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, S
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { Map } from '@app/interfaces/map';
+import { gameObjects } from '@app/objectsInfo';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameGridService } from '@app/services/game-grid.service';
 import { GameListService } from '@app/services/game-list.service';
@@ -75,10 +76,6 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
             this.currentMap = JSON.parse(JSON.stringify(this.originalMap));
             this.gridSize = this.currentMap.dimension;
             this.reloadMap();
-            setTimeout(() => {
-                this.mapDescriptionChange.emit(this.mapDescription);
-                this.mapNameChange.emit(this.mapName);
-            });
             this.sendInfoToMapCreationPage();
         } else {
             console.error('Invalid map provided for loading');
@@ -91,6 +88,11 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
             this.objectsArray = this.currentMap.itemPlacement;
             this.mapDescription = this.currentMap.description;
             this.mapName = this.currentMap.name;
+            this.gameObjectService.updateObjectsContainer(this.objectsArray, gameObjects);
+            setTimeout(() => {
+                this.mapDescriptionChange.emit(this.mapDescription);
+                this.mapNameChange.emit(this.mapName);
+            });
         }
     }
 
@@ -137,7 +139,7 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
         event.preventDefault();
         const gameObject = this.gameObjectService.draggedObject;
         if (gameObject && this.objectsArray[row][col] === NO_OBJECT && this.isValidTileForObject(row, col)) {
-            this.gameObjectService.updateObjectGridPosition(gameObject, row, col);
+            this.gameObjectService.updateObjectGridPosition(gameObject, row, col, this.objectsArray);
         }
         this.isMouseDown = false;
         this.toolService.setSelectedTile('');

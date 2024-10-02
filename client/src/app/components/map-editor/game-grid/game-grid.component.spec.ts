@@ -2,7 +2,7 @@ import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
-import { MOCK_ROW, MOCK_COLUMN } from '@app/mocks/mock-position';
+import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objectsInfo';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
@@ -272,6 +272,7 @@ describe('GameGridComponent', () => {
     it('should update object grid position when all conditions are met', () => {
         const mockRow = 0;
         const mockCol = 0;
+        const mockArray = [[NO_OBJECT], [NO_OBJECT]];
         const mockGameObject = mockObjects[1];
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
 
@@ -281,7 +282,7 @@ describe('GameGridComponent', () => {
         component.onDrop(mockEvent, mockRow, mockCol);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(gameObjectManagerServiceSpy.updateObjectGridPosition).toHaveBeenCalledWith(mockGameObject, mockRow, mockCol);
+        expect(gameObjectManagerServiceSpy.updateObjectGridPosition).toHaveBeenCalledWith(mockGameObject, mockRow, mockCol, mockArray);
         expect(component.isMouseDown).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });

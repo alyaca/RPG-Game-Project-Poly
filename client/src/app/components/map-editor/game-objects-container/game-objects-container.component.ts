@@ -45,6 +45,7 @@ export class GameObjectsContainerComponent implements OnInit {
             event.preventDefault();
             return;
         }
+
         this.gameObjectService.draggedObject = gameObject;
         this.isDraggingFromContainer = true;
         this.gameObjectService.isDraggingFromContainer = true;

@@ -21,11 +21,9 @@ describe('GameObjectService', () => {
     });
 
     it('should initialize objectsArray correctly and set maxCount if mapSize is defined', () => {
-        const mockMapSize = 'medium';
         service.gridSize = SIZE_MEDIUM_MAP;
-        service.mapSize = mockMapSize;
 
-        service.initObjectsArray();
+        service.createNewObjectsArray();
 
         expect(service.objectsArray).toBeDefined();
         expect(service.objectsArray.length).toEqual(SIZE_MEDIUM_MAP);
@@ -52,15 +50,16 @@ describe('GameObjectService', () => {
     describe('updateObjectGridPosition', () => {
         it('should update the grid position and reset the drag when dragStartPosition exists', () => {
             service.dragStartPosition = { row: 0, col: 0 };
+            const mockArray = [[NO_OBJECT], [NO_OBJECT]];
 
             const gameObject = service.objects[1];
-            service.updateObjectGridPosition(gameObject, 1, 0);
+            service.updateObjectGridPosition(gameObject, 1, 0, mockArray);
 
             expect(service.objectsArray[0][0]).toBe(NO_OBJECT);
             expect(service.objectsArray[1][0]).toBe(gameObject.id);
 
             spyOn(service, 'resetDrag');
-            service.updateObjectGridPosition(gameObject, 1, 0);
+            service.updateObjectGridPosition(gameObject, 1, 0, mockArray);
             expect(service.resetDrag).toHaveBeenCalled();
         });
     });
@@ -103,8 +102,6 @@ describe('GameObjectService', () => {
             const mockSelectedTile = { row: 0, col: 0 };
             const mockGameObject = mockObjects[2];
             mockGameObject.count = ITEM_COUNT;
-            service.mapSize = 'medium';
-            service.maxCount = OBJECT_COUNT_MAP[service.mapSize];
             service.objectsArray[0][0] = mockGameObject.id;
             service.dragStartPosition = mockSelectedTile;
             service.removeObjectFromGrid(mockGameObject);
@@ -116,7 +113,6 @@ describe('GameObjectService', () => {
         it('should not increment object count if it is max count', () => {
             const mockSelectedTile = { row: 0, col: 0 };
             const mockGameObject = mockObjects[0];
-            service.mapSize = 'medium';
             service.maxCount = ITEM_COUNT;
             service.objectsArray[0][0] = mockGameObject.id;
             service.dragStartPosition = mockSelectedTile;
@@ -128,11 +124,11 @@ describe('GameObjectService', () => {
     });
 
     it('should reset object counts correctly when mapSize is defined', () => {
-        service.mapSize = 'medium';
+        service.gridSize = SIZE_MEDIUM_MAP;
         service.resetObjectsCount();
 
         expect(service.objects[0].count).toBe(ITEM_COUNT);
         expect(service.objects[1].count).toBe(ITEM_COUNT);
-        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[service.mapSize]);
+        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[service.gridSize]);
     });
 });

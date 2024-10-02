@@ -47,13 +47,13 @@ export class GameObjectService implements OnDestroy {
         });
     }
 
-    updateObjectsContainer(objectArray: number[][], objectsInfo: GameObject[]) {
+    updateObjectsContainer(objectsArray: number[][], objectsInfo: GameObject[]) {
         this.gridSize = this.gameGridService.mapToEdit.dimension;
-        this.objectsArray = this.gameGridService.mapToEdit.itemPlacement;
+        this.objectsArray = objectsArray;
         this.maxCount = OBJECT_COUNT_MAP[this.gridSize];
         this.resetObjectsCount();
 
-        for (const row of objectArray) {
+        for (const row of objectsArray) {
             for (const tileId of row) {
                 if (tileId > 0) {
                     const object = objectsInfo.find((obj) => obj.id === tileId);
@@ -74,18 +74,19 @@ export class GameObjectService implements OnDestroy {
         return this.getObjectById(gameObjectId);
     }
 
-    updateObjectGridPosition(gameObject: GameObject, row: number, col: number) {
+    updateObjectGridPosition(gameObject: GameObject, row: number, col: number, objectsArray: number[][]) {
         if (this.dragStartPosition) {
-            this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
+            objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
         } else {
             gameObject.count--;
         }
-        this.objectsArray[row][col] = gameObject.id;
+        objectsArray[row][col] = gameObject.id;
         this.resetDrag();
     }
 
     removeObjectFromGrid(gameObject: GameObject) {
         if (this.selectedTile) {
+            console.log(this.objectsArray);
             this.objectsArray[this.selectedTile.row][this.selectedTile.col] = NO_OBJECT;
         } else if (this.dragStartPosition) {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
