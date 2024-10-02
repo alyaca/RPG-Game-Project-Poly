@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
-import { ITEM_COUNT, NO_OBJECT } from '@app/constants';
+import { NO_OBJECT } from '@app/constants';
+import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
+import { GameGridService } from '@app/services/game-grid.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { GameObjectsContainerComponent } from './game-objects-container.component';
@@ -9,17 +11,20 @@ import { GameObjectsContainerComponent } from './game-objects-container.componen
 describe('GameObjectsContainerComponent', () => {
     let component: GameObjectsContainerComponent;
     let fixture: ComponentFixture<GameObjectsContainerComponent>;
-    let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
+    let gameObjectServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
+    let gameGridServiceSpy: jasmine.SpyObj<GameGridService>;
 
     beforeEach(async () => {
-        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', ['removeObjectFromGrid', 'resetObjectsCount']);
-        toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['removeObjectFromGrid', 'resetObjectsCount', 'updateObjectsContainer']);
+        toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton', 'toggleActivation']);
+        gameGridServiceSpy = jasmine.createSpyObj('GameGridService', ['hasMapToEditSubject', 'mapToEdit']);
 
         await TestBed.configureTestingModule({
             providers: [
-                { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
+                { provide: GameObjectService, useValue: gameObjectServiceSpy },
                 { provide: ToolButtonService, useValue: toolButtonServiceSpy },
+                { provide: GameGridService, useValue: gameGridServiceSpy },
             ],
         }).compileComponents();
 
@@ -32,15 +37,30 @@ describe('GameObjectsContainerComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    describe('onInit', () => {
+        it('should initialize gameObjects and reset objects count', () => {
+            gameObjectServiceSpy.objects = mockObjects;
+            gameObjectServiceSpy.resetObjectsCount.and.callThrough();
+            gameGridServiceSpy.hasMapToEditSubject = true;
+            gameGridServiceSpy.mapToEdit = dummyMap;
+
+            component.ngOnInit();
+
+            expect(component.gameObjects).toEqual(mockObjects);
+            expect(gameObjectServiceSpy.resetObjectsCount).toHaveBeenCalled();
+            expect(gameObjectServiceSpy.updateObjectsContainer).toHaveBeenCalled();
+        });
+    });
+
     describe('drag start event', () => {
         it('should set draggedObject and isDraggingFromContainer when gameObject count is greater than 0', async () => {
             const mockEvent = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as DragEvent;
-            const mockGameObject = { id: 1, name: 'mock', description: 'mock game object for test', count: ITEM_COUNT, image: 'mock/image.png' };
+            const mockGameObject = mockObjects[0];
 
             component.onDragStart(mockEvent, mockGameObject);
 
             expect(mockEvent.preventDefault).not.toHaveBeenCalled();
-            expect(gameObjectManagerServiceSpy.draggedObject).toEqual(mockGameObject);
+            expect(gameObjectServiceSpy.draggedObject).toEqual(mockGameObject);
             expect(component.isDraggingFromContainer).toBeTrue();
         });
 
@@ -69,23 +89,23 @@ describe('GameObjectsContainerComponent', () => {
         it('should not remove the game object if isDraggingFromContainer is  true', () => {
             const event = new DragEvent('drop');
             const preventDefaultSpy = spyOn(event, 'preventDefault');
-            gameObjectManagerServiceSpy.draggedObject = mockObjects[0];
+            gameObjectServiceSpy.draggedObject = mockObjects[0];
             component.isDraggingFromContainer = true;
 
             component.onDrop(event, mockObjects[0].id);
 
-            expect(gameObjectManagerServiceSpy.removeObjectFromGrid).not.toHaveBeenCalled();
+            expect(gameObjectServiceSpy.removeObjectFromGrid).not.toHaveBeenCalled();
             expect(preventDefaultSpy).toHaveBeenCalled();
         });
 
         it('should remove the game object from grid on drop', () => {
             const event = new DragEvent('drop');
-            gameObjectManagerServiceSpy.draggedObject = mockObjects[0];
+            gameObjectServiceSpy.draggedObject = mockObjects[0];
             component.isDraggingFromContainer = false;
 
             component.onDrop(event, mockObjects[0].id);
 
-            expect(gameObjectManagerServiceSpy.removeObjectFromGrid).toHaveBeenCalledWith(mockObjects[0]);
+            expect(gameObjectServiceSpy.removeObjectFromGrid).toHaveBeenCalledWith(mockObjects[0]);
         });
     });
 
