@@ -3,10 +3,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
 
-const highAttribute = '6';
-const messageDuration = 3000;
 @Component({
     selector: 'app-character-creator',
     standalone: true,
@@ -17,18 +16,18 @@ const messageDuration = 3000;
 export class CharacterCreatorComponent {
     @Output() closeCharactorCreator = new EventEmitter<void>();
     avatars = [
-        { src: '/assets/img/characters/Hestia.webp', name: 'Hestia' },
-        { src: '/assets/img/characters/Zeus.webp', name: 'Zeus' },
-        { src: '/assets/img/characters/Hera.webp', name: 'Hera' },
-        { src: '/assets/img/characters/Poseidon.webp', name: 'Poseidon' },
-        { src: '/assets/img/characters/Artemis.webp', name: 'Artemis' },
-        { src: '/assets/img/characters/Demeter.webp', name: 'Demeter' },
-        { src: '/assets/img/characters/Hermes.webp', name: 'Hermes' },
-        { src: '/assets/img/characters/Athena.webp', name: 'Athena' },
-        { src: '/assets/img/characters/Hephaestus.webp', name: 'Hephaestus' },
-        { src: '/assets/img/characters/Apollo.webp', name: 'Apollo' },
-        { src: '/assets/img/characters/Ares.webp', name: 'Ares' },
-        { src: '/assets/img/characters/Aphrodite.webp', name: 'Aphrodite' },
+        { src: '/assets/images/characters/Hestia.webp', name: 'Hestia' },
+        { src: '/assets/images/characters/Zeus.webp', name: 'Zeus' },
+        { src: '/assets/images/characters/Hera.webp', name: 'Hera' },
+        { src: '/assets/images/characters/Poseidon.webp', name: 'Poseidon' },
+        { src: '/assets/images/characters/Artemis.webp', name: 'Artemis' },
+        { src: '/assets/images/characters/Demeter.webp', name: 'Demeter' },
+        { src: '/assets/images/characters/Hermes.webp', name: 'Hermes' },
+        { src: '/assets/images/characters/Athena.webp', name: 'Athena' },
+        { src: '/assets/images/characters/Hephaestus.webp', name: 'Hephaestus' },
+        { src: '/assets/images/characters/Apollo.webp', name: 'Apollo' },
+        { src: '/assets/images/characters/Ares.webp', name: 'Ares' },
+        { src: '/assets/images/characters/Aphrodite.webp', name: 'Aphrodite' },
     ];
     clickedAvatar: { src: string; name: string } = this.avatars[0];
     characterName: string = '';
@@ -56,11 +55,11 @@ export class CharacterCreatorComponent {
         return this.attributesService.isButtonSelected(buttonName);
     }
     addHealth() {
-        this.attributesService.setHealth(highAttribute);
+        this.attributesService.setHealth(HIGH_ATTRIBUTE);
     }
 
     addSpeed() {
-        this.attributesService.setSpeed(highAttribute);
+        this.attributesService.setSpeed(HIGH_ATTRIBUTE);
     }
 
     setAttack(attackValue: string) {
@@ -82,7 +81,7 @@ export class CharacterCreatorComponent {
             this.router.navigate(['/waiting-page']);
         } else {
             this.snackBar.open(saveStatus as string, 'Fermer', {
-                duration: messageDuration,
+                duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
         }
     }

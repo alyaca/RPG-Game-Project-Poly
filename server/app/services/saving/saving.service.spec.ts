@@ -1,4 +1,4 @@
-import { EXISTING_MAP, MAP_TO_PUT, NEW_MAP_NO_ID } from '@app/mocks';
+import { EXISTING_MAP, MAP_TO_PUT, NEW_MAP_NO_ID } from '@app/mocks/mapMocks';
 import { MapDocument, mapSchema } from '@app/model/schema/map.schema';
 import { Logger } from '@nestjs/common';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';

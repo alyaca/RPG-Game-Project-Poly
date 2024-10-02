@@ -1,5 +1,4 @@
 <div id="pop-up">
-
     <div class="dialog-content">
         <div class="title">Choisir un mode de jeu :</div>
         <div class="button" class="options">
@@ -21,10 +20,8 @@
         <div class="game-size"> 
             <button id="large-map" [class.selected]="selectedSize === 'large'" (click)="selectSize('large')">20x20</button>
             (2 à 6 joueurs)
-        
         </div>
     </div>
-
         <div class="options">
             <button mat-button (click)="close()">Annuler</button>
             <button [disabled]="isSubmitDisabled()"  mat-button (click)="changePage()">Création</button>

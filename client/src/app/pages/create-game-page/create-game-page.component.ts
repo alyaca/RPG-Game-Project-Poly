@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
+import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 import { Subscription } from 'rxjs';
@@ -34,7 +35,7 @@ export class CreateGamePageComponent implements OnDestroy {
     showCharacterForm() {
         if (!this.selectedGame) {
             this.snackBar.open('Veuillez sélectionner un jeu avant de créer la partie', 'Fermer', {
-                duration: 2000,
+                duration: MESSAGE_DURATION_CHARACTER_FORM,
             });
             return;
         }
@@ -44,7 +45,7 @@ export class CreateGamePageComponent implements OnDestroy {
                 this.gameListService.chosenGameSubject.next(game);
             } else {
                 this.snackBar.open("Le jeu sélectionné n'existe pas ou a été caché", 'Fermer', {
-                    duration: 2000,
+                    duration: MESSAGE_DURATION_CHARACTER_FORM,
                 });
             }
         });

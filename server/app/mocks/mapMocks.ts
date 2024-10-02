@@ -1,3 +1,6 @@
+import { Map } from '@app/model/schema/map.schema';
+import mongoose from 'mongoose';
+
 enum TileType {
     Ground = 1,
     Ice = 2,
@@ -6,6 +9,43 @@ enum TileType {
     ClosedDoor = 5,
     OpenDoor = 6,
 }
+
+export const MODES = ['CTF', 'Normal'];
+export const GENERATE_COUNT = 5;
+export const BASE_36 = 36;
+export const TILE_COUNT = 6;
+export const DIMENSION = 20;
+export const NB_PLAYERS = 6;
+export const COLUMN_LENGTH = 2;
+export const ROW_LENGTH = 2;
+
+const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
+
+const getRandom2DArray = (rows: number, cols: number, maxValue: number): number[][] =>
+    Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * maxValue)));
+
+export const getFakeMaps = (count: number = GENERATE_COUNT): Map[] => {
+    const maps: Map[] = [];
+    for (let i = 0; i < count; i++) {
+        const array2D = getRandom2DArray(ROW_LENGTH, COLUMN_LENGTH, TILE_COUNT);
+        const isVisible = i % 2 === 0;
+        maps.push({
+            _id: new mongoose.Types.ObjectId().toHexString(),
+            name: getRandomString(),
+            description: getRandomString(),
+            visible: isVisible,
+            mode: MODES[Math.floor(Math.random() * MODES.length)],
+            nbPlayers: NB_PLAYERS,
+            image: 'Kratos.img',
+            tiles: array2D,
+            dimension: DIMENSION,
+            itemPlacement: array2D,
+            isSelected: false,
+            lastModification: new Date(),
+        });
+    }
+    return maps;
+};
 
 const NO_ITEM = 0;
 const RANDOM_ITEM = 1;
