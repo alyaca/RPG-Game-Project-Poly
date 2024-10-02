@@ -3,8 +3,8 @@ import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/consta
 import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
 import { GameCreationService } from '@app/services/game-creation.service';
+import { GameGridService } from '@app/services/game-grid.service';
 import { Subscription } from 'rxjs';
-import { GameGridService } from '../game-grid.service';
 
 @Injectable({
     providedIn: 'root',
@@ -53,9 +53,8 @@ export class GameObjectService implements OnDestroy {
         this.maxCount = OBJECT_COUNT_MAP[this.gridSize];
         this.resetObjectsCount();
 
-        for (let row = 0; row < objectArray.length; row++) {
-            for (let col = 0; col < objectArray[row].length; col++) {
-                const tileId = objectArray[row][col];
+        for (const row of objectArray) {
+            for (const tileId of row) {
                 if (tileId > 0) {
                     const object = objectsInfo.find((obj) => obj.id === tileId);
                     if (object && object.count > 0) {

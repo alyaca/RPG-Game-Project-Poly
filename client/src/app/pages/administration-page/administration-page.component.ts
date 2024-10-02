@@ -7,14 +7,13 @@ import { GameListComponent } from '@app/components/game-list/game-list.component
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
 
-
 @Component({
     selector: 'app-administration-page',
     standalone: true,
     templateUrl: './administration-page.component.html',
     styleUrls: ['./administration-page.component.scss', '../../../common/css/game-list-page.scss'],
     imports: [CommonModule, RouterLink, GameListComponent],
-    providers: [GameGridComponent]
+    providers: [GameGridComponent],
 })
 export class AdministrationPageComponent {
     constructor(private dialog: MatDialog) {}

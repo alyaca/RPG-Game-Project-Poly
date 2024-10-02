@@ -75,8 +75,11 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
             this.objectsArray = mapToEdit.itemPlacement;
             this.mapDescription = mapToEdit.description;
             this.mapName = mapToEdit.name;
-            this.mapDescriptionChange.emit(this.mapDescription);
-            this.mapNameChange.emit(this.mapName);
+
+            setTimeout(() => {
+                this.mapDescriptionChange.emit(this.mapDescription);
+                this.mapNameChange.emit(this.mapName);
+            });
             this.sendInfoToMapCreationPage();
         } else {
             console.error('Invalid map provided for loading');
