@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, SIZE_MEDIUM_MAP, OBJECT_COUNT_MAP, SIZE_SMALL_MAP  } from '@app/constants';
+import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, SIZE_MEDIUM_MAP, OBJECT_COUNT_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from './game-object.service';
 import { GameGridService } from '@app/services/game-grid.service';
@@ -12,40 +12,33 @@ describe('GameObjectService', () => {
     beforeEach(() => {
         const gameGridSpy = jasmine.createSpyObj('GameGridService', ['mapToEdit']);
         TestBed.configureTestingModule({
-            providers: [
-                GameObjectService,
-                { provide: GameGridService, useValue: gameGridSpy }
-            ]
+            providers: [GameObjectService, { provide: GameGridService, useValue: gameGridSpy }],
         });
         service = TestBed.inject(GameObjectService);
         gameGridServiceSpy = TestBed.inject(GameGridService) as jasmine.SpyObj<GameGridService>;
 
-        
         service.objects = [
             { ...mockObjects[0], count: 1 },
             { ...mockObjects[1], count: 1 },
-            { id: ObjectType.Spawn, name: 'mock4', description: 'mock spawn', count: ITEM_COUNT, image: 'mock4/image.png'},
-            { id: 999, name: 'mock5', description: 'mock spawn', count: ITEM_COUNT, image: 'mock5/image.png' }
+            { id: ObjectType.Spawn, name: 'mock4', description: 'mock spawn', count: ITEM_COUNT, image: 'mock4/image.png' },
+            { id: 999, name: 'mock5', description: 'mock spawn', count: ITEM_COUNT, image: 'mock5/image.png' },
         ];
         service.objectsArray = [
             [ObjectType.Armor, NO_OBJECT],
             [NO_OBJECT, ObjectType.Spawn],
         ];
 
-
         gameGridServiceSpy.mapToEdit = {
             dimension: SIZE_SMALL_MAP,
             itemPlacement: [
                 [ObjectType.Armor, ObjectType.Spawn],
-                [NO_OBJECT, ObjectType.Random]
-            ]
+                [NO_OBJECT, ObjectType.Random],
+            ],
         } as Map;
 
         service.objects = mockObjects;
         service.gridSize = SIZE_SMALL_MAP;
     });
-
-    
 
     it('should be created', () => {
         expect(service).toBeTruthy();
@@ -157,21 +150,20 @@ describe('GameObjectService', () => {
 
     it('should reset object counts correctly when mapSize is defined', () => {
         service.gridSize = SIZE_SMALL_MAP;
-    
+
         service.resetObjectsCount();
-    
+
         expect(service.objects[0].count).toBe(ITEM_COUNT);
         expect(service.objects[1].count).toBe(ITEM_COUNT);
         expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[SIZE_SMALL_MAP]);
-
     });
 
     it('should update objects container and decrement object counts correctly', () => {
         const objectArray = [
-            [ObjectType.Armor, ObjectType.Spawn],  
-            [NO_OBJECT, ObjectType.Random]      
+            [ObjectType.Armor, ObjectType.Spawn],
+            [NO_OBJECT, ObjectType.Random],
         ];
-    
+
         const objectsInfo: GameObject[] = [
             { id: ObjectType.Armor, count: 2, name: 'Armor', description: '', image: 'armor.png' },
             { id: ObjectType.Spawn, count: 1, name: 'Spawn', description: '', image: 'spawn.png' },
@@ -182,7 +174,7 @@ describe('GameObjectService', () => {
         expect(service.gridSize).toBe(SIZE_SMALL_MAP);
         expect(service.objectsArray).toEqual(gameGridServiceSpy.mapToEdit.itemPlacement);
         expect(service.maxCount).toBe(OBJECT_COUNT_MAP[SIZE_SMALL_MAP]);
-  
+
         expect(objectsInfo[0].count).toBe(1);
         expect(objectsInfo[1].count).toBe(0);
 

@@ -16,7 +16,7 @@ describe('GameGridService', () => {
 
     it('should have default values', () => {
         expect(service.hasMapToEditSubject).toBeFalse();
-        expect(service.mapToEdit).toBeUndefined(); 
+        expect(service.mapToEdit).toBeUndefined();
     });
 
     it('should set mapToEdit and update hasMapToEditSubject', () => {

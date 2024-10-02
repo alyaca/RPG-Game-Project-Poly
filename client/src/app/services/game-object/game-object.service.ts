@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, ObjectType, MAX_OBJ_COUNT_COEFF_1, MAX_OBJ_COUNT_COEFF_2 } from '@app/constants';
 import { GameObject } from '@app/interfaces/gameObject';
 import { gameObjects } from '@app/objectsInfo';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -30,9 +30,13 @@ export class GameObjectService implements OnDestroy {
         });
     }
 
+    findMaxObjCount(mapSize: number): number {
+        return MAX_OBJ_COUNT_COEFF_1 * mapSize - MAX_OBJ_COUNT_COEFF_2;
+    }
+
     createNewObjectsArray() {
         this.objectsArray = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(NO_OBJECT));
-        this.maxCount = OBJECT_COUNT_MAP[this.gridSize];
+        this.maxCount = this.findMaxObjCount(this.gridSize);
 
         return this.objectsArray;
     }
@@ -40,7 +44,7 @@ export class GameObjectService implements OnDestroy {
     resetObjectsCount() {
         this.objects.forEach((object) => {
             if (this.countableObjects.includes(object.id) && this.gridSize) {
-                object.count = OBJECT_COUNT_MAP[this.gridSize];
+                object.count = this.findMaxObjCount(this.gridSize);
             } else {
                 object.count = ITEM_COUNT;
             }
@@ -50,7 +54,7 @@ export class GameObjectService implements OnDestroy {
     updateObjectsContainer(objectsArray: number[][], objectsInfo: GameObject[]) {
         this.gridSize = this.gameGridService.mapToEdit.dimension;
         this.objectsArray = objectsArray;
-        this.maxCount = OBJECT_COUNT_MAP[this.gridSize];
+        this.maxCount = this.findMaxObjCount(this.gridSize);
         this.resetObjectsCount();
 
         for (const row of objectsArray) {
@@ -86,7 +90,6 @@ export class GameObjectService implements OnDestroy {
 
     removeObjectFromGrid(gameObject: GameObject) {
         if (this.selectedTile) {
-            console.log(this.objectsArray);
             this.objectsArray[this.selectedTile.row][this.selectedTile.col] = NO_OBJECT;
         } else if (this.dragStartPosition) {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;

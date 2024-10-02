@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { Map } from '@app/interfaces/map';
@@ -44,16 +44,19 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     previousRow: number | null = null;
     previousCol: number | null = null;
 
+    private toolService = inject(ToolService);
+    private mapValidatorService = inject(MapValidatorService);
+
     constructor(
-        private toolService: ToolService,
-        private mapValidatorService: MapValidatorService,
         public tileService: TileService,
         private gameObjectService: GameObjectService,
         public gameListService: GameListService,
         private gameGridService: GameGridService,
         private gameCreationService: GameCreationService,
     ) {}
-
+    get selectedTile(): string {
+        return this.toolService.getSelectedTile();
+    }
     ngOnInit() {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
@@ -61,13 +64,7 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
 
         if (this.gameGridService.hasMapToEditSubject) {
             this.loadMap(this.gameGridService.mapToEdit);
-        } else {
-            console.log('No map available for editing');
         }
-    }
-
-    get selectedTile(): string {
-        return this.toolService.getSelectedTile();
     }
 
     loadMap(mapToEdit: Map) {
@@ -77,8 +74,6 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
             this.gridSize = this.currentMap.dimension;
             this.reloadMap();
             this.sendInfoToMapCreationPage();
-        } else {
-            console.error('Invalid map provided for loading');
         }
     }
 

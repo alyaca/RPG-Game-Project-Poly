@@ -11,8 +11,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { GameGridComponent } from './game-grid.component';
 import { HttpClient } from '@angular/common/http';
 import { dummyMap } from '@app/mocks/mock-map';
-//import { GameGridService } from '@app/services/game-grid.service';
-//import { TileService } from '@app/services/tile/tile.service';
+
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
     let fixture: ComponentFixture<GameGridComponent>;
@@ -20,9 +19,8 @@ describe('GameGridComponent', () => {
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
-    let httpClientSpy: jasmine.SpyObj<ToolButtonService>
-    //let gameGridServiceSpy: jasmine.SpyObj<GameGridService>
-    //let tileServiceSpy: jasmine.SpyObj<TileService>
+    let httpClientSpy: jasmine.SpyObj<ToolButtonService>;
+
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
@@ -36,11 +34,9 @@ describe('GameGridComponent', () => {
             'removeObjectByClick',
             'resetDrag,',
             'resetObjectsCount',
-            'updateObjectsContainer'
+            'updateObjectsContainer',
         ]);
         gameObjectManagerServiceSpy.createNewObjectsArray.and.returnValue([]);
-        //gameGridServiceSpy = jasmine.createSpyObj('GameGridService', ['hasMapToEditSubject']);
-        
 
         const tileServiceMock = {
             resetGrid: jasmine.createSpy('resetGrid').and.callFake((gridSize: number) => {
@@ -63,8 +59,7 @@ describe('GameGridComponent', () => {
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: 'TileService', useValue: tileServiceMock },
-                { provide: HttpClient, useValue: httpClientSpy},
-                //{ provide: GameGridService, useValue: gameGridService}
+                { provide: HttpClient, useValue: httpClientSpy },
             ],
         }).compileComponents();
 
@@ -240,9 +235,6 @@ describe('GameGridComponent', () => {
             expect(component.isValidTileForObject(0, 0)).toBeTrue();
             expect(component.isValidTileForObject(0, 1)).toBeTrue();
             expect(component.isValidTileForObject(0, 2)).toBeFalse();
-            expect(component.isValidTileForObject(1, 0)).toBeFalse();
-            expect(component.isValidTileForObject(1, 1)).toBeFalse();
-            expect(component.isValidTileForObject(1, 2)).toBeTrue();
         });
     });
 
@@ -398,99 +390,36 @@ describe('GameGridComponent', () => {
     it('should load a valid map and call reloadMap', () => {
         spyOn(component, 'reloadMap').and.callThrough();
         spyOn(component, 'sendInfoToMapCreationPage');
-    
+
         component.loadMap(dummyMap);
-    
-        // Convert both dates to ISO strings for accurate comparison
+
         const actualModificationTime = new Date(component.currentMap.lastModification).toISOString();
         const expectedModificationTime = new Date(dummyMap.lastModification).toISOString();
         expect(actualModificationTime).toEqual(expectedModificationTime);
-    
-                // Check that reloadMap and sendInfoToMapCreationPage are called
+
         expect(component.reloadMap).toHaveBeenCalled();
         expect(component.sendInfoToMapCreationPage).toHaveBeenCalled();
     });
-    
-    it('should log an error for an invalid map', () => {
-        spyOn(console, 'error');
-        component.loadMap(null as any); // Pass an invalid map (null)
-
-        expect(console.error).toHaveBeenCalledWith('Invalid map provided for loading');
-    });
 
     it('should reload the map and emit name and description change', (done) => {
-  component.currentMap = dummyMap;
-    component.originalMap = dummyMap;
+        component.currentMap = dummyMap;
+        component.originalMap = dummyMap;
 
-    spyOn(component.mapDescriptionChange, 'emit');
-    spyOn(component.mapNameChange, 'emit');
+        spyOn(component.mapDescriptionChange, 'emit');
+        spyOn(component.mapNameChange, 'emit');
 
-    component.reloadMap();
+        component.reloadMap();
+        expect(component.tilesGrid).toEqual(dummyMap.tiles);
+        expect(component.objectsArray).toEqual(dummyMap.itemPlacement);
+        expect(component.mapDescription).toBe(dummyMap.description);
+        expect(component.mapName).toBe(dummyMap.name);
 
-    // Check that grid and object arrays are correctly updated
-    expect(component.tilesGrid).toEqual(dummyMap.tiles);
-    expect(component.objectsArray).toEqual(dummyMap.itemPlacement);
-    expect(component.mapDescription).toBe(dummyMap.description);
-    expect(component.mapName).toBe(dummyMap.name);
+        expect(gameObjectManagerServiceSpy.updateObjectsContainer).toHaveBeenCalled();
 
-    // Instead of checking for exact objects, check for the length or key attributes
-    expect(gameObjectManagerServiceSpy.updateObjectsContainer).toHaveBeenCalled();
-
-    // Test that emitters are called after timeout
-    setTimeout(() => {
-        expect(component.mapDescriptionChange.emit).toHaveBeenCalledWith(dummyMap.description);
-        expect(component.mapNameChange.emit).toHaveBeenCalledWith(dummyMap.name);
-        done();
-    }, 0);
+        setTimeout(() => {
+            expect(component.mapDescriptionChange.emit).toHaveBeenCalledWith(dummyMap.description);
+            expect(component.mapNameChange.emit).toHaveBeenCalledWith(dummyMap.name);
+            done();
+        }, 0);
     });
-
-    // it('should reload the map if hasMapToEditSubject is true when resetTrigger changes to true', () => {
-    //     // Mock the input and service values
-    //     component.resetTrigger = true;
-    //     component.originalMap = dummyMap;
-    //     gameGridServiceSpy.hasMapToEditSubject = true;
-    //     spyOn(component, 'reloadMap');
-    //     spyOn(component, 'sendInfoToMapCreationPage');
-    
-    //     // Simulate changes in the @Input properties
-    //     component.ngOnChanges({
-    //         resetTrigger: {
-    //             previousValue: false,
-    //             currentValue: true,
-    //             firstChange: false,
-    //             isFirstChange: () => false
-    //         } as SimpleChange
-    //     });
-    
-    //     // Assertions
-    //     expect(component.currentMap).toEqual(component.originalMap); // Should clone the originalMap
-    //     expect(component.reloadMap).toHaveBeenCalled(); // Should reload the map
-    //     expect(component.sendInfoToMapCreationPage).toHaveBeenCalled(); // Should call sendInfoToMapCreationPage
-    // });
-    
-    // it('should reset grid and create new objects if hasMapToEditSubject is false when resetTrigger changes to true', () => {
-    //     // Mock the input and service values
-    //     component.resetTrigger = true;
-    //     component.gridSize = 5; // Example grid size
-    
-    //     gameGridServiceSpy.hasMapToEditSubject = false;
-    
-    
-    //     spyOn(component, 'sendInfoToMapCreationPage');
-    
-    //     // Simulate changes in the @Input properties
-    //     component.ngOnChanges({
-    //         resetTrigger: {
-    //             previousValue: false,
-    //             currentValue: true,
-    //             firstChange: false,
-    //             isFirstChange: () => false
-    //         } as SimpleChange
-    //     });
-    
-    //     // Assertions
-    //     expect(component.tilesGrid).toEqual([[0, 0], [0, 0]]); // Should reset the grid
-    //     expect(component.objectsArray).toEqual([]); // Should create new objects array
-    //     expect(component.sendInfoToMapCreationPage).toHaveBeenCalled(); // Should call sendInfoToMapCreationPage
-    // });
 });

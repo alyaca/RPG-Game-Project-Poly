@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
-//import { GameGridComponent } from '../map-editor/game-grid/game-grid.component';
+// import { GameGridComponent } from '../map-editor/game-grid/game-grid.component';
 import { GameGridService } from '@app/services/game-grid.service';
 
 @Component({
