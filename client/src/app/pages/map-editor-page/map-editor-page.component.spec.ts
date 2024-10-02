@@ -1,13 +1,15 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
+import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION, VALIDATION_DURATION } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { TileType } from '@app/services/map-validator/map-validator.service';
+import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { SaveGameService } from '@app/services/save-game.service';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -17,14 +19,28 @@ describe('MapEditorPageComponent', () => {
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
     let gameObjectService: GameObjectService;
+    let saveGameServiceSpy: jasmine.SpyObj<SaveGameService>;
+    let httpMock: HttpTestingController;
+    let mapValidatorService: jasmine.SpyObj<MapValidatorService>;
+
+    afterEach(() => {
+        httpMock.verify();
+    });
+
+    afterAll(() => {
+        fixture.destroy();
+    });
 
     beforeEach(async () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+        saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveGame']);
+        mapValidatorService = jasmine.createSpyObj('MapValidatorService', ['validMap']);
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
                 provideHttpClient(),
+                provideHttpClientTesting(),
                 GameObjectService,
                 {
                     provide: ActivatedRoute,
@@ -35,8 +51,12 @@ describe('MapEditorPageComponent', () => {
                 },
                 { provide: MatDialog, useValue: dialogSpy },
                 { provide: Router, useValue: routerSpy },
+                { provide: MapValidatorService, useValue: mapValidatorService },
+                { provode: SaveGameService, useValue: saveGameServiceSpy },
             ],
+            teardown: { destroyAfterEach: false },
         }).compileComponents();
+        httpMock = TestBed.inject(HttpTestingController);
         gameObjectService = TestBed.inject(GameObjectService);
         fixture = TestBed.createComponent(MapEditorPageComponent);
         component = fixture.componentInstance;
@@ -188,11 +208,29 @@ describe('MapEditorPageComponent', () => {
     });
 
     describe('Saving start process', () => {
-        it('clicking the "Sauvegarder" button should call startSaving', () => {
+        it('clicking the "Sauvegarder" button should call startSaving', (done) => {
             spyOn(component, 'startSaving');
             const saveButton = fixture.debugElement.query(By.css('#save-button'));
             saveButton.triggerEventHandler('click');
             expect(component.startSaving).toHaveBeenCalled();
+            done();
         });
+
+        // ce test échoue for some reason
+        it('should not call saveGame in the saveGameService if the map is valid', fakeAsync(() => {
+            mapValidatorService.validMap = true;
+            component.startSaving();
+            tick();
+            tick(TEST_VALIDATION_DURATION);
+            expect(saveGameServiceSpy.saveGame).toHaveBeenCalled();
+        }));
+
+        it('should not call saveGame in the saveGameService if the map is not valid', fakeAsync(() => {
+            mapValidatorService.validMap = false;
+            component.startSaving();
+            tick();
+            tick(VALIDATION_DURATION);
+            expect(saveGameServiceSpy.saveGame).not.toHaveBeenCalled();
+        }));
     });
 });
