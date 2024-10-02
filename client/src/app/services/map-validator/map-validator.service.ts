@@ -11,8 +11,9 @@ import {
     VALIDATION_DURATION,
 } from '@app/constants';
 import { Map } from '@app/interfaces/map';
+import { GameGridService } from '@app/services/game-grid.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export enum TileType {
@@ -36,6 +37,7 @@ export class MapValidatorService {
         private dialog: MatDialog,
         private httpClient: HttpClient,
         private gameObjectService: GameObjectService,
+        private gameGridService: GameGridService,
     ) {
         this.gameObjectService.createNewObjectsArray();
     }
@@ -93,6 +95,10 @@ export class MapValidatorService {
 
     isSameName(nameToCheck: string): Observable<boolean> {
         const trimmedNameToCheck = nameToCheck.trim();
+        const loadedMap = this.gameGridService.mapToEdit;
+        if (loadedMap && loadedMap.name === trimmedNameToCheck) {
+            return of(false);
+        }
         return this.httpClient.get<Map[]>(this.apiURL).pipe(
             map((maps: Map[]) => {
                 const sameName = maps.filter((g) => g.name.trim() === trimmedNameToCheck);

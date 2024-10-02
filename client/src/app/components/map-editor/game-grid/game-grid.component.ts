@@ -5,7 +5,6 @@ import { Map } from '@app/interfaces/map';
 import { gameObjects } from '@app/objectsInfo';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameGridService } from '@app/services/game-grid.service';
-import { GameListService } from '@app/services/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
@@ -50,7 +49,6 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     constructor(
         public tileService: TileService,
         private gameObjectService: GameObjectService,
-        public gameListService: GameListService,
         private gameGridService: GameGridService,
         private gameCreationService: GameCreationService,
     ) {}
@@ -100,7 +98,6 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
                 this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
                 this.objectsArray = this.gameObjectService.createNewObjectsArray();
             }
-
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {

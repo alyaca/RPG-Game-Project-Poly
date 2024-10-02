@@ -10,6 +10,7 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { CHECK_BEFORE_SAVING_DELAY, MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { GameCreationService } from '@app/services/game-creation.service';
+import { GameGridService } from '@app/services/game-grid.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { SaveGameService } from '@app/services/save-game.service';
@@ -43,7 +44,6 @@ export class MapEditorPageComponent {
 
     infoTransferred: Info;
 
-    private adminGamePage = inject(GameListComponent);
     private saveGameService = inject(SaveGameService);
     private mapValidator = inject(MapValidatorService);
 
@@ -52,6 +52,7 @@ export class MapEditorPageComponent {
         private router: Router,
         private gameCreationService: GameCreationService,
         private gameObjectService: GameObjectService,
+        private gameGridService: GameGridService,
     ) {
         this.selectedSize = this.gameCreationService.getStoredSize();
     }
@@ -136,7 +137,7 @@ export class MapEditorPageComponent {
             };
             setTimeout(() => {
                 if (this.mapValidator.validMap) {
-                    this.saveGameService.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
+                    this.saveGameService.saveGame(this.infoTransferred, this.gameGridService.mapToEdit);
                 }
             }, CHECK_BEFORE_SAVING_DELAY);
         });
