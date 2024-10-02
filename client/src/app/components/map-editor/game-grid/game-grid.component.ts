@@ -38,7 +38,8 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
     selectedCol: number = 0;
     hasMapToEdit: boolean = false;
     isMouseDown: boolean = false;
-
+    originalMap: Readonly<Map>;
+    currentMap: Map;
     previousRow: number | null = null;
     previousCol: number | null = null;
 
@@ -70,12 +71,10 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
 
     loadMap(mapToEdit: Map) {
         if (mapToEdit) {
-            this.gridSize = mapToEdit.dimension;
-            this.tilesGrid = mapToEdit.tiles;
-            this.objectsArray = mapToEdit.itemPlacement;
-            this.mapDescription = mapToEdit.description;
-            this.mapName = mapToEdit.name;
-
+            this.originalMap = JSON.parse(JSON.stringify(mapToEdit));
+            this.currentMap = JSON.parse(JSON.stringify(this.originalMap));
+            this.gridSize = this.currentMap.dimension;
+            this.reloadMap();
             setTimeout(() => {
                 this.mapDescriptionChange.emit(this.mapDescription);
                 this.mapNameChange.emit(this.mapName);
@@ -86,10 +85,25 @@ export class GameGridComponent implements OnChanges, OnDestroy, OnInit {
         }
     }
 
+    reloadMap() {
+        if (this.originalMap) {
+            this.tilesGrid = this.currentMap.tiles;
+            this.objectsArray = this.currentMap.itemPlacement;
+            this.mapDescription = this.currentMap.description;
+            this.mapName = this.currentMap.name;
+        }
+    }
+
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
-            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-            this.objectsArray = this.gameObjectService.createNewObjectsArray();
+            if (this.gameGridService.hasMapToEditSubject) {
+                this.currentMap = JSON.parse(JSON.stringify(this.originalMap));
+                this.reloadMap();
+            } else {
+                this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+                this.objectsArray = this.gameObjectService.createNewObjectsArray();
+            }
+
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
