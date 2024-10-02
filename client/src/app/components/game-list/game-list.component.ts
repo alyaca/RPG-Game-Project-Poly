@@ -1,6 +1,7 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
 import { RouterLink } from '@angular/router';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
@@ -47,13 +48,13 @@ export class GameListComponent implements OnInit {
         return (
             date.getFullYear() +
             '-' +
-            String(date.getMonth() + 1).padStart(2, '0') +
+            String(date.getMonth() + 1).padStart(PAD_LENGTH, '0') +
             '-' +
-            String(date.getDate()).padStart(2, '0') +
+            String(date.getDate()).padStart(PAD_LENGTH, '0') +
             ' ' +
-            String(date.getHours()).padStart(2, '0') +
+            String(date.getHours()).padStart(PAD_LENGTH, '0') +
             ':' +
-            String(date.getMinutes()).padStart(2, '0')
+            String(date.getMinutes()).padStart(PAD_LENGTH, '0')
         );
     }
 
@@ -85,7 +86,7 @@ export class GameListComponent implements OnInit {
 
     showErrorMessage() {
         this.snackBar.open('Jeu déjà supprimé par un autre utilisateur', 'Fermer', {
-            duration: 4000,
+            duration: MESSAGE_DURATION_ERROR,
         });
     }
 
