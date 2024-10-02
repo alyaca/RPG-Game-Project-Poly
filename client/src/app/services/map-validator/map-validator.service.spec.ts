@@ -41,7 +41,7 @@ describe('MapValidatorService', () => {
         });
         service = TestBed.inject(MapValidatorService);
         httpMock = TestBed.inject(HttpTestingController);
-        service.isSameName = () => new Observable<boolean>().pipe(map(() => true));
+        // service.isSameName = () => new Observable<boolean>().pipe(map(() => true));
     });
 
     afterEach(() => {
@@ -153,6 +153,10 @@ describe('MapValidatorService', () => {
     });
 
     describe('validateMap', () => {
+        beforeEach(() => {
+            service.isSameName = () => new Observable<boolean>().pipe(map(() => true));
+        });
+
         it('should add error message when validateAllSpawnPointsPlaced returns false', () => {
             spyOn(service, 'validateAllDoors').and.returnValue(true);
             spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
@@ -241,7 +245,7 @@ describe('MapValidatorService', () => {
             });
 
             it('should return false for titles that are too long', () => {
-                const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1); // Generate a string longer than max
+                const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1);
                 expect(service.validateTitleLength(longTitle)).toBeFalse();
             });
 
@@ -331,6 +335,33 @@ describe('MapValidatorService', () => {
             service.mapObjects = gameObjectServiceSpy.objectsArray;
             gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
             expect(service.areAllSpawnPointsPlaced()).toBeTrue();
+        });
+    });
+
+    describe('validate name', () => {
+        beforeEach(() => {
+            service.isSameName = () => new Observable<boolean>().pipe(map(() => false));
+        });
+
+        it("should open the dialog with - Une carte avec le même nom existe déjà si le nom de la carte n'est pas unique", (done) => {
+            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
+            spyOn(service, 'validateAllDoors').and.returnValue(true);
+            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
+            spyOn(service, 'validateTitleLength').and.returnValue(true);
+            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
+            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
+
+            service.validateMap([[TileType.Ground]], 'non-unique title', 'validDescription');
+
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    data: {
+                        messages: ['- Une carte avec le même nom existe déjà'],
+                        title: 'Carte invalide',
+                    },
+                });
+                done();
+            }, TEST_VALIDATION_DURATION);
         });
     });
 });
