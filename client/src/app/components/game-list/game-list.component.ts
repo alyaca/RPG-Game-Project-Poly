@@ -5,7 +5,6 @@ import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 
-
 @Component({
     selector: 'app-game-list',
     standalone: true,
