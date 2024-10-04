@@ -187,6 +187,7 @@ export class MapValidatorService {
 
     openDialog(errorMessages: string[], title: string) {
         this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
             data: { messages: errorMessages, title },
         });
     }

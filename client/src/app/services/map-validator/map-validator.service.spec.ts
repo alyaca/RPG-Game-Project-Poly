@@ -281,6 +281,7 @@ describe('MapValidatorService', () => {
 
             setTimeout(() => {
                 expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    disableClose: true,
                     data: {
                         messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
                         title: 'Carte invalide',
@@ -302,6 +303,7 @@ describe('MapValidatorService', () => {
 
             setTimeout(() => {
                 expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    disableClose: true,
                     data: {
                         messages: ["Vous allez être redirigé vers la page d'administration"],
                         title: 'Sauvegarde réussie',
