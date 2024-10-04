@@ -32,32 +32,32 @@ footer {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1%;
+    padding: 0% 3%;
 }
 
-.player {
-    height: 80%;
-    width: 14.5%;
-    color: black;
-    background: linear-gradient(to bottom, rgba(133, 111, 54, 1), rgba(255, 228, 94, 1) 33%, rgba(255, 228, 94, 0.8) 67%, rgba(0, 0, 0, 0));
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap: 1%;
-    border-top: 0.1rem solid rgb(141, 133, 75);
-}
+// .player {
+//     height: 80%;
+//     width: 14.5%;
+//     color: black;
+//     background: linear-gradient(to bottom, rgba(133, 111, 54, 1), rgba(255, 228, 94, 1) 33%, rgba(255, 228, 94, 0.8) 67%, rgba(0, 0, 0, 0));
+//     position: relative;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     flex-direction: column;
+//     gap: 1%;
+//     border-top: 0.1rem solid rgb(141, 133, 75);
+// }
 
-.player::before {
-    content: ''; 
-    position: absolute;
-    top: -3%; 
-    left: 0;
-    width: 100%; 
-    height: 1%; 
-    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(255, 228, 94, 1) 10%, rgba(255, 228, 94, 0.8) 90%, rgba(0, 0, 0, 0));
-}
+// .player::before {
+//     content: '';
+//     position: absolute;
+//     top: -3%;
+//     left: 0;
+//     width: 100%;
+//     height: 1%;
+//     background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(255, 228, 94, 1) 10%, rgba(255, 228, 94, 0.8) 90%, rgba(0, 0, 0, 0));
+// }
 
 #footer-container {
     display: flex;
@@ -157,20 +157,20 @@ footer {
     border-radius: 50%;
 }
 
-.big {
-    height: 80%;
-    width: 16%;
-}
+// .big {
+//     height: 80%;
+//     width: 16%;
+// }   
 
-.medium {
-    height: 70%;
-    width: 14%;
-}
+// .medium {
+//     height: 70%;
+//     width: 14%;
+// }
 
-.small {
-    height: 60%;
-    width: 12%;
-}
+// .small {
+//     height: 60%;
+//     width: 12%;
+// }
 
 #quit-button {
     color: rgba(222, 207, 129, 1);
@@ -187,32 +187,32 @@ footer {
     border: 2px solid black;
 }
 
-.player-name {
-    background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
-    width: 100%;
-    text-align: center;
-    padding: 2%;
-    color: white;
-    font-family: papyrus;
-    font-weight: 900;
-    font-size: 20px;
-}
+// .player-name {
+//     background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
+//     width: 100%;
+//     text-align: center;
+//     padding: 2%;
+//     color: white;
+//     font-family: papyrus;
+//     font-weight: 900;
+//     font-size: 20px;
+// }
 
-.player img {
-    width: 90%;
-    border-radius: 2rem;
-    border: 2px solid black;
-    background-color: none;
-}
+// .player img {
+//     width: 90%;
+//     border-radius: 2rem;
+//     border: 2px solid black;
+//     background-color: none;
+// }
 
-.admin {
-    background: linear-gradient(to bottom, rgb(73, 14, 14), rgb(142, 19, 19) 35%, rgb(129, 26, 26) 65%, rgba(0, 0, 0, 0));
-    color: white;
-}
+// .admin {
+//     background: linear-gradient(to bottom, rgb(73, 14, 14), rgb(142, 19, 19) 35%, rgb(129, 26, 26) 65%, rgba(0, 0, 0, 0));
+//     color: white;
+// }
 
-.attribute {
-    margin-bottom: 5%;
-}
+// .attribute {
+//     margin-bottom: 5%;
+// }
 
 .switch {
     position: relative;
@@ -250,7 +250,7 @@ footer {
     background-color: white;
     transition: 0.4s;
     border-radius: 50%;
-    background-image: url('/assets/images/icones/unlocked.png');  
+    background-image: url('/assets/images/icones/unlocked.png');
     background-size: 110%;
     background-position: center;
 }
@@ -261,7 +261,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(3.5rem);
-    background-image: url('/assets/images/icones/locked.png'); 
+    background-image: url('/assets/images/icones/locked.png');
     background-size: cover;
     background-position: center;
 }
@@ -281,6 +281,21 @@ input:checked + .slider:before {
 
 .chat-icon {
     width: 2rem;
-    height: auto; 
-    margin-right: 1rem; 
+    height: auto;
+    margin-right: 1rem;
 }
+
+.small {
+    height: 60%;
+    width: 80%;
+    }
+    
+    .medium {
+    height: 70%;
+    width: 90%;
+    }
+    
+    .big {
+    height: 80%;
+    width: 100%;
+    }
