@@ -180,7 +180,7 @@ describe('WaitingPageComponent', () => {
             disableClose: true,
             data: {
                 title: 'Abandonner la partie?',
-                messages: ["- vous quitteriez la page d'attente"],
+                messages: ["- Vous quitteriez la page d'attente"],
                 confirm: true,
             },
         });
