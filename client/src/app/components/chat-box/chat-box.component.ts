@@ -27,7 +27,7 @@ export class ChatBoxComponent {
             id: 2,
             time: new Date('2005-05-19T01:58:40'),
             sender: 'Obi-Wan',
-            content: 'Anakin, le chancelier palpatine est maléfique',
+            content: 'Anakin, le chancelier Palpatine est maléfique',
         },
         {
             id: 3,
@@ -55,13 +55,13 @@ export class ChatBoxComponent {
         },
         {
             id: 7,
-            time: new Date('2005-05-19T01:58:34'),
+            time: new Date('2005-05-19T01:59:34'),
             sender: 'Anakin',
             content: 'Tu sous-estimes mon pouvoir !',
         },
         {
             id: 8,
-            time: new Date('2005-05-19T01:58:35'),
+            time: new Date('2005-05-19T01:59:35'),
             sender: 'Anakin',
             content: "Ne l'essayes pas",
         },
@@ -69,8 +69,8 @@ export class ChatBoxComponent {
             id: 9,
             time: new Date('2005-05-19T02:00:12'),
             sender: 'Obi-Wan',
-            content: `Tu étais lélu ! On disait que tu détruirais les Sith, pas que tu les rejoindrais !
-                Que tu apporterais léquilibre à la Force, pas que tu la laisserais dans les ténèbres !`,
+            content: `Tu étais l'élu ! On disait que tu détruirais les Sith, pas que tu les rejoindrais !
+                Que tu apporterais l'équilibre à la Force, pas que tu la laisserais dans les ténèbres !`,
         },
         {
             id: 10,
