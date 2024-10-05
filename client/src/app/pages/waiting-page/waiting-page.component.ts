@@ -7,6 +7,8 @@ import { GameListService } from '@app/services/game-list.service';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { MatDialog } from '@angular/material/dialog';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 @Component({
     selector: 'app-waiting-page',
@@ -29,6 +31,7 @@ export class WaitingPageComponent implements OnInit {
     constructor(
         private gameListService: GameListService,
         private router: Router,
+        private dialog: MatDialog,
     ) {
         this.gameListService.chosenGameSubject.subscribe((game: Map | null) => {
             if (game) {
@@ -75,5 +78,22 @@ export class WaitingPageComponent implements OnInit {
         } else {
             return PlayerSize.Small;
         }
+    }
+
+    handleExit() {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Abandonner la partie?',
+                messages: ['- vous quitteriez le lobby de jeu'],
+                confirm: true,
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === 'leave') {
+                this.router.navigate(['/home']);
+            }
+        });
     }
 }

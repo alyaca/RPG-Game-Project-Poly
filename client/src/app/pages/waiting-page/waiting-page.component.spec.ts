@@ -15,18 +15,21 @@ import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
 import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { MatDialog } from '@angular/material/dialog';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
     let fixture: ComponentFixture<WaitingPageComponent>;
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let routerSpy: jasmine.SpyObj<Router>;
-
+    let dialogSpy: jasmine.SpyObj<MatDialog>;
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Map | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
+        dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        
         await TestBed.configureTestingModule({
             imports: [WaitingPageComponent],
             providers: [
@@ -45,6 +48,10 @@ describe('WaitingPageComponent', () => {
                     provide: Router,
                     useValue: routerSpy,
                 },
+                {
+                    provide: MatDialog,
+                    useValue: dialogSpy
+                }
             ],
         }).compileComponents();
     });
@@ -162,5 +169,41 @@ describe('WaitingPageComponent', () => {
 
     it('should return correct player size for maximum value', () => {
         expect(component.getPlayerSize(MAX_PLAYER_SIZE_INT)).toBe(PlayerSize.Big);
+    });
+
+    it('should open the dialog and navigate to /home if confirmed', () => {
+        // Arrange: Set up the dialog reference to return 'leave' when closed
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('leave')); // Simulate closing with the result 'leave'
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        // Act: Call the handleExit function
+        component.handleExit();
+
+        // Assert: Check that the dialog was opened
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Abandonner la partie?',
+                messages: ['- vous quitteriez le lobby de jeu'],
+                confirm: true,
+            },
+        });
+
+        // Assert: Check that the router navigated to '/home'
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
+
+    it('should not navigate if dialog result is not leave', () => {
+        // Arrange: Set up the dialog reference to return a result other than 'leave'
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('stay')); // Simulate closing with a different result
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        // Act: Call the handleExit function
+        component.handleExit();
+
+        // Assert: Check that the router did not navigate
+        expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
 });

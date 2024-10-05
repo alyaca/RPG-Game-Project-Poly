@@ -17,74 +17,6 @@
             [isAdmin]="player.isAdmin"
           ></app-lobby-player>
             } 
-            <!-- <app-lobby-player
-            class="small"
-            name="joueur1"
-            [imageSrc]="'/assets/images/characters/Hephaestus.webp'"
-            [attack]="4"
-            [defense]="4"
-            [health]="4"
-            [speed]="4"
-            [isAdmin]="false"
-          ></app-lobby-player>
-          
-          <app-lobby-player
-            class="medium"
-            name="joueur2"
-            [imageSrc]="'/assets/images/characters/Athena.webp'"
-            [attack]="4"
-            [defense]="4"
-            [health]="6"
-            [speed]="4"
-            [isAdmin]="false"
-          ></app-lobby-player>
-
-          <app-lobby-player
-          class="big"
-          name="joueur3"
-          [imageSrc]="'/assets/images/characters/Hermes.webp'"
-          [attack]="4"
-          [defense]="4"
-          [health]="6"
-          [speed]="4"
-          [isAdmin]="true"
-        ></app-lobby-player>
-
-        <app-lobby-player
-        class="big"
-        name="joueur4"
-        [imageSrc]="'/assets/images/characters/Demeter.webp'"
-        [attack]="4"
-        [defense]="4"
-        [health]="6"
-        [speed]="4"
-        [isAdmin]="false"
-      ></app-lobby-player>
-
-      <app-lobby-player
-      class="medium"
-      name="joueur5"
-      [imageSrc]="'/assets/images/characters/Hera.webp'"
-      [attack]="4"
-      [defense]="4"
-      [health]="6"
-      [speed]="4"
-      [isAdmin]="false"
-    ></app-lobby-player>
-
-    <app-lobby-player
-    class="small"
-    name="joueur6"
-    [imageSrc]="'/assets/images/characters/Poseidon.webp'"
-    [attack]="4"
-    [defense]="4"
-    [health]="6"
-    [speed]="4"
-    [isAdmin]="false"
-  ></app-lobby-player> -->
-
-
-
             <!-- <div class="add-bot medium">
                 <p>ajouter un joueur virtuel</p>
                 <button class="add-bot-button">+</button>
@@ -108,7 +40,7 @@
                 <input type="text" id="chat-input" name="chatInput" placeholder="messagerie" />
             </div>
             <div id="start-container">
-                <button id="quit-button" routerLink="/home">x</button>
+                <button id="quit-button" (click)="handleExit()">quitter</button>
                 <button id="start">lancer une partie</button>
             </div>
             <div id="lock-container">
