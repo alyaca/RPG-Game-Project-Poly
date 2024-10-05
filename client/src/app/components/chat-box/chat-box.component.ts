@@ -25,7 +25,7 @@ export class ChatBoxComponent {
         },
         {
             id: 2,
-            time: '1:58:40',
+            time: '01:58:40',
             sender: 'Obi-Wan',
             content: 'Anakin, le chancelier palpatine est maléfique',
         },
@@ -37,7 +37,7 @@ export class ChatBoxComponent {
         },
         {
             id: 4,
-            time: '1:58:45',
+            time: '01:58:45',
             sender: 'Obi-Wan',
             content: 'Eh bien, alors tu es perdu.',
         },
@@ -49,7 +49,7 @@ export class ChatBoxComponent {
         },
         {
             id: 6,
-            time: '1:59:27',
+            time: '01:59:27',
             sender: 'Obi-Wan',
             content: "C'est fini Anakin, j'ai le dessus.",
         },
