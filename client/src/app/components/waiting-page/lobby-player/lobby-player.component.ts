@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LobbyPlayer } from '@app/interfaces/lobbyPlayer';
 
 @Component({
     selector: 'app-lobby-player',
@@ -9,12 +10,5 @@ import { CommonModule } from '@angular/common';
     styleUrl: './lobby-player.component.scss',
 })
 export class LobbyPlayerComponent {
-    @Input() name!: string;
-    @Input() imageSrc!: string;
-    @Input() attack!: number;
-    @Input() defense!: number;
-    @Input() health!: number;
-    @Input() speed!: number;
-    @Input() sizeClass: 'small' | 'medium' | 'big' = 'medium';
-    @Input() isAdmin: boolean = false;
+    @Input() lobbyPlayer: LobbyPlayer;
 }

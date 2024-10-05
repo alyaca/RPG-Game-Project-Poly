@@ -8,19 +8,13 @@
             @for (player of players; track player.id;) {
             <app-lobby-player
                 [class]="player.size"
-                [name]="player.name"
-                [imageSrc]="player.avatar"
-                [attack]="player.attributes.attack"
-                [defense]="player.attributes.defense"
-                [health]="player.attributes.health"
-                [speed]="player.attributes.speed"
-                [isAdmin]="player.isAdmin"
+                [lobbyPlayer]="player"
             ></app-lobby-player>
             }
-            <!-- <div class="add-bot medium"> temporary html for virtual player
+            <div class="add-bot medium">
                 <p>ajouter un joueur virtuel</p>
                 <button class="add-bot-button">+</button>
-            </div> -->
+            </div>
         </div>
     </main>
     <footer>

@@ -30,7 +30,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
     {
         id: 2,
         name: 'joueur3',
-        avatar: '/assets/images/characters/Apollo.webp',
+        avatar: '/assets/images/characters/Zeus.webp',
         attributes: {
             attack: 4,
             defense: 4,
@@ -43,7 +43,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
     {
         id: 3,
         name: 'joueur4',
-        avatar: '/assets/images/characters/Demeter.webp',
+        avatar: '/assets/images/characters/Artemis.webp',
         attributes: {
             attack: 4,
             defense: 4,
@@ -56,7 +56,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
     {
         id: 4,
         name: 'joueur5',
-        avatar: '/assets/images/characters/Poseidon.webp',
+        avatar: '/assets/images/characters/Apollo.webp',
         attributes: {
             attack: 4,
             defense: 4,

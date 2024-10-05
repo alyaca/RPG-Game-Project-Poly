@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT } from '@app/constants';
+import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT, FIVE_PLAYERS_LOBBY } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
@@ -25,7 +25,7 @@ export class WaitingPageComponent implements OnInit {
 
     // sample player lobby (to be generated dynamically later)
     // see app/mocks/mock-lobby-players.ts
-    players: LobbyPlayer[] = mockLobbyPlayers;
+    players: LobbyPlayer[] = mockLobbyPlayers.slice(0, FIVE_PLAYERS_LOBBY);
 
     private readonly accesCodeLength = ACCESS_CODE_LENGTH;
 
@@ -86,7 +86,7 @@ export class WaitingPageComponent implements OnInit {
             disableClose: true,
             data: {
                 title: 'Abandonner la partie?',
-                messages: ["- vous quitteriez la page d'attente"],
+                messages: ["- Vous quitteriez la page d'attente"],
                 confirm: true,
             },
         });
