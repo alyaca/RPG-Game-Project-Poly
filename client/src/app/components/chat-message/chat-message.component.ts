@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-// import { GameMessage } from '@app/interfaces/message';
 
 @Component({
     selector: 'app-chat-message',

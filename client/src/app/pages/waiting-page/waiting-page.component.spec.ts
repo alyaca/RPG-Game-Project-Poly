@@ -180,7 +180,7 @@ describe('WaitingPageComponent', () => {
             disableClose: true,
             data: {
                 title: 'Abandonner la partie?',
-                messages: ['- vous quitteriez le lobby de jeu'],
+                messages: ["- vous quitteriez la page d'attente"],
                 confirm: true,
             },
         });

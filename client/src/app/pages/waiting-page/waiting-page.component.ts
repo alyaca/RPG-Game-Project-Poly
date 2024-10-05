@@ -24,7 +24,7 @@ export class WaitingPageComponent implements OnInit {
     chosenGame: Map;
 
     // sample player lobby (to be generated dynamically later)
-    // see app/mocks/mock-lobby-players.ts to see
+    // see app/mocks/mock-lobby-players.ts
     players: LobbyPlayer[] = mockLobbyPlayers;
 
     private readonly accesCodeLength = ACCESS_CODE_LENGTH;
@@ -86,7 +86,7 @@ export class WaitingPageComponent implements OnInit {
             disableClose: true,
             data: {
                 title: 'Abandonner la partie?',
-                messages: ['- vous quitteriez le lobby de jeu'],
+                messages: ["- vous quitteriez la page d'attente"],
                 confirm: true,
             },
         });

@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { Player, PlayerSize } from '@app/interfaces/lobbyPlayer';
 
 @Component({
     selector: 'app-lobby-player',
@@ -16,6 +15,6 @@ export class LobbyPlayerComponent {
     @Input() defense!: number;
     @Input() health!: number;
     @Input() speed!: number;
-    @Input() sizeClass: 'small' | 'medium' | 'big' = 'medium'; // default to medium
+    @Input() sizeClass: 'small' | 'medium' | 'big' = 'medium';
     @Input() isAdmin: boolean = false;
 }
