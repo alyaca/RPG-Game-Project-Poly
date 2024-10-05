@@ -1,11 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
+import {
+    ACCESS_CODE_LENGTH,
+    MAX_ACCESS_CODE_VALUE,
+    MAX_PLAYER_SIZE_INT,
+    SIZE_THREE_ARRAY_LENGTH,
+    SIZE_FOUR_ARRAY_LENGTH,
+    SIZE_FIVE_ARRAY_LENGTH,
+} from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
+import { PlayerSize } from '@app/interfaces/lobbyPlayer';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -93,5 +102,65 @@ describe('WaitingPageComponent', () => {
             expect(codeNumber).toBeGreaterThanOrEqual(0);
             expect(codeNumber).toBeLessThan(MAX_ACCESS_CODE_VALUE);
         }
+    });
+
+    // New tests for attributeSizeDynamically and getPlayerSize
+    it('should assign correct player sizes for 1 player', () => {
+        component.players = mockLobbyPlayers.slice(0, 1);
+        component.attributeSizeDynamically();
+        expect(component.players[0].size).toBe(PlayerSize.Big); // Assuming MAX_PLAYER_SIZE_INT = 2
+    });
+
+    it('should assign correct player sizes for 2 players', () => {
+        component.players = mockLobbyPlayers.slice(0, 2);
+        component.attributeSizeDynamically();
+        expect(component.players.map((p) => p.size)).toEqual([PlayerSize.Big, PlayerSize.Big]);
+    });
+
+    it('should assign correct player sizes for 3 players', () => {
+        component.players = mockLobbyPlayers.slice(0, SIZE_THREE_ARRAY_LENGTH);
+        component.attributeSizeDynamically();
+        expect(component.players.map((p) => p.size)).toEqual([PlayerSize.Medium, PlayerSize.Big, PlayerSize.Medium]);
+    });
+
+    it('should assign correct player sizes for 4 players', () => {
+        component.players = mockLobbyPlayers.slice(0, SIZE_FOUR_ARRAY_LENGTH);
+        component.attributeSizeDynamically();
+        expect(component.players.map((p) => p.size)).toEqual([PlayerSize.Medium, PlayerSize.Big, PlayerSize.Big, PlayerSize.Medium]);
+    });
+
+    it('should assign correct player sizes for 5 players', () => {
+        component.players = mockLobbyPlayers.slice(0, SIZE_FIVE_ARRAY_LENGTH);
+        component.attributeSizeDynamically();
+        expect(component.players.map((p) => p.size)).toEqual([
+            PlayerSize.Small,
+            PlayerSize.Medium,
+            PlayerSize.Big,
+            PlayerSize.Medium,
+            PlayerSize.Small,
+        ]);
+    });
+
+    it('should assign correct player sizes for 6 players', () => {
+        component.players = mockLobbyPlayers;
+        component.attributeSizeDynamically();
+        expect(component.players.map((p) => p.size)).toEqual([
+            PlayerSize.Small,
+            PlayerSize.Medium,
+            PlayerSize.Big,
+            PlayerSize.Big,
+            PlayerSize.Medium,
+            PlayerSize.Small,
+        ]);
+    });
+
+    it('should return correct player size based on value', () => {
+        expect(component.getPlayerSize(2)).toBe(PlayerSize.Big);
+        expect(component.getPlayerSize(1)).toBe(PlayerSize.Medium);
+        expect(component.getPlayerSize(0)).toBe(PlayerSize.Small);
+    });
+
+    it('should return correct player size for maximum value', () => {
+        expect(component.getPlayerSize(MAX_PLAYER_SIZE_INT)).toBe(PlayerSize.Big);
     });
 });
