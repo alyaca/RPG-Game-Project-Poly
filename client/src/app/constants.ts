@@ -71,6 +71,6 @@ export const DICE_6 = '1-6';
 
 // largest size for lobby player visual
 export const MAX_PLAYER_SIZE_INT = 2;
-export const SIZE_THREE_ARRAY_LENGTH = 3;
-export const SIZE_FOUR_ARRAY_LENGTH = 4;
-export const SIZE_FIVE_ARRAY_LENGTH = 5;
+export const THREE_PLAYERS_LOBBY = 3;
+export const FOUR_PLAYERS_LOBBY = 4;
+export const FIVE_PLAYERS_LOBBY = 5;

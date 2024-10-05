@@ -4,9 +4,9 @@ import {
     ACCESS_CODE_LENGTH,
     MAX_ACCESS_CODE_VALUE,
     MAX_PLAYER_SIZE_INT,
-    SIZE_THREE_ARRAY_LENGTH,
-    SIZE_FOUR_ARRAY_LENGTH,
-    SIZE_FIVE_ARRAY_LENGTH,
+    THREE_PLAYERS_LOBBY,
+    FOUR_PLAYERS_LOBBY,
+    FIVE_PLAYERS_LOBBY,
 } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
@@ -124,19 +124,19 @@ describe('WaitingPageComponent', () => {
     });
 
     it('should assign correct player sizes for 3 players', () => {
-        component.players = mockLobbyPlayers.slice(0, SIZE_THREE_ARRAY_LENGTH);
+        component.players = mockLobbyPlayers.slice(0, THREE_PLAYERS_LOBBY);
         component.attributeSizeDynamically();
         expect(component.players.map((p) => p.size)).toEqual([PlayerSize.Medium, PlayerSize.Big, PlayerSize.Medium]);
     });
 
     it('should assign correct player sizes for 4 players', () => {
-        component.players = mockLobbyPlayers.slice(0, SIZE_FOUR_ARRAY_LENGTH);
+        component.players = mockLobbyPlayers.slice(0, FOUR_PLAYERS_LOBBY);
         component.attributeSizeDynamically();
         expect(component.players.map((p) => p.size)).toEqual([PlayerSize.Medium, PlayerSize.Big, PlayerSize.Big, PlayerSize.Medium]);
     });
 
     it('should assign correct player sizes for 5 players', () => {
-        component.players = mockLobbyPlayers.slice(0, SIZE_FIVE_ARRAY_LENGTH);
+        component.players = mockLobbyPlayers.slice(0, FIVE_PLAYERS_LOBBY);
         component.attributeSizeDynamically();
         expect(component.players.map((p) => p.size)).toEqual([
             PlayerSize.Small,
