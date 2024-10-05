@@ -23,7 +23,7 @@ export class WaitingPageComponent implements OnInit {
     chosenGame: Map;
 
     // sample player lobby (to be generated dynamically later)
-    // see app/mocks/mock-lobby-players.ts to edit
+    // see app/mocks/mock-lobby-players.ts to see
     players: LobbyPlayer[] = mockLobbyPlayers;
 
     private readonly accesCodeLength = ACCESS_CODE_LENGTH;
