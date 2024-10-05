@@ -1,0 +1,94 @@
+.page-element {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
+    color: white;
+}
+
+.left-container {
+    flex: 0 0 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.player-bar{
+    border: 1px solid white;
+    flex: 0 0 20%;
+    width: 90%;
+    margin-top: 5%;
+}
+
+.equipped-items{
+    border: 1px solid white;
+    flex: 0 0 15%;
+    width: 90%;
+}
+
+.chat{
+    border: 1px solid white;
+    flex: 0 0 1%;
+    margin-top: 90%;
+    width: 95%;
+}
+
+.quit{
+    border: 1px solid white;
+    flex: 0 0 5%;
+    margin-top:2%;
+    width: 50%;
+}
+
+.middle-container {
+    flex: 0 0 50%;
+    height: 100%;
+}
+
+.grid-element {
+    margin-top: 2%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.right-container {
+    flex: 0 0 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timer{
+    flex: 0 0 10%;
+    border: 1px solid white;
+    width: 80%;
+    margin-bottom: 25%;
+}
+
+.players{
+    flex: 0 0 50%;
+    border: 1px solid white;
+    width: 80%;
+    margin-bottom: 25%;
+}
+
+.end-turn-button{
+    flex: 0 0 10%;
+    border: 1px solid white;
+    width: 50%;
+}
+
+.game-info{
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    justify-content: center; 
+    gap: 10%;
+    border: 1px solid white;
+    width: 80%;
+    height: 5%;
+    margin: 1% auto;  
+}
