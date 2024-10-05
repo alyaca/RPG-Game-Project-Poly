@@ -50,45 +50,6 @@ app-lobby-player {
     gap: 25%;
 }
 
-.chat-box {
-    height: 5%;
-    width: 10%;
-    position: relative;
-    display: inline-block;
-}
-
-#chat-input {
-    background: none;
-    color: white;
-    border: 0.075rem solid rgb(135, 125, 79);
-    border-radius: 0.75rem;
-    padding: 0.5rem;
-    margin: 0;
-    font-family: Papyrus;
-    font-weight: bold;
-    font-size: 16px;
-    width: 250%;
-}
-
-.past-messages {
-    color: black;
-    position: absolute;
-    bottom: 100%;
-    background: linear-gradient(to bottom, rgba(212, 212, 212, 0.9), rgba(206, 206, 206, 0.8) 33%, rgba(159, 159, 159, 0.7) 67%, rgba(0, 0, 0, 0));
-    display: none;
-    z-index: 10;
-    width: 250%;
-    height: 1000%;
-}
-
-.msg {
-    margin: 5%;
-}
-
-.chat-box:hover .past-messages {
-    display: block;
-}
-
 #start-container {
     display: flex;
     align-items: center;

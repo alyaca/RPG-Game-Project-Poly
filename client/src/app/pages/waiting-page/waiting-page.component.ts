@@ -9,11 +9,12 @@ import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [RouterLink, CommonModule, LobbyPlayerComponent],
+    imports: [RouterLink, CommonModule, LobbyPlayerComponent, ChatBoxComponent],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })

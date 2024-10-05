@@ -1,0 +1,15 @@
+import { Component, Input } from '@angular/core';
+// import { GameMessage } from '@app/interfaces/message';
+
+@Component({
+    selector: 'app-chat-message',
+    standalone: true,
+    imports: [],
+    templateUrl: './chat-message.component.html',
+    styleUrl: './chat-message.component.scss',
+})
+export class ChatMessageComponent {
+    @Input() time: string;
+    @Input() sender: string;
+    @Input() content: string;
+}

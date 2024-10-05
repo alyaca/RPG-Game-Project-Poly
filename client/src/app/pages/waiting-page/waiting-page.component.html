@@ -7,16 +7,16 @@
         <div id="players-container">
             @for (player of players; track player.id;) {
             <app-lobby-player
-            [class]="player.size"
-            [name]="player.name"
-            [imageSrc]="player.avatar"
-            [attack]="player.attributes.attack"
-            [defense]="player.attributes.defense"
-            [health]="player.attributes.health"
-            [speed]="player.attributes.speed"
-            [isAdmin]="player.isAdmin"
-          ></app-lobby-player>
-            } 
+                [class]="player.size"
+                [name]="player.name"
+                [imageSrc]="player.avatar"
+                [attack]="player.attributes.attack"
+                [defense]="player.attributes.defense"
+                [health]="player.attributes.health"
+                [speed]="player.attributes.speed"
+                [isAdmin]="player.isAdmin"
+            ></app-lobby-player>
+            }
             <!-- <div class="add-bot medium">
                 <p>ajouter un joueur virtuel</p>
                 <button class="add-bot-button">+</button>
@@ -25,22 +25,9 @@
     </main>
     <footer>
         <div id="footer-container">
-            <div class="chat-box">
-                <div class="past-messages">
-                    <div class="msg">17:21:54 Obi-Wan : C'est fini Anakin, j'ai le dessus.</div>
-                    <div class="msg">17:22:03 Anakin Skywalker : Tu sous-estimes mon pouvoir !</div>
-                    <div class="msg">
-                        17:22:46 Obi-Wan : Tu étais l'élu ! On disait que tu détruirais les Sith, pas que tu les rejoindrais ! Que tu apporterais l'équilibre à
-                        la Force, pas que tu la laisserais dans les ténèbres !
-                    </div>
-                    <div class="msg">17:23:10 Anakin : JE TE DÉTESTE</div>
-                    <div class="msg">17:23:36 Obi-Wan : Tu étais mon frère, Anakin ! Je t'aimais !</div>
-                </div>
-                <label for="chatInput"></label>
-                <input type="text" id="chat-input" name="chatInput" placeholder="messagerie" />
-            </div>
+            <app-chat-box></app-chat-box>
             <div id="start-container">
-                <button id="quit-button" (click)="handleExit()">quitter </button>
+                <button id="quit-button" (click)="handleExit()">quitter</button>
                 <button id="start">lancer une partie</button>
             </div>
             <div id="lock-container">
