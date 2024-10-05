@@ -68,3 +68,6 @@ export const DEFAULT_ATTRIBUTE = '4';
 export const HIGH_ATTRIBUTE = '6';
 export const DICE_4 = '1-4';
 export const DICE_6 = '1-6';
+
+// largest size for lobby player visual
+export const MAX_PLAYER_SIZE_INT = 2;
