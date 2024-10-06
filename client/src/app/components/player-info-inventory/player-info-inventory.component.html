@@ -1,11 +1,31 @@
 <div class="player-stats">
-    <img id="portrait" src="/client/src/assets/images/characters/Hephaestus.webp/" />
-    <p class="player-info-element" id="player-name">Gob</p>
-    <p class="player-info-element" id="hp-bar">HP bar, total and current hp</p>
-    <p class="player-info-element" id="movement-points">Number of movements points remaining</p>
-    <p class="player-info-element" id="stats">Vie Rapidite Attaque Defense</p>
-</div>
-<div class="player-inventory">
-    <app-game-object class="inventory-item" imageUrl="/assets/images/objects/armor-of-achilles.jpg/"></app-game-object>
-    <app-game-object class="inventory-item" imageUrl="/assets/images/objects/helm-of-darkness.jpg/"></app-game-object>
+    <div class="player-info-element" id="player-name-image"><img id="portrait" src="{{ playerInfo.portrait }}" />{{ playerInfo.name }}</div>
+
+    <div class="player-info-element" id="hp-bar">
+        <span id="hp-value"> {{ playerInfo.currentHp }}</span>
+        <progress class="player-info-element" id="hp-bar" value="{{ playerInfo.currentHp }}" max="{{ playerInfo.hp }}"></progress>
+    </div>
+    <div class="player-info-element" id="movement-points">
+        @for (movementPoint of movementPointsArray; track $index) {
+        <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" />
+        }
+    </div>
+    <div class="player-info-element" id="stats">
+        <div class="individual-stat" id="health">Vie : {{ playerInfo.hp }}</div>
+        <div class="individual-stat" id="speed">Rapidite : {{ playerInfo.speed }}</div>
+        <div class="individual-stat" id="attack">
+            Attaque : {{ playerInfo.attack }} @if (playerInfo.atkDice === 4) {<img class="stats-dice" src="/assets/images/icones/D4.png" />} @else{
+            <img class="stats-dice" src="/assets/images/icones/D6.png/" />}
+        </div>
+        <div class="individual-stat" id="defense">
+            Defense : {{ playerInfo.defense }} @if (playerInfo.defDice === 4) {<img class="stats-dice" src="/assets/images/icones/D4.png/" />} @else
+            {<img class="stats-dice" src="/assets/images/icones/D6.png/" />}
+        </div>
+    </div>
+    <h4 id="inventory-header">Inventaire</h4>
+    <div class="player-inventory">
+        @for (items of playerInfo.inventory; track $index) {
+        <app-game-object class="player-items" imageUrl="{{ items.image }}" description="{{ items.description }}"></app-game-object>
+        }
+    </div>
 </div>

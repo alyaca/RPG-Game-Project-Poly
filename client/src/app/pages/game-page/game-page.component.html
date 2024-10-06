@@ -1,12 +1,6 @@
 <div class="page-element">
     <div class="left-container">
         <app-player-info-inventory class="player-bar"></app-player-info-inventory>
-        <!-- <div class="player-bar">
-            <p>info joueurs</p>
-        </div>
-        <div class="equipped-items">
-            <p>items équipés</p>
-        </div> -->
         <div class="chat">
             <p>clavardage</p>
         </div>
@@ -37,10 +31,7 @@
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id;){
-                <app-ingame-players-sidebar
-                    [sidebarPlayer] = "player"
-                >
-                </app-ingame-players-sidebar>
+            <app-ingame-players-sidebar [sidebarPlayer]="player"> </app-ingame-players-sidebar>
             }
         </div>
         <div>

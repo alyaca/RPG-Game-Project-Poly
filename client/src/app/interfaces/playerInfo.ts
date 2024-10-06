@@ -1,10 +1,15 @@
+import { GameObject } from './gameObject';
+
 export interface PlayerInfo {
     portrait: string;
     name: string;
     hp: number;
+    currentHp: number;
     speed: number;
+    movementPointsLeft: number;
     attack: number;
     atkDice: number;
     defense: number;
     defDice: number;
+    inventory: GameObject[];
 }
