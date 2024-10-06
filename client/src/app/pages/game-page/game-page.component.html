@@ -1,50 +1,50 @@
-
-    <div class="page-element">
-        <div class="left-container">
-            <div class="player-bar">
-                <p>info joueurs</p>
-            </div>
-            <div class="equipped-items">
-                <p>items équipés</p>
-            </div>
-            <div class="chat">
-                <p>clavardage</p>
-            </div>
-            <div class="quit">
-                <p>abandonner la partie</p>
-            </div>
+<div class="page-element">
+    <div class="left-container">
+        <app-player-info-inventory class="player-bar"></app-player-info-inventory>
+        <!-- <div class="player-bar">
+            <p>info joueurs</p>
         </div>
-        <div class="middle-container">
-            <div class="game-info">
-                <p id="grid-size">taille: 10x10</p>
-                <p id="player-count">nombre de joueurs:  2 joueurs</p>
-            </div>
-            <div id="game-grid-background-gradient">
-                <div class="grid-element" id="game-grid-container" #gameGrid>
-                    <app-game-grid
-                        [selectedSize]="selectedSize"
-                        [resetTrigger]="resetTrigger"
-                        [saveTrigger]="saveTrigger"
-                        [mapName]="mapName"
-                        [mapDescription]="mapDescription"
-                    ></app-game-grid>
-                </div>
-            </div>
+        <div class="equipped-items">
+            <p>items équipés</p>
+        </div> -->
+        <div class="chat">
+            <p>clavardage</p>
         </div>
-        <div class="right-container">
-            <div class="timer">
-                <p class="timer-text">il reste 69 secondes</p>
-            </div>
-            <div class="players">
-                <div>player 1</div>
-                <div>player 2</div>
-                <div>player 3</div>
-                <div>player 4</div>
-                <div>player 5</div>
-                <div>player 6</div>
-            </div>
-            <div class="end-turn-button">
-                <p class="end-turn-text">terminer le tour</p>
+        <div class="quit">
+            <p>abandonner la partie</p>
+        </div>
+    </div>
+    <div class="middle-container">
+        <div class="game-info">
+            <p id="grid-size">taille: 10x10</p>
+            <p id="player-count">nombre de joueurs: 2 joueurs</p>
+        </div>
+        <div id="game-grid-background-gradient">
+            <div class="grid-element" id="game-grid-container" #gameGrid>
+                <app-game-grid
+                    [selectedSize]="selectedSize"
+                    [resetTrigger]="resetTrigger"
+                    [saveTrigger]="saveTrigger"
+                    [mapName]="mapName"
+                    [mapDescription]="mapDescription"
+                ></app-game-grid>
             </div>
         </div>
     </div>
+    <div class="right-container">
+        <div class="timer">
+            <p class="timer-text">il reste 69 secondes</p>
+        </div>
+        <div class="players">
+            <div>player 1</div>
+            <div>player 2</div>
+            <div>player 3</div>
+            <div>player 4</div>
+            <div>player 5</div>
+            <div>player 6</div>
+        </div>
+        <div class="end-turn-button">
+            <p class="end-turn-text">terminer le tour</p>
+        </div>
+    </div>
+</div>
