@@ -36,12 +36,12 @@
             <p class="timer-text">il reste 69 secondes</p>
         </div>
         <div class="players">
-            <div>player 1</div>
-            <div>player 2</div>
-            <div>player 3</div>
-            <div>player 4</div>
-            <div>player 5</div>
-            <div>player 6</div>
+            @for (player of allPlayers; track player.id;){
+                <app-ingame-players-sidebar
+                    [sidebarPlayer] = "player"
+                >
+                </app-ingame-players-sidebar>
+            }
         </div>
         <div>
             <p class="end-turn-text">Fin de tour</p>

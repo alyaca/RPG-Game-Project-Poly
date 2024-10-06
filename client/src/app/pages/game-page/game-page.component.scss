@@ -65,14 +65,14 @@
     flex: 0 0 10%;
     border: 1px solid white;
     width: 80%;
-    margin-bottom: 15%;
+    margin-bottom: 10%;
 }
 
 .players {
     flex: 0 0 50%;
-    border: 1px solid white;
-    width: 80%;
-    margin-bottom: 10%;
+    flex-direction: column;
+    width: 95%;
+    margin-bottom: 0;
 }
 
 .end-turn-button-outer {

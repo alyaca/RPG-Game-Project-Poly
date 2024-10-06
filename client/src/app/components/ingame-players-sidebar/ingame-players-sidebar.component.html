@@ -1,0 +1,30 @@
+<div class="player">
+    <div class="active-slot">
+        @if (sidebarPlayer.isActive){
+            <img class="active-arrow-img" src="/assets/images/icones/golden-arrow.png" alt="Active Slot Icon">
+        }
+    </div>
+    <div class="avatar-img" [ngClass]="sidebarPlayer.status">
+        <img src={{sidebarPlayer.avatar}} alt="avatar-img">
+    </div>
+    <div class="player-info">
+        <p class="player-name" [ngClass]="sidebarPlayer.status">{{sidebarPlayer.name}}</p>
+        @if(sidebarPlayer.status === "disconnected"){
+            <p class="gray"> disconnected</p>
+        }
+        @else {
+            <p class="status">{{sidebarPlayer.victories}} victoires</p>
+        }
+    </div>
+    <div class="icon">
+        @if(sidebarPlayer.status === "admin"){
+            <img src="/assets/images/icones/admin.png" alt="admin-img">
+        }
+        @else if(sidebarPlayer.status === "bot"){
+            <img src="/assets/images/icones/bot.png" alt="admin-img">
+        }
+        @else if(sidebarPlayer.status === "disconnected"){
+            <img src="/assets/images/icones/disconnected.png" alt="admin-img">
+        }
+    </div>
+</div>
