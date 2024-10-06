@@ -1,4 +1,4 @@
-<div class="player">
+<div class="player" [ngClass]="{'active': sidebarPlayer.isActive}">
     <div class="active-slot">
         @if (sidebarPlayer.isActive){
             <img class="active-arrow-img" src="/assets/images/icones/golden-arrow.png" alt="Active Slot Icon">
