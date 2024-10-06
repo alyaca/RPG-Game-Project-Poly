@@ -65,20 +65,50 @@
     flex: 0 0 10%;
     border: 1px solid white;
     width: 80%;
-    margin-bottom: 25%;
+    margin-bottom: 15%;
 }
 
 .players {
     flex: 0 0 50%;
     border: 1px solid white;
     width: 80%;
-    margin-bottom: 25%;
+    margin-bottom: 10%;
 }
 
-.end-turn-button {
-    flex: 0 0 10%;
-    border: 1px solid white;
-    width: 50%;
+.end-turn-button-outer {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    border: 1px solid black;
+    width: 9rem;
+    height: 9rem;
+    border-radius: 50%;
+    background: linear-gradient(to top right, rgb(39, 39, 39), rgb(88, 88, 88) 33%, rgb(162, 162, 162) 67%, rgb(220, 220, 220) 100%);
+}
+
+.end-turn-button-outer:hover {
+    background: linear-gradient(to top right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(219, 27, 27) 100%);
+}
+
+.end-turn-button-inner {
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    background-image: url('/assets/images/icones/next-turn.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.end-turn-text{
+    text-align: center;
+    font-family: papyrus;
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 0;
 }
 
 .game-info {
