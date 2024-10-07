@@ -19,7 +19,7 @@ export class GamePageComponent {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
-    allPlayers:IngameSidebarPlayer[] = [
+    allPlayers: IngameSidebarPlayer[] = [
         {
             id: 0,
             avatar: '/assets/images/characters/Artemis.webp',
@@ -67,6 +67,6 @@ export class GamePageComponent {
             name: 'BLG Knight',
             victories: 2,
             isActive: false,
-        }
-    ]
+        },
+    ];
 }

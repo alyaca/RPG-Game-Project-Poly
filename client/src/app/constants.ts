@@ -68,3 +68,10 @@ export const DEFAULT_ATTRIBUTE = '4';
 export const HIGH_ATTRIBUTE = '6';
 export const DICE_4 = '1-4';
 export const DICE_6 = '1-6';
+
+// Constants for timer component
+export const TOTAL_TIME = 10;
+export const WARNING_TIME = 5;
+export const TIMER_RADIUS = 45;
+export const MILLISECONDS_IN_SECOND = 1000;
+export const TIMER_CENTER_POSITION = 50;

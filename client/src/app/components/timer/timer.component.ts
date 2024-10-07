@@ -1,57 +1,64 @@
-
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-//import { interval, Subscription } from 'rxjs';
+import { TOTAL_TIME, WARNING_TIME, TIMER_RADIUS, TIMER_CENTER_POSITION, MILLISECONDS_IN_SECOND } from '@app/constants';
+// import { interval, Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-timer',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './timer.component.html',
-  styleUrl: './timer.component.scss'
+    selector: 'app-timer',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './timer.component.html',
+    styleUrl: './timer.component.scss',
 })
 export class TimerComponent implements OnInit, OnDestroy {
-  isTimerRunning: boolean = true;
-  totalTime: number = 10;
-  warningTime: number = 5;
-  timeRemaining: number = this.totalTime;
-  intervalId: any;
-  
-  radius = 45;
-  circumference = 2 * Math.PI * this.radius;
-  strokeDashoffset = 0;
+    isTimerRunning: boolean = true;
+    totalTime: number = TOTAL_TIME;
+    warningTime: number = WARNING_TIME;
+    timeRemaining: number = this.totalTime;
+    intervalId: any;
 
-  ngOnInit() {
-    this.startTimer();
-  }
+    radius = TIMER_RADIUS;
+    circumference = 2 * Math.PI * this.radius;
+    strokeDashoffset = 0;
 
-  ngOnDestroy() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+    circleProperties = {
+        cx: TIMER_CENTER_POSITION,
+        cy: TIMER_CENTER_POSITION,
+        r: TIMER_RADIUS,
+        strokeWidth: 5,
+    };
+
+    ngOnInit() {
+        this.startTimer();
     }
-  }
 
-  startTimer() {
-    if(this.isTimerRunning){
-      this.intervalId = setInterval(() => {
-        this.timeRemaining--;
-  
-        if (this.timeRemaining <= -1) {
-          clearInterval(this.intervalId);
-          this.timerFinished();
+    ngOnDestroy() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
         }
-  
-        this.updateProgress();
-      }, 1000);
     }
-  }
 
-  updateProgress() {
-    const progress = (this.timeRemaining / this.totalTime) * this.circumference;
-    this.strokeDashoffset = this.circumference - progress;
-  }
+    startTimer() {
+        if (this.isTimerRunning) {
+            this.intervalId = setInterval(() => {
+                this.timeRemaining--;
 
-  timerFinished(){
-    this.timeRemaining = 0;
-  }
+                if (this.timeRemaining <= -1) {
+                    clearInterval(this.intervalId);
+                    this.timerFinished();
+                }
+
+                this.updateProgress();
+            }, MILLISECONDS_IN_SECOND);
+        }
+    }
+
+    updateProgress() {
+        const progress = (this.timeRemaining / this.totalTime) * this.circumference;
+        this.strokeDashoffset = this.circumference - progress;
+    }
+
+    timerFinished() {
+        this.timeRemaining = 0;
+    }
 }

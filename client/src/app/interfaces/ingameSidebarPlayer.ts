@@ -1,8 +1,8 @@
-export enum Status{
-    Player = "regular-player",
-    Admin = "admin",
-    Bot = "bot",
-    Disconnected = "disconnected",
+export enum Status {
+    Player = 'regular-player',
+    Admin = 'admin',
+    Bot = 'bot',
+    Disconnected = 'disconnected',
 }
 
 export interface IngameSidebarPlayer {

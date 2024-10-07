@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IngamePlayersSidebarComponent } from './ingame-players-sidebar.component';
 
 describe('IngamePlayersSidebarComponent', () => {
-  let component: IngamePlayersSidebarComponent;
-  let fixture: ComponentFixture<IngamePlayersSidebarComponent>;
+    let component: IngamePlayersSidebarComponent;
+    let fixture: ComponentFixture<IngamePlayersSidebarComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [IngamePlayersSidebarComponent]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [IngamePlayersSidebarComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(IngamePlayersSidebarComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(IngamePlayersSidebarComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
