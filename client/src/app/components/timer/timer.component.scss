@@ -27,21 +27,21 @@
 
 .foreground-circle {
     fill: none;
-    stroke: #fff199;   
+    stroke: #fff199;
     stroke-linecap: round;
     transition: stroke-dashoffset 1s linear;
 }
 
 .time-remaining {
     position: absolute;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: bold;
 }
 
 .red-text {
     color: #f95e4d;
-  }
-  
-  .red-circle {
+}
+
+.red-circle {
     stroke: #f95e4d;
-  }
+}

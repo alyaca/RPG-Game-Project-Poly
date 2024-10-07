@@ -85,9 +85,9 @@
     background: linear-gradient(to top right, rgb(39, 39, 39), rgb(88, 88, 88) 33%, rgb(162, 162, 162) 67%, rgb(220, 220, 220) 100%);
 }
 
-.end-turn-button-outer:hover {
-    background: linear-gradient(to top right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(219, 27, 27) 100%);
-}
+// .end-turn-button-outer:hover {
+//     background: linear-gradient(to top right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(219, 27, 27) 100%);
+// }
 
 .end-turn-button-inner {
     display: flex; 
@@ -100,6 +100,10 @@
     background-image: url('/assets/images/icones/next-turn.png');
     background-size: cover;
     background-position: center;
+}
+
+.end-turn-button-inner:hover {
+    background-image: url('/assets/images/icones/next-turn-red.png');
 }
 
 .end-turn-text{
