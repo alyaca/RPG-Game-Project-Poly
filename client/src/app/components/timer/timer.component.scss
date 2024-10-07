@@ -1,0 +1,47 @@
+// .countdown {
+//     text-align: center;
+//     font-size: 0.8rem;
+//     color: white;
+// }
+
+.timer-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 22.5%;
+}
+
+.circle-timer {
+    position: absolute;
+    transform: rotate(-90deg);
+    width: 35%;
+    justify-content: center;
+    align-items: center;
+}
+
+.background-circle {
+    fill: none;
+    stroke: #645959;
+}
+
+.foreground-circle {
+    fill: none;
+    stroke: #fff199;   
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+}
+
+.time-remaining {
+    position: absolute;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.red-text {
+    color: #f95e4d;
+  }
+  
+  .red-circle {
+    stroke: #f95e4d;
+  }

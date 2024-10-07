@@ -3,11 +3,12 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { IngameSidebarPlayer, Status } from '@app/interfaces/ingameSidebarPlayer';
+import { TimerComponent } from '@app/components/timer/timer.component';
 
 @Component({
     selector: 'app-game-page',
     standalone: true,
-    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent],
+    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent],
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })

@@ -1,0 +1,25 @@
+<div class="timer-container">
+    <svg class="circle-timer" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" stroke-width="5" class="background-circle"></circle>
+        <circle
+            cx="50"
+            cy="50"
+            r="45"
+            stroke-width="5"
+            [ngClass]="{ 'red-circle': timeRemaining < warningTime }"
+            class="foreground-circle"
+            [attr.stroke-dasharray]="circumference"
+            [attr.stroke-dashoffset]="strokeDashoffset"
+        ></circle>
+    </svg>
+    @if (isTimerRunning){
+    <div class="time-remaining" [ngClass]="{ 'red-text': timeRemaining < warningTime }">
+        {{ timeRemaining }}
+    </div>
+    } 
+    @else {
+    <div class="time-remaining">
+        --
+    </div>
+    }
+</div>
