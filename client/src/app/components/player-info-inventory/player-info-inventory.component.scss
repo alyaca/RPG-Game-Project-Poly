@@ -35,12 +35,13 @@
 #stats {
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
+    margin-left: 0.5rem;
     margin-top: -0.15rem;
     width:70%;
 }
 .individual-stat{
     height: 33%;
+    color: rgb(255, 245, 194);
     //border: 1px solid green;
 }
 
@@ -50,7 +51,7 @@
 // }
 
 .player-inventory {
-    margin-top: 0.5rem;
+    margin-top: 0.9rem;
     padding-bottom: 0.5rem;
     display: flex;
     flex-direction: column;
@@ -118,15 +119,6 @@ progress::-webkit-progress-value {
     width: 80%;
 }
 
-#hp-value {
-    color: white;
-    margin-left: 5%;
-    display: inline-block;
-    z-index: 150;
-    text-align: center;
-    left: 10rem;
-}
-
 .points-text{
     margin-right: 1rem;
 }
@@ -155,6 +147,7 @@ progress::-webkit-progress-value {
     align-items: flex-start;
     margin: 0;
     padding: 0;
+    margin-left: 5%;
 }
 
 .stats-dice {
