@@ -1,31 +1,59 @@
 <div class="player-stats">
-    <div class="player-info-element" id="player-name-image"><img id="portrait" src="{{ playerInfo.portrait }}" />{{ playerInfo.name }}</div>
+    <div>
+        <p id="player-name">{{ playerInfo.name }}</p>
+    </div>
+    <div id="photo-container">
+        <div id="player-image-container">
+            <img id="portrait" src="{{ playerInfo.portrait }}" />
+        </div>
+        <div id="player-attributes">
+            <div id="hp-bar-container"> 
+                <progress id="hp-bar" value="{{ playerInfo.currentHp }}" max="{{ playerInfo.hp }}"></progress>
+                <div id="hp-value"> {{ playerInfo.currentHp }} / {{ playerInfo.hp }}</div>
+            </div>
 
-    <div class="player-info-element" id="hp-bar">
-        <span id="hp-value"> {{ playerInfo.currentHp }}</span>
-        <progress class="player-info-element" id="hp-bar" value="{{ playerInfo.currentHp }}" max="{{ playerInfo.hp }}"></progress>
+            <div id="stats">
+
+                <div class="individual-stat" id="speed">Rap : {{ playerInfo.speed }}</div>
+                <div class="individual-stat" id="attack">
+                    Att : {{ playerInfo.attack }} 
+                    @if (playerInfo.atkDice === 4) {
+                        <img class="stats-dice" src="/assets/images/icones/D4.png" />
+                    }
+                    @else{ 
+                        <img class="stats-dice" src="/assets/images/icones/D6.png/" />
+                    }
+                </div>
+                <div class="individual-stat" id="defense">
+                    Def : {{ playerInfo.defense }} 
+                    @if (playerInfo.defDice === 4) {
+                        <img class="stats-dice" src="/assets/images/icones/D4.png/" />
+                    }
+                    @else {
+                        <img class="stats-dice" src="/assets/images/icones/D6.png/" />
+                    }
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="player-info-element" id="movement-points">
+    <div id="movement-points">
+        <p class="points-text">mouvements: </p>
         @for (movementPoint of movementPointsArray; track $index) {
-        <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" />
+            <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" />
         }
     </div>
-    <div class="player-info-element" id="stats">
-        <div class="individual-stat" id="health">Vie : {{ playerInfo.hp }}</div>
-        <div class="individual-stat" id="speed">Rapidite : {{ playerInfo.speed }}</div>
-        <div class="individual-stat" id="attack">
-            Attaque : {{ playerInfo.attack }} @if (playerInfo.atkDice === 4) {<img class="stats-dice" src="/assets/images/icones/D4.png" />} @else{
-            <img class="stats-dice" src="/assets/images/icones/D6.png/" />}
-        </div>
-        <div class="individual-stat" id="defense">
-            Defense : {{ playerInfo.defense }} @if (playerInfo.defDice === 4) {<img class="stats-dice" src="/assets/images/icones/D4.png/" />} @else
-            {<img class="stats-dice" src="/assets/images/icones/D6.png/" />}
-        </div>
+    <div id="movement-points">
+        <p class="points-text">actions: </p>
+        @for (movementPoint of movementPointsArray; track $index) {
+            <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" />
+        }
     </div>
-    <h4 id="inventory-header">Inventaire</h4>
     <div class="player-inventory">
-        @for (items of playerInfo.inventory; track $index) {
-        <app-game-object class="player-items" imageUrl="{{ items.image }}" description="{{ items.description }}"></app-game-object>
-        }
+        <h4 id="inventory-header">Inventaire</h4>
+        <div id="items-container">
+            @for (items of playerInfo.inventory; track $index) {
+                <app-game-object class="player-items" imageUrl="{{ items.image }}" description="{{ items.description }}"></app-game-object>
+            }
+        </div>
     </div>
 </div>

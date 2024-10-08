@@ -1,12 +1,45 @@
-#portrait {
-    height: 25%;
-    width: 25%;
-}
-
 // .player-stats {
 //     display: flex;
 //     flex-wrap: wrap;
 // }
+
+#player-name {
+    margin: 0;
+}
+
+#photo-container {
+    
+    display: flex;
+}
+
+#player-attributes {
+    flex-direction: column;
+    width: 100%;
+    //border: 1px solid red;
+}
+
+#player-image-container {
+    flex-basis: 35%;
+    //border: 1px solid red;
+    justify-content: center;
+}
+
+#portrait {
+    width: 100%;
+    height: auto;   
+}
+
+#stats {
+    display: flex;
+    flex-direction: column;
+    margin-left: 0.5rem;
+    margin-top: 0.15rem;
+    width:70%;
+}
+.individual-stat{
+    height: 33%;
+    //border: 1px solid green;
+}
 
 // .player-info-element {
 //     margin: 0;
@@ -15,65 +48,97 @@
 
 .player-inventory {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 20%;
 }
 
+#inventory-header {
+    padding: 0;
+    margin: 0.5rem 0 0.5rem 0;
+    text-align: center;
+}
+
+#items-container {
+    display: flex;  
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff199;
+    border-radius: 10%;
+}
+
 .player-items {
-    height: 40%;
-    width: 40%;
-    border: 2px solid white;
+    margin-right: 1rem;
+    margin-left: 1rem;
 }
 
 progress {
     position: relative;
-    border-top-left-radius: 0.4rem;
-    border-bottom-left-radius: 0.4rem;
-    border-bottom-right-radius: 0.4rem;
-    border-top-right-radius: 0.4rem;
+    border-radius: 0.4rem;
     width: 50%;
+    
+    background-color: rgb(0, 218, 131);
 }
 
-progress:before {
-    content: attr(data-label);
-    font-size: 0.8em;
-    vertical-align: 0;
+// progress:before {
+//     content: attr(data-label);
+//     font-size: 0.8em;
+//     vertical-align: 0;
 
-    position: absolute;
-    left: 0;
-    right: 0;
-}
+//     position: absolute;
+//     left: 0;
+//     right: 0;    
+// }
 
 progress::-moz-progress-bar {
-    background: rgb(138, 9, 9);
+    //background: rgb(138, 9, 9);
+    border-radius: 0.4rem;
+    background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
 }
 
 progress::-webkit-progress-value {
-    background: rgb(138, 9, 9);
+    //background: rgb(138, 9, 9);
+    border-radius: 0.4rem;
+    background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
+}
+
+#hp-bar-container {
+    display: flex;
+}
+
+#hp-bar {
+    border: 1px solid white;
+    width: 80%;
 }
 
 #hp-value {
-    position: absolute;
+    color: white;
+    margin-left: 5%;
     display: inline-block;
-    color: black;
     z-index: 150;
     text-align: center;
     left: 10rem;
 }
 
+.points-text{
+    margin-right: 1rem;
+}
+
 #movement-points {
     display: flex;
-    align-items: flex-start;
-    margin: 0;
+    align-items: center;
+    margin-left: 0;
+    margin-top: -0.2rem;
+    margin-bottom: -1rem;
     padding: 0;
 }
 
 .movement-images {
-    height: 7.5%;
-    width: 7.5%;
+    height: 1.5rem;
+    width: 1.5rem;
     display: block;
     margin: 0;
-    margin-top: 2%;
+    //margin-top: 2%;
     margin-right: 1%;
     padding: 0;
 }
@@ -87,7 +152,8 @@ progress::-webkit-progress-value {
 
 .stats-dice {
     display: block;
-    margin: 0;
+    margin-left: auto;
     padding: 0;
-    scale: 0.25;
+    height: 1.2rem;
+    width: 1.2rem;
 }

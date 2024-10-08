@@ -14,10 +14,10 @@ export class PlayerInfoInventoryComponent {
     // check if when the hp changes, the hp bar visual also changes
     // style the hp bar so that there are rectangles for each hitpoint
     @Input() playerInfo: PlayerInfo = {
-        name: 'Gob',
+        name: 'Jar Jar Binks',
         portrait: '/assets/images/characters/Hephaestus.webp/',
         hp: 6,
-        currentHp: 2,
+        currentHp: 4,
         speed: 4,
         movementPointsLeft: 3,
         attack: 4,

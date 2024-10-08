@@ -22,7 +22,7 @@ export class GamePageComponent {
     allPlayers: IngameSidebarPlayer[] = [
         {
             id: 0,
-            avatar: '/assets/images/characters/Artemis.webp',
+            avatar: '/assets/images/characters/Hephaestus.webp',
             status: Status.Player,
             name: 'Jar Jar Binks',
             victories: 2,
@@ -54,7 +54,7 @@ export class GamePageComponent {
         },
         {
             id: 4,
-            avatar: '/assets/images/characters/Hephaestus.webp',
+            avatar: '/assets/images/characters/Artemis.webp',
             status: Status.Bot,
             name: 'Leia Organa',
             victories: 0,
