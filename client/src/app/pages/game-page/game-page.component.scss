@@ -71,8 +71,8 @@
     flex: 0 0 50%;
     flex-direction: column;
     width: 95%;
-    margin-bottom: 0;
 }
+
 
 .end-turn-button-outer {
     display: flex;
@@ -120,8 +120,9 @@
     align-items: center;
     justify-content: center;
     gap: 10%;
-    border: 1px solid white;
     width: 80%;
     height: 5%;
-    margin: 1% auto;
+    margin: 2% auto;
+    font-family: papyrus;
+    font-weight: bold;
 }
