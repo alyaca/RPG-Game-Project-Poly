@@ -15,7 +15,7 @@
 }
 
 .player-bar {
-    flex: 0 0 20%;
+    flex: 0 0 50%;
     width: 90%;
     height: 18rem;
     margin-top: 5%;
@@ -26,18 +26,43 @@
 //     flex: 0 0 15%;
 //     width: 90%;
 // }
+.action-container {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.action-text{
+    margin: 0;
+    font-family: papyrus;
+    font-weight: 900;
+    font-size: 1.25rem;
+}
+
+.action-button {
+    background-image: url('/assets/images/icones/action.png');
+    background-size: 101%;
+    background-position: center;
+    border-radius: 50%;
+    height: 7rem;
+    width: 7rem;
+
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    //border: 1px solid gold;
+}
 
 .chat {
     border: 1px solid white;
     flex: 0 0 4%;
-    margin-top: 90%;
+    margin-top: 10%;
     width: 95%;
 }
 
 .quit {
     text-align: center; 
     flex: 0 0 5%;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     padding-top: 0.3rem;
     width: 75%;
     font-family: papyrus;
