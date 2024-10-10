@@ -1,17 +1,31 @@
+html, body {
+    height: 100%; /* Ensure the body takes up full height */
+}
+
 .page-element {
     display: flex;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
+    
+    // min-height: 100vh;
+    // height: auto;
+    // background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
+    // background-size: cover;
+    // background-position: left;
+    // background-repeat: no-repeat;
+
     color: white;
 }
 
 .left-container {
     flex: 0 0 25%;
-    height: 100%;
+    //height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-around;
+    height: 100%;
 }
 
 .player-bar {
@@ -27,9 +41,11 @@
 //     width: 90%;
 // }
 
+
 .action-container {
-    margin-bottom: 1.5rem;
+    flex: 0 0 5%;
     text-align: center;
+    margin-bottom: 2rem;
 }
 
 .action-text{
@@ -69,14 +85,14 @@
 .chat {
     border: 1px solid white;
     flex: 0 0 4%;
-    margin-top: 10%;
+    //margin-top: 3vh;
     width: 95%;
 }
 
 .quit {
     text-align: center; 
     flex: 0 0 5%;
-    margin-top: 1rem;
+    //margin-top: 1rem;
     padding-top: 0.3rem;
     width: 75%;
     font-family: papyrus;
@@ -101,11 +117,14 @@
 }
 
 .right-container {
-    flex: 0 0 25%;
+    flex: 0 0 23%;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    justify-content: space-around;
+    height: 99vh;
 }
 
 .timer {
@@ -181,4 +200,8 @@
     margin: 2% auto;
     font-family: papyrus;
     font-weight: bold;
+}
+
+.end-outer{
+    margin-bottom: 1rem;
 }
