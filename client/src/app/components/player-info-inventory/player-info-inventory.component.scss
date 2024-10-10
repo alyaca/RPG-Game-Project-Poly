@@ -80,12 +80,9 @@
     margin-left: 1rem;
 }
 
-progress {
-    position: relative;
-    border-radius: 0.4rem;
-    width: 50%;
-    
-    background-color: rgb(0, 218, 131);
+progress::-webkit-progress-bar {
+    background-color: rgb(197, 197, 197);
+    border-radius: 0.5rem;
 }
 
 // progress:before {
@@ -100,13 +97,13 @@ progress {
 
 progress::-moz-progress-bar {
     //background: rgb(138, 9, 9);
-    border-radius: 0.4rem;
+    border-radius: 0.5rem;
     background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
 }
 
 progress::-webkit-progress-value {
     //background: rgb(138, 9, 9);
-    border-radius: 0.4rem;
+    border-radius: 0.5rem;
     background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
 }
 
@@ -115,8 +112,9 @@ progress::-webkit-progress-value {
 }
 
 #hp-bar {
-    border: 1px solid white;
+    border: 1px solid rgb(197, 197, 197);
     width: 80%;
+    border-radius: 0.5rem;
 }
 
 .points-text{
@@ -156,4 +154,13 @@ progress::-webkit-progress-value {
     padding: 0;
     height: 1.4rem;
     width: 1.4rem;
+}
+
+.movement-point {
+    height: 1rem;
+    width: 1rem;
+    background: linear-gradient(to top right,  rgb(154, 144, 86), rgb(241, 224, 124));
+    //background-color: rgb(255, 245, 194);
+    border-radius: 50%;
+    margin-left: 0.5rem;
 }
