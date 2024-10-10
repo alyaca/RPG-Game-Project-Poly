@@ -1,6 +1,10 @@
 <div [ngClass]="['player', lobbyPlayer.isAdmin ? 'admin' : '']">
     <div class="motif"></div>
-    <div class="player-name">{{ lobbyPlayer.name }}</div>   
+    <div class="player-name">
+        <div class="kick"></div>
+        {{ lobbyPlayer.name }}
+        <div class="status"></div>
+    </div>   
     <img [src]="lobbyPlayer.avatar" alt="{{ lobbyPlayer.name }}-avatar" />
     <div class="attributes-box">
         <div class="attribute">attaque: {{ lobbyPlayer.attributes.attack }}</div>

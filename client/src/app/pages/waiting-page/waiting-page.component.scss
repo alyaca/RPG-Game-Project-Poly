@@ -4,6 +4,8 @@
     height: 100vh;
     background-image: linear-gradient(to top, rgb(19, 19, 18), rgb(54, 48, 48) 60%, #514c3e);
     color: white;
+    // background-image: url('../../../assets/images/backgrounds/title_page_bgd10.jpg');
+    // background-size: cover;
 }
 
 header {
@@ -13,9 +15,17 @@ header {
     justify-content: center;
     align-items: center;
     gap: 10%;
-    font-size: 1.12rem;
+    margin: 0;
+    padding: 0;
+    letter-spacing: 0.1rem;
+    font-size: 1.5rem;
     font-family: papyrus;
     font-weight: 900;
+}
+
+header>*{
+    margin: 0;
+    margin-top: 1.5%;
 }
 
 main {
@@ -46,26 +56,27 @@ app-lobby-player {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: 25%;
+    justify-content: space-around;
 }
 
 #start-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 18%;
+    
 }
 
 #start {
     padding: 8.5% 10% 6.5% 10%;
-    margin-left: 10%;
-    border-radius: 2rem;
+    margin-bottom: 5%;
+    border-radius: 3rem;
     color: black;
     border: 1px solid gray;
     background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
     font-family: papyrus;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 900;
 }
 
@@ -76,7 +87,7 @@ app-lobby-player {
 }
 
 #lock {
-    width: 10%;
+    width: 20%;
 }
 
 .add-bot {
@@ -105,7 +116,7 @@ app-lobby-player {
     color: rgba(222, 207, 129, 1);
     font-size: 0.8rem;
     background: none;
-    padding: 2.5% 1.5%;
+    padding: 1.5% 10%;
     border: 2px solid rgba(222, 207, 129, 1);
     border-radius: 1.8rem;
 }
@@ -172,7 +183,12 @@ input:checked + .slider:before {
     box-shadow: 0 0 1px #000;
 }
 
+.lock-text {
+    margin-top: 0;
+}
+
 #lock-container {
+    width: 17.5%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -204,4 +220,3 @@ app-lobby-player.big {
     flex: 0 0 17.5%; 
     margin: 0;
 }
-
