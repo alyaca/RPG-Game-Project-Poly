@@ -32,12 +32,13 @@
     border-bottom: 0.15rem solid black;
     font-family: papyrus;
     font-weight: 900;
-    font-size: 20px;
+
+    font-size: 1rem;
 
     display: flex;
     align-items: center;
     justify-content: center;    
-    gap: 10%;
+    gap: 2%;
 }
 
 .admin {
@@ -46,6 +47,9 @@
 }
 
 .attribute {
+    font-family: papyrus;
+    font-weight: 900;
+    font-size: 0.9rem;
     margin-bottom: 5%;
 }
 
@@ -78,6 +82,7 @@ img {
 .kick { 
     width: 1.6rem;
     height: 1.6rem;
+    margin: 0;
 }
 
 :not(.admin) > * > .kick {
@@ -94,4 +99,5 @@ img {
 .status { 
     height: 1.6rem;
     width: 1.6rem;
+    margin: 0;
 }
