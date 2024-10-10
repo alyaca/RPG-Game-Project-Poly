@@ -53,9 +53,8 @@
     color: white; 
     
     width: 2.5rem;
-    height: 2.5rem;
+    height: 2rem;
     background-image: url('/assets/images/icones/chat-message.png');
-    background-size: 110%; 
+    background-size: cover;
     display: inline-block;
-    border-radius: 50%;
 }
