@@ -206,17 +206,17 @@ input:checked + .slider:before {
 
 app-lobby-player.small {
     height: 22rem;
-    flex: 0 0 12.5%; 
+    flex: 0 0 14%; 
 }
 
 app-lobby-player.medium {
     height: 26rem;
-    flex: 0 0 15%; 
+    flex: 0 0 15.5%; 
 }
 
 app-lobby-player.big {
     height: 30rem;
     width: 70rem;
-    flex: 0 0 17.5%; 
+    flex: 0 0 17%; 
     margin: 0;
 }
