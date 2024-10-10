@@ -19,6 +19,12 @@ export class GamePageComponent {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
+    isActionSelected: boolean = false;
+
+    toggleActionSelected(){
+        this.isActionSelected = !this.isActionSelected;
+    }
+
     allPlayers: IngameSidebarPlayer[] = [
         {
             id: 0,
