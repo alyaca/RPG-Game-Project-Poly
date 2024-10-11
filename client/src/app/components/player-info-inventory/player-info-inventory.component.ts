@@ -13,6 +13,8 @@ import { PlayerInfo } from '@app/interfaces/playerInfo';
 export class PlayerInfoInventoryComponent {
     // check if when the hp changes, the hp bar visual also changes
     // style the hp bar so that there are rectangles for each hitpoint
+
+    descriptionPosition: string = "bottom";
     @Input() playerInfo: PlayerInfo = {
         name: 'Jar Jar Binks',
         portrait: '/assets/images/characters/Hephaestus.webp/',

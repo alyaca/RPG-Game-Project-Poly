@@ -54,7 +54,13 @@
         <h4 id="inventory-header">Inventaire</h4>
         <div id="items-container">
             @for (items of playerInfo.inventory; track $index) {
-                <app-game-object class="player-items" imageUrl="{{ items.image }}" description="{{ items.description }}"></app-game-object>
+                <app-game-object 
+                class="player-items" 
+                [name] = "items.name"
+                [imageUrl]="items.image" 
+                [description]="items.description"
+                [descriptionPosition] = "descriptionPosition"
+                ></app-game-object>
             }
         </div>
     </div>
