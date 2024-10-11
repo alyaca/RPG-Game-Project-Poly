@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PlayerConnection } from './gateways/player-connection/player-connection.gateway';
 import { MapModule } from './modules/map/map.module';
 import { RoomService } from './services/room/room.service';
 
@@ -16,6 +17,6 @@ import { RoomService } from './services/room/room.service';
         }),
         MapModule,
     ],
-    providers: [RoomService],
+    providers: [RoomService, PlayerConnection],
 })
 export class AppModule {}

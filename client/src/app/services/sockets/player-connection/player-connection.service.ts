@@ -18,14 +18,6 @@ export class PlayerConnectionService {
         }
     }
 
-    // connectToRoom(room: Room) {
-    //     if (room) {
-    //         this.socket.on(`addingPlayerToRoom:${room.id}`, (player) => {
-    //             room.listPlayers.push(player); // Player interface
-    //         });
-    //     }
-    // }
-
     disconnect() {
         if (this.socket) {
             this.socket.disconnect();
