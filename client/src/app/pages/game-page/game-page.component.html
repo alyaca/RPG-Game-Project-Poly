@@ -1,4 +1,7 @@
 <div class="page-element">
+    @if (isInCombat){
+        <app-combat-modal [isInCombat]="isInCombat" (close)="closeCombatModal()"></app-combat-modal>
+    }
     <div class="left-container">
         <div class="player-bar">
             <app-player-info-inventory class="player-bar"></app-player-info-inventory>
@@ -52,7 +55,7 @@
         </div>
         <div>
             <p class="end-turn-text">Fin de tour</p>
-            <div class="button-outer end-outer">
+            <div class="button-outer end-outer" (click)="openCombatModal()">
                 <div class="end-turn-button-inner"></div>
             </div>
         </div>

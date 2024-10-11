@@ -4,11 +4,12 @@ import { PlayerInfoInventoryComponent } from '@app/components/player-info-invent
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { IngameSidebarPlayer, Status } from '@app/interfaces/ingameSidebarPlayer';
 import { TimerComponent } from '@app/components/timer/timer.component';
+import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 
 @Component({
     selector: 'app-game-page',
     standalone: true,
-    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent],
+    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent, CombatModalComponent],
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
@@ -19,7 +20,9 @@ export class GamePageComponent {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
-    isActionSelected: boolean = false;
+    isActionSelected: boolean = true;
+    isInCombat = false;
+
 
     toggleActionSelected(){
         this.isActionSelected = !this.isActionSelected;
@@ -75,4 +78,13 @@ export class GamePageComponent {
             isActive: false,
         },
     ];
+
+
+    openCombatModal() {
+      this.isInCombat = true;
+    }
+  
+    closeCombatModal() {
+      this.isInCombat = false;
+    }
 }
