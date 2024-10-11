@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     height: 100%; /* Ensure the body takes up full height */
 }
 
@@ -7,7 +8,7 @@ html, body {
     width: 100vw;
     height: 100vh;
     background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
-    
+
     // min-height: 100vh;
     // height: auto;
     // background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
@@ -41,7 +42,6 @@ html, body {
 //     width: 90%;
 // }
 
-
 .action-container {
     flex: 0 0 5%;
     text-align: center;
@@ -54,17 +54,15 @@ html, body {
     margin-top: 10%;
     flex: 0 0 25%;
     height: 9rem;
-
 }
 
 .right-leaf {
     margin-top: 10%;
     flex: 0 0 25%;
     height: 9rem;
-    
 }
 
-.action-text{
+.action-text {
     margin: 0;
     font-family: papyrus;
     font-weight: 900;
@@ -80,23 +78,23 @@ html, body {
     width: 7rem;
     border: 0.15rem solid black;
 
-    display: flex; 
+    display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease, background-image 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        background-image 0.3s ease;
 }
 
 .button-outer:hover .action-button {
     transform: scale(1.1);
     background-image: url('/assets/images/icones/action.png');
-    
 }
 
-.action-outer.selected .action-button{
+.action-outer.selected .action-button {
     transform: scale(1.05);
     background-image: url('/assets/images/icones/action.png');
 }
-
 
 .chat {
     border: 1px solid white;
@@ -106,7 +104,7 @@ html, body {
 }
 
 .quit {
-    text-align: center; 
+    text-align: center;
     flex: 0 0 5%;
     //margin-top: 1rem;
     padding-top: 0.3rem;
@@ -158,17 +156,19 @@ html, body {
 .button-outer {
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
     border: 1px solid black;
     width: 9rem;
     height: 9rem;
     border-radius: 50%;
     background: linear-gradient(to top right, rgb(39, 39, 39), rgb(88, 88, 88) 33%, rgb(162, 162, 162) 67%, rgb(220, 220, 220) 100%);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .end-turn-button-inner {
-    display: flex; 
+    display: flex;
     justify-content: center;
     align-items: center;
     border: 1px solid black;
@@ -178,12 +178,16 @@ html, body {
     background-image: url('/assets/images/icones/next-turn.png');
     background-size: cover;
     background-position: center;
-    transition: transform 0.3s ease, background-image 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        background-image 0.3s ease;
 }
 
 .button-outer:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), 0 0 25px rgba(255, 0, 0, 0.4);
+    box-shadow:
+        0 0 15px rgba(255, 0, 0, 0.6),
+        0 0 25px rgba(255, 0, 0, 0.4);
 }
 
 .button-outer:hover .end-turn-button-inner {
@@ -204,7 +208,6 @@ html, body {
     color: red;
 }
 
-
 .game-info {
     display: flex;
     flex-direction: row;
@@ -218,10 +221,23 @@ html, body {
     font-weight: bold;
 }
 
-.end-outer{
+.end-outer {
     margin-bottom: 1rem;
 }
 
+#turn-start-timer {
+    position: fixed;
+    right: 42rem;
+    top: 20rem;
+}
+
+#enabled {
+    pointer-events: all;
+}
+
+#disabled {
+    pointer-events: none;
+}
 // app-combat-modal {
 //     justify-content: center;
 //     align-items: center;
