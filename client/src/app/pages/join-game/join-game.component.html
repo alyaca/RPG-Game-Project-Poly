@@ -1,0 +1,13 @@
+<div class="container"> 
+    <div class="page-container">
+        <div class="title">Joindre une partie</div>
+        <div class="submit-container">
+            <p>Entrez le code de la partie</p>
+            <input type="text" placeholder="XXXXXX" [(ngModel)]="accessCode"  maxlength="4" (keyup.enter)="joinGame(accessCode)" />
+            <div  class="invalide-code" *ngIf="submit && (!isCodeValid(accessCode) || !roomExists(accessCode))">Code invalide ou le jeu n'existe pas</div>
+            <!--<div  class="invalide-code" *ngIf="submit && !roomExists(accessCode)">Le jeu n'existe pas ou il est fermé</div> -->
+            <button class="join-game" (click)="joinGame(accessCode)">Joindre</button>
+        </div>
+    </div>
+        <button class="button" routerLink="/home">Retour</button>
+    </div>

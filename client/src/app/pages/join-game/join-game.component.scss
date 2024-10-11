@@ -1,0 +1,50 @@
+.container{
+    height: 100%;   
+    width: 100%;      
+    background-size: cover;
+    background-position: left;
+    background-repeat: no-repeat;
+    background-image: url(/assets/images/backgrounds/title_page_bgd11.jpg);
+}
+
+.page-container {
+    display: grid;    
+    justify-content: center;
+    justify-items: center;
+
+}
+
+//intérieur du rectangle 
+.submit-container{
+    display: grid;
+    height: 25vh;
+    width: 45vh;
+    justify-content: center;
+    align-content: center;
+    justify-items: center;
+    align-items: center;
+    background-color: white;
+    margin-top:50%;
+
+}
+
+.title{
+    font-weight: bold;
+    font-size: 300%;
+    text-decoration: underline;
+    color: white;
+    font-family: 'Papyrus';
+    text-align: center;
+    margin-top: 3%;
+}
+
+.join-game{
+    margin-top: 10%;
+}
+
+.invalide-code{
+    margin-top: 5%;
+    color: red;
+    font-size: 100%;
+    text-align: center;
+}
