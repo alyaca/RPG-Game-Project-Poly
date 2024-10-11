@@ -1,7 +1,7 @@
 <div id="waiting-page">
     <header>
-        <h3 *ngIf="chosenGame">{{ chosenGame.name }}</h3>
-        <h3>Code d'acces: {{ accessCode }}</h3>
+        <h3 *ngIf="chosenGame">Nom de la partie: {{ chosenGame.name }}</h3>
+        <h3>Code d'accès: {{ accessCode }}</h3>
     </header>
     <main>
         <div id="players-container">
@@ -21,11 +21,11 @@
         <div id="footer-container">
             <app-chat-box></app-chat-box>
             <div id="start-container">
-                <button id="start">lancer une partie</button>
-                <button id="quit-button" (click)="handleExit()">quitter</button>
+                <button id="start">Lancer une partie</button>
+                <button id="quit-button" (click)="handleExit()">Quitter</button>
             </div>
             <div id="lock-container">
-                <p class="lock-text">verrouiller la partie</p>
+                <p class="lock-text">Verrouiller la partie</p>
                 <label class="switch">
                     <input type="checkbox" />
                     <span class="slider"> </span>
