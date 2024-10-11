@@ -27,6 +27,8 @@ export class GamePageComponent implements OnInit {
         this.isActionSelected = !this.isActionSelected;
     }
 
+    ngOnInit() {}
+
     allPlayers: IngameSidebarPlayer[] = [
         {
             id: 0,

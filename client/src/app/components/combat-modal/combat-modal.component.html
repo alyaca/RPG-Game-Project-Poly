@@ -1,10 +1,42 @@
 <div class="combat-modal">
-    <div class="top-section">player info</div>
+    <div class="top-section">
+        <div class="player-info left-player">
+            
+            <div class="player-attributes">
+                <p class="player-name">{{ playerInfo1.name }}</p>
+                <div class="hp-bar-container">
+                    <progress class="hp-bar" value="{{ playerInfo1.currentHp }}" max="{{ playerInfo1.hp }}" #hpBar></progress>
+                    <div class="individual-stat hp-value">{{ playerInfo1.currentHp }} / {{ playerInfo1.hp }}</div>
+                </div>
+
+                <div class="stats">
+                    <div class="individual-stat speed">Rap : {{ playerInfo1.speed }}</div>
+                    <div class="individual-stat attack">Att : {{ playerInfo1.attack }}</div>
+                    <div class="individual-stat defense">Def : {{ playerInfo1.defense }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="player-info right-player">
+            <div class="player-attributes">
+                <p class="player-name">{{ playerInfo2.name }}</p>
+                <div class="hp-bar-container">
+                    <progress class="hp-bar" value="{{ playerInfo2.currentHp }}" max="{{ playerInfo2.hp }}" #hpBar></progress>
+                    <div class="individual-stat hp-value">{{ playerInfo2.currentHp }} / {{ playerInfo2.hp }}</div>
+                </div>
+
+                <div class="stats">
+                    <div class="individual-stat speed">Rap : {{ playerInfo2.speed }}</div>
+                    <div class="individual-stat attack">Att : {{ playerInfo2.attack }}</div>
+                    <div class="individual-stat defense">Def : {{ playerInfo2.defense }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="middle-section">
-        <div class="player-img">left player</div>
-        <div class="dice">left dice</div>
-        <div class="dice">left dice</div>
-        <div class="player-img">left player</div>
+        <img class="player-img" src="{{ playerInfo1.portrait }}" alt="left player portrait" />
+        <div class="dice"></div>
+        <div class="dice"></div>
+        <img class="player-img" src="{{ playerInfo2.portrait }}" alt="left player portrait" />
     </div>
     <div class="bottom-section">
         <div>
@@ -22,4 +54,3 @@
     </div>
     <button class="close-button" (click)="closeModal()">X</button>
 </div>
-
