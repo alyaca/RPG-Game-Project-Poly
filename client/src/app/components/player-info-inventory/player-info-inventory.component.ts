@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { ObjectType } from '@app/constants';
 import { PlayerInfo } from '@app/interfaces/playerInfo';
@@ -11,16 +11,67 @@ import { PlayerInfo } from '@app/interfaces/playerInfo';
     styleUrl: './player-info-inventory.component.scss',
 })
 export class PlayerInfoInventoryComponent {
+    @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
     // check if when the hp changes, the hp bar visual also changes
-    // style the hp bar so that there are rectangles for each hitpoint
 
-    descriptionPosition: string = "bottom";
+    // Those functions are just for testing purposes to make sure that the page is reactive but,
+    // we can use them to display the change in hp and all the other stuff when we do the game's logic.
+    increaseMovement() {
+        if (this.playerInfo.movementPointsLeft === this.playerInfo.speed) {
+            return;
+        }
+        this.playerInfo.movementPointsLeft += 1;
+        this.movementPointsArray = Array(this.playerInfo.movementPointsLeft);
+    }
+
+    decreaseMovement() {
+        if (this.playerInfo.movementPointsLeft === 0) {
+            return;
+        }
+        this.playerInfo.movementPointsLeft -= 1;
+        this.movementPointsArray = Array(this.playerInfo.movementPointsLeft);
+    }
+
+    increaseActionPoints() {
+        if (this.playerInfo.actionPoints === this.playerInfo.maxActionPoints) {
+            return;
+        }
+        this.playerInfo.actionPoints += 1;
+        this.actionPointsArray = Array(this.playerInfo.actionPoints);
+    }
+
+    decreaseActionPoints() {
+        if (this.playerInfo.actionPoints === 0) {
+            return;
+        }
+        this.playerInfo.actionPoints -= 1;
+        this.actionPointsArray = Array(this.playerInfo.actionPoints);
+    }
+
+    increaseHP() {
+        if (this.playerInfo.currentHp === this.playerInfo.hp) {
+            return;
+        }
+        this.playerInfo.currentHp += 1;
+        this.healthBar.nativeElement.value += 1;
+    }
+    decreaseHP() {
+        if (this.playerInfo.currentHp === 0) {
+            return;
+        }
+        this.playerInfo.currentHp -= 1;
+        this.healthBar.nativeElement.value -= 1;
+    }
+
+    descriptionPosition: string = 'bottom';
     @Input() playerInfo: PlayerInfo = {
         name: 'Jar Jar Binks',
         portrait: '/assets/images/characters/Hephaestus.webp/',
         hp: 6,
         currentHp: 4,
         speed: 4,
+        maxActionPoints: 2,
+        actionPoints: 1,
         movementPointsLeft: 3,
         attack: 4,
         atkDice: 6,
@@ -43,5 +94,6 @@ export class PlayerInfoInventoryComponent {
             },
         ],
     };
+    actionPointsArray = Array(this.playerInfo.actionPoints);
     movementPointsArray = Array(this.playerInfo.movementPointsLeft);
 }

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { provideHttpClient } from '@angular/common/http';
 import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
@@ -9,6 +10,7 @@ describe('GamePageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
+            providers: [provideHttpClient()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GamePageComponent);
@@ -18,5 +20,12 @@ describe('GamePageComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should update the value is isActionSelected', () => {
+        const mockIsActionSelected = true;
+        component.isActionSelected = mockIsActionSelected;
+        component.toggleActionSelected();
+        expect(component.isActionSelected).toBe(!mockIsActionSelected);
     });
 });

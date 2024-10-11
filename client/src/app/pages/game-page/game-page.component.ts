@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
+import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
-import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
-import { IngameSidebarPlayer, Status } from '@app/interfaces/ingameSidebarPlayer';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
+import { IngameSidebarPlayer, Status } from '@app/interfaces/ingameSidebarPlayer';
 
 @Component({
     selector: 'app-game-page',
@@ -13,7 +13,7 @@ import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent {
+export class GamePageComponent implements OnInit {
     @Input() selectedSize: string | null = 'small';
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
@@ -23,8 +23,7 @@ export class GamePageComponent {
     isActionSelected: boolean = true;
     isInCombat = false;
 
-
-    toggleActionSelected(){
+    toggleActionSelected() {
         this.isActionSelected = !this.isActionSelected;
     }
 
@@ -79,12 +78,11 @@ export class GamePageComponent {
         },
     ];
 
-
     openCombatModal() {
-      this.isInCombat = true;
+        this.isInCombat = true;
     }
-  
+
     closeCombatModal() {
-      this.isInCombat = false;
+        this.isInCombat = false;
     }
 }

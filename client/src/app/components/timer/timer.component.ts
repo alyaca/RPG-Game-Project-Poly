@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TOTAL_TIME, WARNING_TIME, TIMER_RADIUS, TIMER_CENTER_POSITION, MILLISECONDS_IN_SECOND } from '@app/constants';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, TIMER_RADIUS, TOTAL_TIME, WARNING_TIME } from '@app/constants';
 // import { interval, Subscription } from 'rxjs';
 
 @Component({

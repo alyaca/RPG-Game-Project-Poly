@@ -7,60 +7,56 @@
             <img id="portrait" src="{{ playerInfo.portrait }}" />
         </div>
         <div id="player-attributes">
-            <div id="hp-bar-container"> 
-                <progress id="hp-bar" value="{{ playerInfo.currentHp }}" max="{{ playerInfo.hp }}"></progress>
-                <div class="individual-stat" id="hp-value"> {{ playerInfo.currentHp }} / {{ playerInfo.hp }}</div>
+            <div id="hp-bar-container">
+                <progress id="hp-bar" value="{{ playerInfo.currentHp }}" max="{{ playerInfo.hp }}" #hpBar></progress>
+                <div class="individual-stat" id="hp-value">{{ playerInfo.currentHp }} / {{ playerInfo.hp }}</div>
             </div>
 
             <div id="stats">
-
                 <div class="individual-stat" id="speed">Rap : {{ playerInfo.speed }}</div>
                 <div class="individual-stat" id="attack">
-                    Att : {{ playerInfo.attack }} 
+                    Att : {{ playerInfo.attack }}
                     @if (playerInfo.atkDice === 4) {
-                        <img class="stats-dice" src="/assets/images/icones/D4.png" />
-                    }
-                    @else{ 
-                        <img class="stats-dice" src="/assets/images/icones/D6.png/" />
+                    <img class="stats-dice" src="/assets/images/icones/D4.png" />
+                    } @else{
+                    <img class="stats-dice" src="/assets/images/icones/D6.png/" />
                     }
                 </div>
                 <div class="individual-stat" id="defense">
-                    Def : {{ playerInfo.defense }} 
+                    Def : {{ playerInfo.defense }}
                     @if (playerInfo.defDice === 4) {
-                        <img class="stats-dice" src="/assets/images/icones/D4.png/" />
-                    }
-                    @else {
-                        <img class="stats-dice" src="/assets/images/icones/D6.png/" />
+                    <img class="stats-dice" src="/assets/images/icones/D4.png/" />
+                    } @else {
+                    <img class="stats-dice" src="/assets/images/icones/D6.png/" />
                     }
                 </div>
             </div>
         </div>
     </div>
     <div id="movement-points">
-        <p class="points-text">mouvements: </p>
+        <p class="points-text">mouvements:</p>
         @for (movementPoint of movementPointsArray; track $index) {
-            <div class="movement-point"></div>
-            <!-- <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" /> -->
+        <div class="movement-point"></div>
+        <!-- <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" /> -->
         }
     </div>
-    <div id="movement-points">
-        <p class="points-text">actions: </p>
-        @for (movementPoint of movementPointsArray; track $index) {
-            <div class="movement-point"></div>
-            <!-- <img class="movement-images" src="/assets/images/icones/MovementPointsIcon.png/" id="$index" /> -->
+    <div id="action-points">
+        <p class="points-text">Action:</p>
+        @for (actions of actionPointsArray; track $index) {
+        <div class="action-point"></div>
         }
     </div>
     <div class="player-inventory">
         <h4 id="inventory-header">Inventaire</h4>
         <div id="items-container">
             @for (items of playerInfo.inventory; track $index) {
-                <app-game-object 
-                class="player-items" 
-                [name] = "items.name"
-                [imageUrl]="items.image" 
+            <app-game-object
+                class="player-items"
+                [name]="items.name"
+                [imageUrl]="items.image"
                 [description]="items.description"
-                [descriptionPosition] = "descriptionPosition"
-                ></app-game-object>
+                [descriptionPosition]="descriptionPosition"
+            ></app-game-object>
             }
         </div>
     </div>
