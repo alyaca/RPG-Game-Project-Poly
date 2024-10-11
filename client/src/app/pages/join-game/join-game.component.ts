@@ -1,23 +1,24 @@
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterLink } from '@angular/router';
+import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
+
 
 @Component({
   selector: 'app-join-game',
   standalone: true,
-  imports: [FormsModule, NgClass, CommonModule],
+  imports: [FormsModule, CommonModule, CharacterCreatorComponent,RouterLink],
   templateUrl: './join-game.component.html',
   styleUrl: './join-game.component.scss'
 })
 export class JoinGameComponent {
   accessCode: string;
-  fakeCode: string = "7867";
+  fakeCode: string = "1111";
   submit: boolean;
+  isCharacterFormVisible: boolean = false;
 
-  constructor(
-    public snackBar: MatSnackBar,
-  ) { }
+  constructor() { }
 
 
   isCodeValid(accessCode: string): boolean{
@@ -34,21 +35,16 @@ export class JoinGameComponent {
     this.submit = true;
     if(this.isCodeValid(accessCode)){
       if(this.roomExists(accessCode)){
-        this.snackBar.open("Game joined", "Close", {
-          duration: 2000,
-        });
+        this.isCharacterFormVisible = true;
         //this.gameListervice.getGameId(this.accessCode); //mhhhh
         //utiliser socket
       }
-
-
-      //this.accessCode = this.gameListervice.getGameId(this.accessCode); //mhhhh
-      //utiliser socket
     }
-   // else{
-     // gameInvalide();
-
-
+  
     }
+
+    hideCharacterForm() {
+      this.isCharacterFormVisible = false;
+  }
   
   }
