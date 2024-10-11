@@ -13,16 +13,15 @@
     justify-items: center;
 }
 
-//intérieur du rectangle 
 .submit-container{
     display: grid;
-    height: 35vh;
-    width: 55vh;
+    height: 40vh;
+    width: 60vh;
     justify-content: center;
     align-content: center;
     justify-items: center;
     align-items: center;
-    margin-top:35%;
+    margin-top: 20%;
     background: linear-gradient(to left, rgba(49, 45, 34, 1), rgba(79, 73, 62, 1));
     font-family: 'Papyrus';
     font-weight: bold;
@@ -34,22 +33,22 @@
     font-size: 130%;
 }
 
-/*
-.title{
-    font-weight: bold;
-    font-size: 300%;
-    text-decoration: underline;
-    color: white;
-    font-family: 'Papyrus';
-    text-align: center;
-    margin-top: 3%;
-}*/
-
 .title {
     margin-bottom: 0;
     font-size: 5vh;
     font-family: Papyrus;
     color: white;
+}
+
+.line-separator {
+    border: none;
+    height: 0.1rem;
+    background-color: #ccc;
+    width: 23.5rem;
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: auto;
+    margin-bottom: 3rem;
 }
 
 .join-game{
