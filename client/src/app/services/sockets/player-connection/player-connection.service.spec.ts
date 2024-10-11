@@ -1,15 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { SocketTestHelper } from '@app/classes/socket-test-helper';
-import { Socket } from 'socket.io-client';
-import { SocketClientService } from './socket-client.service';
+import { PlayerConnectionService } from './player-connection.service';
 
 describe('SocketClientService', () => {
-    let service: SocketClientService;
+    let service: PlayerConnectionService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(SocketClientService);
-        service.socket = new SocketTestHelper() as unknown as Socket;
+        service = TestBed.inject(PlayerConnectionService);
     });
 
     it('should be created', () => {

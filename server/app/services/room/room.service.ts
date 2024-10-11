@@ -16,7 +16,6 @@ export class RoomService {
         this.roomCodes.push(roomCode);
         socket.join(roomCode);
         socket.data.roomCode = roomCode;
-
         return roomCode;
     }
 
@@ -29,12 +28,33 @@ export class RoomService {
         return code.toString().padStart(ACCESS_CODE_LENGTH, '0');
     }
 
-    // generate unique code for the room
     private getNewRoomCode(): string {
         let roomCode = this.generateRoomCode();
         while (this.isRoomActive(roomCode)) {
             roomCode = this.generateRoomCode();
         }
         return roomCode;
+    }
+
+    leaveRoom(roomId: string, socket: Socket) {
+        if (!socket) {
+            return;
+        }
+        socket.leave(roomId);
+        socket.data = {};
+    }
+
+    leaveRoomById(roomId: string, socketId: string) {
+        this.leaveRoom(roomId, this.io.sockets.sockets.get(socketId));
+    }
+
+    deleteRoom(roomId: string) {
+        this.roomCodes = this.roomCodes.filter((code) => code !== roomId);
+        this.io.in(roomId).socketsLeave(roomId);
+    }
+
+    getRoomId(client: Socket) {
+        const roomCode = client.data.roomCode;
+        return this.isRoomActive(roomCode) ? roomCode : null;
     }
 }

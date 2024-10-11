@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
     providedIn: 'root',
 })
-export class SocketClientService {
+export class PlayerConnectionService {
     socket: Socket;
 
     isSocketAlive() {
@@ -18,8 +18,18 @@ export class SocketClientService {
         }
     }
 
+    // connectToRoom(room: Room) {
+    //     if (room) {
+    //         this.socket.on(`addingPlayerToRoom:${room.id}`, (player) => {
+    //             room.listPlayers.push(player); // Player interface
+    //         });
+    //     }
+    // }
+
     disconnect() {
-        this.socket.disconnect();
+        if (this.socket) {
+            this.socket.disconnect();
+        }
     }
 
     on<T>(event: string, action: (data: T) => void): void {
