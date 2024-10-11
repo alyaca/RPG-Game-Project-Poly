@@ -11,7 +11,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             health: 4,
             speed: 4,
         },
-        isAdmin: false,
+        isAdmin: true,
         size: PlayerSize.Medium,
     },
     {
@@ -30,14 +30,14 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
     {
         id: 2,
         name: 'General Grievous',
-        avatar: '/assets/images/characters/Zeus.webp',
+        avatar: '/assets/images/characters/Poseidon.webp',
         attributes: {
             attack: 4,
             defense: 4,
             health: 4,
             speed: 4,
         },
-        isAdmin: true,
+        isAdmin: false,
         size: PlayerSize.Medium,
     },
     {
