@@ -7,6 +7,7 @@ import { GameListComponent } from '@app/components/game-list/game-list.component
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -24,12 +25,14 @@ export class CreateGamePageComponent implements OnDestroy {
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
+        private playerConnection: PlayerConnectionService,
     ) {
         this.subscription.add(
             this.gameListService.selectedGameSubject.subscribe((game: Map | null) => {
                 this.selectedGame = game;
             }),
         );
+        this.playerConnection.connect();
     }
 
     showCharacterForm() {

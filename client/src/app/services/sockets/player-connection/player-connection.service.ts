@@ -13,15 +13,12 @@ export class PlayerConnectionService {
     }
 
     connect() {
-        if (!this.isSocketAlive()) {
-            this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
-        }
+        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
+        console.log('socket in client', this.socket);
     }
 
     disconnect() {
-        if (this.socket) {
-            this.socket.disconnect();
-        }
+        this.socket.disconnect();
     }
 
     on<T>(event: string, action: (data: T) => void): void {
