@@ -70,12 +70,11 @@ export class CombatModalComponent {
     }
 
     setDisplayText(text: string){
-      this.displayText = '';
-      setTimeout(() => {
-        this.displayText = text;
-    }, 300);
+        this.displayText = '';
+        setTimeout(() => {
+          this.displayText = text;
+      }, 300);
     }
-
 
     dealDamage(defender: PlayerInfo){
       defender.currentHp = Math.max(0, defender.currentHp - 1);
@@ -84,6 +83,11 @@ export class CombatModalComponent {
     }
 
     attack() {
+      if (this.timerComponent.timeRemaining === 0){
+        this.switchTurn();
+        this.timerComponent.resetTimer();
+      }
+
       if (this.currentPlayerTurn === 2) { 
         this.setDisplayText("C'est pas votre tour!");
         return;

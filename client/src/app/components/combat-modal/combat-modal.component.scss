@@ -337,3 +337,8 @@ app-timer {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 
 }
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5; 
+}
