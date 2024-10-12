@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
+import { DICE_4, DICE_6 } from '@app/constants';
 import { AttributesService } from './attributes.service';
 
 describe('AttributesService', () => {
@@ -53,46 +54,46 @@ describe('AttributesService', () => {
         expect(speed).toEqual('6');
     });
 
-    it('should set attack to 1-6 and defense to 1-4 when setAttack is called after setDefense ', () => {
-        service.setDefense('1-6');
-        service.setAttack('1-6');
+    it('should set attack to 4 + (1-6) and defense to 4 + (1-4) when setAttack is called after setDefense ', () => {
+        service.setDefense(DICE_6);
+        service.setAttack(DICE_6);
         const defense = service.getAttributsValue('defense');
         const attack = service.getAttributsValue('attack');
-        expect(attack).toEqual('1-6');
-        expect(defense).toEqual('1-4');
+        expect(attack).toEqual(DICE_6);
+        expect(defense).toEqual(DICE_4);
     });
 
-    it('should set attack to 1-4 and defense to 1-6 when setAttack is called after setDefense ', () => {
-        service.setDefense('1-4');
-        service.setAttack('1-4');
+    it('should set attack to 4 + (1-4) and defense to 4 + (1-6) when setAttack is called after setDefense ', () => {
+        service.setDefense(DICE_4);
+        service.setAttack(DICE_4);
         const defense = service.getAttributsValue('defense');
         const attack = service.getAttributsValue('attack');
-        expect(attack).toEqual('1-4');
-        expect(defense).toEqual('1-6');
+        expect(attack).toEqual(DICE_4);
+        expect(defense).toEqual(DICE_6);
     });
 
-    it('should set defense to 1-4 and attack to 1-6 when setDefense is called after setAttack ', () => {
-        service.setAttack('1-4');
-        service.setDefense('1-4');
+    it('should set defense to 4 + (1-4) and attack to 4 + (1-6) when setDefense is called after setAttack ', () => {
+        service.setAttack(DICE_4);
+        service.setDefense(DICE_4);
         const defense = service.getAttributsValue('defense');
         const attack = service.getAttributsValue('attack');
-        expect(attack).toEqual('1-6');
-        expect(defense).toEqual('1-4');
+        expect(attack).toEqual(DICE_6);
+        expect(defense).toEqual(DICE_4);
     });
 
-    it('should set defense to 1-6 and attack to 1-4 when setDefense is called after setAttack ', () => {
-        service.setAttack('1-6');
-        service.setDefense('1-6');
+    it('should set defense to 4 + (1-6) and attack to 4 + (1-4) when setDefense is called after setAttack ', () => {
+        service.setAttack(DICE_6);
+        service.setDefense(DICE_6);
         const defense = service.getAttributsValue('defense');
         const attack = service.getAttributsValue('attack');
-        expect(attack).toEqual('1-4');
-        expect(defense).toEqual('1-6');
+        expect(attack).toEqual(DICE_4);
+        expect(defense).toEqual(DICE_6);
     });
 
     it('should return undefined from saveAttributesValue when all attributes are set ', () => {
         spyOn(service, 'validateName').and.returnValue(true);
-        service.setAttack('1-6');
-        service.setDefense('1-4');
+        service.setAttack(DICE_6);
+        service.setDefense(DICE_4);
         service.setHealth('6');
         service.setSpeed('4');
         const isCompleted = service.saveAttributesValue();
@@ -101,8 +102,8 @@ describe('AttributesService', () => {
 
     it('should return error message from saveAttributesValue when not all attributes are set ', () => {
         spyOn(service, 'validateName').and.returnValue(true);
-        service.setAttack('1-6');
-        service.setDefense('1-4');
+        service.setAttack(DICE_6);
+        service.setDefense(DICE_4);
         const isCompleted = service.saveAttributesValue();
         expect(isCompleted).toEqual('Veuillez sélectionner les valeurs des attributs souhaités');
     });
@@ -116,8 +117,8 @@ describe('AttributesService', () => {
     });
 
     it('should reset all attributes to default values when resetAttributes is called ', () => {
-        service.setAttack('1-6');
-        service.setDefense('1-4');
+        service.setAttack('4 + (1-6)');
+        service.setDefense('4 + (1-4)');
         service.setHealth('6');
         service.setSpeed('4');
         service.resetAttributes();
@@ -145,25 +146,25 @@ describe('AttributesService', () => {
     });
 
     it('should return true if attack4 is selected and matches dice4', () => {
-        spyOn(service, 'getAttributsValue').and.returnValue('1-4');
+        spyOn(service, 'getAttributsValue').and.returnValue(DICE_4);
         expect(service.isButtonSelected('attack4')).toBeTrue();
         expect(service.getAttributsValue).toHaveBeenCalledWith('attack');
     });
 
     it('should return true if attack6 is selected and matches dice6', () => {
-        spyOn(service, 'getAttributsValue').and.returnValue('1-6');
+        spyOn(service, 'getAttributsValue').and.returnValue(DICE_6);
         expect(service.isButtonSelected('attack6')).toBeTrue();
         expect(service.getAttributsValue).toHaveBeenCalledWith('attack');
     });
 
     it('should return true if defense4 is selected and matches dice4', () => {
-        spyOn(service, 'getAttributsValue').and.returnValue('1-4');
+        spyOn(service, 'getAttributsValue').and.returnValue(DICE_4);
         expect(service.isButtonSelected('defense4')).toBeTrue();
         expect(service.getAttributsValue).toHaveBeenCalledWith('defense');
     });
 
     it('should return true if defense6 is selected and matches dice6', () => {
-        spyOn(service, 'getAttributsValue').and.returnValue('1-6');
+        spyOn(service, 'getAttributsValue').and.returnValue(DICE_6);
         expect(service.isButtonSelected('defense6')).toBeTrue();
         expect(service.getAttributsValue).toHaveBeenCalledWith('defense');
     });

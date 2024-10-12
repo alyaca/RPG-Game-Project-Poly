@@ -66,14 +66,14 @@ describe('CharacterCreatorComponent', () => {
         expect(attributesServiceSpy.setSpeed).toHaveBeenCalledWith('6');
     });
 
-    it('should set attack to 1-4 when setAttack is called with 1-4', () => {
-        component.setAttack('1-4');
-        expect(attributesServiceSpy.setAttack).toHaveBeenCalledWith('1-4');
+    it('should set attack to 4 + (1-4) when setAttack is called with 1-4', () => {
+        component.setAttack('4 + (1-4)');
+        expect(attributesServiceSpy.setAttack).toHaveBeenCalledWith('4 + (1-4)');
     });
 
-    it('should set deffense to 1-6 when setDeffense is called with 1-6', () => {
-        component.setDefense('1-6');
-        expect(attributesServiceSpy.setDefense).toHaveBeenCalledWith('1-6');
+    it('should set defense to 4 + (1-6) when setDeffense is called with 1-6', () => {
+        component.setDefense('4 + (1-6)');
+        expect(attributesServiceSpy.setDefense).toHaveBeenCalledWith('4 + (1-6)');
     });
 
     it('should update clickedAvatar when getClickedImage is called', () => {
