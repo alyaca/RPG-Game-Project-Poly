@@ -5,11 +5,6 @@
         {{ lobbyPlayer.name }}
         <div class="status"></div>
     </div>   
-    <img [src]="lobbyPlayer.avatar" alt="{{ lobbyPlayer.name }}-avatar" />
-    <div class="attributes-box">
-        <div class="attribute">attaque: {{ lobbyPlayer.attributes.attack }}</div>
-        <div class="attribute">défense: {{ lobbyPlayer.attributes.defense }}</div>
-        <div class="attribute">vie: {{ lobbyPlayer.attributes.health }}</div>
-        <div class="attribute">rapidité: {{ lobbyPlayer.attributes.speed }}</div>
-    </div>
+    <img class="player-img" [src]="lobbyPlayer.avatar" alt="{{ lobbyPlayer.name }}-avatar" />
+    <div class="motif"></div>
 </div>
