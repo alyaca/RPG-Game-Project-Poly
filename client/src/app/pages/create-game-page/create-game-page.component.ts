@@ -59,7 +59,6 @@ export class CreateGamePageComponent implements OnDestroy {
 
     hideCharacterForm() {
         this.isCharacterFormVisible = false;
-        this.playerConnectionService.disconnect();
     }
 
     connect() {
@@ -81,9 +80,9 @@ export class CreateGamePageComponent implements OnDestroy {
     createRoom() {
         this.playerConnectionService.send('createRoom');
         this.playerConnectionService.on<string>('roomCreated', (roomCode) => {
-            console.log('Room created:', roomCode);
             this.roomCode = roomCode;
             this.gameService.setRoomId(roomCode);
+            this.gameService.joinRoom(this.roomCode);
         });
     }
 

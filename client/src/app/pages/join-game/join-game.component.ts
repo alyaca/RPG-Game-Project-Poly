@@ -15,30 +15,28 @@ import { PlayerConnectionService } from '@app/services/sockets/player-connection
 })
 export class JoinGameComponent {
     accessCode: string;
-    fakeCode: string = '1111'; // This is a fake code for testing purposes
-    submitForm: boolean;
     isCharacterFormVisible: boolean = false;
+    isJoined: boolean = false;
 
-    constructor(private playerConnection: PlayerConnectionService) {}
+    constructor(private playerConnectionService: PlayerConnectionService) {
+        this.connect();
+    }
 
     get socketId() {
-        return this.playerConnection.socket.id ? this.playerConnection.socket.id : '';
+        return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
 
     isCodeValid(accessCode: string): boolean {
-        return !isNaN(Number(accessCode));
-    }
-
-    roomExists(accessCode: string): boolean {
-        return accessCode === this.fakeCode;
+        return !isNaN(Number(accessCode)) && this.isJoined;
     }
 
     joinGame(accessCode: string) {
-        this.submitForm = true;
-        if (this.roomExists(accessCode)) {
+        this.playerConnectionService.send('joinRoom', accessCode);
+        this.playerConnectionService.on<string>('joinedRoom', (roomCode) => {
+            this.isJoined = true;
             this.isCharacterFormVisible = true;
-            this.connect();
-        }
+            console.log('Joined room:', roomCode);
+        });
     }
 
     hideCharacterForm() {
@@ -46,12 +44,11 @@ export class JoinGameComponent {
     }
 
     connect() {
-        if (!this.playerConnection.isSocketAlive()) {
-            this.playerConnection.connect();
+        if (!this.playerConnectionService.isSocketAlive()) {
+            this.playerConnectionService.connect();
+            this.playerConnectionService.on('connect', () => {
+                console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
+            });
         }
-    }
-
-    joinRoom() {
-        this.playerConnection.send('joinRoom');
     }
 }

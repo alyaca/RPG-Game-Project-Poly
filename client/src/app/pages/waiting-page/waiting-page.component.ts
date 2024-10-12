@@ -36,26 +36,9 @@ export class WaitingPageComponent implements OnInit {
             this.router.navigate(['/game-creation']);
         }
         this.accessCode = this.gameService.roomId;
-        this.joinRoom(this.accessCode);
     }
 
     get socketId() {
         return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
-    }
-
-    connect() {
-        if (!this.playerConnectionService.isSocketAlive()) {
-            this.playerConnectionService.connect();
-            this.playerConnectionService.on('connect', () => {
-                console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
-            });
-        }
-    }
-
-    joinRoom(roomCode: string) {
-        this.playerConnectionService.send('joinRoom', roomCode);
-        this.playerConnectionService.on<string>('joinedRoom', (roomCode) => {
-            console.log('Joined room:', roomCode);
-        });
     }
 }
