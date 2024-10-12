@@ -54,6 +54,7 @@ export class CombatModalComponent {
 
     isDamaged: boolean = false;
     evasionsArray = new Array(this.playerInfo1.evasionsLeft).fill(1);
+    displayText: string = '';
 
     closeModal() {
         this.isInCombat = false;
@@ -64,9 +65,16 @@ export class CombatModalComponent {
         this.diceComponent.rollDice();
     }
 
+    setDisplayText(text: string){
+      this.displayText = '';
+      setTimeout(() => {
+        this.displayText = text;
+    }, 300);
+    }
+
     attack() {
         this.playerInfo2.currentHp = Math.max(0, this.playerInfo2.currentHp - 1);
-
+        this.setDisplayText("1 dégat infligé à "+this.playerInfo2.name);
         this.isDamaged = true;
         this.timerComponent.resetTimer();
         setTimeout(() => {
@@ -74,14 +82,29 @@ export class CombatModalComponent {
         }, 500);
 
         if(this.playerInfo1.currentHp === 0 || this.playerInfo2.currentHp === 0){
+          this.setDisplayText("Vous avez gagné le duel")
             setTimeout(() => {
               this.closeModal();
-          }, 3000); 
+          }, 6000); 
         }
     }
 
     triggerEvade() {
+      if(this.evasionsArray.length === 0){
+        this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
+        return;
+      }
       this.evasionsArray.pop();
+      if(Math.random() < 0.4){
+        this.setDisplayText("Évasion réussie, partie nulle");
+          setTimeout(() => {
+            this.closeModal();
+        }, 3000); 
+      }
+      else{
+        this.setDisplayText("Évasion échouée");
+      }
+        
     }
 
 
