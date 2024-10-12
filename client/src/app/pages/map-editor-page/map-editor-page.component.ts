@@ -2,14 +2,13 @@ import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, Vie
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
-import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { ToolbarComponent } from '@app/components/map-editor/toolbar/toolbar.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { CHECK_BEFORE_SAVING_DELAY, MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { GameGridService } from '@app/services/game-grid.service';
+import { MapEditorService } from '@app/services/map-editor.service';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
@@ -18,7 +17,7 @@ import html2canvas from 'html2canvas';
     standalone: true,
     templateUrl: './map-editor-page.component.html',
     styleUrls: ['./map-editor-page.component.scss'],
-    providers: [GameListComponent, GameGridComponent],
+    providers: [GameGridComponent],
     imports: [GameObjectsContainerComponent, FormsModule, RouterLink, GameGridComponent, ToolbarComponent],
 })
 export class MapEditorPageComponent implements OnInit {
@@ -38,15 +37,13 @@ export class MapEditorPageComponent implements OnInit {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
-    private adminGamePage = inject(GameListComponent);
     private saveGameService = inject(SaveGameService);
-    private gameGridService = inject(GameGridService);
-
+    private mapEditorService = inject(MapEditorService);
     constructor(
         private dialog: MatDialog,
         private router: Router,
     ) {
-        this.selectedSize = this.gameGridService.getGridSize();
+        this.selectedSize = this.mapEditorService.getGridSize();
     }
 
     setGrid(newGrid: number[][]) {
@@ -66,17 +63,17 @@ export class MapEditorPageComponent implements OnInit {
     }
 
     onDragEnd() {
-        this.gameGridService.onDragEnd();
+        this.mapEditorService.onDragEnd();
     }
 
     onDropOutside(event: DragEvent) {
         event.preventDefault();
-        const gameObject = this.gameGridService.getDraggedObject();
-        if (this.gameGridService.isDraggingFromContainer()) {
+        const gameObject = this.mapEditorService.getDraggedObject();
+        if (this.mapEditorService.isDraggingFromContainer()) {
             return;
         }
         if (gameObject?.id) {
-            this.gameGridService.removeObjectFromGrid(gameObject);
+            this.mapEditorService.removeObjectFromGrid(gameObject);
         }
     }
 
@@ -131,15 +128,15 @@ export class MapEditorPageComponent implements OnInit {
                 height: this.height,
             };
             setTimeout(() => {
-                if (this.gameGridService.isMapValid()) {
-                    this.saveGameService.saveGame(infoTransferred, this.adminGamePage.gameSelected);
+                if (this.mapEditorService.isMapValid()) {
+                    this.saveGameService.saveGame(infoTransferred);
                 }
             }, CHECK_BEFORE_SAVING_DELAY);
         });
     }
 
     ngOnInit(): void {
-        if (!this.gameGridService.isMapChosen()) {
+        if (!this.mapEditorService.isMapChosen()) {
             this.router.navigate(['/administration']);
         }
     }
