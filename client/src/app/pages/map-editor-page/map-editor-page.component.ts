@@ -9,9 +9,7 @@ import { ToolbarComponent } from '@app/components/map-editor/toolbar/toolbar.com
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { CHECK_BEFORE_SAVING_DELAY, MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { GameCreationService } from '@app/services/game-creation.service';
-import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
+import { GameGridService } from '@app/services/game-grid.service';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
@@ -33,7 +31,6 @@ export class MapEditorPageComponent implements OnInit {
     items: number[][];
     tiles: number[][];
     height: number;
-    baseImage: string;
 
     maxLenMapTitle = MAX_LEN_MAP_TITLE;
     maxLenMapDescription = MAX_LEN_MAP_DESCRIPTION;
@@ -41,19 +38,15 @@ export class MapEditorPageComponent implements OnInit {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
-    infoTransferred: Info;
-
     private adminGamePage = inject(GameListComponent);
     private saveGameService = inject(SaveGameService);
-    private mapValidator = inject(MapValidatorService);
+    private gameGridService = inject(GameGridService);
 
     constructor(
         private dialog: MatDialog,
         private router: Router,
-        private gameCreationService: GameCreationService,
-        private gameObjectService: GameObjectService,
     ) {
-        this.selectedSize = this.gameCreationService.getStoredSize();
+        this.selectedSize = this.gameGridService.getGridSize();
     }
 
     setGrid(newGrid: number[][]) {
@@ -73,17 +66,17 @@ export class MapEditorPageComponent implements OnInit {
     }
 
     onDragEnd() {
-        this.gameObjectService.isDraggingFromContainer = false;
+        this.gameGridService.onDragEnd();
     }
 
     onDropOutside(event: DragEvent) {
         event.preventDefault();
-        const gameObject = this.gameObjectService.draggedObject;
-        if (this.gameObjectService.isDraggingFromContainer) {
+        const gameObject = this.gameGridService.getDraggedObject();
+        if (this.gameGridService.isDraggingFromContainer()) {
             return;
         }
         if (gameObject?.id) {
-            this.gameObjectService.removeObjectFromGrid(gameObject);
+            this.gameGridService.removeObjectFromGrid(gameObject);
         }
     }
 
@@ -125,10 +118,12 @@ export class MapEditorPageComponent implements OnInit {
     }
 
     startSaving() {
+        let infoTransferred: Info;
+        let baseImage: string;
         html2canvas(this.canvas.nativeElement, { scale: 0.2 }).then((canvas) => {
-            this.baseImage = canvas.toDataURL();
-            this.infoTransferred = {
-                image: this.baseImage,
+            baseImage = canvas.toDataURL();
+            infoTransferred = {
+                image: baseImage,
                 name: this.mapName,
                 description: this.mapDescription,
                 grid: this.tiles,
@@ -136,15 +131,15 @@ export class MapEditorPageComponent implements OnInit {
                 height: this.height,
             };
             setTimeout(() => {
-                if (this.mapValidator.validMap) {
-                    this.saveGameService.saveGame(this.infoTransferred, this.adminGamePage.gameSelected);
+                if (this.gameGridService.isMapValid()) {
+                    this.saveGameService.saveGame(infoTransferred, this.adminGamePage.gameSelected);
                 }
             }, CHECK_BEFORE_SAVING_DELAY);
         });
     }
 
     ngOnInit(): void {
-        if (!this.gameCreationService.sizeSubject.value) {
+        if (!this.gameGridService.isMapChosen()) {
             this.router.navigate(['/administration']);
         }
     }
