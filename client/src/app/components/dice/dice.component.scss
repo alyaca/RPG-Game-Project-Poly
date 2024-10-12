@@ -35,40 +35,45 @@
 
     border-radius: 10%;
 }
+
 .face.two {
-    transform: rotateY(90deg) translateZ(50px);
+    transform: rotateX(90deg) translateZ(50px);
     background-image: url('/assets/images/dice/dice2.png');
     background-size: cover;
     background-position: center;
 
     border-radius: 10%;
 }
+
 .face.three {
-    transform: rotateY(180deg) translateZ(50px);
+    transform: rotateY(-90deg) translateZ(50px);
     background-image: url('/assets/images/dice/dice3.png');
     background-size: cover;
     background-position: center;
 
     border-radius: 10%;
 }
+
 .face.four {
-    transform: rotateY(-90deg) translateZ(50px);
+    transform: rotateY(90deg) translateZ(50px);
     background-image: url('/assets/images/dice/dice4.png');
     background-size: cover;
     background-position: center;
 
     border-radius: 10%;
 }
+
 .face.five {
-    transform: rotateX(90deg) translateZ(50px);
+    transform: rotateX(-90deg) translateZ(50px);
     background-image: url('/assets/images/dice/dice5.png');
     background-size: cover;
     background-position: center;
 
     border-radius: 10%;
 }
+
 .face.six {
-    transform: rotateX(-90deg) translateZ(50px);
+    transform: rotateY(180deg) translateZ(50px);
     background-image: url('/assets/images/dice/dice6.png');
     background-size: cover;
     background-position: center;
