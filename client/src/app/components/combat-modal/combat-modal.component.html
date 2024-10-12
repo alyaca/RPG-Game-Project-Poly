@@ -21,9 +21,10 @@
         </div>
         <div class="timer-container">
             <app-timer
-                [totalTime]="3" 
-                [timeRemaining]="3"
+                [totalTime]="5" 
+                [timeRemaining]="5"
                 [timerSize]="45"
+                #timer
             ></app-timer>
         </div>
         <div class="player-info right-player">
@@ -59,10 +60,17 @@
     </div>
     </div>
     <div class="bottom-section">
-        <div>
-            <p class="action-text">Évader</p>
-            <div class="button-outer end-outer">
-                <div class="end-turn-button-inner"></div>
+        <div class="evasion-container">
+            <div class="evasions-remaining">
+                @for (evasion of evasionsArray; track $index) {
+                    <div class="evasion-point"></div>
+                }
+            </div>
+            <div>
+                <p class="action-text">Évader</p>
+                <div class="button-outer end-outer" (click)="triggerEvade()">
+                    <div class="end-turn-button-inner"></div>
+                </div>
             </div>
         </div>
         <div>

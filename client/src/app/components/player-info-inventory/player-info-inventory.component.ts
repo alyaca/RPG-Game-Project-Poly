@@ -73,6 +73,7 @@ export class PlayerInfoInventoryComponent {
         maxActionPoints: 2,
         actionPoints: 1,
         movementPointsLeft: 3,
+        evasionsLeft: 2,
         attack: 4,
         atkDice: 6,
         defense: 4,

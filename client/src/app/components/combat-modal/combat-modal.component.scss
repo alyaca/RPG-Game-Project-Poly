@@ -165,7 +165,7 @@ progress::-webkit-progress-value {
 
 .player-name.damaged {
     color: #f95e4d;
-    transform: scale(1.0);
+    transform: scale(1);
 }
 
 .hp-value.damaged {
@@ -176,7 +176,6 @@ progress::-webkit-progress-value {
 .hp-bar.damaged {
     animation: pulse-animation 0.5s ease forwards;
 }
-
 
 @keyframes pulse-animation {
     0% {
@@ -191,8 +190,8 @@ progress::-webkit-progress-value {
 }
 
 ///////
-/// 
-/// 
+///
+///
 .player-img {
     height: 15rem;
     width: 15rem;
@@ -215,17 +214,13 @@ progress::-webkit-progress-value {
     left: 0;
     width: 100%;
     height: 100%;
-    transition: background-color 0.3s ease; 
+    transition: background-color 0.3s ease;
     border-radius: 3rem;
-  }
-  
-  .player-avatar-container.damaged .damaged-overlay {
-    background-color: rgba(141, 0, 0, 0.5); 
-   
-  }
-/// 
-/// 
-/// /////
+}
+
+.player-avatar-container.damaged .damaged-overlay {
+    background-color: rgba(141, 0, 0, 0.5);
+}
 
 .hp-value {
     margin-left: 2%;
@@ -244,18 +239,17 @@ progress::-webkit-progress-value {
     font-size: 0.95rem;
     margin: 0;
 
-    transition: transform 0.2s ease,
+    transition: transform 0.2s ease;
 }
 
 .player-info {
     width: 35%;
     padding: 0;
-    margin:0 ;
+    margin: 0;
 }
 
 .right-player .hp-bar-container {
     transform: scaleX(-1);
-    
 }
 
 .right-player .hp-value {
@@ -286,8 +280,6 @@ progress::-webkit-progress-value {
     align-items: center;
     height: 100%;
     width: 20%;
-
-    
 }
 
 app-timer {
@@ -296,7 +288,36 @@ app-timer {
     margin-top: 10%;
 }
 
-
-.left-player{
+.left-player {
     margin: 0;
+}
+
+.evasion-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.evasions-remaining {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 20%;
+    width: 3rem;
+    margin-top: 10%;
+    margin-right: 15%;
+    min-width: 3rem;
+}
+
+.evasion-point {
+    height: 2rem;
+    width: 2rem;
+
+    border-radius: 3rem;
+
+    border: 0.2rem solid black;
+    background: linear-gradient(to top right, rgb(154, 144, 86), rgb(241, 224, 124));
+    margin: 20% 5%;
 }

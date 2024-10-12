@@ -9,6 +9,7 @@ export interface PlayerInfo {
     movementPointsLeft: number;
     maxActionPoints: number;
     actionPoints: number;
+    evasionsLeft: number;
     attack: number;
     atkDice: number;
     defense: number;
