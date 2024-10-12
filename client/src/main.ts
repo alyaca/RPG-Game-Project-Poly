@@ -6,6 +6,7 @@ import { Routes, provideRouter } from '@angular/router';
 import { AdministrationPageComponent } from '@app/pages/administration-page/administration-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreateGamePageComponent } from '@app/pages/create-game-page/create-game-page.component';
+import { JoinGameComponent } from '@app/pages/join-game/join-game.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MapEditorPageComponent } from '@app/pages/map-editor-page/map-editor-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
@@ -24,6 +25,7 @@ const routes: Routes = [
     { path: 'edit-map', component: MapEditorPageComponent },
     { path: 'material', component: MaterialPageComponent },
     { path: 'waiting-page', component: WaitingPageComponent },
+    {path: 'join-game', component: JoinGameComponent},
     { path: '**', redirectTo: '/home' },
 ];
 

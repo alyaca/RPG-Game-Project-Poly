@@ -49,8 +49,8 @@
                         </div>
                     </div>
                     <div class="initial-value">{{ getAttributsValue('attack') }}</div>
-                    <button (click)="setAttack('1-4')" [disabled]="isButtonSelected('attack4')">+D4</button>
-                    <button (click)="setAttack('1-6')" [disabled]="isButtonSelected('attack6')">+D6</button>
+                    <button (click)="setAttack('4 + (1-4)')" [disabled]="isButtonSelected('attack4')">+D4</button>
+                    <button (click)="setAttack('4 + (1-6)')" [disabled]="isButtonSelected('attack6')">+D6</button>
                 </div>
                 <div class="arrows-container">
                     <div class="attribute">
@@ -61,8 +61,8 @@
                         </div>
                     </div>
                     <div class="initial-value">{{ getAttributsValue('defense') }}</div>
-                    <button (click)="setDefense('1-4')" [disabled]="isButtonSelected('defense4')">+D4</button>
-                    <button (click)="setDefense('1-6')" [disabled]="isButtonSelected('defense6')">+D6</button>
+                    <button (click)="setDefense('4 + (1-4)')" [disabled]="isButtonSelected('defense4')">+D4</button>
+                    <button (click)="setDefense('4 + (1-6)')" [disabled]="isButtonSelected('defense6')">+D6</button>
                 </div>
             </div>
         </div>
