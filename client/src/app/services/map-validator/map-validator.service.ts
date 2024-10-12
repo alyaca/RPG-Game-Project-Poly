@@ -12,7 +12,7 @@ import {
 } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { map, Observable } from 'rxjs';
+import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export enum TileType {
@@ -43,41 +43,18 @@ export class MapValidatorService {
     validateMap(array: number[][], title: string, description: string) {
         this.errorMessages = [];
 
-        this.isSameName(title).subscribe((matchingMapExists: boolean) => {
-            if (matchingMapExists) {
-                this.errorMessages.push('- Une carte avec le même nom existe déjà');
-            }
-        });
+        this.validateName(title);
+        this.vlaidateSufficientTerrainTiles(array);
+        this.validateAllDoors(array);
+        this.validateAllSpawnPointsPlaced();
+        this.validateTileAccessibility(array);
+        this.validateTitle(title);
+        this.validateDescription(description);
 
-        if (!this.hasSufficientTerrainTiles(array)) {
-            this.errorMessages.push('- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)');
-        }
+        this.showValidationResult();
+    }
 
-        if (!this.validateAllDoors(array)) {
-            this.errorMessages.push("- Au moins une porte n'est pas valide: ");
-            this.errorMessages.push("chacun doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
-        }
-
-        if (!this.isEveryTileAccessible(array)) {
-            this.errorMessages.push('- Pas toutes les tuiles de terrain sont accessibles');
-        }
-
-        if (!this.validateTitleLength(title)) {
-            this.errorMessages.push(
-                '- Le titre de la carte doit avoir une longueur entre 3 et 30 charactères et ne pas uniquement contenir des espaces',
-            );
-        }
-
-        if (!this.validateDescriptionLength(description)) {
-            this.errorMessages.push(
-                '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
-            );
-        }
-
-        if (!this.areAllSpawnPointsPlaced()) {
-            this.errorMessages.push('- Tous les points de départ doivent être placés sur la carte.');
-        }
-
+    showValidationResult() {
         setTimeout(() => {
             const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
 
@@ -91,12 +68,14 @@ export class MapValidatorService {
         }, VALIDATION_DURATION);
     }
 
-    isSameName(nameToCheck: string): Observable<boolean> {
+    validateName(nameToCheck: string) {
         const trimmedNameToCheck = nameToCheck.trim();
-        return this.httpClient.get<Map[]>(this.apiURL).pipe(
+        this.httpClient.get<Map[]>(this.apiURL).pipe(
             map((maps: Map[]) => {
                 const sameName = maps.filter((g) => g.name.trim() === trimmedNameToCheck);
-                return sameName.length > 0;
+                if (sameName) {
+                    this.errorMessages.push('- Une carte avec le même nom existe déjà');
+                }
             }),
         );
     }
@@ -115,18 +94,18 @@ export class MapValidatorService {
         return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
-    validateAllDoors(array: number[][]): boolean {
+    validateAllDoors(array: number[][]) {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] > TileType.Wall && !this.isDoorPlacementValid(array, row, col)) {
-                    return false;
+                    this.errorMessages.push("- Au moins une porte n'est pas valide: ");
+                    this.errorMessages.push("chacun doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
                 }
             }
         }
-        return true;
     }
 
-    hasSufficientTerrainTiles(array: number[][]): boolean {
+    vlaidateSufficientTerrainTiles(array: number[][]) {
         let nTerrainTiles = 0;
         for (const row of array) {
             for (const tile of row) {
@@ -135,45 +114,65 @@ export class MapValidatorService {
                 }
             }
         }
-        return nTerrainTiles > array.length ** 2 / 2;
+        if (!(nTerrainTiles > array.length ** 2 / 2)) {
+            this.errorMessages.push('- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)');
+        }
     }
 
-    isEveryTileAccessible(array: number[][]): boolean {
-        const visited = Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
-        const directions = [
+    validateTileAccessibility(array: number[][]) {
+        const visited = this.createVisitedArray(array);
+        const directions = this.getDirections();
+        const start = this.findStartPoint(array);
+        if (start) {
+            this.dfs(array, visited, start.row, start.col, directions);
+        }
+        if (!this.allTilesAccessible(array, visited)) {
+            this.errorMessages.push('- Pas toutes les tuiles de terrain sont accessibles');
+        }
+    }
+
+    private createVisitedArray(array: number[][]): boolean[][] {
+        return Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
+    }
+
+    private getDirections() {
+        return [
             { x: 0, y: 1 },
             { x: 1, y: 0 },
             { x: 0, y: -1 },
             { x: -1, y: 0 },
         ];
-        const dfs = (row: number, col: number) => {
-            visited[row][col] = true;
-            for (const direction of directions) {
-                const newRow = row + direction.x;
-                const newCol = col + direction.y;
-                if (
-                    newRow >= 0 &&
-                    newRow < array.length &&
-                    newCol >= 0 &&
-                    newCol < array[0].length &&
-                    !visited[newRow][newCol] &&
-                    array[newRow][newCol] !== TileType.Wall
-                ) {
-                    dfs(newRow, newCol);
-                }
-            }
-        };
-        let startFound = false;
+    }
+
+    private findStartPoint(array: number[][]): { row: number; col: number } | null {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] !== TileType.Wall) {
-                    dfs(row, col);
-                    startFound = true;
-                    break;
+                    return { row, col };
                 }
             }
-            if (startFound) break;
         }
+        return null;
+    }
+
+    private dfs(array: number[][], visited: boolean[][], row: number, col: number, directions: { x: number; y: number }[]): void {
+        visited[row][col] = true;
+
+        for (const direction of directions) {
+            const newRow = row + direction.x;
+            const newCol = col + direction.y;
+
+            if (this.isValidMove(newRow, newCol, array, visited)) {
+                this.dfs(array, visited, newRow, newCol, directions);
+            }
+        }
+    }
+
+    private isValidMove(row: number, col: number, array: number[][], visited: boolean[][]): boolean {
+        return row >= 0 && row < array.length && col >= 0 && col < array[0].length && !visited[row][col] && array[row][col] !== TileType.Wall;
+    }
+
+    private allTilesAccessible(array: number[][], visited: boolean[][]): boolean {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] !== TileType.Wall && !visited[row][col]) {
@@ -181,7 +180,6 @@ export class MapValidatorService {
                 }
             }
         }
-
         return true;
     }
 
@@ -196,16 +194,40 @@ export class MapValidatorService {
         return text?.trim() !== '' && text?.trim() !== '';
     }
 
-    validateTitleLength(title: string) {
-        return title.length >= MIN_LEN_MAP_TITLE && title.length <= MAX_LEN_MAP_TITLE && this.containsAcharacter(title);
+    validateTitle(title: string) {
+        if (!(this.isTitleValidLength(title) && this.containsAcharacter(title))) {
+            this.errorMessages.push(
+                '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
+            );
+        }
     }
 
-    validateDescriptionLength(description: string) {
+    private isTitleValidLength(title: string): boolean {
+        return title.length >= MIN_LEN_MAP_TITLE && title.length <= MAX_LEN_MAP_TITLE;
+    }
+
+    validateDescription(description: string) {
+        if (!this.isDescriptionValid(description)) {
+            this.errorMessages.push(
+                '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
+            );
+        }
+    }
+
+    private isDescriptionValid(description: string): boolean {
         return description.length >= MIN_LEN_MAP_DESCRIPTION && description.length <= MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
     }
 
-    areAllSpawnPointsPlaced(): boolean {
+    validateAllSpawnPointsPlaced() {
         this.mapObjects = this.gameObjectService.objectsArray;
+        const spawnObjectCount = this.countSpawnPoints();
+
+        if (spawnObjectCount !== this.gameObjectService.maxCount) {
+            this.errorMessages.push('- Tous les points de départ doivent être placés sur la carte.');
+        }
+    }
+
+    private countSpawnPoints(): number {
         let spawnObjectCount = 0;
         for (const row of this.mapObjects) {
             for (const cell of row) {
@@ -214,6 +236,6 @@ export class MapValidatorService {
                 }
             }
         }
-        return spawnObjectCount === this.gameObjectService.maxCount;
+        return spawnObjectCount;
     }
 }
