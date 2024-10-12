@@ -4,6 +4,8 @@
     height: 90%;
     color: white;
     background: rgba(0, 0, 0, 1);
+
+    background-image: linear-gradient(to top, rgb(26, 23, 23), rgb(41, 37, 37) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -35,15 +37,6 @@
     align-items: center;
     width: 100%;
     // border: 1px solid cyan;
-}
-
-.player-img {
-    height: 15rem;
-    width: 15rem;
-    background-image: url('/assets/images/characters/Poseidon.webp');
-    background-size: cover;
-    border-radius: 3rem;
-    border: 0.2rem solid white;
 }
 
 .dice {
@@ -147,14 +140,12 @@ progress::-webkit-progress-bar {
 }
 
 progress::-moz-progress-bar {
-    //background: rgb(138, 9, 9);
     transition: width 1s ease;
     border-radius: 0.5rem;
     background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
 }
 
 progress::-webkit-progress-value {
-    //background: rgb(138, 9, 9);
     transition: width 1s ease;
     border-radius: 0.5rem;
     background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
@@ -169,6 +160,72 @@ progress::-webkit-progress-value {
     width: 80%;
     border-radius: 0.5rem;
 }
+
+//////////////
+
+.player-name.damaged {
+    color: #f95e4d;
+    transform: scale(1.0);
+}
+
+.hp-value.damaged {
+    color: #f95e4d;
+    transform: scale(1.05);
+}
+
+.hp-bar.damaged {
+    animation: pulse-animation 0.5s ease forwards;
+}
+
+
+@keyframes pulse-animation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05); /* Slightly enlarge */
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+///////
+/// 
+/// 
+.player-img {
+    height: 15rem;
+    width: 15rem;
+    background-image: url('/assets/images/characters/Poseidon.webp');
+    background-size: cover;
+    border-radius: 3rem;
+    border: 0.2rem solid white;
+
+    display: block;
+}
+
+.player-avatar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.damaged-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.3s ease; 
+    border-radius: 3rem;
+  }
+  
+  .player-avatar-container.damaged .damaged-overlay {
+    background-color: rgba(141, 0, 0, 0.5); 
+   
+  }
+/// 
+/// 
+/// /////
 
 .hp-value {
     margin-left: 2%;
@@ -186,6 +243,8 @@ progress::-webkit-progress-value {
     font-weight: 900;
     font-size: 0.95rem;
     margin: 0;
+
+    transition: transform 0.2s ease,
 }
 
 .player-info {

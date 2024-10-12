@@ -16,6 +16,7 @@ import { IngameSidebarPlayer, Status } from '@app/interfaces/ingameSidebarPlayer
 export class GamePageComponent {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
+
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
     resetTrigger: boolean = false;
