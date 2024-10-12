@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
@@ -29,12 +29,14 @@ export class CreateGamePageComponent implements OnDestroy {
         private snackBar: MatSnackBar,
         private playerConnectionService: PlayerConnectionService,
         private gameService: GameService,
+        private router: Router,
     ) {
         this.subscription.add(
             this.gameListService.selectedGameSubject.subscribe((game: Map | null) => {
                 this.selectedGame = game;
             }),
         );
+        this.connect();
     }
 
     showCharacterForm() {
@@ -48,13 +50,18 @@ export class CreateGamePageComponent implements OnDestroy {
             if (game) {
                 this.isCharacterFormVisible = true;
                 this.gameListService.chosenGameSubject.next(game);
-                this.createGameRoom();
             } else {
                 this.snackBar.open("Le jeu sélectionné n'existe pas ou a été caché", 'Fermer', {
                     duration: MESSAGE_DURATION_CHARACTER_FORM,
                 });
             }
         });
+    }
+
+    joinLobby() {
+        this.createRoom();
+
+        // send character selection
     }
 
     hideCharacterForm() {
@@ -68,11 +75,6 @@ export class CreateGamePageComponent implements OnDestroy {
         });
     }
 
-    createGameRoom() {
-        this.connect();
-        this.createRoom();
-    }
-
     get socketId() {
         return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
@@ -83,17 +85,8 @@ export class CreateGamePageComponent implements OnDestroy {
             this.roomCode = roomCode;
             this.gameService.setRoomId(roomCode);
             this.gameService.joinRoom(this.roomCode);
+            this.router.navigate(['/waiting-page']);
         });
-    }
-
-    leaveRoom() {
-        this.playerConnectionService.send('leaveRoom', this.roomCode);
-        this.roomCode = null;
-    }
-
-    disconnect() {
-        this.playerConnectionService.disconnect();
-        console.log('player disconnect', this.socketId);
     }
 
     ngOnDestroy() {

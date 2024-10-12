@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
@@ -17,8 +17,13 @@ export class JoinGameComponent {
     accessCode: string;
     isCharacterFormVisible: boolean = false;
     isJoined: boolean = false;
+    errorMessage: string = '';
+    submitForm: boolean = false;
 
-    constructor(private playerConnectionService: PlayerConnectionService) {
+    constructor(
+        private playerConnectionService: PlayerConnectionService,
+        private router: Router,
+    ) {
         this.connect();
     }
 
@@ -26,21 +31,38 @@ export class JoinGameComponent {
         return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
 
-    isCodeValid(accessCode: string): boolean {
-        return !isNaN(Number(accessCode)) && this.isJoined;
+    isValidCode(accessCode: string): boolean {
+        return /^[0-9]{4}$/.test(accessCode);
     }
 
     joinGame(accessCode: string) {
+        this.submitForm = true;
+        this.errorMessage = '';
+        if (!this.isValidCode(accessCode)) {
+            this.errorMessage = 'Le code doit être composé de 4 chiffres';
+            return;
+        }
+
         this.playerConnectionService.send('joinRoom', accessCode);
         this.playerConnectionService.on<string>('joinedRoom', (roomCode) => {
             this.isJoined = true;
             this.isCharacterFormVisible = true;
             console.log('Joined room:', roomCode);
         });
+
+        this.playerConnectionService.on('joinError', () => {
+            this.errorMessage = 'La partie est inexistante';
+        });
     }
 
-    hideCharacterForm() {
+    joinLobby() {
+        this.router.navigate(['/waiting-page']);
+    }
+
+    leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
+        this.playerConnectionService.send('leaveRoom', roomCode);
+        this.router.navigate(['/create-game']);
     }
 
     connect() {

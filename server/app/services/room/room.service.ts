@@ -6,6 +6,7 @@ import { Server, Socket } from 'socket.io';
 export class RoomService {
     private io: Server;
     roomCodes: string[] = [];
+    adminList: string[] = [];
 
     setServer(io: Server) {
         this.io = io;
@@ -14,6 +15,7 @@ export class RoomService {
     createRoom(socket: Socket): string {
         const roomCode: string = this.getNewRoomCode();
         this.roomCodes.push(roomCode);
+        this.adminList.push(socket.id);
         socket.join(roomCode);
         socket.data.roomCode = roomCode;
         return roomCode;
@@ -21,6 +23,10 @@ export class RoomService {
 
     isRoomActive(roomId: string): boolean {
         return this.roomCodes.includes(roomId);
+    }
+
+    isPlayerAdmin(socket: Socket) {
+        return this.adminList.includes(socket.id);
     }
 
     private generateRoomCode(): string {
@@ -40,8 +46,12 @@ export class RoomService {
         if (!socket) {
             return;
         }
-        socket.leave(roomId);
-        socket.data = {};
+        if (this.isPlayerAdmin(socket)) {
+            this.deleteRoom(roomId);
+        } else {
+            socket.leave(roomId);
+            socket.data = {};
+        }
     }
 
     leaveRoomById(roomId: string, socketId: string) {

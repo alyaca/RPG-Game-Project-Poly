@@ -1,7 +1,7 @@
 export enum RoomEvents {
-    Connect = 'connect',
+    CreateRoom = 'createRoom',
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
-    RoomMessage = 'roomMessage',
+    LeaveRoom = 'leaveRoom',
     PlayerSelection = 'playerSelection',
 }

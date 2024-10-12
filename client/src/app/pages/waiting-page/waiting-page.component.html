@@ -48,7 +48,7 @@
                 <input type="text" id="chat-input" name="chatInput" placeholder="messagerie" />
             </div>
             <div id="start-container">
-                <button id="quit-button" routerLink="/home">x</button>
+                <button id="quit-button" (click)="leaveGame(accessCode)">x</button>
                 <button id="start">lancer une partie</button>
             </div>
             <div id="lock-container">

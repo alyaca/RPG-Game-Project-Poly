@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
 import { HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
 
@@ -14,7 +13,8 @@ import { AttributesService } from '@app/services/attributes.service';
     styleUrl: './character-creator.component.scss',
 })
 export class CharacterCreatorComponent {
-    @Output() closeCharactorCreator = new EventEmitter<void>();
+    @Output() closeCharacterCreator = new EventEmitter<void>();
+    @Output() confirmCharacterSelection = new EventEmitter<void>();
     avatars = [
         { src: '/assets/images/characters/Hestia.webp', name: 'Hestia' },
         { src: '/assets/images/characters/Zeus.webp', name: 'Zeus' },
@@ -34,7 +34,7 @@ export class CharacterCreatorComponent {
 
     constructor(
         private attributesService: AttributesService,
-        private router: Router,
+        // private router: Router,
         private snackBar: MatSnackBar,
     ) {}
 
@@ -43,7 +43,7 @@ export class CharacterCreatorComponent {
     }
 
     closeComponent() {
-        this.closeCharactorCreator.emit();
+        this.closeCharacterCreator.emit();
         this.attributesService.resetAttributes();
     }
 
@@ -78,7 +78,7 @@ export class CharacterCreatorComponent {
         this.attributesService.setCharacterName(this.characterName);
         const saveStatus = this.attributesService.saveAttributesValue();
         if (saveStatus === undefined) {
-            this.router.navigate(['/waiting-page']);
+            this.confirmCharacterSelection.emit();
         } else {
             this.snackBar.open(saveStatus as string, 'Fermer', {
                 duration: MESSAGE_DURATION_SAVE_CHOICE,

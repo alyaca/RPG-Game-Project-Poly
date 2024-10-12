@@ -41,4 +41,9 @@ export class WaitingPageComponent implements OnInit {
     get socketId() {
         return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
+
+    leaveGame(roomCode: string) {
+        this.playerConnectionService.send('leaveRoom', roomCode);
+        this.router.navigate(['/create-game']);
+    }
 }

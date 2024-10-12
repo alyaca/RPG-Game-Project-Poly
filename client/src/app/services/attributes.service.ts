@@ -86,11 +86,11 @@ export class AttributesService {
 
     saveAttributesValue(): undefined | string {
         const nameCheck = this.validateName();
-        if (nameCheck !== true) return nameCheck;
+        if (!nameCheck) return nameCheck;
         localStorage.setItem('name', this.name);
 
         const attributeCheck = this.validateAttributes();
-        if (attributeCheck !== true) return attributeCheck;
+        if (!attributeCheck) return attributeCheck;
         this.saveAttributes();
         this.resetAttributes();
         return;
