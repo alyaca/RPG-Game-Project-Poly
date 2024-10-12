@@ -12,7 +12,7 @@ export class DiceComponent {
   diceValue: number = 1;
   isRolling: boolean = false;
 
-  rollDice(): void {
+  rollDice() {
     if (this.isRolling) return;
     this.isRolling = true;
 

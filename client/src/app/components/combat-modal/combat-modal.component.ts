@@ -69,94 +69,95 @@ export class CombatModalComponent {
         this.diceComponent.rollDice();
     }
 
-    setDisplayText(text: string){
+    setDisplayText(text: string) {
         this.displayText = '';
         setTimeout(() => {
-          this.displayText = text;
-      }, 300);
+            this.displayText = text;
+        }, 300);
     }
 
-    dealDamage(defender: PlayerInfo){
-      defender.currentHp = Math.max(0, defender.currentHp - 1);
-      this.setDisplayText("1 dégat infligé à "+ defender.name);
-      this.isDamaged = true;
+    dealDamage(defender: PlayerInfo) {
+        defender.currentHp = Math.max(0, defender.currentHp - 1);
+        this.setDisplayText('1 dégat infligé à ' + defender.name);
+        this.isDamaged = true;
     }
 
     attack() {
-      if (this.timerComponent.timeRemaining === 0){
-        this.switchTurn();
+        const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
+        const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+
+        // if (attacker.attack + this.diceComponent.diceValue > defender.defense){
+        console.log(this.diceComponent.diceValue);
+        if (this.diceComponent.diceValue > 3){
+          
+          this.dealDamage(defender);
+        }
+
         this.timerComponent.resetTimer();
-      }
-
-      if (this.currentPlayerTurn === 2) { 
-        this.setDisplayText("C'est pas votre tour!");
-        return;
-      }
-      const attacker = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
-      const defender = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
-
-      this.dealDamage(defender);
-
-      this.timerComponent.resetTimer();
-      setTimeout(() => {
-          this.isDamaged = false;
-      }, 500);
-
-      const message = (this.currentPlayerTurn !== 1 ? "Votre tour" : "Tour de l'adversaire");
-      this.triggerTempDialog(message);
-
-      if(attacker.currentHp === 0 || defender.currentHp === 0){
-        this.triggerTempDialog('Victoire');
-        this.setDisplayText("Vous avez gagné le duel");
         setTimeout(() => {
-            this.closeModal();
-        }, 6000); 
-      } else {
-          this.switchTurn();
+            this.isDamaged = false;
+        }, 500);
+
+        setTimeout(() => {
+          const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
+          this.triggerTempDialog(message);
+        }, 1000);
+
+
+        this.checkIfDuelOver(attacker, defender);
+    }
+
+    checkIfDuelOver(attacker: PlayerInfo, defender: PlayerInfo){
+      if (attacker.currentHp === 0 || defender.currentHp === 0) {
+        this.triggerTempDialog('Victoire');
+        this.setDisplayText('Vous avez gagné le duel');
+        setTimeout(() => {
+              this.closeModal();
+          }, 6000);
       }
-  }
-
-  switchTurn() {
-      this.currentPlayerTurn = this.currentPlayerTurn === 1 ? 2 : 1; 
-      const nextPlayer = this.currentPlayerTurn === 1 ? this.playerInfo1.name : this.playerInfo2.name;
-      this.setDisplayText("C'est le tour de " + nextPlayer);
-  }
-
-  triggerEvade() {
-    if (this.currentPlayerTurn !== 1) { 
-      this.setDisplayText("C'est pas votre tour!");
-      return;
     }
 
-    if (this.evasionsArray.length === 0) {
-      this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
-      return;
+    switchTurn() {
+        this.currentPlayerTurn = this.currentPlayerTurn === 1 ? 2 : 1;
+        const nextPlayer = this.currentPlayerTurn === 1 ? this.playerInfo1.name : this.playerInfo2.name;
+        this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 
-    this.evasionsArray.pop();
-    if (Math.random() < 0.4) {
-      this.setDisplayText("Évasion réussie, partie nulle");
-      setTimeout(() => {
-          this.closeModal();
-      }, 3000); 
-    } else {
-      this.setDisplayText("Évasion échouée");
+    triggerEvade() {
+        if (this.currentPlayerTurn !== 1) {
+            this.setDisplayText("C'est pas votre tour!");
+            return;
+        }
+
+        if (this.evasionsArray.length === 0) {
+            this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
+            return;
+        }
+
+        this.evasionsArray.pop();
+        if (Math.random() < 0.4) {
+            this.triggerTempDialog('Évasion réussie, partie nulle');
+            setTimeout(() => {
+                this.closeModal();
+            }, 3000);
+        } else {
+            this.setDisplayText('Évasion échouée');
+        }
     }
-  }
 
-  triggerAttack() {
-      if ((this.currentPlayerTurn === 1 && this.playerInfo1.actionPoints <= 0) ||
-          (this.currentPlayerTurn === 2 && this.playerInfo2.actionPoints <= 0)) {
-          this.setDisplayText("Pas assez de points d'action pour attaquer");
-          return;
-      }
-
-      setTimeout(() => {
-          this.attack();
-      }, 1000);
-  }
+    triggerAttack() {
+        setTimeout(() => {
+            this.attack();
+        }, 1000);
+        this.switchTurn();
+    }
 
     triggerTempDialog(message: string) {
-      this.temporaryDialogComponent.show(message);
+        this.temporaryDialogComponent.show(message);
+    }
+
+    onTimerFinished() {
+        this.switchTurn();
+        this.attack();
     }
 }
