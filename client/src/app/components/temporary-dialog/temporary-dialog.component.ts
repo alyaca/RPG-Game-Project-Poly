@@ -9,7 +9,7 @@ import { Component, Input } from '@angular/core';
 })
 export class TemporaryDialogComponent {
   @Input() message = '';
-  duration = 1000; 
+  duration = 1500; 
   isVisible = false;
 
   show(message: string): void {

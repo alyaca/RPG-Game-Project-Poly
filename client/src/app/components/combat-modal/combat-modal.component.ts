@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, OnInit } from '@angular/core';
 import { PlayerInfo } from '@app/interfaces/playerInfo';
 import { TimerComponent } from '../timer/timer.component';
 import { DiceComponent } from '../dice/dice.component';
@@ -14,13 +14,13 @@ import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
-export class CombatModalComponent {
+export class CombatModalComponent implements OnInit {
     @Input() isInCombat = false;
     @Output() close = new EventEmitter<void>();
-    @ViewChild('dice') diceComponent!: DiceComponent;
+    @ViewChild('dice1') diceComponent1!: DiceComponent;
+    @ViewChild('dice2') diceComponent2!: DiceComponent;
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
-    //@ViewChild('combatStatsBar') combatStatsBar!: CombatModalComponent;
 
     @Input() playerInfo1: PlayerInfo = {
         name: 'Jar Jar Binks',
@@ -55,22 +55,27 @@ export class CombatModalComponent {
         defDice: 4,
         inventory: [],
     };
-
+    isGameOngoing: boolean = true;
     isPlayer1Damaged: boolean = false;
     isPlayer2Damaged: boolean = false;
-    //isDamaged: boolean = false;
-    evasionsArray = new Array(this.playerInfo1.evasionsLeft).fill(1);
+    evasionsArray: number[];
     displayText: string = '';
-
     currentPlayerTurn: number = 1;
+
+    totalTime: number = 5;
+    timeRemaining: number = 5;
+
+    ngOnInit() {
+        this.evasionsArray = new Array(this.playerInfo1.evasionsLeft).fill(1);
+        setTimeout(() => {
+            const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
+            this.triggerTempDialog(message);
+        }, 100);
+    }
 
     closeModal() {
         this.isInCombat = false;
         this.close.emit();
-    }
-
-    triggerRollDice() {
-        this.diceComponent.rollDice();
     }
 
     setDisplayText(text: string) {
@@ -83,25 +88,23 @@ export class CombatModalComponent {
     dealDamage(defender: PlayerInfo, isDefenderPlayer1: boolean) {
         defender.currentHp = Math.max(0, defender.currentHp - 1);
         this.setDisplayText('1 dégat infligé à ' + defender.name);
-        //this.isDamaged = true;
 
-          if (isDefenderPlayer1) {
-            this.isPlayer1Damaged = true;
-            this.isPlayer2Damaged = false;
-        } else {
-            this.isPlayer2Damaged = true;
-            this.isPlayer1Damaged = false;
-        }
+        this.isPlayer1Damaged = isDefenderPlayer1;
+        this.isPlayer2Damaged = !isDefenderPlayer1;
     }
 
     attack() {
         const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
-        const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        //const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        
         const isDefenderPlayer1 = this.currentPlayerTurn === 1;
+        const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1: this.diceComponent2;
 
-        if (attacker.attack + this.diceComponent.diceValue > defender.defense){
-        console.log(this.diceComponent.diceValue);
-          this.dealDamage(defender, isDefenderPlayer1);
+
+        // if (attacker.attack + this.diceComponent.diceValue > defender.defense){
+        console.log(activeDiceComponent.diceValue);
+        if (activeDiceComponent.diceValue > 2) {
+            this.dealDamage(defender, isDefenderPlayer1);
         }
 
         this.timerComponent.resetTimer();
@@ -109,24 +112,31 @@ export class CombatModalComponent {
             this.isPlayer1Damaged = false;
             this.isPlayer2Damaged = false;
         }, 500);
-
+        
         setTimeout(() => {
-          const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
-          this.triggerTempDialog(message);
+            const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
+            this.triggerTempDialog(message);
         }, 1000);
 
 
-        this.checkIfDuelOver(attacker, defender);
+        this.checkIfDuelOver();
     }
 
-    checkIfDuelOver(attacker: PlayerInfo, defender: PlayerInfo){
-      if (attacker.currentHp === 0 || defender.currentHp === 0) {
-        this.triggerTempDialog('Victoire');
-        this.setDisplayText('Vous avez gagné le duel');
+    checkIfDuelOver() {
+        if (this.playerInfo2.currentHp === 0) {
+            this.endDuel('Victoire', 'Vous avez gagné le duel');
+        } else if (this.playerInfo1.currentHp === 0) {
+            this.endDuel('Défaite', 'Vous avez perdu le duel');
+        }
+    }
+
+    endDuel(dialogTitle: string, displayText: string) {
+        this.isGameOngoing = false;
+        this.triggerTempDialog(dialogTitle);
+        this.setDisplayText(displayText);
         setTimeout(() => {
-              this.closeModal();
-          }, 6000);
-      }
+            this.closeModal();
+        }, 6000);
     }
 
     switchTurn() {
@@ -158,10 +168,16 @@ export class CombatModalComponent {
     }
 
     triggerAttack() {
+        if (!this.isGameOngoing) {
+          return;
+        }
+        this.switchTurn();
+        const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1: this.diceComponent2;
+        activeDiceComponent.rollDice();
         setTimeout(() => {
             this.attack();
         }, 1000);
-        this.switchTurn();
+        
     }
 
     triggerTempDialog(message: string) {
@@ -169,7 +185,6 @@ export class CombatModalComponent {
     }
 
     onTimerFinished() {
-        this.switchTurn();
-        this.attack();
+        this.triggerAttack();
     }
 }

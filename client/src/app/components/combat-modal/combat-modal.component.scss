@@ -3,7 +3,6 @@
     width: 80%;
     height: 90%;
     color: white;
-    // background-image: linear-gradient(to top, rgb(26, 23, 23), rgb(41, 37, 37) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
     background-image: linear-gradient(to top,   rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
     display: flex;
     flex-direction: column;
@@ -24,8 +23,6 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    // gap: 5%;
-    // border: 1px solid yellow;
 }
 
 .middle-section {
@@ -35,7 +32,6 @@
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    // border: 1px solid cyan;
 }
 
 .dice {
@@ -52,7 +48,6 @@
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    // border: 1px solid magenta;
 }
 
 .close-button {
@@ -160,8 +155,6 @@ progress::-webkit-progress-value {
     border-radius: 0.5rem;
 }
 
-//////////////
-
 .player-name.damaged {
     color: #f95e4d;
     transform: scale(1);
@@ -181,16 +174,13 @@ progress::-webkit-progress-value {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.05); /* Slightly enlarge */
+        transform: scale(1.05); 
     }
     100% {
         transform: scale(1);
     }
 }
 
-///////
-///
-///
 .player-img {
     height: 15rem;
     width: 15rem;
@@ -228,7 +218,6 @@ progress::-webkit-progress-value {
 .player-attributes {
     flex-direction: column;
     width: 100%;
-    //border: 1px solid red;
     margin: 0;
 }
 
@@ -265,10 +254,6 @@ progress::-webkit-progress-value {
     justify-content: flex-end;
     text-align: right;
 }
-
-// .player-attributes {
-//     border: 1px solid red;
-// }
 
 .background-disabled {
     pointer-events: none;
