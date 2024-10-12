@@ -31,7 +31,6 @@ export class CombatModalComponent implements OnInit {
         maxActionPoints: 2,
         actionPoints: 1,
         movementPointsLeft: 3,
-        evasionsLeft: 2,
         attack: 4,
         atkDice: 6,
         defense: 4,
@@ -48,7 +47,6 @@ export class CombatModalComponent implements OnInit {
         maxActionPoints: 2,
         actionPoints: 1,
         movementPointsLeft: 3,
-        evasionsLeft: 1,
         attack: 6,
         atkDice: 6,
         defense: 4,
@@ -56,9 +54,12 @@ export class CombatModalComponent implements OnInit {
         inventory: [],
     };
     isGameOngoing: boolean = true;
+
     isPlayer1Damaged: boolean = false;
     isPlayer2Damaged: boolean = false;
-    evasionsArray: number[];
+
+    evasionsArray1: number[];
+    evasionsArray2: number[];
     displayText: string = '';
     currentPlayerTurn: number = 1;
 
@@ -66,7 +67,8 @@ export class CombatModalComponent implements OnInit {
     timeRemaining: number = 5;
 
     ngOnInit() {
-        this.evasionsArray = new Array(this.playerInfo1.evasionsLeft).fill(1);
+        this.evasionsArray1 = new Array(2).fill(1);
+        this.evasionsArray2 = new Array(2).fill(1);
         setTimeout(() => {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
@@ -95,15 +97,15 @@ export class CombatModalComponent implements OnInit {
 
     attack() {
         const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
-        //const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
         
         const isDefenderPlayer1 = this.currentPlayerTurn === 1;
         const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1: this.diceComponent2;
-
+        const inactiveDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent2: this.diceComponent1; 
 
         // if (attacker.attack + this.diceComponent.diceValue > defender.defense){
         console.log(activeDiceComponent.diceValue);
-        if (activeDiceComponent.diceValue > 2) {
+        if (activeDiceComponent.diceValue + attacker.attack > inactiveDiceComponent.diceValue + defender.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
         }
 
@@ -151,14 +153,16 @@ export class CombatModalComponent implements OnInit {
             return;
         }
 
-        if (this.evasionsArray.length === 0) {
+        if (this.evasionsArray1.length === 0) {
             this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
             return;
         }
 
-        this.evasionsArray.pop();
+        this.evasionsArray1.pop();
+        
         if (Math.random() < 0.4) {
             this.triggerTempDialog('Évasion réussie, partie nulle');
+            this.isGameOngoing = false;
             setTimeout(() => {
                 this.closeModal();
             }, 3000);
@@ -168,6 +172,7 @@ export class CombatModalComponent implements OnInit {
     }
 
     triggerAttack() {
+        this.determineTimerLength();
         if (!this.isGameOngoing) {
           return;
         }
@@ -177,7 +182,6 @@ export class CombatModalComponent implements OnInit {
         setTimeout(() => {
             this.attack();
         }, 1000);
-        
     }
 
     triggerTempDialog(message: string) {
@@ -186,5 +190,16 @@ export class CombatModalComponent implements OnInit {
 
     onTimerFinished() {
         this.triggerAttack();
+    }
+
+    determineTimerLength() {
+      if (this.evasionsArray1.length === 0 && this.currentPlayerTurn !== 1){
+        this.totalTime = 3;
+        this.timeRemaining = 3;
+      }
+      else{
+        this.totalTime = 5;
+        this.timeRemaining = 5;
+      }
     }
 }

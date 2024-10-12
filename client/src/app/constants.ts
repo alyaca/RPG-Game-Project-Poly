@@ -71,7 +71,7 @@ export const DICE_6 = '1-6';
 
 // Constants for timer component
 export const TOTAL_TIME = 60;
-export const WARNING_TIME = 5;
+export const WARNING_TIME = 3;
 export const TIMER_RADIUS = 45;
 export const MILLISECONDS_IN_SECOND = 1000;
 export const TIMER_CENTER_POSITION = 50;
