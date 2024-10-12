@@ -5,11 +5,12 @@ import { DiceComponent } from '../dice/dice.component';
 import { CommonModule } from '@angular/common';
 import { SimpleDialogComponent } from '../simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '../temporary-dialog/temporary-dialog.component';
+import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
 
 @Component({
     selector: 'app-combat-modal',
     standalone: true,
-    imports: [TimerComponent, DiceComponent, CommonModule, SimpleDialogComponent, TemporaryDialogComponent],
+    imports: [TimerComponent, DiceComponent, CommonModule, SimpleDialogComponent, TemporaryDialogComponent, CombatStatsBarComponent],
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
@@ -19,6 +20,7 @@ export class CombatModalComponent {
     @ViewChild('dice') diceComponent!: DiceComponent;
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
+    //@ViewChild('combatStatsBar') combatStatsBar!: CombatModalComponent;
 
     @Input() playerInfo1: PlayerInfo = {
         name: 'Jar Jar Binks',
@@ -54,7 +56,9 @@ export class CombatModalComponent {
         inventory: [],
     };
 
-    isDamaged: boolean = false;
+    isPlayer1Damaged: boolean = false;
+    isPlayer2Damaged: boolean = false;
+    //isDamaged: boolean = false;
     evasionsArray = new Array(this.playerInfo1.evasionsLeft).fill(1);
     displayText: string = '';
 
@@ -76,26 +80,34 @@ export class CombatModalComponent {
         }, 300);
     }
 
-    dealDamage(defender: PlayerInfo) {
+    dealDamage(defender: PlayerInfo, isDefenderPlayer1: boolean) {
         defender.currentHp = Math.max(0, defender.currentHp - 1);
         this.setDisplayText('1 dégat infligé à ' + defender.name);
-        this.isDamaged = true;
+        //this.isDamaged = true;
+
+          if (isDefenderPlayer1) {
+            this.isPlayer1Damaged = true;
+            this.isPlayer2Damaged = false;
+        } else {
+            this.isPlayer2Damaged = true;
+            this.isPlayer1Damaged = false;
+        }
     }
 
     attack() {
         const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
         const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        const isDefenderPlayer1 = this.currentPlayerTurn === 1;
 
-        // if (attacker.attack + this.diceComponent.diceValue > defender.defense){
+        if (attacker.attack + this.diceComponent.diceValue > defender.defense){
         console.log(this.diceComponent.diceValue);
-        if (this.diceComponent.diceValue > 3){
-          
-          this.dealDamage(defender);
+          this.dealDamage(defender, isDefenderPlayer1);
         }
 
         this.timerComponent.resetTimer();
         setTimeout(() => {
-            this.isDamaged = false;
+            this.isPlayer1Damaged = false;
+            this.isPlayer2Damaged = false;
         }, 500);
 
         setTimeout(() => {

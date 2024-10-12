@@ -1,7 +1,7 @@
 <div class="combat-modal">
     <app-temporary-dialog #temporaryDialog></app-temporary-dialog>
     <div class="top-section">
-        <div class="player-info left-player">
+        <!-- <div class="player-info left-player">
             
             <div class="player-attributes">
                 <p class="player-name">{{ playerInfo1.name }}</p>
@@ -19,6 +19,13 @@
                     <div class="individual-stat defense">Def : {{ playerInfo1.defense }}</div>
                 </div>
             </div>
+        </div> -->
+        <div class="player-info">
+            <app-combat-stats-bar
+                [playerInfo]="playerInfo1"
+                [isOnRightSide]=false
+                [isDamaged]="isPlayer1Damaged"
+            ></app-combat-stats-bar>
         </div>
         <div class="timer-container">
             <app-timer
@@ -29,7 +36,14 @@
                 #timer
             ></app-timer>
         </div>
-        <div class="player-info right-player">
+        <div class="player-info">
+            <app-combat-stats-bar
+                [playerInfo]="playerInfo2"
+                [isOnRightSide]=true
+                [isDamaged]="isPlayer2Damaged"
+            ></app-combat-stats-bar>
+        </div>
+        <!-- <div class="player-info right-player">
             <div class="player-attributes">
                 <p class="player-name" [ngClass]="{ 'damaged': isDamaged }">{{ playerInfo2.name }}</p>
                 <div class="hp-bar-container">
@@ -49,17 +63,20 @@
                     <div class="individual-stat defense">Def : {{ playerInfo2.defense }}</div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
     <div class="middle-section">
-        <img class="player-img" src="{{ playerInfo1.portrait }}" alt="left player portrait" />
+        <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer1Damaged }">
+            <img class="player-img" src="{{ playerInfo1.portrait }}" alt="right player portrait" />
+            <div class="damaged-overlay"></div>
+        </div>
         <app-dice #dice></app-dice>
         <app-dice></app-dice>
-            
-    <div class="player-avatar-container" [ngClass]="{ 'damaged': isDamaged }">
-        <img class="player-img" src="{{ playerInfo2.portrait }}" alt="right player portrait" />
-        <div class="damaged-overlay"></div>
-    </div>
+                
+        <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer2Damaged }">
+            <img class="player-img" src="{{ playerInfo2.portrait }}" alt="right player portrait" />
+            <div class="damaged-overlay"></div>
+        </div>
     </div>
     <div class="bottom-section">
         <div class="evasion-container">
