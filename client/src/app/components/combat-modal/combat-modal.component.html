@@ -30,8 +30,20 @@
             <img class="player-img" src="{{ playerInfo1.portrait }}" alt="right player portrait" />
             <div class="damaged-overlay"></div>
         </div>
-        <app-dice #dice2></app-dice>
-        <app-dice #dice1></app-dice>
+        <div class="dice-container">
+            <div class="stats-and-dice-value">
+                <div>{{ playerStat1 }}</div>
+                <div>{{ statValue1 }}</div>
+            </div>
+            <app-dice #dice2></app-dice>
+        </div>
+        <div class="dice-container">
+            <div class="stats-and-dice-value">
+                <div>{{ playerStat2 }}</div>
+                <div>{{ statValue2 }}</div>
+            </div>
+            <app-dice #dice1></app-dice>
+        </div>
                 
         <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer2Damaged }">
             <img class="player-img" src="{{ playerInfo2.portrait }}" alt="right player portrait" />

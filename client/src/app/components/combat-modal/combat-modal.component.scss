@@ -116,71 +116,6 @@
     color: red;
 }
 
-.stats {
-    display: flex;
-    flex-direction: row;
-    margin-top: 0.15rem;
-    width: 100%;
-    gap: 10%;
-}
-.individual-stat {
-    height: 33%;
-    color: rgb(255, 245, 194);
-}
-
-progress::-webkit-progress-bar {
-    background-color: rgb(197, 197, 197);
-    border-radius: 0.5rem;
-}
-
-progress::-moz-progress-bar {
-    transition: width 1s ease;
-    border-radius: 0.5rem;
-    background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
-}
-
-progress::-webkit-progress-value {
-    transition: width 1s ease;
-    border-radius: 0.5rem;
-    background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
-}
-
-.hp-bar-container {
-    display: flex;
-}
-
-.hp-bar {
-    border: 1px solid rgb(197, 197, 197);
-    width: 80%;
-    border-radius: 0.5rem;
-}
-
-.player-name.damaged {
-    color: #f95e4d;
-    transform: scale(1);
-}
-
-.hp-value.damaged {
-    color: #f95e4d;
-    transform: scale(1.05);
-}
-
-.hp-bar.damaged {
-    animation: pulse-animation 0.5s ease forwards;
-}
-
-@keyframes pulse-animation {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05); 
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
 .player-img {
     height: 15rem;
     width: 15rem;
@@ -215,45 +150,12 @@ progress::-webkit-progress-value {
     margin-left: 2%;
 }
 
-.player-attributes {
-    flex-direction: column;
-    width: 100%;
-    margin: 0;
-}
-
-.player-name {
-    font-family: papyrus;
-    font-weight: 900;
-    font-size: 0.95rem;
-    margin: 0;
-
-    transition: transform 0.2s ease;
-}
-
 .player-info {
     width: 35%;
     padding: 0;
     margin: 0;
 }
 
-.right-player .hp-bar-container {
-    transform: scaleX(-1);
-}
-
-.right-player .hp-value {
-    transform: scaleX(-1);
-}
-
-.right-player .stats {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.right-player .player-name {
-    display: flex;
-    justify-content: flex-end;
-    text-align: right;
-}
 
 .background-disabled {
     pointer-events: none;
@@ -326,4 +228,30 @@ app-timer {
 .disabled {
     pointer-events: none;
     opacity: 0.5; 
+}
+
+.dice-container {
+    height: 65%;   
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.stats-and-dice-value {
+    border: 0.1rem solid rgb(241, 224, 124);
+    border-radius: 1.5rem;
+    margin: 0;
+    height: 5rem;
+    width: 6rem;
+    text-align: center;
+
+    font-size: 1.25rem;
+    font-family: papyrus;
+
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }

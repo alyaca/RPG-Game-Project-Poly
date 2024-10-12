@@ -27,7 +27,7 @@ export class CombatModalComponent implements OnInit {
         portrait: '/assets/images/characters/Hephaestus.webp/',
         hp: 6,
         currentHp: 6,
-        speed: 4,
+        speed: 5,
         maxActionPoints: 2,
         actionPoints: 1,
         movementPointsLeft: 3,
@@ -43,11 +43,11 @@ export class CombatModalComponent implements OnInit {
         portrait: '/assets/images/characters/Artemis.webp/',
         hp: 6,
         currentHp: 6,
-        speed: 5,
+        speed: 4,
         maxActionPoints: 2,
         actionPoints: 1,
         movementPointsLeft: 3,
-        attack: 6,
+        attack: 4,
         atkDice: 6,
         defense: 4,
         defDice: 4,
@@ -61,18 +61,33 @@ export class CombatModalComponent implements OnInit {
     evasionsArray1: number[];
     evasionsArray2: number[];
     displayText: string = '';
-    currentPlayerTurn: number = 1;
+    currentPlayerTurn: number;
 
     totalTime: number = 5;
     timeRemaining: number = 5;
 
+    // maybe i should rename these variables
+    playerStat1: string;
+    playerStat2: string;
+    statValue1: number = 0;
+    statValue2: number = 0;
+
+
     ngOnInit() {
         this.evasionsArray1 = new Array(2).fill(1);
         this.evasionsArray2 = new Array(2).fill(1);
+        this.currentPlayerTurn = this.determineStartingPlayer();
         setTimeout(() => {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
+
+            this.playerStat1 = this.currentPlayerTurn === 1 ? 'Attaque' : "Défense";
+            this.playerStat2 = this.currentPlayerTurn === 1 ? 'Défense' : "Attaque";
         }, 100);
+    }
+
+    determineStartingPlayer(): number{
+      return this.playerInfo1.speed >= this.playerInfo2.speed ? 1 : 2;
     }
 
     closeModal() {
@@ -103,8 +118,13 @@ export class CombatModalComponent implements OnInit {
         const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1: this.diceComponent2;
         const inactiveDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent2: this.diceComponent1; 
 
-        // if (attacker.attack + this.diceComponent.diceValue > defender.defense){
+        
         console.log(activeDiceComponent.diceValue);
+
+        this.statValue2 = this.currentPlayerTurn === 1 ? activeDiceComponent.diceValue + this.playerInfo1.attack : inactiveDiceComponent.diceValue + this.playerInfo1.defense;
+        this.statValue1 = this.currentPlayerTurn === 2 ? activeDiceComponent.diceValue + this.playerInfo2.attack : inactiveDiceComponent.diceValue + this.playerInfo2.defense;
+        
+
         if (activeDiceComponent.diceValue + attacker.attack > inactiveDiceComponent.diceValue + defender.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
         }
@@ -118,6 +138,9 @@ export class CombatModalComponent implements OnInit {
         setTimeout(() => {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
+
+            this.playerStat1 = this.playerStat1 === "Attaque"? "Défense": "Attaque";
+            this.playerStat2 = this.playerStat2 === "Attaque"? "Défense": "Attaque";
         }, 1000);
 
 
@@ -202,4 +225,6 @@ export class CombatModalComponent implements OnInit {
         this.timeRemaining = 5;
       }
     }
+
+    
 }
