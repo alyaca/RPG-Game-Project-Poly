@@ -15,10 +15,9 @@ import { PlayerConnectionService } from '@app/services/sockets/player-connection
 })
 export class JoinGameComponent {
     accessCode: string;
-    fakeCode: string = '1111';
-    submit: boolean;
+    fakeCode: string = '1111'; // This is a fake code for testing purposes
+    submitForm: boolean;
     isCharacterFormVisible: boolean = false;
-    roomMessage = '';
 
     constructor(private playerConnection: PlayerConnectionService) {}
 
@@ -31,18 +30,14 @@ export class JoinGameComponent {
     }
 
     roomExists(accessCode: string): boolean {
-        return accessCode == this.fakeCode;
+        return accessCode === this.fakeCode;
     }
 
-    //revoir tout ca
     joinGame(accessCode: string) {
-        this.submit = true;
-        if (this.isCodeValid(accessCode)) {
-            if (this.roomExists(accessCode)) {
-                this.isCharacterFormVisible = true;
-                this.connect();
-                //this.gameListervice.getGameId(this.accessCode); //mhhhh
-            }
+        this.submitForm = true;
+        if (this.roomExists(accessCode)) {
+            this.isCharacterFormVisible = true;
+            this.connect();
         }
     }
 
@@ -58,10 +53,5 @@ export class JoinGameComponent {
 
     joinRoom() {
         this.playerConnection.send('joinRoom');
-    }
-
-    sendToRoom() {
-        this.playerConnection.send('roomMessage', this.roomMessage);
-        this.roomMessage = '';
     }
 }

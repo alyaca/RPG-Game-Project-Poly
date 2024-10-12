@@ -13,16 +13,15 @@
     justify-items: center;
 }
 
-//intérieur du rectangle 
 .submit-container{
     display: grid;
-    height: 35vh;
-    width: 55vh;
+    height: 40vh;
+    width: 60vh;
     justify-content: center;
     align-content: center;
     justify-items: center;
     align-items: center;
-    margin-top:35%;
+    margin-top: 20%;
     background: linear-gradient(to left, rgba(49, 45, 34, 1), rgba(79, 73, 62, 1));
     font-family: 'Papyrus';
     font-weight: bold;
@@ -34,22 +33,22 @@
     font-size: 130%;
 }
 
-/*
-.title{
-    font-weight: bold;
-    font-size: 300%;
-    text-decoration: underline;
-    color: white;
-    font-family: 'Papyrus';
-    text-align: center;
-    margin-top: 3%;
-}*/
-
 .title {
     margin-bottom: 0;
     font-size: 5vh;
     font-family: Papyrus;
     color: white;
+}
+
+.line-separator {
+    border: none;
+    height: 0.1rem;
+    background-color: #ccc;
+    width: 23.5rem;
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: auto;
+    margin-bottom: 3rem;
 }
 
 .join-game{
@@ -63,7 +62,7 @@
     text-align: center;
 }
 
-button {
+.join-game {
     font-family: 'Papyrus';
     font-size: 110%;
     font-weight: 900;
@@ -75,23 +74,6 @@ button {
     border-radius: 3 rem;
     cursor: pointer;
 }
-
-button.selected {
-    border: 2px solid black;
-    color: white;
-    font-size: 110%;
-    font-weight: 900;
-    background: linear-gradient(to right,  rgb(193, 189, 166), rgb(168, 164, 143));
-    
-}
-
-button.select {
-    border: 2px solid black;
-    font-weight: 900;
-    color: white;
-    background: linear-gradient(to right,  rgb(193, 189, 166), rgb(168, 164, 143));
-}
-
 
 .input-box {
     background: none;
@@ -108,47 +90,19 @@ button.select {
 .input-box:hover {
     background: linear-gradient(to right, rgba(111, 109, 56, 0.4), rgba(177, 168, 131, 0.1));
 }
-
-.buttons-container {
-    text-align: left;
-    margin-left: 2em;
-}
-
 .button {
+    font-size: 2rem;
+    display: inline-block;
+    background-color: transparent;
+    color: white;
+    font-family: 'Papyrus';
     border: none;
-    margin: 0;
-    margin-top:15%;
-    padding: 4% 7% 2% 7%;
-    text-align: center;
-    color: rgb(255, 255, 255);
-    font-size: 1.4vw;
-    font-family: 'papyrus';
-    font-weight: bold;
-    width: 70%;
-    background: transparent;
-    position: relative;
-    z-index: 1;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.button::after {
-    background: transparent;
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transition: background-color 0.1s ease;
-    z-index: -1;
-    color: black;
+    margin-top: 10%;
 }
 
 .button:hover {
-    color: black;
+    background: linear-gradient(to right, rgba(222, 207, 129, 0.9), rgba(0, 0, 0, 0));
+    border-radius: 0.3rem;
+    cursor: pointer;
 }
 
-.button:hover::after {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(222, 207, 129, 1) 30%, rgba(163, 147, 71, 1) 70%, rgba(0, 0, 0, 0) 100%);
-}

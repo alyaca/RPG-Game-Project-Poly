@@ -62,5 +62,5 @@ export const PAD_LENGTH = 2;
 // Constants for attribut values
 export const DEFAULT_ATTRIBUTE = '4';
 export const HIGH_ATTRIBUTE = '6';
-export const DICE_4 = '1-4';
-export const DICE_6 = '1-6';
+export const DICE_4 = '4 + (1-4)';
+export const DICE_6 = '4 + (1-6)';

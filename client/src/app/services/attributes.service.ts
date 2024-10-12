@@ -65,25 +65,19 @@ export class AttributesService {
     }
     setAttack(attackValue: string) {
         const attack = this.findAttribut('attack');
-        if (attack) {
+        if (attack && attack.value !== attackValue) {
             attack.value = attackValue;
-            if (this.getAttributsValue('defense') === DICE_6 && attackValue === DICE_6) {
-                this.setDefense(DICE_4);
-            } else if (this.getAttributsValue('defense') === DICE_4 && attackValue === DICE_4) {
-                this.setDefense(DICE_6);
-            }
+            if (attackValue === DICE_6) this.setDefense(DICE_4);
+            else if (attackValue === DICE_4) this.setDefense(DICE_6);
         }
     }
 
     setDefense(defenseValue: string) {
         const defense = this.findAttribut('defense');
-        if (defense) {
+        if (defense && defense.value !== defenseValue) {
             defense.value = defenseValue;
-            if (this.getAttributsValue('attack') === DICE_6 && defenseValue === DICE_6) {
-                this.setAttack(DICE_4);
-            } else if (this.getAttributsValue('attack') === DICE_4 && defenseValue === DICE_4) {
-                this.setAttack(DICE_6);
-            }
+            if (defenseValue === DICE_6) this.setAttack(DICE_4);
+            else if (defenseValue === DICE_4) this.setAttack(DICE_6);
         }
     }
     setCharacterName(name: string) {
