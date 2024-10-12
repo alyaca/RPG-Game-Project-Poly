@@ -1,3 +1,4 @@
+import { RoomService } from '@app/services/room/room.service';
 import { Injectable } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -8,25 +9,35 @@ export class PlayerConnection implements OnGatewayConnection, OnGatewayDisconnec
     @WebSocketServer()
     private server: Server;
 
-    handleConnection(player: Socket) {
-        console.log(`Player connected: ${player.id}`);
+    constructor(private readonly roomService: RoomService) {}
+
+    handleConnection(client: Socket) {
+        console.log(`Client connected: ${client.id}`);
     }
 
-    handleDisconnect(player: Socket) {
-        console.log(`Player disconnected: ${player.id}`);
+    handleDisconnect(client: Socket) {
+        console.log(`Client disconnected: ${client.id}`);
+    }
+
+    @SubscribeMessage('createRoom')
+    handleCreateRoom(client: Socket): void {
+        const roomCode = this.roomService.createRoom(client);
+        console.log('testing the gateway', roomCode);
+        client.emit('roomCreated', roomCode);
+        console.log(`Room ${roomCode} created by admin ${client.id}`);
     }
 
     @SubscribeMessage('joinRoom')
-    handleJoinRoom(player: Socket, room: string): void {
-        player.join(room);
-        console.log(`Player ${player.id} joined room ${room}`);
-        this.server.to(room).emit('message', `Player ${player.id} joined room ${room}`);
+    handleJoinRoom(client: Socket, room: string): void {
+        client.join(room);
+        console.log(`client ${client.id} joined room ${room}`);
+        this.server.to(room).emit('message', `Client ${client.id} joined room ${room}`);
     }
 
     @SubscribeMessage('leaveRoom')
-    handleLeaveRoom(player: Socket, room: string): void {
-        player.leave(room);
-        console.log(`Player ${player.id} left room ${room}`);
-        this.server.to(room).emit('message', `Player ${player.id} left room ${room}`);
+    handleLeaveRoom(client: Socket, room: string): void {
+        client.leave(room);
+        console.log(`client ${client.id} left room ${room}`);
+        this.server.to(room).emit('message', `Client ${client.id} left room ${room}`);
     }
 }

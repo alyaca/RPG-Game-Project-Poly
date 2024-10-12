@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -13,12 +12,16 @@ export class PlayerConnectionService {
     }
 
     connect() {
-        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
-        console.log('socket in client', this.socket);
+        if (this.socket) {
+            return;
+        }
+        this.socket = io('http://localhost:3000', { transports: ['websocket'], upgrade: false });
     }
 
     disconnect() {
-        this.socket.disconnect();
+        if (this.socket) {
+            this.socket.disconnect();
+        }
     }
 
     on<T>(event: string, action: (data: T) => void): void {
