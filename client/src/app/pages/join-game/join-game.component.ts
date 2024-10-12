@@ -17,15 +17,14 @@ export class JoinGameComponent {
     submitForm: boolean;
     isCharacterFormVisible: boolean = false;
 
-
     roomExists(accessCode: string): boolean {
         return accessCode === this.fakeCode;
     }
 
     joinGame(accessCode: string) {
         this.submitForm = true;
-            if (this.roomExists(accessCode)) {
-                this.isCharacterFormVisible = true;
+        if (this.roomExists(accessCode)) {
+            this.isCharacterFormVisible = true;
         }
     }
 
