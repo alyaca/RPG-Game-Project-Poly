@@ -121,6 +121,8 @@ body {
 .middle-container {
     flex: 0 0 50%;
     height: 100%;
+
+    transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 .grid-element {
@@ -224,21 +226,29 @@ body {
 .end-outer {
     margin-bottom: 1rem;
 }
-
+/////////
 #turn-start-timer {
     position: fixed;
-    right: 42rem;
-    top: 20rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-family: papyrus;
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin-top: -3%;    
+    height: 25%;
 }
 
 #enabled {
     pointer-events: all;
 }
 
-#disabled {
+.disabled {
     pointer-events: none;
 }
 // app-combat-modal {
 //     justify-content: center;
 //     align-items: center;
 // }
+

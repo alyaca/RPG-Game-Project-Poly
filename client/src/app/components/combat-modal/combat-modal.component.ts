@@ -1,10 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { PlayerInfo } from '@app/interfaces/playerInfo';
+import { TimerComponent } from '../timer/timer.component';
+
 
 @Component({
   selector: 'app-combat-modal',
   standalone: true,
-  imports: [],
+  imports: [TimerComponent],
   templateUrl: './combat-modal.component.html',
   styleUrl: './combat-modal.component.scss'
 })

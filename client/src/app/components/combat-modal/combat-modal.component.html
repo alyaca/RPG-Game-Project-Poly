@@ -8,13 +8,19 @@
                     <progress class="hp-bar" value="{{ playerInfo1.currentHp }}" max="{{ playerInfo1.hp }}" #hpBar></progress>
                     <div class="individual-stat hp-value">{{ playerInfo1.currentHp }} / {{ playerInfo1.hp }}</div>
                 </div>
-
                 <div class="stats">
                     <div class="individual-stat speed">Rap : {{ playerInfo1.speed }}</div>
                     <div class="individual-stat attack">Att : {{ playerInfo1.attack }}</div>
                     <div class="individual-stat defense">Def : {{ playerInfo1.defense }}</div>
                 </div>
             </div>
+        </div>
+        <div class="timer-container">
+            <app-timer
+                [totalTime]="3" 
+                [timeRemaining]="3"
+                [timerSize]="45"
+            ></app-timer>
         </div>
         <div class="player-info right-player">
             <div class="player-attributes">

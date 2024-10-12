@@ -23,10 +23,8 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 10%;
+    // gap: 5%;
     // border: 1px solid yellow;
-
-    margin-left: 8.5%;   //
 }
 
 .middle-section {
@@ -178,8 +176,9 @@ progress::-webkit-progress-value {
 
 .player-attributes {
     flex-direction: column;
-    width: 80%;
+    width: 100%;
     //border: 1px solid red;
+    margin: 0;
 }
 
 .player-name {
@@ -190,7 +189,9 @@ progress::-webkit-progress-value {
 }
 
 .player-info {
-    width: 45%;
+    width: 35%;
+    padding: 0;
+    margin:0 ;
 }
 
 .right-player .hp-bar-container {
@@ -216,3 +217,27 @@ progress::-webkit-progress-value {
 // .player-attributes {
 //     border: 1px solid red;
 // }
+
+.background-disabled {
+    pointer-events: none;
+}
+.timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 20%;
+
+    
+}
+
+app-timer {
+    height: 100%;
+    width: 100%;
+    margin-top: 10%;
+}
+
+
+.left-player{
+    margin: 0;
+}

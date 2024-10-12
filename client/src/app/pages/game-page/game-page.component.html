@@ -1,5 +1,6 @@
-<div class="page-element" id="disabled" #pageElement>
-    @if (isInCombat){<app-combat-modal [isInCombat]="isInCombat" (close)="closeCombatModal()"></app-combat-modal>
+<div class="page-element disabled" #pageElement>
+    @if (isInCombat){
+        <app-combat-modal [isInCombat]="isInCombat" (close)="closeCombatModal()"></app-combat-modal>
     }
     <div class="left-container">
         <div class="player-bar">
@@ -29,8 +30,13 @@
         </div>
         @if (isTurnStartShowed) {
         <div id="turn-start-timer">
-            Votre tour commence dans
-            <app-timer [isShowed]="isTurnStartShowed" [totalTime]="3" [timeRemaining]="3" (closeTimer)="closeTurnStartPopUp()"></app-timer>
+            <p>Votre tour commence dans</p>
+            <app-timer 
+            [isShowed]="isTurnStartShowed" 
+            [totalTime]="1" 
+            [timeRemaining]="1" 
+            [timerSize]="45"
+            (closeTimer)="closeTurnStartPopUp()"></app-timer>
         </div>
         }
         <div id="game-grid-background-gradient">
@@ -47,7 +53,11 @@
     </div>
     <div class="right-container">
         <div class="timer">
-            <app-timer [totalTime]="60" [timeRemaining]="60"> </app-timer>
+            <app-timer 
+            [totalTime]="60" 
+            [timeRemaining]="60"
+            [timerSize]="45"
+            > </app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id;){

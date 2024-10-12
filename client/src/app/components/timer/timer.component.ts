@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, TIMER_RADIUS, WARNING_TIME } from '@app/constants';
+import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, WARNING_TIME } from '@app/constants';
 // import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -16,21 +16,30 @@ export class TimerComponent implements OnInit, OnDestroy {
     @Input() isShowed: boolean = false;
     warningTime: number = WARNING_TIME;
     @Input() timeRemaining: number;
+    @Input() timerSize: number = 45;
     @Output() closeTimer = new EventEmitter<void>();
     intervalId: any;
 
-    radius = TIMER_RADIUS;
+    radius = this.timerSize;
     circumference = 2 * Math.PI * this.radius;
     strokeDashoffset = 0;
 
     circleProperties = {
         cx: TIMER_CENTER_POSITION,
         cy: TIMER_CENTER_POSITION,
-        r: TIMER_RADIUS,
+        r: this.timerSize,
         strokeWidth: 5,
     };
 
     ngOnInit() {
+        this.radius = this.timerSize;
+        this.circumference = 2 * Math.PI * this.radius;
+        this.circleProperties = {
+            cx: TIMER_CENTER_POSITION,
+            cy: TIMER_CENTER_POSITION,
+            r: this.timerSize,
+            strokeWidth: 5,
+        };
         this.startTimer();
     }
 
