@@ -1,9 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
+import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
+import { GameService } from '@app/services/sockets/game/game.service';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { CreateGamePageComponent } from './create-game-page.component';
@@ -17,28 +20,12 @@ describe('CreateGamePageComponent', () => {
     let selectedGameSubject: BehaviorSubject<Game | null>;
     let chosenGameSubject: BehaviorSubject<Game | null>;
     let mockMap: Game;
+    let playerConnectionServiceSpy: jasmine.SpyObj<PlayerConnectionService>;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let routerSpy: jasmine.SpyObj<Router>;
 
     beforeEach(async () => {
-        mockMap = {
-            _id: 'abcdefg',
-            name: 'Map1',
-            description: 'Description1',
-            visible: true,
-            mode: 'CTF',
-            nbPlayers: 6,
-            image: 'img1',
-            tiles: [
-                [0, 1],
-                [0, 1],
-            ],
-            dimension: 20,
-            itemPlacement: [
-                [0, 1],
-                [0, 1],
-            ],
-            isSelected: false,
-            lastModification: new Date(),
-        };
+        mockMap = mockGames[0];
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'getAllVisibleGames',
             'selectGame',
@@ -53,6 +40,9 @@ describe('CreateGamePageComponent', () => {
 
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+        playerConnectionServiceSpy = jasmine.createSpyObj('PlayerConnectionService', ['connect', 'send', 'on']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['setRoomId', 'joinRoom']);
+        routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
         gameListServiceSpy.selectGame.and.callFake((game: Game) => {
             game.isSelected = true;
@@ -68,6 +58,9 @@ describe('CreateGamePageComponent', () => {
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: ActivatedRoute, useValue: activatedRouteSpy },
                 { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: PlayerConnectionService, useValue: playerConnectionServiceSpy },
+                { provide: GameService, useValue: gameServiceSpy },
+                { provide: Router, useValue: routerSpy },
             ],
         }).compileComponents();
 
@@ -100,7 +93,7 @@ describe('CreateGamePageComponent', () => {
         component.showCharacterForm();
 
         expect(snackBarSpy.open).toHaveBeenCalledWith('Veuillez sélectionner un jeu avant de créer la partie', 'Fermer', {
-            duration: 2000,
+            duration: MESSAGE_DURATION_CHARACTER_FORM,
         });
         expect(component.isCharacterFormVisible).toBeFalse();
     });
@@ -118,8 +111,34 @@ describe('CreateGamePageComponent', () => {
         component.showCharacterForm();
 
         expect(snackBarSpy.open).toHaveBeenCalledWith("Le jeu sélectionné n'existe pas ou a été caché", 'Fermer', {
-            duration: 2000,
+            duration: MESSAGE_DURATION_CHARACTER_FORM,
         });
         expect(component.isCharacterFormVisible).toBeFalse();
+    });
+
+    it('should create a room and navigate to waiting-page', () => {
+        const roomInfo = { roomId: '1234', gameMap: mockMap, listPlayers: [], adminId: '123', isLocked: false };
+        playerConnectionServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
+            if (event === 'roomCreated') {
+                callback(roomInfo as Room);
+            }
+        });
+
+        component.selectedGame = mockMap;
+        component.createRoom();
+
+        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('createRoom', component.selectedGame);
+        expect(gameServiceSpy.selectedGame).toBe(roomInfo.gameMap);
+        expect(gameServiceSpy.setRoomId).toHaveBeenCalledWith(roomInfo.roomId);
+        expect(gameServiceSpy.joinRoom).toHaveBeenCalledWith(roomInfo.roomId);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page'], { queryParams: { roomCode: roomInfo.roomId } });
+    });
+
+    it('should call createRoom when joinLobby is called', () => {
+        const createRoomSpy = spyOn(component, 'createRoom').and.callFake(() => {});
+
+        component.joinLobby();
+
+        expect(createRoomSpy).toHaveBeenCalled();
     });
 });

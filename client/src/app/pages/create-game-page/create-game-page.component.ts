@@ -38,7 +38,7 @@ export class CreateGamePageComponent implements OnDestroy {
                 this.selectedGame = game;
             }),
         );
-        this.connect();
+        this.playerConnectionService.connect();
     }
 
     showCharacterForm() {
@@ -67,17 +67,6 @@ export class CreateGamePageComponent implements OnDestroy {
 
     hideCharacterForm() {
         this.isCharacterFormVisible = false;
-    }
-
-    connect() {
-        this.playerConnectionService.connect();
-        this.playerConnectionService.on<string>('connect', () => {
-            console.log('Connexion par WebSocket sur le socket:', this.socketId);
-        });
-    }
-
-    get socketId() {
-        return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
 
     createRoom() {
