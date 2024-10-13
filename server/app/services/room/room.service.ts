@@ -55,8 +55,9 @@ export class RoomService {
             return;
         }
         if (this.isPlayerAdmin(socket)) {
-            this.deleteRoom(roomId);
+            this.deleteRoom(roomId, socket);
         } else {
+            this.io.to(roomId).emit('message', `Client ${socket.id} left room ${roomId}`);
             socket.leave(roomId);
             socket.data = {};
         }
@@ -66,9 +67,11 @@ export class RoomService {
         this.leaveRoom(roomId, this.io.sockets.sockets.get(socketId));
     }
 
-    deleteRoom(roomId: string) {
+    deleteRoom(roomId: string, socket: Socket) {
+        socket.broadcast.to(roomId).emit('roomDeleted', 'The room has been deleted. Returning to the main page.');
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
+        console.log(`Room ${roomId} deleted`);
     }
 
     getRoomId(client: Socket) {
@@ -78,7 +81,6 @@ export class RoomService {
 
     joinRoom(socket: Socket, roomId: string) {
         const room = this.rooms.get(roomId);
-
         if (this.isRoomActive(roomId)) {
             socket.join(roomId);
             console.log(`client ${socket.id} joined room ${roomId}`);
