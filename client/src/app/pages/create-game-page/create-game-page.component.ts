@@ -5,10 +5,11 @@ import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
-import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Game } from '@common/game';
+import { Room } from '@common/room';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -20,9 +21,10 @@ import { Subscription } from 'rxjs';
 })
 export class CreateGamePageComponent implements OnDestroy {
     isCharacterFormVisible: boolean = false;
-    selectedGame: Map | null = null;
+    selectedGame: Game | null = null;
     private subscription: Subscription = new Subscription();
-    roomCode: string | null;
+    roomCode: string;
+    gameName: string;
 
     constructor(
         private gameListService: GameListService,
@@ -32,7 +34,7 @@ export class CreateGamePageComponent implements OnDestroy {
         private router: Router,
     ) {
         this.subscription.add(
-            this.gameListService.selectedGameSubject.subscribe((game: Map | null) => {
+            this.gameListService.selectedGameSubject.subscribe((game: Game | null) => {
                 this.selectedGame = game;
             }),
         );
@@ -46,7 +48,7 @@ export class CreateGamePageComponent implements OnDestroy {
             });
             return;
         }
-        this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((game: Map | null) => {
+        this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((game: Game | null) => {
             if (game) {
                 this.isCharacterFormVisible = true;
                 this.gameListService.chosenGameSubject.next(game);
@@ -59,9 +61,8 @@ export class CreateGamePageComponent implements OnDestroy {
     }
 
     joinLobby() {
-        this.createRoom();
-
         // send character selection
+        this.createRoom();
     }
 
     hideCharacterForm() {
@@ -80,12 +81,13 @@ export class CreateGamePageComponent implements OnDestroy {
     }
 
     createRoom() {
-        this.playerConnectionService.send('createRoom');
-        this.playerConnectionService.on<string>('roomCreated', (roomCode) => {
-            this.roomCode = roomCode;
-            this.gameService.setRoomId(roomCode);
+        this.playerConnectionService.send('createRoom', this.selectedGame);
+        this.playerConnectionService.on('roomCreated', (roomInfo: Room) => {
+            this.gameService.selectedGame = roomInfo.gameMap;
+            this.roomCode = roomInfo.roomId;
+            this.gameService.setRoomId(this.roomCode);
             this.gameService.joinRoom(this.roomCode);
-            this.router.navigate(['/waiting-page']);
+            this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.roomCode } });
         });
     }
 

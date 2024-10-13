@@ -3,8 +3,9 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
-
+import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-join-game',
@@ -23,6 +24,7 @@ export class JoinGameComponent {
     constructor(
         private playerConnectionService: PlayerConnectionService,
         private router: Router,
+        private gameService: GameService,
     ) {
         this.connect();
     }
@@ -44,10 +46,13 @@ export class JoinGameComponent {
         }
 
         this.playerConnectionService.send('joinRoom', accessCode);
-        this.playerConnectionService.on<string>('joinedRoom', (roomCode) => {
+        this.playerConnectionService.on('joinedRoom', (roomInfo: Room) => {
             this.isJoined = true;
             this.isCharacterFormVisible = true;
-            console.log('Joined room:', roomCode);
+            this.gameService.setRoomId(roomInfo.roomId);
+            this.gameService.selectedGame = roomInfo.gameMap;
+            console.log('Joined room:', roomInfo.roomId);
+            console.log('information of the room', roomInfo);
         });
 
         this.playerConnectionService.on('joinError', () => {
@@ -55,14 +60,14 @@ export class JoinGameComponent {
         });
     }
 
-    joinLobby() {
-        this.router.navigate(['/waiting-page']);
+    joinLobby(accessCode: string) {
+        this.router.navigate(['/waiting-page'], { queryParams: { roomCode: accessCode } });
     }
 
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
         this.playerConnectionService.send('leaveRoom', roomCode);
-        this.router.navigate(['/create-game']);
+        this.router.navigate(['/home']);
     }
 
     connect() {

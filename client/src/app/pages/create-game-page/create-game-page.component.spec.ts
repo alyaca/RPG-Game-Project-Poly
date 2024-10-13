@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
-import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
+import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { CreateGamePageComponent } from './create-game-page.component';
 
@@ -14,9 +14,9 @@ describe('CreateGamePageComponent', () => {
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
-    let selectedGameSubject: BehaviorSubject<Map | null>;
-    let chosenGameSubject: BehaviorSubject<Map | null>;
-    let mockMap: Map;
+    let selectedGameSubject: BehaviorSubject<Game | null>;
+    let chosenGameSubject: BehaviorSubject<Game | null>;
+    let mockMap: Game;
 
     beforeEach(async () => {
         mockMap = {
@@ -46,18 +46,18 @@ describe('CreateGamePageComponent', () => {
             'getGames',
             'checkIfVisibleGameExists',
         ]);
-        selectedGameSubject = new BehaviorSubject<Map | null>(null);
-        chosenGameSubject = new BehaviorSubject<Map | null>(null);
+        selectedGameSubject = new BehaviorSubject<Game | null>(null);
+        chosenGameSubject = new BehaviorSubject<Game | null>(null);
         Object.defineProperty(gameListServiceSpy, 'selectedGameSubject', { value: selectedGameSubject });
         Object.defineProperty(gameListServiceSpy, 'chosenGameSubject', { value: chosenGameSubject });
 
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
-        gameListServiceSpy.selectGame.and.callFake((game: Map) => {
+        gameListServiceSpy.selectGame.and.callFake((game: Game) => {
             game.isSelected = true;
         });
-        gameListServiceSpy.deselectGame.and.callFake((games: Map[]) => {
+        gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));

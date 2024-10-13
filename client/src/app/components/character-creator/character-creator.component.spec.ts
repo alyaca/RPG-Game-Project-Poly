@@ -89,16 +89,16 @@ describe('CharacterCreatorComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page']);
     });
 
-    it('should not emit closeCharactorCreator event if saveAttributesValue return false', () => {
+    it('should not emit closeCharacterCreator event if saveAttributesValue return false', () => {
         attributesServiceSpy.saveAttributesValue.and.returnValue('Echec');
         component.saveChoices();
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalledTimes(0);
     });
 
-    it('should emit closeCharactorCreator event and call resetAttributes when closeComponent is called', () => {
-        spyOn(component.closeCharactorCreator, 'emit');
+    it('should emit closeCharacterCreator event and call resetAttributes when closeComponent is called', () => {
+        spyOn(component.closeCharacterCreator, 'emit');
         component.closeComponent();
-        expect(component.closeCharactorCreator.emit).toHaveBeenCalled();
+        expect(component.closeCharacterCreator.emit).toHaveBeenCalled();
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
     });
 });

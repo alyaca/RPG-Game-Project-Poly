@@ -1,4 +1,5 @@
 import { RoomService } from '@app/services/room/room.service';
+import { Game } from '@common/game';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -25,23 +26,16 @@ export class PlayerConnection implements OnGatewayConnection, OnGatewayDisconnec
     }
 
     @SubscribeMessage(RoomEvents.CreateRoom)
-    handleCreateRoom(client: Socket): void {
-        const roomCode = this.roomService.createRoom(client);
-        client.emit('roomCreated', roomCode);
-        console.log(`Room ${roomCode} created by admin ${client.id}`);
+    handleCreateRoom(client: Socket, game: Game): void {
+        const room = this.roomService.createRoom(client, game);
+        client.emit('roomCreated', room);
+        console.log(`Room ${room.roomId} created by admin ${client.id}`);
     }
 
     @SubscribeMessage(RoomEvents.JoinRoom)
-    handleJoinRoom(client: Socket, room: string): void {
-        console.log('server', this.roomService.roomCodes, room); // for debug
-
-        if (this.roomService.isRoomActive(room)) {
-            client.join(room);
-            console.log(`client ${client.id} joined room ${room}`);
-            this.server.to(room).emit('joinedRoom', `Client ${client.id} joined room ${room}`);
-        } else {
-            this.server.emit('joinError');
-        }
+    handleJoinRoom(client: Socket, roomId: string): void {
+        console.log('server', this.roomService.rooms.keys(), roomId); // for debug
+        this.roomService.joinRoom(client, roomId);
     }
 
     @SubscribeMessage(RoomEvents.LeaveRoom)

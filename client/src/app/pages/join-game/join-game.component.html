@@ -11,6 +11,9 @@
         <button class="button" routerLink="/home">Retour</button>
     </div>
     @if (isCharacterFormVisible) {
-    <app-character-creator (confirmCharacterSelection)="joinLobby()" (closeCharacterCreator)="leaveGame(accessCode)"></app-character-creator>
+    <app-character-creator
+        (confirmCharacterSelection)="joinLobby(accessCode)"
+        (closeCharacterCreator)="leaveGame(accessCode)"
+    ></app-character-creator>
     }
 </div>

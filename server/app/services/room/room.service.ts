@@ -1,28 +1,36 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
+import { Game } from '@common/game';
+import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-
 @Injectable()
 export class RoomService {
     private io: Server;
-    roomCodes: string[] = [];
+    rooms = new Map<string, Room>();
     adminList: string[] = [];
 
     setServer(io: Server) {
         this.io = io;
     }
 
-    createRoom(socket: Socket): string {
+    createRoom(socket: Socket, game: Game): Room {
         const roomCode: string = this.getNewRoomCode();
-        this.roomCodes.push(roomCode);
+        const room: Room = {
+            gameMap: game,
+            roomId: roomCode,
+            listPlayers: [],
+            adminId: socket.id,
+            isLocked: false,
+        };
+        this.rooms.set(roomCode, room);
         this.adminList.push(socket.id);
         socket.join(roomCode);
         socket.data.roomCode = roomCode;
-        return roomCode;
+        return room;
     }
 
     isRoomActive(roomId: string): boolean {
-        return this.roomCodes.includes(roomId);
+        return this.rooms.has(roomId);
     }
 
     isPlayerAdmin(socket: Socket) {
@@ -59,12 +67,24 @@ export class RoomService {
     }
 
     deleteRoom(roomId: string) {
-        this.roomCodes = this.roomCodes.filter((code) => code !== roomId);
+        this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
     }
 
     getRoomId(client: Socket) {
         const roomCode = client.data.roomCode;
         return this.isRoomActive(roomCode) ? roomCode : null;
+    }
+
+    joinRoom(socket: Socket, roomId: string) {
+        const room = this.rooms.get(roomId);
+
+        if (this.isRoomActive(roomId)) {
+            socket.join(roomId);
+            console.log(`client ${socket.id} joined room ${roomId}`);
+            this.io.to(roomId).emit('joinedRoom', room);
+        } else {
+            this.io.emit('joinError');
+        }
     }
 }

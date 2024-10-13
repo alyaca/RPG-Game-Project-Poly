@@ -1,4 +1,4 @@
-export interface Map {
+export interface Game {
     _id: string;
     name: string;
     description: string;

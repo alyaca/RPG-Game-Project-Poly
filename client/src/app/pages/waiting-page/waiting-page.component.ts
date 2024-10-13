@@ -2,10 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Map } from '@app/interfaces/map';
-import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Game } from '@common/game';
 
 @Component({
     selector: 'app-waiting-page',
@@ -16,30 +15,21 @@ import { PlayerConnectionService } from '@app/services/sockets/player-connection
 })
 export class WaitingPageComponent implements OnInit {
     accessCode: string;
-    chosenGame: Map;
+    chosenGame: Game;
 
     constructor(
-        private gameListService: GameListService,
         private router: Router,
         private playerConnectionService: PlayerConnectionService,
         private gameService: GameService,
     ) {
-        this.gameListService.chosenGameSubject.subscribe((game: Map | null) => {
-            if (game) {
-                this.chosenGame = game;
-            }
-        });
+        this.accessCode = this.gameService.roomId;
+        this.chosenGame = this.gameService.selectedGame;
     }
 
     ngOnInit() {
-        if (!this.gameListService.chosenGameSubject.getValue()) {
+        if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/game-creation']);
         }
-        this.accessCode = this.gameService.roomId;
-    }
-
-    get socketId() {
-        return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
 
     leaveGame(roomCode: string) {

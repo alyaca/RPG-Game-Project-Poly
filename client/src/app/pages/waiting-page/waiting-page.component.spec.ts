@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
+import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
 
@@ -14,7 +14,7 @@ describe('WaitingPageComponent', () => {
 
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
-        gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Map | null>(mockGames[0]);
+        gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
         await TestBed.configureTestingModule({
@@ -60,7 +60,7 @@ describe('WaitingPageComponent', () => {
     });
 
     it('should set chosenGame when a game is selected', () => {
-        const mockGame: Map = mockGames[0];
+        const mockGame: Game = mockGames[0];
         gameListServiceSpy.chosenGameSubject.next(mockGame);
         fixture.detectChanges();
         expect(component.chosenGame).toEqual(mockGame);
