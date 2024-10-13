@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChildren, ViewChild } from '@angular/core';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
@@ -17,6 +17,8 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
 export class GamePageComponent {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
+    @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
+    @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
@@ -34,21 +36,28 @@ export class GamePageComponent {
     closeTurnStartPopUp() {
         this.isTurnStartShowed = false;
         this.enableClicks();
+        this.turnTimerComponent.resumeTimer();
     }
 
     toggleActionSelected() {
         this.isActionSelected = !this.isActionSelected;
     }
 
-    ngOnInit() {}
+    ngAfterViewInit() {
+        if (this.turnTimerComponent) {
+            this.turnTimerComponent.pauseTimer();
+        }
+    }
 
     allPlayers: PlayerObjects[] = PLAYERS;
 
     openCombatModal() {
         this.isInCombat = true;
+        this.turnTimerComponent.pauseTimer()
     }
 
     closeCombatModal() {
         this.isInCombat = false;
+        this.turnTimerComponent.resumeTimer()
     }
 }

@@ -124,7 +124,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Obi-Wan Kenobi',
         victories: 1,
         isActive: false,
-        portrait: '/assets/images/characters/Hephaestus.webp/',
+        portrait: '/assets/images/characters/Zeus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,
