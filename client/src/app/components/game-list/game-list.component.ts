@@ -95,6 +95,9 @@ export class GameListComponent implements OnInit {
         this.gameCreationService.loadedTiles = game.tiles;
         this.gameCreationService.loadedObjects = game.itemPlacement;
 
+        this.gameCreationService.loadedMapName = game.name;
+        this.gameCreationService.loadedMapDescription = game.description;
+
         this.selectGame(game); // not sure if necessary
 
         this.router.navigate(['/edit-map']);

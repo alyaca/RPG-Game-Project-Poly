@@ -12,6 +12,8 @@ export class GameCreationService {
     isNewGame: boolean;
     loadedTiles: number[][];
     loadedObjects: number[][];
+    loadedMapName: string;
+    loadedMapDescription: string;
 
     setSelectedSize(size: string) {
         this.sizeSubject.next(size);

@@ -12,6 +12,8 @@ import { MapEditorService } from '@app/services/map-editor.service';
 import { SaveGameService } from '@app/services/save-game.service';
 import html2canvas from 'html2canvas';
 
+import { GameCreationService } from '@app/services/game-creation.service';
+
 @Component({
     selector: 'app-map-editor-page',
     standalone: true,
@@ -39,6 +41,7 @@ export class MapEditorPageComponent implements OnInit {
 
     private saveGameService = inject(SaveGameService);
     private mapEditorService = inject(MapEditorService);
+    private gameCreationService = inject(GameCreationService);
     constructor(
         private dialog: MatDialog,
         private router: Router,
@@ -138,6 +141,11 @@ export class MapEditorPageComponent implements OnInit {
     ngOnInit() {
         if (!this.mapEditorService.isMapChosen()) {
             this.router.navigate(['/administration']);
+        }
+
+        if (!this.gameCreationService.isNewGame) {
+            this.mapName = this.gameCreationService.loadedMapName;
+            this.mapDescription = this.gameCreationService.loadedMapDescription;
         }
     }
 }
