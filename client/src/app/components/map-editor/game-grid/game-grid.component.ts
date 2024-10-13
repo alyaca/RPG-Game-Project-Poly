@@ -124,18 +124,25 @@ export class GameGridComponent implements OnChanges, OnDestroy {
             return;
         }
 
+        this.updateSelectedTile(row, col);
+        this.handleGameObjectOnTile(row, col);
+        this.previousRow = row;
+        this.previousCol = col;
+        this.sendInfoToMapCreationPage();
+    }
+
+    private updateSelectedTile(row: number, col: number) {
         this.selectedRow = row;
         this.selectedCol = col;
         this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
+    }
 
+    private handleGameObjectOnTile(row: number, col: number) {
         const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
         if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
             this.gameObjectService.selectedTile = { row, col };
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }
-        this.previousRow = row;
-        this.previousCol = col;
-        this.sendInfoToMapCreationPage();
     }
 
     onMouseDown(event: MouseEvent, row: number, col: number) {
