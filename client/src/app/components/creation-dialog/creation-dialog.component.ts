@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
 
 @Component({
@@ -16,6 +18,7 @@ export class CreationDialogComponent {
         public dialogRef: MatDialogRef<CreationDialogComponent>,
         private router: Router,
         private gameCreationService: GameCreationService,
+        public snackBar: MatSnackBar,
     ) {}
 
     selectSize(size: string): void {
@@ -37,7 +40,13 @@ export class CreationDialogComponent {
     }
 
     changePage(): void {
-        this.router.navigate(['/edit-map']);
-        this.dialogRef.close();
+        if (this.isSubmitDisabled()) {
+            this.snackBar.open('Veuillez choisir la taille et le mode de jeu', 'Fermer', {
+                duration: MESSAGE_DURATION_SAVE_CHOICE,
+            });
+        } else {
+            this.router.navigate(['/edit-map']);
+            this.dialogRef.close();
+        }
     }
 }

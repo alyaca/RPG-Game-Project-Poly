@@ -1,0 +1,16 @@
+<div class="container"> 
+    <div class="title">Joindre une partie</div>
+    <hr class="line-separator" />
+    <div class="page-container">
+        <div class="submit-container">
+            <p>Entrez le code de la partie</p>
+            <input class="input-box" type="text" placeholder="XXXX" [(ngModel)]="accessCode"  maxlength="4" (keyup.enter)="joinGame(accessCode)" />
+            <div  class="invalide-code" *ngIf="submitForm && !roomExists(accessCode)">Code invalide ou partie inexistante</div>
+            <button class="join-game" (click)="joinGame(accessCode)">Joindre</button>
+        </div>
+        <button class="button" routerLink="/home">Retour</button>
+    </div>
+    @if (isCharacterFormVisible) {
+        <app-character-creator (closeCharactorCreator)="hideCharacterForm()"></app-character-creator>
+    }
+    </div>
