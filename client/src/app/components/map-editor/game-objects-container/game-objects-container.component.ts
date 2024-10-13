@@ -7,6 +7,8 @@ import { GameObject } from '@app/interfaces/gameObject';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
+import { GameCreationService } from '@app/services/game-creation.service';
+
 @Component({
     selector: 'app-game-objects-container',
     standalone: true,
@@ -22,11 +24,16 @@ export class GameObjectsContainerComponent implements OnInit {
     constructor(
         private gameObjectService: GameObjectService,
         private toolButtonService: ToolButtonService,
+
+        private gameCreationService: GameCreationService,
     ) {}
 
     ngOnInit() {
         this.gameObjects = this.gameObjectService.objects;
         this.gameObjectService.resetObjectsCount();
+        if(!this.gameCreationService.isNewGame){
+            this.gameObjectService.loadMapObjectCount();
+        }
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {

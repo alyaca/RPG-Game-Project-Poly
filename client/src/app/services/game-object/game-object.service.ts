@@ -93,6 +93,20 @@ export class GameObjectService implements OnDestroy {
         this.draggedObject = null;
     }
 
+    loadMapObjectCount() {
+        this.resetObjectsCount();
+        for(let row = 0 ;row < this.objectsArray.length; row++){
+            for(let col = 0 ;col < this.objectsArray[0].length; col++){
+                if (this.objectsArray[row][col] !== NO_OBJECT){
+                    const object= this.getObjectById(this.objectsArray[row][col]);
+                    if(object){
+                        object.count--;
+                    }
+                }
+            }
+        }
+    }
+
     ngOnDestroy(): void {
         if (this.sizeSubscription) {
             this.sizeSubscription.unsubscribe();
