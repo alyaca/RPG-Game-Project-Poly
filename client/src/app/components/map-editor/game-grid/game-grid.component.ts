@@ -54,6 +54,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         else {
             this.tilesGrid = this.gameCreationService.loadedTiles;
             this.objectsArray = this.gameCreationService.loadedObjects;
+            this.gameObjectService.objectsArray = this.objectsArray;
         }
     }
 
