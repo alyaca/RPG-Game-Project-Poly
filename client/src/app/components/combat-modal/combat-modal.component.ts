@@ -104,7 +104,7 @@ export class CombatModalComponent implements OnInit {
 
     dealDamage(defender: PlayerInfo, isDefenderPlayer1: boolean) {
         defender.currentHp = Math.max(0, defender.currentHp - 1);
-        this.setDisplayText('1 dégat infligé à ' + defender.name);
+        this.setDisplayText('1 dégat infligé sur ' + defender.name);
 
         this.isPlayer1Damaged = isDefenderPlayer1;
         this.isPlayer2Damaged = !isDefenderPlayer1;
