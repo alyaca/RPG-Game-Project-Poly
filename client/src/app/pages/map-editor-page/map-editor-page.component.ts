@@ -135,7 +135,7 @@ export class MapEditorPageComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         if (!this.mapEditorService.isMapChosen()) {
             this.router.navigate(['/administration']);
         }

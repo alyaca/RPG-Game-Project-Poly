@@ -9,6 +9,10 @@ export class GameCreationService {
     sizeSubject = new BehaviorSubject<string | null>(null);
     modeSubject = new BehaviorSubject<string | null>(null);
 
+    isNewGame: boolean;
+    loadedTiles: number[][];
+    loadedObjects: number[][];
+
     setSelectedSize(size: string) {
         this.sizeSubject.next(size);
     }

@@ -6,6 +6,7 @@ import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 import { MapEditorService } from '@app/services/map-editor.service';
+import { GameCreationService } from '@app/services/game-creation.service';
 
 @Component({
     selector: 'app-game-list',
@@ -24,6 +25,7 @@ export class GameListComponent implements OnInit {
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
         private router: Router,
+        private gameCreationService: GameCreationService
     ) {}
 
     selectGame(game: Map) {
@@ -88,7 +90,29 @@ export class GameListComponent implements OnInit {
 
     editGame(game: Map) {
         this.gameGridService.setMapToEdit(game);
+        this.gameCreationService.setSelectedSize(this.convertMapDimension(game));
+        this.gameCreationService.isNewGame = false;
+        this.gameCreationService.loadedTiles = game.tiles;
+        this.gameCreationService.loadedObjects = game.itemPlacement;
+
+        this.selectGame(game); // not sure if necessary
+
         this.router.navigate(['/edit-map']);
+    }
+
+    convertMapDimension(game: Map): string{
+        if(game.dimension === 10){
+            return "small";
+        }
+        else if(game.dimension === 15){
+            return "medium";
+        }
+        else if(game.dimension === 20){
+            return "large";
+        }
+        else{
+            return "none"
+        }
     }
 
     refreshGameList() {

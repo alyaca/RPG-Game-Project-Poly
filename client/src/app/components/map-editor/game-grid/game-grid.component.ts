@@ -46,8 +46,15 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         private gameCreationService: GameCreationService,
     ) {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
-        this.objectsArray = this.gameObjectService.initObjectsArray();
-        this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+
+        if (this.gameCreationService.isNewGame){
+            this.objectsArray = this.gameObjectService.initObjectsArray();
+            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+        }
+        else {
+            this.tilesGrid = this.gameCreationService.loadedTiles;
+            this.objectsArray = this.gameCreationService.loadedObjects;
+        }
     }
 
     get selectedTile(): string {
