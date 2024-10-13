@@ -1,20 +1,22 @@
 <div class="player-info" [ngClass]="{ 'right-player': isOnRightSide }">
-            
     <div class="player-attributes">
-        <p class="player-name" [ngClass]="{ 'damaged': isDamaged}">{{ playerInfo.name }}</p>
+        <p class="player-name" [ngClass]="{ damaged: isDamaged }">{{ playerInfo.name }}</p>
         <div class="hp-bar-container">
-            <progress 
-                class="hp-bar" 
-                value="{{ playerInfo.currentHp }}" 
-                max="{{ playerInfo.hp }}" 
-                [ngClass]="{ 'damaged': isDamaged }"
-                #hpBar></progress>
-            <div class="individual-stat hp-value" [ngClass]="{ 'damaged': isDamaged}">{{ playerInfo.currentHp }} / {{ playerInfo.hp }}</div>
+            <progress
+                class="hp-bar"
+                value="{{ playerInfo.statsAndInventory.currentHp }}"
+                max="{{ playerInfo.statsAndInventory.hp }}"
+                [ngClass]="{ damaged: isDamaged }"
+                #hpBar
+            ></progress>
+            <div class="individual-stat hp-value" [ngClass]="{ damaged: isDamaged }">
+                {{ playerInfo.statsAndInventory.currentHp }} / {{ playerInfo.statsAndInventory.hp }}
+            </div>
         </div>
         <div class="stats">
-            <div class="individual-stat speed">Rap : {{ playerInfo.speed }}</div>
-            <div class="individual-stat attack">Att : {{ playerInfo.attack }}</div>
-            <div class="individual-stat defense">Def : {{ playerInfo.defense }}</div>
+            <div class="individual-stat speed">Rap : {{ playerInfo.statsAndInventory.speed }}</div>
+            <div class="individual-stat attack">Att : {{ playerInfo.statsAndInventory.attack }}</div>
+            <div class="individual-stat defense">Def : {{ playerInfo.statsAndInventory.defense }}</div>
         </div>
     </div>
 </div>

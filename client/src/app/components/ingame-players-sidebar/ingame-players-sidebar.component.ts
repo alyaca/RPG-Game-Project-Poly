@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { IngameSidebarPlayer } from '@app/interfaces/ingameSidebarPlayer';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { PlayerObjects } from '@app/interfaces/playerObject';
 
 @Component({
     selector: 'app-ingame-players-sidebar',
@@ -10,5 +10,5 @@ import { CommonModule } from '@angular/common';
     styleUrl: './ingame-players-sidebar.component.scss',
 })
 export class IngamePlayersSidebarComponent {
-    @Input() sidebarPlayer: IngameSidebarPlayer;
+    @Input() sidebarPlayer: PlayerObjects;
 }

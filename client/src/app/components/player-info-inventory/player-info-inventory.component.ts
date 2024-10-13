@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { ObjectType } from '@app/constants';
-import { PlayerInfo } from '@app/interfaces/playerInfo';
+import { PLAYERS } from '@app/constants';
+import { PlayerObjects } from '@app/interfaces/playerObject';
 
 @Component({
     selector: 'app-player-info-inventory',
@@ -17,83 +17,56 @@ export class PlayerInfoInventoryComponent {
     // Those functions are just for testing purposes to make sure that the page is reactive but,
     // we can use them to display the change in hp and all the other stuff when we do the game's logic.
     increaseMovement() {
-        if (this.playerInfo.movementPointsLeft === this.playerInfo.speed) {
+        if (this.playerInfo.statsAndInventory.movementPointsLeft === this.playerInfo.statsAndInventory.speed) {
             return;
         }
-        this.playerInfo.movementPointsLeft += 1;
-        this.movementPointsArray = Array(this.playerInfo.movementPointsLeft);
+        this.playerInfo.statsAndInventory.movementPointsLeft += 1;
+        this.movementPointsArray = Array(this.playerInfo.statsAndInventory.movementPointsLeft);
     }
 
     decreaseMovement() {
-        if (this.playerInfo.movementPointsLeft === 0) {
+        if (this.playerInfo.statsAndInventory.movementPointsLeft === 0) {
             return;
         }
-        this.playerInfo.movementPointsLeft -= 1;
-        this.movementPointsArray = Array(this.playerInfo.movementPointsLeft);
+        this.playerInfo.statsAndInventory.movementPointsLeft -= 1;
+        this.movementPointsArray = Array(this.playerInfo.statsAndInventory.movementPointsLeft);
     }
 
     increaseActionPoints() {
-        if (this.playerInfo.actionPoints === this.playerInfo.maxActionPoints) {
+        if (this.playerInfo.statsAndInventory.actionPoints === this.playerInfo.statsAndInventory.maxActionPoints) {
             return;
         }
-        this.playerInfo.actionPoints += 1;
-        this.actionPointsArray = Array(this.playerInfo.actionPoints);
+        this.playerInfo.statsAndInventory.actionPoints += 1;
+        this.actionPointsArray = Array(this.playerInfo.statsAndInventory.actionPoints);
     }
 
     decreaseActionPoints() {
-        if (this.playerInfo.actionPoints === 0) {
+        if (this.playerInfo.statsAndInventory.actionPoints === 0) {
             return;
         }
-        this.playerInfo.actionPoints -= 1;
-        this.actionPointsArray = Array(this.playerInfo.actionPoints);
+        this.playerInfo.statsAndInventory.actionPoints -= 1;
+        this.actionPointsArray = Array(this.playerInfo.statsAndInventory.actionPoints);
     }
 
     increaseHP() {
-        if (this.playerInfo.currentHp === this.playerInfo.hp) {
+        if (this.playerInfo.statsAndInventory.currentHp === this.playerInfo.statsAndInventory.hp) {
             return;
         }
-        this.playerInfo.currentHp += 1;
+        this.playerInfo.statsAndInventory.currentHp += 1;
         this.healthBar.nativeElement.value += 1;
     }
     decreaseHP() {
-        if (this.playerInfo.currentHp === 0) {
+        if (this.playerInfo.statsAndInventory.currentHp === 0) {
             return;
         }
-        this.playerInfo.currentHp -= 1;
+        this.playerInfo.statsAndInventory.currentHp -= 1;
         this.healthBar.nativeElement.value -= 1;
     }
 
     descriptionPosition: string = 'bottom';
-    @Input() playerInfo: PlayerInfo = {
-        name: 'Jar Jar Binks',
-        portrait: '/assets/images/characters/Hephaestus.webp/',
-        hp: 6,
-        currentHp: 4,
-        speed: 4,
-        maxActionPoints: 2,
-        actionPoints: 1,
-        movementPointsLeft: 3,
-        attack: 4,
-        atkDice: 6,
-        defense: 4,
-        defDice: 4,
-        inventory: [
-            {
-                id: ObjectType.Trident,
-                name: 'Trident',
-                description: 'Trident de Poséidon',
-                count: 1,
-                image: '/assets/images/objects/poseidon-trident.jpg/',
-            },
-            {
-                id: ObjectType.Sandal,
-                name: 'Sandales ailées',
-                description: 'Sandales augmentant la stat de rapidité',
-                count: 1,
-                image: '/assets/images/objects/winged-sandals.jpg/',
-            },
-        ],
-    };
-    actionPointsArray = Array(this.playerInfo.actionPoints);
-    movementPointsArray = Array(this.playerInfo.movementPointsLeft);
+
+    // VERY TEMPORARY, JUST FOR THE STATIC VIEW OF THE PAGE
+    @Input() playerInfo: PlayerObjects = PLAYERS[0];
+    actionPointsArray = Array(this.playerInfo.statsAndInventory.actionPoints);
+    movementPointsArray = Array(this.playerInfo.statsAndInventory.movementPointsLeft);
 }

@@ -8,23 +8,28 @@
         </div>
         <div id="player-attributes">
             <div id="hp-bar-container">
-                <progress id="hp-bar" value="{{ playerInfo.currentHp }}" max="{{ playerInfo.hp }}" #hpBar></progress>
-                <div class="individual-stat" id="hp-value">{{ playerInfo.currentHp }} / {{ playerInfo.hp }}</div>
+                <progress
+                    id="hp-bar"
+                    value="{{ playerInfo.statsAndInventory.currentHp }}"
+                    max="{{ playerInfo.statsAndInventory.hp }}"
+                    #hpBar
+                ></progress>
+                <div class="individual-stat" id="hp-value">{{ playerInfo.statsAndInventory.currentHp }} / {{ playerInfo.statsAndInventory.hp }}</div>
             </div>
 
             <div id="stats">
-                <div class="individual-stat" id="speed">Rap : {{ playerInfo.speed }}</div>
+                <div class="individual-stat" id="speed">Rap : {{ playerInfo.statsAndInventory.speed }}</div>
                 <div class="individual-stat" id="attack">
-                    Att : {{ playerInfo.attack }}
-                    @if (playerInfo.atkDice === 4) {
+                    Att : {{ playerInfo.statsAndInventory.attack }}
+                    @if (playerInfo.statsAndInventory.atkDice === 4) {
                     <img class="stats-dice" src="/assets/images/icones/D4.png" />
                     } @else{
                     <img class="stats-dice" src="/assets/images/icones/D6.png/" />
                     }
                 </div>
                 <div class="individual-stat" id="defense">
-                    Def : {{ playerInfo.defense }}
-                    @if (playerInfo.defDice === 4) {
+                    Def : {{ playerInfo.statsAndInventory.defense }}
+                    @if (playerInfo.statsAndInventory.defDice === 4) {
                     <img class="stats-dice" src="/assets/images/icones/D4.png/" />
                     } @else {
                     <img class="stats-dice" src="/assets/images/icones/D6.png/" />
@@ -49,7 +54,7 @@
     <div class="player-inventory">
         <h4 id="inventory-header">Inventaire</h4>
         <div id="items-container">
-            @for (items of playerInfo.inventory; track $index) {
+            @for (items of playerInfo.statsAndInventory.inventory; track $index) {
             <app-game-object
                 class="player-items"
                 [name]="items.name"
