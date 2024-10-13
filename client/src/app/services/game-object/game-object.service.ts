@@ -28,7 +28,7 @@ export class GameObjectService implements OnDestroy {
         });
     }
 
-    initObjectsArray() {
+    initObjectsArray(): number[][] {
         this.objectsArray = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(NO_OBJECT));
         if (this.mapSize) {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
@@ -72,6 +72,9 @@ export class GameObjectService implements OnDestroy {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
         }
         const maxObjectCount = this.countableObjects.includes(gameObject.id) ? this.maxCount : ITEM_COUNT;
+        
+        console.log(this.maxCount);
+
         if (gameObject.count + 1 <= maxObjectCount) {
             gameObject.count++;
         }
@@ -94,20 +97,21 @@ export class GameObjectService implements OnDestroy {
     }
 
     loadMapObjectCount() {
+        if (this.mapSize) {
+            this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
+        }
         this.resetObjectsCount();
         for(let row = 0 ;row < this.objectsArray.length; row++){
             for(let col = 0 ;col < this.objectsArray[0].length; col++){
-                if (this.objectsArray[row][col] !== NO_OBJECT){
-                    const object= this.getObjectById(this.objectsArray[row][col]);
-                    if(object){
-                        object.count--;
-                    }
+                const object= this.getObjectById(this.objectsArray[row][col]);
+                if (this.objectsArray[row][col] !== NO_OBJECT && object){
+                    object.count--;
                 }
             }
         }
     }
 
-    ngOnDestroy(): void {
+    ngOnDestroy() {
         if (this.sizeSubscription) {
             this.sizeSubscription.unsubscribe();
         }
