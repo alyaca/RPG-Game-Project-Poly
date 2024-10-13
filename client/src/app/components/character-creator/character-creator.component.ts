@@ -34,7 +34,6 @@ export class CharacterCreatorComponent {
 
     constructor(
         private attributesService: AttributesService,
-        // private router: Router,
         private snackBar: MatSnackBar,
     ) {}
 
@@ -77,12 +76,12 @@ export class CharacterCreatorComponent {
     saveChoices() {
         this.attributesService.setCharacterName(this.characterName);
         const saveStatus = this.attributesService.saveAttributesValue();
-        if (saveStatus === undefined) {
-            this.confirmCharacterSelection.emit();
-        } else {
+        if (saveStatus) {
             this.snackBar.open(saveStatus as string, 'Fermer', {
                 duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
+        } else {
+            this.confirmCharacterSelection.emit();
         }
     }
 }

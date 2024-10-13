@@ -29,7 +29,6 @@ describe('CharacterCreatorComponent', () => {
             'isButtonSelected',
             'setCharacterName',
         ]);
-        routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         await TestBed.configureTestingModule({
             imports: [MatSnackBarModule, BrowserAnimationsModule],
             providers: [
@@ -82,11 +81,10 @@ describe('CharacterCreatorComponent', () => {
         expect(component.clickedAvatar).toEqual(testAvatar);
     });
 
-    it('should call saveAttributesValue and navigate when saveChoices is called', () => {
+    it('should call saveAttributesValue when saveChoices is called', () => {
         attributesServiceSpy.saveAttributesValue.and.returnValue(undefined);
         component.saveChoices();
         expect(attributesServiceSpy.saveAttributesValue).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page']);
     });
 
     it('should not emit closeCharacterCreator event if saveAttributesValue return false', () => {
@@ -100,5 +98,19 @@ describe('CharacterCreatorComponent', () => {
         component.closeComponent();
         expect(component.closeCharacterCreator.emit).toHaveBeenCalled();
         expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
+    });
+
+    it('should emit confirmCharacterSelection event if saveAttributesValue return undefined', () => {
+        spyOn(component.confirmCharacterSelection, 'emit');
+        attributesServiceSpy.saveAttributesValue.and.returnValue(undefined);
+        component.saveChoices();
+        expect(component.confirmCharacterSelection.emit).toHaveBeenCalled();
+    });
+
+    it('should not emit confirmCharacterSelection event if saveAttributesValue return a string', () => {
+        spyOn(component.confirmCharacterSelection, 'emit');
+        attributesServiceSpy.saveAttributesValue.and.returnValue('test');
+        component.saveChoices();
+        expect(component.confirmCharacterSelection.emit).not.toHaveBeenCalled();
     });
 });
