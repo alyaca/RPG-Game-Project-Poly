@@ -1,47 +1,58 @@
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomEvents } from './player-connection.events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class PlayerConnection implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
 
-    constructor(private readonly roomService: RoomService) {}
+    constructor(
+        private readonly roomService: RoomService,
+        private readonly logger: Logger,
+    ) {}
 
     onModuleInit() {
         this.roomService.setServer(this.server);
     }
 
     handleConnection(client: Socket) {
-        console.log(`Client connected: ${client.id}`);
+        this.logger.log(`Client connected: ${client.id}`);
     }
 
     handleDisconnect(client: Socket) {
-        console.log(`Client disconnected: ${client.id}`);
+        this.logger.log(`Client disconnected: ${client.id}`);
     }
 
     @SubscribeMessage(RoomEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
         client.emit('roomCreated', room);
-        console.log(`Room ${room.roomId} created by admin ${client.id}`);
+        this.logger.log(`Room ${room.roomId} created by admin ${client.id}`);
     }
 
     @SubscribeMessage(RoomEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
-        console.log('server', this.roomService.rooms.keys(), roomId); // for debug
+        this.logger.debug(`Active room : ${[...this.roomService.rooms.keys()]}`); // for debug
+        this.logger.debug(`Given room ${roomId}`); // for debug
+        const socketsInRoom = this.server.sockets.adapter.rooms.get(roomId);
+
         this.roomService.joinRoom(client, roomId);
+
+        // for debug only, to remove after:
+        if (socketsInRoom) {
+            const socketList = Array.from(socketsInRoom);
+            this.logger.debug(`Room ${roomId} has sockets ${socketList}`);
+        }
     }
 
     @SubscribeMessage(RoomEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, room: string): void {
         this.roomService.leaveRoom(room, client);
-        console.log(`client ${client.id} left room ${room}`);
-        this.server.to(room).emit('message', `Client ${client.id} left room ${room}`);
+        this.logger.debug(`client ${client.id} left room ${room}`); // for debug
     }
 }

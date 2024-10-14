@@ -38,7 +38,9 @@ export class CreateGamePageComponent implements OnDestroy {
                 this.selectedGame = game;
             }),
         );
-        this.playerConnectionService.connect();
+        if (!this.playerConnectionService.isSocketAlive()) {
+            this.playerConnectionService.connect();
+        }
     }
 
     showCharacterForm() {
