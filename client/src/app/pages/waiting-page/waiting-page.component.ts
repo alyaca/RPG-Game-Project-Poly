@@ -29,7 +29,6 @@ export class WaitingPageComponent implements OnInit {
                 this.chosenGame = game;
             }
         });
-
         this.accessCode = this.gameService.roomId;
         this.chosenGame = this.gameService.selectedGame;
     }
