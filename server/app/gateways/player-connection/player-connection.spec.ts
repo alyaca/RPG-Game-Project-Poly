@@ -1,4 +1,5 @@
-import { gameMock } from '@app/mocks/game-mock';
+import { mockGame } from '@app/mocks/mock-game';
+import { mockRooms } from '@app/mocks/mock-room';
 import { RoomService } from '@app/services/room/room.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -38,10 +39,9 @@ describe('PlayerConnectionGateway', () => {
     });
 
     it('should call setServer on roomService when onModuleInit is called', () => {
-        const mockServer = {} as Server;
-        gateway['server'] = mockServer;
+        gateway['server'] = server;
         gateway.onModuleInit();
-        expect(roomService.setServer).toHaveBeenCalledWith(mockServer);
+        expect(roomService.setServer).toHaveBeenCalledWith(server);
     });
 
     it('should log when a client connects', () => {
@@ -62,20 +62,15 @@ describe('PlayerConnectionGateway', () => {
         const roomId = '1234';
         gateway.handleJoinRoom(socket, roomId);
         expect(roomService.joinRoom).toHaveBeenCalledWith(socket, roomId);
+        expect(logger.log.calledOnce).toBeTruthy();
     });
 
     it('should call roomService createRoom, emit roomCreated, and log the event', () => {
-        const room = {
-            gameMap: gameMock,
-            roomId: '1234',
-            listPlayers: [],
-            adminId: socket.id,
-            isLocked: false,
-        };
+        const room = mockRooms[0];
         (roomService.createRoom as jest.Mock).mockReturnValue(room);
-        gateway.handleCreateRoom(socket as any, gameMock);
+        gateway.handleCreateRoom(socket as any, mockGame);
 
-        expect(roomService.createRoom).toHaveBeenCalledWith(socket, gameMock);
+        expect(roomService.createRoom).toHaveBeenCalledWith(socket, mockGame);
         expect(socket.emit.calledWith('roomCreated', room)).toBeTruthy();
         expect(logger.log.calledOnce).toBeTruthy();
     });

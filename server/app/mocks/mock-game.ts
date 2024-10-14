@@ -1,4 +1,4 @@
-export const gameMock = {
+export const mockGame = {
     _id: '1',
     name: 'Map1',
     description: 'Description1',

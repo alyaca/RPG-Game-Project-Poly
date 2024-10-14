@@ -37,18 +37,8 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     @SubscribeMessage(RoomEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
-        // uncomment those 2 following lines for debug :
-        // this.logger.debug(`Active room : ${[...this.roomService.rooms.keys()]}`);
-        // this.logger.debug(`Given room ${roomId}`);
-
         this.roomService.joinRoom(client, roomId);
-
-        // for debug only, uncomment for log :
-        // const socketsInRoom = this.server.sockets.adapter.rooms.get(roomId);
-        // if (socketsInRoom) {
-        //     const socketList = Array.from(socketsInRoom);
-        //     this.logger.debug(`Room ${roomId} has sockets ${socketList}`);
-        // }
+        this.logger.log(`client ${client.id} joined room ${roomId}`);
     }
 
     @SubscribeMessage(RoomEvents.LeaveRoom)

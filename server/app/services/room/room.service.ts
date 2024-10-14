@@ -65,15 +65,10 @@ export class RoomService {
         }
     }
 
-    leaveRoomById(roomId: string, socketId: string) {
-        this.leaveRoom(roomId, this.io.sockets.sockets.get(socketId));
-    }
-
     deleteRoom(roomId: string, socket: Socket) {
         socket.broadcast.to(roomId).emit('roomDeleted', 'The room has been deleted. Returning to the main page.');
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
-        console.log(`Room ${roomId} deleted`);
     }
 
     getRoomId(client: Socket) {
@@ -85,7 +80,6 @@ export class RoomService {
         const room = this.rooms.get(roomId);
         if (this.isRoomActive(roomId)) {
             socket.join(roomId);
-            console.log(`client ${socket.id} joined room ${roomId}`);
             this.io.to(roomId).emit('joinedRoom', room);
         } else {
             this.io.emit('joinError');
