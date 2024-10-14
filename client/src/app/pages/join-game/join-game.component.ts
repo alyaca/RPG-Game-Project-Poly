@@ -15,6 +15,10 @@ import { Room } from '@common/room';
     styleUrl: './join-game.component.scss',
 })
 export class JoinGameComponent {
+    readonly ERROR_MESSAGES = {
+        INVALID_CODE: 'Le code doit être composé de 4 chiffres',
+        ROOM_NOT_FOUND: 'La partie est inexistante',
+    };
     accessCode: string;
     isCharacterFormVisible: boolean = false;
     isJoined: boolean = false;
@@ -29,10 +33,6 @@ export class JoinGameComponent {
         this.connect();
     }
 
-    get socketId() {
-        return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
-    }
-
     isValidCode(accessCode: string): boolean {
         return /^[0-9]{4}$/.test(accessCode);
     }
@@ -41,23 +41,25 @@ export class JoinGameComponent {
         this.submitForm = true;
         this.errorMessage = '';
         if (!this.isValidCode(accessCode)) {
-            this.errorMessage = 'Le code doit être composé de 4 chiffres';
+            this.errorMessage = this.ERROR_MESSAGES.INVALID_CODE;
             return;
         }
 
         this.playerConnectionService.send('joinRoom', accessCode);
-        this.playerConnectionService.on('joinedRoom', (roomInfo: Room) => {
-            this.isJoined = true;
-            this.isCharacterFormVisible = true;
-            this.gameService.setRoomId(roomInfo.roomId);
-            this.gameService.selectedGame = roomInfo.gameMap;
-            console.log('Joined room:', roomInfo.roomId);
-            console.log('information of the room', roomInfo);
+        this.playerConnectionService.on<Room>('joinedRoom', (roomInfo: Room) => {
+            this.onJoinGame(roomInfo);
         });
 
         this.playerConnectionService.on('joinError', () => {
-            this.errorMessage = 'La partie est inexistante';
+            this.errorMessage = this.ERROR_MESSAGES.ROOM_NOT_FOUND;
         });
+    }
+
+    onJoinGame(roomInfo: Room) {
+        this.isJoined = true;
+        this.isCharacterFormVisible = true;
+        this.gameService.setRoomId(roomInfo.roomId);
+        this.gameService.selectedGame = roomInfo.gameMap;
     }
 
     joinLobby(accessCode: string) {
@@ -73,9 +75,16 @@ export class JoinGameComponent {
     connect() {
         if (!this.playerConnectionService.isSocketAlive()) {
             this.playerConnectionService.connect();
+
+            // for debug only, to remove after :
             this.playerConnectionService.on('connect', () => {
                 console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
             });
         }
+    }
+
+    // for debug only, to remove after :
+    get socketId() {
+        return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
 }

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
+import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
@@ -117,7 +118,7 @@ describe('CreateGamePageComponent', () => {
     });
 
     it('should create a room and navigate to waiting-page', () => {
-        const roomInfo = { roomId: '1234', gameMap: mockMap, listPlayers: [], adminId: '123', isLocked: false };
+        const roomInfo = mockRoom;
         playerConnectionServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
             if (event === 'roomCreated') {
                 callback(roomInfo as Room);
