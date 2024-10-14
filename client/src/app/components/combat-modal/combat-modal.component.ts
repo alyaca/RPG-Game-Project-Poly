@@ -25,7 +25,7 @@ export class CombatModalComponent implements OnInit {
 
     @Input() playerInfo1: PlayerObjects = PLAYERS[0];
 
-    @Input() playerInfo2: PlayerObjects = PLAYERS[1];
+    @Input() playerInfo2: PlayerObjects = PLAYERS[3];
     isGameOngoing: boolean = true;
 
     isPlayer1Damaged: boolean = false;

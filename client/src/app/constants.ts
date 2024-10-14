@@ -83,11 +83,11 @@ export const PLAYERS: PlayerObjects[] = [
     {
         id: 0,
         avatar: '/assets/images/characters/Hephaestus.webp',
+        avatarFlipped: '/assets/images/characters-flipped/Hephaestus-flipped.webp/',
         status: Status.Player,
         name: 'Jar Jar Binks',
         victories: 2,
         isActive: true,
-        portrait: '/assets/images/characters/Hephaestus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,
@@ -120,11 +120,11 @@ export const PLAYERS: PlayerObjects[] = [
     {
         id: 1,
         avatar: '/assets/images/characters/Zeus.webp',
+        avatarFlipped: '/assets/images/characters-flipped/Zeus-flipped.webp/',
         status: Status.Admin,
         name: 'Obi-Wan Kenobi',
         victories: 1,
         isActive: false,
-        portrait: '/assets/images/characters/Zeus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,
@@ -157,11 +157,11 @@ export const PLAYERS: PlayerObjects[] = [
     {
         id: 2,
         avatar: '/assets/images/characters/Athena.webp',
+        avatarFlipped: '/assets/images/characters-flipped/Athena-flipped.webp/',
         status: Status.Player,
         name: 'General Grievous',
         victories: 2,
         isActive: false,
-        portrait: '/assets/images/characters/Hephaestus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,
@@ -193,12 +193,12 @@ export const PLAYERS: PlayerObjects[] = [
     },
     {
         id: 3,
-        avatar: '/assets/images/characters/Apollo.webp',
+        avatar: '/assets/images/characters/Poseidon.webp',
+        avatarFlipped: '/assets/images/characters-flipped/Poseidon-flipped.webp/',
         status: Status.Player,
         name: 'Luke Skywalker',
         victories: 1,
         isActive: false,
-        portrait: '/assets/images/characters/Hephaestus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,
@@ -231,11 +231,11 @@ export const PLAYERS: PlayerObjects[] = [
     {
         id: 4,
         avatar: '/assets/images/characters/Artemis.webp',
+        avatarFlipped: '/assets/images/characters-flipped/Artemis-flipped.webp/',
         status: Status.Bot,
         name: 'Leia Organa',
         victories: 0,
         isActive: false,
-        portrait: '/assets/images/characters/Hephaestus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,
@@ -268,11 +268,11 @@ export const PLAYERS: PlayerObjects[] = [
     {
         id: 5,
         avatar: '/assets/images/characters/Hestia.webp',
+        avatarFlipped: '/assets/images/characters-flipped/Hestia-flipped.webp/',
         status: Status.Disconnected,
         name: 'Chewbacca',
         victories: 2,
         isActive: false,
-        portrait: '/assets/images/characters/Hephaestus.webp/',
         statsAndInventory: {
             hp: 6,
             currentHp: 4,

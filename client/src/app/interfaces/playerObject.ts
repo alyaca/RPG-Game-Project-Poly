@@ -10,11 +10,11 @@ export enum Status {
 export interface PlayerObjects {
     id: number;
     avatar: string;
+    avatarFlipped: string;
     status: Status;
     name: string;
     victories: number;
     isActive: boolean;
-    portrait: string;
     statsAndInventory: PlayerStats;
 }
 
