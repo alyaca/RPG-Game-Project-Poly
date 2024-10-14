@@ -16,18 +16,6 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         private readonly logger: Logger,
     ) {}
 
-    onModuleInit() {
-        this.roomService.setServer(this.server);
-    }
-
-    handleConnection(client: Socket) {
-        this.logger.log(`Client connected: ${client.id}`);
-    }
-
-    handleDisconnect(client: Socket) {
-        this.logger.log(`Client disconnected: ${client.id}`);
-    }
-
     @SubscribeMessage(RoomEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
@@ -45,5 +33,17 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleLeaveRoom(client: Socket, room: string): void {
         this.roomService.leaveRoom(room, client);
         this.logger.debug(`client ${client.id} left room ${room}`); // for debug
+    }
+
+    onModuleInit() {
+        this.roomService.setServer(this.server);
+    }
+
+    handleConnection(client: Socket) {
+        this.logger.log(`Client connected: ${client.id}`);
+    }
+
+    handleDisconnect(client: Socket) {
+        this.logger.log(`Client disconnected: ${client.id}`);
     }
 }

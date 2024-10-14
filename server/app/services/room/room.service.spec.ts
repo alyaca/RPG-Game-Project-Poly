@@ -66,18 +66,14 @@ describe('RoomService', () => {
 
     describe('isPlayerAdmin', () => {
         it('should return true if the player is an admin', () => {
-            const adminId = 'admin-socket-id';
-            service.adminList.push(adminId);
-            const mockSocket = { id: adminId } as Socket;
+            service.adminList.push(mockSocket.id);
             const result = service.isPlayerAdmin(mockSocket);
-
             expect(result).toBe(true);
         });
 
         it('should return false if the player is not an admin', () => {
-            const adminId = 'non-admin-socket-id';
-            const mockSocket = { id: adminId } as Socket;
-            const result = service.isPlayerAdmin(mockSocket);
+            const mockSocketPlayer = { id: '1564' } as Socket;
+            const result = service.isPlayerAdmin(mockSocketPlayer);
             expect(result).toBe(false);
         });
     });
@@ -90,9 +86,8 @@ describe('RoomService', () => {
         });
 
         it('should return a unique room code that is not already active', () => {
-            jest.spyOn(service as any, 'generateRoomCode').mockReturnValue('1234');
+            service['generateRoomCode'] = jest.fn().mockReturnValue(roomId);
             jest.spyOn(service, 'isRoomActive').mockReturnValueOnce(true).mockReturnValueOnce(false);
-
             const roomCode = service['getNewRoomCode']();
             expect(roomCode).toBe('1234');
             expect(service.isRoomActive).toHaveBeenCalledTimes(2);
@@ -102,14 +97,14 @@ describe('RoomService', () => {
     describe('getRoomId', () => {
         it('should return roomCode if the room is active', () => {
             jest.spyOn(service, 'isRoomActive').mockReturnValue(true);
-            const roomId = service.getRoomId(mockSocket);
-            expect(roomId).toBe(mockSocket.data.roomCode);
+            const roomCode = service.getRoomId(mockSocket);
+            expect(roomCode).toBe(mockSocket.data.roomCode);
         });
 
         it('should return null if the room is not active', () => {
             jest.spyOn(service, 'isRoomActive').mockReturnValue(false);
-            const roomId = service.getRoomId(mockSocket);
-            expect(roomId).toBe(null);
+            const roomCode = service.getRoomId(mockSocket);
+            expect(roomCode).toBe(null);
         });
     });
 
@@ -175,7 +170,7 @@ describe('RoomService', () => {
     });
 
     it('should create a new room and join the socket to it', () => {
-        jest.spyOn(service as any, 'getNewRoomCode').mockReturnValue(roomId);
+        service['getNewRoomCode'] = jest.fn().mockReturnValue(roomId);
         const room = service.createRoom(mockSocket, mockGame);
 
         expect(room).toEqual(mockRooms[0]);

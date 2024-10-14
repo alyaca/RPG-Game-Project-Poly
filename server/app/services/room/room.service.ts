@@ -6,9 +6,9 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
 export class RoomService {
-    private io: Server;
     rooms = new Map<string, Room>();
     adminList: string[] = [];
+    private io: Server;
 
     setServer(io: Server) {
         this.io = io;
@@ -36,19 +36,6 @@ export class RoomService {
 
     isPlayerAdmin(socket: Socket) {
         return this.adminList.includes(socket.id);
-    }
-
-    private generateRoomCode(): string {
-        const code = Math.floor(Math.random() * MAX_ACCESS_CODE_VALUE);
-        return code.toString().padStart(ACCESS_CODE_LENGTH, '0');
-    }
-
-    private getNewRoomCode(): string {
-        let roomCode = this.generateRoomCode();
-        while (this.isRoomActive(roomCode)) {
-            roomCode = this.generateRoomCode();
-        }
-        return roomCode;
     }
 
     leaveRoom(roomId: string, socket: Socket) {
@@ -84,5 +71,18 @@ export class RoomService {
         } else {
             this.io.emit('joinError');
         }
+    }
+
+    private generateRoomCode(): string {
+        const code = Math.floor(Math.random() * MAX_ACCESS_CODE_VALUE);
+        return code.toString().padStart(ACCESS_CODE_LENGTH, '0');
+    }
+
+    private getNewRoomCode(): string {
+        let roomCode = this.generateRoomCode();
+        while (this.isRoomActive(roomCode)) {
+            roomCode = this.generateRoomCode();
+        }
+        return roomCode;
     }
 }

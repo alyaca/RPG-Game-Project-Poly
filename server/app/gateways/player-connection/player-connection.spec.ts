@@ -68,7 +68,7 @@ describe('PlayerConnectionGateway', () => {
     it('should call roomService createRoom, emit roomCreated, and log the event', () => {
         const room = mockRooms[0];
         (roomService.createRoom as jest.Mock).mockReturnValue(room);
-        gateway.handleCreateRoom(socket as any, mockGame);
+        gateway.handleCreateRoom(socket as Socket, mockGame);
 
         expect(roomService.createRoom).toHaveBeenCalledWith(socket, mockGame);
         expect(socket.emit.calledWith('roomCreated', room)).toBeTruthy();
