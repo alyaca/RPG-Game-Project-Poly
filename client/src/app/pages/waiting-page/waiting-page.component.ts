@@ -35,17 +35,19 @@ export class WaitingPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/game-creation']);
+            this.router.navigate(['/home']);
         }
 
         this.playerConnectionService.on<string>('roomDeleted', (message: string) => {
-            alert(message); // change for the error dialog
+            alert(message); // change for the simple dialog
             this.router.navigate(['/home']);
         });
     }
 
     leaveGame(roomCode: string) {
         this.playerConnectionService.send('leaveRoom', roomCode);
-        this.router.navigate(['/create-game']);
+        this.playerConnectionService.on('leftRoom', (route) => {
+            this.router.navigate([route]);
+        });
     }
 }

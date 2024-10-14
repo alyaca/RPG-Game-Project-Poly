@@ -75,16 +75,6 @@ export class JoinGameComponent {
     connect() {
         if (!this.playerConnectionService.isSocketAlive()) {
             this.playerConnectionService.connect();
-
-            // for debug only, to remove after :
-            this.playerConnectionService.on('connect', () => {
-                console.log(`Connexion par WebSocket sur le socket ${this.socketId}`);
-            });
         }
-    }
-
-    // for debug only, to remove after :
-    get socketId() {
-        return this.playerConnectionService.socket.id ? this.playerConnectionService.socket.id : '';
     }
 }

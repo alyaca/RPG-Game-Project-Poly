@@ -1,6 +1,7 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
+import { PathRoute } from '@common/route';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
@@ -55,9 +56,10 @@ export class RoomService {
             return;
         }
         if (this.isPlayerAdmin(socket)) {
+            this.io.to(roomId).emit('leftRoom', PathRoute.CREATE);
             this.deleteRoom(roomId, socket);
         } else {
-            this.io.to(roomId).emit('message', `Client ${socket.id} left room ${roomId}`);
+            this.io.to(roomId).emit('leftRoom', PathRoute.HOME);
             socket.leave(roomId);
             socket.data = {};
         }
