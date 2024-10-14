@@ -46,6 +46,10 @@ export class CombatModalComponent implements OnInit {
     statValue2: number = 0;
 
     ngOnInit() {
+        this.playerInfo1.statsAndInventory.currentHp = this.playerInfo1.statsAndInventory.hp;
+        this.playerInfo2.statsAndInventory.currentHp = this.playerInfo2.statsAndInventory.hp;
+        
+
         this.evasionsArray1 = new Array(2).fill(1);
         this.evasionsArray2 = new Array(2).fill(1);
         this.currentPlayerTurn = this.determineStartingPlayer();
@@ -63,6 +67,8 @@ export class CombatModalComponent implements OnInit {
     }
 
     closeModal() {
+        this.playerInfo1.statsAndInventory.currentHp = this.playerInfo1.statsAndInventory.hp;
+        this.playerInfo2.statsAndInventory.currentHp = this.playerInfo2.statsAndInventory.hp;
         this.isInCombat = false;
         this.close.emit();
     }
@@ -134,8 +140,8 @@ export class CombatModalComponent implements OnInit {
     }
 
     endDuel(dialogTitle: string, displayText: string) {
-        this.isGameOngoing = false;
         this.triggerTempDialog(dialogTitle);
+        this.isGameOngoing = false;
         this.setDisplayText(displayText);
         setTimeout(() => {
             this.closeModal();
@@ -186,7 +192,9 @@ export class CombatModalComponent implements OnInit {
     }
 
     triggerTempDialog(message: string) {
-        this.temporaryDialogComponent.show(message);
+        if(this.isGameOngoing){
+            this.temporaryDialogComponent.show(message);
+        }
     }
 
     onTimerFinished() {

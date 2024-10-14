@@ -27,7 +27,7 @@
     </div>
     <div class="middle-section">
         <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer1Damaged }">
-            <img class="player-img" src="{{ playerInfo1.portrait }}" alt="right player portrait" />
+            <img class="player-img left-player" src="{{ playerInfo1.portrait }}" alt="right player portrait" />
             <div class="damaged-overlay"></div>
         </div>
         <div class="dice-container">
@@ -46,7 +46,7 @@
         </div>
                 
         <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer2Damaged }">
-            <img class="player-img" src="{{ playerInfo2.portrait }}" alt="right player portrait" />
+            <img class="player-img right-player" src="{{ playerInfo2.portrait }}" alt="right player portrait" />
             <div class="damaged-overlay"></div>
         </div>
     </div>
