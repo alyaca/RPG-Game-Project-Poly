@@ -160,7 +160,7 @@ Cliquez sur le bouton `Lancer l'instance` pour finaliser la procédure.
 
 ## Accès à votre machine distance
 
-**Attention :** l'adresse DNS publique de votre instance n'est pas persistante. Elle changera à chaque fois que vous redémarrerez ou fermez/ouvrez votre instance. Prenez ceci en compte lors de la connexion à votre machine. 
+**Attention :** l'adresse DNS publique de votre instance n'est pas persistante. Elle changera à chaque fois que vous redémarrerez ou fermez/ouvrez votre instance. Prenez ceci en compte lors de la connexion à votre machine.
 
 Retournez au [Tableau de bord EC2](https://ca-central-1.console.aws.amazon.com/ec2/v2/home?region=ca-central-1#Instances:) (`Services -> EC2 -> Instances`). Aussitôt que l'état de votre machine passera à `En cours d'exécution`, cela signifiera que votre machine est prête à être utilisée.
 Pour y avoir accès, nous allons utiliser une connexion `SSH`.

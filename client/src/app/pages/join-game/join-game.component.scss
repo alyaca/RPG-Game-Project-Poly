@@ -1,0 +1,107 @@
+.container {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: left;
+    background-repeat: no-repeat;
+    background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
+}
+
+.page-container {
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+}
+
+.submit-container {
+    display: grid;
+    height: 40vh;
+    width: 60vh;
+    justify-content: center;
+    align-content: center;
+    justify-items: center;
+    align-items: center;
+    margin-top: 20%;
+    background: linear-gradient(to left, rgba(49, 45, 34, 1), rgba(79, 73, 62, 1));
+    font-family: 'Papyrus';
+    font-weight: bold;
+    color: white;
+    overflow: hidden;
+}
+
+.submit-container p {
+    font-size: 130%;
+}
+
+.title {
+    margin-bottom: 0;
+    font-size: 5vh;
+    font-family: Papyrus;
+    color: white;
+}
+
+.line-separator {
+    border: none;
+    height: 0.1rem;
+    background-color: #ccc;
+    width: 23.5rem;
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: auto;
+    margin-bottom: 3rem;
+}
+
+.join-game {
+    margin-top: 10%;
+}
+
+.invalide-code {
+    margin-top: 5%;
+    color: red;
+    font-size: 100%;
+    text-align: center;
+}
+
+.join-game {
+    font-family: 'Papyrus';
+    font-size: 110%;
+    font-weight: 900;
+    margin-right: 8%;
+    margin-bottom: 5%;
+    background: linear-gradient(to right, rgb(164, 156, 113), rgb(224, 216, 173));
+    color: black;
+    border: 1px solid black;
+    border-radius: 3 rem;
+    cursor: pointer;
+}
+
+.input-box {
+    background: none;
+    color: white;
+    border: 0.05rem solid rgb(135, 125, 79);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin: 0;
+    font-family: Papyrus;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.input-box:hover {
+    background: linear-gradient(to right, rgba(111, 109, 56, 0.4), rgba(177, 168, 131, 0.1));
+}
+.button {
+    font-size: 2rem;
+    display: inline-block;
+    background-color: transparent;
+    color: white;
+    font-family: 'Papyrus';
+    border: none;
+    margin-top: 10%;
+}
+
+.button:hover {
+    background: linear-gradient(to right, rgba(222, 207, 129, 0.9), rgba(0, 0, 0, 0));
+    border-radius: 0.3rem;
+    cursor: pointer;
+}

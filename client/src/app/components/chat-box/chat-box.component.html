@@ -1,0 +1,18 @@
+<div class="chat-box">
+    <div class="past-messages" [ngClass]="{ 'visible': isChatVisible }">
+        
+        @for(message of messages; track message.id;){
+            <app-chat-message
+                [time]="message.time"
+                [sender]="message.sender"
+                [content]="message.content"
+            >
+            </app-chat-message>
+        }
+    </div>
+    <div class="input-container">
+        <span class="toggle-icon" id="toggleIcon" (click)="toggleChatVisibility()"></span> 
+        <label for="chatInput"></label>
+        <input type="text" id="chat-input" name="chatInput" placeholder="messagerie" />
+    </div>
+</div>
