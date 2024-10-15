@@ -1,0 +1,26 @@
+.chat-message {
+    display: flex; 
+    flex-wrap: wrap; 
+    margin: 0.5%;
+    align-items: center; 
+    color: white;
+    font-size: 0.9rem;
+}
+
+.chat-message p {
+    margin-right: 0.5rem; 
+    margin-top: 0.05rem;
+}
+
+.chat-message .time {
+    color: rgb(167, 167, 167); 
+}
+
+.chat-message .sender {
+    color: rgb(220, 204, 113);
+    font-weight: bold; 
+}
+
+.chat-message .content {
+    flex-grow: 1;
+}

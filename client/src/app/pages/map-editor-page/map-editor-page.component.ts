@@ -97,7 +97,8 @@ export class MapEditorPageComponent implements OnInit {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: {
-                message: 'Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?',
+                title: 'Quitter cette page?',
+                messages: ['Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?'],
                 confirm: true,
             },
         });
