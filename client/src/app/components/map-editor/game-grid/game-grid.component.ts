@@ -52,10 +52,17 @@ export class GameGridComponent implements OnChanges, OnDestroy {
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
         }
         else {
-            this.tilesGrid = this.gameCreationService.loadedTiles;
-            this.objectsArray = this.gameCreationService.loadedObjects;
+            this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
+            this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
             this.gameObjectService.objectsArray = this.objectsArray;
+
+            // this.mapName = this.gameCreationService.loadedMapName;
+            // this.mapDescription = this.gameCreationService.loadedMapDescription;
         }
+    }
+
+    deepCopyMatrix(matrix: number[][]){
+        return JSON.parse(JSON.stringify(matrix));
     }
 
     get selectedTile(): string {
@@ -64,6 +71,11 @@ export class GameGridComponent implements OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
+            if(!this.gameCreationService.isNewGame){
+                this.mapName = this.gameCreationService.loadedMapName;
+                this.mapDescription = this.gameCreationService.loadedMapDescription;
+            }
+            
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
             this.objectsArray = this.gameObjectService.initObjectsArray();
             this.gameObjectService.resetObjectsCount();

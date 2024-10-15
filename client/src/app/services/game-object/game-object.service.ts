@@ -29,6 +29,9 @@ export class GameObjectService implements OnDestroy {
     }
 
     initObjectsArray(): number[][] {
+        if (!this.gameCreationService.isNewGame){
+            return this.gameCreationService.loadedObjects;
+        }
         this.objectsArray = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(NO_OBJECT));
         if (this.mapSize) {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
