@@ -31,8 +31,15 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     @SubscribeMessage(RoomEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, room: string): void {
-        this.roomService.leaveRoom(room, client);
         this.logger.debug(`client ${client.id} left room ${room}`); // for debug
+        const isAdmin = this.roomService.isPlayerAdmin(client);
+        if (isAdmin) {
+            client.emit('leftRoom', isAdmin);
+            this.roomService.deleteRoom(room, client);
+        } else {
+            client.emit('leftRoom', isAdmin);
+            this.roomService.leaveRoom(room, client);
+        }
     }
 
     onModuleInit() {

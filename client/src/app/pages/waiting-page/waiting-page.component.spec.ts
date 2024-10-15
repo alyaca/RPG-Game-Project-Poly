@@ -56,31 +56,38 @@ describe('WaitingPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should navigate to /home if no game is selected (refresh page)', () => {
-        gameListServiceSpy.chosenGameSubject.next(null);
-        component.ngOnInit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-    });
+    describe('ngOnInit', () => {
+        it('should navigate to /home if no game is selected (refresh page)', () => {
+            gameListServiceSpy.chosenGameSubject.next(null);
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
 
-    it('should navigate to /home if no game is received', () => {
-        component.accessCode = accessCode;
-        component.ngOnInit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-    });
+        it('should navigate to /home if no game is received', () => {
+            component.accessCode = accessCode;
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
 
-    it('should navigate to /home if no room is created', () => {
-        component.ngOnInit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-    });
+        it('should navigate to /home if no room is created', () => {
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
 
-    it('should set chosenGame when a game is selected', () => {
-        const mockGame: Game = mockGames[0];
-        gameListServiceSpy.chosenGameSubject.next(mockGame);
-        fixture.detectChanges();
-        expect(component.chosenGame).toEqual(mockGame);
+        it('should set chosenGame when a game is selected', () => {
+            const mockGame: Game = mockGames[0];
+            gameListServiceSpy.chosenGameSubject.next(mockGame);
+            fixture.detectChanges();
+            expect(component.chosenGame).toEqual(mockGame);
+        });
     });
 
     it('should handle roomDeleted event and navigate to /home', () => {
+        const message = 'Room has been deleted.';
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('close'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
         component.accessCode = accessCode;
         component.chosenGame = mockGames[0];
         playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
@@ -90,14 +97,31 @@ describe('WaitingPageComponent', () => {
         });
         component.ngOnInit();
 
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: { title: 'Partie annulée', messages: [message] },
+        });
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should call leaveRoom and navigate to the correct route on leftRoom event', () => {
+    it('should call leaveRoom and navigate to home if normal player on leftRoom event', () => {
         const expectedRoute = '/home';
-        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
             if (event === 'leftRoom') {
-                callback(expectedRoute as unknown as T);
+                callback(false as unknown as T);
+            }
+        });
+        component.leaveGame(accessCode);
+
+        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
+    });
+
+    it('should call leaveRoom and navigate to game creation if admin player on leftRoom event', () => {
+        const expectedRoute = '/game-creation';
+        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
+            if (event === 'leftRoom') {
+                callback(true as unknown as T);
             }
         });
         component.leaveGame(accessCode);

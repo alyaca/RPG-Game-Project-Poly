@@ -1,7 +1,6 @@
 import { ACCESS_CODE_LENGTH } from '@app/constants';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
-import { PathRoute } from '@common/route';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from './room.service';
@@ -148,22 +147,10 @@ describe('RoomService', () => {
             expect(mockSocket.leave).not.toHaveBeenCalled();
         });
 
-        it('should emit leftRoom event with PathRoute.CREATE and delete the room if socket is an admin', () => {
-            jest.spyOn(service, 'isPlayerAdmin').mockReturnValue(true);
-            const spy = jest.spyOn(service, 'deleteRoom');
-            service.leaveRoom(roomId, mockSocket);
-
-            expect(mockServer.to).toHaveBeenCalledWith(roomId);
-            expect(mockServer.emit).toHaveBeenCalledWith('leftRoom', PathRoute.CREATE);
-            expect(spy).toHaveBeenCalledWith(roomId, mockSocket);
-        });
-
-        it('should emit leftRoom event with PathRoute.HOME, leave the room, and clear socket data if socket is not an admin', () => {
+        it('should leave the room, and clear socket data if socket exists', () => {
             jest.spyOn(service, 'isPlayerAdmin').mockReturnValue(false);
             service.leaveRoom(roomId, mockSocket);
 
-            expect(mockServer.to).toHaveBeenCalledWith(roomId);
-            expect(mockServer.emit).toHaveBeenCalledWith('leftRoom', PathRoute.HOME);
             expect(mockSocket.leave).toHaveBeenCalledWith(roomId);
             expect(mockSocket.data).toEqual({});
         });

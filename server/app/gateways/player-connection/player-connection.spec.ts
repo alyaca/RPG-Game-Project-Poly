@@ -20,6 +20,8 @@ describe('PlayerConnectionGateway', () => {
             joinRoom: jest.fn(),
             createRoom: jest.fn(),
             leaveRoom: jest.fn(),
+            isPlayerAdmin: jest.fn(),
+            deleteRoom: jest.fn(),
         };
 
         socket = createStubInstance<Socket>(Socket);
@@ -75,9 +77,22 @@ describe('PlayerConnectionGateway', () => {
         expect(logger.log.calledOnce).toBeTruthy();
     });
 
-    it('should call roomService leaveRoom and debug the event', () => {
+    it('should emit leftRoom and delete room if player is admin', () => {
         const roomId = '1234';
+        jest.spyOn(roomService, 'isPlayerAdmin').mockReturnValue(true);
+
         gateway.handleLeaveRoom(socket, roomId);
+        expect(socket.emit.calledWith('leftRoom', true)).toBeTruthy();
+        expect(roomService.deleteRoom).toHaveBeenCalledWith(roomId, socket);
+        expect(logger.debug.calledOnce).toBeTruthy();
+    });
+
+    it('should emit leftRoom and leave room if player is not admin', () => {
+        const roomId = '1234';
+        jest.spyOn(roomService, 'isPlayerAdmin').mockReturnValue(false);
+
+        gateway.handleLeaveRoom(socket, roomId);
+        expect(socket.emit.calledWith('leftRoom', false)).toBeTruthy();
         expect(roomService.leaveRoom).toHaveBeenCalledWith(roomId, socket);
         expect(logger.debug.calledOnce).toBeTruthy();
     });

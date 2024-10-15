@@ -52,13 +52,16 @@ export class WaitingPageComponent implements OnInit {
         }
 
         this.playerConnectionService.on<string>('roomDeleted', (message: string) => {
-            alert(message); // change for an error dialog component later
-            this.navigateAfterAdminLeft();
+            const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
+                disableClose: true,
+                data: { title: 'Partie annulée', messages: [message] },
+            });
+            dialogNavigate.afterClosed().subscribe((result) => {
+                if (result === 'close') {
+                    this.router.navigate(['/home']);
+                }
+            });
         });
-    }
-
-    navigateAfterAdminLeft() {
-        this.router.navigate(['/home']);
     }
 
     attributeSizeDynamically() {
@@ -107,8 +110,12 @@ export class WaitingPageComponent implements OnInit {
 
     leaveGame(accessCode: string) {
         this.playerConnectionService.send('leaveRoom', accessCode);
-        this.playerConnectionService.on('leftRoom', (route) => {
-            this.router.navigate([route]);
+        this.playerConnectionService.on('leftRoom', (isAdmin) => {
+            if (isAdmin) {
+                this.router.navigate(['/game-creation']);
+            } else {
+                this.router.navigate(['/home']);
+            }
         });
     }
 }

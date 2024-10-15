@@ -1,7 +1,6 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
-import { PathRoute } from '@common/route';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
@@ -42,18 +41,12 @@ export class RoomService {
         if (!socket) {
             return;
         }
-        if (this.isPlayerAdmin(socket)) {
-            this.io.to(roomId).emit('leftRoom', PathRoute.CREATE);
-            this.deleteRoom(roomId, socket);
-        } else {
-            this.io.to(roomId).emit('leftRoom', PathRoute.HOME);
-            socket.leave(roomId);
-            socket.data = {};
-        }
+        socket.leave(roomId);
+        socket.data = {};
     }
 
     deleteRoom(roomId: string, socket: Socket) {
-        socket.broadcast.to(roomId).emit('roomDeleted', 'The room has been deleted. Returning to the main page.');
+        socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
     }

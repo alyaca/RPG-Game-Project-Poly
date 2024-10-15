@@ -69,7 +69,9 @@ export class JoinGameComponent {
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
         this.playerConnectionService.send('leaveRoom', roomCode);
-        this.router.navigate(['/home']);
+        this.playerConnectionService.on('leftRoom', (isAdmin) => {
+            if (!isAdmin) this.router.navigate(['/join-page']);
+        });
     }
 
     connect() {
