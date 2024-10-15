@@ -1,4 +1,4 @@
-import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
+import { LobbyPlayer, LobbySize } from '@app/interfaces/lobbyPlayer';
 
 export const mockLobbyPlayers: LobbyPlayer[] = [
     {
@@ -12,7 +12,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             speed: 4,
         },
         isAdmin: true,
-        size: PlayerSize.Medium,
+        size: LobbySize.Medium,
     },
     {
         id: 1,
@@ -25,7 +25,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             speed: 4,
         },
         isAdmin: false,
-        size: PlayerSize.Medium,
+        size: LobbySize.Medium,
     },
     {
         id: 2,
@@ -38,7 +38,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             speed: 4,
         },
         isAdmin: false,
-        size: PlayerSize.Medium,
+        size: LobbySize.Medium,
     },
     {
         id: 3,
@@ -51,7 +51,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             speed: 4,
         },
         isAdmin: false,
-        size: PlayerSize.Medium,
+        size: LobbySize.Medium,
     },
     {
         id: 4,
@@ -64,7 +64,7 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             speed: 4,
         },
         isAdmin: false,
-        size: PlayerSize.Medium,
+        size: LobbySize.Medium,
     },
     {
         id: 5,
@@ -77,6 +77,6 @@ export const mockLobbyPlayers: LobbyPlayer[] = [
             speed: 4,
         },
         isAdmin: false,
-        size: PlayerSize.Medium,
+        size: LobbySize.Medium,
     },
 ];

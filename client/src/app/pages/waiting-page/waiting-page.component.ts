@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
-import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT } from '@app/constants';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
+import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT, PLAYERS } from '@app/constants';
+import { LobbySize } from '@app/interfaces/playerObject';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
-import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
-import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { MatDialog } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { PlayerObjects } from '@app/interfaces/playerObject';
 
 @Component({
     selector: 'app-waiting-page',
@@ -25,7 +25,7 @@ export class WaitingPageComponent implements OnInit {
 
     // sample player lobby (to be generated dynamically later)
     // see app/mocks/mock-lobby-players.ts
-    players: LobbyPlayer[] = mockLobbyPlayers;
+    players: PlayerObjects[] = PLAYERS;
 
     private readonly accesCodeLength = ACCESS_CODE_LENGTH;
 
@@ -60,24 +60,24 @@ export class WaitingPageComponent implements OnInit {
         const midpoint: number = Math.floor(len / 2);
 
         for (let i = midpoint; i < len; i++) {
-            this.players[i].size = this.getPlayerSize(playerSizeInteger);
+            this.players[i].size = this.getLobbySize(playerSizeInteger);
             playerSizeInteger--;
         }
 
         playerSizeInteger = len % 2 === 1 ? MAX_PLAYER_SIZE_INT - 1 : MAX_PLAYER_SIZE_INT;
         for (let i = midpoint - 1; i >= 0; i--) {
-            this.players[i].size = this.getPlayerSize(playerSizeInteger);
+            this.players[i].size = this.getLobbySize(playerSizeInteger);
             playerSizeInteger--;
         }
     }
 
-    getPlayerSize(val: number): PlayerSize {
+    getLobbySize(val: number): LobbySize {
         if (val >= MAX_PLAYER_SIZE_INT) {
-            return PlayerSize.Big;
+            return LobbySize.Big;
         } else if (val === 1) {
-            return PlayerSize.Medium;
+            return LobbySize.Medium;
         } else {
-            return PlayerSize.Small;
+            return LobbySize.Small;
         }
     }
 
@@ -93,30 +93,27 @@ export class WaitingPageComponent implements OnInit {
         });
         return dialogRef.afterClosed();
     }
-    
+
     handleExit() {
-        this.openConfirmationDialog(
-            'Abandonner la partie?',
-            ["- Vous quitteriez la page d'attente"],
-            ['Quitter', 'Rester'],
-            true
-        ).subscribe((result) => {
-            if (result === 'left') {
-                this.router.navigate(['/home']);
-            }
-        });
+        this.openConfirmationDialog('Abandonner la partie?', ["- Vous quitteriez la page d'attente"], ['Quitter', 'Rester'], true).subscribe(
+            (result) => {
+                if (result === 'left') {
+                    this.router.navigate(['/home']);
+                }
+            },
+        );
     }
-    
+
     handleStartGame() {
         this.openConfirmationDialog(
             'Débuter la partie',
-            ["- Êtes-vous certains de vouloir débuter la partie?"],
+            ['- Êtes-vous certains de vouloir débuter la partie?'],
             ['Annuler', 'Confirmer'],
-            true
+            true,
         ).subscribe((result) => {
             if (result === 'right') {
                 this.router.navigate(['/game-page']);
             }
         });
-    }    
+    }
 }

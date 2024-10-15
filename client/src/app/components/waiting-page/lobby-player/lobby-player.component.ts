@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LobbyPlayer } from '@app/interfaces/lobbyPlayer';
-
+import { PlayerObjects, Status } from '@app/interfaces/playerObject';
 @Component({
     selector: 'app-lobby-player',
     standalone: true,
@@ -10,5 +9,9 @@ import { LobbyPlayer } from '@app/interfaces/lobbyPlayer';
     styleUrl: './lobby-player.component.scss',
 })
 export class LobbyPlayerComponent {
-    @Input() lobbyPlayer: LobbyPlayer;
+    @Input() lobbyPlayer: PlayerObjects;
+    isAdmin(){
+        return this.lobbyPlayer.status === Status.Admin;
+    }
+
 }

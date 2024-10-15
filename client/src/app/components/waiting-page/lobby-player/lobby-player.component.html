@@ -1,4 +1,4 @@
-<div [ngClass]="['player', lobbyPlayer.isAdmin ? 'admin' : '']">
+<div [ngClass]="['player', isAdmin() ? 'admin' : '']">
     <div class="motif"></div>
     <div class="player-name">
         <div class="kick"></div>

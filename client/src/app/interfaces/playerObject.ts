@@ -1,5 +1,11 @@
 import { GameObject } from '@app/interfaces/gameObject';
 
+export enum LobbySize {
+    Small = 'small',
+    Medium = 'medium',
+    Big = 'big',
+}
+
 export enum Status {
     Player = 'regular-player',
     Admin = 'admin',
@@ -16,6 +22,8 @@ export interface PlayerObjects {
     victories: number;
     isActive: boolean;
     attributes: PlayerStats;
+
+    size: LobbySize;
 }
 
 export interface PlayerStats {
