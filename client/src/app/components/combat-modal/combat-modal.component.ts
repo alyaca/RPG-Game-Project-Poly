@@ -57,8 +57,8 @@ export class CombatModalComponent implements OnInit {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.currentPlayerTurn === 1 ? 'Attaque' : 'Défense';
-            this.playerStat2 = this.currentPlayerTurn === 1 ? 'Défense' : 'Attaque';
+            this.playerStat1 = this.currentPlayerTurn === 1 ? 'Attaque D' +  this.playerInfo1.statsAndInventory.atkDice: 'Défense D' + this.playerInfo1.statsAndInventory.defDice;
+            this.playerStat2 = this.currentPlayerTurn === 1 ? 'Défense D' + this.playerInfo2.statsAndInventory.defDice: 'Attaque' + this.playerInfo2.statsAndInventory.atkDice;
         }, 100);
     }
 
@@ -124,8 +124,8 @@ export class CombatModalComponent implements OnInit {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.playerStat1 === 'Attaque' ? 'Défense' : 'Attaque';
-            this.playerStat2 = this.playerStat2 === 'Attaque' ? 'Défense' : 'Attaque';
+            this.playerStat1 = this.playerStat1.includes('Attaque') ? 'Défense D' + this.playerInfo1.statsAndInventory.defDice : 'Attaque D' + this.playerInfo1.statsAndInventory.atkDice;
+            this.playerStat2 = this.playerStat2.includes('Attaque') ? 'Défense D' + this.playerInfo2.statsAndInventory.defDice : 'Attaque D' + this.playerInfo2.statsAndInventory.atkDice;
         }, 1000);
 
         this.checkIfDuelOver();
@@ -185,10 +185,18 @@ export class CombatModalComponent implements OnInit {
         }
         this.switchTurn();
         const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1 : this.diceComponent2;
-        activeDiceComponent.rollDice();
+        const inactiveDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent2 : this.diceComponent1;
+        const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
+        const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        
+        activeDiceComponent.rollDice(attacker.statsAndInventory.atkDice);
+        
+        setTimeout(() => {
+            inactiveDiceComponent.rollDice(defender.statsAndInventory.defDice);
+        }, 200);
         setTimeout(() => {
             this.attack();
-        }, 1000);
+        }, 1200);
     }
 
     triggerTempDialog(message: string) {

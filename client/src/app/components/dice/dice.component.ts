@@ -12,12 +12,12 @@ export class DiceComponent {
   diceValue: number = 1;
   isRolling: boolean = false;
 
-  rollDice() {
+  rollDice(maxValue: number) {
     if (this.isRolling) return;
     this.isRolling = true;
 
     const rollDuration = 800; 
-    const randomDiceValue = Math.floor(Math.random() * 6) + 1;
+    const randomDiceValue = Math.floor(Math.random() * maxValue) + 1;
 
     setTimeout(() => {
       this.diceValue = randomDiceValue;
