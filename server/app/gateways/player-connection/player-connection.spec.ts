@@ -62,7 +62,7 @@ describe('PlayerConnectionGateway', () => {
         const roomId = '1234';
         gateway.handleJoinRoom(socket, roomId);
         expect(roomService.joinRoom).toHaveBeenCalledWith(socket, roomId);
-        expect(logger.log.calledOnce).toBeTruthy();
+        expect(logger.debug.calledOnce).toBeTruthy();
     });
 
     it('should call roomService createRoom, emit roomCreated, and log the event', () => {

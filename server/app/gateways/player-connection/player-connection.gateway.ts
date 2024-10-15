@@ -20,13 +20,13 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
         client.emit('roomCreated', room);
-        this.logger.log(`Room ${room.roomId} created by admin ${client.id}`);
+        this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`);
     }
 
     @SubscribeMessage(RoomEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
         this.roomService.joinRoom(client, roomId);
-        this.logger.log(`client ${client.id} joined room ${roomId}`);
+        this.logger.debug(`client ${client.id} try joined room ${roomId}`); // for debug
     }
 
     @SubscribeMessage(RoomEvents.LeaveRoom)

@@ -1,58 +1,30 @@
 <div id="waiting-page">
     <header>
-        <h3 *ngIf="chosenGame">{{ chosenGame.name }}</h3>
-        <h3>Code d'acces: {{ accessCode }}</h3>
+        @if(chosenGame){
+        <h3>Nom de la partie: {{ chosenGame.name }}</h3>
+        }
+        <h3>Code d'accès: {{ accessCode }}</h3>
     </header>
     <main>
         <div id="players-container">
-            <div class="player medium">
-                <div class="player-name">* joueur2</div>
-                <img src="/assets/images/characters/Hephaestus.webp" alt="player1-avatar" />
-                <div class="attributes-box">
-                    <div class="attribute">attaque: 4</div>
-                    <div class="attribute">défense: 4</div>
-                    <div class="attribute">vie: 4</div>
-                    <div class="attribute">rapidité: 4</div>
-                </div>
-            </div>
-            <div class="player big admin">
-                <div class="player-name">joueur3</div>
-                <img src="/assets/images/characters/Athena.webp" alt="player1-avatar" />
-                <div class="attributes-box">
-                    <div class="attribute">attaque: 4</div>
-                    <div class="attribute">défense: 4</div>
-                    <div class="attribute">vie: 4</div>
-                    <div class="attribute">rapidité: 4</div>
-                </div>
-            </div>
-            <div class="add-bot medium">
+            @for (player of players; track player.id;) {
+            <app-lobby-player [class]="player.size" [lobbyPlayer]="player"></app-lobby-player>
+            }
+            <!-- <div class="add-bot medium">
                 <p>ajouter un joueur virtuel</p>
                 <button class="add-bot-button">+</button>
-            </div>
+            </div> -->
         </div>
     </main>
     <footer>
         <div id="footer-container">
-            <div class="chat-box">
-                <div class="past-messages">
-                    <div class="msg">17:21:54 Obi-Wan : C'est fini Anakin, j'ai le dessus.</div>
-                    <div class="msg">17:22:03 Anakin Skywalker : Tu sous-estimes mon pouvoir !</div>
-                    <div class="msg">
-                        17:22:46 Obi-Wan : Tu étais l'élu ! On disait que tu détruirais les Sith, pas que tu les rejoindrais ! Que tu apporterais
-                        l'équilibre à la Force, pas que tu la laisserais dans les ténèbres !
-                    </div>
-                    <div class="msg">17:23:10 Anakin : JE TE DÉTESTE</div>
-                    <div class="msg">17:23:36 Obi-Wan : Tu étais mon frère, Anakin ! Je t'aimais !</div>
-                </div>
-                <label for="chatInput"></label>
-                <input type="text" id="chat-input" name="chatInput" placeholder="messagerie" />
-            </div>
+            <app-chat-box></app-chat-box>
             <div id="start-container">
-                <button id="quit-button" (click)="leaveGame(accessCode)">x</button>
-                <button id="start">lancer une partie</button>
+                <button id="start">Lancer une partie</button>
+                <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
             </div>
             <div id="lock-container">
-                <p>verrouiller la partie</p>
+                <p class="lock-text">Verrouiller la partie</p>
                 <label class="switch">
                     <input type="checkbox" />
                     <span class="slider"> </span>
