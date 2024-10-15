@@ -5,7 +5,7 @@
             <app-combat-stats-bar
                 [player]="player1"
                 [isOnRightSide]=false
-                [isDamaged]="isPlayer1Damaged"
+                [isDamaged]="combatService.isPlayer1Damaged"
             ></app-combat-stats-bar>
         </div>
         <div class="timer-container">
@@ -21,13 +21,13 @@
             <app-combat-stats-bar
                 [player]="player2"
                 [isOnRightSide]=true
-                [isDamaged]="isPlayer2Damaged"
+                [isDamaged]="combatService.isPlayer2Damaged"
             ></app-combat-stats-bar>
         </div>
     </div>
     <div class="middle-section">
         <div>
-            <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer1Damaged }">
+            <div class="player-avatar-container" [ngClass]="{ 'damaged': combatService.isPlayer1Damaged }">
                 <img class="player-img left-player" src="{{ player1.avatar }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
@@ -41,19 +41,19 @@
         <div class="dice-container">
             <div class="stats-and-dice-value">
                 <div>{{ playerStat1 }}</div>
-                <div>{{ statValue1 }}</div>
+                <div>{{ combatService.statValue1 }}</div>
             </div>
             <app-dice #dice2></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
                 <div>{{ playerStat2 }}</div>
-                <div>{{ statValue2 }}</div>
+                <div>{{ combatService.statValue2 }}</div>
             </div>
             <app-dice #dice1></app-dice>
         </div>
         <div>
-            <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer2Damaged }">
+            <div class="player-avatar-container" [ngClass]="{ 'damaged': combatService.isPlayer2Damaged }">
                 <img class="player-img right-player" src="{{ player2.avatarFlipped }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>

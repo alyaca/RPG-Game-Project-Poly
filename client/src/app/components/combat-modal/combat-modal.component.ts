@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { EVADE_SUCCES_RATE, PLAYERS, COMBAT_TURN_LENGTH } from '@app/constants';
+import { EVADE_SUCCES_RATE, PLAYERS } from '@app/constants';
 import { PlayerObjects } from '@app/interfaces/playerObject';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
+import { CombatLogicService, Roles } from '@app/services/combat-logic.service';
 
 @Component({
     selector: 'app-combat-modal',
@@ -15,6 +16,7 @@ import { TimerComponent } from '@app/components/timer/timer.component';
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
+
 export class CombatModalComponent implements OnInit, AfterViewInit {
     @Input() isInCombat = false;
     @Output() close = new EventEmitter<void>();
@@ -33,26 +35,25 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     totalTime: number = 5;
     timeRemaining: number = 5;
 
-    // put into player object?
-    isPlayer1Damaged: boolean = false;
-    isPlayer2Damaged: boolean = false;
-
     evasionsArray1: number[];
     evasionsArray2: number[];
     // maybe i should rename these variables
     playerStat1: string;
     playerStat2: string;
-    statValue1: number = 0;
-    statValue2: number = 0;
 
-    roles: { [key: number]: { attacker: PlayerObjects; defender: PlayerObjects; activeDice: DiceComponent; inactiveDice: DiceComponent } };
+    roles: Roles;
+
+    constructor(public combatService: CombatLogicService) {}
 
     ngOnInit() {
-        this.resetPlayerHp();
-
+        this.combatService.resetPlayerHp(this.player1, this.player2);
         this.evasionsArray1 = new Array(2).fill(1);
         this.evasionsArray2 = new Array(2).fill(1);
-        this.currPlayerNum = this.determineStartingPlayer();
+        this.currPlayerNum = this.combatService.determineStartingPlayer(this.player1, this.player2);
+        this.initializeDisplay();
+    }
+
+    initializeDisplay(){
         setTimeout(() => {
             const message = this.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
@@ -61,7 +62,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
                 this.currPlayerNum === 1 ? 'Attaque D' + this.player1.attributes.atkDiceMax : 'Défense D' + this.player1.attributes.defDiceMax;
             this.playerStat2 =
                 this.currPlayerNum === 1 ? 'Défense D' + this.player2.attributes.defDiceMax : 'Attaque' + this.player2.attributes.atkDiceMax;
-        }, 100);
+        }, 50);
     }
 
     ngAfterViewInit() {
@@ -71,17 +72,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         };
     }
 
-    resetPlayerHp() {
-        this.player1.attributes.currentHp = this.player1.attributes.totalHp;
-        this.player2.attributes.currentHp = this.player2.attributes.totalHp;
-    }
-
-    determineStartingPlayer(): number {
-        return this.player1.attributes.speed >= this.player2.attributes.speed ? 1 : 2;
-    }
-
     closeModal() {
-        this.resetPlayerHp();
+        this.combatService.resetPlayerHp(this.player1, this.player2);
         this.isInCombat = false;
         this.close.emit();
     }
@@ -93,27 +85,11 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         }, 300);
     }
 
-    dealDamage(defender: PlayerObjects, isDefenderPlayer1: boolean) {
-        defender.attributes.currentHp = Math.max(0, defender.attributes.currentHp - 1);
-        this.setDisplayText('1 dégat infligé sur ' + defender.name);
-
-        this.isPlayer1Damaged = isDefenderPlayer1;
-        this.isPlayer2Damaged = !isDefenderPlayer1;
-    }
-
     attack() {
-        const { attacker, defender, activeDice, inactiveDice } = this.roles[this.currPlayerNum];
-        const isDefenderPlayer1 = this.currPlayerNum === 1;
-
-        this.statValue2 =
-            this.currPlayerNum === 1 ? activeDice.value + this.player1.attributes.attack : inactiveDice.value + this.player1.attributes.defense;
-        this.statValue1 =
-            this.currPlayerNum === 2 ? activeDice.value + this.player2.attributes.attack : inactiveDice.value + this.player2.attributes.defense;
-
-        if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
-            this.dealDamage(defender, isDefenderPlayer1);
-        }
-
+        const { defender } = this.roles[this.currPlayerNum];
+        if(this.combatService.processAttack(this.roles, this.currPlayerNum, this.player1, this.player2)){
+            this.setDisplayText('1 dégat infligé sur ' + defender.name);
+        }   
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.checkIfDuelOver();
@@ -121,20 +97,16 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     triggerTurnDialog() {
         setTimeout(() => {
-            this.isPlayer1Damaged = false;
-            this.isPlayer2Damaged = false;
+            this.combatService.isPlayer1Damaged = false;
+            this.combatService.isPlayer2Damaged = false;
         }, 500);
 
         setTimeout(() => {
             const message = this.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.playerStat1.includes('Attaque')
-                ? 'Défense D' + this.player1.attributes.defDiceMax
-                : 'Attaque D' + this.player1.attributes.atkDiceMax;
-            this.playerStat2 = this.playerStat2.includes('Attaque')
-                ? 'Défense D' + this.player2.attributes.defDiceMax
-                : 'Attaque D' + this.player2.attributes.atkDiceMax;
+            this.playerStat1 = this.playerStat1.includes('Attaque') ? 'Défense D' + this.player1.attributes.defDiceMax: 'Attaque D' + this.player1.attributes.atkDiceMax;
+            this.playerStat2 = this.playerStat2.includes('Attaque') ? 'Défense D' + this.player2.attributes.defDiceMax: 'Attaque D' + this.player2.attributes.atkDiceMax;
         }, 1000);
     }
 
@@ -152,7 +124,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.setDisplayText(displayText);
         setTimeout(() => {
             this.closeModal();
-        }, 6000);
+        }, 3000);
     }
 
     switchTurn() {
@@ -184,7 +156,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     triggerAttack() {
-        this.determineTimerLength();
+        this.totalTime = this.combatService.determineTimerLength(this.evasionsArray1, this.currPlayerNum);
+        this.timeRemaining = this.totalTime;
         if (!this.isGameOngoing) {
             return;
         }
@@ -210,15 +183,5 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     onTimerFinished() {
         this.triggerAttack();
-    }
-
-    determineTimerLength() {
-        if (this.evasionsArray1.length === 0 && this.currPlayerNum !== 1) {
-            this.totalTime = 3;
-            this.timeRemaining = 3;
-        } else {
-            this.totalTime = COMBAT_TURN_LENGTH;
-            this.timeRemaining = COMBAT_TURN_LENGTH;
-        }
     }
 }
