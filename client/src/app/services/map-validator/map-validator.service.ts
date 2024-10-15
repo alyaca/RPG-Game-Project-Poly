@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
@@ -10,10 +9,9 @@ import {
     ObjectType,
     VALIDATION_DURATION,
 } from '@app/constants';
-import { Map } from '@app/interfaces/map';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { GameListService } from '../game-list.service';
 
 export enum TileType {
     Ground = 1,
@@ -34,16 +32,18 @@ export class MapValidatorService {
     apiURL = `${environment.serverUrl}/maps`;
     constructor(
         private dialog: MatDialog,
-        private httpClient: HttpClient,
         private gameObjectService: GameObjectService,
+        private gameListService: GameListService,
     ) {
         this.gameObjectService.initObjectsArray();
     }
 
-    validateMap(array: number[][], title: string, description: string) {
+    validateMap(array: number[][], title: string, description: string, isNewMap: boolean) {
         this.errorMessages = [];
 
-        this.validateName(title);
+        if (isNewMap) {
+            this.validateName(title);
+        }
         this.vlaidateSufficientTerrainTiles(array);
         this.validateAllDoors(array);
         this.validateAllSpawnPointsPlaced();
@@ -70,14 +70,13 @@ export class MapValidatorService {
 
     validateName(nameToCheck: string) {
         const trimmedNameToCheck = nameToCheck.trim();
-        this.httpClient.get<Map[]>(this.apiURL).pipe(
-            map((maps: Map[]) => {
-                const sameName = maps.filter((g) => g.name.trim() === trimmedNameToCheck);
-                if (sameName) {
+        this.gameListService.getAllGames().subscribe((allMaps) => {
+            for (let index in allMaps) {
+                if (allMaps[index].name === trimmedNameToCheck) {
                     this.errorMessages.push('- Une carte avec le même nom existe déjà');
                 }
-            }),
-        );
+            }
+        });
     }
 
     isDoorPlacementValid(array: number[][], row: number, col: number): boolean {

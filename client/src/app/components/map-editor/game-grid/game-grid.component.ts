@@ -47,11 +47,10 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     ) {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 
-        if (this.gameCreationService.isNewGame){
+        if (this.gameCreationService.isNewGame) {
             this.objectsArray = this.gameObjectService.initObjectsArray();
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-        }
-        else {
+        } else {
             this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
             this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
             this.gameObjectService.objectsArray = this.objectsArray;
@@ -61,7 +60,7 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         }
     }
 
-    deepCopyMatrix(matrix: number[][]){
+    deepCopyMatrix(matrix: number[][]) {
         return JSON.parse(JSON.stringify(matrix));
     }
 
@@ -71,18 +70,18 @@ export class GameGridComponent implements OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
-            if(!this.gameCreationService.isNewGame){
+            if (!this.gameCreationService.isNewGame) {
                 this.mapName = this.gameCreationService.loadedMapName;
                 this.mapDescription = this.gameCreationService.loadedMapDescription;
             }
-            
+
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
             this.objectsArray = this.gameObjectService.initObjectsArray();
             this.gameObjectService.resetObjectsCount();
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
-            this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
+            this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription, this.gameCreationService.isNewGame);
             this.sendInfoToMapCreationPage();
         }
     }

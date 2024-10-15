@@ -20,7 +20,7 @@ export class MapEditorService {
     }
 
     isMapChosen() {
-        if(this.gameCreationService.sizeSubject.value){
+        if (this.gameCreationService.sizeSubject.value) {
             return this.gameCreationService.sizeSubject.value;
         }
         return this.mapToEdit;

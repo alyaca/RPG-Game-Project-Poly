@@ -131,11 +131,19 @@ export class MapEditorPageComponent implements OnInit {
                 items: this.items,
                 height: this.height,
             };
-            setTimeout(() => {
-                if (this.mapEditorService.isMapValid()) {
-                    this.saveGameService.saveGame(infoTransferred);
-                }
-            }, CHECK_BEFORE_SAVING_DELAY);
+            if (this.gameCreationService.isNewGame) {
+                setTimeout(() => {
+                    if (this.mapEditorService.isMapValid()) {
+                        this.saveGameService.saveNewGame(infoTransferred);
+                    }
+                }, CHECK_BEFORE_SAVING_DELAY);
+            } else {
+                setTimeout(() => {
+                    if (this.mapEditorService.isMapValid()) {
+                        this.saveGameService.replaceMap(infoTransferred, this.mapEditorService.mapToEdit._id);
+                    }
+                });
+            }
         });
     }
 

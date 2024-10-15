@@ -12,10 +12,16 @@ export class SaveGameService {
 
     constructor(private http: HttpClient) {}
 
-    saveGame(informations: Info) {
+    saveNewGame(informations: Info) {
         const playerNumber = this.getPlayerNumber(informations.height);
-        const mapToStore = this.createMapObject(informations, playerNumber);
+        const mapToStore = this.createMapObject(informations, playerNumber, '');
         return this.http.post(this.apiURL, mapToStore).subscribe();
+    }
+
+    replaceMap(informations: Info, id: String) {
+        const playerNumber = this.getPlayerNumber(informations.height);
+        const mapToReplace = this.createMapObject(informations, playerNumber, id);
+        return this.http.put(this.apiURL, mapToReplace).subscribe();
     }
 
     private getPlayerNumber(height: number): number {
@@ -31,7 +37,23 @@ export class SaveGameService {
         }
     }
 
-    private createMapObject(informations: Info, playerNumber: number): any {
+    private createMapObject(informations: Info, playerNumber: number, id: String | null): any {
+        if (id) {
+            return {
+                _id: id,
+                name: informations.name,
+                description: informations.description,
+                visible: false,
+                mode: 'normal',
+                nbPlayers: playerNumber,
+                image: informations.image,
+                tiles: informations.grid,
+                dimension: informations.height,
+                itemPlacement: informations.items,
+                isSelected: false,
+                lastModification: new Date(),
+            };
+        }
         return {
             name: informations.name,
             description: informations.description,
