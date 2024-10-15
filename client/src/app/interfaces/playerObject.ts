@@ -15,7 +15,7 @@ export interface PlayerObjects {
     name: string;
     victories: number;
     isActive: boolean;
-    statsAndInventory: PlayerStats;
+    attributes: PlayerStats;
 }
 
 export interface PlayerStats {
@@ -26,8 +26,8 @@ export interface PlayerStats {
     maxActionPoints: number;
     actionPoints: number;
     attack: number;
-    atkDice: number;
+    atkDiceMax: number;
     defense: number;
-    defDice: number;
+    defDiceMax: number;
     inventory: GameObject[];
 }

@@ -3,7 +3,7 @@
     <div class="top-section">
         <div class="player-info">
             <app-combat-stats-bar
-                [playerInfo]="playerInfo1"
+                [player]="player1"
                 [isOnRightSide]=false
                 [isDamaged]="isPlayer1Damaged"
             ></app-combat-stats-bar>
@@ -19,7 +19,7 @@
         </div>
         <div class="player-info">
             <app-combat-stats-bar
-                [playerInfo]="playerInfo2"
+                [player]="player2"
                 [isOnRightSide]=true
                 [isDamaged]="isPlayer2Damaged"
             ></app-combat-stats-bar>
@@ -27,7 +27,7 @@
     </div>
     <div class="middle-section">
         <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer1Damaged }">
-            <img class="player-img left-player" src="{{ playerInfo1.avatar }}" alt="right player portrait" />
+            <img class="player-img left-player" src="{{ player1.avatar }}" alt="right player portrait" />
             <div class="damaged-overlay"></div>
         </div>
         <div class="dice-container">
@@ -46,7 +46,7 @@
         </div>
                 
         <div class="player-avatar-container" [ngClass]="{ 'damaged': isPlayer2Damaged }">
-            <img class="player-img right-player" src="{{ playerInfo2.avatarFlipped }}" alt="right player portrait" />
+            <img class="player-img right-player" src="{{ player2.avatarFlipped }}" alt="right player portrait" />
             <div class="damaged-overlay"></div>
         </div>
     </div>

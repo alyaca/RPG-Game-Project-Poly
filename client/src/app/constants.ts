@@ -88,7 +88,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Jar Jar Binks',
         victories: 2,
         isActive: true,
-        statsAndInventory: {
+        attributes: {
             hp: 6,
             currentHp: 4,
             speed: 4,
@@ -96,9 +96,9 @@ export const PLAYERS: PlayerObjects[] = [
             actionPoints: 1,
             movementPointsLeft: 3,
             attack: 4,
-            atkDice: 6,
+            atkDiceMax: 6,
             defense: 4,
-            defDice: 4,
+            defDiceMax: 4,
             inventory: [
                 {
                     id: ObjectType.Trident,
@@ -125,7 +125,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Obi-Wan Kenobi',
         victories: 1,
         isActive: false,
-        statsAndInventory: {
+        attributes: {
             hp: 6,
             currentHp: 4,
             speed: 4,
@@ -133,9 +133,9 @@ export const PLAYERS: PlayerObjects[] = [
             actionPoints: 1,
             movementPointsLeft: 3,
             attack: 4,
-            atkDice: 6,
+            atkDiceMax: 6,
             defense: 4,
-            defDice: 4,
+            defDiceMax: 4,
             inventory: [
                 {
                     id: ObjectType.Trident,
@@ -162,7 +162,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'General Grievous',
         victories: 2,
         isActive: false,
-        statsAndInventory: {
+        attributes: {
             hp: 6,
             currentHp: 4,
             speed: 4,
@@ -170,9 +170,9 @@ export const PLAYERS: PlayerObjects[] = [
             actionPoints: 1,
             movementPointsLeft: 3,
             attack: 4,
-            atkDice: 6,
+            atkDiceMax: 6,
             defense: 4,
-            defDice: 4,
+            defDiceMax: 4,
             inventory: [
                 {
                     id: ObjectType.Trident,
@@ -199,7 +199,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Luke Skywalker',
         victories: 1,
         isActive: false,
-        statsAndInventory: {
+        attributes: {
             hp: 6,
             currentHp: 4,
             speed: 4,
@@ -207,9 +207,9 @@ export const PLAYERS: PlayerObjects[] = [
             actionPoints: 1,
             movementPointsLeft: 3,
             attack: 4,
-            atkDice: 6,
+            atkDiceMax: 6,
             defense: 4,
-            defDice: 4,
+            defDiceMax: 4,
             inventory: [
                 {
                     id: ObjectType.Trident,
@@ -236,7 +236,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Leia Organa',
         victories: 0,
         isActive: false,
-        statsAndInventory: {
+        attributes: {
             hp: 6,
             currentHp: 4,
             speed: 4,
@@ -244,9 +244,9 @@ export const PLAYERS: PlayerObjects[] = [
             actionPoints: 1,
             movementPointsLeft: 3,
             attack: 4,
-            atkDice: 6,
+            atkDiceMax: 6,
             defense: 4,
-            defDice: 4,
+            defDiceMax: 4,
             inventory: [
                 {
                     id: ObjectType.Trident,
@@ -273,7 +273,7 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Chewbacca',
         victories: 2,
         isActive: false,
-        statsAndInventory: {
+        attributes: {
             hp: 6,
             currentHp: 4,
             speed: 4,
@@ -281,9 +281,9 @@ export const PLAYERS: PlayerObjects[] = [
             actionPoints: 1,
             movementPointsLeft: 3,
             attack: 4,
-            atkDice: 6,
+            atkDiceMax: 6,
             defense: 4,
-            defDice: 4,
+            defDiceMax: 4,
             inventory: [
                 {
                     id: ObjectType.Trident,

@@ -8,8 +8,8 @@ export const mockPlayer: PlayerObjects = {
     name: 'Jar Jar Binks',
     victories: 2,
     isActive: true,
-    portrait: '/assets/images/characters/Hephaestus.webp/',
-    statsAndInventory: {
+    avatarFlipped: '/assets/images/characters-flipped/Hephaestus-flipped.webp/',
+    attributes: {
         hp: 6,
         currentHp: 4,
         speed: 4,
@@ -17,9 +17,9 @@ export const mockPlayer: PlayerObjects = {
         actionPoints: 1,
         movementPointsLeft: 3,
         attack: 4,
-        atkDice: 6,
+        atkDiceMax: 6,
         defense: 4,
-        defDice: 4,
+        defDiceMax: 4,
         inventory: [
             {
                 id: ObjectType.Trident,

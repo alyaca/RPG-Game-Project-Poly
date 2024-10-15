@@ -10,7 +10,7 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
     styleUrl: './combat-stats-bar.component.scss',
 })
 export class CombatStatsBarComponent {
-    @Input() playerInfo: PlayerObjects;
+    @Input() player: PlayerObjects;
     @Input() isOnRightSide: boolean;
     @Input() isDamaged: boolean;
 }

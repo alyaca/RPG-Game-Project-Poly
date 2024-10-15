@@ -18,14 +18,14 @@ import { TimerComponent } from '../timer/timer.component';
 export class CombatModalComponent implements OnInit {
     @Input() isInCombat = false;
     @Output() close = new EventEmitter<void>();
-    @ViewChild('dice1') diceComponent1!: DiceComponent;
-    @ViewChild('dice2') diceComponent2!: DiceComponent;
+    @ViewChild('dice1') dice1!: DiceComponent;
+    @ViewChild('dice2') dice2!: DiceComponent;
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
 
-    @Input() playerInfo1: PlayerObjects = PLAYERS[0];
+    @Input() player1: PlayerObjects = PLAYERS[0];
 
-    @Input() playerInfo2: PlayerObjects = PLAYERS[3];
+    @Input() player2: PlayerObjects = PLAYERS[3];
     isGameOngoing: boolean = true;
 
     isPlayer1Damaged: boolean = false;
@@ -46,8 +46,8 @@ export class CombatModalComponent implements OnInit {
     statValue2: number = 0;
 
     ngOnInit() {
-        this.playerInfo1.statsAndInventory.currentHp = this.playerInfo1.statsAndInventory.hp;
-        this.playerInfo2.statsAndInventory.currentHp = this.playerInfo2.statsAndInventory.hp;
+        this.player1.attributes.currentHp = this.player1.attributes.hp;
+        this.player2.attributes.currentHp = this.player2.attributes.hp;
         
 
         this.evasionsArray1 = new Array(2).fill(1);
@@ -57,18 +57,18 @@ export class CombatModalComponent implements OnInit {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.currentPlayerTurn === 1 ? 'Attaque D' +  this.playerInfo1.statsAndInventory.atkDice: 'Défense D' + this.playerInfo1.statsAndInventory.defDice;
-            this.playerStat2 = this.currentPlayerTurn === 1 ? 'Défense D' + this.playerInfo2.statsAndInventory.defDice: 'Attaque' + this.playerInfo2.statsAndInventory.atkDice;
+            this.playerStat1 = this.currentPlayerTurn === 1 ? 'Attaque D' +  this.player1.attributes.atkDiceMax: 'Défense D' + this.player1.attributes.defDiceMax;
+            this.playerStat2 = this.currentPlayerTurn === 1 ? 'Défense D' + this.player2.attributes.defDiceMax: 'Attaque' + this.player2.attributes.atkDiceMax;
         }, 100);
     }
 
     determineStartingPlayer(): number {
-        return this.playerInfo1.statsAndInventory.speed >= this.playerInfo2.statsAndInventory.speed ? 1 : 2;
+        return this.player1.attributes.speed >= this.player2.attributes.speed ? 1 : 2;
     }
 
     closeModal() {
-        this.playerInfo1.statsAndInventory.currentHp = this.playerInfo1.statsAndInventory.hp;
-        this.playerInfo2.statsAndInventory.currentHp = this.playerInfo2.statsAndInventory.hp;
+        this.player1.attributes.currentHp = this.player1.attributes.hp;
+        this.player2.attributes.currentHp = this.player2.attributes.hp;
         this.isInCombat = false;
         this.close.emit();
     }
@@ -81,7 +81,7 @@ export class CombatModalComponent implements OnInit {
     }
 
     dealDamage(defender: PlayerObjects, isDefenderPlayer1: boolean) {
-        defender.statsAndInventory.currentHp = Math.max(0, defender.statsAndInventory.currentHp - 1);
+        defender.attributes.currentHp = Math.max(0, defender.attributes.currentHp - 1);
         this.setDisplayText('1 dégat infligé sur ' + defender.name);
 
         this.isPlayer1Damaged = isDefenderPlayer1;
@@ -89,27 +89,27 @@ export class CombatModalComponent implements OnInit {
     }
 
     attack() {
-        const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
-        const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        const defender = this.currentPlayerTurn === 1 ? this.player1 : this.player2;
+        const attacker = this.currentPlayerTurn === 1 ? this.player2 : this.player1;
 
         const isDefenderPlayer1 = this.currentPlayerTurn === 1;
-        const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1 : this.diceComponent2;
-        const inactiveDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent2 : this.diceComponent1;
+        const activeDice = this.currentPlayerTurn === 1 ? this.dice1 : this.dice2;
+        const inactiveDice = this.currentPlayerTurn === 1 ? this.dice2 : this.dice1;
 
-        console.log(activeDiceComponent.diceValue);
+        console.log(activeDice.diceValue);
 
         this.statValue2 =
             this.currentPlayerTurn === 1
-                ? activeDiceComponent.diceValue + this.playerInfo1.statsAndInventory.attack
-                : inactiveDiceComponent.diceValue + this.playerInfo1.statsAndInventory.defense;
+                ? activeDice.diceValue + this.player1.attributes.attack
+                : inactiveDice.diceValue + this.player1.attributes.defense;
         this.statValue1 =
             this.currentPlayerTurn === 2
-                ? activeDiceComponent.diceValue + this.playerInfo2.statsAndInventory.attack
-                : inactiveDiceComponent.diceValue + this.playerInfo2.statsAndInventory.defense;
+                ? activeDice.diceValue + this.player2.attributes.attack
+                : inactiveDice.diceValue + this.player2.attributes.defense;
 
         if (
-            activeDiceComponent.diceValue + attacker.statsAndInventory.attack >
-            inactiveDiceComponent.diceValue + defender.statsAndInventory.defense
+            activeDice.diceValue + attacker.attributes.attack >
+            inactiveDice.diceValue + defender.attributes.defense
         ) {
             this.dealDamage(defender, isDefenderPlayer1);
         }
@@ -124,17 +124,17 @@ export class CombatModalComponent implements OnInit {
             const message = this.currentPlayerTurn === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.playerStat1.includes('Attaque') ? 'Défense D' + this.playerInfo1.statsAndInventory.defDice : 'Attaque D' + this.playerInfo1.statsAndInventory.atkDice;
-            this.playerStat2 = this.playerStat2.includes('Attaque') ? 'Défense D' + this.playerInfo2.statsAndInventory.defDice : 'Attaque D' + this.playerInfo2.statsAndInventory.atkDice;
+            this.playerStat1 = this.playerStat1.includes('Attaque') ? 'Défense D' + this.player1.attributes.defDiceMax : 'Attaque D' + this.player1.attributes.atkDiceMax;
+            this.playerStat2 = this.playerStat2.includes('Attaque') ? 'Défense D' + this.player2.attributes.defDiceMax : 'Attaque D' + this.player2.attributes.atkDiceMax;
         }, 1000);
 
         this.checkIfDuelOver();
     }
 
     checkIfDuelOver() {
-        if (this.playerInfo2.statsAndInventory.currentHp === 0) {
+        if (this.player2.attributes.currentHp === 0) {
             this.endDuel('Victoire', 'Vous avez gagné le duel');
-        } else if (this.playerInfo1.statsAndInventory.currentHp === 0) {
+        } else if (this.player1.attributes.currentHp === 0) {
             this.endDuel('Défaite', 'Vous avez perdu le duel');
         }
     }
@@ -150,7 +150,7 @@ export class CombatModalComponent implements OnInit {
 
     switchTurn() {
         this.currentPlayerTurn = this.currentPlayerTurn === 1 ? 2 : 1;
-        const nextPlayer = this.currentPlayerTurn === 1 ? this.playerInfo1.name : this.playerInfo2.name;
+        const nextPlayer = this.currentPlayerTurn === 1 ? this.player1.name : this.player2.name;
         this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 
@@ -184,15 +184,15 @@ export class CombatModalComponent implements OnInit {
             return;
         }
         this.switchTurn();
-        const activeDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent1 : this.diceComponent2;
-        const inactiveDiceComponent = this.currentPlayerTurn === 1 ? this.diceComponent2 : this.diceComponent1;
-        const defender = this.currentPlayerTurn === 1 ? this.playerInfo1 : this.playerInfo2;
-        const attacker = this.currentPlayerTurn === 1 ? this.playerInfo2 : this.playerInfo1;
+        const activeDice = this.currentPlayerTurn === 1 ? this.dice1 : this.dice2;
+        const inactiveDice = this.currentPlayerTurn === 1 ? this.dice2 : this.dice1;
+        const defender = this.currentPlayerTurn === 1 ? this.player1 : this.player2;
+        const attacker = this.currentPlayerTurn === 1 ? this.player2 : this.player1;
         
-        activeDiceComponent.rollDice(attacker.statsAndInventory.atkDice);
+        activeDice.rollDice(attacker.attributes.atkDiceMax);
         
         setTimeout(() => {
-            inactiveDiceComponent.rollDice(defender.statsAndInventory.defDice);
+            inactiveDice.rollDice(defender.attributes.defDiceMax);
         }, 200);
         setTimeout(() => {
             this.attack();
