@@ -6,6 +6,9 @@ import { PlayerInfoInventoryComponent } from '@app/components/player-info-invent
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { PLAYERS } from '@app/constants';
 import { PlayerObjects } from '@app/interfaces/playerObject';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-game-page',
@@ -30,6 +33,8 @@ export class GamePageComponent implements AfterViewInit {
     isInCombat = false;
     isTurnStartShowed = true;
 
+    constructor(private router: Router, private dialog: MatDialog) {}
+       
     enableClicks() {
         this.pageDiv.first.nativeElement.id = 'enabled';
     }
@@ -58,5 +63,23 @@ export class GamePageComponent implements AfterViewInit {
     closeCombatModal() {
         this.isInCombat = false;
         this.turnTimerComponent.resumeTimer();
+    }
+
+    handleExit() {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Abandonner la partie?',
+                messages: ["- Êtes-vous certains de vouloir quitter?"],
+                options: ['Quitter', 'Rester'],
+                confirm: true,
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === 'left') {
+                this.router.navigate(['/home']);
+            }
+        });
     }
 }

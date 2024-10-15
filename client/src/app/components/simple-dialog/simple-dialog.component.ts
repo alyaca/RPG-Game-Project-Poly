@@ -14,20 +14,24 @@ import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-mess
 })
 export class SimpleDialogComponent {
     dialogTitle: string = '';
+    options: string[] = ['',''];
+
     constructor(
         public dialogRef: MatDialogRef<SimpleDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { messages: string[]; title: string; confirm: boolean },
+        @Inject(MAT_DIALOG_DATA) public data: { messages: string[]; title: string; confirm: boolean; options: string[] },
         private router: Router,
-    ) {}
+    ) {
+        this.options = data.options;
+    }
 
     onClose() {
-        this.dialogRef.close(this.data.confirm ? 'leave' : 'close');
+        this.dialogRef.close(this.data.confirm ? 'left' : 'close');
         if (this.data.title === 'Sauvegarde réussie') {
             this.router.navigate(['/administration']);
         }
     }
 
     onCancel() {
-        this.dialogRef.close('cancel');
+        this.dialogRef.close('right');
     }
 }

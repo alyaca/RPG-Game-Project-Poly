@@ -31,9 +31,9 @@ describe('SimpleDialogComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should close dialog with "leave" when onClose is called with confirm true', () => {
+    it('should close dialog with "left" when onClose is called with confirm true', () => {
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('leave');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
     });
 
     it('should close dialog with "close" when onClose is called with confirm false', () => {
@@ -50,7 +50,7 @@ describe('SimpleDialogComponent', () => {
     it('should navigate to /administion when title is "Sauvegarde réussie"', () => {
         component.data.title = 'Sauvegarde réussie';
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('leave');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
         expect(mockRouter.navigate).toHaveBeenCalledWith(['/administration']);
     });
 });

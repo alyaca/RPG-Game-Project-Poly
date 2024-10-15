@@ -172,7 +172,7 @@ describe('WaitingPageComponent', () => {
 
     it('should open the dialog and navigate to /home if confirmed', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('leave'));
+        dialogRefSpy.afterClosed.and.returnValue(of('left'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         component.handleExit();
 
@@ -188,7 +188,7 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should not navigate if dialog result is not leave', () => {
+    it('should not navigate if dialog result is not left', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('stay'));
         dialogSpy.open.and.returnValue(dialogRefSpy);

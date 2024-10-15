@@ -81,20 +81,42 @@ export class WaitingPageComponent implements OnInit {
         }
     }
 
-    handleExit() {
+    openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: {
-                title: 'Abandonner la partie?',
-                messages: ["- Vous quitteriez la page d'attente"],
-                confirm: true,
+                title,
+                messages,
+                options,
+                confirm,
             },
         });
-
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'leave') {
+        return dialogRef.afterClosed();
+    }
+    
+    handleExit() {
+        this.openConfirmationDialog(
+            'Abandonner la partie?',
+            ["- Vous quitteriez la page d'attente"],
+            ['Quitter', 'Rester'],
+            true
+        ).subscribe((result) => {
+            if (result === 'left') {
                 this.router.navigate(['/home']);
             }
         });
     }
+    
+    handleStartGame() {
+        this.openConfirmationDialog(
+            'Débuter la partie',
+            ["- Êtes-vous certains de vouloir débuter la partie?"],
+            ['Annuler', 'Confirmer'],
+            true
+        ).subscribe((result) => {
+            if (result === 'right') {
+                this.router.navigate(['/game-page']);
+            }
+        });
+    }    
 }
