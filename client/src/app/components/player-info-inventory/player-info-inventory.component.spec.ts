@@ -60,7 +60,7 @@ describe('PlayerInfoInventoryComponent', () => {
         expect(component.player.attributes.actionPoints).toBe(0);
     });
 
-    it('should update the hp value', () => {
+    it('should update the totalHp value', () => {
         component.player.attributes.currentHp = mockPlayer.attributes.currentHp;
         component.increaseHP();
         expect(component.player.attributes.currentHp).toBe(mockPlayer.attributes.currentHp + 1);
@@ -69,11 +69,11 @@ describe('PlayerInfoInventoryComponent', () => {
         expect(component.player.attributes.currentHp).toBe(mockPlayer.attributes.currentHp);
     });
 
-    it('should not update the hp value if already at max or min', () => {
-        component.player.attributes.hp = mockPlayer.attributes.hp;
-        component.player.attributes.currentHp = mockPlayer.attributes.hp;
+    it('should not update the totalHp value if already at max or min', () => {
+        component.player.attributes.totalHp = mockPlayer.attributes.totalHp;
+        component.player.attributes.currentHp = mockPlayer.attributes.totalHp;
         component.increaseHP();
-        expect(component.player.attributes.currentHp).toBe(component.player.attributes.hp);
+        expect(component.player.attributes.currentHp).toBe(component.player.attributes.totalHp);
 
         component.player.attributes.currentHp = 0;
         component.decreaseHP();

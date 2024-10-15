@@ -5,12 +5,12 @@
             <progress
                 class="hp-bar"
                 value="{{ player.attributes.currentHp }}"
-                max="{{ player.attributes.hp }}"
+                max="{{ player.attributes.totalHp }}"
                 [ngClass]="{ damaged: isDamaged }"
                 #hpBar
             ></progress>
             <div class="individual-stat hp-value" [ngClass]="{ damaged: isDamaged }">
-                {{ player.attributes.currentHp }} / {{ player.attributes.hp }}
+                {{ player.attributes.currentHp }} / {{ player.attributes.totalHp }}
             </div>
         </div>
         <div class="stats">

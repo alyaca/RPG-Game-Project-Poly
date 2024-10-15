@@ -10,7 +10,7 @@ export const mockPlayer: PlayerObjects = {
     isActive: true,
     avatarFlipped: '/assets/images/characters-flipped/Hephaestus-flipped.webp/',
     attributes: {
-        hp: 6,
+        totalHp: 6,
         currentHp: 4,
         speed: 4,
         maxActionPoints: 2,

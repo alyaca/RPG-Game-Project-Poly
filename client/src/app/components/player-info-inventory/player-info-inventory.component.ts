@@ -49,7 +49,7 @@ export class PlayerInfoInventoryComponent {
     }
 
     increaseHP() {
-        if (this.player.attributes.currentHp === this.player.attributes.hp) {
+        if (this.player.attributes.currentHp === this.player.attributes.totalHp) {
             return;
         }
         this.player.attributes.currentHp += 1;

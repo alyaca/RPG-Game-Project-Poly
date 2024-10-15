@@ -89,7 +89,7 @@ export const PLAYERS: PlayerObjects[] = [
         victories: 2,
         isActive: true,
         attributes: {
-            hp: 6,
+            totalHp: 6,
             currentHp: 4,
             speed: 4,
             maxActionPoints: 2,
@@ -126,7 +126,7 @@ export const PLAYERS: PlayerObjects[] = [
         victories: 1,
         isActive: false,
         attributes: {
-            hp: 6,
+            totalHp: 6,
             currentHp: 4,
             speed: 4,
             maxActionPoints: 2,
@@ -163,7 +163,7 @@ export const PLAYERS: PlayerObjects[] = [
         victories: 2,
         isActive: false,
         attributes: {
-            hp: 6,
+            totalHp: 6,
             currentHp: 4,
             speed: 4,
             maxActionPoints: 2,
@@ -200,7 +200,7 @@ export const PLAYERS: PlayerObjects[] = [
         victories: 1,
         isActive: false,
         attributes: {
-            hp: 6,
+            totalHp: 6,
             currentHp: 4,
             speed: 4,
             maxActionPoints: 2,
@@ -237,7 +237,7 @@ export const PLAYERS: PlayerObjects[] = [
         victories: 0,
         isActive: false,
         attributes: {
-            hp: 6,
+            totalHp: 6,
             currentHp: 4,
             speed: 4,
             maxActionPoints: 2,
@@ -274,7 +274,7 @@ export const PLAYERS: PlayerObjects[] = [
         victories: 2,
         isActive: false,
         attributes: {
-            hp: 6,
+            totalHp: 6,
             currentHp: 4,
             speed: 4,
             maxActionPoints: 2,

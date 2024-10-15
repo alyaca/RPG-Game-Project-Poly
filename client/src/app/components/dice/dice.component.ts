@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './dice.component.scss'
 })
 export class DiceComponent {
-  diceValue: number = 1;
+  value: number = 1;
   isRolling: boolean = false;
 
   rollDice(maxValue: number) {
@@ -20,7 +20,7 @@ export class DiceComponent {
     const randomDiceValue = Math.floor(Math.random() * maxValue) + 1;
 
     setTimeout(() => {
-      this.diceValue = randomDiceValue;
+      this.value = randomDiceValue;
       this.isRolling = false;
     }, rollDuration);
   }

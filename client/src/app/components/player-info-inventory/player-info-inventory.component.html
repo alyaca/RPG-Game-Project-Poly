@@ -11,10 +11,10 @@
                 <progress
                     id="hp-bar"
                     value="{{ player.attributes.currentHp }}"
-                    max="{{ player.attributes.hp }}"
+                    max="{{ player.attributes.totalHp }}"
                     #hpBar
                 ></progress>
-                <div class="individual-stat" id="hp-value">{{ player.attributes.currentHp }} / {{ player.attributes.hp }}</div>
+                <div class="individual-stat" id="hp-value">{{ player.attributes.currentHp }} / {{ player.attributes.totalHp }}</div>
             </div>
 
             <div id="stats">

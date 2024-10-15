@@ -19,7 +19,7 @@ export interface PlayerObjects {
 }
 
 export interface PlayerStats {
-    hp: number;
+    totalHp: number;
     currentHp: number;
     speed: number;
     movementPointsLeft: number;
