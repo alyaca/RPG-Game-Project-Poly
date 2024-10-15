@@ -9,11 +9,19 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 
 @Component({
     selector: 'app-game-page',
     standalone: true,
-    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent, CombatModalComponent],
+    imports: [
+        GameGridComponent, 
+        PlayerInfoInventoryComponent, 
+        IngamePlayersSidebarComponent, 
+        TimerComponent, 
+        CombatModalComponent,
+        ChatBoxComponent
+    ],
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })

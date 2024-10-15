@@ -97,10 +97,12 @@ body {
 }
 
 .chat {
-    border: 1px solid white;
+    // border: 1px solid white;
     flex: 0 0 4%;
     //margin-top: 3vh;
-    width: 95%;
+    width: 52.5%;
+
+    margin-left: -38%;
 }
 
 .quit {
