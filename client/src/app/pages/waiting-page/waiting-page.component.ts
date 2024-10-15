@@ -6,10 +6,9 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT, PLAYERS } from '@app/constants';
-import { LobbySize } from '@app/interfaces/playerObject';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
-import { PlayerObjects } from '@app/interfaces/playerObject';
+import { PlayerObjects, LobbySize, Status} from '@app/interfaces/playerObject';
 
 @Component({
     selector: 'app-waiting-page',
@@ -39,8 +38,18 @@ export class WaitingPageComponent implements OnInit {
                 this.chosenGame = game;
             }
         });
+        this.ensureAdminIsFirst(); // may be uneeded in the future
         this.attributeSizeDynamically();
     }
+
+
+    ensureAdminIsFirst() {
+        this.players = [
+            ...this.players.filter(player => player.status === Status.Admin),  
+            ...this.players.filter(player => player.status !== Status.Admin)    
+        ];
+    }
+
 
     ngOnInit() {
         this.accessCode = this.generateAccesCode();
