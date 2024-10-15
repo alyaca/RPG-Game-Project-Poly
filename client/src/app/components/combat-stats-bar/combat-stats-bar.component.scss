@@ -109,3 +109,12 @@ progress::-webkit-progress-value {
         transform: scale(1);
     }
 }
+
+.stats-dice {
+    display: block;
+    margin-left: -2rem;
+    margin-right: 0;
+    padding: 0;
+    height: 1.4rem;
+    width: 1.4rem;
+}
