@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
-import { PlayerConnectionService } from '../player-connection/player-connection.service';
+
 @Injectable({
     providedIn: 'root',
 })

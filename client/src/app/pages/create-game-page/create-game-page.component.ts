@@ -22,9 +22,9 @@ import { Subscription } from 'rxjs';
 export class CreateGamePageComponent implements OnDestroy {
     isCharacterFormVisible: boolean = false;
     selectedGame: Game | null = null;
-    private subscription: Subscription = new Subscription();
     roomCode: string;
     gameName: string;
+    private subscription: Subscription = new Subscription();
 
     constructor(
         private gameListService: GameListService,

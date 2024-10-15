@@ -41,7 +41,7 @@ describe('CreateGamePageComponent', () => {
 
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-        playerConnectionServiceSpy = jasmine.createSpyObj('PlayerConnectionService', ['connect', 'send', 'on']);
+        playerConnectionServiceSpy = jasmine.createSpyObj('PlayerConnectionService', ['connect', 'send', 'on', 'isSocketAlive']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['setRoomId', 'joinRoom']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -136,10 +136,8 @@ describe('CreateGamePageComponent', () => {
     });
 
     it('should call createRoom when joinLobby is called', () => {
-        const createRoomSpy = spyOn(component, 'createRoom').and.callFake(() => {});
-
+        const createRoomSpy = spyOn(component, 'createRoom');
         component.joinLobby();
-
         expect(createRoomSpy).toHaveBeenCalled();
     });
 });

@@ -47,21 +47,21 @@ describe('WaitingPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should navigate to /game-creation if no game is selected in admin', () => {
+    it('should navigate to /home if no game is selected (refresh page)', () => {
         gameListServiceSpy.chosenGameSubject.next(null);
         component.ngOnInit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should navigate to /game-creation if no game is received', () => {
+    it('should navigate to /home if no game is received', () => {
         component.accessCode = '1234';
         component.ngOnInit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should navigate to /game-creation if no room is created', () => {
+    it('should navigate to /home if no room is created', () => {
         component.ngOnInit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
     it('should set chosenGame when a game is selected', () => {
@@ -74,10 +74,9 @@ describe('WaitingPageComponent', () => {
     it('should handle roomDeleted event and navigate to /home', () => {
         component.accessCode = '1234';
         component.chosenGame = mockGames[0];
-
-        playerConnectionServiceSpy.on.and.callFake((event: string, callback: (data: any) => void) => {
+        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'roomDeleted') {
-                callback('Room has been deleted.');
+                callback('Room has been deleted.' as unknown as T);
             }
         });
         component.ngOnInit();
@@ -85,11 +84,18 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should send "leaveRoom" event and navigate to /create-game', () => {
+    it('should call leaveRoom and navigate to the correct route on leftRoom event', () => {
         const roomCode = '1234';
+        const expectedRoute = '/home';
+        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'roomDeleted') {
+                callback(expectedRoute as unknown as T);
+            }
+        });
+
         component.leaveGame(roomCode);
 
         expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('leaveRoom', roomCode);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/create-game']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 });

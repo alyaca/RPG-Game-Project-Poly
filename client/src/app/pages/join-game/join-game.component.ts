@@ -15,9 +15,9 @@ import { Room } from '@common/room';
     styleUrl: './join-game.component.scss',
 })
 export class JoinGameComponent {
-    readonly ERROR_MESSAGES = {
-        INVALID_CODE: 'Le code doit être composé de 4 chiffres',
-        ROOM_NOT_FOUND: 'La partie est inexistante',
+    readonly errorMessages = {
+        invalidCode: 'Le code doit être composé de 4 chiffres',
+        roomNotFound: 'La partie est inexistante',
     };
     accessCode: string;
     isCharacterFormVisible: boolean = false;
@@ -41,7 +41,7 @@ export class JoinGameComponent {
         this.submitForm = true;
         this.errorMessage = '';
         if (!this.isValidCode(accessCode)) {
-            this.errorMessage = this.ERROR_MESSAGES.INVALID_CODE;
+            this.errorMessage = this.errorMessages.invalidCode;
             return;
         }
 
@@ -51,7 +51,7 @@ export class JoinGameComponent {
         });
 
         this.playerConnectionService.on('joinError', () => {
-            this.errorMessage = this.ERROR_MESSAGES.ROOM_NOT_FOUND;
+            this.errorMessage = this.errorMessages.roomNotFound;
         });
     }
 

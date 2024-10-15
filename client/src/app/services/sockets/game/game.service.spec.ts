@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { mockRoom } from '@app/mocks/mock-room';
-import { PlayerConnectionService } from '../player-connection/player-connection.service';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { GameService } from './game.service';
 
 describe('GameService', () => {

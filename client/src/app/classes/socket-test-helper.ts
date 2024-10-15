@@ -1,3 +1,7 @@
+export interface TestEventData {
+    test: string;
+}
+
 export class SocketTestHelper {
     connected = false;
     connect(): void {
@@ -8,13 +12,15 @@ export class SocketTestHelper {
         this.connected = false;
     }
 
-    on(event: string, action: (data: any) => void): void {
+    on(event: string, action: (data: TestEventData) => void): void {
         if (event === 'testEvent') {
             action({ test: 'data' });
         }
     }
 
-    emit(event: string, data: any): void {
-        return;
+    emit(event: string, data: TestEventData): void {
+        if (event === 'testEvent' && data) {
+            return;
+        }
     }
 }

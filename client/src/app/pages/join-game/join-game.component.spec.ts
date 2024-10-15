@@ -5,7 +5,6 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { JoinGameComponent } from './join-game.component';
 
-// TODO : remake all the tests for connection
 describe('JoinGameComponent', () => {
     let component: JoinGameComponent;
     let fixture: ComponentFixture<JoinGameComponent>;
@@ -53,18 +52,18 @@ describe('JoinGameComponent', () => {
         });
 
         it('should be false if the code is not composed of 4 numbers', () => {
-            const code = '12o4';
-            expect(component.isValidCode(code)).toBeFalsy();
+            const roomCode = '12o4';
+            expect(component.isValidCode(roomCode)).toBeFalsy();
         });
 
         it('should be false if the code length is smaller than 4 numbers', () => {
-            const code = '123';
-            expect(component.isValidCode(code)).toBeFalsy();
+            const roomCode = '123';
+            expect(component.isValidCode(roomCode)).toBeFalsy();
         });
 
         it('should be false if the code are not numbers', () => {
-            const code = 'pljd';
-            expect(component.isValidCode(code)).toBeFalsy();
+            const roomCode = 'pljd';
+            expect(component.isValidCode(roomCode)).toBeFalsy();
         });
     });
 
@@ -95,21 +94,19 @@ describe('JoinGameComponent', () => {
             component.joinGame('123');
 
             expect(component.submitForm).toBeTruthy();
-            expect(component.errorMessage).toEqual(component.ERROR_MESSAGES.INVALID_CODE);
+            expect(component.errorMessage).toEqual(component.errorMessages.invalidCode);
             expect(playerConnectionServiceSpy.send).not.toHaveBeenCalled();
         });
 
         it('should set error message when room not found', () => {
             spyOn(component, 'isValidCode').and.returnValue(true);
-            playerConnectionServiceSpy.on.and.callFake((event: string, callback: (data: any) => void) => {
+            playerConnectionServiceSpy.on.and.callFake(<Room>(event: string, callback: (date: Room) => void) => {
                 if (event === 'joinError') {
-                    callback('Join error.');
+                    callback(mockRoom as Room);
                 }
             });
-
-            component.joinGame(mockRoom.roomId);
-
-            expect(component.errorMessage).toEqual(component.ERROR_MESSAGES.ROOM_NOT_FOUND);
+            component.joinGame('1444');
+            expect(component.errorMessage).toEqual(component.errorMessages.roomNotFound);
         });
 
         it('should send joinRoom and handle successful join', () => {
@@ -129,10 +126,4 @@ describe('JoinGameComponent', () => {
             expect(component.onJoinGame).toHaveBeenCalledWith(mockRoom);
         });
     });
-
-    // it('should not set isCharacterFormVisible to true when joinGame is called with a code that does not exist', () => {
-    //     component.accessCode = '7654';
-    //     component.joinGame(component.accessCode);
-    //     expect(component.isCharacterFormVisible).toBeFalse();
-    // });
 });

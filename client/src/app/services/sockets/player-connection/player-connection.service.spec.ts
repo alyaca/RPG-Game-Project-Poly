@@ -57,7 +57,9 @@ describe('PlayerConnectionService', () => {
 
         it('should call socket.on with an event', () => {
             const event = 'helloWorld';
-            const action = () => {};
+            const action = () => {
+                'test';
+            };
             const spy = spyOn(service.socket, 'on');
             service.on(event, action);
             expect(spy).toHaveBeenCalled();
