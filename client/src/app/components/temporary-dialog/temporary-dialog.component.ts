@@ -1,23 +1,23 @@
 import { Component, Input } from '@angular/core';
-
+import { TEMP_DIALOG_DURATION } from '@app/constants';
 @Component({
-  selector: 'app-temporary-dialog',
-  standalone: true,
-  imports: [],
-  templateUrl: './temporary-dialog.component.html',
-  styleUrl: './temporary-dialog.component.scss'
+    selector: 'app-temporary-dialog',
+    standalone: true,
+    imports: [],
+    templateUrl: './temporary-dialog.component.html',
+    styleUrl: './temporary-dialog.component.scss',
 })
 export class TemporaryDialogComponent {
-  @Input() message = '';
-  duration = 1500; 
-  isVisible = false;
+    @Input() message = '';
+    duration = TEMP_DIALOG_DURATION;
+    isVisible = false;
 
-  show(message: string): void {
-    this.message = message;
-    this.isVisible = true;
+    show(message: string): void {
+        this.message = message;
+        this.isVisible = true;
 
-    setTimeout(() => {
-      this.isVisible = false;
-    }, this.duration);
-  }
+        setTimeout(() => {
+            this.isVisible = false;
+        }, this.duration);
+    }
 }

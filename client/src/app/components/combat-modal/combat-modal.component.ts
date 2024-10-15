@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { PLAYERS } from '@app/constants';
+import { EVADE_SUCCES_RATE, PLAYERS, COMBAT_TURN_LENGTH } from '@app/constants';
 import { PlayerObjects } from '@app/interfaces/playerObject';
-import { DiceComponent } from '../dice/dice.component';
-import { SimpleDialogComponent } from '../simple-dialog/simple-dialog.component';
-import { TemporaryDialogComponent } from '../temporary-dialog/temporary-dialog.component';
-import { TimerComponent } from '../timer/timer.component';
+import { DiceComponent } from '@app/components/dice/dice.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
+import { TimerComponent } from '@app/components/timer/timer.component';
 
 @Component({
     selector: 'app-combat-modal',
@@ -15,7 +15,7 @@ import { TimerComponent } from '../timer/timer.component';
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
-export class CombatModalComponent implements OnInit {
+export class CombatModalComponent implements OnInit, AfterViewInit {
     @Input() isInCombat = false;
     @Output() close = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
@@ -47,7 +47,6 @@ export class CombatModalComponent implements OnInit {
 
     roles: { [key: number]: { attacker: PlayerObjects; defender: PlayerObjects; activeDice: DiceComponent; inactiveDice: DiceComponent } };
 
-
     ngOnInit() {
         this.resetPlayerHp();
 
@@ -58,8 +57,10 @@ export class CombatModalComponent implements OnInit {
             const message = this.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.currPlayerNum === 1 ? 'Attaque D' +  this.player1.attributes.atkDiceMax: 'Défense D' + this.player1.attributes.defDiceMax;
-            this.playerStat2 = this.currPlayerNum === 1 ? 'Défense D' + this.player2.attributes.defDiceMax: 'Attaque' + this.player2.attributes.atkDiceMax;
+            this.playerStat1 =
+                this.currPlayerNum === 1 ? 'Attaque D' + this.player1.attributes.atkDiceMax : 'Défense D' + this.player1.attributes.defDiceMax;
+            this.playerStat2 =
+                this.currPlayerNum === 1 ? 'Défense D' + this.player2.attributes.defDiceMax : 'Attaque' + this.player2.attributes.atkDiceMax;
         }, 100);
     }
 
@@ -99,24 +100,17 @@ export class CombatModalComponent implements OnInit {
         this.isPlayer1Damaged = isDefenderPlayer1;
         this.isPlayer2Damaged = !isDefenderPlayer1;
     }
- 
+
     attack() {
         const { attacker, defender, activeDice, inactiveDice } = this.roles[this.currPlayerNum];
         const isDefenderPlayer1 = this.currPlayerNum === 1;
 
         this.statValue2 =
-            this.currPlayerNum === 1
-                ? activeDice.value + this.player1.attributes.attack
-                : inactiveDice.value + this.player1.attributes.defense;
+            this.currPlayerNum === 1 ? activeDice.value + this.player1.attributes.attack : inactiveDice.value + this.player1.attributes.defense;
         this.statValue1 =
-            this.currPlayerNum === 2
-                ? activeDice.value + this.player2.attributes.attack
-                : inactiveDice.value + this.player2.attributes.defense;
+            this.currPlayerNum === 2 ? activeDice.value + this.player2.attributes.attack : inactiveDice.value + this.player2.attributes.defense;
 
-        if (
-            activeDice.value + attacker.attributes.attack >
-            inactiveDice.value + defender.attributes.defense
-        ) {
+        if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
         }
 
@@ -135,8 +129,12 @@ export class CombatModalComponent implements OnInit {
             const message = this.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
 
-            this.playerStat1 = this.playerStat1.includes('Attaque') ? 'Défense D' + this.player1.attributes.defDiceMax : 'Attaque D' + this.player1.attributes.atkDiceMax;
-            this.playerStat2 = this.playerStat2.includes('Attaque') ? 'Défense D' + this.player2.attributes.defDiceMax : 'Attaque D' + this.player2.attributes.atkDiceMax;
+            this.playerStat1 = this.playerStat1.includes('Attaque')
+                ? 'Défense D' + this.player1.attributes.defDiceMax
+                : 'Attaque D' + this.player1.attributes.atkDiceMax;
+            this.playerStat2 = this.playerStat2.includes('Attaque')
+                ? 'Défense D' + this.player2.attributes.defDiceMax
+                : 'Attaque D' + this.player2.attributes.atkDiceMax;
         }, 1000);
     }
 
@@ -174,7 +172,7 @@ export class CombatModalComponent implements OnInit {
     }
 
     attemptEvade() {
-        if (Math.random() < 0.4) {
+        if (Math.random() < EVADE_SUCCES_RATE) {
             this.triggerTempDialog('Évasion réussie, partie nulle');
             this.isGameOngoing = false;
             setTimeout(() => {
@@ -192,9 +190,9 @@ export class CombatModalComponent implements OnInit {
         }
         this.switchTurn();
         const { attacker, defender, activeDice, inactiveDice } = this.roles[this.currPlayerNum];
-        
+
         activeDice.rollDice(attacker.attributes.atkDiceMax);
-        
+
         setTimeout(() => {
             inactiveDice.rollDice(defender.attributes.defDiceMax);
         }, 200);
@@ -205,7 +203,7 @@ export class CombatModalComponent implements OnInit {
     }
 
     triggerTempDialog(message: string) {
-        if(this.isGameOngoing){
+        if (this.isGameOngoing) {
             this.temporaryDialogComponent.show(message);
         }
     }
@@ -219,8 +217,8 @@ export class CombatModalComponent implements OnInit {
             this.totalTime = 3;
             this.timeRemaining = 3;
         } else {
-            this.totalTime = 5;
-            this.timeRemaining = 5;
+            this.totalTime = COMBAT_TURN_LENGTH;
+            this.timeRemaining = COMBAT_TURN_LENGTH;
         }
     }
 }

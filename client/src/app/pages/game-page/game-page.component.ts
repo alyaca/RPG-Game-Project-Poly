@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, QueryList, ViewChildren, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChildren, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
@@ -14,12 +14,13 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent {
+export class GamePageComponent implements AfterViewInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
     @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
+    allPlayers: PlayerObjects[] = PLAYERS;
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
     resetTrigger: boolean = false;
@@ -49,15 +50,13 @@ export class GamePageComponent {
         }
     }
 
-    allPlayers: PlayerObjects[] = PLAYERS;
-
     openCombatModal() {
         this.isInCombat = true;
-        this.turnTimerComponent.pauseTimer()
+        this.turnTimerComponent.pauseTimer();
     }
 
     closeCombatModal() {
         this.isInCombat = false;
-        this.turnTimerComponent.resumeTimer()
+        this.turnTimerComponent.resumeTimer();
     }
 }

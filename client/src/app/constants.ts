@@ -78,6 +78,10 @@ export const TIMER_RADIUS = 45;
 export const MILLISECONDS_IN_SECOND = 1000;
 export const TIMER_CENTER_POSITION = 50;
 
+export const TEMP_DIALOG_DURATION = 1500;
+export const EVADE_SUCCES_RATE = 0.4;
+export const COMBAT_TURN_LENGTH = 5;
+
 // Array for the static players for the game page
 export const PLAYERS: PlayerObjects[] = [
     {

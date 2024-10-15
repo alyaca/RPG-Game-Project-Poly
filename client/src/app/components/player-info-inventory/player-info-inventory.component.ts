@@ -11,7 +11,13 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
     styleUrl: './player-info-inventory.component.scss',
 })
 export class PlayerInfoInventoryComponent {
+    // VERY TEMPORARY, JUST FOR THE STATIC VIEW OF THE PAGE
+    @Input() player: PlayerObjects = PLAYERS[0];
     @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
+    actionPointsArray = Array(this.player.attributes.actionPoints);
+    movementPointsArray = Array(this.player.attributes.movementPointsLeft);
+
+    descriptionPosition: string = 'bottom';
     // check if when the hp changes, the hp bar visual also changes
 
     // Those functions are just for testing purposes to make sure that the page is reactive but,
@@ -62,11 +68,4 @@ export class PlayerInfoInventoryComponent {
         this.player.attributes.currentHp -= 1;
         this.healthBar.nativeElement.value -= 1;
     }
-
-    descriptionPosition: string = 'bottom';
-
-    // VERY TEMPORARY, JUST FOR THE STATIC VIEW OF THE PAGE
-    @Input() player: PlayerObjects = PLAYERS[0];
-    actionPointsArray = Array(this.player.attributes.actionPoints);
-    movementPointsArray = Array(this.player.attributes.movementPointsLeft);
 }
