@@ -5,7 +5,7 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { PLAYERS } from '@app/constants';
-import { PlayerObjects } from '@app/interfaces/playerObject';
+import { PlayerObjects, Status } from '@app/interfaces/playerObject';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -41,7 +41,17 @@ export class GamePageComponent implements AfterViewInit {
     isInCombat = false;
     isTurnStartShowed = true;
 
-    constructor(private router: Router, private dialog: MatDialog) {}
+    constructor(private router: Router, private dialog: MatDialog) {
+        this.determinePlayerTurn();
+    }
+
+    determinePlayerTurn(){
+        this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
+        this.allPlayers = [
+            ...this.allPlayers.filter(player => player.status !== Status.Disconnected), // Connected players
+            ...this.allPlayers.filter(player => player.status === Status.Disconnected)  // Disconnected players
+        ];
+    }
        
     enableClicks() {
         this.pageDiv.first.nativeElement.id = 'enabled';

@@ -12,7 +12,7 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
 })
 export class PlayerInfoInventoryComponent {
     // VERY TEMPORARY, JUST FOR THE STATIC VIEW OF THE PAGE
-    @Input() player: PlayerObjects = PLAYERS[0];
+    @Input() player: PlayerObjects = PLAYERS[2];
     @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
     actionPointsArray = Array(this.player.attributes.actionPoints);
     movementPointsArray = Array(this.player.attributes.movementPointsLeft);

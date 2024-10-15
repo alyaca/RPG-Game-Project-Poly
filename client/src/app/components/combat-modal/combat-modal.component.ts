@@ -23,8 +23,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
 
-    @Input() player1: PlayerObjects = PLAYERS[0];
-    @Input() player2: PlayerObjects = PLAYERS[3];
+    @Input() player1: PlayerObjects = PLAYERS[2];
+    @Input() player2: PlayerObjects = PLAYERS[5];
     isGameOngoing: boolean = true;
 
     displayText: string = '';
