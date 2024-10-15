@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,20 +12,13 @@ import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-mess
     templateUrl: './simple-dialog.component.html',
     styleUrl: './simple-dialog.component.scss',
 })
-export class SimpleDialogComponent implements OnInit {
+export class SimpleDialogComponent {
     dialogTitle: string = '';
     constructor(
         public dialogRef: MatDialogRef<SimpleDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { messages: string[]; title: string; confirm: boolean },
         private router: Router,
     ) {}
-
-    ngOnInit(): void {
-        if (this.data.confirm) {
-            this.data.title = 'Quitter cette page?';
-            this.data.messages = ['Tous changements non sauvegardés seront perdus'];
-        }
-    }
 
     onClose() {
         this.dialogRef.close(this.data.confirm ? 'leave' : 'close');

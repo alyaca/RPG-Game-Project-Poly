@@ -1,0 +1,60 @@
+#chat-input {
+    background: none;
+    color: white;
+    border: 0.075rem solid rgb(135, 125, 79);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin: 0;
+    font-family: Papyrus;
+    font-weight: bold;
+    font-size: 16px;
+    width: 100%;
+}
+
+.past-messages {
+    position: absolute;
+    bottom: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(35, 33, 33, 1),
+        rgba(44, 39, 39, 0.93) 33%,
+        rgba(62, 55, 55, 0.86) 67%,
+        rgba(105, 96, 96, 0.79)
+      );
+    display: none;
+    z-index: 10;
+    width: 222%;
+    height: 1400%;
+
+    display: none;
+}
+
+.past-messages.visible {
+    display: block;
+  }
+
+.chat-box {
+    height: 50%;
+    width: 80%;
+    position: relative;
+    display: inline-block;
+}
+
+.input-container {
+    display: flex;
+    align-items: center; 
+    width: 222%;
+}
+
+.toggle-icon {
+    cursor: pointer; 
+    margin-right: 0.5rem; 
+    font-size: 20px; 
+    color: white; 
+    
+    width: 2.5rem;
+    height: 2rem;
+    background-image: url('/assets/images/icones/chat-message.png');
+    background-size: cover;
+    display: inline-block;
+}

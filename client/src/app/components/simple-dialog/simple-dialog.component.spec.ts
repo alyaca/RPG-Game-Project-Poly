@@ -47,19 +47,6 @@ describe('SimpleDialogComponent', () => {
         expect(dialogRefSpy.close).toHaveBeenCalledWith('cancel');
     });
 
-    it('should set title to "Quitter cette page?" if confirm is true', () => {
-        component.data.confirm = true;
-        component.ngOnInit();
-        expect(component.data.title).toBe('Quitter cette page?');
-    });
-
-    it('should not change title if confirm is false', () => {
-        component.data.title = 'Test Title';
-        component.data.confirm = false;
-        component.ngOnInit();
-        expect(component.data.title).toBe('Test Title');
-    });
-
     it('should navigate to /administion when title is "Sauvegarde réussie"', () => {
         component.data.title = 'Sauvegarde réussie';
         component.onClose();
