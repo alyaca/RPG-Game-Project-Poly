@@ -1,5 +1,5 @@
 import { ObjectType } from '@app/constants';
-import { PlayerObjects, Status } from '@app/interfaces/playerObject';
+import { PlayerObjects, Status, LobbySize } from '@app/interfaces/playerObject';
 
 export const mockPlayer: PlayerObjects = {
     id: 0,
@@ -9,6 +9,7 @@ export const mockPlayer: PlayerObjects = {
     victories: 2,
     isActive: true,
     avatarFlipped: '/assets/images/characters-flipped/Hephaestus-flipped.webp/',
+    size: LobbySize.Medium,
     attributes: {
         totalHp: 6,
         currentHp: 4,
