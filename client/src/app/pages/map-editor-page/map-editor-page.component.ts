@@ -47,7 +47,6 @@ export class MapEditorPageComponent implements OnInit {
         private router: Router,
     ) {
         this.selectedSize = this.mapEditorService.getGridSize();
-
     }
 
     setGrid(newGrid: number[][]) {
@@ -86,8 +85,7 @@ export class MapEditorPageComponent implements OnInit {
         if (!this.gameCreationService.isNewGame) {
             this.mapName = this.gameCreationService.loadedMapName;
             this.mapDescription = this.gameCreationService.loadedMapDescription;
-        }
-        else{
+        } else {
             this.mapName = '';
             this.mapDescription = '';
         }
@@ -149,7 +147,7 @@ export class MapEditorPageComponent implements OnInit {
                     if (this.mapEditorService.isMapValid()) {
                         this.saveGameService.replaceMap(infoTransferred, this.mapEditorService.mapToEdit._id);
                     }
-                });
+                }, CHECK_BEFORE_SAVING_DELAY);
             }
         });
     }

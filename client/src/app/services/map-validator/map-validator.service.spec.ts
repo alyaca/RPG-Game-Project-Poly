@@ -176,7 +176,7 @@ describe('MapValidatorService', () => {
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
-            service.vlaidateSufficientTerrainTiles(mockMap);
+            service.validateSufficientTerrainTiles(mockMap);
             expect(service.errorMessages.length).toBe(0);
         });
 
@@ -185,7 +185,7 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Ground],
                 [TileType.Wall, TileType.Wall],
             ];
-            service.vlaidateSufficientTerrainTiles(mockMap);
+            service.validateSufficientTerrainTiles(mockMap);
             expect(service.errorMessages.length).toBeGreaterThan(0);
         });
     });

@@ -44,7 +44,7 @@ export class MapValidatorService {
         if (isNewMap) {
             this.validateName(title);
         }
-        this.vlaidateSufficientTerrainTiles(array);
+        this.validateSufficientTerrainTiles(array);
         this.validateAllDoors(array);
         this.validateAllSpawnPointsPlaced();
         this.validateTileAccessibility(array);
@@ -104,7 +104,7 @@ export class MapValidatorService {
         }
     }
 
-    vlaidateSufficientTerrainTiles(array: number[][]) {
+    validateSufficientTerrainTiles(array: number[][]) {
         let nTerrainTiles = 0;
         for (const row of array) {
             for (const tile of row) {

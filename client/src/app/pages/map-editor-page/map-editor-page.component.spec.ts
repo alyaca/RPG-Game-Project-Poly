@@ -3,11 +3,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
+import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
+import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION } from '@app/constants';
+import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { TileType } from '@app/services/map-validator/map-validator.service';
+import { MapEditorService } from '@app/services/map-editor.service';
+import { SaveGameService } from '@app/services/save-game.service';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -16,16 +21,32 @@ describe('MapEditorPageComponent', () => {
     let fixture: ComponentFixture<MapEditorPageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
-    let gameObjectService: GameObjectService;
+    let gameObjectServiceSpy: jasmine.SpyObj<GameObjectService>;
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+    let gameObjectsContainerSpy: jasmine.SpyObj<GameObjectsContainerComponent>;
+    let gameGridSpy: jasmine.SpyObj<GameGridComponent>;
+    let saveGameServiceSpy: jasmine.SpyObj<SaveGameService>;
+    let mapEditorServiceSpy: jasmine.SpyObj<MapEditorService>;
 
     beforeEach(async () => {
+        saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveNewGame', 'replaceMap']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray', 'resetObjectsCount', 'removeObjectFromGrid']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+        mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', [
+            'getGridSize',
+            'isMapChosen',
+            'onDragEnd',
+            'getDraggedObject',
+            'isDraggingFromContainer',
+            'isMapValid',
+            'removeObjectFromGrid',
+        ]);
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
                 provideHttpClient(),
-                GameObjectService,
                 {
                     provide: ActivatedRoute,
                     useValue: {
@@ -33,22 +54,44 @@ describe('MapEditorPageComponent', () => {
                         snapshot: { paramMap: { get: () => 'map' } },
                     },
                 },
+                { provide: GameObjectService, useValue: gameObjectServiceSpy },
+                { provide: MapEditorService, useValue: mapEditorServiceSpy },
+                { provide: SaveGameService, useValue: saveGameServiceSpy },
+                { provide: GameGridComponent, useValue: gameGridSpy },
+                { provide: GameObjectsContainerComponent, useValue: gameObjectsContainerSpy },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
                 { provide: Router, useValue: routerSpy },
             ],
         }).compileComponents();
-        gameObjectService = TestBed.inject(GameObjectService);
         fixture = TestBed.createComponent(MapEditorPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        gameObjectService.isDraggingFromContainer = true;
+        mapEditorServiceSpy.onDragEnd.and.callFake(() => {
+            gameObjectServiceSpy.isDraggingFromContainer = false;
+        });
+        gameCreationServiceSpy.loadedMapName = 'map title';
+        gameCreationServiceSpy.loadedMapDescription = 'map description';
     });
 
     it('should create the component', () => {
         expect(component).toBeTruthy();
     });
 
+    describe('ngOnInit', () => {
+        it('should set the name and description if it is an existing map', () => {
+            gameCreationServiceSpy.isNewGame = false;
+            component.ngOnInit();
+            expect(component.mapName).toBe(gameCreationServiceSpy.loadedMapName);
+            expect(component.mapDescription).toBe(gameCreationServiceSpy.loadedMapDescription);
+        });
+    });
+
     describe('drag drop event', () => {
+        beforeEach(() => {
+            gameObjectServiceSpy.draggedObject = mockObjects[0];
+        });
+
         it('should call event.preventDefault on drag over ', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             component.onDragOver(mockEvent);
@@ -62,23 +105,39 @@ describe('MapEditorPageComponent', () => {
         });
 
         it('should set isDraggingFromContainer to false on drag end', () => {
+            gameObjectServiceSpy.isDraggingFromContainer = true;
             component.onDragEnd();
-            expect(gameObjectService.isDraggingFromContainer).toBeFalse();
+            expect(gameObjectServiceSpy.isDraggingFromContainer).toBeFalse();
         });
 
-        it('should call removeObjectFromGrid if gameObject has id', () => {
-            gameObjectService.draggedObject = mockObjects[0];
-            gameObjectService.isDraggingFromContainer = false;
-            spyOn(gameObjectService, 'removeObjectFromGrid');
+        it('should not call removeObjectFromGrid if the object is moving from the container', () => {
+            mapEditorServiceSpy.getDraggedObject.and.returnValue(null);
+            gameObjectServiceSpy.isDraggingFromContainer = true;
+            mapEditorServiceSpy.isDraggingFromContainer.and.returnValue(true);
             const event = new DragEvent('drop');
 
             component.onDropOutside(event);
+            expect(mapEditorServiceSpy.removeObjectFromGrid).not.toHaveBeenCalled();
+        });
 
-            expect(gameObjectService.removeObjectFromGrid).toHaveBeenCalledWith(mockObjects[0]);
+        it('should call removeObjectFromGrid if gameObject has id', () => {
+            mapEditorServiceSpy.getDraggedObject.and.returnValue(mockObjects[0]);
+            gameObjectServiceSpy.isDraggingFromContainer = false;
+            const event = new DragEvent('drop');
+
+            component.onDropOutside(event);
+            expect(mapEditorServiceSpy.removeObjectFromGrid).toHaveBeenCalled();
         });
     });
 
     describe('handleReset', () => {
+        it('should set the mapName and mapDescription when modifying a map', () => {
+            gameCreationServiceSpy.isNewGame = false;
+            component.handleReset();
+            expect(component.mapName).toBe(gameCreationServiceSpy.loadedMapName);
+            expect(component.mapDescription).toBe(gameCreationServiceSpy.loadedMapDescription);
+        });
+
         it('should reset the map name and description when handleReset is called', () => {
             spyOn(component, 'updateMapName');
             spyOn(component, 'updateMapDescription');
@@ -87,6 +146,13 @@ describe('MapEditorPageComponent', () => {
             setTimeout(() => {
                 expect(component.resetTrigger).toBeFalse();
             }, 0);
+        });
+
+        it("should set the map name and description to empty string when we're creating a new map", () => {
+            gameCreationServiceSpy.isNewGame = true;
+            component.handleReset();
+            expect(component.mapName).toBe('');
+            expect(component.mapDescription).toBe('');
         });
     });
 
@@ -136,34 +202,8 @@ describe('MapEditorPageComponent', () => {
 
     describe('Setters', () => {
         it('should set the grid attribute correctly', () => {
-            const mockGridValue = [
-                [
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                ],
-                [
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                    TileType.Ground,
-                ],
-            ];
-            component.setGrid(mockGridValue);
-            expect(component.tiles).toBe(mockGridValue);
+            component.setGrid(dummyMap.tiles);
+            expect(component.tiles).toBe(dummyMap.tiles);
         });
 
         it('should set the height attribute correctly', () => {
@@ -188,6 +228,71 @@ describe('MapEditorPageComponent', () => {
             const saveButton = fixture.debugElement.query(By.css('#save-button'));
             saveButton.triggerEventHandler('click');
             expect(component.startSaving).toHaveBeenCalled();
+        });
+
+        it('should call saveNewGame if the map is valid', (done) => {
+            gameCreationServiceSpy.isNewGame = true;
+            mapEditorServiceSpy.isMapValid.and.returnValue(true);
+            try {
+                component.startSaving();
+            } catch (error) {
+                expect(error).toBeDefined();
+                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
+                done();
+            }
+            setTimeout(() => {
+                expect(saveGameServiceSpy.saveNewGame).toHaveBeenCalled();
+                done();
+            }, TEST_VALIDATION_DURATION);
+        });
+
+        it("should call replaceMap if the map is valid and we're modifying an existing one", (done) => {
+            mapEditorServiceSpy.mapToEdit = dummyMap;
+            gameCreationServiceSpy.isNewGame = false;
+            mapEditorServiceSpy.isMapValid.and.returnValue(true);
+            try {
+                component.startSaving();
+            } catch (error) {
+                expect(error).toBeDefined();
+                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
+                done();
+            }
+            setTimeout(() => {
+                expect(saveGameServiceSpy.replaceMap).toHaveBeenCalled();
+                done();
+            }, TEST_VALIDATION_DURATION);
+        });
+
+        it('should not call saveNewGame if the map is not valid', (done) => {
+            gameCreationServiceSpy.isNewGame = true;
+            mapEditorServiceSpy.isMapValid.and.returnValue(false);
+            try {
+                component.startSaving();
+            } catch (error) {
+                expect(error).toBeDefined();
+                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
+                done();
+            }
+            setTimeout(() => {
+                expect(saveGameServiceSpy.saveNewGame).not.toHaveBeenCalled();
+                done();
+            }, TEST_VALIDATION_DURATION);
+        });
+
+        it('should not call replaceMap if the map is not valid', (done) => {
+            mapEditorServiceSpy.isMapValid.and.returnValue(false);
+            gameCreationServiceSpy.isNewGame = false;
+            try {
+                component.startSaving();
+            } catch (error) {
+                expect(error).toBeDefined();
+                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
+                done();
+            }
+            setTimeout(() => {
+                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
+                done();
+            }, TEST_VALIDATION_DURATION);
         });
     });
 });
