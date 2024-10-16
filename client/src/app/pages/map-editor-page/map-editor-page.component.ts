@@ -47,6 +47,7 @@ export class MapEditorPageComponent implements OnInit {
         private router: Router,
     ) {
         this.selectedSize = this.mapEditorService.getGridSize();
+
     }
 
     setGrid(newGrid: number[][]) {

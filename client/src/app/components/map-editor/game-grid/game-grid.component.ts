@@ -26,6 +26,9 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
 
+    @Output() mapNameChange = new EventEmitter<string>();
+    @Output() mapDescriptionChange = new EventEmitter<string>();
+
     tilesGrid: number[][];
     objectsArray: number[][];
     gridSize: number;
@@ -54,9 +57,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
             this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
             this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
             this.gameObjectService.objectsArray = this.objectsArray;
-
-            // this.mapName = this.gameCreationService.loadedMapName;
-            // this.mapDescription = this.gameCreationService.loadedMapDescription;
         }
     }
 
@@ -74,7 +74,6 @@ export class GameGridComponent implements OnChanges, OnDestroy {
                 this.mapName = this.gameCreationService.loadedMapName;
                 this.mapDescription = this.gameCreationService.loadedMapDescription;
             }
-
             this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
             this.objectsArray = this.gameObjectService.initObjectsArray();
             this.gameObjectService.resetObjectsCount();
@@ -90,6 +89,9 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         this.gridChange.emit(this.tilesGrid);
         this.itemsChange.emit(this.objectsArray);
         this.heightChange.emit(this.gridSize);
+
+        this.mapNameChange.emit(this.mapName);
+        this.mapDescriptionChange.emit(this.mapDescription);
     }
 
     onDragStart(event: DragEvent, row: number, col: number) {
