@@ -56,14 +56,17 @@ export class RoomService {
         return this.isRoomActive(roomCode) ? roomCode : null;
     }
 
+    getRoom(client: Socket) {
+        const roomCode = this.getRoomId(client);
+        return this.rooms.get(roomCode);
+    }
+
     joinRoom(socket: Socket, roomId: string) {
-        const room = this.rooms.get(roomId);
         if (!this.isRoomActive(roomId)) {
             return;
         }
         socket.join(roomId);
         socket.data.roomCode = roomId;
-        this.io.to(roomId).emit('joinedRoom', room);
     }
 
     private generateRoomCode(): string {

@@ -5,4 +5,5 @@ export enum RoomEvents {
     LeaveRoom = 'leaveRoom',
     PlayerSelection = 'playerSelection',
     ChangeLockRoom = 'changeLockRoom',
+    IsLocked = 'isLocked',
 }

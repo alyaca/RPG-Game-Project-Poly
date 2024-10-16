@@ -66,6 +66,7 @@ export class WaitingPageComponent implements OnInit {
     }
 
     onLockChange() {
+        this.gameService.isRoomLocked = this.isLocked;
         this.playerConnectionService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 

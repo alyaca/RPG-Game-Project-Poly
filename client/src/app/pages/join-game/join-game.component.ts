@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { Room } from '@common/room';
@@ -29,6 +31,7 @@ export class JoinGameComponent {
         private playerConnectionService: PlayerConnectionService,
         private router: Router,
         private gameService: GameService,
+        private dialog: MatDialog,
     ) {
         this.connect();
     }
@@ -70,9 +73,32 @@ export class JoinGameComponent {
     }
 
     joinLobby(accessCode: string) {
-        this.router.navigate(['/waiting-page'], { queryParams: { roomCode: accessCode } });
+        this.playerConnectionService.send('isLocked', accessCode);
+        this.playerConnectionService.on('isRoomLocked', (isLocked) => {
+            if (isLocked) {
+                this.handleLockedRoom();
+            } else {
+                this.router.navigate(['/waiting-page'], { queryParams: { roomCode: accessCode } });
+            }
+        });
     }
 
+    handleLockedRoom() {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Partie verrouillée',
+                messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
+                confirm: true,
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === 'leave') {
+                this.router.navigate(['/home']);
+            }
+        });
+    }
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
         this.playerConnectionService.send('leaveRoom', roomCode);

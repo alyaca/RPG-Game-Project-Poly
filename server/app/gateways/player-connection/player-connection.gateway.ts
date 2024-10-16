@@ -28,10 +28,13 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     @SubscribeMessage(RoomEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
         const connectionRes = this.gameService.connectPlayerToGame(roomId);
+        const room = this.roomService.rooms.get(roomId);
+        this.roomService.joinRoom(client, roomId);
         if (connectionRes.errorType) {
+            this.roomService.leaveRoom(roomId, client);
             client.emit(connectionRes.event, connectionRes.errorType);
         } else {
-            this.roomService.joinRoom(client, roomId);
+            client.emit(connectionRes.event, room);
             this.logger.debug(`client ${client.id} joined room ${roomId}`); // for debug
         }
     }
@@ -53,6 +56,12 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleLockRoom(client: Socket, data: { isLocked: boolean }) {
         const roomId = this.roomService.getRoomId(client);
         this.gameService.toggleLockRoom(roomId, data.isLocked);
+    }
+
+    @SubscribeMessage(RoomEvents.IsLocked)
+    handleIsRoomLocked(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        client.emit('isRoomLocked', room.isLocked);
     }
 
     onModuleInit() {
