@@ -24,6 +24,7 @@ import { Game } from '@common/game';
 export class WaitingPageComponent implements OnInit {
     accessCode: string;
     chosenGame: Game;
+    isLocked: boolean = false;
 
     // sample player lobby (to be generated dynamically later)
     // see app/mocks/mock-lobby-players.ts
@@ -62,6 +63,10 @@ export class WaitingPageComponent implements OnInit {
                 }
             });
         });
+    }
+
+    onLockChange() {
+        this.playerConnectionService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 
     attributeSizeDynamically() {

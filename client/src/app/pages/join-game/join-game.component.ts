@@ -6,7 +6,6 @@ import { CharacterCreatorComponent } from '@app/components/character-creator/cha
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { Room } from '@common/room';
-
 @Component({
     selector: 'app-join-game',
     standalone: true,
@@ -15,10 +14,11 @@ import { Room } from '@common/room';
     styleUrl: './join-game.component.scss',
 })
 export class JoinGameComponent {
-    readonly errorMessages = {
-        invalidCode: 'Le code doit être composé de 4 chiffres',
-        roomNotFound: 'La partie est inexistante',
-    };
+    readonly errorMessagesConnection = new Map<string, string>([
+        ['invalidCode', 'Le code doit être composé de 4 chiffres'],
+        ['roomNotFound', 'La partie est inexistante'],
+        ['roomLocked', 'La partie est verrouillée'],
+    ]);
     accessCode: string;
     isCharacterFormVisible: boolean = false;
     isJoined: boolean = false;
@@ -41,7 +41,7 @@ export class JoinGameComponent {
         this.submitForm = true;
         this.errorMessage = '';
         if (!this.isValidCode(accessCode)) {
-            this.errorMessage = this.errorMessages.invalidCode;
+            this.setErrorMessage('invalidCode');
             return;
         }
 
@@ -49,10 +49,17 @@ export class JoinGameComponent {
         this.playerConnectionService.on<Room>('joinedRoom', (roomInfo: Room) => {
             this.onJoinGame(roomInfo);
         });
-
-        this.playerConnectionService.on('joinError', () => {
-            this.errorMessage = this.errorMessages.roomNotFound;
+        this.playerConnectionService.on('joinError', (res: string) => {
+            this.setErrorMessage(res);
         });
+    }
+
+    setErrorMessage(errorType?: string) {
+        if (!errorType) {
+            return;
+        }
+        const message = this.errorMessagesConnection.get(errorType);
+        if (message) this.errorMessage = message;
     }
 
     onJoinGame(roomInfo: Room) {

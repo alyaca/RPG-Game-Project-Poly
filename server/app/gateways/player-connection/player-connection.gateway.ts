@@ -1,3 +1,4 @@
+import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -12,8 +13,9 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     private server: Server;
 
     constructor(
-        private readonly roomService: RoomService,
-        private readonly logger: Logger,
+        private roomService: RoomService,
+        private logger: Logger,
+        private gameService: GameService,
     ) {}
 
     @SubscribeMessage(RoomEvents.CreateRoom)
@@ -25,8 +27,13 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     @SubscribeMessage(RoomEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
-        this.roomService.joinRoom(client, roomId);
-        this.logger.debug(`client ${client.id} try joined room ${roomId}`); // for debug
+        const connectionRes = this.gameService.connectPlayerToGame(roomId);
+        if (connectionRes.errorType) {
+            client.emit(connectionRes.event, connectionRes.errorType);
+        } else {
+            this.roomService.joinRoom(client, roomId);
+            this.logger.debug(`client ${client.id} joined room ${roomId}`); // for debug
+        }
     }
 
     @SubscribeMessage(RoomEvents.LeaveRoom)
@@ -40,6 +47,12 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
             client.emit('leftRoom', isAdmin);
             this.roomService.leaveRoom(room, client);
         }
+    }
+
+    @SubscribeMessage(RoomEvents.ChangeLockRoom)
+    handleLockRoom(client: Socket, data: { isLocked: boolean }) {
+        const roomId = this.roomService.getRoomId(client);
+        this.gameService.toggleLockRoom(roomId, data.isLocked);
     }
 
     onModuleInit() {

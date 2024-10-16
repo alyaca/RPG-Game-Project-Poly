@@ -26,7 +26,7 @@
             <div id="lock-container">
                 <p class="lock-text">Verrouiller la partie</p>
                 <label class="switch">
-                    <input type="checkbox" />
+                    <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" />
                     <span class="slider"> </span>
                 </label>
             </div>

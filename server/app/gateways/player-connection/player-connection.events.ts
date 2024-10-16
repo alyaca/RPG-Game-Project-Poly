@@ -4,4 +4,5 @@ export enum RoomEvents {
     JoinRoom = 'joinRoom',
     LeaveRoom = 'leaveRoom',
     PlayerSelection = 'playerSelection',
+    ChangeLockRoom = 'changeLockRoom',
 }
