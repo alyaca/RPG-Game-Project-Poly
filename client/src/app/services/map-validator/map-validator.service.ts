@@ -33,7 +33,7 @@ export class MapValidatorService {
     constructor(
         private dialog: MatDialog,
         private gameObjectService: GameObjectService,
-        private gameListService: GameListService,
+        public gameListService: GameListService,
     ) {
         this.gameObjectService.initObjectsArray();
     }
@@ -143,7 +143,7 @@ export class MapValidatorService {
         ];
     }
 
-    private findStartPoint(array: number[][]): { row: number; col: number } | null {
+    findStartPoint(array: number[][]): { row: number; col: number } | null {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] !== TileType.Wall) {
@@ -201,7 +201,7 @@ export class MapValidatorService {
         }
     }
 
-    private isTitleValidLength(title: string): boolean {
+    isTitleValidLength(title: string): boolean {
         return title.length >= MIN_LEN_MAP_TITLE && title.length <= MAX_LEN_MAP_TITLE;
     }
 
@@ -213,7 +213,7 @@ export class MapValidatorService {
         }
     }
 
-    private isDescriptionValid(description: string): boolean {
+    isDescriptionValid(description: string): boolean {
         return description.length >= MIN_LEN_MAP_DESCRIPTION && description.length <= MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
     }
 
