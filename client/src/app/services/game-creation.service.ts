@@ -37,4 +37,6 @@ export class GameCreationService {
             return SIZE_LARGE_MAP;
         }
     }
+
+    
 }

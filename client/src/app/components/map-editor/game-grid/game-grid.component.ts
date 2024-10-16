@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -14,7 +14,7 @@ import { ToolService } from '@app/services/tool/tool.service';
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
-export class GameGridComponent implements OnChanges, OnDestroy {
+export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
@@ -44,7 +44,9 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         public tileService: TileService,
         private gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
-    ) {
+    ) {}
+
+    ngOnInit(){
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 
         if (this.gameCreationService.isNewGame) {
@@ -58,6 +60,9 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     }
 
     deepCopyMatrix(matrix: number[][]) {
+        if (!matrix) {
+            return []; 
+        }
         return JSON.parse(JSON.stringify(matrix));
     }
 
