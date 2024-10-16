@@ -6,9 +6,7 @@ import { GameObjectComponent } from '@app/components/map-editor/game-object/game
 import { GameObject } from '@app/interfaces/gameObject';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
-
 import { GameCreationService } from '@app/services/game-creation.service';
-// import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-game-objects-container',
@@ -38,9 +36,6 @@ export class GameObjectsContainerComponent implements OnInit {
         if(!this.gameCreationService.isNewGame){
             this.gameObjectService.loadMapObjectCount();
         }
-        // this.itemContainerChangeSubscription = this.gameObjectService.itemContainerChangeTriggered$.subscribe(() => {
-        //     this.gameObjectService.loadMapObjectCount()
-        // });
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
@@ -76,8 +71,4 @@ export class GameObjectsContainerComponent implements OnInit {
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
-
-    // ngOnDestroy() {
-    //     this.itemContainerChangeSubscription.unsubscribe();
-    // }
 }

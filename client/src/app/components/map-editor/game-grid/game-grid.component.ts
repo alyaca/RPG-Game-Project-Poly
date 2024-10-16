@@ -75,7 +75,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (!this.gameCreationService.isNewGame){
                 this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
                 this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
-                // this.gameObjectService.triggerItemContainerChange();
+                this.gameObjectService.objectsArray = this.objectsArray;
                 this.gameObjectService.loadMapObjectCount();
             }
             else{   
