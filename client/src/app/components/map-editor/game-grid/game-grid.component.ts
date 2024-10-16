@@ -68,14 +68,17 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
             if (!this.gameCreationService.isNewGame){
-                this.objectsArray = this.gameCreationService.loadedObjects;
+                this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
+                this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
                 // this.gameObjectService.triggerItemContainerChange();
+                this.gameObjectService.loadMapObjectCount();
             }
             else{   
                 this.objectsArray = this.gameObjectService.initObjectsArray();
+                this.gameObjectService.resetObjectsCount();
+                this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
             }
-            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-            this.gameObjectService.resetObjectsCount();
+            
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {

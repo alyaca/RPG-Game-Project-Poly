@@ -88,8 +88,8 @@ export class MapEditorPageComponent implements OnInit {
             this.mapDescription = this.gameCreationService.loadedMapDescription;
         }
         else{
-            this.mapName = "";
-            this.mapDescription = "";
+            this.mapName = '';
+            this.mapDescription = '';
         }
         setTimeout(() => (this.resetTrigger = false), 0);
     }
