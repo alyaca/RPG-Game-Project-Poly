@@ -1,6 +1,6 @@
-import { Map } from '@app/interfaces/map';
+import { Game } from '@common/game';
 
-export const mockGames: Map[] = [
+export const mockGames: Game[] = [
     {
         _id: '1',
         name: 'Map1',

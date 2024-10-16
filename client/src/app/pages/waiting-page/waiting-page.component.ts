@@ -1,57 +1,67 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
-import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT } from '@app/constants';
-import { Map } from '@app/interfaces/map';
-import { GameListService } from '@app/services/game-list.service';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
+import { MAX_PLAYER_SIZE_INT } from '@app/constants';
 import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { MatDialog } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { GameListService } from '@app/services/game-list.service';
+import { GameService } from '@app/services/sockets/game/game.service';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Game } from '@common/game';
 
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [RouterLink, CommonModule, LobbyPlayerComponent, ChatBoxComponent],
+    imports: [RouterLink, CommonModule, LobbyPlayerComponent, ChatBoxComponent, FormsModule],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
 export class WaitingPageComponent implements OnInit {
-    accessCode: string = '';
-    maxRandom = MAX_ACCESS_CODE_VALUE;
-    chosenGame: Map;
+    accessCode: string;
+    chosenGame: Game;
 
     // sample player lobby (to be generated dynamically later)
     // see app/mocks/mock-lobby-players.ts
     players: LobbyPlayer[] = mockLobbyPlayers;
 
-    private readonly accesCodeLength = ACCESS_CODE_LENGTH;
-
     constructor(
-        private gameListService: GameListService,
         private router: Router,
+        private playerConnectionService: PlayerConnectionService,
+        private gameService: GameService,
+        private gameListService: GameListService,
         private dialog: MatDialog,
     ) {
-        this.gameListService.chosenGameSubject.subscribe((game: Map | null) => {
+        this.gameListService.chosenGameSubject.subscribe((game: Game | null) => {
             if (game) {
                 this.chosenGame = game;
             }
         });
         this.attributeSizeDynamically();
+        this.accessCode = this.gameService.roomId;
+        this.chosenGame = this.gameService.selectedGame;
     }
 
     ngOnInit() {
-        this.accessCode = this.generateAccesCode();
-        if (!this.gameListService.chosenGameSubject.getValue()) {
-            this.router.navigate(['/game-creation']);
+        if (!this.accessCode || !this.chosenGame) {
+            this.router.navigate(['/home']);
         }
-    }
 
-    generateAccesCode(): string {
-        const code = Math.floor(Math.random() * this.maxRandom);
-        return code.toString().padStart(this.accesCodeLength, '0');
+        this.playerConnectionService.on<string>('roomDeleted', (message: string) => {
+            const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
+                disableClose: true,
+                data: { title: 'Partie annulée', messages: [message] },
+            });
+            dialogNavigate.afterClosed().subscribe((result) => {
+                if (result === 'close') {
+                    this.router.navigate(['/home']);
+                }
+            });
+        });
     }
 
     attributeSizeDynamically() {
@@ -81,7 +91,7 @@ export class WaitingPageComponent implements OnInit {
         }
     }
 
-    handleExit() {
+    handleExit(accessCode: string) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: {
@@ -93,6 +103,17 @@ export class WaitingPageComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'leave') {
+                this.leaveGame(accessCode);
+            }
+        });
+    }
+
+    leaveGame(accessCode: string) {
+        this.playerConnectionService.send('leaveRoom', accessCode);
+        this.playerConnectionService.on('leftRoom', (isAdmin) => {
+            if (isAdmin) {
+                this.router.navigate(['/game-creation']);
+            } else {
                 this.router.navigate(['/home']);
             }
         });

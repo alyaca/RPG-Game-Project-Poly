@@ -3,10 +3,10 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
-import { Map } from '@app/interfaces/map';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameListService } from '@app/services/game-list.service';
 import { MapEditorService } from '@app/services/map-editor.service';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { Game } from '@common/game';
 
 @Component({
     selector: 'app-game-list',
@@ -17,30 +17,30 @@ import { GameCreationService } from '@app/services/game-creation.service';
 })
 export class GameListComponent implements OnInit {
     @Input() usingPage: string = '';
-    games: Map[] = [];
-    gameSelected: Map | null = null;
+    games: Game[] = [];
+    gameSelected: Game | null = null;
     private gameGridService = inject(MapEditorService);
 
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
         private router: Router,
-        private gameCreationService: GameCreationService
+        private gameCreationService: GameCreationService,
     ) {}
 
-    selectGame(game: Map) {
+    selectGame(game: Game) {
         this.gameListService.setSelectedGame(this.usingPage, game, this.games);
     }
 
     getGames() {
         this.gameListService.getGames(this.usingPage).subscribe({
-            next: (gamesFetched: Map[]) => {
+            next: (gamesFetched: Game[]) => {
                 this.games = gamesFetched;
             },
         });
     }
 
-    getTrimedDate(game: Map) {
+    getTrimedDate(game: Game) {
         const date = new Date(game.lastModification);
 
         return (
@@ -60,7 +60,7 @@ export class GameListComponent implements OnInit {
         this.getGames();
     }
 
-    changeVisibility(game: Map) {
+    changeVisibility(game: Game) {
         this.gameListService.changeVisibility(game).subscribe({
             next: (result: boolean) => {
                 if (result === false) {
@@ -70,7 +70,7 @@ export class GameListComponent implements OnInit {
         });
     }
 
-    deleteGame(game: Map) {
+    deleteGame(game: Game) {
         this.gameListService.deleteGame(game).subscribe({
             next: (result: boolean) => {
                 if (result) {
@@ -88,7 +88,7 @@ export class GameListComponent implements OnInit {
         });
     }
 
-    editGame(game: Map) {
+    editGame(game: Game) {
         this.gameGridService.setMapToEdit(game);
         this.gameCreationService.setSelectedSize(this.convertMapDimension(game));
         this.gameCreationService.isNewGame = false;
@@ -103,18 +103,15 @@ export class GameListComponent implements OnInit {
         this.router.navigate(['/edit-map']);
     }
 
-    convertMapDimension(game: Map): string{
-        if(game.dimension === 10){
-            return "small";
-        }
-        else if(game.dimension === 15){
-            return "medium";
-        }
-        else if(game.dimension === 20){
-            return "large";
-        }
-        else{
-            return "none"
+    convertMapDimension(game: Game): string {
+        if (game.dimension === 10) {
+            return 'small';
+        } else if (game.dimension === 15) {
+            return 'medium';
+        } else if (game.dimension === 20) {
+            return 'large';
+        } else {
+            return 'none';
         }
     }
 

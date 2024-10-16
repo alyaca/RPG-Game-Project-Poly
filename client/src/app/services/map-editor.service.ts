@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { GameObject } from '@app/interfaces/gameObject';
-import { Map } from '@app/interfaces/map';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
+import { Game } from '@common/game';
 @Injectable({
     providedIn: 'root',
 })
@@ -11,7 +11,7 @@ export class MapEditorService {
     private mapValidator = inject(MapValidatorService);
     private gameObjectService = inject(GameObjectService);
     private gameCreationService = inject(GameCreationService);
-    mapToEdit: Map;
+    mapToEdit: Game;
 
     constructor() {}
 
@@ -45,7 +45,7 @@ export class MapEditorService {
     isMapValid() {
         return this.mapValidator.validMap;
     }
-    setMapToEdit(map: Map) {
+    setMapToEdit(map: Game) {
         this.mapToEdit = map;
     }
 }

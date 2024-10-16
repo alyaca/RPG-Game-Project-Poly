@@ -1,8 +1,8 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
+import { Game } from '@common/game';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { GameListService } from './game-list.service';
@@ -11,7 +11,7 @@ describe('GameListService', () => {
     let httpMock: HttpTestingController;
     let service: GameListService;
     const allVisibleMapsUrl = `${environment.serverUrl}/maps/visible`;
-    let selectedGameSubject: BehaviorSubject<Map | null>;
+    let selectedGameSubject: BehaviorSubject<Game | null>;
     const allMapsApiUrl = `${environment.serverUrl}/maps`;
 
     beforeEach(() => {
@@ -33,7 +33,7 @@ describe('GameListService', () => {
     });
 
     it('should get all visible maps', () => {
-        const mockMaps: Map[] = [
+        const mockMaps: Game[] = [
             {
                 _id: 'abcdefg',
                 name: 'Map1',
@@ -61,7 +61,7 @@ describe('GameListService', () => {
     });
 
     it('should deselect all games and select a new game', () => {
-        const gameToSelect: Map = { ...mockGames[0] };
+        const gameToSelect: Game = { ...mockGames[0] };
 
         spyOn(service, 'deselectGame').and.callThrough();
 
@@ -97,7 +97,7 @@ describe('GameListService', () => {
     it('should call getAllGames when usingPage is not "game-list"', () => {
         spyOn(service, 'getAllGames').and.returnValue(of(mockGames));
 
-        service.getGames('other-page').subscribe((games: Map[]) => {
+        service.getGames('other-page').subscribe((games: Game[]) => {
             expect(games).toEqual(mockGames);
         });
         expect(service.getAllGames).toHaveBeenCalled();
@@ -106,7 +106,7 @@ describe('GameListService', () => {
     it('should call getAllVisibleGames when usingPage is "game-list"', () => {
         spyOn(service, 'getAllVisibleGames').and.returnValue(of(mockGames));
 
-        service.getGames('game-list').subscribe((games: Map[]) => {
+        service.getGames('game-list').subscribe((games: Game[]) => {
             expect(games).toEqual(mockGames);
         });
         expect(service.getAllVisibleGames).toHaveBeenCalled();
@@ -154,8 +154,8 @@ describe('GameListService', () => {
     });
 
     it('should toggle visibility of the game and return true on success', () => {
-        const game: Map = mockGames[0];
-        const updatedGame: Map = { ...game, visible: false };
+        const game: Game = mockGames[0];
+        const updatedGame: Game = { ...game, visible: false };
         service.performChangeVisibility(game).subscribe((result) => {
             expect(result).toBeTrue();
             expect(game.visible).toBe(false);
@@ -168,7 +168,7 @@ describe('GameListService', () => {
     });
 
     it('should return false and not change visibility on HTTP error', () => {
-        const game: Map = { ...mockGames[0], _id: '5555', visible: true };
+        const game: Game = { ...mockGames[0], _id: '5555', visible: true };
 
         service.performChangeVisibility(game).subscribe((result) => {
             expect(result).toBeFalse();
@@ -179,7 +179,7 @@ describe('GameListService', () => {
     });
 
     it('should change visibility if the game exists', () => {
-        const game: Map = { ...mockGames[0], visible: true };
+        const game: Game = { ...mockGames[0], visible: true };
         spyOn(service, 'performChangeVisibility').and.returnValue(of(true));
         service.changeVisibility(game).subscribe((result) => {
             expect(result).toBeTrue();
@@ -190,7 +190,7 @@ describe('GameListService', () => {
     });
 
     it('should return false if the game does not exist when changing visibility', () => {
-        const game: Map = { ...mockGames[0], _id: '21', name: 'abc' };
+        const game: Game = { ...mockGames[0], _id: '21', name: 'abc' };
         service.changeVisibility(game).subscribe((result) => {
             expect(result).toBeFalse();
         });
@@ -199,7 +199,7 @@ describe('GameListService', () => {
     });
 
     it('should delete the game if it exists and return true', () => {
-        const game: Map = mockGames[0];
+        const game: Game = mockGames[0];
         service.deleteGame(game).subscribe((result) => {
             expect(result).toBeTrue();
         });
@@ -212,7 +212,7 @@ describe('GameListService', () => {
     });
 
     it('should return false if the game does not exist', () => {
-        const game: Map = mockGames[0];
+        const game: Game = mockGames[0];
 
         service.deleteGame(game).subscribe((result) => {
             expect(result).toBeFalse();
@@ -223,7 +223,7 @@ describe('GameListService', () => {
     });
 
     it('should return true if the visible game exist', () => {
-        const mockGame: Map = { ...mockGames[0] };
+        const mockGame: Game = { ...mockGames[0] };
 
         service.getAllVisibleGames = jasmine.createSpy().and.returnValue(of([mockGame]));
         service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
@@ -232,7 +232,7 @@ describe('GameListService', () => {
     });
 
     it('should return false if the visible game does NOT exist', () => {
-        const mockGame: Map = { ...mockGames[0] };
+        const mockGame: Game = { ...mockGames[0] };
 
         service.getAllVisibleGames = jasmine.createSpy().and.returnValue(of([]));
         service.checkIfVisibleGameExists(mockGame).subscribe((result) => {
@@ -241,7 +241,7 @@ describe('GameListService', () => {
     });
 
     it('should return false when there is an error fetching visible games', () => {
-        const mockGame: Map = { ...mockGames[0] };
+        const mockGame: Game = { ...mockGames[0] };
 
         service.getAllVisibleGames = jasmine.createSpy().and.returnValue(throwError(() => new Error('Error fetching games')));
 
@@ -251,7 +251,7 @@ describe('GameListService', () => {
     });
 
     it('should return false if an error occurs during checkIfGameExists', () => {
-        const game: Map = { ...mockGames[0], _id: '21', name: 'abc' };
+        const game: Game = { ...mockGames[0], _id: '21', name: 'abc' };
 
         service.deleteGame(game).subscribe((result) => {
             expect(result).toBeFalse();
@@ -263,7 +263,7 @@ describe('GameListService', () => {
     });
 
     it('should return false if an error occurs during performDeleteGame', () => {
-        const game: Map = mockGames[0];
+        const game: Game = mockGames[0];
 
         service.deleteGame(game).subscribe((result) => {
             expect(result).toBeFalse();
@@ -278,7 +278,7 @@ describe('GameListService', () => {
     });
 
     it('should return true when performDeleteGame successfully deletes the game', () => {
-        const game: Map = mockGames[0];
+        const game: Game = mockGames[0];
 
         service['performDeleteGame'](game).subscribe((result) => {
             expect(result).toBeTrue();

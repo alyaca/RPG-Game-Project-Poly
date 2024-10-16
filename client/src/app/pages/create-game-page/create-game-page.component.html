@@ -8,7 +8,7 @@
             <p class="button" routerLink="/">Retour</p>
             <p class="button" (click)="showCharacterForm()">Créer</p>
             } @if (isCharacterFormVisible) {
-            <app-character-creator (closeCharactorCreator)="hideCharacterForm()"></app-character-creator>
+            <app-character-creator (confirmCharacterSelection)="joinLobby()" (closeCharacterCreator)="hideCharacterForm()"></app-character-creator>
             }
         </div>
     </div>
