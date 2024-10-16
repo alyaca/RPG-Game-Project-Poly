@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { Map } from '@app/interfaces/map';
+import { Game } from '@common/game';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -14,7 +14,7 @@ export class SaveGameService {
     constructor(private http: HttpClient) {}
 
     // Some information will have to be retrieved from the selectedMap coming from admin
-    saveGame(informations: Info, selectedMap: Map | null) {
+    saveGame(informations: Info, selectedMap: Game | null) {
         if (selectedMap == null) {
             let playerNumber;
             switch (informations.height) {

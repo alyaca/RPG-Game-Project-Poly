@@ -1,17 +1,14 @@
 <div id="waiting-page">
     <header>
         @if(chosenGame){
-            <h3>Nom de la partie: {{ chosenGame.name }}</h3>
+        <h3>Nom de la partie: {{ chosenGame.name }}</h3>
         }
         <h3>Code d'accès: {{ accessCode }}</h3>
     </header>
     <main>
         <div id="players-container">
             @for (player of players; track player.id;) {
-            <app-lobby-player
-                [class]="player.size"
-                [lobbyPlayer]="player"
-            ></app-lobby-player>
+            <app-lobby-player [class]="player.size" [lobbyPlayer]="player"></app-lobby-player>
             }
             <!-- <div class="add-bot medium">
                 <p>ajouter un joueur virtuel</p>
@@ -24,7 +21,7 @@
             <app-chat-box></app-chat-box>
             <div id="start-container">
                 <button id="start">Lancer une partie</button>
-                <button id="quit-button" (click)="handleExit()">Quitter</button>
+                <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
             </div>
             <div id="lock-container">
                 <p class="lock-text">Verrouiller la partie</p>

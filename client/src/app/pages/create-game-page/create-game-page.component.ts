@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
-import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
+import { GameService } from '@app/services/sockets/game/game.service';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Game } from '@common/game';
+import { Room } from '@common/room';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -18,18 +21,26 @@ import { Subscription } from 'rxjs';
 })
 export class CreateGamePageComponent implements OnDestroy {
     isCharacterFormVisible: boolean = false;
-    selectedGame: Map | null = null;
+    selectedGame: Game | null = null;
+    roomCode: string;
+    gameName: string;
     private subscription: Subscription = new Subscription();
 
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
+        private playerConnectionService: PlayerConnectionService,
+        private gameService: GameService,
+        private router: Router,
     ) {
         this.subscription.add(
-            this.gameListService.selectedGameSubject.subscribe((game: Map | null) => {
+            this.gameListService.selectedGameSubject.subscribe((game: Game | null) => {
                 this.selectedGame = game;
             }),
         );
+        if (!this.playerConnectionService.isSocketAlive()) {
+            this.playerConnectionService.connect();
+        }
     }
 
     showCharacterForm() {
@@ -39,7 +50,7 @@ export class CreateGamePageComponent implements OnDestroy {
             });
             return;
         }
-        this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((game: Map | null) => {
+        this.gameListService.checkIfVisibleGameExists(this.selectedGame).subscribe((game: Game | null) => {
             if (game) {
                 this.isCharacterFormVisible = true;
                 this.gameListService.chosenGameSubject.next(game);
@@ -51,8 +62,24 @@ export class CreateGamePageComponent implements OnDestroy {
         });
     }
 
+    joinLobby() {
+        // send character selection
+        this.createRoom();
+    }
+
     hideCharacterForm() {
         this.isCharacterFormVisible = false;
+    }
+
+    createRoom() {
+        this.playerConnectionService.send('createRoom', this.selectedGame);
+        this.playerConnectionService.on('roomCreated', (roomInfo: Room) => {
+            this.gameService.selectedGame = roomInfo.gameMap;
+            this.roomCode = roomInfo.roomId;
+            this.gameService.setRoomId(this.roomCode);
+            this.gameService.joinRoom(this.roomCode);
+            this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.roomCode } });
+        });
     }
 
     ngOnDestroy() {

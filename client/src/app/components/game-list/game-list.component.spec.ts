@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
+import { Game } from '@common/game';
 import { of } from 'rxjs';
 import { GameListComponent } from './game-list.component';
 
@@ -33,17 +33,17 @@ describe('GameListComponent', () => {
         }).compileComponents();
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
-        gameListServiceSpy.setSelectedGame.and.callFake((usingPage: string, game: Map, games: Map[]) => {
+        gameListServiceSpy.setSelectedGame.and.callFake((usingPage: string, game: Game, games: Game[]) => {
             if (usingPage === 'game-list') {
                 games.forEach((g) => (g.isSelected = false));
                 game.isSelected = true;
             }
         });
 
-        gameListServiceSpy.selectGame.and.callFake((game: Map) => {
+        gameListServiceSpy.selectGame.and.callFake((game: Game) => {
             game.isSelected = true;
         });
-        gameListServiceSpy.deselectGame.and.callFake((games: Map[]) => {
+        gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
 
@@ -67,7 +67,7 @@ describe('GameListComponent', () => {
     });
 
     it('should select a game and deselect others', () => {
-        const gameToSelect: Map = { ...mockGames[0] };
+        const gameToSelect: Game = { ...mockGames[0] };
         component.usingPage = 'game-list';
         component.selectGame(gameToSelect);
         expect(gameListServiceSpy.setSelectedGame).toHaveBeenCalledWith(component.usingPage, gameToSelect, mockGames);
@@ -80,7 +80,7 @@ describe('GameListComponent', () => {
     });
 
     it('should call changeVisibility and handle error message on failure', () => {
-        const game: Map = { ...mockGames[0] };
+        const game: Game = { ...mockGames[0] };
         gameListServiceSpy.changeVisibility.and.returnValue(of(false));
         spyOn(component, 'showErrorMessage');
         component.changeVisibility(game);
@@ -88,7 +88,7 @@ describe('GameListComponent', () => {
     });
 
     it('should refresh the game list when deleteGame is successful', () => {
-        const game: Map = { ...mockGames[0] };
+        const game: Game = { ...mockGames[0] };
         gameListServiceSpy.deleteGame.and.returnValue(of(true));
         spyOn(component, 'refreshGameList');
         component.deleteGame(game);
@@ -96,7 +96,7 @@ describe('GameListComponent', () => {
     });
 
     it('should show an error message when deleteGame fails', () => {
-        const game: Map = { ...mockGames[0] };
+        const game: Game = { ...mockGames[0] };
         gameListServiceSpy.deleteGame.and.returnValue(of(false));
         spyOn(component, 'showErrorMessage');
         component.deleteGame(game);
@@ -109,7 +109,7 @@ describe('GameListComponent', () => {
         expect(snackBarSpy.open).toHaveBeenCalledWith('Jeu déjà supprimé par un autre utilisateur', 'Fermer', { duration: 4000 });
     });
     it('should update games array when refreshGameList is called', () => {
-        const mockGamesList: Map[] = [mockGames[0], mockGames[1]];
+        const mockGamesList: Game[] = [mockGames[0], mockGames[1]];
         gameListServiceSpy.getAllGames.and.returnValue(of(mockGamesList));
         component.refreshGameList();
         expect(gameListServiceSpy.getAllGames).toHaveBeenCalled();
