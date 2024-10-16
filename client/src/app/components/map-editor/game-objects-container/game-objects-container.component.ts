@@ -8,6 +8,7 @@ import { GameObjectService } from '@app/services/game-object/game-object.service
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
 import { GameCreationService } from '@app/services/game-creation.service';
+// import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-game-objects-container',
@@ -20,13 +21,16 @@ export class GameObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
     isDraggingFromContainer: boolean = false;
     showDescription: boolean = true;
+    // private itemContainerChangeSubscription: Subscription;
 
     constructor(
         private gameObjectService: GameObjectService,
         private toolButtonService: ToolButtonService,
 
         private gameCreationService: GameCreationService,
-    ) {}
+    ) {
+
+    }
 
     ngOnInit() {
         this.gameObjects = this.gameObjectService.objects;
@@ -34,6 +38,9 @@ export class GameObjectsContainerComponent implements OnInit {
         if(!this.gameCreationService.isNewGame){
             this.gameObjectService.loadMapObjectCount();
         }
+        // this.itemContainerChangeSubscription = this.gameObjectService.itemContainerChangeTriggered$.subscribe(() => {
+        //     this.gameObjectService.loadMapObjectCount()
+        // });
     }
 
     onDragStart(event: DragEvent, gameObject: GameObject) {
@@ -69,4 +76,8 @@ export class GameObjectsContainerComponent implements OnInit {
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
+
+    // ngOnDestroy() {
+    //     this.itemContainerChangeSubscription.unsubscribe();
+    // }
 }

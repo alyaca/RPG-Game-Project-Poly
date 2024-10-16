@@ -83,8 +83,14 @@ export class MapEditorPageComponent implements OnInit {
 
     handleReset() {
         this.resetTrigger = true;
-        this.updateMapName('');
-        this.updateMapDescription('');
+        if (!this.gameCreationService.isNewGame) {
+            this.mapName = this.gameCreationService.loadedMapName;
+            this.mapDescription = this.gameCreationService.loadedMapDescription;
+        }
+        else{
+            this.mapName = "";
+            this.mapDescription = "";
+        }
         setTimeout(() => (this.resetTrigger = false), 0);
     }
 

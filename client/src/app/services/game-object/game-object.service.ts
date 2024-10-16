@@ -20,6 +20,8 @@ export class GameObjectService implements OnDestroy {
     maxCount: number;
     selectedTile: { row: number; col: number } | null = null;
     private sizeSubscription!: Subscription;
+    // private itemContainerChange = new Subject<void>();
+    // itemContainerChangeTriggered$ = this.itemContainerChange.asObservable();
 
     constructor(private gameCreationService: GameCreationService) {
         this.sizeSubscription = this.gameCreationService.sizeSubject.subscribe(() => {
@@ -29,9 +31,6 @@ export class GameObjectService implements OnDestroy {
     }
 
     initObjectsArray(): number[][] {
-        if (!this.gameCreationService.isNewGame){
-            return this.gameCreationService.loadedObjects;
-        }
         this.objectsArray = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(NO_OBJECT));
         if (this.mapSize) {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
@@ -113,6 +112,11 @@ export class GameObjectService implements OnDestroy {
             }
         }
     }
+
+    // triggerItemContainerChange() {
+    //     this.itemContainerChange.next();
+    // }
+
 
     ngOnDestroy() {
         if (this.sizeSubscription) {
