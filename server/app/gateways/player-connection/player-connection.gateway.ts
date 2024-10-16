@@ -1,6 +1,7 @@
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
+import { Avatar } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -11,6 +12,20 @@ import { RoomEvents } from './player-connection.events';
 export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
+    private availableAvatars: string[] = [
+        'Hestia',
+        'Zeus',
+        'Hera',
+        'Poseidon',
+        'Artemis',
+        'Demeter',
+        'Hermes',
+        'Athena',
+        'Hephaestus',
+        'Apollo',
+        'Ares',
+        'Aphrodite',
+    ];
 
     constructor(
         private roomService: RoomService,
@@ -62,6 +77,15 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleIsRoomLocked(client: Socket) {
         const room = this.roomService.getRoom(client);
         client.emit('isRoomLocked', room.isLocked);
+    }
+
+    @SubscribeMessage(RoomEvents.SelectCharacter)
+    handleSelectCharacter(client: Socket, avatar: Avatar) {
+        // const room = this.roomService.getRoom(client);
+        if (this.availableAvatars.includes(avatar.name)) {
+            this.availableAvatars = this.availableAvatars.filter((avatarName) => avatarName !== avatar.name);
+            client.broadcast.emit('characterSelected', avatar);
+        }
     }
 
     onModuleInit() {

@@ -2,8 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { avatars } from '@app/avatarsInfo';
 import { HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
+import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Avatar, Player } from '@common/player';
 
 @Component({
     selector: 'app-character-creator',
@@ -15,26 +18,14 @@ import { AttributesService } from '@app/services/attributes.service';
 export class CharacterCreatorComponent {
     @Output() closeCharacterCreator = new EventEmitter<void>();
     @Output() confirmCharacterSelection = new EventEmitter<void>();
-    avatars = [
-        { src: '/assets/images/characters/Hestia.webp', name: 'Hestia' },
-        { src: '/assets/images/characters/Zeus.webp', name: 'Zeus' },
-        { src: '/assets/images/characters/Hera.webp', name: 'Hera' },
-        { src: '/assets/images/characters/Poseidon.webp', name: 'Poseidon' },
-        { src: '/assets/images/characters/Artemis.webp', name: 'Artemis' },
-        { src: '/assets/images/characters/Demeter.webp', name: 'Demeter' },
-        { src: '/assets/images/characters/Hermes.webp', name: 'Hermes' },
-        { src: '/assets/images/characters/Athena.webp', name: 'Athena' },
-        { src: '/assets/images/characters/Hephaestus.webp', name: 'Hephaestus' },
-        { src: '/assets/images/characters/Apollo.webp', name: 'Apollo' },
-        { src: '/assets/images/characters/Ares.webp', name: 'Ares' },
-        { src: '/assets/images/characters/Aphrodite.webp', name: 'Aphrodite' },
-    ];
-    clickedAvatar: { src: string; name: string } = this.avatars[0];
+    avatars = avatars;
+    clickedAvatar: Avatar = this.avatars[0];
     characterName: string = '';
 
     constructor(
         private attributesService: AttributesService,
         private snackBar: MatSnackBar,
+        private playerConnectionService: PlayerConnectionService,
     ) {}
 
     setName(name: string) {
@@ -46,8 +37,9 @@ export class CharacterCreatorComponent {
         this.attributesService.resetAttributes();
     }
 
-    getClickedImage(avatar: { src: string; name: string }) {
+    getClickedImage(avatar: Avatar) {
         this.clickedAvatar = avatar;
+        this.playerConnectionService.send('selectCharacter', avatar);
     }
 
     isButtonSelected(buttonName: string) {
@@ -83,5 +75,10 @@ export class CharacterCreatorComponent {
         } else {
             this.confirmCharacterSelection.emit();
         }
+    }
+
+    createPlayer() {
+        const player: Player = { id: 'test', name: this.characterName, avatar: this.clickedAvatar };
+        return player;
     }
 }

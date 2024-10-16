@@ -224,3 +224,9 @@ button {
     height: 80%;
     border-radius: 10%;
 }
+
+.selected {
+    border-bottom: 0.5rem solid rgb(255, 249, 144);
+    border-right: 0.5rem solid rgb(255, 249, 144);
+    transform: translateY(0.3rem);
+}

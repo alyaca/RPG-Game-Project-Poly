@@ -132,4 +132,8 @@ export class AttributesService {
         this.setDefense(DEFAULT_ATTRIBUTE);
         this.name = '';
     }
+
+    getAttributes() {
+        return this.attributes;
+    }
 }

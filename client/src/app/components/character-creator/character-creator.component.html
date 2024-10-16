@@ -3,7 +3,7 @@
         <div class="choices">
             <div class="icons-container">
                 @for( avatar of avatars; track avatar){
-                <div class="icon">
+                <div class="icon" [ngClass]="{ selected: clickedAvatar === avatar }">
                     <img [src]="avatar.src" (click)="getClickedImage(avatar)" />
                 </div>
                 }
