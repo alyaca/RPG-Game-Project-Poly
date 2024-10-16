@@ -2,20 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-//import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import {
-    MAX_LEN_MAP_DESCRIPTION,
-    MAX_LEN_MAP_TITLE,
-    NB_ITEMS_MEDIUM_MAP,
-    //NB_ITEMS_MEDIUM_MAP,
-    NO_OBJECT,
-    ObjectType,
-    VALIDATION_DURATION,
-} from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, VALIDATION_DURATION } from '@app/constants';
 
-import { GameObjectService } from '@app/services/game-object/game-object.service';
-//import { map, Observable } from 'rxjs';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { Game } from '@common/game';
 import { of } from 'rxjs';
 import { MapValidatorService, TileType } from './map-validator.service';
@@ -45,7 +35,6 @@ describe('MapValidatorService', () => {
         });
         service = TestBed.inject(MapValidatorService);
         httpMock = TestBed.inject(HttpTestingController);
-        //service.isSameName = () => new Observable<boolean>().pipe(map(() => true));
     });
 
     afterEach(() => {

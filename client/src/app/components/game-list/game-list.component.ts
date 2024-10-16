@@ -19,7 +19,7 @@ export class GameListComponent implements OnInit {
     @Input() usingPage: string = '';
     games: Game[] = [];
     gameSelected: Game | null = null;
-    private gameGridService = inject(MapEditorService);
+    private mapEditorService = inject(MapEditorService);
 
     constructor(
         private gameListService: GameListService,
@@ -89,7 +89,7 @@ export class GameListComponent implements OnInit {
     }
 
     editGame(game: Game) {
-        this.gameGridService.setMapToEdit(game);
+        this.mapEditorService.setMapToEdit(game);
         this.gameCreationService.setSelectedSize(this.convertMapDimension(game));
         this.gameCreationService.isNewGame = false;
         this.gameCreationService.loadedTiles = game.tiles;
