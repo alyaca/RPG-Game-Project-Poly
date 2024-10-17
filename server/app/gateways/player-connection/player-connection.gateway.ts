@@ -1,7 +1,7 @@
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, Player } from '@common/player';
+import { Avatar, Player, Status } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -70,8 +70,12 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
         player.id = client.id;
+        if (this.roomService.isPlayerAdmin(client)) {
+            player.status = Status.Admin;
+        }
         this.gameService.createPlayer(room, player);
-        client.broadcast.to(room.roomId).emit('characterCreated', room.availableAvatars);
+        client.emit('characterCreated', room);
+        client.to(room.roomId).emit('characterCreated', room);
     }
 
     @SubscribeMessage(RoomEvents.SelectCharacter)

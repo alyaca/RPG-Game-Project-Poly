@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LobbyPlayer } from '@app/interfaces/lobbyPlayer';
+import { Component, Input } from '@angular/core';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-lobby-player',
@@ -10,5 +10,5 @@ import { LobbyPlayer } from '@app/interfaces/lobbyPlayer';
     styleUrl: './lobby-player.component.scss',
 })
 export class LobbyPlayerComponent {
-    @Input() lobbyPlayer: LobbyPlayer;
+    @Input() lobbyPlayer: Player;
 }

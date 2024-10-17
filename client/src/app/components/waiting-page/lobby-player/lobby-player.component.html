@@ -1,10 +1,10 @@
-<div [ngClass]="['player', lobbyPlayer.isAdmin ? 'admin' : '']">
+<div [ngClass]="['player', lobbyPlayer.status === 'admin' ? 'admin' : '']">
     <div class="motif"></div>
     <div class="player-name">
         <div class="kick"></div>
         {{ lobbyPlayer.name }}
         <div class="status"></div>
-    </div>   
-    <img class="player-img" [src]="lobbyPlayer.avatar" alt="{{ lobbyPlayer.name }}-avatar" />
+    </div>
+    <img class="player-img" [src]="lobbyPlayer.avatar.src" alt="{{ lobbyPlayer.name }}-avatar" />
     <div class="motif"></div>
 </div>

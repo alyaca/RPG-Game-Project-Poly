@@ -190,6 +190,7 @@
     justify-content: center;
     overflow: hidden;
 }
+
 .decoration {
     padding-top: 2.5rem;
     width: 27%;
@@ -219,12 +220,6 @@ button {
     cursor: pointer;
 }
 
-.selected-avatar {
-    margin-top: 2.5rem;
-    height: 80%;
-    border-radius: 10%;
-}
-
 .selected {
     border-bottom: 0.5rem solid rgb(255, 249, 144);
     border-right: 0.5rem solid rgb(255, 249, 144);
@@ -251,11 +246,14 @@ button {
     border-right: 0.5rem solid black;
 }
 
-// .being-selected {
-//     pointer-events: none;
-//     box-shadow: 0 0 15px rgb(255, 249, 144);
-// }
+.selected-avatar,
+.no-avatar {
+    margin-top: 2.5rem;
+    height: 80%;
+    aspect-ratio: 1 / 1;
+    border-radius: 10%;
+}
 
-// .being-selected img {
-//     filter: grayscale(100%) brightness(50%);
-// }
+.no-avatar {
+    border: 1px solid rgb(255, 249, 144);
+}

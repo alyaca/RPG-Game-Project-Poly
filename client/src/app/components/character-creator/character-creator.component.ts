@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
 import { avatars } from '@common/avatarsInfo';
-import { Avatar, Player } from '@common/player';
+import { Avatar, Player, Status } from '@common/player';
 
 @Component({
     selector: 'app-character-creator',
@@ -21,7 +21,7 @@ export class CharacterCreatorComponent {
     @Output() selectCharacter = new EventEmitter<Avatar>();
 
     avatars = avatars;
-    clickedAvatar: Avatar = this.avatars[0]; // change that
+    clickedAvatar: Avatar; // change that
     characterName: string = '';
     player: Player;
 
@@ -86,6 +86,14 @@ export class CharacterCreatorComponent {
     }
 
     createPlayer() {
-        this.player = { id: 'test', name: this.characterName, avatar: this.clickedAvatar };
+        this.player = {
+            id: 'test',
+            attributes: 'test',
+            avatar: this.clickedAvatar,
+            isActive: false,
+            name: this.characterName,
+            status: Status.Player,
+            victories: 0,
+        };
     }
 }

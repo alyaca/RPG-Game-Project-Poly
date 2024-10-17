@@ -7,12 +7,13 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { MAX_PLAYER_SIZE_INT } from '@app/constants';
-import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
 import { Game } from '@common/game';
+import { Player } from '@common/player';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-waiting-page',
@@ -25,10 +26,7 @@ export class WaitingPageComponent implements OnInit {
     accessCode: string;
     chosenGame: Game;
     isLocked: boolean = false;
-
-    // sample player lobby (to be generated dynamically later)
-    // see app/mocks/mock-lobby-players.ts
-    players: LobbyPlayer[] = mockLobbyPlayers;
+    players: Player[];
 
     constructor(
         private router: Router,
@@ -42,7 +40,6 @@ export class WaitingPageComponent implements OnInit {
                 this.chosenGame = game;
             }
         });
-        this.attributeSizeDynamically();
         this.accessCode = this.gameService.roomId;
         this.chosenGame = this.gameService.selectedGame;
     }
@@ -53,38 +50,29 @@ export class WaitingPageComponent implements OnInit {
         }
 
         this.playerConnectionService.on<string>('roomDeleted', (message: string) => {
-            const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
-                disableClose: true,
-                data: { title: 'Partie annulée', messages: [message] },
-            });
-            dialogNavigate.afterClosed().subscribe((result) => {
-                if (result === 'close') {
-                    this.router.navigate(['/home']);
-                }
-            });
+            this.onAdminQuit(message);
+        });
+
+        this.playerConnectionService.on('characterCreated', (room: Room) => {
+            this.players = room.listPlayers;
+        });
+    }
+
+    onAdminQuit(message: string) {
+        const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: { title: 'Partie annulée', messages: [message] },
+        });
+        dialogNavigate.afterClosed().subscribe((result) => {
+            if (result === 'close') {
+                this.router.navigate(['/home']);
+            }
         });
     }
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
         this.playerConnectionService.send('changeLockRoom', { isLocked: this.isLocked });
-    }
-
-    attributeSizeDynamically() {
-        const len: number = this.players.length;
-        let playerSizeInteger: number = MAX_PLAYER_SIZE_INT;
-        const midpoint: number = Math.floor(len / 2);
-
-        for (let i = midpoint; i < len; i++) {
-            this.players[i].size = this.getPlayerSize(playerSizeInteger);
-            playerSizeInteger--;
-        }
-
-        playerSizeInteger = len % 2 === 1 ? MAX_PLAYER_SIZE_INT - 1 : MAX_PLAYER_SIZE_INT;
-        for (let i = midpoint - 1; i >= 0; i--) {
-            this.players[i].size = this.getPlayerSize(playerSizeInteger);
-            playerSizeInteger--;
-        }
     }
 
     getPlayerSize(val: number): PlayerSize {
