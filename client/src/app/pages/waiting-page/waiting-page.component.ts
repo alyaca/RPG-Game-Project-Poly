@@ -8,7 +8,7 @@ import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT, PLAYERS } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
-import { PlayerObjects, LobbySize, Status} from '@app/interfaces/playerObject';
+import { PlayerObjects, Status} from '@app/interfaces/playerObject';
 
 @Component({
     selector: 'app-waiting-page',
@@ -39,9 +39,7 @@ export class WaitingPageComponent implements OnInit {
             }
         });
         this.ensureAdminIsFirst(); // may be uneeded in the future
-        this.attributeSizeDynamically();
     }
-
 
     ensureAdminIsFirst() {
         this.players = [
@@ -49,7 +47,6 @@ export class WaitingPageComponent implements OnInit {
             ...this.players.filter(player => player.status !== Status.Admin)    
         ];
     }
-
 
     ngOnInit() {
         this.accessCode = this.generateAccesCode();
@@ -63,31 +60,35 @@ export class WaitingPageComponent implements OnInit {
         return code.toString().padStart(this.accesCodeLength, '0');
     }
 
-    attributeSizeDynamically() {
-        const len: number = this.players.length;
-        let playerSizeInteger: number = MAX_PLAYER_SIZE_INT;
-        const midpoint: number = Math.floor(len / 2);
-
-        for (let i = midpoint; i < len; i++) {
-            this.players[i].size = this.getLobbySize(playerSizeInteger);
-            playerSizeInteger--;
-        }
-
-        playerSizeInteger = len % 2 === 1 ? MAX_PLAYER_SIZE_INT - 1 : MAX_PLAYER_SIZE_INT;
-        for (let i = midpoint - 1; i >= 0; i--) {
-            this.players[i].size = this.getLobbySize(playerSizeInteger);
-            playerSizeInteger--;
+    getSizeClass(val: number): string {
+        switch (val) {
+            case 2:
+                return "big";
+            case 1:
+                return "medium";
+            case 0:
+                return "small";
+            default:
+                return "";
         }
     }
 
-    getLobbySize(val: number): LobbySize {
-        if (val >= MAX_PLAYER_SIZE_INT) {
-            return LobbySize.Big;
-        } else if (val === 1) {
-            return LobbySize.Medium;
-        } else {
-            return LobbySize.Small;
+    getPlayerSize(index: number): string{
+        let playerSizeInteger: number = MAX_PLAYER_SIZE_INT;
+        const midpoint: number = Math.floor(this.players.length / 2);
+        const sizesInt: number[] = new Array(this.players.length);
+
+        for (let i = midpoint; i < this.players.length; i++) {
+            sizesInt[i] = playerSizeInteger;
+            playerSizeInteger--;
         }
+
+        playerSizeInteger = this.players.length % 2 === 1 ? MAX_PLAYER_SIZE_INT - 1 : MAX_PLAYER_SIZE_INT;
+        for (let i = midpoint - 1; i >= 0; i--) {
+            sizesInt[i] = playerSizeInteger;
+            playerSizeInteger--;
+        }
+        return this.getSizeClass(sizesInt[index]);
     }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {

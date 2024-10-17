@@ -2,21 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import {
-    ACCESS_CODE_LENGTH,
-    FIVE_PLAYERS_LOBBY,
-    FOUR_PLAYERS_LOBBY,
-    MAX_ACCESS_CODE_VALUE,
-    MAX_PLAYER_SIZE_INT,
-    PLAYERS,
-    THREE_PLAYERS_LOBBY,
-} from '@app/constants';
-import { LobbySize } from '@app/interfaces/playerObject';
+import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
+import { mockPlayer } from '@app/mocks/mock-player';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -110,59 +102,47 @@ describe('WaitingPageComponent', () => {
             expect(codeNumber).toBeLessThan(MAX_ACCESS_CODE_VALUE);
         }
     });
-
-    it('should assign correct player sizes for 1 player', () => {
-        component.players = PLAYERS.slice(0, 1);
-        component.attributeSizeDynamically();
-        expect(component.players[0].size).toBe(LobbySize.Big);
+    it('should return correct size for values in getSizeClass', () => {
+        expect(component.getSizeClass(2)).toBe("big");
+        expect(component.getSizeClass(1)).toBe("medium");
+        expect(component.getSizeClass(0)).toBe("small");
+        expect(component.getSizeClass(-1)).toBe("");
     });
 
-    it('should assign correct player sizes for 2 players', () => {
-        component.players = PLAYERS.slice(0, 2);
-        component.attributeSizeDynamically();
-        expect(component.players.map((p) => p.size)).toEqual([LobbySize.Big, LobbySize.Big]);
+    it('should return correct size for 3 players', () => {
+        component.players = [mockPlayer, mockPlayer, mockPlayer];  // 3 players
+        expect(component.getPlayerSize(0)).toBe("medium");  // First player
+        expect(component.getPlayerSize(1)).toBe("big"); // Middle player
+        expect(component.getPlayerSize(2)).toBe("medium");    // Last player
     });
 
-    it('should assign correct player sizes for 3 players', () => {
-        component.players = PLAYERS.slice(0, THREE_PLAYERS_LOBBY);
-        component.attributeSizeDynamically();
-        expect(component.players.map((p) => p.size)).toEqual([LobbySize.Medium, LobbySize.Big, LobbySize.Medium]);
+    it('should return correct size for 4 players', () => {
+        component.players = [mockPlayer, mockPlayer, mockPlayer, mockPlayer];  // 4 players
+        expect(component.getPlayerSize(0)).toBe("medium");  // First player
+        expect(component.getPlayerSize(1)).toBe("big");  // Second player
+        expect(component.getPlayerSize(2)).toBe("big");    // Third player
+        expect(component.getPlayerSize(3)).toBe("medium");    // Fourth player
     });
 
-    it('should assign correct player sizes for 4 players', () => {
-        component.players = PLAYERS.slice(0, FOUR_PLAYERS_LOBBY);
-        component.attributeSizeDynamically();
-        expect(component.players.map((p) => p.size)).toEqual([LobbySize.Medium, LobbySize.Big, LobbySize.Big, LobbySize.Medium]);
+    it('should return correct size for 5 players', () => {
+        component.players = [mockPlayer, mockPlayer, mockPlayer, mockPlayer, mockPlayer];  // 5 players
+        expect(component.getPlayerSize(0)).toBe("small");  // First player
+        expect(component.getPlayerSize(1)).toBe("medium");  // Second player
+        expect(component.getPlayerSize(2)).toBe("big"); // Middle player
+        expect(component.getPlayerSize(3)).toBe("medium");    // Fourth player
+        expect(component.getPlayerSize(4)).toBe("small");    // Fifth player
     });
 
-    it('should assign correct player sizes for 5 players', () => {
-        component.players = PLAYERS.slice(0, FIVE_PLAYERS_LOBBY);
-        component.attributeSizeDynamically();
-        expect(component.players.map((p) => p.size)).toEqual([LobbySize.Small, LobbySize.Medium, LobbySize.Big, LobbySize.Medium, LobbySize.Small]);
+    it('should return correct size for 6 players', () => {
+        component.players = [mockPlayer, mockPlayer, mockPlayer, mockPlayer, mockPlayer, mockPlayer];  // 6 players
+        expect(component.getPlayerSize(0)).toBe("small");  // First player
+        expect(component.getPlayerSize(1)).toBe("medium"); // Second player
+        expect(component.getPlayerSize(2)).toBe("big");    // Third player
+        expect(component.getPlayerSize(3)).toBe("big");    // Fourth player
+        expect(component.getPlayerSize(4)).toBe("medium"); // Fifth player
+        expect(component.getPlayerSize(5)).toBe("small");  // Sixth player
     });
 
-    it('should assign correct player sizes for 6 players', () => {
-        component.players = PLAYERS;
-        component.attributeSizeDynamically();
-        expect(component.players.map((p) => p.size)).toEqual([
-            LobbySize.Small,
-            LobbySize.Medium,
-            LobbySize.Big,
-            LobbySize.Big,
-            LobbySize.Medium,
-            LobbySize.Small,
-        ]);
-    });
-
-    it('should return correct player size based on value', () => {
-        expect(component.getLobbySize(2)).toBe(LobbySize.Big);
-        expect(component.getLobbySize(1)).toBe(LobbySize.Medium);
-        expect(component.getLobbySize(0)).toBe(LobbySize.Small);
-    });
-
-    it('should return correct player size for maximum value', () => {
-        expect(component.getLobbySize(MAX_PLAYER_SIZE_INT)).toBe(LobbySize.Big);
-    });
 
     it('should open the dialog and navigate to /home if confirmed', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);

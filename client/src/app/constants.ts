@@ -1,5 +1,4 @@
 import { PlayerObjects, Status } from '@app/interfaces/playerObject';
-import { LobbySize } from '@app/interfaces/playerObject';
 
 // Constants for the number of items and spawn points for each type of map
 export const NB_ITEMS_SMALL_MAP = 2;
@@ -98,7 +97,6 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Jar Jar Binks',
         victories: 2,
         isActive: true,
-        size: LobbySize.Medium,
         attributes: {
             totalHp: 6,
             currentHp: 4,
@@ -136,7 +134,6 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Obi-Wan Kenobi',
         victories: 1,
         isActive: false,
-        size: LobbySize.Medium,
         attributes: {
             totalHp: 6,
             currentHp: 4,
@@ -174,7 +171,6 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'General Grievous',
         victories: 2,
         isActive: false,
-        size: LobbySize.Medium,
         attributes: {
             totalHp: 6,
             currentHp: 4,
@@ -212,7 +208,6 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Luke Skywalker',
         victories: 1,
         isActive: false,
-        size: LobbySize.Medium,
         attributes: {
             totalHp: 6,
             currentHp: 4,
@@ -250,7 +245,6 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Leia Organa',
         victories: 0,
         isActive: false,
-        size: LobbySize.Medium,
         attributes: {
             totalHp: 6,
             currentHp: 4,
@@ -288,7 +282,6 @@ export const PLAYERS: PlayerObjects[] = [
         name: 'Chewbacca',
         victories: 2,
         isActive: false,
-        size: LobbySize.Medium,
         attributes: {
             totalHp: 6,
             currentHp: 4,
