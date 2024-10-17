@@ -12,8 +12,10 @@
     </div>
     @if (isCharacterFormVisible) {
     <app-character-creator
-        (confirmCharacterSelection)="joinLobby(accessCode)"
+        [availableAvatars]="availableAvatars"
+        (confirmCharacterSelection)="joinLobby($event)"
         (closeCharacterCreator)="leaveGame(accessCode)"
+        (selectCharacter)="selectedAvatar($event)"
     ></app-character-creator>
     }
 </div>

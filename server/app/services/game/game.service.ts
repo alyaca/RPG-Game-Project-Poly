@@ -1,4 +1,7 @@
+import { Avatar, Player } from '@common/player';
+import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 import { RoomService } from '../room/room.service';
 
 @Injectable()
@@ -23,5 +26,28 @@ export class GameService {
             return { event: 'joinError', errorType: 'roomLocked' };
         }
         return { event: 'joinedRoom' };
+    }
+
+    createPlayer(room: Room, player: Player) {
+        room.listPlayers.push(player);
+        const takenAvatar = this.getAvatarByName(room, player.avatar);
+        takenAvatar.isTaken = true;
+    }
+
+    leavePlayerFromGame(roomId: string, socket: Socket) {
+        const room = this.roomService.rooms.get(roomId);
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
+        this.roomService.leaveRoom(roomId, socket);
+    }
+
+    getAvatarByName(room: Room, avatar: Avatar) {
+        return room.availableAvatars.find((av) => av.name === avatar.name);
+    }
+
+    selectedAvatar(room: Room, avatar: Avatar) {
+        const selectedAvatar = this.getAvatarByName(room, avatar);
+        if (selectedAvatar && !selectedAvatar.isSelected) {
+            selectedAvatar.isSelected = true;
+        }
     }
 }

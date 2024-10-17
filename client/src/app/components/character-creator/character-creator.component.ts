@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { avatars } from '@app/avatarsInfo';
 import { HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { AttributesService } from '@app/services/attributes.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { avatars } from '@common/avatarsInfo';
 import { Avatar, Player } from '@common/player';
 
 @Component({
@@ -16,16 +15,19 @@ import { Avatar, Player } from '@common/player';
     styleUrl: './character-creator.component.scss',
 })
 export class CharacterCreatorComponent {
+    @Input() availableAvatars: Avatar[] = [];
     @Output() closeCharacterCreator = new EventEmitter<void>();
-    @Output() confirmCharacterSelection = new EventEmitter<void>();
+    @Output() confirmCharacterSelection = new EventEmitter<Player>();
+    @Output() selectCharacter = new EventEmitter<Avatar>();
+
     avatars = avatars;
-    clickedAvatar: Avatar = this.avatars[0];
+    clickedAvatar: Avatar = this.avatars[0]; // change that
     characterName: string = '';
+    player: Player;
 
     constructor(
         private attributesService: AttributesService,
         private snackBar: MatSnackBar,
-        private playerConnectionService: PlayerConnectionService,
     ) {}
 
     setName(name: string) {
@@ -39,12 +41,13 @@ export class CharacterCreatorComponent {
 
     getClickedImage(avatar: Avatar) {
         this.clickedAvatar = avatar;
-        this.playerConnectionService.send('selectCharacter', avatar);
+        this.selectCharacter.emit(this.clickedAvatar);
     }
 
     isButtonSelected(buttonName: string) {
         return this.attributesService.isButtonSelected(buttonName);
     }
+
     addHealth() {
         this.attributesService.setHealth(HIGH_ATTRIBUTE);
     }
@@ -73,12 +76,12 @@ export class CharacterCreatorComponent {
                 duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
         } else {
-            this.confirmCharacterSelection.emit();
+            this.createPlayer();
+            this.confirmCharacterSelection.emit(this.player);
         }
     }
 
     createPlayer() {
-        const player: Player = { id: 'test', name: this.characterName, avatar: this.clickedAvatar };
-        return player;
+        this.player = { id: 'test', name: this.characterName, avatar: this.clickedAvatar };
     }
 }

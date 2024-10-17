@@ -1,4 +1,4 @@
-import { Avatar } from '@common/player';
+import { Avatar } from './player';
 
 export const avatars: Avatar[] = [
     { src: '/assets/images/characters/Hestia.webp', name: 'Hestia' },

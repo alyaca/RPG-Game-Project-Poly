@@ -8,7 +8,9 @@ import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { avatars } from '@common/avatarsInfo';
 import { Game } from '@common/game';
+import { Player } from '@common/player';
 import { Room } from '@common/room';
 import { Subscription } from 'rxjs';
 
@@ -24,6 +26,8 @@ export class CreateGamePageComponent implements OnDestroy {
     selectedGame: Game | null = null;
     roomCode: string;
     gameName: string;
+    availableAvatars = avatars;
+
     private subscription: Subscription = new Subscription();
 
     constructor(
@@ -62,9 +66,9 @@ export class CreateGamePageComponent implements OnDestroy {
         });
     }
 
-    joinLobby() {
-        // send character selection
+    joinLobby(player: Player) {
         this.createRoom();
+        this.playerConnectionService.send('createPlayer', player);
     }
 
     hideCharacterForm() {

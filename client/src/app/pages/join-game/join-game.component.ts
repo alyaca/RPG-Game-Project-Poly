@@ -7,6 +7,7 @@ import { CharacterCreatorComponent } from '@app/components/character-creator/cha
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { Avatar, Player } from '@common/player';
 import { Room } from '@common/room';
 @Component({
     selector: 'app-join-game',
@@ -26,6 +27,7 @@ export class JoinGameComponent {
     isJoined: boolean = false;
     errorMessage: string = '';
     submitForm: boolean = false;
+    availableAvatars: Avatar[] = [];
 
     constructor(
         private playerConnectionService: PlayerConnectionService,
@@ -70,17 +72,26 @@ export class JoinGameComponent {
         this.isCharacterFormVisible = true;
         this.gameService.setRoomId(roomInfo.roomId);
         this.gameService.selectedGame = roomInfo.gameMap;
+        console.log('room info', roomInfo.availableAvatars);
+        this.availableAvatars = roomInfo.availableAvatars;
     }
 
-    joinLobby(accessCode: string) {
-        this.playerConnectionService.send('isLocked', accessCode);
-        this.playerConnectionService.on('isRoomLocked', (isLocked) => {
+    joinLobby(player: Player) {
+        this.playerConnectionService.send('isLocked', this.gameService.roomId);
+
+        this.playerConnectionService.once('isRoomLocked', (isLocked) => {
             if (isLocked) {
                 this.handleLockedRoom();
             } else {
-                this.router.navigate(['/waiting-page'], { queryParams: { roomCode: accessCode } });
+                this.playerConnectionService.send('createPlayer', player);
+                this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.gameService.roomId } });
             }
         });
+    }
+
+    selectedAvatar(avatar: Avatar) {
+        console.log(avatar);
+        this.playerConnectionService.send('selectCharacter', avatar);
     }
 
     handleLockedRoom() {
@@ -95,10 +106,12 @@ export class JoinGameComponent {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'leave') {
+                this.playerConnectionService.send('leaveRoom', this.gameService.roomId);
                 this.router.navigate(['/home']);
             }
         });
     }
+
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
         this.playerConnectionService.send('leaveRoom', roomCode);

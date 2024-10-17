@@ -2,8 +2,8 @@
     <div class="choice-info">
         <div class="choices">
             <div class="icons-container">
-                @for( avatar of avatars; track avatar){
-                <div class="icon" [ngClass]="{ selected: clickedAvatar === avatar }">
+                @for( avatar of availableAvatars; track avatar){
+                <div class="icon" [ngClass]="{ selected: avatar === clickedAvatar, 'avatar-taken': avatar.isTaken }">
                     <img [src]="avatar.src" (click)="getClickedImage(avatar)" />
                 </div>
                 }
