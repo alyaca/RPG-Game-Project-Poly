@@ -41,16 +41,17 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     }
 
     @SubscribeMessage(RoomEvents.LeaveRoom)
-    handleLeaveRoom(client: Socket, room: string): void {
-        this.logger.debug(`client ${client.id} left room ${room}`); // for debug
+    handleLeaveRoom(client: Socket, roomId: string): void {
+        this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
         const isAdmin = this.roomService.isPlayerAdmin(client);
+        const room = this.roomService.getRoom(client);
         if (isAdmin) {
             client.emit('leftRoom', isAdmin);
-            this.roomService.deleteRoom(room, client);
+            this.roomService.deleteRoom(roomId, client);
         } else {
             client.emit('leftRoom', isAdmin);
-            this.gameService.leavePlayerFromGame(room, client);
-            // this.roomService.leaveRoom(room, client);
+            this.gameService.leavePlayerFromGame(roomId, client);
+            client.to(roomId).emit('udaptedPlayer', room);
         }
     }
 
@@ -74,8 +75,8 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
             player.status = Status.Admin;
         }
         this.gameService.createPlayer(room, player);
-        client.emit('characterCreated', room);
-        client.to(room.roomId).emit('characterCreated', room);
+        client.emit('udaptedPlayer', room);
+        client.to(room.roomId).emit('udaptedPlayer', room);
     }
 
     @SubscribeMessage(RoomEvents.SelectCharacter)

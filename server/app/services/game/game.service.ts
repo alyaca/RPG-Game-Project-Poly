@@ -37,6 +37,7 @@ export class GameService {
     leavePlayerFromGame(roomId: string, socket: Socket) {
         const room = this.roomService.rooms.get(roomId);
         room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
+        this.freeUpAvatar(room, socket);
         this.roomService.leaveRoom(roomId, socket);
     }
 
