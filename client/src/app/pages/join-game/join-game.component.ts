@@ -28,6 +28,7 @@ export class JoinGameComponent {
     errorMessage: string = '';
     submitForm: boolean = false;
     availableAvatars: Avatar[] = [];
+    previousClickedAvatar: Avatar;
 
     constructor(
         private playerConnectionService: PlayerConnectionService,
@@ -36,6 +37,9 @@ export class JoinGameComponent {
         private dialog: MatDialog,
     ) {
         this.connect();
+        this.playerConnectionService.on('characterSelected', (availableAvatars: Avatar[]) => {
+            this.availableAvatars = availableAvatars;
+        });
     }
 
     isValidCode(accessCode: string): boolean {
@@ -72,7 +76,6 @@ export class JoinGameComponent {
         this.isCharacterFormVisible = true;
         this.gameService.setRoomId(roomInfo.roomId);
         this.gameService.selectedGame = roomInfo.gameMap;
-        console.log('room info', roomInfo.availableAvatars);
         this.availableAvatars = roomInfo.availableAvatars;
     }
 
@@ -90,7 +93,6 @@ export class JoinGameComponent {
     }
 
     selectedAvatar(avatar: Avatar) {
-        console.log(avatar);
         this.playerConnectionService.send('selectCharacter', avatar);
     }
 

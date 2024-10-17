@@ -77,16 +77,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     @SubscribeMessage(RoomEvents.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
-        this.gameService.selectedAvatar(room, avatar);
-        client.broadcast.to(room.roomId).emit('characterSelected', room.availableAvatars);
-    }
-
-    @SubscribeMessage('getRoom')
-    handleGetRoom(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        if (room) {
-            client.broadcast.to(room.roomId).emit('room', room);
-        }
+        this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
     onModuleInit() {

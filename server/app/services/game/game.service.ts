@@ -1,7 +1,7 @@
 import { Avatar, Player } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { RoomService } from '../room/room.service';
 
 @Injectable()
@@ -44,10 +44,42 @@ export class GameService {
         return room.availableAvatars.find((av) => av.name === avatar.name);
     }
 
-    selectedAvatar(room: Room, avatar: Avatar) {
+    selectedAvatar(room: Room, avatar: Avatar, socket: Socket, server: Server) {
+        this.freeUpAvatar(room, socket);
         const selectedAvatar = this.getAvatarByName(room, avatar);
-        if (selectedAvatar && !selectedAvatar.isSelected) {
-            selectedAvatar.isSelected = true;
+        if (selectedAvatar && !selectedAvatar.isTaken) {
+            selectedAvatar.isTaken = true;
+            socket.data.clickedAvatar = selectedAvatar;
+            this.updateAvatarsForAllClients(server);
         }
+    }
+
+    private freeUpAvatar(room: Room, socket: Socket) {
+        if (socket.data.clickedAvatar) {
+            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
+            if (previousAvatar) {
+                previousAvatar.isTaken = false;
+            }
+        }
+    }
+
+    private sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
+    private updateAvatarsForAllClients(server: Server) {
+        server.sockets.sockets.forEach((clientSocket: Socket) => {
+            this.sendAvatarListToClient(clientSocket);
+        });
     }
 }

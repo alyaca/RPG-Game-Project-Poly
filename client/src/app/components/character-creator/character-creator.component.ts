@@ -40,6 +40,10 @@ export class CharacterCreatorComponent {
     }
 
     getClickedImage(avatar: Avatar) {
+        if (this.clickedAvatar) {
+            this.clickedAvatar.isSelected = false;
+        }
+        avatar.isSelected = true;
         this.clickedAvatar = avatar;
         this.selectCharacter.emit(this.clickedAvatar);
     }

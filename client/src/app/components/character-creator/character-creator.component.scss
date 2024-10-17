@@ -229,6 +229,11 @@ button {
     border-bottom: 0.5rem solid rgb(255, 249, 144);
     border-right: 0.5rem solid rgb(255, 249, 144);
     transform: translateY(0.3rem);
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border 0.3s ease;
+    box-shadow: 0 0 15px rgb(255, 249, 144);
 }
 
 .avatar-taken {
@@ -245,3 +250,12 @@ button {
     border-bottom: 0.5rem solid black;
     border-right: 0.5rem solid black;
 }
+
+// .being-selected {
+//     pointer-events: none;
+//     box-shadow: 0 0 15px rgb(255, 249, 144);
+// }
+
+// .being-selected img {
+//     filter: grayscale(100%) brightness(50%);
+// }
