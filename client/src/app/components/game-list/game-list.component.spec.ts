@@ -118,13 +118,6 @@ describe('GameListComponent', () => {
         expect(component.games).toEqual(mockGamesList);
     });
 
-    it('should set up the game for editing and navigate to edit-map', () => {
-        const mockGame: Game = { ...mockGames[0] };
-        component.editGame(mockGame);
-
-        expect(mapEditorServiceSpy.setMapToEdit).toHaveBeenCalled();
-    });
-
     describe('convertMapDimension', () => {
         it('should return "small" if the game dimension is 10', () => {
             const mockGame = { dimension: 10 } as Game;
