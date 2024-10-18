@@ -37,7 +37,7 @@ export class SaveGameService {
         }
     }
 
-    private createMapObject(informations: Info, playerNumber: number, id: String | null): any {
+    private createMapObject(informations: Info, playerNumber: number, id: String | null): unknown {
         if (id) {
             return {
                 _id: id,

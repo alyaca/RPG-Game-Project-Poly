@@ -115,10 +115,10 @@ describe('GameObjectsContainerComponent', () => {
     });
 
     it('should call loadMapObjectCount if not a new game', () => {
-        gameCreationServiceSpy.isNewGame = false; 
-        gameObjectManagerServiceSpy.objects = mockObjects; 
+        gameCreationServiceSpy.isNewGame = false;
+        gameObjectManagerServiceSpy.objects = mockObjects;
         component.ngOnInit();
-        expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled(); 
-        expect(gameObjectManagerServiceSpy.loadMapObjectCount).toHaveBeenCalled(); 
+        expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
+        expect(gameObjectManagerServiceSpy.loadMapObjectCount).toHaveBeenCalled();
     });
 });

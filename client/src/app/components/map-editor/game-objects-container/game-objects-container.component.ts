@@ -26,14 +26,12 @@ export class GameObjectsContainerComponent implements OnInit {
         private toolButtonService: ToolButtonService,
 
         private gameCreationService: GameCreationService,
-    ) {
-
-    }
+    ) {}
 
     ngOnInit() {
         this.gameObjects = this.gameObjectService.objects;
         this.gameObjectService.resetObjectsCount();
-        if(!this.gameCreationService.isNewGame){
+        if (!this.gameCreationService.isNewGame) {
             this.gameObjectService.loadMapObjectCount();
         }
     }

@@ -138,13 +138,13 @@ describe('GameObjectService', () => {
 
     describe('loadMapObjectCount', () => {
         beforeEach(() => {
-            service.mapSize = 'small'; 
+            service.mapSize = 'small';
             service.objectsArray = [
                 [1, NO_OBJECT, 2],
-                [3, NO_OBJECT, 4]
-            ]; 
+                [NO_OBJECT, NO_OBJECT, NO_OBJECT],
+            ];
             service.getObjectById = jasmine.createSpy('getObjectById').and.callFake((id) => {
-                return { id, count: 2 }; 
+                return { id, count: 2 };
             });
             service.resetObjectsCount = jasmine.createSpy('resetObjectsCount');
         });

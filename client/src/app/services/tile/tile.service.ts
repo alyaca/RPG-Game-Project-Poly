@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { TileType } from '@app/services/map-validator/map-validator.service';
 import { GameCreationService } from '@app/services/game-creation.service';
 
-
 @Injectable({
     providedIn: 'root',
 })
@@ -48,7 +47,7 @@ export class TileService {
     }
 
     resetGrid(mapSize: number, array: number[][]): number[][] {
-        if (!this.gameCreationService.isNewGame){
+        if (!this.gameCreationService.isNewGame) {
             return this.gameCreationService.loadedTiles;
         }
         array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));

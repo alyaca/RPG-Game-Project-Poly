@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { TileType } from '@app/services/map-validator/map-validator.service';
 import { TileService } from './tile.service';
-import { GameCreationService } from '../game-creation.service';
+import { GameCreationService } from '@app/services/game-creation.service';
 
 describe('TileService', () => {
     let service: TileService;
@@ -11,14 +11,11 @@ describe('TileService', () => {
             loadedTiles: [
                 [1, 1, 1],
                 [1, 1, 1],
-                [1, 1, 1]
-            ]
+                [1, 1, 1],
+            ],
         });
         TestBed.configureTestingModule({
-            providers: [
-                TileService,
-                { provide: GameCreationService, useValue: gameCreationServiceSpy }
-            ]
+            providers: [TileService, { provide: GameCreationService, useValue: gameCreationServiceSpy }],
         });
         service = TestBed.inject(TileService);
     });
@@ -82,12 +79,12 @@ describe('TileService', () => {
     });
 
     it('should return loadedTiles when isNewGame is false', () => {
-        gameCreationServiceSpy.isNewGame = false; 
+        gameCreationServiceSpy.isNewGame = false;
         const mapSize = 3;
         const array = [
             [0, 0, 0],
             [0, 0, 0],
-            [0, 0, 0]
+            [0, 0, 0],
         ];
 
         const result = service.resetGrid(mapSize, array);

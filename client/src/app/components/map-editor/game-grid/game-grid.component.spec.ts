@@ -10,7 +10,6 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { GameGridComponent } from './game-grid.component';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { SimpleChanges, SimpleChange } from '@angular/core';
-//import { TileService } from '@app/services/tile/tile.service';
 
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
@@ -20,14 +19,12 @@ describe('GameGridComponent', () => {
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
-    //let tileServiceSpy: jasmine.SpyObj<TileService>;
 
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions']);
-        //tileServiceSpy = jasmine.createSpyObj('TileService', ['resetGrid']);
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
             'initObjectsArray',
             'resetObjectsCount',
@@ -63,7 +60,6 @@ describe('GameGridComponent', () => {
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: 'TileService', useValue: tileServiceMock },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
-                // { provide: TileServiceSpy, useValue: tileServiceSpy}
             ],
         }).compileComponents();
 
@@ -87,27 +83,45 @@ describe('GameGridComponent', () => {
 
     describe('ngOnInit', () => {
         it('should initialize tiles and objects from loaded data for an existing game', () => {
-            gameCreationServiceSpy.updateDimensions.and.returnValue(10);
-            gameCreationServiceSpy.isNewGame = false; 
-            gameCreationServiceSpy.loadedTiles = [[1, 1], [0, 0]]; 
-            gameCreationServiceSpy.loadedObjects = [[2, 2], [0, 0]]; 
+            gameCreationServiceSpy.updateDimensions.and.returnValue(SIZE_SMALL_MAP);
+            gameCreationServiceSpy.isNewGame = false;
+            gameCreationServiceSpy.loadedTiles = [
+                [1, 1],
+                [0, 0],
+            ];
+            gameCreationServiceSpy.loadedObjects = [
+                [2, 2],
+                [0, 0],
+            ];
 
             component.ngOnInit();
 
             expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
-            expect(component.gridSize).toBe(10);
-            expect(component.tilesGrid).toEqual([[1, 1], [0, 0]]);
-            expect(component.objectsArray).toEqual([[2, 2], [0, 0]]);
-            expect(gameObjectManagerServiceSpy.objectsArray).toEqual([[2, 2], [0, 0]]); // Verify if objectsArray is updated in the service
+            expect(component.gridSize).toBe(SIZE_SMALL_MAP);
+            expect(component.tilesGrid).toEqual([
+                [1, 1],
+                [0, 0],
+            ]);
+            expect(component.objectsArray).toEqual([
+                [2, 2],
+                [0, 0],
+            ]);
+            expect(gameObjectManagerServiceSpy.objectsArray).toEqual([
+                [2, 2],
+                [0, 0],
+            ]);
         });
     });
 
     describe('deepCopyMatrix', () => {
         it('should return a deep copy of the matrix', () => {
-            const matrix = [[1, 2], [3, 4]];
+            const matrix = [
+                [1, 2],
+                [2, 0],
+            ];
             const result = component.deepCopyMatrix(matrix);
             expect(result).toEqual(matrix);
-            expect(result).not.toBe(matrix); 
+            expect(result).not.toBe(matrix);
         });
 
         it('should return an empty array if matrix is undefined', () => {
@@ -143,9 +157,9 @@ describe('GameGridComponent', () => {
         it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {
             gameCreationServiceSpy.isNewGame = true;
             const changes: SimpleChanges = {
-                resetTrigger: new SimpleChange(false, true, false)
+                resetTrigger: new SimpleChange(false, true, false),
             };
-    
+
             spyOn(component, 'sendInfoToMapCreationPage');
             component.ngOnChanges(changes);
             expect(gameObjectManagerServiceSpy.initObjectsArray).toHaveBeenCalled();
@@ -179,11 +193,6 @@ describe('GameGridComponent', () => {
             component.onTileClick(1, 1);
             expect(component.tilesGrid[1][1]).toBe(TileType.ClosedDoor);
         });
-
-        // it('should reset the grid', () => {
-        //     expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.gridSize, component.tilesGrid));
-        // });
-
 
         it('should remove tile on right-click', () => {
             component.tilesGrid[0][0] = TileType.Wall;
