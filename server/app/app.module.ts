@@ -1,9 +1,10 @@
+import { RoomModule } from '@app/modules/room/room.module';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlayerConnectionGateway } from './gateways/player-connection/player-connection.gateway';
+import { ChatModule } from './modules/chat/chat.module';
 import { MapModule } from './modules/map/map.module';
-import { RoomService } from './services/room/room.service';
 
 @Module({
     imports: [
@@ -16,7 +17,9 @@ import { RoomService } from './services/room/room.service';
             }),
         }),
         MapModule,
+        ChatModule,
+        RoomModule,
     ],
-    providers: [RoomService, PlayerConnectionGateway, Logger],
+    providers: [PlayerConnectionGateway, Logger],
 })
 export class AppModule {}

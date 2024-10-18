@@ -11,6 +11,14 @@ export class RoomService {
 
     setServer(io: Server) {
         this.io = io;
+        console.log('Server has been initialized');
+    }
+
+    getServer(): Server {
+        if (!this.io) {
+            throw new Error('Server is not initialized');
+        }
+        return this.io;
     }
 
     createRoom(socket: Socket, game: Game): Room {
@@ -58,7 +66,9 @@ export class RoomService {
 
     joinRoom(socket: Socket, roomId: string) {
         const room = this.rooms.get(roomId);
+        console.log('room', room);
         if (this.isRoomActive(roomId)) {
+            //demander a Kim, la fonction isRoomActive ne marche pas on dirait
             socket.join(roomId);
             this.io.to(roomId).emit('joinedRoom', room);
         } else {

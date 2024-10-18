@@ -12,15 +12,15 @@
     margin-top: 0.05rem;
 }
 
-.chat-message .time {
+.chat-message .timestamp {
     color: rgb(167, 167, 167); 
 }
 
-.chat-message .sender {
+.chat-message .username {
     color: rgb(220, 204, 113);
     font-weight: bold; 
 }
 
-.chat-message .content {
+.chat-message .message {
     flex-grow: 1;
 }
