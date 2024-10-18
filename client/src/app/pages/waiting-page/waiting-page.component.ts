@@ -7,12 +7,13 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { MAX_PLAYER_SIZE_INT } from '@app/constants';
-import { LobbyPlayer, PlayerSize } from '@app/interfaces/lobbyPlayer';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
+import { Player } from '@common/player';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-waiting-page',
@@ -24,14 +25,12 @@ import { Game } from '@common/game';
 export class WaitingPageComponent implements OnInit {
     accessCode: string;
     chosenGame: Game;
-
-    // sample player lobby (to be generated dynamically later)
-    // see app/mocks/mock-lobby-players.ts
-    players: LobbyPlayer[] = mockLobbyPlayers;
+    isLocked: boolean = false;
+    players: Player[];
 
     constructor(
         private router: Router,
-        private playerConnectionService: PlayerConnectionService,
+        private socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
         private gameListService: GameListService,
         private dialog: MatDialog,
@@ -41,7 +40,6 @@ export class WaitingPageComponent implements OnInit {
                 this.chosenGame = game;
             }
         });
-        this.attributeSizeDynamically();
         this.accessCode = this.gameService.roomId;
         this.chosenGame = this.gameService.selectedGame;
     }
@@ -51,34 +49,30 @@ export class WaitingPageComponent implements OnInit {
             this.router.navigate(['/home']);
         }
 
-        this.playerConnectionService.on<string>('roomDeleted', (message: string) => {
-            const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
-                disableClose: true,
-                data: { title: 'Partie annulée', messages: [message] },
-            });
-            dialogNavigate.afterClosed().subscribe((result) => {
-                if (result === 'close') {
-                    this.router.navigate(['/home']);
-                }
-            });
+        this.socketCommunicationService.on<string>('roomDeleted', (message: string) => {
+            this.onAdminQuit(message);
+        });
+
+        this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
+            this.players = room.listPlayers;
         });
     }
 
-    attributeSizeDynamically() {
-        const len: number = this.players.length;
-        let playerSizeInteger: number = MAX_PLAYER_SIZE_INT;
-        const midpoint: number = Math.floor(len / 2);
+    onAdminQuit(message: string) {
+        const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: { title: 'Partie annulée', messages: [message] },
+        });
+        dialogNavigate.afterClosed().subscribe((result) => {
+            if (result === 'close') {
+                this.router.navigate(['/home']);
+            }
+        });
+    }
 
-        for (let i = midpoint; i < len; i++) {
-            this.players[i].size = this.getPlayerSize(playerSizeInteger);
-            playerSizeInteger--;
-        }
-
-        playerSizeInteger = len % 2 === 1 ? MAX_PLAYER_SIZE_INT - 1 : MAX_PLAYER_SIZE_INT;
-        for (let i = midpoint - 1; i >= 0; i--) {
-            this.players[i].size = this.getPlayerSize(playerSizeInteger);
-            playerSizeInteger--;
-        }
+    onLockChange() {
+        this.gameService.isRoomLocked = this.isLocked;
+        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 
     getPlayerSize(val: number): PlayerSize {
@@ -109,8 +103,8 @@ export class WaitingPageComponent implements OnInit {
     }
 
     leaveGame(accessCode: string) {
-        this.playerConnectionService.send('leaveRoom', accessCode);
-        this.playerConnectionService.on('leftRoom', (isAdmin) => {
+        this.socketCommunicationService.send('leaveRoom', accessCode);
+        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
             if (isAdmin) {
                 this.router.navigate(['/game-creation']);
             } else {

@@ -3,5 +3,8 @@ export enum RoomEvents {
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
     LeaveRoom = 'leaveRoom',
-    PlayerSelection = 'playerSelection',
+    CreatePlayer = 'createPlayer',
+    SelectCharacter = 'selectCharacter',
+    ChangeLockRoom = 'changeLockRoom',
+    IsLocked = 'isLocked',
 }

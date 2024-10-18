@@ -190,6 +190,7 @@
     justify-content: center;
     overflow: hidden;
 }
+
 .decoration {
     padding-top: 2.5rem;
     width: 27%;
@@ -219,8 +220,40 @@ button {
     cursor: pointer;
 }
 
-.selected-avatar {
+.selected {
+    border-bottom: 0.5rem solid rgb(255, 249, 144);
+    border-right: 0.5rem solid rgb(255, 249, 144);
+    transform: translateY(0.3rem);
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border 0.3s ease;
+    box-shadow: 0 0 15px rgb(255, 249, 144);
+}
+
+.avatar-taken {
+    filter: grayscale(100%) brightness(50%);
+    pointer-events: none;
+}
+
+.avatar-taken img {
+    cursor: default;
+}
+
+.avatar-taken:hover {
+    transform: none;
+    border-bottom: 0.5rem solid black;
+    border-right: 0.5rem solid black;
+}
+
+.selected-avatar,
+.no-avatar {
     margin-top: 2.5rem;
     height: 80%;
+    aspect-ratio: 1 / 1;
     border-radius: 10%;
+}
+
+.no-avatar {
+    border: 1px solid rgb(255, 249, 144);
 }

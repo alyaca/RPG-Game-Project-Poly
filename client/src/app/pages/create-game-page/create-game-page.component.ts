@@ -7,8 +7,10 @@ import { GameListComponent } from '@app/components/game-list/game-list.component
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { avatars } from '@common/avatarsInfo';
 import { Game } from '@common/game';
+import { Player } from '@common/player';
 import { Room } from '@common/room';
 import { Subscription } from 'rxjs';
 
@@ -24,12 +26,14 @@ export class CreateGamePageComponent implements OnDestroy {
     selectedGame: Game | null = null;
     roomCode: string;
     gameName: string;
+    availableAvatars = avatars;
+
     private subscription: Subscription = new Subscription();
 
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
-        private playerConnectionService: PlayerConnectionService,
+        private socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
         private router: Router,
     ) {
@@ -38,8 +42,8 @@ export class CreateGamePageComponent implements OnDestroy {
                 this.selectedGame = game;
             }),
         );
-        if (!this.playerConnectionService.isSocketAlive()) {
-            this.playerConnectionService.connect();
+        if (!this.socketCommunicationService.isSocketAlive()) {
+            this.socketCommunicationService.connect();
         }
     }
 
@@ -62,9 +66,9 @@ export class CreateGamePageComponent implements OnDestroy {
         });
     }
 
-    joinLobby() {
-        // send character selection
+    joinLobby(player: Player) {
         this.createRoom();
+        this.socketCommunicationService.send('createPlayer', player);
     }
 
     hideCharacterForm() {
@@ -72,8 +76,8 @@ export class CreateGamePageComponent implements OnDestroy {
     }
 
     createRoom() {
-        this.playerConnectionService.send('createRoom', this.selectedGame);
-        this.playerConnectionService.on('roomCreated', (roomInfo: Room) => {
+        this.socketCommunicationService.send('createRoom', this.selectedGame);
+        this.socketCommunicationService.on('roomCreated', (roomInfo: Room) => {
             this.gameService.selectedGame = roomInfo.gameMap;
             this.roomCode = roomInfo.roomId;
             this.gameService.setRoomId(this.roomCode);

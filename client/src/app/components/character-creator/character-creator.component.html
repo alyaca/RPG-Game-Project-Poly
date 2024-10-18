@@ -2,8 +2,14 @@
     <div class="choice-info">
         <div class="choices">
             <div class="icons-container">
-                @for( avatar of avatars; track avatar){
-                <div class="icon">
+                @for( avatar of availableAvatars; track avatar){
+                <div
+                    class="icon"
+                    [ngClass]="{
+                        selected: avatar.isSelected,
+                        'avatar-taken': avatar.isTaken
+                    }"
+                >
                     <img [src]="avatar.src" (click)="getClickedImage(avatar)" />
                 </div>
                 }
@@ -15,7 +21,11 @@
             </div>
             <div class="image-wrapper">
                 <img class="decoration" [src]="'assets/images/leaves/leafL.webp'" />
+                @if(clickedAvatar) {
                 <img class="selected-avatar" [src]="clickedAvatar.src" />
+                } @else {
+                <div class="no-avatar"></div>
+                }
                 <img class="decoration" [src]="'assets/images/leaves/leafR.webp'" />
             </div>
             <div class="attributes-box">
@@ -26,7 +36,7 @@
                             Les points de vie du personnage correspond à cet attribut. Augmentez la valeur de l'attribut vie ou rapidité de +2.
                         </div>
                     </div>
-                    <div class="initial-value">{{ getAttributsValue('health') }}</div>
+                    <div class="initial-value">{{ getAttributValue('totalHp') }}</div>
                     <button (click)="addHealth()" [disabled]="isButtonSelected('health')">+2</button>
                 </div>
                 <div class="arrows-container">
@@ -37,7 +47,7 @@
                             personnage. Augmentez la valeur de l'attribut vie ou rapidité de +2.
                         </div>
                     </div>
-                    <div class="initial-value">{{ getAttributsValue('speed') }}</div>
+                    <div class="initial-value">{{ getAttributValue('speed') }}</div>
                     <button (click)="addSpeed()" [disabled]="isButtonSelected('speed')">+2</button>
                 </div>
                 <div class="arrows-container">
@@ -48,9 +58,9 @@
                             attributs attaque ou défense pour recevoir un bonus basé sur un dé à 6 faces ou à 4 faces.
                         </div>
                     </div>
-                    <div class="initial-value">{{ getAttributsValue('attack') }}</div>
-                    <button (click)="setAttack('4 + (1-4)')" [disabled]="isButtonSelected('attack4')">+D4</button>
-                    <button (click)="setAttack('4 + (1-6)')" [disabled]="isButtonSelected('attack6')">+D6</button>
+                    <div class="initial-value">{{ getAttributValue('atkDiceMax') }}</div>
+                    <button (click)="setAttack('attack4')" [disabled]="isButtonSelected('attack4')">+D4</button>
+                    <button (click)="setAttack('attack6')" [disabled]="isButtonSelected('attack6')">+D6</button>
                 </div>
                 <div class="arrows-container">
                     <div class="attribute">
@@ -60,9 +70,9 @@
                             défense pour recevoir un bonus basé sur un dé à 6 faces ou à 4 faces.
                         </div>
                     </div>
-                    <div class="initial-value">{{ getAttributsValue('defense') }}</div>
-                    <button (click)="setDefense('4 + (1-4)')" [disabled]="isButtonSelected('defense4')">+D4</button>
-                    <button (click)="setDefense('4 + (1-6)')" [disabled]="isButtonSelected('defense6')">+D6</button>
+                    <div class="initial-value">{{ getAttributValue('defDiceMax') }}</div>
+                    <button (click)="setDefense('defense4')" [disabled]="isButtonSelected('defense4')">+D4</button>
+                    <button (click)="setDefense('defense6')" [disabled]="isButtonSelected('defense6')">+D6</button>
                 </div>
             </div>
         </div>
