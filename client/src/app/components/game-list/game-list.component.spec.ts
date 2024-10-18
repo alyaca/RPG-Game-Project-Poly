@@ -31,7 +31,10 @@ describe('GameListComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [MatSnackBarModule, BrowserAnimationsModule],
-            providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
+            providers: [{ provide: MatSnackBar, useValue: snackBarSpy },
+                        { provide: GameListService, useValue: gameListServiceSpy },
+                        { provide: MapEditorService, useValue: mapEditorServiceSpy },
+            ]
         }).compileComponents();
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
@@ -48,11 +51,6 @@ describe('GameListComponent', () => {
         gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
-
-        await TestBed.configureTestingModule({
-            imports: [GameListComponent],
-            providers: [{ provide: GameListService, useValue: gameListServiceSpy }],
-        }).compileComponents();
 
         fixture = TestBed.createComponent(GameListComponent);
         component = fixture.componentInstance;
@@ -141,6 +139,13 @@ describe('GameListComponent', () => {
             const mockGame = { dimension: 25 } as Game;
             const result = component.convertMapDimension(mockGame);
             expect(result).toBe('none');
+        });
+
+        it('should edit game and navigate to edit-map', () => {
+            const game = mockGames[0];
+            component.editGame(game);
+ 
+            expect(mapEditorServiceSpy.setMapToEdit).toHaveBeenCalledWith(game);
         });
     });
 });

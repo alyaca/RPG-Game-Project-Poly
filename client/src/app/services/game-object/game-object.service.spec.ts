@@ -135,4 +135,29 @@ describe('GameObjectService', () => {
         expect(service.objects[1].count).toBe(ITEM_COUNT);
         expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[service.mapSize]);
     });
+
+    describe('loadMapObjectCount', () => {
+        beforeEach(() => {
+            service.mapSize = 'small'; 
+            service.objectsArray = [
+                [1, NO_OBJECT, 2],
+                [3, NO_OBJECT, 4]
+            ]; 
+            service.getObjectById = jasmine.createSpy('getObjectById').and.callFake((id) => {
+                return { id, count: 2 }; 
+            });
+            service.resetObjectsCount = jasmine.createSpy('resetObjectsCount');
+        });
+
+        it('should set maxCount based on mapSize', () => {
+            service.loadMapObjectCount();
+            service.mapSize = 'small';
+            expect(service.maxCount).toBe(OBJECT_COUNT_MAP[service.mapSize]);
+        });
+
+        it('should reset objects count', () => {
+            service.loadMapObjectCount();
+            expect(service.resetObjectsCount).toHaveBeenCalled();
+        });
+    });
 });

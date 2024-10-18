@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-//import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
-//import { ITEM_COUNT, NO_OBJECT } from '@app/constants';
-//import { mockObjects } from '@app/mocks/mock-object';
+import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
+import { ITEM_COUNT, NO_OBJECT } from '@app/constants';
+import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { GameObjectsContainerComponent } from './game-objects-container.component';
+import { GameCreationService } from '@app/services/game-creation.service';
 
 describe('GameObjectsContainerComponent', () => {
     let component: GameObjectsContainerComponent;
     let fixture: ComponentFixture<GameObjectsContainerComponent>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
 
     beforeEach(async () => {
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', [
@@ -27,11 +29,12 @@ describe('GameObjectsContainerComponent', () => {
             'ngOnDestroy',
         ]);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton']);
-
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame']);
         await TestBed.configureTestingModule({
             providers: [
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: ToolButtonService, useValue: toolButtonServiceSpy },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
 
@@ -43,7 +46,6 @@ describe('GameObjectsContainerComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-    /*
     describe('drag start event', () => {
         it('should set draggedObject and isDraggingFromContainer when gameObject count is greater than 0', async () => {
             const mockEvent = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as DragEvent;
@@ -111,5 +113,12 @@ describe('GameObjectsContainerComponent', () => {
         component.onDragEnd();
         expect(component.isDraggingFromContainer).toBeFalse();
     });
-    */
+
+    it('should call loadMapObjectCount if not a new game', () => {
+        gameCreationServiceSpy.isNewGame = false; 
+        gameObjectManagerServiceSpy.objects = mockObjects; 
+        component.ngOnInit();
+        expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled(); 
+        expect(gameObjectManagerServiceSpy.loadMapObjectCount).toHaveBeenCalled(); 
+    });
 });
