@@ -1,4 +1,4 @@
-import { defaultAttribute } from '@app/defaultAttributes';
+import { defaultAttributes } from '@app/defaultAttributes';
 import { avatars } from '@common/avatarsInfo';
 import { Avatar, Player, Status } from '@common/player';
 
@@ -8,7 +8,7 @@ export const mockLobbyPlayers: Player[] = [
         id: 'admin',
         name: 'Jar Jar Binks',
         avatar: avatars[0],
-        attributes: defaultAttribute,
+        attributes: defaultAttributes,
         status: Status.Admin,
         victories: 0,
         isActive: false,
@@ -17,7 +17,7 @@ export const mockLobbyPlayers: Player[] = [
         id: 'mefe',
         name: 'Obi-Wan Kenobi',
         avatar: avatars[1],
-        attributes: defaultAttribute,
+        attributes: defaultAttributes,
         status: Status.Player,
         victories: 0,
         isActive: false,
@@ -26,7 +26,7 @@ export const mockLobbyPlayers: Player[] = [
         id: 'ur32n',
         name: 'General Grievous',
         avatar: avatars[2],
-        attributes: defaultAttribute,
+        attributes: defaultAttributes,
         status: Status.Player,
         victories: 0,
         isActive: false,
@@ -35,7 +35,7 @@ export const mockLobbyPlayers: Player[] = [
         id: 'luke0324',
         name: 'Luke Skywalker',
         avatar: avatars[3],
-        attributes: defaultAttribute,
+        attributes: defaultAttributes,
         status: Status.Player,
         victories: 0,
         isActive: false,
@@ -44,7 +44,7 @@ export const mockLobbyPlayers: Player[] = [
         id: 'leia1214',
         name: 'Leia Organa',
         avatar: avatars[4],
-        attributes: defaultAttribute,
+        attributes: defaultAttributes,
         status: Status.Player,
         victories: 0,
         isActive: false,
@@ -53,7 +53,7 @@ export const mockLobbyPlayers: Player[] = [
         id: 'chew0242',
         name: 'Chewbacca',
         avatar: avatars[5],
-        attributes: defaultAttribute,
+        attributes: defaultAttributes,
         status: Status.Player,
         victories: 0,
         isActive: false,

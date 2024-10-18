@@ -81,7 +81,6 @@ export class JoinGameComponent {
 
     joinLobby(player: Player) {
         this.playerConnectionService.send('isLocked', this.gameService.roomId);
-
         this.playerConnectionService.once('isRoomLocked', (isLocked) => {
             if (isLocked) {
                 this.handleLockedRoom();
@@ -117,9 +116,7 @@ export class JoinGameComponent {
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
         this.playerConnectionService.send('leaveRoom', roomCode);
-        this.playerConnectionService.on('leftRoom', (isAdmin) => {
-            if (!isAdmin) this.router.navigate(['/join-page']);
-        });
+        this.accessCode = '';
     }
 
     connect() {

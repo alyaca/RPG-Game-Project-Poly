@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
-import { DEFAULT_ATTRIBUTE, DICE_6, HIGH_ATTRIBUTE, MESSAGE_DURATION_ERROR, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { Status } from '@common/player';
@@ -119,7 +119,7 @@ describe('CharacterCreatorComponent', () => {
             spyOn(component, 'setAttributes');
             spyOn(component, 'createPlayer');
 
-            attributesServiceSpy.saveAttributesValue.and.returnValue(undefined);
+            attributesServiceSpy.saveAttributesValue.and.returnValue('');
             component.saveChoices();
 
             expect(attributesServiceSpy.saveAttributesValue).toHaveBeenCalled();
@@ -130,8 +130,8 @@ describe('CharacterCreatorComponent', () => {
 
         it('should return if no avatar is clicked', () => {
             component.saveChoices();
-            expect(snackBarSpy.open).toHaveBeenCalledWith('Sélectionnez un avatar', 'Fermer', {
-                duration: MESSAGE_DURATION_ERROR,
+            expect(snackBarSpy.open).toHaveBeenCalledWith('Veuillez sélectionner un avatar', 'Fermer', {
+                duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
         });
 
@@ -154,8 +154,8 @@ describe('CharacterCreatorComponent', () => {
             currentHp: DEFAULT_ATTRIBUTE,
             speed: HIGH_ATTRIBUTE,
             movementPointsLeft: HIGH_ATTRIBUTE,
-            maxActionPoints: HIGH_ATTRIBUTE,
-            actionPoints: HIGH_ATTRIBUTE,
+            maxActionPoints: DEFAULT_ACTION_POINT,
+            actionPoints: DEFAULT_ACTION_POINT,
             attack: DEFAULT_ATTRIBUTE,
             atkDiceMax: HIGH_ATTRIBUTE,
             defense: DEFAULT_ATTRIBUTE,

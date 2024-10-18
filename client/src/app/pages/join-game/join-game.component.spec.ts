@@ -117,16 +117,10 @@ describe('JoinGameComponent', () => {
     });
 
     it('should set isCharacterFormVisible to false when leaving a game and navigate to home', () => {
-        const isAdmin = false;
-        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
-            if (event === 'leftRoom') {
-                callback(isAdmin as T);
-            }
-        });
         component.leaveGame(code);
         expect(component.isCharacterFormVisible).toBeFalsy();
         expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('leaveRoom', code);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/join-page']);
+        expect(component.accessCode).toBe('');
     });
 
     it('should set isJoined and isCharacterFormVisible to true and update room id and game name', () => {

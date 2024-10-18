@@ -5,6 +5,6 @@
         {{ lobbyPlayer.name }}
         <div class="status"></div>
     </div>
-    <img class="player-img" [src]="lobbyPlayer.avatar.src" alt="{{ lobbyPlayer.name }}-avatar" />
+    <img class="player-img" [src]="lobbyPlayer.avatar?.src" alt="{{ lobbyPlayer.name }}-avatar" />
     <div class="motif"></div>
 </div>
