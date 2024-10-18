@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -137,7 +138,7 @@ describe('CreateGamePageComponent', () => {
 
     it('should call createRoom when joinLobby is called', () => {
         const createRoomSpy = spyOn(component, 'createRoom');
-        component.joinLobby();
+        component.joinLobby(mockLobbyPlayers[0]);
         expect(createRoomSpy).toHaveBeenCalled();
     });
 });

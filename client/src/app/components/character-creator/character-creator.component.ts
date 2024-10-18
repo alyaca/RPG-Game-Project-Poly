@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HIGH_ATTRIBUTE, MESSAGE_DURATION_ERROR, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
-import { AttributesService } from '@app/services/attributes.service';
+import { MESSAGE_DURATION_ERROR, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { AttributesService } from '@app/services/attributes/attributes.service';
 import { avatars } from '@common/avatarsInfo';
-import { Avatar, Player, Status } from '@common/player';
+import { Avatar, Player, PlayerStats, Status } from '@common/player';
 
 @Component({
     selector: 'app-character-creator',
@@ -24,6 +24,7 @@ export class CharacterCreatorComponent {
     clickedAvatar: Avatar;
     characterName: string = '';
     player: Player;
+    attributes: PlayerStats;
 
     constructor(
         private attributesService: AttributesService,
@@ -35,8 +36,9 @@ export class CharacterCreatorComponent {
     }
 
     closeComponent() {
-        this.closeCharacterCreator.emit();
         this.attributesService.resetAttributes();
+        this.setAttributes();
+        this.closeCharacterCreator.emit();
     }
 
     getClickedImage(avatar: Avatar) {
@@ -52,47 +54,58 @@ export class CharacterCreatorComponent {
         return this.attributesService.isButtonSelected(buttonName);
     }
 
+    getAttributValue(attribute: keyof PlayerStats) {
+        return this.attributesService.getAttributValue(attribute);
+    }
+
     addHealth() {
-        this.attributesService.setHealth(HIGH_ATTRIBUTE);
+        this.attributesService.setHealth();
     }
 
     addSpeed() {
-        this.attributesService.setSpeed(HIGH_ATTRIBUTE);
+        this.attributesService.setSpeed();
     }
 
-    setAttack(attackValue: string) {
-        this.attributesService.setAttack(attackValue);
+    setAttack(dice: string) {
+        this.attributesService.setAttack(dice);
     }
 
-    setDefense(defenseValue: string) {
-        this.attributesService.setDefense(defenseValue);
+    setDefense(dice: string) {
+        this.attributesService.setDefense(dice);
     }
 
-    getAttributsValue(chosenAttribute: string) {
-        return this.attributesService.getAttributsValue(chosenAttribute);
+    diceDisplay(chosenAttribute: keyof PlayerStats) {
+        return this.attributesService.getDiceMessage(chosenAttribute);
     }
 
     saveChoices() {
         this.attributesService.setCharacterName(this.characterName);
         const saveStatus = this.attributesService.saveAttributesValue();
+        if (!this.clickedAvatar) {
+            this.snackBar.open('Sélectionnez un avatar', 'Fermer', {
+                duration: MESSAGE_DURATION_ERROR,
+            });
+            return;
+        }
         if (saveStatus) {
             this.snackBar.open(saveStatus as string, 'Fermer', {
                 duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
-        } else if (!this.clickedAvatar) {
-            this.snackBar.open('Sélectionnez un avatar', 'Fermer', {
-                duration: MESSAGE_DURATION_ERROR,
-            });
         } else {
+            this.setAttributes();
             this.createPlayer();
             this.confirmCharacterSelection.emit(this.player);
         }
     }
 
+    setAttributes() {
+        this.attributes = this.attributesService.attributes;
+    }
+
     createPlayer() {
         this.player = {
             id: 'test',
-            attributes: 'test',
+            attributes: this.attributes,
             avatar: this.clickedAvatar,
             isActive: false,
             name: this.characterName,
