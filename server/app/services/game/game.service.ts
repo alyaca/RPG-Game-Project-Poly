@@ -1,8 +1,8 @@
+import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class GameService {
@@ -43,7 +43,7 @@ export class GameService {
             this.roomService.deleteRoom(roomId, socket);
         } else {
             this.removePlayerFromRoom(roomId, socket);
-            socket.to(roomId).emit('udaptedPlayer', room);
+            socket.to(roomId).emit('updatedPlayer', room);
         }
     }
 

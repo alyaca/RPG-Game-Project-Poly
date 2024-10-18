@@ -53,7 +53,7 @@ export class WaitingPageComponent implements OnInit {
             this.onAdminQuit(message);
         });
 
-        this.playerConnectionService.on('udaptedPlayer', (room: Room) => {
+        this.playerConnectionService.on('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
         });
     }

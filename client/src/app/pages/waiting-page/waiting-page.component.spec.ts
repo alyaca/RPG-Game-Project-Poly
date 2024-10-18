@@ -83,7 +83,7 @@ describe('WaitingPageComponent', () => {
 
         it('should set player list when it is updated', () => {
             playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'udaptedPlayer') {
+                if (event === 'updatedPlayer') {
                     callback(mockRoom as T);
                 }
             });

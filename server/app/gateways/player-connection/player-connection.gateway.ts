@@ -66,8 +66,8 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
             player.status = Status.Admin;
         }
         this.gameService.createPlayer(room, player, client);
-        client.emit('udaptedPlayer', room);
-        client.to(room.roomId).emit('udaptedPlayer', room);
+        client.emit('updatedPlayer', room);
+        client.to(room.roomId).emit('updatedPlayer', room);
     }
 
     @SubscribeMessage(RoomEvents.SelectCharacter)
