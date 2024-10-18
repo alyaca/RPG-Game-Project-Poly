@@ -16,7 +16,7 @@ export enum Status {
 export interface Player {
     id: string;
     attributes: PlayerStats;
-    avatar: Avatar;
+    avatar?: Avatar;
     isActive: boolean;
     name: string;
     status: Status;

@@ -43,16 +43,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     @SubscribeMessage(RoomEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
-        const isAdmin = this.roomService.isPlayerAdmin(client);
-        const room = this.roomService.getRoom(client);
-        if (isAdmin) {
-            client.emit('leftRoom', isAdmin);
-            this.roomService.deleteRoom(roomId, client);
-        } else {
-            client.emit('leftRoom', isAdmin);
-            this.gameService.leavePlayerFromGame(roomId, client);
-            client.to(roomId).emit('udaptedPlayer', room);
-        }
+        this.gameService.leavePlayerFromGame(roomId, client);
     }
 
     @SubscribeMessage(RoomEvents.ChangeLockRoom)
@@ -74,7 +65,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         if (this.roomService.isPlayerAdmin(client)) {
             player.status = Status.Admin;
         }
-        this.gameService.createPlayer(room, player);
+        this.gameService.createPlayer(room, player, client);
         client.emit('udaptedPlayer', room);
         client.to(room.roomId).emit('udaptedPlayer', room);
     }
@@ -94,6 +85,10 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     }
 
     handleDisconnect(client: Socket) {
-        this.logger.log(`Client disconnected: ${client.id}`);
+        const room = this.roomService.getRoom(client);
+        if (room) {
+            this.gameService.leavePlayerFromGame(room.roomId, client);
+            this.logger.log(`Client disconnected: ${client.id}`);
+        }
     }
 }

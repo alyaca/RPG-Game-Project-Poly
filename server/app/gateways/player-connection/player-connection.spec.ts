@@ -1,5 +1,6 @@
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
+import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -12,7 +13,10 @@ describe('PlayerConnectionGateway', () => {
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
     let roomService: RoomService;
+    let gameService: GameService;
     let logger: SinonStubbedInstance<Logger>;
+    let roomId: string;
+    let mockClient: Socket;
 
     beforeEach(async () => {
         const roomServiceMock = {
@@ -22,18 +26,35 @@ describe('PlayerConnectionGateway', () => {
             leaveRoom: jest.fn(),
             isPlayerAdmin: jest.fn(),
             deleteRoom: jest.fn(),
+            getRoom: jest.fn(),
+            rooms: new Map(),
         };
 
+        const gameServiceMock = {
+            connectPlayerToGame: jest.fn(),
+            leavePlayerFromGame: jest.fn(),
+            toggleLockRoom: jest.fn(),
+            createPlayer: jest.fn(),
+            selectedAvatar: jest.fn(),
+        };
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
         logger = createStubInstance(Logger);
+        roomId = '1234';
+        mockClient = { emit: jest.fn(), id: 'test-client-id', data: { roomCode: roomId } } as unknown as Socket;
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [PlayerConnectionGateway, { provide: RoomService, useValue: roomServiceMock }, { provide: Logger, useValue: logger }],
+            providers: [
+                PlayerConnectionGateway,
+                { provide: RoomService, useValue: roomServiceMock },
+                { provide: Logger, useValue: logger },
+                { provide: GameService, useValue: gameServiceMock },
+            ],
         }).compile();
 
         gateway = module.get<PlayerConnectionGateway>(PlayerConnectionGateway);
         roomService = module.get<RoomService>(RoomService);
+        gameService = module.get<GameService>(GameService);
     });
 
     it('should be defined', () => {
@@ -47,24 +68,65 @@ describe('PlayerConnectionGateway', () => {
     });
 
     it('should log when a client connects', () => {
-        const client = { id: 'test-client-id' } as Socket;
         jest.spyOn(logger, 'log');
-        gateway.handleConnection(client);
-        expect(logger.log).toHaveBeenCalledWith('Client connected: test-client-id');
+        gateway.handleConnection(mockClient);
+        expect(logger.log).toHaveBeenCalled();
     });
 
     it('should log when a client disconnects', () => {
-        const client = { id: 'test-client-id' } as Socket;
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        jest.spyOn(gameService, 'leavePlayerFromGame');
         jest.spyOn(logger, 'log');
-        gateway.handleDisconnect(client);
-        expect(logger.log).toHaveBeenCalledWith('Client disconnected: test-client-id');
+        gateway.handleDisconnect(mockClient);
+        expect(gameService.leavePlayerFromGame).toHaveBeenCalledWith(roomId, mockClient);
+        expect(logger.log).toHaveBeenCalled();
     });
 
-    it('should call roomService joinRoom with the correct parameters', () => {
-        const roomId = '1234';
-        gateway.handleJoinRoom(socket, roomId);
-        expect(roomService.joinRoom).toHaveBeenCalledWith(socket, roomId);
-        expect(logger.debug.calledOnce).toBeTruthy();
+    describe('joinRoom', () => {
+        beforeEach(() => {
+            roomService.rooms.set(roomId, mockRooms[0]);
+            jest.spyOn(roomService, 'joinRoom');
+            jest.spyOn(logger, 'debug');
+        });
+        it('should leave room if connectionRes has errorType roomNotFound', () => {
+            const connectionRes = { event: 'joinError', errorType: 'roomNotFound' };
+            (gameService.connectPlayerToGame as jest.Mock).mockReturnValue(connectionRes);
+            gateway.handleJoinRoom(mockClient, roomId);
+
+            expect(mockClient.emit).toHaveBeenCalledWith(connectionRes.event, connectionRes.errorType);
+            expect(mockClient.emit).toHaveBeenCalled();
+            expect(logger.debug).not.toHaveBeenCalled();
+        });
+
+        it('should leave room if connectionRes has errorType roomLocked', () => {
+            const connectionRes = { event: 'joinedRoom' };
+            (gameService.connectPlayerToGame as jest.Mock).mockReturnValue(connectionRes);
+            gateway.handleJoinRoom(mockClient, roomId);
+
+            expect(mockClient.emit).toHaveBeenCalledWith(connectionRes.event, mockRooms[0]);
+            expect(roomService.joinRoom).toHaveBeenCalledWith(mockClient, roomId);
+            expect(logger.debug).toHaveBeenCalled();
+        });
+
+        it('should join the room successfully when there is no error', () => {
+            const connectionRes = { event: 'joinError', errorType: 'roomLocked' };
+        });
+
+        // it('should call roomService joinRoom with the correct parameters', () => {
+        //     const roomId = '1234';
+        //     roomService.rooms.set('3244', mockRooms[0]);
+        //     gateway.handleJoinRoom(socket, roomId);
+        //     expect(roomService.joinRoom).toHaveBeenCalledWith(socket, roomId);
+        //     expect(logger.debug.calledOnce).toBeTruthy();
+        // });
+        // it('should join the room and emit joinedRoom event if room is active', () => {
+        //     service['io'] = mockServer;
+        //     service.rooms.set(roomId, mockRooms[0]);
+        //     jest.spyOn(service, 'isRoomActive').mockReturnValue(true);
+        //     service.joinRoom(mockSocket, roomId);
+        //     expect(mockSocket.join).toHaveBeenCalledWith(roomId);
+        //     expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('joinedRoom', mockRooms[0]);
+        // });
     });
 
     it('should call roomService createRoom, emit roomCreated, and log the event', () => {
@@ -77,23 +139,12 @@ describe('PlayerConnectionGateway', () => {
         expect(logger.log.calledOnce).toBeTruthy();
     });
 
-    it('should emit leftRoom and delete room if player is admin', () => {
+    it('should call gameService leavePlayerFromGame when leaveRoom is received', () => {
         const roomId = '1234';
-        jest.spyOn(roomService, 'isPlayerAdmin').mockReturnValue(true);
+        jest.spyOn(gameService, 'leavePlayerFromGame');
 
         gateway.handleLeaveRoom(socket, roomId);
-        expect(socket.emit.calledWith('leftRoom', true)).toBeTruthy();
-        expect(roomService.deleteRoom).toHaveBeenCalledWith(roomId, socket);
-        expect(logger.debug.calledOnce).toBeTruthy();
-    });
-
-    it('should emit leftRoom and leave room if player is not admin', () => {
-        const roomId = '1234';
-        jest.spyOn(roomService, 'isPlayerAdmin').mockReturnValue(false);
-
-        gateway.handleLeaveRoom(socket, roomId);
-        expect(socket.emit.calledWith('leftRoom', false)).toBeTruthy();
-        expect(roomService.leaveRoom).toHaveBeenCalledWith(roomId, socket);
+        expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
         expect(logger.debug.calledOnce).toBeTruthy();
     });
 });

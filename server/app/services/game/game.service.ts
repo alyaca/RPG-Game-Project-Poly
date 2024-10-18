@@ -28,13 +28,26 @@ export class GameService {
         return { event: 'joinedRoom' };
     }
 
-    createPlayer(room: Room, player: Player) {
+    createPlayer(room: Room, player: Player, socket: Socket) {
+        socket.data.username = player.name;
         room.listPlayers.push(player);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
         takenAvatar.isTaken = true;
     }
 
     leavePlayerFromGame(roomId: string, socket: Socket) {
+        const isAdmin = this.roomService.isPlayerAdmin(socket);
+        const room = this.roomService.getRoom(socket);
+        socket.emit('leftRoom', isAdmin);
+        if (isAdmin) {
+            this.roomService.deleteRoom(roomId, socket);
+        } else {
+            this.removePlayerFromRoom(roomId, socket);
+            socket.to(roomId).emit('udaptedPlayer', room);
+        }
+    }
+
+    removePlayerFromRoom(roomId: string, socket: Socket) {
         const room = this.roomService.rooms.get(roomId);
         room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
         this.freeUpAvatar(room, socket);
