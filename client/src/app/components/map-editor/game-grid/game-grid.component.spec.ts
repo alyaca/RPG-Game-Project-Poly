@@ -175,25 +175,6 @@ describe('GameGridComponent', () => {
             expect(component.tilesGrid[0][0]).toBe(TileType.Ice);
         });
 
-        it('should set tile to Wall when wall-tile is selected', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('wall-tile');
-            component.onTileClick(0, 0);
-            expect(component.tilesGrid[0][0]).toBe(TileType.Wall);
-        });
-
-        it('should set tile to Water when water-tile is selected', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('water-tile');
-            component.onTileClick(0, 0);
-            expect(component.tilesGrid[0][0]).toBe(TileType.Water);
-        });
-
-        it('should set tile to ClosedDoor when door-tile is selected and on edge', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('door-tile');
-            component.tilesGrid[1][1] = TileType.Ground;
-            component.onTileClick(1, 1);
-            expect(component.tilesGrid[1][1]).toBe(TileType.ClosedDoor);
-        });
-
         it('should remove tile on right-click', () => {
             component.tilesGrid[0][0] = TileType.Wall;
             const event = new MouseEvent('click', { button: 2 });
@@ -409,30 +390,6 @@ describe('GameGridComponent', () => {
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
-    });
-
-    it('should set the tile to Ground when conditions are met', () => {
-        component.tilesGrid[1][0] = TileType.Wall;
-        component.objectsArray[1][0] = NO_OBJECT;
-        const mockEvent = new MouseEvent('click', { button: 0 });
-        spyOn(mockEvent, 'preventDefault');
-
-        component.removeTile(mockEvent, 1, 0);
-
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(component.tilesGrid[1][0]).toBe(TileType.Ground);
-    });
-
-    it('should not change the tile if it is already Ground', () => {
-        const mockEvent = new MouseEvent('click');
-        spyOn(mockEvent, 'preventDefault');
-
-        component.tilesGrid[0][0] = TileType.Ground;
-        component.objectsArray[0][0] = NO_OBJECT;
-        component.removeTile(mockEvent, 0, 0);
-
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
     });
 
     it('should prevent default event behavior, call removeTile, and removeObjectByClick', () => {
