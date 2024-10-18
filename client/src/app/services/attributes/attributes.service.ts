@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, HIGH_ATTRIBUTE } from '@app/constants';
-import { defaultAttribute } from '@app/defaultAttributes';
+import { defaultAttributes } from '@app/defaultAttributes';
 import { PlayerStats } from '@common/player';
 
 @Injectable({
@@ -12,17 +12,15 @@ export class AttributesService {
         missingName: 'Veuillez entrer un nom de personnage',
     };
     name: string = '';
-    attributes: PlayerStats = { ...defaultAttribute };
+    attributes: PlayerStats = { ...defaultAttributes };
 
     setCharacterName(name: string) {
         this.name = name;
     }
 
     setAttribute(highAttribute: keyof PlayerStats, defaultAttribute: keyof PlayerStats) {
-        if (typeof this.attributes[highAttribute]) {
-            this.attributes[highAttribute] = HIGH_ATTRIBUTE;
-            this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
-        }
+        this.attributes[highAttribute] = HIGH_ATTRIBUTE;
+        this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
     }
 
     setHealth() {
@@ -66,7 +64,7 @@ export class AttributesService {
 
     resetAttributes() {
         this.name = '';
-        this.attributes = { ...defaultAttribute };
+        this.attributes = { ...defaultAttributes };
     }
 
     getAttributValue(chosenAttribute: keyof PlayerStats) {
@@ -81,7 +79,7 @@ export class AttributesService {
         if (!this.hasSelectedAttributes()) {
             return this.validateError.missingAttributes;
         }
-        return;
+        return '';
     }
 
     getDiceMessage(chosenAttribute: keyof PlayerStats) {
@@ -117,8 +115,6 @@ export class AttributesService {
 
     setAllStats() {
         this.attributes.currentHp = this.attributes.totalHp;
-        this.attributes.actionPoints = this.attributes.speed;
-        this.attributes.maxActionPoints = this.attributes.speed;
         this.attributes.movementPointsLeft = this.attributes.speed;
     }
 }

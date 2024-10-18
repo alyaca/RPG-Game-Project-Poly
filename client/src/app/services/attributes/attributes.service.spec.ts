@@ -204,13 +204,13 @@ describe('AttributesService', () => {
             expect(result).toBe(service.validateError.missingAttributes);
         });
 
-        it('should return undefined when name and attributes are defined', () => {
+        it('should return empty string when name and attributes are defined', () => {
             spyOn(service, 'hasName').and.returnValue('test');
             spyOn(service, 'hasSelectedAttributes').and.returnValue(true);
 
             const result = service.saveAttributesValue();
 
-            expect(result).toBeUndefined();
+            expect(result).toBe('');
         });
     });
 
@@ -298,8 +298,6 @@ describe('AttributesService', () => {
     it('should set currentHp to totalHp and actionPoints, maxActionPoints, movementPointsLeft to speed', () => {
         service.setAllStats();
         expect(service.attributes.currentHp).toBe(service.attributes.totalHp);
-        expect(service.attributes.actionPoints).toBe(service.attributes.speed);
-        expect(service.attributes.maxActionPoints).toBe(service.attributes.speed);
         expect(service.attributes.movementPointsLeft).toBe(service.attributes.speed);
     });
 });
