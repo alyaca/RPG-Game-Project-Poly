@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Avatar, Player } from '@common/player';
 import { Room } from '@common/room';
 @Component({
@@ -31,13 +31,13 @@ export class JoinGameComponent {
     previousClickedAvatar: Avatar;
 
     constructor(
-        private playerConnectionService: PlayerConnectionService,
+        private socketCommunicationService: SocketCommunicationService,
         private router: Router,
         private gameService: GameService,
         private dialog: MatDialog,
     ) {
         this.connect();
-        this.playerConnectionService.on('characterSelected', (availableAvatars: Avatar[]) => {
+        this.socketCommunicationService.on('characterSelected', (availableAvatars: Avatar[]) => {
             this.availableAvatars = availableAvatars;
         });
     }
@@ -54,11 +54,11 @@ export class JoinGameComponent {
             return;
         }
 
-        this.playerConnectionService.send('joinRoom', accessCode);
-        this.playerConnectionService.on<Room>('joinedRoom', (roomInfo: Room) => {
+        this.socketCommunicationService.send('joinRoom', accessCode);
+        this.socketCommunicationService.on<Room>('joinedRoom', (roomInfo: Room) => {
             this.onJoinGame(roomInfo);
         });
-        this.playerConnectionService.on('joinError', (res: string) => {
+        this.socketCommunicationService.on('joinError', (res: string) => {
             this.setErrorMessage(res);
         });
     }
@@ -80,19 +80,19 @@ export class JoinGameComponent {
     }
 
     joinLobby(player: Player) {
-        this.playerConnectionService.send('isLocked', this.gameService.roomId);
-        this.playerConnectionService.once('isRoomLocked', (isLocked) => {
+        this.socketCommunicationService.send('isLocked', this.gameService.roomId);
+        this.socketCommunicationService.once('isRoomLocked', (isLocked) => {
             if (isLocked) {
                 this.handleLockedRoom();
             } else {
-                this.playerConnectionService.send('createPlayer', player);
+                this.socketCommunicationService.send('createPlayer', player);
                 this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.gameService.roomId } });
             }
         });
     }
 
     selectedAvatar(avatar: Avatar) {
-        this.playerConnectionService.send('selectCharacter', avatar);
+        this.socketCommunicationService.send('selectCharacter', avatar);
     }
 
     handleLockedRoom() {
@@ -107,7 +107,7 @@ export class JoinGameComponent {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'leave') {
-                this.playerConnectionService.send('leaveRoom', this.gameService.roomId);
+                this.socketCommunicationService.send('leaveRoom', this.gameService.roomId);
                 this.router.navigate(['/home']);
             }
         });
@@ -115,13 +115,13 @@ export class JoinGameComponent {
 
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
-        this.playerConnectionService.send('leaveRoom', roomCode);
+        this.socketCommunicationService.send('leaveRoom', roomCode);
         this.accessCode = '';
     }
 
     connect() {
-        if (!this.playerConnectionService.isSocketAlive()) {
-            this.playerConnectionService.connect();
+        if (!this.socketCommunicationService.isSocketAlive()) {
+            this.socketCommunicationService.connect();
         }
     }
 }

@@ -8,7 +8,7 @@ import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
@@ -19,7 +19,7 @@ describe('WaitingPageComponent', () => {
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
-    let playerConnectionServiceSpy: jasmine.SpyObj<PlayerConnectionService>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
 
@@ -28,7 +28,7 @@ describe('WaitingPageComponent', () => {
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
-        playerConnectionServiceSpy = jasmine.createSpyObj('PlayerConnectionService', ['on', 'send']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         accessCode = '1234';
 
@@ -38,7 +38,7 @@ describe('WaitingPageComponent', () => {
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: GameService, useValue: gameServiceSpy },
-                { provide: PlayerConnectionService, useValue: playerConnectionServiceSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
             ],
         }).compileComponents();
@@ -82,7 +82,7 @@ describe('WaitingPageComponent', () => {
         });
 
         it('should set player list when it is updated', () => {
-            playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'updatedPlayer') {
                     callback(mockRoom as T);
                 }
@@ -100,7 +100,7 @@ describe('WaitingPageComponent', () => {
 
         component.accessCode = accessCode;
         component.chosenGame = mockGames[0];
-        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'roomDeleted') {
                 callback('Room has been deleted.' as unknown as T);
             }
@@ -116,27 +116,27 @@ describe('WaitingPageComponent', () => {
 
     it('should call leaveRoom and navigate to home if normal player on leftRoom event', () => {
         const expectedRoute = '/home';
-        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
             if (event === 'leftRoom') {
                 callback(false as unknown as T);
             }
         });
         component.leaveGame(accessCode);
 
-        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
     it('should call leaveRoom and navigate to game creation if admin player on leftRoom event', () => {
         const expectedRoute = '/game-creation';
-        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
             if (event === 'leftRoom') {
                 callback(true as unknown as T);
             }
         });
         component.leaveGame(accessCode);
 
-        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
@@ -206,6 +206,6 @@ describe('WaitingPageComponent', () => {
         component.onLockChange();
 
         expect(gameServiceSpy.isRoomLocked).toBe(true);
-        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
     });
 });

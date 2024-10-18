@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Socket } from 'socket.io-client';
-import { PlayerConnectionService } from './player-connection.service';
+import { SocketCommunicationService } from './socket-communication.service';
 
-describe('PlayerConnectionService', () => {
-    let service: PlayerConnectionService;
+describe('SocketCommunicationService', () => {
+    let service: SocketCommunicationService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(PlayerConnectionService);
+        service = TestBed.inject(SocketCommunicationService);
     });
 
     it('should connect', () => {

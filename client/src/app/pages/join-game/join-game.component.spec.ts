@@ -6,7 +6,7 @@ import { mockAvatars } from '@app/mocks/mock-avatars';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
 import { JoinGameComponent } from './join-game.component';
 
@@ -15,7 +15,7 @@ describe('JoinGameComponent', () => {
     let fixture: ComponentFixture<JoinGameComponent>;
     let activatedRouteMock: jasmine.SpyObj<ActivatedRoute>;
     let routerSpy: jasmine.SpyObj<Router>;
-    let playerConnectionServiceSpy: jasmine.SpyObj<PlayerConnectionService>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
 
@@ -23,7 +23,7 @@ describe('JoinGameComponent', () => {
 
     beforeEach(async () => {
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        playerConnectionServiceSpy = jasmine.createSpyObj('PlayerConnectionService', ['send', 'on', 'once', 'isSocketAlive', 'connect']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on', 'once', 'isSocketAlive', 'connect']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['setRoomId']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
 
@@ -33,13 +33,13 @@ describe('JoinGameComponent', () => {
             providers: [
                 { provide: Router, useValue: routerSpy },
                 { provide: ActivatedRoute, useValue: activatedRouteMock },
-                { provide: PlayerConnectionService, useValue: playerConnectionServiceSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
             ],
         }).compileComponents();
 
-        playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'characterSelected') {
                 callback(mockAvatars as T);
             }
@@ -55,7 +55,7 @@ describe('JoinGameComponent', () => {
     });
 
     it('should call connect when connecting to page', () => {
-        expect(playerConnectionServiceSpy.connect).toHaveBeenCalled();
+        expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
         expect(component.availableAvatars).toEqual(mockAvatars);
     });
 
@@ -83,7 +83,7 @@ describe('JoinGameComponent', () => {
     describe('joinLobby', () => {
         it('should handle locked room ', () => {
             gameServiceSpy.roomId = 'testRoomId';
-            playerConnectionServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'isRoomLocked') {
                     callback(true as T);
                 }
@@ -92,15 +92,15 @@ describe('JoinGameComponent', () => {
             spyOn(component, 'handleLockedRoom');
             component.joinLobby(mockLobbyPlayers[0]);
 
-            expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('isLocked', 'testRoomId');
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('isLocked', 'testRoomId');
             expect(component.handleLockedRoom).toHaveBeenCalled();
-            expect(playerConnectionServiceSpy.send).not.toHaveBeenCalledWith('createPlayer', mockLobbyPlayers[0]);
+            expect(socketCommunicationServiceSpy.send).not.toHaveBeenCalledWith('createPlayer', mockLobbyPlayers[0]);
             expect(routerSpy.navigate).not.toHaveBeenCalled();
         });
 
         it('should navigate to /waiting-page when room is unlocked ', () => {
             gameServiceSpy.roomId = code;
-            playerConnectionServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'isRoomLocked') {
                     callback(false as T);
                 }
@@ -109,9 +109,9 @@ describe('JoinGameComponent', () => {
             spyOn(component, 'handleLockedRoom');
             component.joinLobby(mockLobbyPlayers[0]);
 
-            expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('isLocked', code);
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('isLocked', code);
             expect(component.handleLockedRoom).not.toHaveBeenCalled();
-            expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('createPlayer', mockLobbyPlayers[0]);
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('createPlayer', mockLobbyPlayers[0]);
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page'], { queryParams: { roomCode: code } });
         });
     });
@@ -119,7 +119,7 @@ describe('JoinGameComponent', () => {
     it('should set isCharacterFormVisible to false when leaving a game and navigate to home', () => {
         component.leaveGame(code);
         expect(component.isCharacterFormVisible).toBeFalsy();
-        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('leaveRoom', code);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', code);
         expect(component.accessCode).toBe('');
     });
 
@@ -139,12 +139,12 @@ describe('JoinGameComponent', () => {
 
             expect(component.submitForm).toBeTruthy();
             expect(component.errorMessage).toEqual('Le code doit être composé de 4 chiffres');
-            expect(playerConnectionServiceSpy.send).not.toHaveBeenCalled();
+            expect(socketCommunicationServiceSpy.send).not.toHaveBeenCalled();
         });
 
         it('should set error message when room not found', () => {
             spyOn(component, 'isValidCode').and.returnValue(true);
-            playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (date: T) => void) => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (date: T) => void) => {
                 if (event === 'joinError') {
                     callback('roomNotFound' as unknown as T);
                 }
@@ -155,7 +155,7 @@ describe('JoinGameComponent', () => {
 
         it('should send joinRoom and handle successful join', () => {
             spyOn(component, 'isValidCode').and.returnValue(true);
-            playerConnectionServiceSpy.on.and.callFake(<Room>(event: string, callback: (date: Room) => void) => {
+            socketCommunicationServiceSpy.on.and.callFake(<Room>(event: string, callback: (date: Room) => void) => {
                 if (event === 'joinedRoom') {
                     callback(mockRoom as Room);
                 }
@@ -165,7 +165,7 @@ describe('JoinGameComponent', () => {
             component.joinGame(mockRoom.roomId);
 
             expect(component.submitForm).toBeTrue();
-            expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('joinRoom', mockRoom.roomId);
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('joinRoom', mockRoom.roomId);
             expect(component.errorMessage).toBe('');
             expect(component.onJoinGame).toHaveBeenCalledWith(mockRoom);
         });
@@ -202,8 +202,8 @@ describe('JoinGameComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should send selected avatar to playerConnectionService', () => {
+    it('should send selected avatar to socketCommunicationService', () => {
         component.selectedAvatar(mockAvatar);
-        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('selectCharacter', mockAvatar);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('selectCharacter', mockAvatar);
     });
 });

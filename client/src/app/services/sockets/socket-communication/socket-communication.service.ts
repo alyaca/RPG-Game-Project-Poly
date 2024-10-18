@@ -4,7 +4,7 @@ import { Socket, io } from 'socket.io-client';
 @Injectable({
     providedIn: 'root',
 })
-export class PlayerConnectionService {
+export class SocketCommunicationService {
     socket: Socket;
 
     isSocketAlive() {

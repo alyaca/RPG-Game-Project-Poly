@@ -10,7 +10,7 @@ import { MAX_PLAYER_SIZE_INT } from '@app/constants';
 import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -30,7 +30,7 @@ export class WaitingPageComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private playerConnectionService: PlayerConnectionService,
+        private socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
         private gameListService: GameListService,
         private dialog: MatDialog,
@@ -49,11 +49,11 @@ export class WaitingPageComponent implements OnInit {
             this.router.navigate(['/home']);
         }
 
-        this.playerConnectionService.on<string>('roomDeleted', (message: string) => {
+        this.socketCommunicationService.on<string>('roomDeleted', (message: string) => {
             this.onAdminQuit(message);
         });
 
-        this.playerConnectionService.on('updatedPlayer', (room: Room) => {
+        this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
         });
     }
@@ -72,7 +72,7 @@ export class WaitingPageComponent implements OnInit {
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
-        this.playerConnectionService.send('changeLockRoom', { isLocked: this.isLocked });
+        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 
     getPlayerSize(val: number): PlayerSize {
@@ -103,8 +103,8 @@ export class WaitingPageComponent implements OnInit {
     }
 
     leaveGame(accessCode: string) {
-        this.playerConnectionService.send('leaveRoom', accessCode);
-        this.playerConnectionService.on('leftRoom', (isAdmin) => {
+        this.socketCommunicationService.send('leaveRoom', accessCode);
+        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
             if (isAdmin) {
                 this.router.navigate(['/game-creation']);
             } else {

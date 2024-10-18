@@ -8,7 +8,7 @@ import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { CreateGamePageComponent } from './create-game-page.component';
@@ -22,7 +22,7 @@ describe('CreateGamePageComponent', () => {
     let selectedGameSubject: BehaviorSubject<Game | null>;
     let chosenGameSubject: BehaviorSubject<Game | null>;
     let mockMap: Game;
-    let playerConnectionServiceSpy: jasmine.SpyObj<PlayerConnectionService>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let routerSpy: jasmine.SpyObj<Router>;
 
@@ -42,7 +42,7 @@ describe('CreateGamePageComponent', () => {
 
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-        playerConnectionServiceSpy = jasmine.createSpyObj('PlayerConnectionService', ['connect', 'send', 'on', 'isSocketAlive']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['connect', 'send', 'on', 'isSocketAlive']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['setRoomId', 'joinRoom']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -60,7 +60,7 @@ describe('CreateGamePageComponent', () => {
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: ActivatedRoute, useValue: activatedRouteSpy },
                 { provide: MatSnackBar, useValue: snackBarSpy },
-                { provide: PlayerConnectionService, useValue: playerConnectionServiceSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: Router, useValue: routerSpy },
             ],
@@ -120,7 +120,7 @@ describe('CreateGamePageComponent', () => {
 
     it('should create a room and navigate to waiting-page', () => {
         const roomInfo = mockRoom;
-        playerConnectionServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
+        socketCommunicationServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
             if (event === 'roomCreated') {
                 callback(roomInfo as Room);
             }
@@ -129,7 +129,7 @@ describe('CreateGamePageComponent', () => {
         component.selectedGame = mockMap;
         component.createRoom();
 
-        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('createRoom', component.selectedGame);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('createRoom', component.selectedGame);
         expect(gameServiceSpy.selectedGame).toBe(roomInfo.gameMap);
         expect(gameServiceSpy.setRoomId).toHaveBeenCalledWith(roomInfo.roomId);
         expect(gameServiceSpy.joinRoom).toHaveBeenCalledWith(roomInfo.roomId);
