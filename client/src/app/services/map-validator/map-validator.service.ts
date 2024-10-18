@@ -71,7 +71,7 @@ export class MapValidatorService {
     validateName(nameToCheck: string) {
         const trimmedNameToCheck = nameToCheck.trim();
         this.gameListService.getAllGames().subscribe((allMaps) => {
-            for (let index in allMaps) {
+            for (const index in allMaps) {
                 if (allMaps[index].name === trimmedNameToCheck) {
                     this.errorMessages.push('- Une carte avec le même nom existe déjà');
                 }
@@ -236,5 +236,46 @@ export class MapValidatorService {
             }
         }
         return spawnObjectCount;
+    }
+
+    private createVisitedArray(array: number[][]): boolean[][] {
+        return Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
+    }
+
+    private getDirections() {
+        return [
+            { x: 0, y: 1 },
+            { x: 1, y: 0 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
+        ];
+    }
+
+    private dfs(array: number[][], visited: boolean[][], row: number, col: number, directions: { x: number; y: number }[]): void {
+        visited[row][col] = true;
+
+        for (const direction of directions) {
+            const newRow = row + direction.x;
+            const newCol = col + direction.y;
+
+            if (this.isValidMove(newRow, newCol, array, visited)) {
+                this.dfs(array, visited, newRow, newCol, directions);
+            }
+        }
+    }
+
+    private isValidMove(row: number, col: number, array: number[][], visited: boolean[][]): boolean {
+        return row >= 0 && row < array.length && col >= 0 && col < array[0].length && !visited[row][col] && array[row][col] !== TileType.Wall;
+    }
+
+    private allTilesAccessible(array: number[][], visited: boolean[][]): boolean {
+        for (let row = 0; row < array.length; row++) {
+            for (let col = 0; col < array[row].length; col++) {
+                if (array[row][col] !== TileType.Wall && !visited[row][col]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

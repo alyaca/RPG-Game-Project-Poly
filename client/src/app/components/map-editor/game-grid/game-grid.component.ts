@@ -63,7 +63,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    deepCopyMatrix(matrix: number[][]) {
+    deepCopyMatrix(matrix: number[][] | null): number[][] {
         if (!matrix) {
             return [];
         }

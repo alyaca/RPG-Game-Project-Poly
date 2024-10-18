@@ -72,8 +72,6 @@ export class GameObjectService implements OnDestroy {
             this.objectsArray[this.dragStartPosition.row][this.dragStartPosition.col] = NO_OBJECT;
         }
         const maxObjectCount = this.countableObjects.includes(gameObject.id) ? this.maxCount : ITEM_COUNT;
-        
-        console.log(this.maxCount);
 
         if (gameObject.count + 1 <= maxObjectCount) {
             gameObject.count++;
@@ -101,10 +99,11 @@ export class GameObjectService implements OnDestroy {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
         }
         this.resetObjectsCount();
-        for(let row = 0 ;row < this.objectsArray.length; row++){
-            for(let col = 0 ;col < this.objectsArray[0].length; col++){
-                const object= this.getObjectById(this.objectsArray[row][col]);
-                if (this.objectsArray[row][col] !== NO_OBJECT && object){
+
+        for (const row of this.objectsArray) {
+            for (const colValue of row) {
+                const object = this.getObjectById(colValue);
+                if (colValue !== NO_OBJECT && object) {
                     object.count--;
                 }
             }

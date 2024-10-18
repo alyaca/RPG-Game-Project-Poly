@@ -8,6 +8,8 @@ import { MapValidatorService, TileType } from '@app/services/map-validator/map-v
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { GameGridComponent } from './game-grid.component';
+import { GameCreationService } from '@app/services/game-creation.service';
+import { SimpleChanges, SimpleChange } from '@angular/core';
 
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
@@ -16,11 +18,13 @@ describe('GameGridComponent', () => {
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
 
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions']);
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
             'initObjectsArray',
             'resetObjectsCount',
@@ -55,6 +59,7 @@ describe('GameGridComponent', () => {
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: 'TileService', useValue: tileServiceMock },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
 
@@ -75,7 +80,56 @@ describe('GameGridComponent', () => {
         expect(component.selectedCol).toBe(0);
         expect(component.isMouseDown).toBeFalse();
     });
-    /*
+
+    describe('ngOnInit', () => {
+        it('should initialize tiles and objects from loaded data for an existing game', () => {
+            gameCreationServiceSpy.updateDimensions.and.returnValue(SIZE_SMALL_MAP);
+            gameCreationServiceSpy.isNewGame = false;
+            gameCreationServiceSpy.loadedTiles = [
+                [1, 1],
+                [0, 0],
+            ];
+            gameCreationServiceSpy.loadedObjects = [
+                [2, 2],
+                [0, 0],
+            ];
+
+            component.ngOnInit();
+
+            expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
+            expect(component.gridSize).toBe(SIZE_SMALL_MAP);
+            expect(component.tilesGrid).toEqual([
+                [1, 1],
+                [0, 0],
+            ]);
+            expect(component.objectsArray).toEqual([
+                [2, 2],
+                [0, 0],
+            ]);
+            expect(gameObjectManagerServiceSpy.objectsArray).toEqual([
+                [2, 2],
+                [0, 0],
+            ]);
+        });
+    });
+
+    describe('deepCopyMatrix', () => {
+        it('should return a deep copy of the matrix', () => {
+            const matrix = [
+                [1, 2],
+                [2, 0],
+            ];
+            const result = component.deepCopyMatrix(matrix);
+            expect(result).toEqual(matrix);
+            expect(result).not.toBe(matrix);
+        });
+
+        it('should return an empty array if matrix is undefined', () => {
+            const result = component.deepCopyMatrix(null);
+            expect(result).toEqual([]);
+        });
+    });
+
     describe('ngOnChanges', () => {
         it('should reset the grid when resetTrigger changes to true', () => {
             component.tilesGrid[0][0] = TileType.Water;
@@ -84,13 +138,14 @@ describe('GameGridComponent', () => {
             };
 
             component.ngOnChanges(changes);
-            expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.gridSize, component.tilesGrid));
+            expect(component.tilesGrid).toEqual([]);
         });
 
         it('should validate the map when saveTrigger changes to true', () => {
             component.mapName = 'Test Map';
             component.mapDescription = 'Description';
             component.tilesGrid = [[TileType.Ground]];
+            gameCreationServiceSpy.isNewGame = true;
             const changes: SimpleChanges = {
                 saveTrigger: new SimpleChange(false, true, false),
             };
@@ -98,8 +153,21 @@ describe('GameGridComponent', () => {
             component.ngOnChanges(changes);
             expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(component.tilesGrid, component.mapName, component.mapDescription, true);
         });
+
+        it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {
+            gameCreationServiceSpy.isNewGame = true;
+            const changes: SimpleChanges = {
+                resetTrigger: new SimpleChange(false, true, false),
+            };
+
+            spyOn(component, 'sendInfoToMapCreationPage');
+            component.ngOnChanges(changes);
+            expect(gameObjectManagerServiceSpy.initObjectsArray).toHaveBeenCalled();
+            expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
+            expect(component.sendInfoToMapCreationPage).toHaveBeenCalled();
+        });
     });
-*/
+
     describe('tile interactions', () => {
         it('should set tile to Ice when ice-tile is selected', () => {
             toolServiceSpy.getSelectedTile.and.returnValue('ice-tile');
@@ -125,11 +193,6 @@ describe('GameGridComponent', () => {
             component.onTileClick(1, 1);
             expect(component.tilesGrid[1][1]).toBe(TileType.ClosedDoor);
         });
-        /*
-        it('should reset the grid', () => {
-            expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.gridSize, component.tilesGrid));
-        });
-        */
 
         it('should remove tile on right-click', () => {
             component.tilesGrid[0][0] = TileType.Wall;
