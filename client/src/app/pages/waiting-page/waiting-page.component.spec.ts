@@ -5,6 +5,7 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { MAX_PLAYER_SIZE_INT } from '@app/constants';
 import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { mockGames } from '@app/mocks/mock-game';
+import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
@@ -78,6 +79,16 @@ describe('WaitingPageComponent', () => {
             gameListServiceSpy.chosenGameSubject.next(mockGame);
             fixture.detectChanges();
             expect(component.chosenGame).toEqual(mockGame);
+        });
+
+        it('should set player list when it is updated', () => {
+            playerConnectionServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'udaptedPlayer') {
+                    callback(mockRoom as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.players).toBe(mockRoom.listPlayers);
         });
     });
 
@@ -188,5 +199,13 @@ describe('WaitingPageComponent', () => {
             });
             expect(component.leaveGame).toHaveBeenCalledWith(accessCode);
         });
+    });
+
+    it('should update gameService isRoomLocked and send event', () => {
+        component.isLocked = true;
+        component.onLockChange();
+
+        expect(gameServiceSpy.isRoomLocked).toBe(true);
+        expect(playerConnectionServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
     });
 });

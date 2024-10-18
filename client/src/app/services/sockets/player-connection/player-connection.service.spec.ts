@@ -83,5 +83,16 @@ describe('PlayerConnectionService', () => {
             expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledWith(event);
         });
+
+        it('should call socket.on with an event', () => {
+            const event = 'helloWorld';
+            const action = () => {
+                'test';
+            };
+            const spy = spyOn(service.socket, 'once');
+            service.once(event, action);
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledWith(event, action);
+        });
     });
 });
