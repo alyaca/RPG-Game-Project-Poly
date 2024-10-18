@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PlayerConnectionService } from '@app/services/sockets/player-connection/player-connection.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
 
@@ -12,16 +12,16 @@ export class GameService {
     isJoined: boolean = false;
     selectedGame: Game;
 
-    constructor(private playerConnectionService: PlayerConnectionService) {}
+    constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     setRoomId(room: string) {
         this.roomId = room;
     }
 
     joinRoom(roomCode: string) {
-        this.playerConnectionService.send('joinRoom', roomCode);
+        this.socketCommunicationService.send('joinRoom', roomCode);
 
-        this.playerConnectionService.on('joinedRoom', (roomInfo: Room) => {
+        this.socketCommunicationService.on('joinedRoom', (roomInfo: Room) => {
             this.isJoined = true;
             this.roomId = roomInfo.roomId;
             this.selectedGame = roomInfo.gameMap;

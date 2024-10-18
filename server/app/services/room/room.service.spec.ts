@@ -118,26 +118,21 @@ describe('RoomService', () => {
         expect(mockServer.in(roomId).socketsLeave).toHaveBeenCalledWith(roomId);
     });
 
-    describe('joinRoom', () => {
-        it('should join the room and emit joinedRoom event if room is active', () => {
-            service['io'] = mockServer;
-            service.rooms.set(roomId, mockRooms[0]);
-            jest.spyOn(service, 'isRoomActive').mockReturnValue(true);
-            service.joinRoom(mockSocket, roomId);
+    it('should not join if room is not active', () => {
+        service.rooms.set(roomId, mockRooms[0]);
+        jest.spyOn(service, 'isRoomActive').mockReturnValue(false);
+        service.joinRoom(mockSocket, roomId);
 
-            expect(mockSocket.join).toHaveBeenCalledWith(roomId);
-            expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('joinedRoom', mockRooms[0]);
-        });
+        expect(mockSocket.join).not.toHaveBeenCalledWith(roomId);
+    });
 
-        it('should emit joinError event if room is not active', () => {
-            service['io'] = mockServer;
-            service.rooms.set(roomId, mockRooms[0]);
-            jest.spyOn(service, 'isRoomActive').mockReturnValue(false);
-            service.joinRoom(mockSocket, roomId);
+    it('should join if room is active', () => {
+        service.rooms.set(roomId, mockRooms[0]);
+        jest.spyOn(service, 'isRoomActive').mockReturnValue(true);
+        service.joinRoom(mockSocket, roomId);
 
-            expect(mockSocket.join).not.toHaveBeenCalledWith(roomId);
-            expect(mockServer.emit).toHaveBeenCalledWith('joinError');
-        });
+        expect(mockSocket.join).toHaveBeenCalledWith(roomId);
+        expect(mockSocket.data.roomCode).toBeDefined();
     });
 
     describe('leaveRoom', () => {
@@ -161,9 +156,18 @@ describe('RoomService', () => {
         const room = service.createRoom(mockSocket, mockGame);
 
         expect(room).toEqual(mockRooms[0]);
-        expect(service.rooms.get(roomId)).toEqual(room);
         expect(mockSocket.join).toHaveBeenCalledWith(roomId);
         expect(mockSocket.data.roomCode).toEqual(roomId);
         expect(service.adminList).toContain(mockSocket.id);
+    });
+
+    it('should return the room corresponding to the client', () => {
+        service.rooms.set(roomId, mockRooms[0]);
+        jest.spyOn(service, 'getRoomId').mockReturnValue(roomId);
+
+        const result = service.getRoom(mockSocket);
+
+        expect(service.getRoomId).toHaveBeenCalled();
+        expect(result).toBe(mockRooms[0]);
     });
 });

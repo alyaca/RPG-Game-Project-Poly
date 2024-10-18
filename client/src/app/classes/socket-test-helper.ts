@@ -23,4 +23,10 @@ export class SocketTestHelper {
             return;
         }
     }
+
+    once(event: string, action: (data: TestEventData) => void): void {
+        if (event === 'testEvent') {
+            action({ test: 'data' });
+        }
+    }
 }

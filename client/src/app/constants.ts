@@ -60,10 +60,11 @@ export const MESSAGE_DURATION_SAVE_CHOICE = 3000;
 export const PAD_LENGTH = 2;
 
 // Constants for attribut values
-export const DEFAULT_ATTRIBUTE = '4';
-export const HIGH_ATTRIBUTE = '6';
+export const DEFAULT_ATTRIBUTE = 4;
+export const HIGH_ATTRIBUTE = 6;
 export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
+export const DEFAULT_ACTION_POINT = 1;
 
 export const MAX_PLAYER_SIZE_INT = 2;
 export const THREE_PLAYERS_LOBBY = 3;
