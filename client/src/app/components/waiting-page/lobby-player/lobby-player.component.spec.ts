@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { LobbyPlayerComponent } from './lobby-player.component';
-import { LobbyPlayer } from '@app/interfaces/lobbyPlayer';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Player } from '@common/player';
+import { LobbyPlayerComponent } from './lobby-player.component';
 describe('LobbyPlayerComponent', () => {
     let component: LobbyPlayerComponent;
     let fixture: ComponentFixture<LobbyPlayerComponent>;
 
-    const mockLobbyPlayer: LobbyPlayer = mockLobbyPlayers[0];
+    const mockLobbyPlayer: Player = mockLobbyPlayers[0];
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({

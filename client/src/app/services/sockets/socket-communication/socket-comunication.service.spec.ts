@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { SocketTestHelper } from '@app/classes/socket-test-helper';
 import { Socket } from 'socket.io-client';
-import { PlayerConnectionService } from './player-connection.service';
+import { SocketCommunicationService } from './socket-communication.service';
 
-describe('PlayerConnectionService', () => {
-    let service: PlayerConnectionService;
+describe('SocketCommunicationService', () => {
+    let service: SocketCommunicationService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
-        service = TestBed.inject(PlayerConnectionService);
+        service = TestBed.inject(SocketCommunicationService);
     });
 
     it('should connect', () => {
@@ -82,6 +82,17 @@ describe('PlayerConnectionService', () => {
             service.send(event, data);
             expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledWith(event);
+        });
+
+        it('should call socket.on with an event', () => {
+            const event = 'helloWorld';
+            const action = () => {
+                'test';
+            };
+            const spy = spyOn(service.socket, 'once');
+            service.once(event, action);
+            expect(spy).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalledWith(event, action);
         });
     });
 });
