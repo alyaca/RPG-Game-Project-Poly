@@ -68,8 +68,8 @@ export class RoomService {
         const room = this.rooms.get(roomId);
         console.log('room', room);
         if (this.isRoomActive(roomId)) {
-            //demander a Kim, la fonction isRoomActive ne marche pas on dirait
             socket.join(roomId);
+            socket.data.roomCode = roomId;
             this.io.to(roomId).emit('joinedRoom', room);
         } else {
             this.io.emit('joinError');
