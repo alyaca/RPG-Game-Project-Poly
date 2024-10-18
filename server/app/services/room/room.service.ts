@@ -66,7 +66,6 @@ export class RoomService {
 
     joinRoom(socket: Socket, roomId: string) {
         const room = this.rooms.get(roomId);
-        console.log('room', room);
         if (this.isRoomActive(roomId)) {
             socket.join(roomId);
             socket.data.roomCode = roomId;
