@@ -18,7 +18,7 @@ export class SaveGameService {
         return this.http.post(this.apiURL, mapToStore).subscribe();
     }
 
-    replaceMap(informations: Info, id: String) {
+    replaceMap(informations: Info, id: string) {
         const playerNumber = this.getPlayerNumber(informations.height);
         const mapToReplace = this.createMapObject(informations, playerNumber, id);
         return this.http.put(this.apiURL, mapToReplace).subscribe();
@@ -37,7 +37,7 @@ export class SaveGameService {
         }
     }
 
-    private createMapObject(informations: Info, playerNumber: number, id: String | null): any {
+    private createMapObject(informations: Info, playerNumber: number, id: string | null) {
         if (id) {
             return {
                 _id: id,

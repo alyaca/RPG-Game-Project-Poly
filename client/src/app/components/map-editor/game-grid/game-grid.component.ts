@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -46,7 +46,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private gameCreationService: GameCreationService,
     ) {}
 
-    ngOnInit(){
+    get selectedTile(): string {
+        return this.toolService.getSelectedTile();
+    }
+
+    ngOnInit() {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 
         if (this.gameCreationService.isNewGame) {
@@ -61,29 +65,24 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     deepCopyMatrix(matrix: number[][]) {
         if (!matrix) {
-            return []; 
+            return [];
         }
         return JSON.parse(JSON.stringify(matrix));
     }
 
-    get selectedTile(): string {
-        return this.toolService.getSelectedTile();
-    }
-
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
-            if (!this.gameCreationService.isNewGame){
+            if (!this.gameCreationService.isNewGame) {
                 this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
                 this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
                 this.gameObjectService.objectsArray = this.objectsArray;
                 this.gameObjectService.loadMapObjectCount();
-            }
-            else{   
+            } else {
                 this.objectsArray = this.gameObjectService.initObjectsArray();
                 this.gameObjectService.resetObjectsCount();
                 this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
             }
-            
+
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
@@ -156,20 +155,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.sendInfoToMapCreationPage();
     }
 
-    private updateSelectedTile(row: number, col: number) {
-        this.selectedRow = row;
-        this.selectedCol = col;
-        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
-    }
-
-    private handleGameObjectOnTile(row: number, col: number) {
-        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
-        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
-            this.gameObjectService.selectedTile = { row, col };
-            this.gameObjectService.removeObjectFromGrid(gameObject);
-        }
-    }
-
     onMouseDown(event: MouseEvent, row: number, col: number) {
         if (event.button === 0) {
             this.isMouseDown = true;
@@ -197,6 +182,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         event.preventDefault();
         if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
             this.tilesGrid[row][col] = TileType.Ground;
+        }
+    }
+
+    private updateSelectedTile(row: number, col: number) {
+        this.selectedRow = row;
+        this.selectedCol = col;
+        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
+    }
+
+    private handleGameObjectOnTile(row: number, col: number) {
+        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
+        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
+            this.gameObjectService.selectedTile = { row, col };
+            this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
 }

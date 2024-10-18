@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { GameObject } from '@app/interfaces/gameObject';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
-import { GameCreationService } from '@app/services/game-creation.service';
 
 @Component({
     selector: 'app-game-objects-container',
@@ -26,14 +26,12 @@ export class GameObjectsContainerComponent implements OnInit {
         private toolButtonService: ToolButtonService,
 
         private gameCreationService: GameCreationService,
-    ) {
-
-    }
+    ) {}
 
     ngOnInit() {
         this.gameObjects = this.gameObjectService.objects;
         this.gameObjectService.resetObjectsCount();
-        if(!this.gameCreationService.isNewGame){
+        if (!this.gameCreationService.isNewGame) {
             this.gameObjectService.loadMapObjectCount();
         }
     }
