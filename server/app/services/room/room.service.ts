@@ -49,8 +49,19 @@ export class RoomService {
 
     deleteRoom(roomId: string, socket: Socket) {
         socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        this.cleanSocketsData(roomId);
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
+    }
+
+    cleanSocketsData(roomId: string) {
+        const socketsInRoom = this.io.sockets.adapter.rooms.get(roomId);
+        socketsInRoom?.forEach((socketId) => {
+            const socketInRoom = this.io.sockets.sockets.get(socketId);
+            if (socketInRoom) {
+                delete socketInRoom.data;
+            }
+        });
     }
 
     getRoomId(client: Socket) {

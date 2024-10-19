@@ -68,7 +68,7 @@ export class GameService {
         }
     }
 
-    private freeUpAvatar(room: Room, socket: Socket) {
+    freeUpAvatar(room: Room, socket: Socket) {
         if (socket.data.clickedAvatar) {
             const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
             if (previousAvatar) {
@@ -77,7 +77,7 @@ export class GameService {
         }
     }
 
-    private sendAvatarListToClient(socket: Socket) {
+    sendAvatarListToClient(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const customizedAvatarsList = room.availableAvatars.map((avatar) => {
             const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
@@ -91,7 +91,7 @@ export class GameService {
         socket.emit('characterSelected', customizedAvatarsList);
     }
 
-    private updateAvatarsForAllClients(server: Server) {
+    updateAvatarsForAllClients(server: Server) {
         server.sockets.sockets.forEach((clientSocket: Socket) => {
             this.sendAvatarListToClient(clientSocket);
         });

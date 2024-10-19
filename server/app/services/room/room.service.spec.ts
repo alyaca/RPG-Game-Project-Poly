@@ -18,6 +18,12 @@ describe('RoomService', () => {
             }),
             emit: jest.fn(),
             to: jest.fn().mockReturnThis(),
+            sockets: {
+                adapter: {
+                    rooms: new Map(),
+                },
+                sockets: new Map(),
+            },
         } as unknown as Server;
 
         mockSocket = {
@@ -38,6 +44,7 @@ describe('RoomService', () => {
         service = module.get<RoomService>(RoomService);
         service['io'] = mockServer;
         roomId = '1234';
+        service.rooms = new Map();
     });
 
     it('should be defined', () => {
@@ -108,12 +115,13 @@ describe('RoomService', () => {
     });
 
     it('should broadcast roomDeleted event, delete the room, and leave the room', () => {
-        service['io'] = mockServer;
+        jest.spyOn(service, 'cleanSocketsData');
         service.rooms.set(roomId, mockRooms[0]);
         service.deleteRoom(roomId, mockSocket);
 
         expect(mockSocket.broadcast.to).toHaveBeenCalledWith(roomId);
         expect(service.rooms.has(roomId)).toBe(false);
+        expect(service.cleanSocketsData).toHaveBeenCalled();
         expect(mockServer.in).toHaveBeenCalledWith(roomId);
         expect(mockServer.in(roomId).socketsLeave).toHaveBeenCalledWith(roomId);
     });
@@ -169,5 +177,18 @@ describe('RoomService', () => {
 
         expect(service.getRoomId).toHaveBeenCalled();
         expect(result).toBe(mockRooms[0]);
+    });
+
+    it('should clean socket data in the specified room', () => {
+        const socket1 = { id: 'socket1', data: { someData: 'data1' } } as unknown as Socket;
+        const socket2 = { id: 'socket2', data: { someData: 'data2' } } as unknown as Socket;
+
+        mockServer.sockets.adapter.rooms.set(roomId, new Set([socket1.id, socket2.id]));
+        mockServer.sockets.sockets.set(socket1.id, socket1);
+        mockServer.sockets.sockets.set(socket2.id, socket2);
+
+        service.cleanSocketsData(roomId);
+        expect(mockServer.sockets.sockets.get(socket1.id).data).toBeUndefined();
+        expect(mockServer.sockets.sockets.get(socket2.id).data).toBeUndefined();
     });
 });
