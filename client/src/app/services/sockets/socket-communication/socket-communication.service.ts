@@ -4,7 +4,7 @@ import { Socket, io } from 'socket.io-client';
 @Injectable({
     providedIn: 'root',
 })
-export class PlayerConnectionService {
+export class SocketCommunicationService {
     socket: Socket;
 
     isSocketAlive() {
@@ -30,5 +30,9 @@ export class PlayerConnectionService {
 
     send<T>(event: string, data?: T, callback?: () => void): void {
         this.socket.emit(event, ...[data, callback].filter((x) => x));
+    }
+
+    once<T>(event: string, action: (data: T) => void): void {
+        this.socket.once(event, action);
     }
 }

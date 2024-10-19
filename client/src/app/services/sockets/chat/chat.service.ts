@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chatMessage';
-import { PlayerConnectionService } from '../player-connection/player-connection.service';
+import { SocketCommunicationService } from '../socket-communication/socket-communication.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ChatService {
-    constructor(private playerConnection: PlayerConnectionService) {}
+    constructor(private playerConnection: SocketCommunicationService) {}
 
     // Envoyer un message sans le roomId (le serveur le gérera)
     sendMessage(content: string, username: string) {

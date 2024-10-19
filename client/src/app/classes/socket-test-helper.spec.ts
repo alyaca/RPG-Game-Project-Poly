@@ -32,6 +32,17 @@ describe('SocketTestHelper', () => {
         expect(mockCallback).toHaveBeenCalledWith(eventData);
     });
 
+    it('should call the callback function when once is called for a specific event', () => {
+        const mockCallback = jasmine.createSpy('callback');
+        const eventData = { test: 'data' };
+        socketHelper.once('testEvent', mockCallback);
+        socketHelper.once('testEvent', (data) => {
+            mockCallback(data);
+        });
+
+        expect(mockCallback).toHaveBeenCalledWith(eventData);
+    });
+
     it('should not call the callback function for a different event', () => {
         const mockCallback = jasmine.createSpy('callback');
         socketHelper.on('anotherEvent', mockCallback);

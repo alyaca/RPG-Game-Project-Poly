@@ -1,4 +1,5 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
+import { avatars } from '@common/avatarsInfo';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
@@ -27,6 +28,7 @@ export class RoomService {
             gameMap: game,
             roomId: roomCode,
             listPlayers: [],
+            availableAvatars: avatars.map((avatar) => ({ ...avatar, isTaken: false })),
             adminId: socket.id,
             isLocked: false,
         };
@@ -64,15 +66,17 @@ export class RoomService {
         return this.isRoomActive(roomCode) ? roomCode : null;
     }
 
+    getRoom(client: Socket) {
+        const roomCode = this.getRoomId(client);
+        return this.rooms.get(roomCode);
+    }
+
     joinRoom(socket: Socket, roomId: string) {
-        const room = this.rooms.get(roomId);
-        if (this.isRoomActive(roomId)) {
-            socket.join(roomId);
-            socket.data.roomCode = roomId;
-            this.io.to(roomId).emit('joinedRoom', room);
-        } else {
-            this.io.emit('joinError');
+        if (!this.isRoomActive(roomId)) {
+            return;
         }
+        socket.join(roomId);
+        socket.data.roomCode = roomId;
     }
 
     private generateRoomCode(): string {

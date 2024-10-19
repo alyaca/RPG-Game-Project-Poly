@@ -8,7 +8,7 @@
     <main>
         <div id="players-container">
             @for (player of players; track player.id;) {
-            <app-lobby-player [class]="player.size" [lobbyPlayer]="player"></app-lobby-player>
+            <app-lobby-player [lobbyPlayer]="player"></app-lobby-player>
             }
             <!-- <div class="add-bot medium">
                 <p>ajouter un joueur virtuel</p>
@@ -26,7 +26,7 @@
             <div id="lock-container">
                 <p class="lock-text">Verrouiller la partie</p>
                 <label class="switch">
-                    <input type="checkbox" />
+                    <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" />
                     <span class="slider"> </span>
                 </label>
             </div>

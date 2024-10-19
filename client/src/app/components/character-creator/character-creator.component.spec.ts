@@ -1,8 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
-import { AttributesService } from '@app/services/attributes.service';
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { AttributesService } from '@app/services/attributes/attributes.service';
+import { Status } from '@common/player';
 import { CharacterCreatorComponent } from './character-creator.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -11,29 +14,29 @@ describe('CharacterCreatorComponent', () => {
     let fixture: ComponentFixture<CharacterCreatorComponent>;
     let attributesServiceSpy: SpyObj<AttributesService>;
     let routerSpy: jasmine.SpyObj<Router>;
+    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
         attributesServiceSpy = jasmine.createSpyObj('AttributesService', [
+            'setCharacterName',
             'setHealth',
             'setSpeed',
             'setAttack',
             'setDefense',
-            'getAttributsValue',
-            'findAttribut',
-            'saveAttributesValue',
-            'resetAttributes',
-            'validateName',
-            'validateAttributes',
-            'saveAttributes',
-            'generateRandomAttributes',
             'isButtonSelected',
-            'setCharacterName',
+            'getAttributValue',
+            'resetAttributes',
+            'getDiceMessage',
+            'saveAttributesValue',
         ]);
+        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
             imports: [MatSnackBarModule, BrowserAnimationsModule],
             providers: [
                 { provide: AttributesService, useValue: attributesServiceSpy },
                 { provide: Router, useValue: routerSpy },
+                { provide: MatSnackBar, useValue: snackBarSpy },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(CharacterCreatorComponent);
@@ -45,72 +48,141 @@ describe('CharacterCreatorComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('should emit closeCharacterCreator event and call resetAttributes when closeComponent is called', () => {
+        spyOn(component.closeCharacterCreator, 'emit');
+        spyOn(component, 'setAttributes');
+        component.closeComponent();
+
+        expect(component.closeCharacterCreator.emit).toHaveBeenCalled();
+        expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
+        expect(component.setAttributes).toHaveBeenCalled();
+    });
+
+    it('should update clickedAvatar when getClickedImage is called', () => {
+        const testAvatar = { src: 'Zeus.jpg', name: 'Zeus' };
+        component.getClickedImage(testAvatar);
+        expect(component.clickedAvatar).toEqual(testAvatar);
+    });
+
+    it('should set clickedAvatar to false when no avatar is clicked', () => {
+        const avatar1 = { src: 'Zeus.jpg', name: 'Zeus', isSelected: false };
+        const avatar2 = { src: 'Athena.jpg', name: 'Athena', isSelected: false };
+        component.clickedAvatar = avatar1;
+        component.clickedAvatar.isSelected = true;
+        spyOn(component.selectCharacter, 'emit');
+        component.getClickedImage(avatar2);
+
+        expect(component.clickedAvatar).toBe(avatar2);
+        expect(avatar1.isSelected).toBe(false);
+        expect(avatar2.isSelected).toBe(true);
+        expect(component.selectCharacter.emit).toHaveBeenCalledWith(avatar2);
+    });
+
     it('should set characterName to ABC when setName is called with ABC', () => {
         component.setName('ABC');
         expect(component.characterName).toEqual('ABC');
     });
 
-    it('should set health to 6 when addHealth is called', () => {
+    it('should set health when addHealth is called', () => {
         component.addHealth();
-        expect(attributesServiceSpy.setHealth).toHaveBeenCalledWith('6');
+        expect(attributesServiceSpy.setHealth).toHaveBeenCalled();
     });
 
-    it('should return 4 when getAttributsValue is called with health', () => {
-        attributesServiceSpy.getAttributsValue.and.returnValue('4');
-        expect(component.getAttributsValue('health')).toEqual('4');
-    });
-
-    it('should set speed to 6 when addSpeed is called', () => {
+    it('should set speed when addSpeed is called', () => {
         component.addSpeed();
-        expect(attributesServiceSpy.setSpeed).toHaveBeenCalledWith('6');
+        expect(attributesServiceSpy.setSpeed).toHaveBeenCalled();
     });
 
-    it('should set attack to 4 + (1-4) when setAttack is called with 1-4', () => {
-        component.setAttack('4 + (1-4)');
-        expect(attributesServiceSpy.setAttack).toHaveBeenCalledWith('4 + (1-4)');
+    it('should call setAttack with the correct dice value', () => {
+        component.setAttack('attack4');
+        expect(attributesServiceSpy.setAttack).toHaveBeenCalledWith('attack4');
     });
 
-    it('should set defense to 4 + (1-6) when setDeffense is called with 1-6', () => {
-        component.setDefense('4 + (1-6)');
-        expect(attributesServiceSpy.setDefense).toHaveBeenCalledWith('4 + (1-6)');
+    it('should call setDefense with the correct dice value', () => {
+        const diceValue = 'defense4';
+        component.setDefense(diceValue);
+        expect(attributesServiceSpy.setDefense).toHaveBeenCalledWith(diceValue);
     });
 
-    it('should update clickedAvatar when getClickedImage is called', () => {
-        const testAvatar = { src: 'Zeus.jpg', name: 'Zues' };
-        component.getClickedImage(testAvatar);
-        expect(component.clickedAvatar).toEqual(testAvatar);
+    it('should return the dice message from attributesService', () => {
+        attributesServiceSpy.getDiceMessage.and.returnValue(DICE_6);
+        const result = component.diceDisplay('atkDiceMax');
+
+        expect(attributesServiceSpy.getDiceMessage).toHaveBeenCalledWith('atkDiceMax');
+        expect(result).toBe(DICE_6);
     });
 
-    it('should call saveAttributesValue when saveChoices is called', () => {
-        attributesServiceSpy.saveAttributesValue.and.returnValue(undefined);
-        component.saveChoices();
-        expect(attributesServiceSpy.saveAttributesValue).toHaveBeenCalled();
+    describe('saveChoices', () => {
+        it('should call saveAttributesValue when saveChoices is called', () => {
+            component.clickedAvatar = mockAvatar;
+            spyOn(component.confirmCharacterSelection, 'emit');
+            spyOn(component, 'setAttributes');
+            spyOn(component, 'createPlayer');
+
+            attributesServiceSpy.saveAttributesValue.and.returnValue('');
+            component.saveChoices();
+
+            expect(attributesServiceSpy.saveAttributesValue).toHaveBeenCalled();
+            expect(component.confirmCharacterSelection.emit).toHaveBeenCalled();
+            expect(component.setAttributes).toHaveBeenCalled();
+            expect(component.createPlayer).toHaveBeenCalled();
+        });
+
+        it('should return if no avatar is clicked', () => {
+            component.saveChoices();
+            expect(snackBarSpy.open).toHaveBeenCalledWith('Veuillez sélectionner un avatar', 'Fermer', {
+                duration: MESSAGE_DURATION_SAVE_CHOICE,
+            });
+        });
+
+        it('should not emit closeCharacterCreator if missing attribute', () => {
+            component.clickedAvatar = mockAvatar;
+            spyOn(component.confirmCharacterSelection, 'emit');
+            attributesServiceSpy.saveAttributesValue.and.returnValue('Echec');
+            component.saveChoices();
+
+            expect(snackBarSpy.open).toHaveBeenCalledWith('Echec', 'Fermer', {
+                duration: MESSAGE_DURATION_SAVE_CHOICE,
+            });
+            expect(component.confirmCharacterSelection.emit).not.toHaveBeenCalled();
+        });
     });
 
-    it('should not emit closeCharacterCreator event if saveAttributesValue return false', () => {
-        attributesServiceSpy.saveAttributesValue.and.returnValue('Echec');
-        component.saveChoices();
-        expect(attributesServiceSpy.resetAttributes).toHaveBeenCalledTimes(0);
+    it('should set attributes from attributesService', () => {
+        const mockAttributes = {
+            totalHp: DEFAULT_ATTRIBUTE,
+            currentHp: DEFAULT_ATTRIBUTE,
+            speed: HIGH_ATTRIBUTE,
+            movementPointsLeft: HIGH_ATTRIBUTE,
+            maxActionPoints: DEFAULT_ACTION_POINT,
+            actionPoints: DEFAULT_ACTION_POINT,
+            attack: DEFAULT_ATTRIBUTE,
+            atkDiceMax: HIGH_ATTRIBUTE,
+            defense: DEFAULT_ATTRIBUTE,
+            defDiceMax: DEFAULT_ATTRIBUTE,
+        };
+        attributesServiceSpy.attributes = mockAttributes;
+        component.setAttributes();
+
+        expect(component.attributes).toEqual(mockAttributes);
     });
 
-    it('should emit closeCharacterCreator event and call resetAttributes when closeComponent is called', () => {
-        spyOn(component.closeCharacterCreator, 'emit');
-        component.closeComponent();
-        expect(component.closeCharacterCreator.emit).toHaveBeenCalled();
-        expect(attributesServiceSpy.resetAttributes).toHaveBeenCalled();
-    });
+    it('should create a player with the correct attributes', () => {
+        component.characterName = 'Test Character';
+        component.clickedAvatar = mockAvatar;
+        component.attributes = mockLobbyPlayers[0].attributes;
 
-    it('should emit confirmCharacterSelection event if saveAttributesValue return undefined', () => {
-        spyOn(component.confirmCharacterSelection, 'emit');
-        attributesServiceSpy.saveAttributesValue.and.returnValue(undefined);
-        component.saveChoices();
-        expect(component.confirmCharacterSelection.emit).toHaveBeenCalled();
-    });
+        component.createPlayer();
 
-    it('should not emit confirmCharacterSelection event if saveAttributesValue return a string', () => {
-        spyOn(component.confirmCharacterSelection, 'emit');
-        attributesServiceSpy.saveAttributesValue.and.returnValue('test');
-        component.saveChoices();
-        expect(component.confirmCharacterSelection.emit).not.toHaveBeenCalled();
+        expect(component.player).toBeDefined();
+        expect(component.player).toEqual({
+            id: 'test',
+            attributes: component.attributes,
+            avatar: component.clickedAvatar,
+            isActive: false,
+            name: component.characterName,
+            status: Status.Player,
+            victories: 0,
+        });
     });
 });
