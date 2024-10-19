@@ -24,7 +24,7 @@ export class ChatGateway {
 
         const messageWithRoomId: IMessage = {
             roomId,
-            username: message.username,
+            username: client.data.username,
             message: message.message,
             timestamp: new Date(),
         };

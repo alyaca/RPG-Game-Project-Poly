@@ -10,11 +10,12 @@ export class ChatService {
     constructor(private playerConnection: SocketCommunicationService) {}
 
     // Envoyer un message sans le roomId (le serveur le gérera)
-    sendMessage(content: string, username: string) {
+    sendMessage(content: string) {
+        const username = 'Player';
         const message: IMessage = {
             username,
             message: content,
-            timestamp: new Date(), // Utilisation du timestamp du client
+            timestamp: new Date(),
         };
 
         this.playerConnection.send('sendMessage', message);

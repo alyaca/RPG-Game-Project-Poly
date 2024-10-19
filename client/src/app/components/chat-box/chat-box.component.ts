@@ -27,8 +27,7 @@ export class ChatBoxComponent implements OnInit {
 
     sendMessage(): void {
         if (this.newMessage.trim()) {
-            const username = 'User1'; // À remplacer par l'utilisateur actuel
-            this.chatService.sendMessage(this.newMessage, username);
+            this.chatService.sendMessage(this.newMessage);
             this.newMessage = '';
         }
     }
