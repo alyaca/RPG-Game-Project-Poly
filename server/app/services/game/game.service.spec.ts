@@ -1,10 +1,10 @@
 import { mockRooms } from '@app/mocks/mock-room';
+import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatarsInfo';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from '../room/room.service';
 import { GameService } from './game.service';
 
 describe('GameService', () => {
@@ -103,10 +103,18 @@ describe('GameService', () => {
     });
 
     it('should create a player on createPlayer', () => {
+        jest.spyOn(service, 'setUniquePlayerName').mockImplementation(() => {
+            mockPlayer.name = 'name';
+            mockSocket.data.username = mockPlayer.name;
+        });
+        (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
+
         service.createPlayer(room, mockPlayer, mockSocket);
 
+        expect(mockPlayer.status).toBe(Status.Admin);
         expect(mockSocket.data.username).toBe(mockPlayer.name);
         expect(room.listPlayers).toContainEqual(mockPlayer);
+        expect(service.setUniquePlayerName).toHaveBeenCalled();
     });
 
     describe('leavePlayerFromGame', () => {
@@ -207,10 +215,52 @@ describe('GameService', () => {
     });
 
     it('should call sendAvatarListToClient for each connected socket', () => {
-        jest.spyOn(service, 'sendAvatarListToClient').mockImplementation(() => {});
+        jest.spyOn(service, 'sendAvatarListToClient').mockImplementation(() => {
+            return avatars;
+        });
         mockServer.sockets.sockets.set(mockSocket.id, mockSocket);
         service.updateAvatarsForAllClients(mockServer);
 
         expect(service.sendAvatarListToClient).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set an unique player name', () => {
+        jest.spyOn(service, 'generateUniquePlayerName').mockReturnValue('uniqueName');
+        service.setUniquePlayerName(mockPlayer, mockSocket);
+        expect(mockPlayer.name).toBe('uniqueName');
+    });
+
+    it('should return true if player name is taken', () => {
+        const playersList: Player[] = [
+            { name: 'player1', avatar: avatars[0], id: '1' } as Player,
+            { name: 'player1-2', avatar: avatars[1], id: '2' } as Player,
+        ];
+        room.listPlayers = playersList;
+        jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
+        const result = service.isPlayerNameTaken(mockPlayer.name, mockSocket);
+
+        expect(result).toBe(true);
+        expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
+    });
+
+    it('should return the same name if it is unique', () => {
+        const playerName = 'uniquePlayer';
+        jest.spyOn(service, 'isPlayerNameTaken').mockReturnValue(false);
+        const result = service.generateUniquePlayerName(playerName, mockSocket);
+
+        expect(result).toBe(playerName);
+        expect(service.isPlayerNameTaken).toHaveBeenCalledWith(playerName, mockSocket);
+    });
+
+    it('should return a name with suffix if the name is taken', () => {
+        const playerName = 'player1';
+        jest.spyOn(service, 'isPlayerNameTaken').mockReturnValueOnce(true).mockReturnValueOnce(false);
+
+        const result = service.generateUniquePlayerName(playerName, mockSocket);
+
+        expect(result).toBe('player1-2');
+        expect(service.isPlayerNameTaken).toHaveBeenCalledTimes(2);
+        expect(service.isPlayerNameTaken).toHaveBeenCalledWith(playerName, mockSocket);
+        expect(service.isPlayerNameTaken).toHaveBeenCalledWith('player1-2', mockSocket);
     });
 });

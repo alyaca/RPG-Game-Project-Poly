@@ -178,15 +178,13 @@ describe('PlayerConnectionGateway', () => {
         it('should create a player and emit updatedPlayer events', () => {
             const room = mockRooms[0];
             (roomService.getRoom as jest.Mock).mockReturnValue(room);
-            (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
 
             jest.spyOn(gameService, 'createPlayer');
             room.listPlayers.push(mockPlayer);
 
             gateway.handleCreatePlayer(mockClient, mockPlayer);
-            expect(mockPlayer.status).toBe(Status.Admin);
+
             expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
-            expect(roomService.isPlayerAdmin).toHaveBeenCalledWith(mockClient);
             expect(gameService.createPlayer).toHaveBeenCalledWith(room, mockPlayer, mockClient);
             expect(mockClient.emit).toHaveBeenCalledWith('updatedPlayer', room);
             expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
