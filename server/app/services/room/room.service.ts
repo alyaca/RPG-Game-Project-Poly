@@ -12,7 +12,6 @@ export class RoomService {
 
     setServer(io: Server) {
         this.io = io;
-        console.log('Server has been initialized');
     }
 
     getServer(): Server {

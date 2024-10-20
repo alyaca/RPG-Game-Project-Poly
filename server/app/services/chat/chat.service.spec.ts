@@ -1,5 +1,5 @@
 import { IMessage } from '@app/interfaces/message.interface';
-import { Message, MessageSchema } from '@app/model/schema/message.schema';
+import { Message, messageSchema } from '@app/model/schema/message.schema';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
@@ -22,7 +22,7 @@ describe('ChatService', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]), // Include schema for Message model
+                MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]), // Include schema for Message model
             ],
             providers: [ChatService],
         }).compile();
@@ -81,7 +81,7 @@ describe('ChatService', () => {
 
             const foundMessages = await service.getMessagesByRoom(roomId);
 
-            expect(foundMessages.length).toBe(3);
+            expect(foundMessages.length).toBe(MESSAGES_LENGTH);
             expect(foundMessages[0].message).toBe("Let's fight Kakarot");
             expect(foundMessages[1].message).toBe('Okay Vegeta');
             expect(foundMessages[2].message).toBe('Galick Gun');
@@ -95,4 +95,6 @@ describe('ChatService', () => {
             expect(foundMessages.length).toBe(0);
         });
     });
+
+    const MESSAGES_LENGTH = 3;
 });

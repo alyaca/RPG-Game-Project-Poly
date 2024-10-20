@@ -1,5 +1,5 @@
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { Message, MessageSchema } from '@app/model/schema/message.schema';
+import { Message, messageSchema } from '@app/model/schema/message.schema';
 import { ChatService } from '@app/services/chat/chat.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Logger } from '@nestjs/common';
@@ -26,7 +26,7 @@ describe('ChatModule', () => {
                     }),
                 }),
                 // Injection du modèle Message dans Mongoose
-                MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
+                MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]),
                 ChatModule,
             ],
             providers: [ChatService, RoomService, ChatGateway, Logger],

@@ -6,9 +6,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class ChatService {
-    constructor(
-        @InjectModel(Message.name) private messageModel: Model<Message>
-    ) {}
+    constructor(@InjectModel(Message.name) private messageModel: Model<Message>) {}
 
     async saveMessage(message: IMessage): Promise<Message> {
         const createdMessage = new this.messageModel(message);

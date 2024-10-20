@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { MAX_GENERATION_VALUE } from '@app/constants';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chatMessage';
-import { SocketCommunicationService } from '../socket-communication/socket-communication.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 
 @Injectable({
     providedIn: 'root',
@@ -36,6 +37,6 @@ export class ChatService {
 
     // Générer un identifiant unique pour chaque message côté front
     private generateUniqueId(): number {
-        return Math.floor(Math.random() * 1000000000);
+        return Math.floor(Math.random() * MAX_GENERATION_VALUE);
     }
 }

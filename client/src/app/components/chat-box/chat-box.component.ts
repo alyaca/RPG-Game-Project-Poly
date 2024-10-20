@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
 import { ChatMessage } from '@app/interfaces/chatMessage';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
-import { ChatMessageComponent } from '../chat-message/chat-message.component';
 
 @Component({
     selector: 'app-chat-box',

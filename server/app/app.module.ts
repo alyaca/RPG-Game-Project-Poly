@@ -1,5 +1,6 @@
+import { LoggerModule } from '@app/modules/logger/logger.module';
 import { RoomModule } from '@app/modules/room/room.module';
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PlayerConnectionGateway } from './gateways/player-connection/player-connection.gateway';
@@ -20,7 +21,8 @@ import { GameService } from './services/game/game.service';
         MapModule,
         ChatModule,
         RoomModule,
+        LoggerModule,
     ],
-    providers: [PlayerConnectionGateway, Logger, GameService],
+    providers: [PlayerConnectionGateway, GameService],
 })
 export class AppModule {}
