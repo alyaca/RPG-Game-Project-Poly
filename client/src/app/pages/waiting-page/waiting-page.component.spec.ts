@@ -130,4 +130,34 @@ describe('WaitingPageComponent', () => {
 
         expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
+    // it('should open confirmation dialog and navigate to game page when confirmed', () => {
+    //     const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+    //     dialogRefSpy.afterClosed.and.returnValue(of('Confirmer')); // Adjust to the correct confirmation string
+    //     dialogSpy.open.and.returnValue(dialogRefSpy);
+    
+    //     component.handleStartGame();
+    
+    //     expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+    //         disableClose: true,
+    //         data: {
+    //             title: 'Débuter la partie',
+    //             messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
+    //             options: ['Annuler', 'Confirmer'],
+    //             confirm: true,
+    //         },
+    //     });
+    
+    //     expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+    // });
+
+    it('should not navigate when the dialog is cancelled', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('Annuler')); // Simulate cancelling
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        component.handleStartGame();
+
+        expect(dialogSpy.open).toHaveBeenCalled();
+        expect(routerSpy.navigate).not.toHaveBeenCalled(); // Ensure navigation does not occur
+    });
 });
