@@ -13,7 +13,6 @@ export type Roles = {
     };
 }
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -23,6 +22,34 @@ export class CombatLogicService {
     isPlayer2Damaged: boolean = false;
     statValue1: number = 0;
     statValue2: number = 0;
+
+    displayText: string = '';
+    isGameOngoing: boolean = true;
+
+    ////
+
+    currPlayerNum: number;
+
+    evasionsArray1: number[];
+    evasionsArray2: number[];
+    // maybe i should rename these variables
+    playerStat1: string;
+    playerStat2: string;
+
+    roles: Roles;
+
+    initCombat(player1: PlayerObjects, player2: PlayerObjects){
+        this.isGameOngoing = true;
+        this.resetPlayerHp(player1, player2);
+        this.evasionsArray1 = new Array(2).fill(1);
+        this.evasionsArray2 = new Array(2).fill(1);
+        this.currPlayerNum = this.determineStartingPlayer(player1, player2);
+
+        this.playerStat1 =
+        this.currPlayerNum === 1 ? 'Attaque D' + player1.attributes.atkDiceMax : 'Défense D' + player1.attributes.defDiceMax;
+        this.playerStat2 =
+        this.currPlayerNum === 1 ? 'Défense D' + player2.attributes.defDiceMax : 'Attaque' + player2.attributes.atkDiceMax;
+    }
 
     resetPlayerHp(player1: PlayerObjects, player2: PlayerObjects) {
         player1.attributes.currentHp = player1.attributes.totalHp;
@@ -40,7 +67,7 @@ export class CombatLogicService {
         this.isPlayer2Damaged = !isDefenderPlayer1;
     }
 
-    processAttack(roles: Roles, currPlayerNum: number, player1: PlayerObjects, player2: PlayerObjects): boolean {
+    processAttack(roles: Roles, currPlayerNum: number, player1: PlayerObjects, player2: PlayerObjects) {
         const { attacker, defender, activeDice, inactiveDice } = roles[currPlayerNum];
         const isDefenderPlayer1 = currPlayerNum === 1;
 
@@ -51,12 +78,24 @@ export class CombatLogicService {
 
         if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
-            return true;
-        }
-        return false;
-    }
+            this.setDisplayText('1 dégat infligé sur ' + defender.name);
+        }      
+    }   
 
     determineTimerLength(evasions: number[], currPlayerNum: number): number {
         return evasions.length === 0 && currPlayerNum !== 1 ? 3 : COMBAT_TURN_LENGTH;
+    }
+
+    setDisplayText(text: string) {
+        this.displayText = '';
+        setTimeout(() => {
+            this.displayText = text;
+        }, 300);
+    }
+
+    switchTurn(player1: PlayerObjects, player2: PlayerObjects) {
+        this.currPlayerNum = this.currPlayerNum === 1 ? 2 : 1;
+        const nextPlayer = this.currPlayerNum === 1 ? player1.name : player2.name;
+        this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 }

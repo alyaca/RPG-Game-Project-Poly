@@ -32,7 +32,7 @@
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
-                @for (evasion of evasionsArray1; track $index) {
+                @for (evasion of combatService.evasionsArray1; track $index) {
                     <div class="evasion-point"></div>
                 }
             </div>
@@ -40,14 +40,14 @@
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ playerStat1 }}</div>
+                <div>{{ combatService.playerStat1 }}</div>
                 <div>{{ combatService.statValue1 }}</div>
             </div>
             <app-dice #dice2></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ playerStat2 }}</div>
+                <div>{{ combatService.playerStat2 }}</div>
                 <div>{{ combatService.statValue2 }}</div>
             </div>
             <app-dice #dice1></app-dice>
@@ -58,7 +58,7 @@
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
-                @for (evasion of evasionsArray2; track $index) {
+                @for (evasion of combatService.evasionsArray2; track $index) {
                     <div class="evasion-point"></div>
                 }
             </div>
@@ -69,17 +69,17 @@
         <div class="evasion-container">
             <div>
                 <p class="action-text">Évader</p>
-                <div [ngClass]="{ 'disabled': this.currPlayerNum !== 1 }" class="button-outer end-outer" (click)="triggerEvade()">
+                <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 1 }" class="button-outer end-outer" (click)="triggerEvade()">
                     <div class="end-turn-button-inner"></div>
                 </div>
             </div>
         </div>
         <div class="display">
-            <div class="display-text"> {{ displayText }}</div>
+            <div class="display-text"> {{ combatService.displayText }}</div>
         </div>
         <div>
             <p class="action-text">Attaquer</p>
-            <div [ngClass]="{ 'disabled': this.currPlayerNum !== 1 }" class="button-outer end-outer" (click)="triggerAttack()">
+            <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 1 }" class="button-outer end-outer" (click)="triggerAttack()">
                 <div class="end-turn-button-inner"></div>
             </div>
         </div>
