@@ -18,7 +18,7 @@ import { CombatLogicService } from '@app/services/combat-logic.service';
 })
 
 export class CombatModalComponent implements OnInit, AfterViewInit {
-    @Input() isInCombat = false; // isInCombat = combat popup open ; isGameOngoing = winner not decided yet
+    @Input() isInCombat = false; // isInCombat = is combat popup open ; isGameOngoing = has no winner been decided yet
     @Output() close = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;
@@ -59,45 +59,33 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.close.emit();
     }
 
-    attack() {
-        this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2) 
-        this.timerComponent.resetTimer();
-        this.triggerTurnDialog();
-        this.checkIfDuelOver();
+    endGameIfNeeded(){
+        const finalResult: string = this.combatService.checkIfDuelOver(this.player1, this.player2);
+        if(finalResult){
+            this.triggerTempDialog(finalResult);
+            this.combatService.isGameOngoing = false;
+            setTimeout(() => {
+                this.closeModal();
+            }, 3000);
+        }
     }
 
     triggerTurnDialog() {
         setTimeout(() => {
-            this.combatService.isPlayer1Damaged = false;
-            this.combatService.isPlayer2Damaged = false;
+            this.combatService.processTurnDialog(this.player1, this.player2);
         }, 500);
 
         setTimeout(() => {
             const message = this.combatService.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
-
-            this.combatService.playerStat1 = this.combatService.playerStat1.includes('Attaque') ? 'Défense D' + this.player1.attributes.defDiceMax: 'Attaque D' + this.player1.attributes.atkDiceMax;
-            this.combatService.playerStat2 = this.combatService.playerStat2.includes('Attaque') ? 'Défense D' + this.player2.attributes.defDiceMax: 'Attaque D' + this.player2.attributes.atkDiceMax;
         }, 1000);
     }
 
-    checkIfDuelOver() {
-        if (this.player2.attributes.currentHp === 0) {
-            this.endDuel('Victoire', 'Vous avez gagné le duel');
-        } else if (this.player1.attributes.currentHp === 0) {
-            this.endDuel('Défaite', 'Vous avez perdu le duel');
-        } else if (this.combatService.isDraw) {
-            this.endDuel('Partie nulle', 'Évasion réussie');
-        }
-    }
-
-    endDuel(dialogTitle: string, displayText: string) {
-        this.triggerTempDialog(dialogTitle);
-        this.combatService.isGameOngoing = false;
-        this.combatService.setDisplayText(displayText);
-        setTimeout(() => {
-            this.closeModal();
-        }, 3000);
+    attack() {
+        this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2) 
+        this.timerComponent.resetTimer();
+        this.triggerTurnDialog();
+        this.endGameIfNeeded();
     }
 
     triggerAttack() {
@@ -118,6 +106,11 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
             this.attack();
         }, 1200);
+    }
+
+    triggerEvade() {
+        this.combatService.attemptEvade();
+        this.endGameIfNeeded();
     }
 
     triggerTempDialog(message: string) {

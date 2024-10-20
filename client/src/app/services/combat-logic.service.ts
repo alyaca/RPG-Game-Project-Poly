@@ -103,22 +103,39 @@ export class CombatLogicService {
         this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 
-    triggerEvade() {
+    attemptEvade() {
         if (this.evasionsArray1.length === 0) {
             this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
             return;
         }
         this.evasionsArray1.pop();
-        this.attemptEvade();
-    }
-
-    // put in combatService???
-    attemptEvade() {
         if (Math.random() < EVADE_SUCCES_RATE) {
             this.isDraw = true;
             this.setDisplayText('Évasion réussie')
         } else {
             this.setDisplayText('Évasion échouée');
         }
+    }
+    ///
+    checkIfDuelOver(player1: PlayerObjects, player2: PlayerObjects): string {
+        if (player2.attributes.currentHp === 0) {
+            this.setDisplayText('Vous avez gagné le duel');
+            return 'Victoire';
+        } else if (player1.attributes.currentHp === 0) {
+            this.setDisplayText('Vous avez perdu le duel');
+            return 'Défaite';
+        } else if (this.isDraw) {
+            this.setDisplayText('Évasion réussie');
+            return 'Partie nulle';
+        }
+        return '';
+    }
+
+    processTurnDialog(player1: PlayerObjects, player2: PlayerObjects){
+        this.isPlayer1Damaged = false;
+        this.isPlayer2Damaged = false;
+
+        this.playerStat1 = this.playerStat1.includes('Attaque') ? 'Défense D' + player1.attributes.defDiceMax: 'Attaque D' + player1.attributes.atkDiceMax;
+        this.playerStat2 = this.playerStat2.includes('Attaque') ? 'Défense D' + player2.attributes.defDiceMax: 'Attaque D' + player2.attributes.atkDiceMax;
     }
 }

@@ -69,7 +69,7 @@
         <div class="evasion-container">
             <div>
                 <p class="action-text">Évader</p>
-                <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 1 }" class="button-outer end-outer" (click)="combatService.triggerEvade()">
+                <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 1 }" class="button-outer end-outer" (click)="triggerEvade()">
                     <div class="end-turn-button-inner"></div>
                 </div>
             </div>
