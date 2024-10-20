@@ -8,7 +8,6 @@ import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
-import { mockPlayer } from '@app/mocks/mock-player';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -102,47 +101,6 @@ describe('WaitingPageComponent', () => {
             expect(codeNumber).toBeLessThan(MAX_ACCESS_CODE_VALUE);
         }
     });
-    it('should return correct size for values in getSizeClass', () => {
-        expect(component.getSizeClass(2)).toBe("big");
-        expect(component.getSizeClass(1)).toBe("medium");
-        expect(component.getSizeClass(0)).toBe("small");
-        expect(component.getSizeClass(-1)).toBe("");
-    });
-
-    it('should return correct size for 3 players', () => {
-        component.players = [mockPlayer, mockPlayer, mockPlayer];  // 3 players
-        expect(component.getPlayerSize(0)).toBe("medium");  // First player
-        expect(component.getPlayerSize(1)).toBe("big"); // Middle player
-        expect(component.getPlayerSize(2)).toBe("medium");    // Last player
-    });
-
-    it('should return correct size for 4 players', () => {
-        component.players = [mockPlayer, mockPlayer, mockPlayer, mockPlayer];  // 4 players
-        expect(component.getPlayerSize(0)).toBe("medium");  // First player
-        expect(component.getPlayerSize(1)).toBe("big");  // Second player
-        expect(component.getPlayerSize(2)).toBe("big");    // Third player
-        expect(component.getPlayerSize(3)).toBe("medium");    // Fourth player
-    });
-
-    it('should return correct size for 5 players', () => {
-        component.players = [mockPlayer, mockPlayer, mockPlayer, mockPlayer, mockPlayer];  // 5 players
-        expect(component.getPlayerSize(0)).toBe("small");  // First player
-        expect(component.getPlayerSize(1)).toBe("medium");  // Second player
-        expect(component.getPlayerSize(2)).toBe("big"); // Middle player
-        expect(component.getPlayerSize(3)).toBe("medium");    // Fourth player
-        expect(component.getPlayerSize(4)).toBe("small");    // Fifth player
-    });
-
-    it('should return correct size for 6 players', () => {
-        component.players = [mockPlayer, mockPlayer, mockPlayer, mockPlayer, mockPlayer, mockPlayer];  // 6 players
-        expect(component.getPlayerSize(0)).toBe("small");  // First player
-        expect(component.getPlayerSize(1)).toBe("medium"); // Second player
-        expect(component.getPlayerSize(2)).toBe("big");    // Third player
-        expect(component.getPlayerSize(3)).toBe("big");    // Fourth player
-        expect(component.getPlayerSize(4)).toBe("medium"); // Fifth player
-        expect(component.getPlayerSize(5)).toBe("small");  // Sixth player
-    });
-
 
     it('should open the dialog and navigate to /home if confirmed', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
@@ -155,6 +113,7 @@ describe('WaitingPageComponent', () => {
             data: {
                 title: 'Abandonner la partie?',
                 messages: ["- Vous quitteriez la page d'attente"],
+                options: [ 'Quitter', 'Rester' ],
                 confirm: true,
             },
         });

@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
-import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, MAX_PLAYER_SIZE_INT, PLAYERS } from '@app/constants';
+import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, PLAYERS } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
 import { PlayerObjects, Status} from '@app/interfaces/playerObject';
@@ -58,37 +58,6 @@ export class WaitingPageComponent implements OnInit {
     generateAccesCode(): string {
         const code = Math.floor(Math.random() * this.maxRandom);
         return code.toString().padStart(this.accesCodeLength, '0');
-    }
-
-    getSizeClass(val: number): string {
-        switch (val) {
-            case 2:
-                return "big";
-            case 1:
-                return "medium";
-            case 0:
-                return "small";
-            default:
-                return "";
-        }
-    }
-
-    getPlayerSize(index: number): string{
-        let playerSizeInteger: number = MAX_PLAYER_SIZE_INT;
-        const midpoint: number = Math.floor(this.players.length / 2);
-        const sizesInt: number[] = new Array(this.players.length);
-
-        for (let i = midpoint; i < this.players.length; i++) {
-            sizesInt[i] = playerSizeInteger;
-            playerSizeInteger--;
-        }
-
-        playerSizeInteger = this.players.length % 2 === 1 ? MAX_PLAYER_SIZE_INT - 1 : MAX_PLAYER_SIZE_INT;
-        for (let i = midpoint - 1; i >= 0; i--) {
-            sizesInt[i] = playerSizeInteger;
-            playerSizeInteger--;
-        }
-        return this.getSizeClass(sizesInt[index]);
     }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {

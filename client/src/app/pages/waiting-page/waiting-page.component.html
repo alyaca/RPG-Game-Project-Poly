@@ -9,14 +9,10 @@
         <div id="players-container">
             @for (player of players; track player.id) {
                 <app-lobby-player
-                    [class]="getPlayerSize($index)"
+                    class = "medium"
                     [lobbyPlayer]="players[$index]"
                 ></app-lobby-player>
             }
-            <!-- <div class="add-bot medium">
-                <p>ajouter un joueur virtuel</p>
-                <button class="add-bot-button">+</button>
-            </div> -->
         </div>
     </main>
     <footer>
