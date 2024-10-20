@@ -8,7 +8,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
     providedIn: 'root',
 })
 export class ChatService {
-    constructor(private playerConnection: SocketCommunicationService) {}
+    constructor(private socketCommunication: SocketCommunicationService) {}
 
     // Envoyer un message sans le roomId (le serveur le gérera)
     sendMessage(content: string) {
@@ -19,12 +19,12 @@ export class ChatService {
             timestamp: new Date(),
         };
 
-        this.playerConnection.send('sendMessage', message);
+        this.socketCommunication.send('sendMessage', message);
     }
 
     // Écouter les messages reçus
     onMessageReceived(callback: (message: ChatMessage) => void) {
-        this.playerConnection.on<IMessage>('messageReceived', (backendMessage) => {
+        this.socketCommunication.on<IMessage>('messageReceived', (backendMessage) => {
             const formattedMessage: ChatMessage = {
                 id: this.generateUniqueId(),
                 username: backendMessage.username,

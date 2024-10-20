@@ -66,13 +66,13 @@ describe('ChatGateway', () => {
     });
 
     it('should handle sending and saving a message successfully', async () => {
-        socket.data.username = 'Vegeta';
+        socket.data.username = 'Luffy';
         socket.data.roomCode = 'room123';
 
         const mockMessageData: IMessage = {
             roomId: 'room123',
             username: socket.data.username,
-            message: 'Hello World!',
+            message: 'I am going to be the Pirate King!',
             timestamp: new Date(),
         };
 
@@ -101,7 +101,7 @@ describe('ChatGateway', () => {
         const mockMessageData: IMessage = {
             roomId: 'room123',
             username: socket.data.username,
-            message: 'Hello World!',
+            message: 'I am the prince of all Saiyans!',
             timestamp: new Date(),
         };
 
