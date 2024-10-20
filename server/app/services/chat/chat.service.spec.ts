@@ -72,9 +72,9 @@ describe('ChatService', () => {
             const roomId = 'room123';
 
             const messages: IMessage[] = [
-                { roomId, username: 'Vegeta', message: "Let's fight Kakarot", timestamp: new Date('2024-01-01T10:00:00Z') },
-                { roomId, username: 'Kakarot', message: 'Okay Vegeta', timestamp: new Date('2024-01-01T11:00:00Z') },
-                { roomId, username: 'Vegeta', message: 'Galick Gun', timestamp: new Date('2024-01-01T12:00:00Z') },
+                { roomId, username: 'Vegeta', message: "Let's fight Kakarot", timestamp: new Date() },
+                { roomId, username: 'Kakarot', message: 'Okay Vegeta', timestamp: new Date() },
+                { roomId, username: 'Vegeta', message: 'Galick Gun', timestamp: new Date() },
             ];
 
             await messageModel.insertMany(messages);
