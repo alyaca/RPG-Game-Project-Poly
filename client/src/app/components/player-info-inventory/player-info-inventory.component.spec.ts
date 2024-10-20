@@ -31,7 +31,7 @@ describe('PlayerInfoInventoryComponent', () => {
     });
 
     it('should not update the movement points if you already have max or minimum value for it', () => {
-        component.player.attributes.movementPointsLeft = mockPlayer.attributes.speed;
+        mockPlayer.attributes.movementPointsLeft = mockPlayer.attributes.speed;
         component.increaseMovement();
         expect(component.player.attributes.movementPointsLeft).toBe(mockPlayer.attributes.speed);
 

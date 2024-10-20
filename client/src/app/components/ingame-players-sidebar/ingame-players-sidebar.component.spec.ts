@@ -13,7 +13,6 @@ describe('IngamePlayersSidebarComponent', () => {
 
         fixture = TestBed.createComponent(IngamePlayersSidebarComponent);
         component = fixture.componentInstance;
-        fixture.detectChanges();
     });
 
     it('should create', () => {

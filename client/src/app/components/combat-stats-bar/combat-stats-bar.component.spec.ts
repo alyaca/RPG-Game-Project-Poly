@@ -13,7 +13,6 @@ describe('CombatStatsBarComponent', () => {
 
         fixture = TestBed.createComponent(CombatStatsBarComponent);
         component = fixture.componentInstance;
-        fixture.detectChanges();
     });
 
     it('should create', () => {
