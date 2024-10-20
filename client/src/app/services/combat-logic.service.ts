@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PlayerObjects } from '@app/interfaces/playerObject';
 import { DiceComponent } from '@app/components/dice/dice.component';
-import { COMBAT_TURN_LENGTH } from '@app/constants';
+import { COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE } from '@app/constants';
 // import { EVADE_SUCCES_RATE, COMBAT_TURN_LENGTH } from '@app/constants';
 
 export type Roles = {
@@ -35,11 +35,12 @@ export class CombatLogicService {
     // maybe i should rename these variables
     playerStat1: string;
     playerStat2: string;
-
     roles: Roles;
+    isDraw: boolean;
 
     initCombat(player1: PlayerObjects, player2: PlayerObjects){
         this.isGameOngoing = true;
+        this.isDraw = false;
         this.resetPlayerHp(player1, player2);
         this.evasionsArray1 = new Array(2).fill(1);
         this.evasionsArray2 = new Array(2).fill(1);
@@ -78,8 +79,11 @@ export class CombatLogicService {
 
         if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
-            this.setDisplayText('1 dégat infligé sur ' + defender.name);
+            this.setDisplayText('attaque réussie de ' + attacker.name);
         }      
+        else {
+            this.setDisplayText('attaque échouée de ' + attacker.name);
+        }
     }   
 
     determineTimerLength(evasions: number[], currPlayerNum: number): number {
@@ -97,5 +101,24 @@ export class CombatLogicService {
         this.currPlayerNum = this.currPlayerNum === 1 ? 2 : 1;
         const nextPlayer = this.currPlayerNum === 1 ? player1.name : player2.name;
         this.setDisplayText("C'est le tour de " + nextPlayer);
+    }
+
+    triggerEvade() {
+        if (this.evasionsArray1.length === 0) {
+            this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
+            return;
+        }
+        this.evasionsArray1.pop();
+        this.attemptEvade();
+    }
+
+    // put in combatService???
+    attemptEvade() {
+        if (Math.random() < EVADE_SUCCES_RATE) {
+            this.isDraw = true;
+            this.setDisplayText('Évasion réussie')
+        } else {
+            this.setDisplayText('Évasion échouée');
+        }
     }
 }

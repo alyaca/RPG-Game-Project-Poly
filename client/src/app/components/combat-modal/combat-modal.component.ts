@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { EVADE_SUCCES_RATE, PLAYERS } from '@app/constants';
+import { PLAYERS } from '@app/constants';
 import { PlayerObjects } from '@app/interfaces/playerObject';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
@@ -53,6 +53,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     closeModal() {
+        this.combatService.setDisplayText('');
         this.combatService.resetPlayerHp(this.player1, this.player2);
         this.isInCombat = false;
         this.close.emit();
@@ -85,6 +86,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             this.endDuel('Victoire', 'Vous avez gagné le duel');
         } else if (this.player1.attributes.currentHp === 0) {
             this.endDuel('Défaite', 'Vous avez perdu le duel');
+        } else if (this.combatService.isDraw) {
+            this.endDuel('Partie nulle', 'Évasion réussie');
         }
     }
 
@@ -95,28 +98,6 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
             this.closeModal();
         }, 3000);
-    }
-
-    triggerEvade() {
-        if (this.combatService.evasionsArray1.length === 0) {
-            this.combatService.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
-            return;
-        }
-
-        this.combatService.evasionsArray1.pop();
-        this.attemptEvade();
-    }
-
-    attemptEvade() {
-        if (Math.random() < EVADE_SUCCES_RATE) {
-            this.triggerTempDialog('Évasion réussie, partie nulle');
-            this.combatService.isGameOngoing = false;
-            setTimeout(() => {
-                this.closeModal();
-            }, 3000);
-        } else {
-            this.combatService.setDisplayText('Évasion échouée');
-        }
     }
 
     triggerAttack() {
