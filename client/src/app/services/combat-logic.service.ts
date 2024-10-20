@@ -116,7 +116,7 @@ export class CombatLogicService {
             this.setDisplayText('Évasion échouée');
         }
     }
-    ///
+
     checkIfDuelOver(player1: PlayerObjects, player2: PlayerObjects): string {
         if (player2.attributes.currentHp === 0) {
             this.setDisplayText('Vous avez gagné le duel');
