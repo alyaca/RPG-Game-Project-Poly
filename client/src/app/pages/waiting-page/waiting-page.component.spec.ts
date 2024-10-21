@@ -113,7 +113,7 @@ describe('WaitingPageComponent', () => {
             data: {
                 title: 'Abandonner la partie?',
                 messages: ["- Vous quitteriez la page d'attente"],
-                options: [ 'Quitter', 'Rester' ],
+                options: ['Quitter', 'Rester'],
                 confirm: true,
             },
         });
@@ -134,9 +134,9 @@ describe('WaitingPageComponent', () => {
     //     const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
     //     dialogRefSpy.afterClosed.and.returnValue(of('Confirmer')); // Adjust to the correct confirmation string
     //     dialogSpy.open.and.returnValue(dialogRefSpy);
-    
+
     //     component.handleStartGame();
-    
+
     //     expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
     //         disableClose: true,
     //         data: {
@@ -146,7 +146,7 @@ describe('WaitingPageComponent', () => {
     //             confirm: true,
     //         },
     //     });
-    
+
     //     expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
     // });
 

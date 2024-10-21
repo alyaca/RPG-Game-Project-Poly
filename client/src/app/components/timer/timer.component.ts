@@ -17,7 +17,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     @Input() timeRemaining: number;
     @Input() timerSize: number = TIMER_RADIUS;
     @Output() closeTimer = new EventEmitter<void>();
-    intervalId: any;
+    intervalId: unknown;
     isPaused: boolean = false;
     isTimerRunning: boolean = true;
     warningTime: number = WARNING_TIME;

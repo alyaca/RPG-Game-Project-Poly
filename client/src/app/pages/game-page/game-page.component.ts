@@ -14,14 +14,7 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 @Component({
     selector: 'app-game-page',
     standalone: true,
-    imports: [
-        GameGridComponent, 
-        PlayerInfoInventoryComponent, 
-        IngamePlayersSidebarComponent, 
-        TimerComponent, 
-        CombatModalComponent,
-        ChatBoxComponent
-    ],
+    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent, CombatModalComponent, ChatBoxComponent],
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
@@ -41,18 +34,21 @@ export class GamePageComponent implements AfterViewInit {
     isInCombat = false;
     isTurnStartShowed = true;
 
-    constructor(private router: Router, private dialog: MatDialog) {
+    constructor(
+        private router: Router,
+        private dialog: MatDialog,
+    ) {
         this.determinePlayerTurn();
     }
 
-    determinePlayerTurn(){
+    determinePlayerTurn() {
         this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
         this.allPlayers = [
-            ...this.allPlayers.filter(player => player.status !== Status.Disconnected), // Connected players
-            ...this.allPlayers.filter(player => player.status === Status.Disconnected)  // Disconnected players
+            ...this.allPlayers.filter((player) => player.status !== Status.Disconnected), // Connected players
+            ...this.allPlayers.filter((player) => player.status === Status.Disconnected), // Disconnected players
         ];
     }
-       
+
     enableClicks() {
         this.pageDiv.first.nativeElement.id = 'enabled';
     }
@@ -88,7 +84,7 @@ export class GamePageComponent implements AfterViewInit {
             disableClose: true,
             data: {
                 title: 'Abandonner la partie?',
-                messages: ["- Êtes-vous certains de vouloir quitter?"],
+                messages: ['- Êtes-vous certains de vouloir quitter?'],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
             },

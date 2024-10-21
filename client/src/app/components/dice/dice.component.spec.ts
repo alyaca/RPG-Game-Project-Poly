@@ -26,7 +26,7 @@ describe('DiceComponent', () => {
     });
 
     it('should roll the dice and update the value', (done) => {
-        const maxValue = 6; 
+        const maxValue = 6;
         component.rollDice(maxValue);
         expect(component.isRolling).toBe(true);
         setTimeout(() => {
@@ -46,7 +46,7 @@ describe('DiceComponent', () => {
         const previousValue = component.value;
         setTimeout(() => {
             expect(component.value).toBe(previousValue);
-            expect(component.isRolling).toBe(true); 
+            expect(component.isRolling).toBe(true);
         }, 100);
     });
 

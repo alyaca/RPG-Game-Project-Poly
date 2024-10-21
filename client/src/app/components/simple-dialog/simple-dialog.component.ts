@@ -14,7 +14,7 @@ import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-mess
 })
 export class SimpleDialogComponent {
     dialogTitle: string = '';
-    options: string[] = ['',''];
+    options: string[] = ['', ''];
 
     constructor(
         public dialogRef: MatDialogRef<SimpleDialogComponent>,

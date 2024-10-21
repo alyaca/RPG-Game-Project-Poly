@@ -24,7 +24,7 @@ describe('TemporaryDialogComponent', () => {
     it('should show the dialog with a message', () => {
         const message = 'Test Message';
         component.show(message);
-        
+
         expect(component.message).toBe(message);
         expect(component.isVisible).toBe(true);
     });

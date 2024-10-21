@@ -1,10 +1,9 @@
-// 
+//
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SimpleDialogComponent } from './simple-dialog.component';
 import { Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
@@ -20,23 +19,17 @@ describe('SimpleDialogComponent', () => {
         mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
         await TestBed.configureTestingModule({
-            imports: [
-                NoopAnimationsModule,
-                MatDialogModule,
-                MatButtonModule,
-                CommonModule,
-                SimpleDialogMessageComponent
-            ],
+            imports: [NoopAnimationsModule, MatDialogModule, MatButtonModule, CommonModule, SimpleDialogMessageComponent],
             providers: [
                 { provide: MatDialogRef, useValue: dialogRefSpy },
-                { 
-                    provide: MAT_DIALOG_DATA, 
-                    useValue: { 
-                        messages: ['Test message'], 
-                        title: 'Test title', 
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {
+                        messages: ['Test message'],
+                        title: 'Test title',
                         confirm: true,
-                        options: ['option1', 'option2'] 
-                    } 
+                        options: ['option1', 'option2'],
+                    },
                 },
                 { provide: Router, useValue: mockRouter },
             ],
@@ -64,7 +57,7 @@ describe('SimpleDialogComponent', () => {
 
     it('should close dialog with "right" when onCancel is called', () => {
         component.onCancel();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('right');  // corrected to "right"
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('right'); // corrected to "right"
     });
 
     it('should navigate to /administration when title is "Sauvegarde réussie"', () => {

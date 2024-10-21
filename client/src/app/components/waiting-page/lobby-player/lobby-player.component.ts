@@ -10,8 +10,7 @@ import { PlayerObjects, Status } from '@app/interfaces/playerObject';
 })
 export class LobbyPlayerComponent {
     @Input() lobbyPlayer: PlayerObjects;
-    isAdmin(){
+    isAdmin() {
         return this.lobbyPlayer.status === Status.Admin;
     }
-
 }

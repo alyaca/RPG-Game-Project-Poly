@@ -16,7 +16,6 @@ import { CombatLogicService } from '@app/services/combat-logic.service';
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
-
 export class CombatModalComponent implements OnInit, AfterViewInit {
     @Input() isInCombat = false; // isInCombat = is combat popup open ; isGameOngoing = has no winner been decided yet
     @Output() close = new EventEmitter<void>();
@@ -38,7 +37,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.initializeDisplay();
     }
 
-    initializeDisplay(){
+    initializeDisplay() {
         setTimeout(() => {
             const message = this.combatService.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
@@ -59,9 +58,9 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.close.emit();
     }
 
-    endGameIfNeeded(){
+    endGameIfNeeded() {
         const finalResult: string = this.combatService.checkIfDuelOver(this.player1, this.player2);
-        if(finalResult){
+        if (finalResult) {
             this.triggerTempDialog(finalResult);
             this.combatService.isGameOngoing = false;
             setTimeout(() => {
@@ -82,7 +81,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     attack() {
-        this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2) 
+        this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2);
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.endGameIfNeeded();

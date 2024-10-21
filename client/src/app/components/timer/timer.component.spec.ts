@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TimerComponent } from './timer.component';
-//import { EventEmitter } from '@angular/core';
+// import { EventEmitter } from '@angular/core';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('TimerComponent', () => {
@@ -16,7 +16,7 @@ describe('TimerComponent', () => {
         fixture = TestBed.createComponent(TimerComponent);
         component = fixture.componentInstance;
         component.totalTime = 10;
-        component.timeRemaining = component.totalTime; 
+        component.timeRemaining = component.totalTime;
         fixture.detectChanges();
     });
 
@@ -31,13 +31,13 @@ describe('TimerComponent', () => {
             expect(component.timeRemaining).toBeLessThan(component.totalTime);
             expect(component.isTimerRunning).toBe(true);
             done();
-        }, 2000); 
+        }, 2000);
     });
 
     it('should stop the timer when time runs out', (done) => {
         spyOn(component.closeTimer, 'emit');
         component.totalTime = 1;
-        component.timeRemaining = component.totalTime; 
+        component.timeRemaining = component.totalTime;
         component.startTimer();
 
         setTimeout(() => {
@@ -50,7 +50,7 @@ describe('TimerComponent', () => {
     it('should pause the timer', () => {
         component.startTimer();
         component.pauseTimer();
-        
+
         expect(component.isPaused).toBe(true);
         expect(component.isTimerRunning).toBe(true); // Still running, just paused
     });
@@ -72,9 +72,8 @@ describe('TimerComponent', () => {
         component.totalTime = 10; // Set total time
         component.timeRemaining = 5; // Set current time
         component.resetTimer();
-        
+
         expect(component.timeRemaining).toBe(component.totalTime); // Should reset to total time
         expect(component.isPaused).toBe(false); // Should not be paused
     });
 });
-

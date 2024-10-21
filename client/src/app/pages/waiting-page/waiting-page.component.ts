@@ -8,7 +8,7 @@ import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE, PLAYERS } from '@app/constants';
 import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
-import { PlayerObjects, Status} from '@app/interfaces/playerObject';
+import { PlayerObjects, Status } from '@app/interfaces/playerObject';
 
 @Component({
     selector: 'app-waiting-page',
@@ -43,8 +43,8 @@ export class WaitingPageComponent implements OnInit {
 
     ensureAdminIsFirst() {
         this.players = [
-            ...this.players.filter(player => player.status === Status.Admin),  
-            ...this.players.filter(player => player.status !== Status.Admin)    
+            ...this.players.filter((player) => player.status === Status.Admin),
+            ...this.players.filter((player) => player.status !== Status.Admin),
         ];
     }
 
