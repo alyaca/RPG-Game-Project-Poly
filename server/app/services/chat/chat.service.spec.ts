@@ -22,7 +22,7 @@ describe('ChatService', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]), // Include schema for Message model
+                MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]),
             ],
             providers: [ChatService],
         }).compile();

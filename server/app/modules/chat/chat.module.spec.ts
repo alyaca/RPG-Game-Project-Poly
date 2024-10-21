@@ -25,7 +25,6 @@ describe('ChatModule', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                // Injection du modèle Message dans Mongoose
                 MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]),
                 ChatModule,
             ],

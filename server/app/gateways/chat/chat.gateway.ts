@@ -1,6 +1,6 @@
-import { IMessage } from '@app/interfaces/message.interface'; // Importation de l'interface IMessage
-import { ChatService } from '@app/services/chat/chat.service'; // Importation du ChatService
-import { RoomService } from '@app/services/room/room.service'; // Importation du RoomService
+import { IMessage } from '@app/interfaces/message.interface';
+import { ChatService } from '@app/services/chat/chat.service';
+import { RoomService } from '@app/services/room/room.service';
 import { Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
