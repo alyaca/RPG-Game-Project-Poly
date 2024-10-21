@@ -8,7 +8,6 @@ export const mockPlayer: PlayerObjects = {
     name: 'Jar Jar Binks',
     victories: 2,
     isActive: true,
-    avatarFlipped: '/assets/images/characters-flipped/Hephaestus-flipped.webp/',
     attributes: {
         totalHp: 6,
         currentHp: 4,
