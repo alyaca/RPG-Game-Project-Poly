@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, WARNING_TIME, TIMER_RADIUS } from '@app/constants';
 // import { interval, Subscription } from 'rxjs';
-
 @Component({
     selector: 'app-timer',
     standalone: true,
@@ -17,7 +16,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     @Input() timeRemaining: number;
     @Input() timerSize: number = TIMER_RADIUS;
     @Output() closeTimer = new EventEmitter<void>();
-    intervalId: any;
+    intervalId: ReturnType<typeof setInterval> | null = null;
     isPaused: boolean = false;
     isTimerRunning: boolean = true;
     warningTime: number = WARNING_TIME;
@@ -55,7 +54,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.intervalId = setInterval(() => {
                 this.timeRemaining--;
 
-                if (this.timeRemaining <= -1) {
+                if (this.timeRemaining <= -1 && this.intervalId !== null) {
                     clearInterval(this.intervalId);
                     this.timerFinished();
                 }

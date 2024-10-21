@@ -4,7 +4,7 @@ import { DiceComponent } from '@app/components/dice/dice.component';
 import { COMBAT_TURN_LENGTH, SHORT_COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE, DISPLAY_TEXT_DELAY } from '@app/constants';
 
 export type Roles = {
-    [key: number]: {
+    [key: string]: {
         attacker: PlayerObjects;
         defender: PlayerObjects;
         activeDice: DiceComponent;
@@ -25,7 +25,7 @@ export class CombatLogicService {
     displayText: string = '';
     isGameOngoing: boolean = true;
 
-    currPlayerNum: number;
+    currPlayerNum: string;
 
     evasionsArray1: number[];
     evasionsArray2: number[];
@@ -43,8 +43,10 @@ export class CombatLogicService {
         this.evasionsArray2 = new Array(2).fill(1);
         this.currPlayerNum = this.determineStartingPlayer(player1, player2);
 
-        this.playerStat1 = this.currPlayerNum === 1 ? 'Attaque D' + player1.attributes.atkDiceMax : 'Défense D' + player1.attributes.defDiceMax;
-        this.playerStat2 = this.currPlayerNum === 1 ? 'Défense D' + player2.attributes.defDiceMax : 'Attaque' + player2.attributes.atkDiceMax;
+        this.playerStat1 =
+            this.currPlayerNum === 'player1turn' ? 'Attaque D' + player1.attributes.atkDiceMax : 'Défense D' + player1.attributes.defDiceMax;
+        this.playerStat2 =
+            this.currPlayerNum === 'player1turn' ? 'Défense D' + player2.attributes.defDiceMax : 'Attaque D' + player2.attributes.atkDiceMax;
     }
 
     resetPlayerHp(player1: PlayerObjects, player2: PlayerObjects) {
@@ -52,8 +54,8 @@ export class CombatLogicService {
         player2.attributes.currentHp = player2.attributes.totalHp;
     }
 
-    determineStartingPlayer(player1: PlayerObjects, player2: PlayerObjects): number {
-        return player1.attributes.speed >= player2.attributes.speed ? 1 : 2;
+    determineStartingPlayer(player1: PlayerObjects, player2: PlayerObjects): string {
+        return player1.attributes.speed >= player2.attributes.speed ? 'player1turn' : 'player2turn';
     }
 
     dealDamage(defender: PlayerObjects, isDefenderPlayer1: boolean) {
@@ -63,12 +65,14 @@ export class CombatLogicService {
         this.isPlayer2Damaged = !isDefenderPlayer1;
     }
 
-    processAttack(roles: Roles, currPlayerNum: number, player1: PlayerObjects, player2: PlayerObjects) {
+    processAttack(roles: Roles, currPlayerNum: string, player1: PlayerObjects, player2: PlayerObjects) {
         const { attacker, defender, activeDice, inactiveDice } = roles[currPlayerNum];
-        const isDefenderPlayer1 = currPlayerNum === 1;
+        const isDefenderPlayer1 = currPlayerNum === 'player1turn';
 
-        this.statValue2 = currPlayerNum === 1 ? activeDice.value + player1.attributes.attack : inactiveDice.value + player1.attributes.defense;
-        this.statValue1 = currPlayerNum === 2 ? activeDice.value + player2.attributes.attack : inactiveDice.value + player2.attributes.defense;
+        this.statValue2 =
+            currPlayerNum === 'player1turn' ? activeDice.value + player1.attributes.attack : inactiveDice.value + player1.attributes.defense;
+        this.statValue1 =
+            currPlayerNum === 'player2turn' ? activeDice.value + player2.attributes.attack : inactiveDice.value + player2.attributes.defense;
 
         if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
@@ -78,8 +82,8 @@ export class CombatLogicService {
         }
     }
 
-    determineTimerLength(evasions: number[], currPlayerNum: number): number {
-        return evasions.length === 0 && currPlayerNum !== 1 ? SHORT_COMBAT_TURN_LENGTH : COMBAT_TURN_LENGTH;
+    determineTimerLength(evasions: number[], currPlayerNum: string): number {
+        return evasions.length === 0 && currPlayerNum !== 'player1turn' ? SHORT_COMBAT_TURN_LENGTH : COMBAT_TURN_LENGTH;
     }
 
     setDisplayText(text: string) {
@@ -90,8 +94,8 @@ export class CombatLogicService {
     }
 
     switchTurn(player1: PlayerObjects, player2: PlayerObjects) {
-        this.currPlayerNum = this.currPlayerNum === 1 ? 2 : 1;
-        const nextPlayer = this.currPlayerNum === 1 ? player1.name : player2.name;
+        this.currPlayerNum = this.currPlayerNum === 'player1turn' ? 'player2turn' : 'player1turn';
+        const nextPlayer = this.currPlayerNum === 'player1turn' ? player1.name : player2.name;
         this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 

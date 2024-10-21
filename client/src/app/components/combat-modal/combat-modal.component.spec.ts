@@ -46,7 +46,7 @@ describe('CombatModalComponent', () => {
     it('should initialize display correctly when player starts', fakeAsync(() => {
         spyOn(component, 'triggerTempDialog');
         component.ngOnInit();
-        component.combatService.currPlayerNum = 1;
+        component.combatService.currPlayerNum = 'player1turn';
         tick(INIT_DISPLAY_DELAY);
         expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour');
     }));
@@ -54,24 +54,24 @@ describe('CombatModalComponent', () => {
     it('should initialize display correctly when opponent starts', fakeAsync(() => {
         spyOn(component, 'triggerTempDialog');
         component.ngOnInit();
-        component.combatService.currPlayerNum = 2;
+        component.combatService.currPlayerNum = 'player2turn';
         tick(INIT_DISPLAY_DELAY);
         expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire");
     }));
 
     it('should set roles correctly on ngAfterViewInit', () => {
         component.ngAfterViewInit();
-        expect(mockCombatService.roles[1].attacker).toEqual(component.player2);
-        expect(mockCombatService.roles[2].attacker).toEqual(component.player1);
+        expect(mockCombatService.roles['player1turn'].attacker).toEqual(component.player2);
+        expect(mockCombatService.roles['player2turn'].attacker).toEqual(component.player1);
     });
 
     it('should close modal and reset combat state on closeModal', () => {
-        spyOn(component.close, 'emit');
+        spyOn(component.closeModalEvent, 'emit');
         component.closeModal();
         expect(mockCombatService.setDisplayText).toHaveBeenCalledWith('');
         expect(mockCombatService.resetPlayerHp).toHaveBeenCalledWith(component.player1, component.player2);
         expect(component.isInCombat).toBeFalse();
-        expect(component.close.emit).toHaveBeenCalled();
+        expect(component.closeModalEvent.emit).toHaveBeenCalled();
     });
 
     it('should return early if the game is not ongoing', () => {
@@ -121,7 +121,7 @@ describe('CombatModalComponent', () => {
 
     it('should trigger the turn dialog correctly when player starts', fakeAsync(() => {
         spyOn(component, 'triggerTempDialog');
-        component.combatService.currPlayerNum = 1;
+        component.combatService.currPlayerNum = 'player1turn';
 
         component.triggerTurnDialog();
         tick(TURN_DIALOG_DELAY);
@@ -132,7 +132,7 @@ describe('CombatModalComponent', () => {
 
     it('should trigger the turn dialog correctly when opponent starts', fakeAsync(() => {
         spyOn(component, 'triggerTempDialog');
-        component.combatService.currPlayerNum = 2;
+        component.combatService.currPlayerNum = 'player2turn';
 
         component.triggerTurnDialog();
         tick(TURN_DIALOG_DELAY);
@@ -165,10 +165,10 @@ describe('CombatModalComponent', () => {
 
         mockCombatService.determineTimerLength.and.returnValue(COMBAT_TURN_LENGTH);
         mockCombatService.isGameOngoing = true;
-        component.combatService.currPlayerNum = 1;
+        component.combatService.currPlayerNum = 'player1turn';
         component.combatService.roles = {
-            1: { attacker: component.player1, defender: component.player2, activeDice: component.dice1, inactiveDice: component.dice2 },
-            2: { attacker: component.player2, defender: component.player1, activeDice: component.dice2, inactiveDice: component.dice1 },
+            player1turn: { attacker: component.player1, defender: component.player2, activeDice: component.dice1, inactiveDice: component.dice2 },
+            player2turn: { attacker: component.player2, defender: component.player1, activeDice: component.dice2, inactiveDice: component.dice1 },
         };
 
         component.triggerAttack();

@@ -69,7 +69,7 @@ describe('CombatLogicService', () => {
         player2.attributes.speed = 2;
 
         const startingPlayer = service.determineStartingPlayer(player1, player2);
-        expect(startingPlayer).toEqual(2);
+        expect(startingPlayer).toEqual('player2turn');
     });
 
     it('should determine the starting player based on speed - player 1 starts', () => {
@@ -77,7 +77,7 @@ describe('CombatLogicService', () => {
         player2.attributes.speed = 1;
 
         const startingPlayer = service.determineStartingPlayer(player1, player2);
-        expect(startingPlayer).toEqual(1);
+        expect(startingPlayer).toEqual('player1turn');
     });
 
     it('should deal damage correctly', () => {
@@ -92,12 +92,12 @@ describe('CombatLogicService', () => {
 
     it('should switch turns between players', () => {
         service.initCombat(player1, player2);
-        service.currPlayerNum = 1;
+        service.currPlayerNum = 'player1turn';
         service.switchTurn(player1, player2);
-        expect(service.currPlayerNum).toEqual(2);
+        expect(service.currPlayerNum).toEqual('player2turn');
 
         service.switchTurn(player1, player2);
-        expect(service.currPlayerNum).toEqual(1);
+        expect(service.currPlayerNum).toEqual('player1turn');
     });
 
     it('should correctly attempt to evade', () => {
@@ -116,13 +116,13 @@ describe('CombatLogicService', () => {
     describe('processAttack', () => {
         it('should process a successful attack from player 1 to player 2', () => {
             const roles: Roles = {
-                1: {
+                player1turn: {
                     attacker: player1,
                     defender: player2,
                     activeDice: dice1,
                     inactiveDice: dice2,
                 },
-                2: {
+                player2turn: {
                     attacker: player2,
                     defender: player1,
                     activeDice: dice2,
@@ -133,7 +133,7 @@ describe('CombatLogicService', () => {
             dice1.value = 2;
             dice2.value = 4;
 
-            service.processAttack(roles, 2, player1, player2);
+            service.processAttack(roles, 'player2turn', player1, player2);
 
             expect(service.statValue2).toBe(dice1.value + player1.attributes.attack);
             expect(service.statValue1).toBe(dice2.value + player2.attributes.defense);
@@ -143,13 +143,13 @@ describe('CombatLogicService', () => {
 
         it('should process a failed attack from player 2 to player 1', () => {
             const roles = {
-                1: {
+                player1turn: {
                     attacker: player1,
                     defender: player2,
                     activeDice: dice1,
                     inactiveDice: dice2,
                 },
-                2: {
+                player2turn: {
                     attacker: player2,
                     defender: player1,
                     activeDice: dice2,
@@ -160,7 +160,7 @@ describe('CombatLogicService', () => {
             dice1.value = 2;
             dice2.value = 4;
 
-            service.processAttack(roles, 1, player1, player2);
+            service.processAttack(roles, 'player1turn', player1, player2);
 
             expect(service.statValue2).toBe(dice1.value + player1.attributes.defense);
             expect(service.statValue1).toBe(dice2.value + player2.attributes.attack);
@@ -170,19 +170,19 @@ describe('CombatLogicService', () => {
     });
 
     describe('determineTimerLength', () => {
-        it('should return 3 when evasions array is empty and currPlayerNum is not 1', () => {
-            const timerLength = service.determineTimerLength([], 2);
+        it('should return 3 when evasions array is empty and currPlayerNum is not player1turn', () => {
+            const timerLength = service.determineTimerLength([], 'player2turn');
             expect(timerLength).toBe(SHORT_COMBAT_TURN_LENGTH);
         });
 
         it('should return COMBAT_TURN_LENGTH when evasions array is not empty', () => {
             const evasions = [1, 2];
-            const timerLength = service.determineTimerLength(evasions, 2);
+            const timerLength = service.determineTimerLength(evasions, 'player2turn');
             expect(timerLength).toBe(COMBAT_TURN_LENGTH);
         });
 
-        it('should return COMBAT_TURN_LENGTH when currPlayerNum is 1', () => {
-            const timerLength = service.determineTimerLength([], 1);
+        it('should return COMBAT_TURN_LENGTH when currPlayerNum is player1turn', () => {
+            const timerLength = service.determineTimerLength([], 'player1turn');
             expect(timerLength).toBe(COMBAT_TURN_LENGTH);
         });
     });
@@ -269,7 +269,7 @@ describe('CombatLogicService', () => {
 
     describe('CombatLogicService - processTurnDialog', () => {
         it('should set playerStat1 to "Défense D" + defDiceMax if playerStat1 includes "Attaque"', () => {
-            player1.attributes.defDiceMax = 4; // Assuming this is defined
+            player1.attributes.defDiceMax = 4;
             service.processTurnDialog(player1, player2);
 
             expect(service.playerStat1).toBe('Défense D4');
@@ -300,5 +300,28 @@ describe('CombatLogicService', () => {
 
             expect(service.playerStat2).toBe('Attaque D6');
         });
+    });
+
+    it('should set the correct stats when it is player 1\'s turn', () => {
+        spyOn(service, 'determineStartingPlayer').and.returnValue('player1turn');
+        player1.attributes.atkDiceMax = 6;
+        player2.attributes.defDiceMax = 4;
+        service.initCombat(player1, player2);
+
+
+        expect(service.currPlayerNum).toBe('player1turn');
+        expect(service.playerStat1).toBe('Attaque D6'); // player1's attack stat
+        expect(service.playerStat2).toBe('Défense D4'); // player2's defense stat
+    });
+
+    it('should set the correct stats when it is player 2\'s turn', () => {
+        spyOn(service, 'determineStartingPlayer').and.returnValue('player2turn');
+        player1.attributes.defDiceMax = 4;
+        player2.attributes.atkDiceMax = 6;
+        service.initCombat(player1, player2);
+
+        expect(service.currPlayerNum).toBe('player2turn');
+        expect(service.playerStat1).toBe('Défense D4'); // player1's defense stat
+        expect(service.playerStat2).toBe('Attaque D6'); // player2's attack stat
     });
 });

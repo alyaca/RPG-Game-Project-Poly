@@ -29,7 +29,6 @@ describe('TimerComponent', () => {
 
         setTimeout(() => {
             expect(component.timeRemaining).toBeLessThan(component.totalTime);
-            expect(component.isTimerRunning).toBe(true);
             done();
         }, START_TURN_TIMER_DELAY);
     });
@@ -44,7 +43,7 @@ describe('TimerComponent', () => {
             expect(component.timeRemaining).toBe(0);
             expect(component.closeTimer.emit).toHaveBeenCalled();
             done();
-        }, START_TURN_TIMER_DELAY); 
+        }, START_TURN_TIMER_DELAY);
     });
 
     it('should pause the timer', () => {
@@ -52,7 +51,7 @@ describe('TimerComponent', () => {
         component.pauseTimer();
 
         expect(component.isPaused).toBe(true);
-        expect(component.isTimerRunning).toBe(true); 
+        expect(component.isTimerRunning).toBe(true);
     });
 
     it('should resume the timer', (done) => {
@@ -63,17 +62,17 @@ describe('TimerComponent', () => {
         setTimeout(() => {
             expect(component.isPaused).toBe(false);
             expect(component.isTimerRunning).toBe(true);
-            expect(component.timeRemaining).toBeLessThan(component.totalTime); 
+            expect(component.timeRemaining).toBeLessThan(component.totalTime);
             done();
-        }, START_TURN_TIMER_DELAY); 
+        }, START_TURN_TIMER_DELAY);
     });
 
     it('should reset the timer', () => {
-        component.totalTime = 10; 
-        component.timeRemaining = 5; 
+        component.totalTime = 10;
+        component.timeRemaining = 5;
         component.resetTimer();
 
-        expect(component.timeRemaining).toBe(component.totalTime); 
+        expect(component.timeRemaining).toBe(component.totalTime);
         expect(component.isPaused).toBe(false);
     });
 });

@@ -26,7 +26,7 @@ import { CombatLogicService } from '@app/services/combat-logic.service';
 })
 export class CombatModalComponent implements OnInit, AfterViewInit {
     @Input() isInCombat = false; // isInCombat = is combat popup open ; isGameOngoing = has no winner been decided yet
-    @Output() close = new EventEmitter<void>();
+    @Output() closeModalEvent = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;
     @ViewChild('timer') timerComponent!: TimerComponent;
@@ -47,15 +47,15 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     initializeDisplay() {
         setTimeout(() => {
-            const message = this.combatService.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
+            const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
         }, INIT_DISPLAY_DELAY);
     }
 
     ngAfterViewInit() {
         this.combatService.roles = {
-            1: { attacker: this.player2, defender: this.player1, activeDice: this.dice1, inactiveDice: this.dice2 },
-            2: { attacker: this.player1, defender: this.player2, activeDice: this.dice2, inactiveDice: this.dice1 },
+            player1turn: { attacker: this.player2, defender: this.player1, activeDice: this.dice1, inactiveDice: this.dice2 },
+            player2turn: { attacker: this.player1, defender: this.player2, activeDice: this.dice2, inactiveDice: this.dice1 },
         };
     }
 
@@ -63,7 +63,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.combatService.setDisplayText('');
         this.combatService.resetPlayerHp(this.player1, this.player2);
         this.isInCombat = false;
-        this.close.emit();
+        this.closeModalEvent.emit();
     }
 
     endGameIfNeeded() {
@@ -80,7 +80,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     triggerTurnDialog() {
         setTimeout(() => {
             this.combatService.processTurnDialog(this.player1, this.player2);
-            const message = this.combatService.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
+            const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
         }, TURN_DIALOG_DELAY);
     }
