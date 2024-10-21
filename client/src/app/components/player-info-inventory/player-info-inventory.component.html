@@ -4,7 +4,7 @@
     </div>
     <div id="photo-container">
         <div id="player-image-container">
-            <img id="portrait" src="{{ player.avatar }}" />
+            <img id="portrait" src="{{ player.avatar?.src }}" />
         </div>
         <div id="player-attributes">
             <div id="hp-bar-container">
@@ -54,7 +54,7 @@
     <div class="player-inventory">
         <h4 id="inventory-header">Inventaire</h4>
         <div id="items-container">
-            @for (items of player.attributes.inventory; track $index) {
+            @for (items of player.inventory; track $index) {
             <app-game-object
                 class="player-items"
                 [name]="items.name"

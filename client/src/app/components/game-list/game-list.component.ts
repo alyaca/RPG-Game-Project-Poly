@@ -2,8 +2,8 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
-import { Map } from '@app/interfaces/map';
 import { GameListService } from '@app/services/game-list.service';
+import { Game } from '@common/game';
 
 @Component({
     selector: 'app-game-list',
@@ -14,27 +14,27 @@ import { GameListService } from '@app/services/game-list.service';
 })
 export class GameListComponent implements OnInit {
     @Input() usingPage: string = '';
-    games: Map[] = [];
-    gameSelected: Map | null = null;
+    games: Game[] = [];
+    gameSelected: Game | null = null;
 
     constructor(
         private gameListService: GameListService,
         private snackBar: MatSnackBar,
     ) {}
 
-    selectGame(game: Map) {
+    selectGame(game: Game) {
         this.gameListService.setSelectedGame(this.usingPage, game, this.games);
     }
 
     getGames() {
         this.gameListService.getGames(this.usingPage).subscribe({
-            next: (gamesFetched: Map[]) => {
+            next: (gamesFetched: Game[]) => {
                 this.games = gamesFetched;
             },
         });
     }
 
-    getTrimedDate(game: Map) {
+    getTrimedDate(game: Game) {
         const date = new Date(game.lastModification);
 
         return (
@@ -54,7 +54,7 @@ export class GameListComponent implements OnInit {
         this.getGames();
     }
 
-    changeVisibility(game: Map) {
+    changeVisibility(game: Game) {
         this.gameListService.changeVisibility(game).subscribe({
             next: (result: boolean) => {
                 if (result === false) {
@@ -64,7 +64,7 @@ export class GameListComponent implements OnInit {
         });
     }
 
-    deleteGame(game: Map) {
+    deleteGame(game: Game) {
         this.gameListService.deleteGame(game).subscribe({
             next: (result: boolean) => {
                 if (result) {

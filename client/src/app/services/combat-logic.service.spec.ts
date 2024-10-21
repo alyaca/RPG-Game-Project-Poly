@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { CombatLogicService, Roles } from './combat-logic.service';
-import { PlayerObjects } from '@app/interfaces/playerObject';
-
+//import { PlayerObjects } from '@app/interfaces/playerObject';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Player } from '@common/player';
 import {
-    PLAYERS,
     COMBAT_TURN_LENGTH,
     DISPLAY_TEXT_DELAY,
     SHORT_COMBAT_TURN_LENGTH,
@@ -14,8 +14,8 @@ import { DiceComponent } from '@app/components/dice/dice.component';
 
 describe('CombatLogicService', () => {
     let service: CombatLogicService;
-    let player1: PlayerObjects;
-    let player2: PlayerObjects;
+    let player1: Player;
+    let player2: Player;
     let dice1: DiceComponent;
     let dice2: DiceComponent;
     let fixture1: ComponentFixture<DiceComponent>;
@@ -28,8 +28,8 @@ describe('CombatLogicService', () => {
 
         service = TestBed.inject(CombatLogicService);
 
-        player1 = PLAYERS[5];
-        player2 = PLAYERS[4];
+        player1 = mockLobbyPlayers[5];
+        player2 = mockLobbyPlayers[4];
 
         fixture1 = TestBed.createComponent(DiceComponent);
         dice1 = fixture1.componentInstance;

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
 import {
-    PLAYERS,
     COMBAT_TURN_LENGTH,
     INIT_DISPLAY_DELAY,
     EXIT_COMBAT_DELAY,
@@ -10,7 +9,8 @@ import {
     ATTACK_DELAY,
     TURN_DIALOG_DELAY,
 } from '@app/constants';
-import { PlayerObjects } from '@app/interfaces/playerObject';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Player } from '@common/player';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
@@ -32,8 +32,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
 
-    @Input() player1: PlayerObjects = PLAYERS[2];
-    @Input() player2: PlayerObjects = PLAYERS[5];
+    @Input() player1: Player = mockLobbyPlayers[0];
+    @Input() player2: Player = mockLobbyPlayers[1];
 
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
@@ -90,6 +90,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.endGameIfNeeded();
+
+        //this.combatService.setDisplayText(`${this.player1.attributes.currentHp }`+ " " + `${this.player2.attributes.currentHp }`)
     }
 
     triggerAttack() {

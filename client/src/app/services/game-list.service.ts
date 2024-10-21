@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Map } from '@app/interfaces/map';
+import { Game } from '@common/game';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -9,8 +9,8 @@ import { environment } from 'src/environments/environment';
     providedIn: 'root',
 })
 export class GameListService {
-    selectedGameSubject = new BehaviorSubject<Map | null>(null);
-    chosenGameSubject = new BehaviorSubject<Map | null>(null);
+    selectedGameSubject = new BehaviorSubject<Game | null>(null);
+    chosenGameSubject = new BehaviorSubject<Game | null>(null);
     private allMapsApiUrl = `${environment.serverUrl}/maps`;
     private visibleMapsUrl = `${this.allMapsApiUrl}/visible`;
 
@@ -25,14 +25,14 @@ export class GameListService {
     }
 
     getAllVisibleGames() {
-        return this.http.get<Map[]>(this.visibleMapsUrl);
+        return this.http.get<Game[]>(this.visibleMapsUrl);
     }
 
-    getAllGames(): Observable<Map[]> {
-        return this.http.get<Map[]>(`${this.allMapsApiUrl}`);
+    getAllGames(): Observable<Game[]> {
+        return this.http.get<Game[]>(`${this.allMapsApiUrl}`);
     }
 
-    setSelectedGame(usingPage: string, game: Map, games: Map[]) {
+    setSelectedGame(usingPage: string, game: Game, games: Game[]) {
         if (usingPage === 'game-list') {
             if (game.isSelected) {
                 this.deselectGame(games);
@@ -42,22 +42,22 @@ export class GameListService {
         }
     }
 
-    selectGame(game: Map, games: Map[]) {
+    selectGame(game: Game, games: Game[]) {
         this.deselectGame(games);
         this.selectedGameSubject.next(game);
         game.isSelected = true;
     }
 
-    deselectGame(games: Map[]) {
+    deselectGame(games: Game[]) {
         this.selectedGameSubject.next(null);
         games.forEach((game) => (game.isSelected = false));
     }
 
-    performChangeVisibility(game: Map): Observable<boolean> {
+    performChangeVisibility(game: Game): Observable<boolean> {
         const newVisibleValue = !game.visible;
         const url = `${this.allMapsApiUrl}/${game._id}`;
         const updateData = { visible: newVisibleValue };
-        return this.http.patch<Map>(url, updateData).pipe(
+        return this.http.patch<Game>(url, updateData).pipe(
             map((updatedGame) => {
                 game.visible = updatedGame.visible;
                 return true;
@@ -68,7 +68,7 @@ export class GameListService {
         );
     }
 
-    changeVisibility(game: Map): Observable<boolean> {
+    changeVisibility(game: Game): Observable<boolean> {
         return this.checkIfGameExists(game).pipe(
             switchMap((exists) => {
                 if (exists) {
@@ -80,7 +80,7 @@ export class GameListService {
         );
     }
 
-    deleteGame(game: Map): Observable<boolean> {
+    deleteGame(game: Game): Observable<boolean> {
         return this.checkIfGameExists(game).pipe(
             switchMap((exists) => {
                 if (exists) {
@@ -92,25 +92,25 @@ export class GameListService {
         );
     }
 
-    checkIfGameExists(game: Map): Observable<boolean> {
+    checkIfGameExists(game: Game): Observable<boolean> {
         return this.getAllGames().pipe(
-            map((games: Map[]) => games.some((g) => g._id === game._id)),
+            map((games: Game[]) => games.some((g) => g._id === game._id)),
             catchError(() => {
                 return of(false);
             }),
         );
     }
 
-    checkIfVisibleGameExists(game: Map): Observable<Map | null> {
+    checkIfVisibleGameExists(game: Game): Observable<Game | null> {
         return this.getAllVisibleGames().pipe(
-            map((games: Map[]) => games.find((g) => g._id === game._id) || null),
+            map((games: Game[]) => games.find((g) => g._id === game._id) || null),
             catchError(() => {
                 return of(null);
             }),
         );
     }
 
-    private performDeleteGame(game: Map): Observable<boolean> {
+    private performDeleteGame(game: Game): Observable<boolean> {
         return this.http.delete<void>(`${this.allMapsApiUrl}/${game._id}`).pipe(
             map(() => true),
             catchError(() => of(false)),

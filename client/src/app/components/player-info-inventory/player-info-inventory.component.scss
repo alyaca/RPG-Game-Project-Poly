@@ -15,7 +15,6 @@
 #player-attributes {
     flex-direction: column;
     width: 100%;
-    //border: 1px solid red;
 }
 
 #player-image-container {
@@ -107,7 +106,7 @@ progress::-webkit-progress-value {
 
 #hp-bar {
     border: 1px solid rgb(197, 197, 197);
-    width: 80%;
+    width: 75%;
     border-radius: 0.5rem;
 }
 

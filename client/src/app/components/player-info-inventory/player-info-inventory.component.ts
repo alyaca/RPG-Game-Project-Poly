@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { PLAYERS } from '@app/constants';
-import { PlayerObjects } from '@app/interfaces/playerObject';
+import { Player } from '@common/player';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 
 @Component({
     selector: 'app-player-info-inventory',
@@ -12,7 +12,7 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
 })
 export class PlayerInfoInventoryComponent {
     // VERY TEMPORARY, JUST FOR THE STATIC VIEW OF THE PAGE
-    @Input() player: PlayerObjects = PLAYERS[2];
+    @Input() player: Player = mockLobbyPlayers[2];
     @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
     actionPointsArray = Array(this.player.attributes.actionPoints);
     movementPointsArray = Array(this.player.attributes.movementPointsLeft);

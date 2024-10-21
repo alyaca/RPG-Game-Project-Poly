@@ -28,7 +28,7 @@
     <div class="middle-section">
         <div>
             <div class="player-avatar-container" [ngClass]="{ 'damaged': combatService.isPlayer1Damaged }">
-                <img class="player-img left-player" src="{{ player1.avatar }}" alt="right player portrait" />
+                <img class="player-img left-player" src="{{ player1.avatar?.src }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
@@ -54,7 +54,7 @@
         </div>
         <div>
             <div class="player-avatar-container" [ngClass]="{ 'damaged': combatService.isPlayer2Damaged }">
-                <img class="player-img right-player" src="{{ player2.avatar }}" alt="right player portrait" />
+                <img class="player-img right-player" src="{{ player2.avatar?.src }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">

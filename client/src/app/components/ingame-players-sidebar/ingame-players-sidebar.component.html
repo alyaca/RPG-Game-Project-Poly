@@ -5,7 +5,7 @@
         }
     </div>
     <div class="avatar-img" [ngClass]="sidebarPlayer.status">
-        <img src={{sidebarPlayer.avatar}} alt="avatar-img">
+        <img src={{sidebarPlayer.avatar?.src}} alt="avatar-img">
     </div>
     <div class="player-info">
         <p class="player-name" [ngClass]="sidebarPlayer.status">{{sidebarPlayer.name}}</p>

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { PlayerObjects } from '@app/interfaces/playerObject';
+// import { PlayerObjects } from '@app/interfaces/playerObject';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-combat-stats-bar',
@@ -10,7 +11,7 @@ import { PlayerObjects } from '@app/interfaces/playerObject';
     styleUrl: './combat-stats-bar.component.scss',
 })
 export class CombatStatsBarComponent {
-    @Input() player: PlayerObjects;
+    @Input() player: Player;
     @Input() isOnRightSide: boolean;
     @Input() isDamaged: boolean;
 }

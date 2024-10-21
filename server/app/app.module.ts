@@ -1,7 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PlayerConnectionGateway } from './gateways/player-connection/player-connection.gateway';
 import { MapModule } from './modules/map/map.module';
+import { GameService } from './services/game/game.service';
+import { RoomService } from './services/room/room.service';
 
 @Module({
     imports: [
@@ -15,5 +18,6 @@ import { MapModule } from './modules/map/map.module';
         }),
         MapModule,
     ],
+    providers: [RoomService, PlayerConnectionGateway, Logger, GameService],
 })
 export class AppModule {}

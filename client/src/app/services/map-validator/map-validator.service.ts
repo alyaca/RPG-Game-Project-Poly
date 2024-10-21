@@ -10,8 +10,8 @@ import {
     ObjectType,
     VALIDATION_DURATION,
 } from '@app/constants';
-import { Map } from '@app/interfaces/map';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { Game } from '@common/game';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -93,8 +93,8 @@ export class MapValidatorService {
 
     isSameName(nameToCheck: string): Observable<boolean> {
         const trimmedNameToCheck = nameToCheck.trim();
-        return this.httpClient.get<Map[]>(this.apiURL).pipe(
-            map((maps: Map[]) => {
+        return this.httpClient.get<Game[]>(this.apiURL).pipe(
+            map((maps: Game[]) => {
                 const sameName = maps.filter((g) => g.name.trim() === trimmedNameToCheck);
                 return sameName.length > 0;
             }),

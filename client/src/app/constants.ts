@@ -1,5 +1,5 @@
-import { PlayerObjects, Status } from '@app/interfaces/playerObject';
-
+// import { Status } from '@app/interfaces/playerObject';
+// import { Player } from '@common/player';
 // Constants for the number of items and spawn points for each type of map
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
@@ -39,10 +39,6 @@ export enum ObjectType {
 // For no object in grid
 export const NO_OBJECT = 0;
 
-// Constants for waiting page access code generation
-export const ACCESS_CODE_LENGTH = 4;
-export const MAX_ACCESS_CODE_VALUE = 10000;
-
 // Constants for the size of the dialob box for the creation of a map
 export const WIDTH_DIALOG = '40%';
 export const HEIGHT_DIALOG = '50%';
@@ -66,15 +62,11 @@ export const MESSAGE_DURATION_SAVE_CHOICE = 3000;
 export const PAD_LENGTH = 2;
 
 // Constants for attribut values
-export const DEFAULT_ATTRIBUTE = '4';
-export const HIGH_ATTRIBUTE = '6';
+export const DEFAULT_ATTRIBUTE = 4;
+export const HIGH_ATTRIBUTE = 6;
 export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
-
-export const MAX_PLAYER_SIZE_INT = 2;
-export const THREE_PLAYERS_LOBBY = 3;
-export const FOUR_PLAYERS_LOBBY = 4;
-export const FIVE_PLAYERS_LOBBY = 5;
+export const DEFAULT_ACTION_POINT = 1;
 
 // Constants for timer component
 export const TOTAL_TIME = 60;
@@ -101,221 +93,221 @@ export const START_TURN_TIMER_DELAY = 2000;
 export const FAIL_EVASION_RANDOM_NUM = 0.5;
 export const SUCCES_EVASION_RANDOM_NUM = 0.1;
 // Array for the static players for the game page
-export const PLAYERS: PlayerObjects[] = [
-    {
-        id: 0,
-        avatar: '/assets/images/characters/Hephaestus.webp',
-        status: Status.Admin,
-        name: 'Jar Jar Binks',
-        victories: 2,
-        isActive: true,
-        attributes: {
-            totalHp: 6,
-            currentHp: 4,
-            speed: 1,
-            maxActionPoints: 2,
-            actionPoints: 1,
-            movementPointsLeft: 3,
-            attack: 4,
-            atkDiceMax: 6,
-            defense: 4,
-            defDiceMax: 4,
-            inventory: [
-                {
-                    id: ObjectType.Trident,
-                    name: 'Trident',
-                    description: 'Trident de Poséidon',
-                    count: 1,
-                    image: '/assets/images/objects/poseidon-trident.jpg/',
-                },
-                {
-                    id: ObjectType.Sandal,
-                    name: 'Sandales ailées',
-                    description: 'Sandales augmentant la stat de rapidité',
-                    count: 1,
-                    image: '/assets/images/objects/winged-sandals.jpg/',
-                },
-            ],
-        },
-    },
-    {
-        id: 1,
-        avatar: '/assets/images/characters/Zeus.webp',
-        status: Status.Player,
-        name: 'Obi-Wan Kenobi',
-        victories: 1,
-        isActive: false,
-        attributes: {
-            totalHp: 6,
-            currentHp: 4,
-            speed: 2,
-            maxActionPoints: 2,
-            actionPoints: 1,
-            movementPointsLeft: 3,
-            attack: 4,
-            atkDiceMax: 6,
-            defense: 4,
-            defDiceMax: 4,
-            inventory: [
-                {
-                    id: ObjectType.Trident,
-                    name: 'Trident',
-                    description: 'Trident de Poséidon',
-                    count: 1,
-                    image: '/assets/images/objects/poseidon-trident.jpg/',
-                },
-                {
-                    id: ObjectType.Sandal,
-                    name: 'Sandales ailées',
-                    description: 'Sandales augmentant la stat de rapidité',
-                    count: 1,
-                    image: '/assets/images/objects/winged-sandals.jpg/',
-                },
-            ],
-        },
-    },
-    {
-        id: 2,
-        avatar: '/assets/images/characters/Athena.webp',
-        status: Status.Player,
-        name: 'General Grievous',
-        victories: 2,
-        isActive: false,
-        attributes: {
-            totalHp: 6,
-            currentHp: 4,
-            speed: 3,
-            maxActionPoints: 2,
-            actionPoints: 1,
-            movementPointsLeft: 3,
-            attack: 4,
-            atkDiceMax: 6,
-            defense: 4,
-            defDiceMax: 4,
-            inventory: [
-                {
-                    id: ObjectType.Trident,
-                    name: 'Trident',
-                    description: 'Trident de Poséidon',
-                    count: 1,
-                    image: '/assets/images/objects/poseidon-trident.jpg/',
-                },
-                {
-                    id: ObjectType.Sandal,
-                    name: 'Sandales ailées',
-                    description: 'Sandales augmentant la stat de rapidité',
-                    count: 1,
-                    image: '/assets/images/objects/winged-sandals.jpg/',
-                },
-            ],
-        },
-    },
-    {
-        id: 3,
-        avatar: '/assets/images/characters/Poseidon.webp',
-        status: Status.Player,
-        name: 'Luke Skywalker',
-        victories: 1,
-        isActive: false,
-        attributes: {
-            totalHp: 6,
-            currentHp: 4,
-            speed: 4,
-            maxActionPoints: 2,
-            actionPoints: 1,
-            movementPointsLeft: 3,
-            attack: 4,
-            atkDiceMax: 6,
-            defense: 4,
-            defDiceMax: 4,
-            inventory: [
-                {
-                    id: ObjectType.Trident,
-                    name: 'Trident',
-                    description: 'Trident de Poséidon',
-                    count: 1,
-                    image: '/assets/images/objects/poseidon-trident.jpg/',
-                },
-                {
-                    id: ObjectType.Sandal,
-                    name: 'Sandales ailées',
-                    description: 'Sandales augmentant la stat de rapidité',
-                    count: 1,
-                    image: '/assets/images/objects/winged-sandals.jpg/',
-                },
-            ],
-        },
-    },
-    {
-        id: 4,
-        avatar: '/assets/images/characters/Artemis.webp',
-        status: Status.Bot,
-        name: 'Leia Organa',
-        victories: 0,
-        isActive: false,
-        attributes: {
-            totalHp: 6,
-            currentHp: 4,
-            speed: 5,
-            maxActionPoints: 2,
-            actionPoints: 1,
-            movementPointsLeft: 3,
-            attack: 4,
-            atkDiceMax: 6,
-            defense: 4,
-            defDiceMax: 4,
-            inventory: [
-                {
-                    id: ObjectType.Trident,
-                    name: 'Trident',
-                    description: 'Trident de Poséidon',
-                    count: 1,
-                    image: '/assets/images/objects/poseidon-trident.jpg/',
-                },
-                {
-                    id: ObjectType.Sandal,
-                    name: 'Sandales ailées',
-                    description: 'Sandales augmentant la stat de rapidité',
-                    count: 1,
-                    image: '/assets/images/objects/winged-sandals.jpg/',
-                },
-            ],
-        },
-    },
-    {
-        id: 5,
-        avatar: '/assets/images/characters/Hestia.webp',
-        status: Status.Disconnected,
-        name: 'Chewbacca',
-        victories: 2,
-        isActive: false,
-        attributes: {
-            totalHp: 6,
-            currentHp: 4,
-            speed: 6,
-            maxActionPoints: 2,
-            actionPoints: 1,
-            movementPointsLeft: 3,
-            attack: 4,
-            atkDiceMax: 6,
-            defense: 4,
-            defDiceMax: 4,
-            inventory: [
-                {
-                    id: ObjectType.Trident,
-                    name: 'Trident',
-                    description: 'Trident de Poséidon',
-                    count: 1,
-                    image: '/assets/images/objects/poseidon-trident.jpg/',
-                },
-                {
-                    id: ObjectType.Sandal,
-                    name: 'Sandales ailées',
-                    description: 'Sandales augmentant la stat de rapidité',
-                    count: 1,
-                    image: '/assets/images/objects/winged-sandals.jpg/',
-                },
-            ],
-        },
-    },
-];
+// export const PLAYERS: Player[] = [
+//     {
+//         id: '0',
+//         avatar: '/assets/images/characters/Hephaestus.webp',
+//         status: Status.Admin,
+//         name: 'Jar Jar Binks',
+//         victories: 2,
+//         isActive: true,
+//         attributes: {
+//             totalHp: 6,
+//             currentHp: 4,
+//             speed: 1,
+//             maxActionPoints: 2,
+//             actionPoints: 1,
+//             movementPointsLeft: 3,
+//             attack: 4,
+//             atkDiceMax: 6,
+//             defense: 4,
+//             defDiceMax: 4,
+//             inventory: [
+//                 {
+//                     id: ObjectType.Trident,
+//                     name: 'Trident',
+//                     description: 'Trident de Poséidon',
+//                     count: 1,
+//                     image: '/assets/images/objects/poseidon-trident.jpg/',
+//                 },
+//                 {
+//                     id: ObjectType.Sandal,
+//                     name: 'Sandales ailées',
+//                     description: 'Sandales augmentant la stat de rapidité',
+//                     count: 1,
+//                     image: '/assets/images/objects/winged-sandals.jpg/',
+//                 },
+//             ],
+//         },
+//     },
+//     {
+//         id: '1',
+//         avatar: '/assets/images/characters/Zeus.webp',
+//         status: Status.Player,
+//         name: 'Obi-Wan Kenobi',
+//         victories: 1,
+//         isActive: false,
+//         attributes: {
+//             totalHp: 6,
+//             currentHp: 4,
+//             speed: 2,
+//             maxActionPoints: 2,
+//             actionPoints: 1,
+//             movementPointsLeft: 3,
+//             attack: 4,
+//             atkDiceMax: 6,
+//             defense: 4,
+//             defDiceMax: 4,
+//             inventory: [
+//                 {
+//                     id: ObjectType.Trident,
+//                     name: 'Trident',
+//                     description: 'Trident de Poséidon',
+//                     count: 1,
+//                     image: '/assets/images/objects/poseidon-trident.jpg/',
+//                 },
+//                 {
+//                     id: ObjectType.Sandal,
+//                     name: 'Sandales ailées',
+//                     description: 'Sandales augmentant la stat de rapidité',
+//                     count: 1,
+//                     image: '/assets/images/objects/winged-sandals.jpg/',
+//                 },
+//             ],
+//         },
+//     },
+//     {
+//         id: '2',
+//         avatar: '/assets/images/characters/Athena.webp',
+//         status: Status.Player,
+//         name: 'General Grievous',
+//         victories: 2,
+//         isActive: false,
+//         attributes: {
+//             totalHp: 6,
+//             currentHp: 4,
+//             speed: 3,
+//             maxActionPoints: 2,
+//             actionPoints: 1,
+//             movementPointsLeft: 3,
+//             attack: 4,
+//             atkDiceMax: 6,
+//             defense: 4,
+//             defDiceMax: 4,
+//             inventory: [
+//                 {
+//                     id: ObjectType.Trident,
+//                     name: 'Trident',
+//                     description: 'Trident de Poséidon',
+//                     count: 1,
+//                     image: '/assets/images/objects/poseidon-trident.jpg/',
+//                 },
+//                 {
+//                     id: ObjectType.Sandal,
+//                     name: 'Sandales ailées',
+//                     description: 'Sandales augmentant la stat de rapidité',
+//                     count: 1,
+//                     image: '/assets/images/objects/winged-sandals.jpg/',
+//                 },
+//             ],
+//         },
+//     },
+//     {
+//         id: '3',
+//         avatar: '/assets/images/characters/Poseidon.webp',
+//         status: Status.Player,
+//         name: 'Luke Skywalker',
+//         victories: 1,
+//         isActive: false,
+//         attributes: {
+//             totalHp: 6,
+//             currentHp: 4,
+//             speed: 4,
+//             maxActionPoints: 2,
+//             actionPoints: 1,
+//             movementPointsLeft: 3,
+//             attack: 4,
+//             atkDiceMax: 6,
+//             defense: 4,
+//             defDiceMax: 4,
+//             inventory: [
+//                 {
+//                     id: ObjectType.Trident,
+//                     name: 'Trident',
+//                     description: 'Trident de Poséidon',
+//                     count: 1,
+//                     image: '/assets/images/objects/poseidon-trident.jpg/',
+//                 },
+//                 {
+//                     id: ObjectType.Sandal,
+//                     name: 'Sandales ailées',
+//                     description: 'Sandales augmentant la stat de rapidité',
+//                     count: 1,
+//                     image: '/assets/images/objects/winged-sandals.jpg/',
+//                 },
+//             ],
+//         },
+//     },
+//     {
+//         id: '4',
+//         avatar: '/assets/images/characters/Artemis.webp',
+//         status: Status.Bot,
+//         name: 'Leia Organa',
+//         victories: 0,
+//         isActive: false,
+//         attributes: {
+//             totalHp: 6,
+//             currentHp: 4,
+//             speed: 5,
+//             maxActionPoints: 2,
+//             actionPoints: 1,
+//             movementPointsLeft: 3,
+//             attack: 4,
+//             atkDiceMax: 6,
+//             defense: 4,
+//             defDiceMax: 4,
+//             inventory: [
+//                 {
+//                     id: ObjectType.Trident,
+//                     name: 'Trident',
+//                     description: 'Trident de Poséidon',
+//                     count: 1,
+//                     image: '/assets/images/objects/poseidon-trident.jpg/',
+//                 },
+//                 {
+//                     id: ObjectType.Sandal,
+//                     name: 'Sandales ailées',
+//                     description: 'Sandales augmentant la stat de rapidité',
+//                     count: 1,
+//                     image: '/assets/images/objects/winged-sandals.jpg/',
+//                 },
+//             ],
+//         },
+//     },
+//     {
+//         id: '5',
+//         avatar: '/assets/images/characters/Hestia.webp',
+//         status: Status.Disconnected,
+//         name: 'Chewbacca',
+//         victories: 2,
+//         isActive: false,
+//         attributes: {
+//             totalHp: 6,
+//             currentHp: 4,
+//             speed: 6,
+//             maxActionPoints: 2,
+//             actionPoints: 1,
+//             movementPointsLeft: 3,
+//             attack: 4,
+//             atkDiceMax: 6,
+//             defense: 4,
+//             defDiceMax: 4,
+//             inventory: [
+//                 {
+//                     id: ObjectType.Trident,
+//                     name: 'Trident',
+//                     description: 'Trident de Poséidon',
+//                     count: 1,
+//                     image: '/assets/images/objects/poseidon-trident.jpg/',
+//                 },
+//                 {
+//                     id: ObjectType.Sandal,
+//                     name: 'Sandales ailées',
+//                     description: 'Sandales augmentant la stat de rapidité',
+//                     count: 1,
+//                     image: '/assets/images/objects/winged-sandals.jpg/',
+//                 },
+//             ],
+//         },
+//     },
+// ];

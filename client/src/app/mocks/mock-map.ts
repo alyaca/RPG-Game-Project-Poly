@@ -1,7 +1,7 @@
 import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { Map } from '@app/interfaces/map';
 import { TileType } from '@app/services/map-validator/map-validator.service';
+import { Game } from '@common/game';
 
 export const dummyInfo: Info = {
     image: 'image file',
@@ -12,7 +12,7 @@ export const dummyInfo: Info = {
     height: SIZE_MEDIUM_MAP,
 };
 
-export const dummyMap: Map = {
+export const dummyMap: Game = {
     _id: 'map to replace in DB',
     name: 'map name',
     description: 'description',

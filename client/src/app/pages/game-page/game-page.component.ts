@@ -4,12 +4,13 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { PLAYERS } from '@app/constants';
-import { PlayerObjects, Status } from '@app/interfaces/playerObject';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Status } from '@app/interfaces/playerObject';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-game-page',
@@ -24,7 +25,7 @@ export class GamePageComponent implements AfterViewInit {
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
     @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
-    allPlayers: PlayerObjects[] = PLAYERS;
+    allPlayers: Player[] = mockLobbyPlayers;
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
     resetTrigger: boolean = false;

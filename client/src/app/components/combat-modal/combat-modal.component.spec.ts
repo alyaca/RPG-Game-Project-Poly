@@ -4,7 +4,8 @@ import { CombatLogicService } from '@app/services/combat-logic.service';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-import { PLAYERS, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, COMBAT_TURN_LENGTH, INACTIVE_DICE_DELAY, TURN_DIALOG_DELAY } from '@app/constants';
+import { INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, COMBAT_TURN_LENGTH, INACTIVE_DICE_DELAY, TURN_DIALOG_DELAY } from '@app/constants';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 
 describe('CombatModalComponent', () => {
     let component: CombatModalComponent;
@@ -33,8 +34,8 @@ describe('CombatModalComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(CombatModalComponent);
         component = fixture.componentInstance;
-        component.player1 = PLAYERS[2];
-        component.player2 = PLAYERS[5];
+        component.player1 = mockLobbyPlayers[2];
+        component.player2 = mockLobbyPlayers[5];
         fixture.detectChanges();
     });
 
