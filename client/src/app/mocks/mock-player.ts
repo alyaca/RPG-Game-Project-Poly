@@ -15,7 +15,7 @@ export const mockPlayer: PlayerObjects = {
         speed: 4,
         maxActionPoints: 2,
         actionPoints: 1,
-        movementPointsLeft: 3,
+        movementPointsLeft: 1,
         attack: 4,
         atkDiceMax: 6,
         defense: 4,
