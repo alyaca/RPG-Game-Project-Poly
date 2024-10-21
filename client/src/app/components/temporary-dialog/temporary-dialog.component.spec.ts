@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TemporaryDialogComponent } from './temporary-dialog.component';
+import { INACTIVE_DICE_DELAY } from '@app/constants';
 
 describe('TemporaryDialogComponent', () => {
     let component: TemporaryDialogComponent;
@@ -35,7 +36,7 @@ describe('TemporaryDialogComponent', () => {
         setTimeout(() => {
             expect(component.isVisible).toBe(false);
             done();
-        }, 150); // Wait slightly longer than the duration to ensure it has hidden
+        }, INACTIVE_DICE_DELAY);
     });
 
     it('should set the message correctly when shown multiple times', () => {

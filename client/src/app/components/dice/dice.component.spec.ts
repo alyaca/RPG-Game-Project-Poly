@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { DiceComponent } from './dice.component';
+import { INACTIVE_DICE_DELAY, ROLL_DURATION } from '@app/constants';
 
 describe('DiceComponent', () => {
     let component: DiceComponent;
@@ -34,7 +34,7 @@ describe('DiceComponent', () => {
             expect(component.value).toBeLessThanOrEqual(maxValue);
             expect(component.isRolling).toBe(false);
             done();
-        }, 800);
+        }, ROLL_DURATION);
     });
 
     it('should not roll if already rolling', () => {
@@ -47,7 +47,7 @@ describe('DiceComponent', () => {
         setTimeout(() => {
             expect(component.value).toBe(previousValue);
             expect(component.isRolling).toBe(true);
-        }, 100);
+        }, INACTIVE_DICE_DELAY);
     });
 
     it('should allow rolling again after completing the first roll', (done) => {
@@ -59,6 +59,6 @@ describe('DiceComponent', () => {
             component.rollDice(maxValue);
             expect(component.isRolling).toBe(true);
             done();
-        }, 800);
+        }, ROLL_DURATION);
     });
 });

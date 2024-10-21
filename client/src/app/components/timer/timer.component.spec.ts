@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TimerComponent } from './timer.component';
-// import { EventEmitter } from '@angular/core';
+import { START_TURN_TIMER_DELAY } from '@app/constants';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('TimerComponent', () => {
@@ -31,7 +31,7 @@ describe('TimerComponent', () => {
             expect(component.timeRemaining).toBeLessThan(component.totalTime);
             expect(component.isTimerRunning).toBe(true);
             done();
-        }, 2000);
+        }, START_TURN_TIMER_DELAY);
     });
 
     it('should stop the timer when time runs out', (done) => {
@@ -44,7 +44,7 @@ describe('TimerComponent', () => {
             expect(component.timeRemaining).toBe(0);
             expect(component.closeTimer.emit).toHaveBeenCalled();
             done();
-        }, 2000); // Allow time for the timer to finish
+        }, START_TURN_TIMER_DELAY); 
     });
 
     it('should pause the timer', () => {
@@ -52,7 +52,7 @@ describe('TimerComponent', () => {
         component.pauseTimer();
 
         expect(component.isPaused).toBe(true);
-        expect(component.isTimerRunning).toBe(true); // Still running, just paused
+        expect(component.isTimerRunning).toBe(true); 
     });
 
     it('should resume the timer', (done) => {
@@ -63,17 +63,17 @@ describe('TimerComponent', () => {
         setTimeout(() => {
             expect(component.isPaused).toBe(false);
             expect(component.isTimerRunning).toBe(true);
-            expect(component.timeRemaining).toBeLessThan(component.totalTime); // Timer should be running again
+            expect(component.timeRemaining).toBeLessThan(component.totalTime); 
             done();
-        }, 2000); // Allow time for the timer to run again
+        }, START_TURN_TIMER_DELAY); 
     });
 
     it('should reset the timer', () => {
-        component.totalTime = 10; // Set total time
-        component.timeRemaining = 5; // Set current time
+        component.totalTime = 10; 
+        component.timeRemaining = 5; 
         component.resetTimer();
 
-        expect(component.timeRemaining).toBe(component.totalTime); // Should reset to total time
-        expect(component.isPaused).toBe(false); // Should not be paused
+        expect(component.timeRemaining).toBe(component.totalTime); 
+        expect(component.isPaused).toBe(false);
     });
 });

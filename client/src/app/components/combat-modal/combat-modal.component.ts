@@ -1,7 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { PLAYERS } from '@app/constants';
+import {
+    PLAYERS,
+    COMBAT_TURN_LENGTH,
+    INIT_DISPLAY_DELAY,
+    EXIT_COMBAT_DELAY,
+    INACTIVE_DICE_DELAY,
+    ATTACK_DELAY,
+    TURN_DIALOG_DELAY,
+} from '@app/constants';
 import { PlayerObjects } from '@app/interfaces/playerObject';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
@@ -27,8 +35,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     @Input() player1: PlayerObjects = PLAYERS[2];
     @Input() player2: PlayerObjects = PLAYERS[5];
 
-    totalTime: number = 5;
-    timeRemaining: number = 5;
+    totalTime: number = COMBAT_TURN_LENGTH;
+    timeRemaining: number = COMBAT_TURN_LENGTH;
 
     constructor(public combatService: CombatLogicService) {}
 
@@ -41,7 +49,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
             const message = this.combatService.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
-        }, 50);
+        }, INIT_DISPLAY_DELAY);
     }
 
     ngAfterViewInit() {
@@ -65,19 +73,16 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             this.combatService.isGameOngoing = false;
             setTimeout(() => {
                 this.closeModal();
-            }, 3000);
+            }, EXIT_COMBAT_DELAY);
         }
     }
 
     triggerTurnDialog() {
         setTimeout(() => {
             this.combatService.processTurnDialog(this.player1, this.player2);
-        }, 500);
-
-        setTimeout(() => {
             const message = this.combatService.currPlayerNum === 1 ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message);
-        }, 1000);
+        }, TURN_DIALOG_DELAY);
     }
 
     attack() {
@@ -100,11 +105,11 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         setTimeout(() => {
             inactiveDice.rollDice(defender.attributes.defDiceMax);
-        }, 200);
+        }, INACTIVE_DICE_DELAY);
 
         setTimeout(() => {
             this.attack();
-        }, 1200);
+        }, ATTACK_DELAY);
     }
 
     triggerEvade() {

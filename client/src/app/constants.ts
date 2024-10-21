@@ -86,7 +86,20 @@ export const TIMER_CENTER_POSITION = 50;
 export const TEMP_DIALOG_DURATION = 1500;
 export const EVADE_SUCCES_RATE = 0.4;
 export const COMBAT_TURN_LENGTH = 5;
+export const SHORT_COMBAT_TURN_LENGTH = 3;
 
+export const ROLL_DURATION = 800;
+
+export const INIT_DISPLAY_DELAY = 50;
+export const EXIT_COMBAT_DELAY = 3000;
+export const INACTIVE_DICE_DELAY = 200;
+export const DISPLAY_TEXT_DELAY = 300;
+export const ATTACK_DELAY = 1200;
+export const TURN_DIALOG_DELAY = 1000;
+export const START_TURN_TIMER_DELAY = 2000;
+
+export const FAIL_EVASION_RANDOM_NUM = 0.5;
+export const SUCCES_EVASION_RANDOM_NUM = 0.1;
 // Array for the static players for the game page
 export const PLAYERS: PlayerObjects[] = [
     {

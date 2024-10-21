@@ -4,7 +4,7 @@ import { CombatLogicService } from '@app/services/combat-logic.service';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-import { PLAYERS } from '@app/constants';
+import { PLAYERS, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, COMBAT_TURN_LENGTH, INACTIVE_DICE_DELAY, TURN_DIALOG_DELAY } from '@app/constants';
 
 describe('CombatModalComponent', () => {
     let component: CombatModalComponent;
@@ -47,7 +47,7 @@ describe('CombatModalComponent', () => {
         spyOn(component, 'triggerTempDialog');
         component.ngOnInit();
         component.combatService.currPlayerNum = 1;
-        tick(50);
+        tick(INIT_DISPLAY_DELAY);
         expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour');
     }));
 
@@ -55,7 +55,7 @@ describe('CombatModalComponent', () => {
         spyOn(component, 'triggerTempDialog');
         component.ngOnInit();
         component.combatService.currPlayerNum = 2;
-        tick(50);
+        tick(INIT_DISPLAY_DELAY);
         expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire");
     }));
 
@@ -101,7 +101,7 @@ describe('CombatModalComponent', () => {
         spyOn(component, 'closeModal');
         component.endGameIfNeeded();
         expect(component.triggerTempDialog).toHaveBeenCalledWith('Game Over');
-        tick(3000);
+        tick(EXIT_COMBAT_DELAY);
         expect(component.closeModal).toHaveBeenCalled();
     }));
 
@@ -124,9 +124,9 @@ describe('CombatModalComponent', () => {
         component.combatService.currPlayerNum = 1;
 
         component.triggerTurnDialog();
-        tick(500);
+        tick(TURN_DIALOG_DELAY);
         expect(mockCombatService.processTurnDialog).toHaveBeenCalledWith(component.player1, component.player2);
-        tick(500);
+        tick(TURN_DIALOG_DELAY);
         expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour');
     }));
 
@@ -135,9 +135,9 @@ describe('CombatModalComponent', () => {
         component.combatService.currPlayerNum = 2;
 
         component.triggerTurnDialog();
-        tick(500);
+        tick(TURN_DIALOG_DELAY);
         expect(mockCombatService.processTurnDialog).toHaveBeenCalledWith(component.player1, component.player2);
-        tick(500);
+        tick(TURN_DIALOG_DELAY);
         expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire");
     }));
 
@@ -163,7 +163,7 @@ describe('CombatModalComponent', () => {
         spyOn(component.dice2, 'rollDice');
         spyOn(component, 'attack');
 
-        mockCombatService.determineTimerLength.and.returnValue(5);
+        mockCombatService.determineTimerLength.and.returnValue(COMBAT_TURN_LENGTH);
         mockCombatService.isGameOngoing = true;
         component.combatService.currPlayerNum = 1;
         component.combatService.roles = {
@@ -177,9 +177,9 @@ describe('CombatModalComponent', () => {
 
         expect(mockCombatService.switchTurn).toHaveBeenCalledWith(component.player1, component.player2);
         expect(component.dice1.rollDice).toHaveBeenCalledWith(component.player1.attributes.atkDiceMax);
-        tick(200);
+        tick(INACTIVE_DICE_DELAY);
         expect(component.dice2.rollDice).toHaveBeenCalledWith(component.player2.attributes.defDiceMax);
-        tick(1000);
+        tick(TURN_DIALOG_DELAY);
         expect(component.attack).toHaveBeenCalled();
     }));
 });

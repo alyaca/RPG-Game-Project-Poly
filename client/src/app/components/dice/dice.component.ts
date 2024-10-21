@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { ROLL_DURATION } from '@app/constants';
 @Component({
     selector: 'app-dice',
     standalone: true,
@@ -16,7 +16,7 @@ export class DiceComponent {
         if (this.isRolling) return;
         this.isRolling = true;
 
-        const rollDuration = 800;
+        const rollDuration = ROLL_DURATION; // roll duration is 800 only if more than 0.8 seconds left to turn (otherwise 0)
         const randomDiceValue = Math.floor(Math.random() * maxValue) + 1;
 
         setTimeout(() => {

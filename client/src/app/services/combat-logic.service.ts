@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PlayerObjects } from '@app/interfaces/playerObject';
 import { DiceComponent } from '@app/components/dice/dice.component';
-import { COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE } from '@app/constants';
-// import { EVADE_SUCCES_RATE, COMBAT_TURN_LENGTH } from '@app/constants';
+import { COMBAT_TURN_LENGTH, SHORT_COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE, DISPLAY_TEXT_DELAY } from '@app/constants';
 
 export type Roles = {
     [key: number]: {
@@ -25,8 +24,6 @@ export class CombatLogicService {
 
     displayText: string = '';
     isGameOngoing: boolean = true;
-
-    /// /
 
     currPlayerNum: number;
 
@@ -82,14 +79,14 @@ export class CombatLogicService {
     }
 
     determineTimerLength(evasions: number[], currPlayerNum: number): number {
-        return evasions.length === 0 && currPlayerNum !== 1 ? 3 : COMBAT_TURN_LENGTH;
+        return evasions.length === 0 && currPlayerNum !== 1 ? SHORT_COMBAT_TURN_LENGTH : COMBAT_TURN_LENGTH;
     }
 
     setDisplayText(text: string) {
         this.displayText = '';
         setTimeout(() => {
             this.displayText = text;
-        }, 300);
+        }, DISPLAY_TEXT_DELAY);
     }
 
     switchTurn(player1: PlayerObjects, player2: PlayerObjects) {

@@ -2,7 +2,14 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { CombatLogicService, Roles } from './combat-logic.service';
 import { PlayerObjects } from '@app/interfaces/playerObject';
 // import { DiceComponent } from '@app/components/dice/dice.component';
-import { PLAYERS, COMBAT_TURN_LENGTH } from '@app/constants';
+import {
+    PLAYERS,
+    COMBAT_TURN_LENGTH,
+    DISPLAY_TEXT_DELAY,
+    SHORT_COMBAT_TURN_LENGTH,
+    FAIL_EVASION_RANDOM_NUM,
+    SUCCES_EVASION_RANDOM_NUM,
+} from '@app/constants';
 import { DiceComponent } from '@app/components/dice/dice.component';
 
 describe('CombatLogicService', () => {
@@ -94,7 +101,7 @@ describe('CombatLogicService', () => {
     });
 
     it('should correctly attempt to evade', () => {
-        spyOn(Math, 'random').and.returnValue(0.1);
+        spyOn(Math, 'random').and.returnValue(SUCCES_EVASION_RANDOM_NUM);
 
         service.evasionsArray1 = [1, 1];
         service.attemptEvade();
@@ -165,7 +172,7 @@ describe('CombatLogicService', () => {
     describe('determineTimerLength', () => {
         it('should return 3 when evasions array is empty and currPlayerNum is not 1', () => {
             const timerLength = service.determineTimerLength([], 2);
-            expect(timerLength).toBe(3);
+            expect(timerLength).toBe(SHORT_COMBAT_TURN_LENGTH);
         });
 
         it('should return COMBAT_TURN_LENGTH when evasions array is not empty', () => {
@@ -189,7 +196,7 @@ describe('CombatLogicService', () => {
         expect(service.displayText).toBe('');
 
         // Simulate the passage of 300ms
-        tick(300);
+        tick(DISPLAY_TEXT_DELAY);
 
         // Now displayText should have the value set by setDisplayText
         expect(service.displayText).toBe(text);
@@ -199,7 +206,7 @@ describe('CombatLogicService', () => {
         service.evasionsArray1 = [];
         spyOn(service, 'setDisplayText');
         service.attemptEvade();
-        tick(300);
+        tick(DISPLAY_TEXT_DELAY);
         expect(service.setDisplayText).toHaveBeenCalledWith("Évasion pas possible, vous n'avez plus d'évasions restantes");
 
         expect(service.evasionsArray1.length).toBe(0);
@@ -207,10 +214,10 @@ describe('CombatLogicService', () => {
 
     it('should display "Évasion échouée" when evasion fails', fakeAsync(() => {
         service.evasionsArray1 = [1];
-        spyOn(Math, 'random').and.returnValue(0.5);
+        spyOn(Math, 'random').and.returnValue(FAIL_EVASION_RANDOM_NUM);
         spyOn(service, 'setDisplayText');
         service.attemptEvade();
-        tick(300);
+        tick(DISPLAY_TEXT_DELAY);
         expect(service.setDisplayText).toHaveBeenCalledWith('Évasion échouée');
         expect(service.evasionsArray1.length).toBe(0);
     }));
