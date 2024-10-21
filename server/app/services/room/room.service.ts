@@ -14,6 +14,13 @@ export class RoomService {
         this.io = io;
     }
 
+    getServer(): Server {
+        if (!this.io) {
+            throw new Error('Server is not initialized');
+        }
+        return this.io;
+    }
+
     createRoom(socket: Socket, game: Game): Room {
         const roomCode: string = this.getNewRoomCode();
         const room: Room = {
