@@ -28,11 +28,14 @@ export class ChatGateway {
             message: message.message,
             timestamp: message.timestamp,
         };
+        await this.saveMessage(client, messageWithRoomId);
+    }
 
+    async saveMessage(client: Socket, message: IMessage): Promise<void> {
         try {
-            const savedMessage = await this.chatService.saveMessage(messageWithRoomId); // Utilisation de await ici
+            const savedMessage = await this.chatService.saveMessage(message);
             this.logger.log(`Message saved: ${savedMessage.message} from ${savedMessage.username}`);
-            this.server.to(roomId).emit('messageReceived', savedMessage);
+            this.server.to(message.roomId).emit('messageReceived', savedMessage);
         } catch (error) {
             this.logger.error(`Failed to save message: ${error.message}`);
             client.emit('errorMessage', 'Failed to send message.');

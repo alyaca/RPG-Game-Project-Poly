@@ -66,6 +66,8 @@ describe('ChatGateway', () => {
     });
 
     it('should handle sending and saving a message successfully', async () => {
+        const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
+
         socket.data.username = 'Luffy';
         socket.data.roomCode = 'room123';
 
@@ -85,6 +87,8 @@ describe('ChatGateway', () => {
 
         expect(loggerMock.log).toHaveBeenCalled();
 
+        expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
+
         expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
 
         expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
@@ -96,6 +100,8 @@ describe('ChatGateway', () => {
     });
 
     it('should emit an errorMessage on saveMessage failure', async () => {
+        const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
+
         socket.data.username = 'Vegeta';
         socket.data.roomCode = 'room123';
         const mockMessageData: IMessage = {
@@ -114,6 +120,8 @@ describe('ChatGateway', () => {
         await gateway.handleMessage(socket, mockMessageData);
 
         expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
+
+        expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
 
         expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
 
