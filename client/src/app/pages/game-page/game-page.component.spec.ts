@@ -18,15 +18,11 @@ describe('GamePageComponent', () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
-        dialogRefSpy.afterClosed.and.returnValue(of('left')); 
+        dialogRefSpy.afterClosed.and.returnValue(of('left'));
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
-            providers: [
-                provideHttpClient(),
-                { provide: MatDialog, useValue: dialogSpy }, 
-                { provide: Router, useValue: routerSpy }, 
-            ],
+            providers: [provideHttpClient(), { provide: MatDialog, useValue: dialogSpy }, { provide: Router, useValue: routerSpy }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GamePageComponent);

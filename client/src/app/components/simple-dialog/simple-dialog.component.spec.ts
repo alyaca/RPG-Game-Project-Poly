@@ -56,7 +56,7 @@ describe('SimpleDialogComponent', () => {
 
     it('should close dialog with "right" when onCancel is called', () => {
         component.onCancel();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('right'); 
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('right');
     });
 
     it('should navigate to /administration when title is "Sauvegarde réussie"', () => {
