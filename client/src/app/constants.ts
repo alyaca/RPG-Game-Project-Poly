@@ -64,8 +64,6 @@ export const PAD_LENGTH = 2;
 // Constants for attribut values
 export const DEFAULT_ATTRIBUTE = 4;
 export const HIGH_ATTRIBUTE = 6;
-export const DEFAULT_ATTRIBUTE = 4;
-export const HIGH_ATTRIBUTE = 6;
 export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
@@ -94,6 +92,9 @@ export const START_TURN_TIMER_DELAY = 2000;
 
 export const FAIL_EVASION_RANDOM_NUM = 0.5;
 export const SUCCES_EVASION_RANDOM_NUM = 0.1;
+
+// Constants for random generation
+export const MAX_GENERATION_VALUE = 1000000000;
 // Array for the static players for the game page
 // export const PLAYERS: Player[] = [
 //     {

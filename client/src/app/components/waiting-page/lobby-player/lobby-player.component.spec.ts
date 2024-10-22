@@ -8,7 +8,6 @@ describe('LobbyPlayerComponent', () => {
     let fixture: ComponentFixture<LobbyPlayerComponent>;
 
     const mockLobbyPlayer: Player = mockLobbyPlayers[0];
-    const mockLobbyPlayer: Player = mockLobbyPlayers[0];
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({

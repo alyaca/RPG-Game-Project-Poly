@@ -1,16 +1,10 @@
 import { defaultAttributes } from '@app/defaultAttributes';
 import { avatars } from '@common/avatarsInfo';
 import { Avatar, Player, Status } from '@common/player';
-import { defaultAttributes } from '@app/defaultAttributes';
-import { avatars } from '@common/avatarsInfo';
-import { Avatar, Player, Status } from '@common/player';
 
 export const mockAvatar: Avatar = avatars[0];
 export const mockLobbyPlayers: Player[] = [
-export const mockAvatar: Avatar = avatars[0];
-export const mockLobbyPlayers: Player[] = [
     {
-        id: 'admin',
         id: 'admin',
         name: 'Jar Jar Binks',
         avatar: avatars[0],
@@ -21,7 +15,6 @@ export const mockLobbyPlayers: Player[] = [
     },
     {
         id: 'mefe',
-        id: 'mefe',
         name: 'Obi-Wan Kenobi',
         avatar: avatars[1],
         attributes: { ...defaultAttributes },
@@ -30,7 +23,6 @@ export const mockLobbyPlayers: Player[] = [
         isActive: false,
     },
     {
-        id: 'ur32n',
         id: 'ur32n',
         name: 'General Grievous',
         avatar: avatars[2],
@@ -41,7 +33,6 @@ export const mockLobbyPlayers: Player[] = [
     },
     {
         id: 'luke0324',
-        id: 'luke0324',
         name: 'Luke Skywalker',
         avatar: avatars[3],
         attributes: { ...defaultAttributes },
@@ -51,7 +42,6 @@ export const mockLobbyPlayers: Player[] = [
     },
     {
         id: 'leia1214',
-        id: 'leia1214',
         name: 'Leia Organa',
         avatar: avatars[4],
         attributes: { ...defaultAttributes },
@@ -60,7 +50,6 @@ export const mockLobbyPlayers: Player[] = [
         isActive: false,
     },
     {
-        id: 'chew0242',
         id: 'chew0242',
         name: 'Chewbacca',
         avatar: avatars[5],

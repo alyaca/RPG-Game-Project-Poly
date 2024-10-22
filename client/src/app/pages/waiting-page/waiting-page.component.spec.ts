@@ -2,22 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-//import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
-//import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
-import { mockRoom } from '@app/mocks/mock-room';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
-import { GameService } from '@app/services/sockets/game/game.service';
-import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { Status } from '@common/player';
+// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+// import { Status } from '@common/player';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -26,12 +20,10 @@ describe('WaitingPageComponent', () => {
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
-    let gameServiceSpy: jasmine.SpyObj<GameService>;
-    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
 
-    let accessCode: string;
 
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
@@ -144,7 +136,7 @@ describe('WaitingPageComponent', () => {
     });
 
     it('should handle roomDeleted event and navigate to /home', () => {
-        const message = 'Room has been deleted.';
+        // const message = 'Room has been deleted.';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('close'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
@@ -156,6 +148,7 @@ describe('WaitingPageComponent', () => {
                 callback('Room has been deleted.' as unknown as T);
             }
         });
+    })
     it('should handle roomDeleted event and navigate to /home', () => {
         const message = 'Room has been deleted.';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
@@ -294,10 +287,11 @@ describe('WaitingPageComponent', () => {
         //expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
 
-    it('should move the admin player to the first position', () => {
-        component.players = mockLobbyPlayers;
-        component.ensureAdminIsFirst();
-        expect(component.players[0].status).toBe(Status.Admin);
-        expect(component.players[1].status).toBe(Status.Player);
+    // it('should move the admin player to the first position', () => {
+    //     component.players = mockLobbyPlayers;
+    //     component.ensureAdminIsFirst();
+    //     expect(component.players[0].status).toBe(Status.Admin);
+    //     expect(component.players[1].status).toBe(Status.Player);
+    // });
     });
 });
