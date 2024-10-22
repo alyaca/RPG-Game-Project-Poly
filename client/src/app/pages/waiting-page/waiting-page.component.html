@@ -2,6 +2,7 @@
     <header>
         @if(chosenGame){
         <h3>Nom de la partie: {{ chosenGame.name }}</h3>
+        <h3>Nom de la partie: {{ chosenGame.name }}</h3>
         }
         <h3>Code d'accès: {{ accessCode }}</h3>
     </header>
@@ -25,6 +26,7 @@
             <div id="lock-container">
                 <p class="lock-text">Verrouiller la partie</p>
                 <label class="switch">
+                    <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" />
                     <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" />
                     <span class="slider"> </span>
                 </label>

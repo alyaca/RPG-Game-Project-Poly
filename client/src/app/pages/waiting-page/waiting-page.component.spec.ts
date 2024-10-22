@@ -6,7 +6,11 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 //import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
+import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
+import { GameService } from '@app/services/sockets/game/game.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Game } from '@common/game';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
@@ -22,21 +26,34 @@ describe('WaitingPageComponent', () => {
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let accessCode: string;
+
     let accessCode: string;
 
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
+        gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        accessCode = '1234';
         accessCode = '1234';
 
         await TestBed.configureTestingModule({
             imports: [WaitingPageComponent],
             providers: [
+                { provide: GameListService, useValue: gameListServiceSpy },
+                { provide: Router, useValue: routerSpy },
+                { provide: GameService, useValue: gameServiceSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+                { provide: MatDialog, useValue: dialogSpy },
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: GameService, useValue: gameServiceSpy },
@@ -75,7 +92,30 @@ describe('WaitingPageComponent', () => {
             component.ngOnInit();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
         });
+    describe('ngOnInit', () => {
+        it('should navigate to /home if no game is selected (refresh page)', () => {
+            gameListServiceSpy.chosenGameSubject.next(null);
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
 
+        it('should navigate to /home if no game is received', () => {
+            component.accessCode = accessCode;
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
+
+        it('should navigate to /home if no room is created', () => {
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
+
+        it('should set chosenGame when a game is selected', () => {
+            const mockGame: Game = mockGames[0];
+            gameListServiceSpy.chosenGameSubject.next(mockGame);
+            fixture.detectChanges();
+            expect(component.chosenGame).toEqual(mockGame);
+        });
         it('should set chosenGame when a game is selected', () => {
             const mockGame: Game = mockGames[0];
             gameListServiceSpy.chosenGameSubject.next(mockGame);
@@ -92,8 +132,30 @@ describe('WaitingPageComponent', () => {
             component.ngOnInit();
             expect(component.players).toBe(mockRoom.listPlayers);
         });
+        it('should set player list when it is updated', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'updatedPlayer') {
+                    callback(mockRoom as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.players).toBe(mockRoom.listPlayers);
+        });
     });
 
+    it('should handle roomDeleted event and navigate to /home', () => {
+        const message = 'Room has been deleted.';
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('close'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        component.accessCode = accessCode;
+        component.chosenGame = mockGames[0];
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'roomDeleted') {
+                callback('Room has been deleted.' as unknown as T);
+            }
+        });
     it('should handle roomDeleted event and navigate to /home', () => {
         const message = 'Room has been deleted.';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);

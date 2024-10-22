@@ -1,26 +1,31 @@
 .chat-message {
-    display: flex; 
-    flex-wrap: wrap; 
+    display: flex;
+    flex-wrap: wrap;
     margin: 0.5%;
-    align-items: center; 
+    align-items: center;
     color: white;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .chat-message p {
-    margin-right: 0.5rem; 
-    margin-top: 0.025rem;
+    margin-right: 0.5rem;
+    margin-top: 0.05rem;
 }
 
-.chat-message .time {
-    color: rgb(167, 167, 167); 
+.chat-message .timestamp {
+    color: rgb(167, 167, 167);
 }
 
-.chat-message .sender {
+.chat-message .username {
     color: rgb(220, 204, 113);
-    font-weight: bold; 
+    font-weight: bold;
 }
 
-.chat-message .content {
+.chat-message .message {
     flex-grow: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }

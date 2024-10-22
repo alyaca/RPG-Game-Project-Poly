@@ -6,13 +6,13 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
-import { Status } from '@app/interfaces/playerObject';
+import { MAX_PLAYER_SIZE_INT } from '@app/constants';
+import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { Player } from '@common/player';
-// import { PlayerObjects } from '@app/interfaces/playerObject';
 import { Room } from '@common/room';
 
 @Component({
@@ -45,6 +45,8 @@ export class WaitingPageComponent implements OnInit {
     }
 
     ngOnInit() {
+        if (!this.accessCode || !this.chosenGame) {
+            this.router.navigate(['/home']);
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }

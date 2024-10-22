@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
     selector: 'app-chat-message',
@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
     styleUrl: './chat-message.component.scss',
 })
 export class ChatMessageComponent {
-    @Input() time: Date;
-    @Input() sender: string;
-    @Input() content: string;
+    @Input() timestamp: Date;
+    @Input() username: string;
+    @Input() message: string;
 }

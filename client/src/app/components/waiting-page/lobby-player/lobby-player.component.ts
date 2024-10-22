@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Status } from '@app/interfaces/playerObject';
 import { Player } from '@common/player';

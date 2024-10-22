@@ -1,5 +1,4 @@
-import { GameObject } from '@common/gameObject'
-
+import { GameObject } from '@common/gameObject';
 export interface Avatar {
     name: string;
     src: string;
@@ -35,6 +34,5 @@ export interface PlayerStats {
     attack: number;
     atkDiceMax: number;
     defense: number;
-    defDiceMax: number; 
-    
+    defDiceMax: number;
 }
