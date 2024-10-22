@@ -71,3 +71,6 @@ export const MAX_PLAYER_SIZE_INT = 2;
 export const THREE_PLAYERS_LOBBY = 3;
 export const FOUR_PLAYERS_LOBBY = 4;
 export const FIVE_PLAYERS_LOBBY = 5;
+
+// Constants for random generation
+export const MAX_GENERATION_VALUE = 1000000000;

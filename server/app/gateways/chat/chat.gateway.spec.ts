@@ -1,107 +1,132 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { IMessage } from '@app/interfaces/message.interface';
+import { ChatService } from '@app/services/chat/chat.service';
+import { RoomService } from '@app/services/room/room.service';
 import { Logger } from '@nestjs/common';
-import { SinonStubbedInstance, createStubInstance, match, stub } from 'sinon';
-import { Socket, Server, BroadcastOperator } from 'socket.io';
-import { ChatEvents } from './chat.gateway.events';
-import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID } from './chat.gateway.constants';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Server, Socket } from 'socket.io';
+import { ChatGateway } from './chat.gateway';
 
 describe('ChatGateway', () => {
     let gateway: ChatGateway;
-    let logger: SinonStubbedInstance<Logger>;
-    let socket: SinonStubbedInstance<Socket>;
-    let server: SinonStubbedInstance<Server>;
+    let chatService: ChatService;
+    let roomService: RoomService;
+    let socket: jest.Mocked<Socket>;
+    let server: jest.Mocked<Server>;
+
+    let loggerMock: { log: jest.Mock; error: jest.Mock };
 
     beforeEach(async () => {
-        logger = createStubInstance(Logger);
-        socket = createStubInstance<Socket>(Socket);
-        server = createStubInstance<Server>(Server);
+        const chatServiceMock = {
+            saveMessage: jest.fn(),
+            getMessagesByRoom: jest.fn(),
+        };
+
+        const roomServiceMock = {
+            getRoomId: jest.fn(),
+            getServer: jest.fn(),
+        };
+
+        socket = {
+            emit: jest.fn(),
+            to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+            data: {},
+        } as unknown as jest.Mocked<Socket>;
+
+        const broadcastOperator = {
+            emit: jest.fn(),
+        };
+
+        server = {
+            to: jest.fn().mockReturnValue(broadcastOperator),
+        } as unknown as jest.Mocked<Server>;
+
+        loggerMock = {
+            log: jest.fn(),
+            error: jest.fn(),
+        };
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ChatGateway,
-                {
-                    provide: Logger,
-                    useValue: logger,
-                },
+                { provide: ChatService, useValue: chatServiceMock },
+                { provide: RoomService, useValue: roomServiceMock },
+                { provide: Logger, useValue: loggerMock },
             ],
         }).compile();
 
         gateway = module.get<ChatGateway>(ChatGateway);
-        // We want to assign a value to the private field
-        // eslint-disable-next-line dot-notation
+        chatService = module.get<ChatService>(ChatService);
+        roomService = module.get<RoomService>(RoomService);
+
         gateway['server'] = server;
     });
 
-    it('should be defined', () => {
-        expect(gateway).toBeDefined();
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    it('validate() message should take account word length', () => {
-        const testCases = [
-            { word: undefined, isValid: false },
-            { word: 'XXXX', isValid: false },
-            { word: 'XXXXXX', isValid: true },
-            { word: 'XXXXXXX', isValid: true },
-        ];
-        for (const { word, isValid } of testCases) {
-            gateway.validate(socket, word);
-            expect(socket.emit.calledWith(ChatEvents.WordValidated, isValid)).toBeTruthy();
-        }
+    it('should handle sending and saving a message successfully', async () => {
+        const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
+
+        socket.data.username = 'Luffy';
+        socket.data.roomCode = 'room123';
+
+        const mockMessageData: IMessage = {
+            roomId: 'room123',
+            username: socket.data.username,
+            message: 'I am going to be the Pirate King!',
+            timestamp: new Date(),
+        };
+
+        const roomId = mockMessageData.roomId;
+
+        (chatService.saveMessage as jest.Mock).mockResolvedValue(mockMessageData);
+        (roomService.getRoomId as jest.Mock).mockReturnValue(roomId);
+
+        await gateway.handleMessage(socket, mockMessageData);
+
+        expect(loggerMock.log).toHaveBeenCalled();
+
+        expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
+
+        expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
+
+        expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
+
+        expect(server.to).toHaveBeenCalledWith(roomId);
+
+        const broadcastOperator = server.to(roomId);
+        expect(broadcastOperator.emit).toHaveBeenCalledWith('messageReceived', mockMessageData);
     });
 
-    it('validateWithAck() message should take account word length ', () => {
-        const testCases = [
-            { word: undefined, isValid: false },
-            { word: 'XXXX', isValid: false },
-            { word: 'XXXXXX', isValid: true },
-            { word: 'XXXXXXX', isValid: true },
-        ];
-        for (const { word, isValid } of testCases) {
-            const res = gateway.validateWithAck(socket, word);
-            expect(res.isValid).toEqual(isValid);
-        }
-    });
+    it('should emit an errorMessage on saveMessage failure', async () => {
+        const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
 
-    it('broadcastAll() should send a mass message to the server', () => {
-        gateway.broadcastAll(socket, 'X');
-        expect(server.emit.calledWith(ChatEvents.MassMessage, match.any)).toBeTruthy();
-    });
+        socket.data.username = 'Vegeta';
+        socket.data.roomCode = 'room123';
+        const mockMessageData: IMessage = {
+            roomId: 'room123',
+            username: socket.data.username,
+            message: 'I am the prince of all Saiyans!',
+            timestamp: new Date(),
+        };
 
-    it('joinRoom() should join the socket room', () => {
-        gateway.joinRoom(socket);
-        expect(socket.join.calledOnce).toBeTruthy();
-    });
+        const roomId = mockMessageData.roomId;
 
-    it('roomMessage() should not send message if socket not in the room', () => {
-        stub(socket, 'rooms').value(new Set());
-        gateway.roomMessage(socket, 'X');
-        expect(server.to.called).toBeFalsy();
-    });
+        const failedMessage = 'Save failed';
+        (roomService.getRoomId as jest.Mock).mockReturnValue(roomId);
+        (chatService.saveMessage as jest.Mock).mockRejectedValue(new Error(failedMessage));
 
-    it('roomMessage() should send message if socket in the room', () => {
-        stub(socket, 'rooms').value(new Set([PRIVATE_ROOM_ID]));
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual(ChatEvents.RoomMessage);
-            },
-        } as BroadcastOperator<unknown, unknown>);
-        gateway.roomMessage(socket, 'X');
-    });
+        await gateway.handleMessage(socket, mockMessageData);
 
-    it('afterInit() should emit time after 1s', () => {
-        jest.useFakeTimers();
-        gateway.afterInit();
-        jest.advanceTimersByTime(DELAY_BEFORE_EMITTING_TIME);
-        expect(server.emit.calledWith(ChatEvents.Clock, match.any)).toBeTruthy();
-    });
+        expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
 
-    it('hello message should be sent on connection', () => {
-        gateway.handleConnection(socket);
-        expect(socket.emit.calledWith(ChatEvents.Hello, match.any)).toBeTruthy();
-    });
+        expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
 
-    it('socket disconnection should be logged', () => {
-        gateway.handleDisconnect(socket);
-        expect(logger.log.calledOnce).toBeTruthy();
+        expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
+
+        expect(loggerMock.error).toHaveBeenCalled();
+
+        expect(socket.emit).toHaveBeenCalledWith('errorMessage', 'Failed to send message.');
     });
 });
