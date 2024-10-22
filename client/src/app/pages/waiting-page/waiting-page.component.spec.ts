@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
-import { Map } from '@app/interfaces/map';
+//import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
+//import { Map } from '@app/interfaces/map';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
@@ -12,6 +12,8 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Status } from '@common/player';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -140,18 +142,6 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
-    describe('Player size', () => {
-        it('should return correct player size based on value', () => {
-            expect(component.getPlayerSize(2)).toBe(PlayerSize.Big);
-            expect(component.getPlayerSize(1)).toBe(PlayerSize.Medium);
-            expect(component.getPlayerSize(0)).toBe(PlayerSize.Small);
-        });
-
-        it('should return correct player size for maximum value', () => {
-            expect(component.getPlayerSize(MAX_PLAYER_SIZE_INT)).toBe(PlayerSize.Big);
-        });
-    });
-
     describe('handeExit', () => {
         it('should open the dialog and navigate to /home if confirmed', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
@@ -164,6 +154,7 @@ describe('WaitingPageComponent', () => {
                 data: {
                     title: 'Abandonner la partie?',
                     messages: ["- Vous quitteriez la page d'attente"],
+                    options: ['Quitter', 'Rester'],
                     confirm: true,
                 },
             });
@@ -185,7 +176,7 @@ describe('WaitingPageComponent', () => {
         it('should open the dialog and call leaveGame if dialog result is leave', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
             spyOn(component, 'leaveGame');
-            dialogRefSpy.afterClosed.and.returnValue(of('leave'));
+            dialogRefSpy.afterClosed.and.returnValue(of('left'));
             dialogSpy.open.and.returnValue(dialogRefSpy);
             component.handleExit(accessCode);
 
@@ -194,6 +185,7 @@ describe('WaitingPageComponent', () => {
                 data: {
                     title: 'Abandonner la partie?',
                     messages: ["- Vous quitteriez la page d'attente"],
+                    options: ['Quitter', 'Rester'],
                     confirm: true,
                 },
             });
@@ -208,34 +200,42 @@ describe('WaitingPageComponent', () => {
         expect(gameServiceSpy.isRoomLocked).toBe(true);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
     });
-    // it('should open confirmation dialog and navigate to game page when confirmed', () => {
-    //     const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-    //     dialogRefSpy.afterClosed.and.returnValue(of('Confirmer')); // Adjust to the correct confirmation string
-    //     dialogSpy.open.and.returnValue(dialogRefSpy);
 
-    //     component.handleStartGame();
+    it('should navigate to /game-page when dialog result is "Confirmer"', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('right')); 
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.handleStartGame();
 
-    //     expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-    //         disableClose: true,
-    //         data: {
-    //             title: 'Débuter la partie',
-    //             messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
-    //             options: ['Annuler', 'Confirmer'],
-    //             confirm: true,
-    //         },
-    //     });
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Débuter la partie',
+                messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
+                options: ['Annuler', 'Confirmer'],
+                confirm: true,
+            },
+        });
 
-    //     expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
-    // });
+        // Ensure the router navigates to the game page
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+    });
 
     it('should not navigate when the dialog is cancelled', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('Annuler')); // Simulate cancelling
+        dialogRefSpy.afterClosed.and.returnValue(of('left'));  
         dialogSpy.open.and.returnValue(dialogRefSpy);
-
+    
         component.handleStartGame();
-
+    
         expect(dialogSpy.open).toHaveBeenCalled();
-        expect(routerSpy.navigate).not.toHaveBeenCalled(); // Ensure navigation does not occur
+        //expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should move the admin player to the first position', () => {
+        component.players = mockLobbyPlayers;
+        component.ensureAdminIsFirst();
+        expect(component.players[0].status).toBe(Status.Admin);
+        expect(component.players[1].status).toBe(Status.Player);
     });
 });

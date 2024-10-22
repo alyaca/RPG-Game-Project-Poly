@@ -102,7 +102,7 @@ export class CombatLogicService {
 
     attemptEvade() {
         if (this.evasionsArray1.length === 0) {
-            // this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
+            this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
             return;
         }
         this.evasionsArray1.pop();

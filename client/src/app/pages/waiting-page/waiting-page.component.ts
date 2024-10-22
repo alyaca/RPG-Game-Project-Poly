@@ -95,15 +95,19 @@ export class WaitingPageComponent implements OnInit {
         return dialogRef.afterClosed();
     }
 
-    handleExit() {
-        this.openConfirmationDialog('Abandonner la partie?', ["- Vous quitteriez la page d'attente"], ['Quitter', 'Rester'], true).subscribe(
-            (result) => {
-                if (result === 'left') {
-                    this.router.navigate(['/home']);
-                }
-            },
-        );
+    handleExit(accessCode: string) {
+        this.openConfirmationDialog(
+            'Abandonner la partie?',
+            ["- Vous quitteriez la page d'attente"],
+            ['Quitter', 'Rester'],
+            true,
+        ).subscribe((result) => {
+            if (result === 'left') {
+                this.leaveGame(accessCode);
+            }
+        });
     }
+
 
     handleStartGame() {
         this.openConfirmationDialog(
@@ -112,6 +116,7 @@ export class WaitingPageComponent implements OnInit {
             ['Annuler', 'Confirmer'],
             true,
         ).subscribe((result) => {
+            console.log(result);
             if (result === 'right') {
                 this.router.navigate(['/game-page']);
             }

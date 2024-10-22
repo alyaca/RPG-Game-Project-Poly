@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LobbyPlayerComponent } from './lobby-player.component';
-//import { PlayerObjects } from '@app/interfaces/playerObject';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 
 describe('LobbyPlayerComponent', () => {
@@ -24,5 +23,18 @@ describe('LobbyPlayerComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+    it('should return true if lobbyPlayer status is Admin', () => {
+        mockLobbyPlayer.status = Status.Admin;
+        component.lobbyPlayer = mockLobbyPlayer; 
+        const result = component.isAdmin();
+        expect(result).toBeTrue();
+    });
+
+    it('should return false if lobbyPlayer status is not Admin', () => {
+        mockLobbyPlayer.status = Status.Player;
+        component.lobbyPlayer = mockLobbyPlayer; 
+        const result = component.isAdmin();
+        expect(result).toBeFalse();
     });
 });
