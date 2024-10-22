@@ -16,7 +16,6 @@ export type Roles = {
     providedIn: 'root',
 })
 export class CombatLogicService {
-    // put into player object?
     isPlayer1Damaged: boolean = false;
     isPlayer2Damaged: boolean = false;
     statValue1: number = 0;
@@ -29,7 +28,6 @@ export class CombatLogicService {
 
     evasionsArray1: number[];
     evasionsArray2: number[];
-    // maybe i should rename these variables
     playerStat1: string;
     playerStat2: string;
     roles: Roles;
@@ -60,7 +58,7 @@ export class CombatLogicService {
 
     dealDamage(defender: Player, isDefenderPlayer1: boolean) {
         defender.attributes.currentHp = Math.max(0, defender.attributes.currentHp - 1);
-    
+
         this.isPlayer1Damaged = isDefenderPlayer1;
         this.isPlayer2Damaged = !isDefenderPlayer1;
     }
@@ -73,7 +71,6 @@ export class CombatLogicService {
             currPlayerNum === 'player1turn' ? activeDice.value + player1.attributes.attack : inactiveDice.value + player1.attributes.defense;
         this.statValue1 =
             currPlayerNum === 'player2turn' ? activeDice.value + player2.attributes.attack : inactiveDice.value + player2.attributes.defense;
-
 
         if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
@@ -96,8 +93,8 @@ export class CombatLogicService {
 
     switchTurn(player1: Player, player2: Player) {
         this.currPlayerNum = this.currPlayerNum === 'player1turn' ? 'player2turn' : 'player1turn';
-        // const nextPlayer = this.currPlayerNum === 'player1turn' ? player1.name : player2.name;
-        // this.setDisplayText("C'est le tour de " + nextPlayer);
+        const nextPlayer = this.currPlayerNum === 'player1turn' ? player1.name : player2.name;
+        this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 
     attemptEvade() {

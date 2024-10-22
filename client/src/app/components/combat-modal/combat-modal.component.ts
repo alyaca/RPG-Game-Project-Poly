@@ -1,14 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import {
-    COMBAT_TURN_LENGTH,
-    INIT_DISPLAY_DELAY,
-    EXIT_COMBAT_DELAY,
-    INACTIVE_DICE_DELAY,
-    ATTACK_DELAY,
-    TURN_DIALOG_DELAY,
-} from '@app/constants';
+import { COMBAT_TURN_LENGTH, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, INACTIVE_DICE_DELAY, ATTACK_DELAY, TURN_DIALOG_DELAY } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
 import { DiceComponent } from '@app/components/dice/dice.component';
@@ -90,8 +83,6 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.endGameIfNeeded();
-
-        //this.combatService.setDisplayText(`${this.player1.attributes.currentHp }`+ " " + `${this.player2.attributes.currentHp }`)
     }
 
     triggerAttack() {

@@ -12,7 +12,6 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { Game } from '@common/game';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
- //import { Status } from '@common/player';
 
 @Component({
     selector: 'app-waiting-page',
@@ -77,8 +76,9 @@ export class WaitingPageComponent implements OnInit {
         this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 
+    // // might become necessary later
     // ensureAdminIsFirst() {
-    //     this.players = [
+    //     this.players = []
     //         ...this.players.filter((player) => player.status === Status.Admin),
     //         ...this.players.filter((player) => player.status !== Status.Admin),
     //     ];
@@ -98,18 +98,14 @@ export class WaitingPageComponent implements OnInit {
     }
 
     handleExit(accessCode: string) {
-        this.openConfirmationDialog(
-            'Abandonner la partie?',
-            ["- Vous quitteriez la page d'attente"],
-            ['Quitter', 'Rester'],
-            true,
-        ).subscribe((result) => {
-            if (result === 'left') {
-                this.leaveGame(accessCode);
-            }
-        });
+        this.openConfirmationDialog('Abandonner la partie?', ["- Vous quitteriez la page d'attente"], ['Quitter', 'Rester'], true).subscribe(
+            (result) => {
+                if (result === 'left') {
+                    this.leaveGame(accessCode);
+                }
+            },
+        );
     }
-
 
     handleStartGame() {
         this.openConfirmationDialog(
@@ -118,13 +114,11 @@ export class WaitingPageComponent implements OnInit {
             ['Annuler', 'Confirmer'],
             true,
         ).subscribe((result) => {
-            console.log(result);
             if (result === 'right') {
                 this.router.navigate(['/game-page']);
             }
         });
     }
-
 
     leaveGame(accessCode: string) {
         this.socketCommunicationService.send('leaveRoom', accessCode);

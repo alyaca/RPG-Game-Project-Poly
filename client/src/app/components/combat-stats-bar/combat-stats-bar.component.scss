@@ -5,7 +5,6 @@
 .player-attributes {
     flex-direction: column;
     width: 100%;
-    //border: 1px solid red;
     margin: 0;
 }
 
@@ -80,9 +79,6 @@ progress::-webkit-progress-value {
     border-radius: 0.5rem;
     background: linear-gradient(to right, rgb(51, 16, 16), rgb(93, 20, 20) 33%, rgb(142, 24, 24) 67%, rgb(175, 16, 16) 100%);
 }
-
-///////////
-
 
 .player-name.damaged {
     color: #f95e4d;

@@ -45,8 +45,8 @@ export class GamePageComponent implements AfterViewInit {
     determinePlayerTurn() {
         this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
         this.allPlayers = [
-            ...this.allPlayers.filter((player) => player.status !== Status.Disconnected), // Connected players
-            ...this.allPlayers.filter((player) => player.status === Status.Disconnected), // Disconnected players
+            ...this.allPlayers.filter((player) => player.status !== Status.Disconnected), 
+            ...this.allPlayers.filter((player) => player.status === Status.Disconnected), 
         ];
     }
 

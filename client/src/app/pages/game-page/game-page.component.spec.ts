@@ -1,4 +1,3 @@
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { GamePageComponent } from './game-page.component';
@@ -8,29 +7,25 @@ import { of } from 'rxjs';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Status } from '@app/interfaces/playerObject';
 import { ElementRef, QueryList } from '@angular/core';
-//import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
-    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<any>>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
     beforeEach(async () => {
-        // Mock MatDialog and Router using jasmine.createSpyObj
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
-               // Mock MatDialogRef
-               dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
-               dialogRefSpy.afterClosed.and.returnValue(of('left'));  // Simulate dialog closing with 'left'
-       
+        dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
+        dialogRefSpy.afterClosed.and.returnValue(of('left')); 
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
             providers: [
                 provideHttpClient(),
-                { provide: MatDialog, useValue: dialogSpy },  // Provide mocked MatDialog
-                { provide: Router, useValue: routerSpy },     // Provide mocked Router
+                { provide: MatDialog, useValue: dialogSpy }, 
+                { provide: Router, useValue: routerSpy }, 
             ],
         }).compileComponents();
 
@@ -54,8 +49,8 @@ describe('GamePageComponent', () => {
         component.allPlayers[0].status = Status.Disconnected;
         component.determinePlayerTurn();
 
-        const connectedPlayers = component.allPlayers.filter(player => player.status !== Status.Disconnected);
-        const disconnectedPlayers = component.allPlayers.filter(player => player.status === Status.Disconnected);
+        const connectedPlayers = component.allPlayers.filter((player) => player.status !== Status.Disconnected);
+        const disconnectedPlayers = component.allPlayers.filter((player) => player.status === Status.Disconnected);
 
         expect(connectedPlayers.length).toBeGreaterThan(0);
         expect(disconnectedPlayers.length).toBeGreaterThan(0);
@@ -99,7 +94,6 @@ describe('GamePageComponent', () => {
         expect(component.isInCombat).toBeFalse();
         expect(component.turnTimerComponent.resumeTimer).toHaveBeenCalled();
     });
-
 
     // it('should open a confirmation dialog and navigate when quitting the game', () => {
     //     component.handleExit();

@@ -1,15 +1,8 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { CombatLogicService, Roles } from './combat-logic.service';
-//import { PlayerObjects } from '@app/interfaces/playerObject';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
-import {
-    COMBAT_TURN_LENGTH,
-    DISPLAY_TEXT_DELAY,
-    SHORT_COMBAT_TURN_LENGTH,
-    FAIL_EVASION_RANDOM_NUM,
-    SUCCES_EVASION_RANDOM_NUM,
-} from '@app/constants';
+import { COMBAT_TURN_LENGTH, DISPLAY_TEXT_DELAY, SHORT_COMBAT_TURN_LENGTH, FAIL_EVASION_RANDOM_NUM, SUCCES_EVASION_RANDOM_NUM } from '@app/constants';
 import { DiceComponent } from '@app/components/dice/dice.component';
 
 describe('CombatLogicService', () => {
@@ -219,7 +212,7 @@ describe('CombatLogicService', () => {
     describe('checkIfDuelOver', () => {
         it('should return "Victoire" and display winning message if player 2 HP is 0', () => {
             player2.attributes.currentHp = 0;
-            spyOn(service, 'setDisplayText'); 
+            spyOn(service, 'setDisplayText');
 
             const result = service.checkIfDuelOver(player1, player2);
 
@@ -252,7 +245,7 @@ describe('CombatLogicService', () => {
 
         it('should return an empty string if duel is still ongoing', () => {
             player1.attributes.currentHp = 5;
-            player2.attributes.currentHp = 5; 
+            player2.attributes.currentHp = 5;
             service.isDraw = false;
 
             const result = service.checkIfDuelOver(player1, player2);
@@ -296,26 +289,25 @@ describe('CombatLogicService', () => {
         });
     });
 
-    it('should set the correct stats when it is player 1\'s turn', () => {
+    it("should set the correct stats when it is player 1's turn", () => {
         spyOn(service, 'determineStartingPlayer').and.returnValue('player1turn');
         player1.attributes.atkDiceMax = 6;
         player2.attributes.defDiceMax = 4;
         service.initCombat(player1, player2);
 
-
         expect(service.currPlayerNum).toBe('player1turn');
-        expect(service.playerStat1).toBe('Attaque D6'); 
-        expect(service.playerStat2).toBe('Défense D4'); 
+        expect(service.playerStat1).toBe('Attaque D6');
+        expect(service.playerStat2).toBe('Défense D4');
     });
 
-    it('should set the correct stats when it is player 2\'s turn', () => {
+    it("should set the correct stats when it is player 2's turn", () => {
         spyOn(service, 'determineStartingPlayer').and.returnValue('player2turn');
         player1.attributes.defDiceMax = 4;
         player2.attributes.atkDiceMax = 6;
         service.initCombat(player1, player2);
 
         expect(service.currPlayerNum).toBe('player2turn');
-        expect(service.playerStat1).toBe('Défense D4'); 
-        expect(service.playerStat2).toBe('Attaque D6'); 
+        expect(service.playerStat1).toBe('Défense D4');
+        expect(service.playerStat2).toBe('Attaque D6');
     });
 });

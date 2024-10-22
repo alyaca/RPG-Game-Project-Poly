@@ -1,4 +1,3 @@
-//
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SimpleDialogComponent } from './simple-dialog.component';
@@ -57,7 +56,7 @@ describe('SimpleDialogComponent', () => {
 
     it('should close dialog with "right" when onCancel is called', () => {
         component.onCancel();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('right'); // corrected to "right"
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('right'); 
     });
 
     it('should navigate to /administration when title is "Sauvegarde réussie"', () => {

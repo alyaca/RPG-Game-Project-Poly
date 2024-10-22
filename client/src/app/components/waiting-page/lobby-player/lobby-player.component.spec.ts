@@ -26,14 +26,14 @@ describe('LobbyPlayerComponent', () => {
     });
     it('should return true if lobbyPlayer status is Admin', () => {
         mockLobbyPlayer.status = Status.Admin;
-        component.lobbyPlayer = mockLobbyPlayer; 
+        component.lobbyPlayer = mockLobbyPlayer;
         const result = component.isAdmin();
         expect(result).toBeTrue();
     });
 
     it('should return false if lobbyPlayer status is not Admin', () => {
         mockLobbyPlayer.status = Status.Player;
-        component.lobbyPlayer = mockLobbyPlayer; 
+        component.lobbyPlayer = mockLobbyPlayer;
         const result = component.isAdmin();
         expect(result).toBeFalse();
     });

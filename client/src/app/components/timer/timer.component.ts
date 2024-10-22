@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, WARNING_TIME, TIMER_RADIUS } from '@app/constants';
-// import { interval, Subscription } from 'rxjs';
+
 @Component({
     selector: 'app-timer',
     standalone: true,
