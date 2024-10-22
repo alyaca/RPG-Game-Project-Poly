@@ -1,6 +1,6 @@
 html,
 body {
-    height: 100%; /* Ensure the body takes up full height */
+    height: 100%; 
 }
 
 .page-element {
@@ -9,19 +9,11 @@ body {
     height: 100vh;
     background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
 
-    // min-height: 100vh;
-    // height: auto;
-    // background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
-    // background-size: cover;
-    // background-position: left;
-    // background-repeat: no-repeat;
-
     color: white;
 }
 
 .left-container {
     flex: 0 0 25%;
-    //height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -35,12 +27,6 @@ body {
     height: 18rem;
     margin-top: 5%;
 }
-
-// .equipped-items {
-//     border: 1px solid white;
-//     flex: 0 0 15%;
-//     width: 90%;
-// }
 
 .action-container {
     flex: 0 0 5%;
@@ -97,9 +83,7 @@ body {
 }
 
 .chat {
-    // border: 1px solid white;
     flex: 0 0 4%;
-    //margin-top: 3vh;
     width: 52.5%;
 
     margin-left: -38%;
@@ -228,7 +212,7 @@ body {
 .end-outer {
     margin-bottom: 1rem;
 }
-/////////
+
 #turn-start-timer {
     position: fixed;
     top: 50%;
@@ -249,8 +233,5 @@ body {
 .disabled {
     pointer-events: none;
 }
-// app-combat-modal {
-//     justify-content: center;
-//     align-items: center;
-// }
+
 
