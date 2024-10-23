@@ -20,13 +20,13 @@
                 <input type="text" [(ngModel)]="characterName" placeholder="Nom de votre personnage" maxlength="15" minlength="1" />
             </div>
             <div class="image-wrapper">
-                <img class="decoration" [src]="'assets/images/leaves/leafL.webp'" />
+                <img class="decoration" [src]="'./assets/images/leaves/leafL.webp'" />
                 @if(clickedAvatar) {
                 <img class="selected-avatar" [src]="clickedAvatar.src" />
                 } @else {
                 <div class="no-avatar"></div>
                 }
-                <img class="decoration" [src]="'assets/images/leaves/leafR.webp'" />
+                <img class="decoration" [src]="'./assets/images/leaves/leafR.webp'" />
             </div>
             <div class="attributes-box">
                 <div class="arrows-container">

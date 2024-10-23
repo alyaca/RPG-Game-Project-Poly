@@ -4,7 +4,8 @@
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
-    background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
+    // background-image: url('/assets/images/backgrounds/title_page_bgd11.jpg');
+    background: linear-gradient(to right, rgba(153, 0, 255, 0.9), rgba(225, 255, 0, 0));
 }
 
 .page-container {

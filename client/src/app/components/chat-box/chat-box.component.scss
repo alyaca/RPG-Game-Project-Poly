@@ -50,10 +50,10 @@
     margin-right: 0.5rem;
     font-size: 20px;
     color: white;
-
     width: 2.5rem;
     height: 2rem;
-    background-image: url('/assets/images/icones/chat-message.png');
+    // background-image: url('/assets/images/icones/chat-message.png');
+    background: linear-gradient(to right, rgba(255, 0, 0, 0.9), rgba(255, 0, 0, 0));
     background-size: cover;
     display: inline-block;
 }
