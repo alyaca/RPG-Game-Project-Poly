@@ -29,7 +29,8 @@
 
 .face.one {
     transform: rotateY(0deg) translateZ(50px);
-    background-image: url('/assets/images/dice/dice1.png');
+    // background-image: url('/assets/images/dice/dice1.png');
+    background-color: greenyellow;
     background-size: cover;
     background-position: center;
 
@@ -38,7 +39,8 @@
 
 .face.two {
     transform: rotateX(90deg) translateZ(50px);
-    background-image: url('/assets/images/dice/dice2.png');
+    // background-image: url('/assets/images/dice/dice2.png');
+    background-color: greenyellow;
     background-size: cover;
     background-position: center;
 
@@ -47,7 +49,8 @@
 
 .face.three {
     transform: rotateY(-90deg) translateZ(50px);
-    background-image: url('/assets/images/dice/dice3.png');
+    // background-image: url('/assets/images/dice/dice3.png');
+    background-color: greenyellow;
     background-size: cover;
     background-position: center;
 
@@ -56,7 +59,8 @@
 
 .face.four {
     transform: rotateY(90deg) translateZ(50px);
-    background-image: url('/assets/images/dice/dice4.png');
+    // background-image: url('/assets/images/dice/dice4.png');
+    background-color: greenyellow;
     background-size: cover;
     background-position: center;
 
@@ -65,7 +69,8 @@
 
 .face.five {
     transform: rotateX(-90deg) translateZ(50px);
-    background-image: url('/assets/images/dice/dice5.png');
+    // background-image: url('/assets/images/dice/dice5.png');
+    background-color: greenyellow;
     background-size: cover;
     background-position: center;
 
@@ -74,7 +79,8 @@
 
 .face.six {
     transform: rotateY(180deg) translateZ(50px);
-    background-image: url('/assets/images/dice/dice6.png');
+    // background-image: url('/assets/images/dice/dice6.png');
+    background-color: greenyellow;
     background-size: cover;
     background-position: center;
 

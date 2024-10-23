@@ -16,12 +16,12 @@ describe('TileService', () => {
 
     describe('getTileImage', () => {
         it('should return the correct image path for each tile type', () => {
-            expect(service.getTileImage(TileType.Ground)).toBe('/assets/images/tiles/grass.jpg');
-            expect(service.getTileImage(TileType.Ice)).toBe('/assets/images/tiles/ice.jpg');
-            expect(service.getTileImage(TileType.Wall)).toBe('/assets/images/tiles/wall.jpg');
-            expect(service.getTileImage(TileType.Water)).toBe('/assets/images/tiles/water.jpg');
-            expect(service.getTileImage(TileType.ClosedDoor)).toBe('/assets/images/tiles/closed-door.jpg');
-            expect(service.getTileImage(TileType.OpenDoor)).toBe('/assets/images/tiles/open-door.jpg');
+            expect(service.getTileImage(TileType.Ground)).toBe('./assets/images/tiles/grass.jpg');
+            expect(service.getTileImage(TileType.Ice)).toBe('./assets/images/tiles/ice.jpg');
+            expect(service.getTileImage(TileType.Wall)).toBe('./assets/images/tiles/wall.jpg');
+            expect(service.getTileImage(TileType.Water)).toBe('./assets/images/tiles/water.jpg');
+            expect(service.getTileImage(TileType.ClosedDoor)).toBe('./assets/images/tiles/closed-door.jpg');
+            expect(service.getTileImage(TileType.OpenDoor)).toBe('./assets/images/tiles/open-door.jpg');
             expect(service.getTileImage(0)).toBe('');
         });
     });

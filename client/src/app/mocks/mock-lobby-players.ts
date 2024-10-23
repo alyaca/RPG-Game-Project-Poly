@@ -11,7 +11,7 @@ export const mockLobbyPlayers: Player[] = [
         attributes: { ...defaultAttributes },
         status: Status.Admin,
         victories: 0,
-        isActive: false,
+        isActive: true,
     },
     {
         id: 'mefe',
