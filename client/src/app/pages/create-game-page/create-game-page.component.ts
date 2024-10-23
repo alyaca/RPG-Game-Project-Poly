@@ -87,6 +87,7 @@ export class CreateGamePageComponent implements OnDestroy {
             this.gameService.joinRoom(this.roomCode);
             this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.roomCode } });
         });
+        console.log('room creation complete');
     }
 
     ngOnDestroy() {
