@@ -17,9 +17,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         private roomService: RoomService,
         private logger: Logger,
         private gameService: GameService,
-    ) {
-        this.server.listen(3000);
-    }
+    ) {}
 
     @SubscribeMessage(RoomEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
