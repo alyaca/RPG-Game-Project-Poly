@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MAX_GENERATION_VALUE } from '@app/constants';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
-import { ChatMessage } from '@app/interfaces/chatMessage';
+import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 
 @Injectable({

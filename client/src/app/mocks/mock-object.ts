@@ -1,5 +1,5 @@
 import { ITEM_COUNT, NO_OBJECT, ObjectType } from '@app/constants';
-import { GameObject } from '@app/interfaces/gameObject';
+import { GameObject } from '@app/interfaces/game-object';
 
 export const mockObjects: GameObject[] = [
     { id: ObjectType.Trident, name: 'mock1', description: 'mock game object one count', count: ITEM_COUNT, image: 'mock1/image.png' },

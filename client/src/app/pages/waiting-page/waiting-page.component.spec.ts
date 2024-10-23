@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { MAX_PLAYER_SIZE_INT } from '@app/constants';
-import { PlayerSize } from '@app/interfaces/lobbyPlayer';
+import { PlayerSize } from '@app/interfaces/lobby-player';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';

@@ -1,5 +1,5 @@
 import { ITEM_COUNT, ObjectType } from '@app/constants';
-import { GameObject } from './interfaces/gameObject';
+import { GameObject } from './interfaces/game-object';
 
 export const gameObjects: GameObject[] = [
     {

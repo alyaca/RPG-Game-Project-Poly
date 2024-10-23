@@ -1,4 +1,4 @@
-import { defaultAttributes } from '@app/defaultAttributes';
+import { defaultAttributes } from '@app/default-attributes';
 import { avatars } from '@common/avatarsInfo';
 import { Avatar, Player, Status } from '@common/player';
 
