@@ -70,6 +70,17 @@ describe('GameService', () => {
     });
 
     describe('connectPlayerToGame', () => {
+        it('should return an error if the room code format is invalid', () => {
+            jest.spyOn(service, 'isCodeFormatValid');
+
+            (service.isCodeFormatValid as jest.Mock).mockReturnValue(false);
+            const code = 'test';
+            const result = service.connectPlayerToGame(code);
+
+            expect(result).toEqual({ event: 'joinError', errorType: 'invalidFormat' });
+            expect(service.isCodeFormatValid).toHaveBeenCalledWith(code);
+        });
+
         it('should return an error if the room is not active', () => {
             (roomService.isRoomActive as jest.Mock).mockReturnValue(false);
             roomService.rooms.set(roomId, mockRooms[0]);
@@ -262,5 +273,26 @@ describe('GameService', () => {
         expect(service.isPlayerNameTaken).toHaveBeenCalledTimes(2);
         expect(service.isPlayerNameTaken).toHaveBeenCalledWith(playerName, mockSocket);
         expect(service.isPlayerNameTaken).toHaveBeenCalledWith('player1-2', mockSocket);
+    });
+
+    describe('isCodeFormatValid', () => {
+        it('should be true if the code is 4 numbers', () => {
+            expect(service.isCodeFormatValid(roomId)).toBeTruthy();
+        });
+
+        it('should be false if the code is not composed of 4 numbers', () => {
+            const roomCode = '12o4';
+            expect(service.isCodeFormatValid(roomCode)).toBeFalsy();
+        });
+
+        it('should be false if the code length is smaller than 4 numbers', () => {
+            const roomCode = '123';
+            expect(service.isCodeFormatValid(roomCode)).toBeFalsy();
+        });
+
+        it('should be false if the code are not numbers', () => {
+            const roomCode = 'pljd';
+            expect(service.isCodeFormatValid(roomCode)).toBeFalsy();
+        });
     });
 });

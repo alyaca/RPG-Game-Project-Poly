@@ -17,8 +17,15 @@ export class GameService {
         return this.roomService.rooms.get(roomId);
     }
 
+    isCodeFormatValid(roomCode: string): boolean {
+        return /^[0-9]{4}$/.test(roomCode);
+    }
+
     connectPlayerToGame(roomId: string) {
         const game = this.getGame(roomId);
+        if (!this.isCodeFormatValid(roomId)) {
+            return { event: 'joinError', errorType: 'invalidFormat' };
+        }
         if (!this.roomService.isRoomActive(roomId)) {
             return { event: 'joinError', errorType: 'roomNotFound' };
         }

@@ -51,6 +51,18 @@ describe('RoomService', () => {
         expect(service).toBeDefined();
     });
 
+    describe('getServer', () => {
+        it('should return the server instance if initialized', () => {
+            const result = service.getServer();
+            expect(result).toBe(mockServer);
+        });
+
+        it('should throw an error if the server is not initialized', () => {
+            service['io'] = undefined;
+            expect(() => service.getServer()).toThrowError('Server is not initialized');
+        });
+    });
+
     it('should set the io server instance', () => {
         service.setServer(mockServer);
         expect(service['io']).toBe(mockServer);
