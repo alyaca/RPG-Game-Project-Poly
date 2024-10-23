@@ -124,6 +124,13 @@ describe('RoomService', () => {
             const roomCode = service.getRoomId(mockSocket);
             expect(roomCode).toBe(null);
         });
+
+        it('should return null if roomCode is undefined', () => {
+            mockSocket.data = undefined;
+            jest.spyOn(service, 'isRoomActive').mockReturnValue(false);
+            const result = service.getRoomId(mockSocket);
+            expect(result).toBeNull();
+        });
     });
 
     it('should broadcast roomDeleted event, delete the room, and leave the room', () => {
