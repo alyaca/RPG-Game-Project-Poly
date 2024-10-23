@@ -13,11 +13,9 @@ export class SocketCommunicationService {
     }
 
     connect() {
-        console.log('connecting');
         if (this.socket) {
             return;
         }
-        console.log('socket exists');
         this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
     }
 
@@ -29,12 +27,11 @@ export class SocketCommunicationService {
 
     on<T>(event: string, action: (data: T) => void): void {
         this.socket.on(event, action);
+        console.log('in socket communication service, on(roomCreated)');
     }
 
     send<T>(event: string, data?: T, callback?: () => void): void {
-        console.log('STARTING SENDING');
         this.socket.emit(event, ...[data, callback].filter((x) => x));
-        console.log('SENDING COMPLETE');
     }
 
     once<T>(event: string, action: (data: T) => void): void {
