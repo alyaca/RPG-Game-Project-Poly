@@ -126,7 +126,6 @@ export class MapEditorPageComponent implements OnInit {
     startSaving() {
         let infoTransferred: Info;
         let baseImage: string;
-        console.log(this.gameCreationService.isNewGame);
         html2canvas(this.canvas.nativeElement, { scale: 0.2 }).then((canvas) => {
             baseImage = canvas.toDataURL();
             infoTransferred = {

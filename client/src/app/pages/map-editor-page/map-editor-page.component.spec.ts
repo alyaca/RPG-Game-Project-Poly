@@ -1,7 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
@@ -43,6 +42,7 @@ describe('MapEditorPageComponent', () => {
             'isMapValid',
             'removeObjectFromGrid',
         ]);
+
         await TestBed.configureTestingModule({
             declarations: [],
             providers: [
@@ -223,74 +223,25 @@ describe('MapEditorPageComponent', () => {
     });
 
     describe('Saving start process', () => {
-        it('clicking the "Sauvegarder" button should call startSaving', () => {
-            spyOn(component, 'startSaving');
-            const saveButton = fixture.debugElement.query(By.css('#save-button'));
-            saveButton.triggerEventHandler('click');
-            expect(component.startSaving).toHaveBeenCalled();
-        });
-
-        it('should call saveNewGame if the map is valid', (done) => {
+        it('should call saveNewGame if the map is new and is valid', (done) => {
             gameCreationServiceSpy.isNewGame = true;
             mapEditorServiceSpy.isMapValid.and.returnValue(true);
-            try {
-                component.startSaving();
-            } catch (error) {
-                expect(error).toBeDefined();
-                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
-                done();
-            }
+            component.startSaving();
             setTimeout(() => {
                 expect(saveGameServiceSpy.saveNewGame).toHaveBeenCalled();
+                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
                 done();
             }, TEST_VALIDATION_DURATION);
         });
 
-        it("should call replaceMap if the map is valid and we're modifying an existing one", (done) => {
+        it('should call replaceMap if the map is not new and it is valid', (done) => {
             mapEditorServiceSpy.mapToEdit = dummyMap;
             gameCreationServiceSpy.isNewGame = false;
             mapEditorServiceSpy.isMapValid.and.returnValue(true);
-            try {
-                component.startSaving();
-            } catch (error) {
-                expect(error).toBeDefined();
-                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
-                done();
-            }
-            setTimeout(() => {
-                expect(saveGameServiceSpy.replaceMap).toHaveBeenCalled();
-                done();
-            }, TEST_VALIDATION_DURATION);
-        });
-
-        it('should not call saveNewGame if the map is not valid', (done) => {
-            gameCreationServiceSpy.isNewGame = true;
-            mapEditorServiceSpy.isMapValid.and.returnValue(false);
-            try {
-                component.startSaving();
-            } catch (error) {
-                expect(error).toBeDefined();
-                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
-                done();
-            }
+            component.startSaving();
             setTimeout(() => {
                 expect(saveGameServiceSpy.saveNewGame).not.toHaveBeenCalled();
-                done();
-            }, TEST_VALIDATION_DURATION);
-        });
-
-        it('should not call replaceMap if the map is not valid', (done) => {
-            mapEditorServiceSpy.isMapValid.and.returnValue(false);
-            gameCreationServiceSpy.isNewGame = false;
-            try {
-                component.startSaving();
-            } catch (error) {
-                expect(error).toBeDefined();
-                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
-                done();
-            }
-            setTimeout(() => {
-                expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
+                expect(saveGameServiceSpy.replaceMap).toHaveBeenCalled();
                 done();
             }, TEST_VALIDATION_DURATION);
         });

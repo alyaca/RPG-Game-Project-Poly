@@ -46,15 +46,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public tileService: TileService,
         private gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
-    ) {
-        this.oldMapName = this.mapName;
-    }
+    ) {}
 
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
     }
 
     ngOnInit() {
+        this.oldMapName = this.mapName;
+
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 
         if (this.gameCreationService.isNewGame) {
