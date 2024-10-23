@@ -1,5 +1,5 @@
 import { defaultAttributes } from '@app/default-attributes';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Avatar, Player, Status } from '@common/player';
 
 export const mockAvatar: Avatar = avatars[0];

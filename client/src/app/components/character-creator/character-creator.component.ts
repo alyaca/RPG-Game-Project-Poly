@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { AttributesService } from '@app/services/attributes/attributes.service';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Avatar, Player, PlayerStats, Status } from '@common/player';
 
 @Component({

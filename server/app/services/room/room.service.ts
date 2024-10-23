@@ -1,5 +1,5 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';

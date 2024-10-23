@@ -2,7 +2,7 @@ import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';

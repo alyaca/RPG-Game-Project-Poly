@@ -1,6 +1,6 @@
 import { mockRooms } from '@app/mocks/mock-room';
 import { RoomService } from '@app/services/room/room.service';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
