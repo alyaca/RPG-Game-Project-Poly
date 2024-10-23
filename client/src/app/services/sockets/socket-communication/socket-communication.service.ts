@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-import { environment } from 'src/environments/environment.prod';
 
 @Injectable({
     providedIn: 'root',
@@ -16,7 +15,7 @@ export class SocketCommunicationService {
         if (this.socket) {
             return;
         }
-        this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
+        this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/', { transports: ['websocket'], upgrade: false });
     }
 
     disconnect() {
