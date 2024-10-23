@@ -72,7 +72,7 @@ export class RoomService {
     }
 
     getRoomId(client: Socket) {
-        const roomCode = client.data.roomCode;
+        const roomCode = client.data?.roomCode;
         return this.isRoomActive(roomCode) ? roomCode : null;
     }
 
