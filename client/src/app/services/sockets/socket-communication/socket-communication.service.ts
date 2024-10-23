@@ -30,7 +30,9 @@ export class SocketCommunicationService {
     }
 
     send<T>(event: string, data?: T, callback?: () => void): void {
+        console.log('STARTING SENDING');
         this.socket.emit(event, ...[data, callback].filter((x) => x));
+        console.log('SENDING COMPLETE');
     }
 
     once<T>(event: string, action: (data: T) => void): void {
