@@ -13,9 +13,11 @@ export class SocketCommunicationService {
     }
 
     connect() {
+        console.log('connecting');
         if (this.socket) {
             return;
         }
+        console.log('socket exists');
         this.socket = io(environment.serverUrl, { transports: ['websocket'], upgrade: false });
     }
 
