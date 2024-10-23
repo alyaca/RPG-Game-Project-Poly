@@ -43,6 +43,7 @@ export class CreateGamePageComponent implements OnDestroy {
             }),
         );
         if (!this.socketCommunicationService.isSocketAlive()) {
+            console.log('SOCKET IS NOT ALIVE');
             this.socketCommunicationService.connect();
         }
     }
