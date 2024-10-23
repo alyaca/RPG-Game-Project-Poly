@@ -13,9 +13,11 @@ export class SocketCommunicationService {
 
     connect() {
         if (this.socket) {
+            console.log('Socket exists (socket communication service');
             return;
         }
-        this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/', { transports: ['websocket'], upgrade: false });
+        console.log('creating socket');
+        this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/');
     }
 
     disconnect() {
@@ -26,7 +28,6 @@ export class SocketCommunicationService {
 
     on<T>(event: string, action: (data: T) => void): void {
         this.socket.on(event, action);
-        console.log('in socket communication service, on(roomCreated)');
     }
 
     send<T>(event: string, data?: T, callback?: () => void): void {
