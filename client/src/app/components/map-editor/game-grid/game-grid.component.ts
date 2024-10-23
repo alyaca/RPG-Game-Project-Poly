@@ -26,6 +26,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
 
+    oldMapName: string;
+
     tilesGrid: number[][];
     objectsArray: number[][];
     gridSize: number;
@@ -44,7 +46,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public tileService: TileService,
         private gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
-    ) {}
+    ) {
+        this.oldMapName = this.mapName;
+    }
 
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
@@ -86,7 +90,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
-            this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription, this.gameCreationService.isNewGame);
+            this.mapValidatorService.validateMap(
+                this.tilesGrid,
+                this.mapName,
+                this.mapDescription,
+                this.gameCreationService.isNewGame,
+                this.oldMapName,
+            );
             this.sendInfoToMapCreationPage();
         }
     }

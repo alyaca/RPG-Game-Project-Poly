@@ -130,7 +130,7 @@ export class MapEditorPageComponent implements OnInit {
             baseImage = canvas.toDataURL();
             infoTransferred = {
                 image: baseImage,
-                name: this.mapName,
+                name: this.mapName.trim(),
                 description: this.mapDescription,
                 grid: this.tiles,
                 items: this.items,

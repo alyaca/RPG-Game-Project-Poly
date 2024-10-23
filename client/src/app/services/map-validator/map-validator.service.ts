@@ -38,10 +38,10 @@ export class MapValidatorService {
         this.gameObjectService.initObjectsArray();
     }
 
-    validateMap(array: number[][], title: string, description: string, isNewMap: boolean) {
+    validateMap(array: number[][], title: string, description: string, isNewMap: boolean, oldMapName: string) {
         this.errorMessages = [];
 
-        if (isNewMap) {
+        if (isNewMap || oldMapName !== title) {
             this.validateName(title);
         }
         this.validateSufficientTerrainTiles(array);

@@ -1,15 +1,15 @@
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objectsInfo';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { GameGridComponent } from './game-grid.component';
-import { GameCreationService } from '@app/services/game-creation.service';
-import { SimpleChanges, SimpleChange } from '@angular/core';
 
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
@@ -151,7 +151,13 @@ describe('GameGridComponent', () => {
             };
             component.saveTrigger = true;
             component.ngOnChanges(changes);
-            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(component.tilesGrid, component.mapName, component.mapDescription, true);
+            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(
+                component.tilesGrid,
+                component.mapName,
+                component.mapDescription,
+                true,
+                component.oldMapName,
+            );
         });
 
         it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {

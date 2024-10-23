@@ -60,7 +60,7 @@ describe('MapValidatorService', () => {
         spyOn(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
-        service.validateMap(mockMap, 'Valid Title', 'Valid Description', false);
+        service.validateMap(mockMap, 'Valid Title', 'Valid Description', false, 'Valid Title');
         expect(service.errorMessages.length).toBe(0);
     });
 
@@ -73,7 +73,7 @@ describe('MapValidatorService', () => {
         spyOn(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
-        service.validateMap(mockMap, 'Valid Title', 'Valid Description', true);
+        service.validateMap(mockMap, 'Valid Title', 'Valid Description', true, 'Valid Title');
         expect(service.errorMessages.length).toBe(0);
     });
 
