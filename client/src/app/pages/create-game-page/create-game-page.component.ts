@@ -43,7 +43,6 @@ export class CreateGamePageComponent implements OnDestroy {
             }),
         );
         if (!this.socketCommunicationService.isSocketAlive()) {
-            console.log('SOCKET IS NOT ALIVE');
             this.socketCommunicationService.connect();
         }
     }
@@ -77,10 +76,8 @@ export class CreateGamePageComponent implements OnDestroy {
     }
 
     createRoom() {
-        console.log('CREATE ROOM');
         this.socketCommunicationService.send('createRoom', this.selectedGame);
         this.socketCommunicationService.on('roomCreated', (roomInfo: Room) => {
-            console.log('ROOM CREATED');
             this.gameService.selectedGame = roomInfo.gameMap;
             this.roomCode = roomInfo.roomId;
             this.gameService.setRoomId(this.roomCode);

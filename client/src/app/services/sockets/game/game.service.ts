@@ -15,15 +15,12 @@ export class GameService {
     constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     setRoomId(room: string) {
-        console.log('setting room id');
         this.roomId = room;
     }
 
     joinRoom(roomCode: string) {
-        console.log('sending joinRoom');
         this.socketCommunicationService.send('joinRoom', roomCode);
 
-        console.log('joinRoom sent');
         this.socketCommunicationService.on('joinedRoom', (roomInfo: Room) => {
             this.isJoined = true;
             this.roomId = roomInfo.roomId;

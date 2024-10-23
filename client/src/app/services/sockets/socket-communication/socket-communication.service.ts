@@ -13,10 +13,8 @@ export class SocketCommunicationService {
 
     connect() {
         if (this.socket) {
-            console.log('Socket exists (socket communication service');
             return;
         }
-        console.log('creating socket');
         this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/');
     }
 
