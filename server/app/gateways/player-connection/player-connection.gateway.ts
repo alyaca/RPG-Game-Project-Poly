@@ -7,7 +7,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Server, Socket } from 'socket.io';
 import { RoomEvents } from './player-connection.events';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
 export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
