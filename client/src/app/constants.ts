@@ -92,6 +92,7 @@ export const START_TURN_TIMER_DELAY = 2000;
 
 export const FAIL_EVASION_RANDOM_NUM = 0.5;
 export const SUCCES_EVASION_RANDOM_NUM = 0.1;
+export const TIMER_ARC_WIDTH = 5;
 
 // Constants for random generation
 export const MAX_GENERATION_VALUE = 1000000000;
