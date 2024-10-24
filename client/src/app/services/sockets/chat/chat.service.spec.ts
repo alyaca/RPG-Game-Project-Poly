@@ -24,14 +24,14 @@ describe('ChatService', () => {
         const message: IMessage = {
             username,
             message: content,
-            timestamp: new Date(), 
+            timestamp: new Date(),
         };
         service.sendMessage(content);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessage', message);
     });
 
     it('should receive message', () => {
-        const message: IMessage = {  
+        const message: IMessage = {
             username: 'Goku',
             message: "Hey it's me Goku !",
             timestamp: new Date(),
