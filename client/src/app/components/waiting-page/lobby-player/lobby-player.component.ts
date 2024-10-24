@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { Status } from '@app/interfaces/playerObject';
 import { Player } from '@common/player';
-
 @Component({
     selector: 'app-lobby-player',
     standalone: true,
@@ -11,4 +11,7 @@ import { Player } from '@common/player';
 })
 export class LobbyPlayerComponent {
     @Input() lobbyPlayer: Player;
+    isAdmin() {
+        return this.lobbyPlayer.status === Status.Admin;
+    }
 }

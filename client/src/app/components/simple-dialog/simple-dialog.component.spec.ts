@@ -1,7 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { SimpleDialogComponent } from './simple-dialog.component';
 import { Router } from '@angular/router';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
+import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
 
 describe('SimpleDialogComponent', () => {
     let component: SimpleDialogComponent;
@@ -14,10 +18,18 @@ describe('SimpleDialogComponent', () => {
         mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
         await TestBed.configureTestingModule({
-            declarations: [],
+            imports: [NoopAnimationsModule, MatDialogModule, MatButtonModule, CommonModule, SimpleDialogMessageComponent],
             providers: [
                 { provide: MatDialogRef, useValue: dialogRefSpy },
-                { provide: MAT_DIALOG_DATA, useValue: { message: 'Test message', confirm: true } },
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {
+                        messages: ['Test message'],
+                        title: 'Test title',
+                        confirm: true,
+                        options: ['option1', 'option2'],
+                    },
+                },
                 { provide: Router, useValue: mockRouter },
             ],
         }).compileComponents();
@@ -31,9 +43,9 @@ describe('SimpleDialogComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should close dialog with "leave" when onClose is called with confirm true', () => {
+    it('should close dialog with "left" when onClose is called with confirm true', () => {
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('leave');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
     });
 
     it('should close dialog with "close" when onClose is called with confirm false', () => {
@@ -42,15 +54,15 @@ describe('SimpleDialogComponent', () => {
         expect(dialogRefSpy.close).toHaveBeenCalledWith('close');
     });
 
-    it('should close dialog with "cancel" when onCancel is called', () => {
+    it('should close dialog with "right" when onCancel is called', () => {
         component.onCancel();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('cancel');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('right');
     });
 
-    it('should navigate to /administion when title is "Sauvegarde réussie"', () => {
+    it('should navigate to /administration when title is "Sauvegarde réussie"', () => {
         component.data.title = 'Sauvegarde réussie';
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('leave');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
         expect(mockRouter.navigate).toHaveBeenCalledWith(['/administration']);
     });
 });

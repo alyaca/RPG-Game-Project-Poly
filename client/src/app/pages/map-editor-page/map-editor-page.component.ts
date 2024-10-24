@@ -106,12 +106,13 @@ export class MapEditorPageComponent implements OnInit {
             data: {
                 title: 'Quitter cette page?',
                 messages: ['Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?'],
+                options: ['Quitter', 'Rester'],
                 confirm: true,
             },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'leave') {
+            if (result === 'left') {
                 this.router.navigate(['/administration']);
             }
         });
@@ -144,7 +145,7 @@ export class MapEditorPageComponent implements OnInit {
         });
     }
 
-    ngOnInit(): void {
+    ngOnInit() {
         if (!this.gameCreationService.sizeSubject.value) {
             this.router.navigate(['/administration']);
         }

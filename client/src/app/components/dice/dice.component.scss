@@ -1,0 +1,121 @@
+.dice-container {
+    perspective: 1000px;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.dice {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(0) rotateY(0);
+    transition: transform 1s;
+}
+
+.face {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: #fff;
+    color: black;
+    border: 2px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+}
+
+.face.one {
+    transform: rotateY(0deg) translateZ(50px);
+    // background-image: url('/assets/images/dice/dice1.png');
+    background: linear-gradient(to top right,  rgb(116, 3, 3), rgb(173, 13, 13)); //
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 10%;
+}
+
+.face.two {
+    transform: rotateX(90deg) translateZ(50px);
+    // background-image: url('/assets/images/dice/dice2.png');
+    
+    background: linear-gradient(to top right, rgb(198, 109, 0), rgb(234, 134, 12)); //
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 10%;
+}
+
+.face.three {
+    transform: rotateY(-90deg) translateZ(50px);
+    // background-image: url('/assets/images/dice/dice3.png');
+    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 10%;
+}
+
+.face.four {
+    transform: rotateY(90deg) translateZ(50px);
+    // background-image: url('/assets/images/dice/dice4.png');
+    background: linear-gradient(to top right, rgb(45, 119, 81), rgb(83, 185, 138)); //
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 10%;
+}
+
+.face.five {
+    transform: rotateX(-90deg) translateZ(50px);
+    // background-image: url('/assets/images/dice/dice5.png');
+    background: linear-gradient(to top right, rgb(48, 62, 132), rgb(81, 109, 194)); //
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 10%;
+}
+
+.face.six {
+    transform: rotateY(180deg) translateZ(50px);
+    // background-image: url('/assets/images/dice/dice6.png');
+    background: linear-gradient(to top right, rgb(71, 23, 111), rgb(100, 38, 181)); //
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 10%;
+}
+
+.dice.show-1 {
+    transform: rotateX(0deg) rotateY(0deg);
+}
+.dice.show-2 {
+    transform: rotateX(-90deg) rotateY(0deg);
+}
+.dice.show-3 {
+    transform: rotateX(0deg) rotateY(90deg);
+}
+.dice.show-4 {
+    transform: rotateX(0deg) rotateY(-90deg);
+}
+.dice.show-5 {
+    transform: rotateX(90deg) rotateY(0deg);
+}
+.dice.show-6 {
+    transform: rotateX(180deg) rotateY(0deg);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotateX(0) rotateY(0) rotateZ(0);
+    }
+    100% {
+        transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+    }
+}
+
+.dice.rolling {
+    animation: spin 1s infinite linear;
+}

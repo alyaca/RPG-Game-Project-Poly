@@ -10,6 +10,7 @@
                 [description]="item.description"
                 [count]="item.count"
                 [isDragging]="isDraggingFromContainer"
+                [descriptionPosition]="descriptionPosition"
                 draggable="true"
                 (dragstart)="onDragStart($event, item)"
                 (dragend)="onDragEnd()"
