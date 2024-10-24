@@ -6,7 +6,7 @@
         }
     </mat-dialog-content>
     <mat-dialog-actions class="dialog-actions">
-        <button class="button" mat-button (click)="onClose()">{{ data.confirm ? 'Quitter cette page' : 'Fermer' }}</button>
-        <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()">Rester sur cette page</button>
+        <button class="button" mat-button (click)="onClose()">{{ data.confirm ? options[0] : 'Fermer' }}</button>
+        <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()"> {{ options[1] }}</button>
     </mat-dialog-actions>
 </div>

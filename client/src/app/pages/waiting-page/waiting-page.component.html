@@ -7,20 +7,19 @@
     </header>
     <main>
         <div id="players-container">
-            @for (player of players; track player.id;) {
-            <app-lobby-player [lobbyPlayer]="player"></app-lobby-player>
+            @for (player of players; track player.id) {
+                <app-lobby-player
+                    class = "medium"
+                    [lobbyPlayer]="players[$index]"
+                ></app-lobby-player>
             }
-            <!-- <div class="add-bot medium">
-                <p>ajouter un joueur virtuel</p>
-                <button class="add-bot-button">+</button>
-            </div> -->
         </div>
     </main>
     <footer>
         <div id="footer-container">
             <app-chat-box></app-chat-box>
             <div id="start-container">
-                <button id="start">Lancer une partie</button>
+                <button id="start" (click)="handleStartGame()">Lancer une partie</button>
                 <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
             </div>
             <div id="lock-container">
