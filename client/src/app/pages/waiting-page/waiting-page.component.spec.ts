@@ -56,23 +56,6 @@ describe('WaitingPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('ngOnInit', () => {
-        it('should navigate to /home if no game is selected (refresh page)', () => {
-            gameListServiceSpy.chosenGameSubject.next(null);
-            component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-        });
-
-        it('should navigate to /home if no game is received', () => {
-            component.accessCode = accessCode;
-            component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-        });
-
-        it('should navigate to /home if no room is created', () => {
-            component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-        });
         describe('ngOnInit', () => {
             it('should navigate to /home if no game is selected (refresh page)', () => {
                 gameListServiceSpy.chosenGameSubject.next(null);
@@ -96,23 +79,8 @@ describe('WaitingPageComponent', () => {
                 gameListServiceSpy.chosenGameSubject.next(mockGame);
                 fixture.detectChanges();
                 expect(component.chosenGame).toEqual(mockGame);
-            });
-            it('should set chosenGame when a game is selected', () => {
-                const mockGame: Game = mockGames[0];
-                gameListServiceSpy.chosenGameSubject.next(mockGame);
-                fixture.detectChanges();
-                expect(component.chosenGame).toEqual(mockGame);
-            });
+            }); 
 
-            it('should set player list when it is updated', () => {
-                socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                    if (event === 'updatedPlayer') {
-                        callback(mockRoom as T);
-                    }
-                });
-                component.ngOnInit();
-                expect(component.players).toBe(mockRoom.listPlayers);
-            });
             it('should set player list when it is updated', () => {
                 socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                     if (event === 'updatedPlayer') {
@@ -124,19 +92,6 @@ describe('WaitingPageComponent', () => {
             });
         });
 
-        it('should handle roomDeleted event and navigate to /home', () => {
-            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            dialogRefSpy.afterClosed.and.returnValue(of('close'));
-            dialogSpy.open.and.returnValue(dialogRefSpy);
-
-            component.accessCode = accessCode;
-            component.chosenGame = mockGames[0];
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'roomDeleted') {
-                    callback('Room has been deleted.' as unknown as T);
-                }
-            });
-        });
         it('should handle roomDeleted event and navigate to /home', () => {
             const message = 'Room has been deleted.';
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
@@ -172,20 +127,7 @@ describe('WaitingPageComponent', () => {
             expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
         });
 
-        it('should call leaveRoom and navigate to game creation if admin player on leftRoom event', () => {
-            const expectedRoute = '/game-creation';
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
-                if (event === 'leftRoom') {
-                    callback(true as unknown as T);
-                }
-            });
-            component.leaveGame(accessCode);
-
-            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
-            expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
-        });
-
-        describe('handeExit', () => {
+        describe('handleExit', () => {
             it('should open the dialog and navigate to /home if confirmed', () => {
                 const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
                 dialogRefSpy.afterClosed.and.returnValue(of('leave'));
@@ -272,4 +214,4 @@ describe('WaitingPageComponent', () => {
             expect(dialogSpy.open).toHaveBeenCalled();
         });
     });
-});
+
