@@ -1,5 +1,3 @@
-// import { Status } from '@app/interfaces/playerObject';
-// import { Player } from '@common/player';
 // Constants for the number of items and spawn points for each type of map
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
