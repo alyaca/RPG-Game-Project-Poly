@@ -11,7 +11,6 @@ import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
 
-
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
     let fixture: ComponentFixture<WaitingPageComponent>;
@@ -56,162 +55,161 @@ describe('WaitingPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-        describe('ngOnInit', () => {
-            it('should navigate to /home if no game is selected (refresh page)', () => {
-                gameListServiceSpy.chosenGameSubject.next(null);
-                component.ngOnInit();
-                expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-            });
-
-            it('should navigate to /home if no game is received', () => {
-                component.accessCode = accessCode;
-                component.ngOnInit();
-                expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-            });
-
-            it('should navigate to /home if no room is created', () => {
-                component.ngOnInit();
-                expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-            });
-
-            it('should set chosenGame when a game is selected', () => {
-                const mockGame: Game = mockGames[0];
-                gameListServiceSpy.chosenGameSubject.next(mockGame);
-                fixture.detectChanges();
-                expect(component.chosenGame).toEqual(mockGame);
-            }); 
-
-            it('should set player list when it is updated', () => {
-                socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                    if (event === 'updatedPlayer') {
-                        callback(mockRoom as T);
-                    }
-                });
-                component.ngOnInit();
-                expect(component.players).toBe(mockRoom.listPlayers);
-            });
-        });
-
-        it('should handle roomDeleted event and navigate to /home', () => {
-            const message = 'Room has been deleted.';
-            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            dialogRefSpy.afterClosed.and.returnValue(of('close'));
-            dialogSpy.open.and.returnValue(dialogRefSpy);
-
-            component.accessCode = accessCode;
-            component.chosenGame = mockGames[0];
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'roomDeleted') {
-                    callback('Room has been deleted.' as unknown as T);
-                }
-            });
+    describe('ngOnInit', () => {
+        it('should navigate to /home if no game is selected (refresh page)', () => {
+            gameListServiceSpy.chosenGameSubject.next(null);
             component.ngOnInit();
-
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                disableClose: true,
-                data: { title: 'Partie annulée', messages: [message] },
-            });
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
         });
 
-        it('should call leaveRoom and navigate to home if normal player on leftRoom event', () => {
-            const expectedRoute = '/home';
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
-                if (event === 'leftRoom') {
-                    callback(false as unknown as T);
+        it('should navigate to /home if no game is received', () => {
+            component.accessCode = accessCode;
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
+
+        it('should navigate to /home if no room is created', () => {
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
+
+        it('should set chosenGame when a game is selected', () => {
+            const mockGame: Game = mockGames[0];
+            gameListServiceSpy.chosenGameSubject.next(mockGame);
+            fixture.detectChanges();
+            expect(component.chosenGame).toEqual(mockGame);
+        });
+
+        it('should set player list when it is updated', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'updatedPlayer') {
+                    callback(mockRoom as T);
                 }
             });
-            component.leaveGame(accessCode);
-
-            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
-            expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
+            component.ngOnInit();
+            expect(component.players).toBe(mockRoom.listPlayers);
         });
+    });
 
-        describe('handleExit', () => {
-            it('should open the dialog and navigate to /home if confirmed', () => {
-                const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-                dialogRefSpy.afterClosed.and.returnValue(of('leave'));
-                dialogSpy.open.and.returnValue(dialogRefSpy);
-                component.handleExit(accessCode);
+    it('should handle roomDeleted event and navigate to /home', () => {
+        const message = 'Room has been deleted.';
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('close'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
 
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    disableClose: true,
-                    data: {
-                        title: 'Abandonner la partie?',
-                        messages: ["- Vous quitteriez la page d'attente"],
-                        options: ['Quitter', 'Rester'],
-                        confirm: true,
-                    },
-                });
-
-                expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-            });
-
-            it('should not call leaveGame if dialog result is not leave', () => {
-                const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-                spyOn(component, 'leaveGame');
-                dialogRefSpy.afterClosed.and.returnValue(of('stay'));
-                dialogSpy.open.and.returnValue(dialogRefSpy);
-
-                component.handleExit(accessCode);
-
-                expect(component.leaveGame).not.toHaveBeenCalledWith(accessCode);
-            });
-
-            it('should open the dialog and call leaveGame if dialog result is leave', () => {
-                const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-                spyOn(component, 'leaveGame');
-                dialogRefSpy.afterClosed.and.returnValue(of('left'));
-                dialogSpy.open.and.returnValue(dialogRefSpy);
-                component.handleExit(accessCode);
-
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    disableClose: true,
-                    data: {
-                        title: 'Abandonner la partie?',
-                        messages: ["- Vous quitteriez la page d'attente"],
-                        options: ['Quitter', 'Rester'],
-                        confirm: true,
-                    },
-                });
-                expect(component.leaveGame).toHaveBeenCalledWith(accessCode);
-            });
+        component.accessCode = accessCode;
+        component.chosenGame = mockGames[0];
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'roomDeleted') {
+                callback('Room has been deleted.' as unknown as T);
+            }
         });
+        component.ngOnInit();
 
-        it('should update gameService isRoomLocked and send event', () => {
-            component.isLocked = true;
-            component.onLockChange();
-
-            expect(gameServiceSpy.isRoomLocked).toBe(true);
-            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: { title: 'Partie annulée', messages: [message] },
         });
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
 
-        it('should navigate to /game-page when dialog result is "Confirmer"', () => {
+    it('should call leaveRoom and navigate to home if normal player on leftRoom event', () => {
+        const expectedRoute = '/home';
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
+            if (event === 'leftRoom') {
+                callback(false as unknown as T);
+            }
+        });
+        component.leaveGame(accessCode);
+
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
+    });
+
+    describe('handleExit', () => {
+        it('should open the dialog and navigate to /home if confirmed', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            dialogRefSpy.afterClosed.and.returnValue(of('right'));
+            dialogRefSpy.afterClosed.and.returnValue(of('leave'));
             dialogSpy.open.and.returnValue(dialogRefSpy);
-            component.handleStartGame();
+            component.handleExit(accessCode);
 
             expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
                 disableClose: true,
                 data: {
-                    title: 'Débuter la partie',
-                    messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
-                    options: ['Annuler', 'Confirmer'],
+                    title: 'Abandonner la partie?',
+                    messages: ["- Vous quitteriez la page d'attente"],
+                    options: ['Quitter', 'Rester'],
                     confirm: true,
                 },
             });
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
         });
 
-        it('should not navigate when the dialog is cancelled', () => {
+        it('should not call leaveGame if dialog result is not leave', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            dialogRefSpy.afterClosed.and.returnValue(of('left'));
+            spyOn(component, 'leaveGame');
+            dialogRefSpy.afterClosed.and.returnValue(of('stay'));
             dialogSpy.open.and.returnValue(dialogRefSpy);
 
-            component.handleStartGame();
+            component.handleExit(accessCode);
 
-            expect(dialogSpy.open).toHaveBeenCalled();
+            expect(component.leaveGame).not.toHaveBeenCalledWith(accessCode);
+        });
+
+        it('should open the dialog and call leaveGame if dialog result is leave', () => {
+            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+            spyOn(component, 'leaveGame');
+            dialogRefSpy.afterClosed.and.returnValue(of('left'));
+            dialogSpy.open.and.returnValue(dialogRefSpy);
+            component.handleExit(accessCode);
+
+            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                disableClose: true,
+                data: {
+                    title: 'Abandonner la partie?',
+                    messages: ["- Vous quitteriez la page d'attente"],
+                    options: ['Quitter', 'Rester'],
+                    confirm: true,
+                },
+            });
+            expect(component.leaveGame).toHaveBeenCalledWith(accessCode);
         });
     });
 
+    it('should update gameService isRoomLocked and send event', () => {
+        component.isLocked = true;
+        component.onLockChange();
+
+        expect(gameServiceSpy.isRoomLocked).toBe(true);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
+    });
+
+    it('should navigate to /game-page when dialog result is "Confirmer"', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('right'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.handleStartGame();
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Débuter la partie',
+                messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
+                options: ['Annuler', 'Confirmer'],
+                confirm: true,
+            },
+        });
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+    });
+
+    it('should not navigate when the dialog is cancelled', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('left'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        component.handleStartGame();
+
+        expect(dialogSpy.open).toHaveBeenCalled();
+    });
+});
