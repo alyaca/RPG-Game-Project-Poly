@@ -77,12 +77,13 @@ export class JoinGameService {
             data: {
                 title: 'Partie verrouillée',
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
+                options: ['Quitter', 'Rester'],
                 confirm: true,
             },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'leave') {
+            if (result === 'left') {
                 this.socketCommunicationService.send('leaveRoom', this.gameService.roomId);
                 this.router.navigate(['/home']);
             }

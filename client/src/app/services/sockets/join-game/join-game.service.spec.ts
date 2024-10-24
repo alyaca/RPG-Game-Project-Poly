@@ -174,20 +174,30 @@ describe('JoinGameService', () => {
         service.handleLockedRoom();
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
             disableClose: true,
-            data: { title: 'Partie verrouillée', messages: ['Veuillez réessayer plus tard ou retourner au menu principal '], confirm: true },
+            data: {
+                title: 'Partie verrouillée',
+                messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
+                options: ['Quitter', 'Rester'],
+                confirm: true,
+            },
         });
         expect(routerSpy.navigate).not.toHaveBeenCalledWith(['/home']);
     });
 
     it('should open the dialog and navigate to /home if confirmed', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('leave'));
+        dialogRefSpy.afterClosed.and.returnValue(of('left'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.handleLockedRoom();
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
             disableClose: true,
-            data: { title: 'Partie verrouillée', messages: ['Veuillez réessayer plus tard ou retourner au menu principal '], confirm: true },
+            data: {
+                title: 'Partie verrouillée',
+                messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
+                options: ['Quitter', 'Rester'],
+                confirm: true,
+            },
         });
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });

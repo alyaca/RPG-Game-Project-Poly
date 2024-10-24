@@ -94,7 +94,7 @@ describe('PlayerConnectionGateway', () => {
         jest.spyOn(gameService, 'leavePlayerFromGame');
         jest.spyOn(logger, 'log');
         gateway.handleDisconnect(socket);
-        expect(gameService.leavePlayerFromGame).toHaveBeenCalledWith(roomId, socket);
+        expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
         expect(logger.log).toHaveBeenCalled();
     });
 

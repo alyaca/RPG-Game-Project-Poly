@@ -43,7 +43,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     @SubscribeMessage(RoomEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
-        this.gameService.leavePlayerFromGame(roomId, client);
+        this.gameService.leavePlayerFromGame(roomId, client, this.server);
     }
 
     @SubscribeMessage(RoomEvents.ChangeLockRoom)
@@ -83,7 +83,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleDisconnect(client: Socket) {
         const room = this.roomService.getRoom(client);
         if (room) {
-            this.gameService.leavePlayerFromGame(room.roomId, client);
+            this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
             this.logger.log(`Client disconnected: ${client.id}`);
         }
     }

@@ -133,7 +133,7 @@ describe('GameService', () => {
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
             (roomService.getRoom as jest.Mock).mockReturnValue(room);
             jest.spyOn(service, 'removePlayerFromRoom');
-            service.leavePlayerFromGame(roomId, mockSocket);
+            service.leavePlayerFromGame(roomId, mockSocket, mockServer);
 
             expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', true);
             expect(roomService.deleteRoom).toHaveBeenCalledWith(roomId, mockSocket);
@@ -144,10 +144,10 @@ describe('GameService', () => {
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
             (roomService.getRoom as jest.Mock).mockReturnValue(room);
             jest.spyOn(service, 'removePlayerFromRoom');
-            service.leavePlayerFromGame(roomId, mockSocket);
+            service.leavePlayerFromGame(roomId, mockSocket, mockServer);
 
             expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', false);
-            expect(service.removePlayerFromRoom).toHaveBeenCalledWith(roomId, mockSocket);
+            expect(service.removePlayerFromRoom).toHaveBeenCalledWith(roomId, mockSocket, mockServer);
             expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
         });
     });
