@@ -22,19 +22,19 @@ describe('ChatService', () => {
         const username = 'Player';
         const content = "Hey it's me Goku !";
         const message: IMessage = {
-            timestamp: new Date(),
-            message: content,
             username,
+            message: content,
+            timestamp: new Date(), 
         };
         service.sendMessage(content);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessage', message);
     });
 
     it('should receive message', () => {
-        const message: IMessage = {
-            timestamp: new Date(),
-            message: "Hey it's me Goku !",
+        const message: IMessage = {  
             username: 'Goku',
+            message: "Hey it's me Goku !",
+            timestamp: new Date(),
         };
         const callback = jasmine.createSpy();
         service.onMessageReceived(callback);
