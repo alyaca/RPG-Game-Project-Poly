@@ -38,7 +38,7 @@
     height: 6rem;
     width: 6rem;
     // background-image: url('/assets/images/icones/D4.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
     background-size: cover;
 }
 
@@ -85,7 +85,7 @@
     height: 7rem;
     border-radius: 50%;
     // background-image: url('/assets/images/icones/next-turn.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
     background-size: cover;
     background-position: center;
     transition:

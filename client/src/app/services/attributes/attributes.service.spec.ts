@@ -126,9 +126,9 @@ describe('AttributesService', () => {
             expect(result).toBeTrue();
         });
 
-        it('should return true when defDiceMax is DEFAULT_ATTRIBUTE', () => {
+        it('should return false when defDiceMax is DEFAULT_ATTRIBUTE', () => {
             const result = service.hasSelectedDice();
-            expect(result).toBeTrue();
+            expect(result).toBeFalse();
         });
     });
 
@@ -141,7 +141,7 @@ describe('AttributesService', () => {
         expect(service.name).toEqual('');
         expect(attribute.totalHp).toEqual(DEFAULT_ATTRIBUTE);
         expect(attribute.speed).toEqual(DEFAULT_ATTRIBUTE);
-        expect(attribute.atkDiceMax).toEqual(HIGH_ATTRIBUTE);
+        expect(attribute.atkDiceMax).toEqual(DEFAULT_ATTRIBUTE);
         expect(attribute.defDiceMax).toEqual(DEFAULT_ATTRIBUTE);
     });
 
@@ -162,12 +162,12 @@ describe('AttributesService', () => {
             expect(service.getDiceMessage).toHaveBeenCalledWith('atkDiceMax');
         });
 
-        it('should return HIGH_ATTRIBUTE when chosenAttribute is defDiceMax and hasSelectedDice() is false', () => {
+        it('should return DEFAULT_ATTRIBUTE when chosenAttribute is defDiceMax and hasSelectedDice() is false', () => {
             spyOn(service, 'hasSelectedDice').and.returnValue(false);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
             const result = service.getAttributValue('atkDiceMax');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
-            expect(result).toBe(HIGH_ATTRIBUTE);
+            expect(result).toBe(DEFAULT_ATTRIBUTE);
         });
 
         it('should return DEFAULT_ATTRIBUTE when chosenAttribute is totalHp and hasSelectedDice() is true', () => {
@@ -214,9 +214,9 @@ describe('AttributesService', () => {
         });
     });
 
-    it('should return DICE_6 when atkDiceMax equals DEFAULT_ATTRIBUTE', () => {
+    it('should return DICE_4 when atkDiceMax equals DEFAULT_ATTRIBUTE', () => {
         const result = service.getDiceMessage('atkDiceMax');
-        expect(result).toBe(DICE_6);
+        expect(result).toBe(DICE_4);
     });
 
     it('should return DICE_6 when atkDiceMax does not equal DEFAULT_ATTRIBUTE', () => {

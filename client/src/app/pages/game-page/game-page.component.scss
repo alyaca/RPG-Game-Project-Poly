@@ -37,13 +37,13 @@ body {
 }
 
 .left-leaf {
-    margin-top: 10%;
+    margin-top: 6%;
     flex: 0 0 25%;
     height: 9rem;
 }
 
 .right-leaf {
-    margin-top: 10%;
+    margin-top: 6%;
     flex: 0 0 25%;
     height: 9rem;
 }
@@ -57,12 +57,12 @@ body {
 
 .action-button {
     // background-image: url('/assets/images/icones/action-deselected.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
     background-size: 101%;
     background-position: center;
     border-radius: 50%;
-    height: 7rem;
-    width: 7rem;
+    height: 5rem;
+    width: 5rem;
     border: 0.15rem solid black;
 
     display: flex;
@@ -76,13 +76,13 @@ body {
 .button-outer:hover .action-button {
     transform: scale(1.1);
     // background-image: url('/assets/images/icones/action.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right,  rgb(116, 3, 3), rgb(173, 13, 13)); //
 }
 
 .action-outer.selected .action-button {
     transform: scale(1.05);
     // background-image: url('/assets/images/icones/action.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right,  rgb(116, 3, 3), rgb(173, 13, 13)); //
 }
 
 .chat {
@@ -151,8 +151,8 @@ body {
     justify-content: center;
     align-items: center;
     border: 1px solid black;
-    width: 9rem;
-    height: 9rem;
+    width: 7rem;
+    height: 7rem;
     border-radius: 50%;
     background: linear-gradient(to top right, rgb(39, 39, 39), rgb(88, 88, 88) 33%, rgb(162, 162, 162) 67%, rgb(220, 220, 220) 100%);
     transition:
@@ -165,11 +165,11 @@ body {
     justify-content: center;
     align-items: center;
     border: 1px solid black;
-    width: 7rem;
-    height: 7rem;
+    width: 5rem;
+    height: 5rem;
     border-radius: 50%;
     // background-image: url('/assets/images/icones/next-turn.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
     background-size: cover;
     background-position: center;
     transition:
@@ -186,7 +186,7 @@ body {
 
 .button-outer:hover .end-turn-button-inner {
     // background-image: url('/assets/images/icones/next-turn-red.png');
-    background-color: greenyellow;
+    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
     transform: scale(1.1);
 }
 
