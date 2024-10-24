@@ -10,8 +10,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { WaitingPageComponent } from './waiting-page.component';
-// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-// import { Status } from '@common/player';
+
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -27,24 +26,15 @@ describe('WaitingPageComponent', () => {
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
-        gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
-        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        accessCode = '1234';
         accessCode = '1234';
 
         await TestBed.configureTestingModule({
             imports: [WaitingPageComponent],
             providers: [
-                { provide: GameListService, useValue: gameListServiceSpy },
-                { provide: Router, useValue: routerSpy },
-                { provide: GameService, useValue: gameServiceSpy },
-                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
-                { provide: MatDialog, useValue: dialogSpy },
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: GameService, useValue: gameServiceSpy },
