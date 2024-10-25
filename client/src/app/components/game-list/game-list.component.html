@@ -18,7 +18,7 @@
             @if(game.visible){
             <img src="./assets/images/icones/visible.png" (click)="changeVisibility(game)" alt="visible" />
             }@else {<img src="./assets/images/icones/hidden.png" (click)="changeVisibility(game)" alt="hidden" />}
-            <img src="./assets/images/icones/modification.png" alt="modification" />
+            <img src="./assets/images/icones/modification.png" alt="modification" (click)="editGame(game)"/>
             <img src="./assets/images/icones/trash.png" (click)="deleteGame(game)" alt="trash" />
             <img src="./assets/images/icones/export.png" alt="trash" />
         </div>

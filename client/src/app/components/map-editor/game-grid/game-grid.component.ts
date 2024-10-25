@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -14,7 +14,7 @@ import { ToolService } from '@app/services/tool/tool.service';
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
-export class GameGridComponent implements OnChanges, OnDestroy {
+export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
@@ -25,6 +25,8 @@ export class GameGridComponent implements OnChanges, OnDestroy {
     @Output() gridChange = new EventEmitter<number[][]>();
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
+
+    oldMapName: string;
 
     tilesGrid: number[][];
     objectsArray: number[][];
@@ -44,25 +46,58 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         public tileService: TileService,
         private gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
-    ) {
-        this.gridSize = this.gameCreationService.updateDimensions() as number;
-        this.objectsArray = this.gameObjectService.initObjectsArray();
-        this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-    }
+    ) {}
 
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
     }
 
+    ngOnInit() {
+        this.oldMapName = this.mapName;
+
+        this.gridSize = this.gameCreationService.updateDimensions() as number;
+
+        if (this.gameCreationService.isNewGame) {
+            this.objectsArray = this.gameObjectService.initObjectsArray();
+            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+        } else {
+            this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
+            this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
+            this.gameObjectService.objectsArray = this.objectsArray;
+            this.oldMapName = this.gameCreationService.loadedMapName;
+        }
+    }
+
+    deepCopyMatrix(matrix: number[][] | null): number[][] {
+        if (!matrix) {
+            return [];
+        }
+        return JSON.parse(JSON.stringify(matrix));
+    }
+
     ngOnChanges(changes: SimpleChanges) {
         if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
-            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-            this.objectsArray = this.gameObjectService.initObjectsArray();
-            this.gameObjectService.resetObjectsCount();
+            if (!this.gameCreationService.isNewGame) {
+                this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
+                this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
+                this.gameObjectService.objectsArray = this.objectsArray;
+                this.gameObjectService.loadMapObjectCount();
+            } else {
+                this.objectsArray = this.gameObjectService.initObjectsArray();
+                this.gameObjectService.resetObjectsCount();
+                this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+            }
+
             this.sendInfoToMapCreationPage();
         }
         if (changes.saveTrigger && this.saveTrigger) {
-            this.mapValidatorService.validateMap(this.tilesGrid, this.mapName, this.mapDescription);
+            this.mapValidatorService.validateMap(
+                this.tilesGrid,
+                this.mapName,
+                this.mapDescription,
+                this.gameCreationService.isNewGame,
+                this.oldMapName,
+            );
             this.sendInfoToMapCreationPage();
         }
     }
@@ -124,15 +159,8 @@ export class GameGridComponent implements OnChanges, OnDestroy {
             return;
         }
 
-        this.selectedRow = row;
-        this.selectedCol = col;
-        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
-
-        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
-        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
-            this.gameObjectService.selectedTile = { row, col };
-            this.gameObjectService.removeObjectFromGrid(gameObject);
-        }
+        this.updateSelectedTile(row, col);
+        this.handleGameObjectOnTile(row, col);
         this.previousRow = row;
         this.previousCol = col;
         this.sendInfoToMapCreationPage();
@@ -165,6 +193,20 @@ export class GameGridComponent implements OnChanges, OnDestroy {
         event.preventDefault();
         if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
             this.tilesGrid[row][col] = TileType.Ground;
+        }
+    }
+
+    private updateSelectedTile(row: number, col: number) {
+        this.selectedRow = row;
+        this.selectedCol = col;
+        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
+    }
+
+    private handleGameObjectOnTile(row: number, col: number) {
+        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
+        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col)) {
+            this.gameObjectService.selectedTile = { row, col };
+            this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
 }

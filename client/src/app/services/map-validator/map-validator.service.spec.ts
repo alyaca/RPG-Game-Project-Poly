@@ -1,61 +1,117 @@
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, VALIDATION_DURATION } from '@app/constants';
+
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import {
-    MAX_LEN_MAP_DESCRIPTION,
-    MAX_LEN_MAP_TITLE,
-    NB_ITEMS_MEDIUM_MAP,
-    NO_OBJECT,
-    ObjectType,
-    TEST_VALIDATION_DURATION,
-    VALIDATION_DURATION,
-} from '@app/constants';
+import { GameListService } from '@app/services/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { map, Observable } from 'rxjs';
+import { Game } from '@common/game';
+import { of } from 'rxjs';
 import { MapValidatorService, TileType } from './map-validator.service';
 
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
-    let httpMock: HttpTestingController;
 
     let gameObjectServiceSpy: jasmine.SpyObj<GameObjectService>;
+    let gameListServiceSpy: jasmine.SpyObj<GameListService>;
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray']);
+        gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllGames']);
+        gameListServiceSpy.getAllGames.and.returnValue(of([]));
+
         gameObjectServiceSpy.objectsArray = [
             [ObjectType.Sandal, ObjectType.Spawn],
             [ObjectType.Spawn, NO_OBJECT],
         ];
         TestBed.configureTestingModule({
             providers: [
-                provideHttpClientTesting(),
-                provideHttpClient(),
                 MapValidatorService,
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: GameObjectService, useValue: gameObjectServiceSpy },
             ],
         });
         service = TestBed.inject(MapValidatorService);
-        httpMock = TestBed.inject(HttpTestingController);
-        service.isSameName = () => new Observable<boolean>().pipe(map(() => true));
     });
 
     afterEach(() => {
-        httpMock.verify();
         TestBed.resetTestingModule();
     });
 
     afterAll(() => {
-        httpMock.verify();
         TestBed.resetTestingModule();
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    it('should not add an error message if the map is valid', () => {
+        const mockMap = [
+            [TileType.Wall, TileType.Ground, TileType.Ground],
+            [TileType.Ground, TileType.Ground, TileType.Wall],
+            [TileType.Ground, TileType.Ground, TileType.Wall],
+        ];
+        spyOn(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
+            return;
+        });
+        service.validateMap(mockMap, 'Valid Title', 'Valid Description', false, 'Valid Title');
+        expect(service.errorMessages.length).toBe(0);
+    });
+
+    it('should not add an error message if the map is valid', () => {
+        const mockMap = [
+            [TileType.Wall, TileType.Ground, TileType.Ground],
+            [TileType.Ground, TileType.Ground, TileType.Wall],
+            [TileType.Ground, TileType.Ground, TileType.Wall],
+        ];
+        spyOn(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
+            return;
+        });
+        service.validateMap(mockMap, 'Valid Title', 'Valid Description', true, 'Valid Title');
+        expect(service.errorMessages.length).toBe(0);
+    });
+
+    it('should set validMap to true and open dialog with "Sauvegarde réussie" if there are not error messages', fakeAsync(() => {
+        service.errorMessages = [];
+        spyOn(service, 'openDialog');
+        service.showValidationResult();
+        tick(VALIDATION_DURATION);
+        expect(service.validMap).toBeTrue();
+    }));
+
+    it('should set validMap to false and open dialog with "Carte invalide" if there are error messages', fakeAsync(() => {
+        service.errorMessages = ['Erreur 1'];
+        spyOn(service, 'openDialog');
+        service.showValidationResult();
+        tick(VALIDATION_DURATION);
+        expect(service.validMap).toBeFalse();
+        expect(service.openDialog).toHaveBeenCalledWith(service.errorMessages, 'Carte invalide');
+    }));
+
+    it('should add an error message if a map with the same name exists', () => {
+        const mockMaps: Game[] = [
+            {
+                _id: 'abcdefg',
+                name: 'Map1',
+                description: 'Description1',
+                visible: true,
+                mode: 'CTF',
+                nbPlayers: 6,
+                image: 'img1',
+                tiles: [[0, 1]],
+                dimension: 20,
+                itemPlacement: [[0, 1]],
+                isSelected: false,
+                lastModification: new Date(),
+            },
+        ];
+        gameListServiceSpy.getAllGames.and.returnValue(of(mockMaps));
+        service.validateName('Map1');
+        expect(service.errorMessages).toContain('- Une carte avec le même nom existe déjà');
     });
 
     describe('isDoorPlacementValid', () => {
@@ -91,132 +147,69 @@ describe('MapValidatorService', () => {
     });
 
     describe('validateAllDoors', () => {
-        it('should return true if all doors are valid', () => {
+        it('should not add error messages for valid door placements', () => {
             const mockMap = [
+                [TileType.Wall, TileType.Ground, TileType.Wall],
                 [TileType.Wall, TileType.ClosedDoor, TileType.Wall],
-                [TileType.Wall, TileType.Wall, TileType.Wall],
+                [TileType.Wall, TileType.Ground, TileType.Wall],
             ];
-            spyOn(service, 'isDoorPlacementValid').and.returnValue(true);
-
-            expect(service.validateAllDoors(mockMap)).toBeTrue();
+            service.validateAllDoors(mockMap);
+            expect(service.errorMessages.length).toBe(0);
+            expect(service.errorMessages).toEqual([]);
         });
 
-        it('should return false if any door is invalid', () => {
+        it('should add error messages for invalid door placements', () => {
             const mockMap = [
                 [TileType.Wall, TileType.ClosedDoor, TileType.Ground],
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
-            spyOn(service, 'isDoorPlacementValid').and.returnValue(false);
-
-            expect(service.validateAllDoors(mockMap)).toBeFalse();
+            service.validateAllDoors(mockMap);
+            expect(service.errorMessages.length).toBeGreaterThan(0);
         });
     });
 
     describe('hasSufficientTerrainTiles', () => {
-        it('should return true if more than half of the map contains terrain tiles', () => {
+        it('should not add error messages if more than half of the map contains terrain tiles', () => {
             const mockMap = [
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
-
-            expect(service.hasSufficientTerrainTiles(mockMap)).toBeTrue();
+            service.validateSufficientTerrainTiles(mockMap);
+            expect(service.errorMessages.length).toBe(0);
         });
 
-        it('should return false if less than half of the map contains terrain tiles', () => {
+        it('should add error messages if less than half of the map contains terrain tiles', () => {
             const mockMap = [
                 [TileType.Wall, TileType.Ground],
                 [TileType.Wall, TileType.Wall],
             ];
-
-            expect(service.hasSufficientTerrainTiles(mockMap)).toBeFalse();
+            service.validateSufficientTerrainTiles(mockMap);
+            expect(service.errorMessages.length).toBeGreaterThan(0);
         });
     });
 
     describe('isEveryTileAccessible', () => {
-        it('should return true if all non-wall tiles are accessible', () => {
+        it('should not add error messages if all non-wall tiles are accessible', () => {
             const mockMap = [
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
-
-            expect(service.isEveryTileAccessible(mockMap)).toBeTrue();
+            service.validateTileAccessibility(mockMap);
+            expect(service.errorMessages.length).toBe(0);
         });
 
-        it('should return false if any non-wall tile is inaccessible', () => {
+        it('should add error messages if any non-wall tile is inaccessible', () => {
             const mockMap = [
                 [TileType.Ground, TileType.Wall],
                 [TileType.Wall, TileType.Ground],
             ];
 
-            expect(service.isEveryTileAccessible(mockMap)).toBeFalse();
+            service.validateTileAccessibility(mockMap);
+            expect(service.errorMessages.length).toBeGreaterThan(0);
         });
     });
 
     describe('validateMap', () => {
-        it('should add error message when validateAllSpawnPointsPlaced returns false', () => {
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(false);
-
-            service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
-
-            expect(service['errorMessages']).toContain('- Tous les points de départ doivent être placés sur la carte.');
-        });
-
-        it('should add error message when validateAllDoors returns false', () => {
-            spyOn(service, 'validateAllDoors').and.returnValue(false);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
-
-            service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
-
-            expect(service['errorMessages']).toContain("- Au moins une porte n'est pas valide: ");
-        });
-
-        it('should add error message when isEveryTileAccessible returns false', () => {
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(false);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
-
-            service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
-
-            expect(service['errorMessages']).toContain('- Pas toutes les tuiles de terrain sont accessibles');
-        });
-
-        it('should add error message when validateTitleLength returns false', () => {
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(false);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
-
-            service.validateMap([[TileType.Wall]], '', '');
-
-            expect(service['errorMessages']).toContain(
-                '- Le titre de la carte doit avoir une longueur entre 3 et 30 charactères et ne pas uniquement contenir des espaces',
-            );
-        });
-
-        it('should add error message when validateDescriptionLength returns false', () => {
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(false);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
-
-            service.validateMap([[TileType.Wall]], '', '');
-
-            expect(service['errorMessages']).toContain(
-                '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
-            );
-        });
-
         describe('containsAcharacter', () => {
             it('should return true for non-empty strings', () => {
                 expect(service.containsAcharacter('Hello')).toBeTrue();
@@ -231,108 +224,96 @@ describe('MapValidatorService', () => {
 
         describe('validateTitleLength', () => {
             it('should return true for valid titles', () => {
-                expect(service.validateTitleLength('Valid Title')).toBeTrue();
-                expect(service.validateTitleLength('Another Title')).toBeTrue();
+                expect(service.isTitleValidLength('Valid Title')).toBeTrue();
+                expect(service.isTitleValidLength('Another Title')).toBeTrue();
             });
 
             it('should return false for titles that are too short', () => {
-                expect(service.validateTitleLength('A')).toBeFalse();
-                expect(service.validateTitleLength('AB')).toBeFalse();
+                expect(service.isTitleValidLength('A')).toBeFalse();
+                expect(service.isTitleValidLength('AB')).toBeFalse();
             });
 
             it('should return false for titles that are too long', () => {
-                const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1); // Generate a string longer than max
-                expect(service.validateTitleLength(longTitle)).toBeFalse();
+                const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1);
+                expect(service.isTitleValidLength(longTitle)).toBeFalse();
             });
 
-            it('should return false for titles that do not contain a character', () => {
-                expect(service.validateTitleLength('   ')).toBeFalse();
+            it('should add an error message if the title is invalid', () => {
+                const invalidTitle = '  ';
+                service.validateTitle(invalidTitle);
+                expect(service.errorMessages).toContain(
+                    '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
+                );
             });
         });
 
         describe('validateDescriptionLength', () => {
             it('should return true for valid descriptions', () => {
-                expect(service.validateDescriptionLength('This is a valid description.')).toBeTrue();
+                expect(service.isDescriptionValid('This is a valid description.')).toBeTrue();
             });
 
             it('should return false for descriptions that are too short', () => {
-                expect(service.validateDescriptionLength('Too short')).toBeFalse();
+                expect(service.isDescriptionValid('Too short')).toBeFalse();
             });
 
             it('should return false for descriptions that are too long', () => {
-                const longDescription = 'A'.repeat(MAX_LEN_MAP_DESCRIPTION + 1); // Generate a string longer than max
-                expect(service.validateDescriptionLength(longDescription)).toBeFalse();
+                const longDescription = 'A'.repeat(MAX_LEN_MAP_DESCRIPTION + 1);
+                expect(service.isDescriptionValid(longDescription)).toBeFalse();
             });
 
             it('should return false for descriptions that do not contain a character', () => {
-                expect(service.validateDescriptionLength('   ')).toBeFalse();
+                expect(service.isDescriptionValid('   ')).toBeFalse();
             });
         });
 
-        it('should open dialog with error message if the map has insufficient terrain tiles', (done) => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(false);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-
-            service.validateMap([[TileType.Wall]], 'validTitle', 'validDescription');
-
-            setTimeout(() => {
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    disableClose: true,
-                    data: {
-                        messages: ['- Au moins la moitié des tuiles doivent être couverts de tuiles de terrain (gazon, eau, glace, eau)'],
-                        title: 'Carte invalide',
-                    },
-                });
-                done();
-            }, VALIDATION_DURATION);
-        });
-
-        it('should open dialog with success message if the map is valid', (done) => {
-            spyOn(service, 'hasSufficientTerrainTiles').and.returnValue(true);
-            spyOn(service, 'validateAllDoors').and.returnValue(true);
-            spyOn(service, 'isEveryTileAccessible').and.returnValue(true);
-            spyOn(service, 'validateTitleLength').and.returnValue(true);
-            spyOn(service, 'validateDescriptionLength').and.returnValue(true);
-            spyOn(service, 'areAllSpawnPointsPlaced').and.returnValue(true);
-
-            service.validateMap([[TileType.Ground]], 'validTitle', 'validDescription');
-
-            setTimeout(() => {
-                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                    disableClose: true,
-                    data: {
-                        messages: ["Vous allez être redirigé vers la page d'administration"],
-                        title: 'Sauvegarde réussie',
-                    },
-                });
-                done();
-            }, TEST_VALIDATION_DURATION);
+        it('should add an error message if the description is invalid', () => {
+            const invalidDescription = '  ';
+            service.validateDescription(invalidDescription);
+            expect(service.errorMessages).toContain(
+                '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
+            );
         });
     });
 
     describe('areAllSpawnPointsPlaced', () => {
-        it('should return false if not all the spawn points are placed', () => {
+        it('should add an error message if not all spawn points are placed', () => {
             gameObjectServiceSpy.objectsArray = [
                 [ObjectType.Spawn, ObjectType.Spawn],
                 [ObjectType.Spawn, NO_OBJECT],
             ];
             service.mapObjects = gameObjectServiceSpy.objectsArray;
             gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
-            expect(service.areAllSpawnPointsPlaced()).toBeFalse();
+            service.validateAllSpawnPointsPlaced();
+            expect(service.errorMessages.length).toBeGreaterThan(0);
         });
 
-        it('should return true if all the spawn points are placed', () => {
+        it('should not add an error message if all spawn points are placed', () => {
             gameObjectServiceSpy.objectsArray = [
                 [ObjectType.Spawn, ObjectType.Spawn],
                 [ObjectType.Spawn, ObjectType.Spawn],
             ];
             service.mapObjects = gameObjectServiceSpy.objectsArray;
             gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
-            expect(service.areAllSpawnPointsPlaced()).toBeTrue();
+            service.validateAllSpawnPointsPlaced();
+            expect(service.errorMessages.length).toBe(0);
+        });
+        it('should return null if all tiles are walls', () => {
+            const mockMap = [
+                [TileType.Wall, TileType.Wall],
+                [TileType.Wall, TileType.Wall],
+            ];
+
+            const result = service.findStartPoint(mockMap);
+            expect(result).toBeNull();
+        });
+    });
+    it('should open the dialog with correct parameters', () => {
+        const mockErrorMessages = ['Erreur 1', 'Erreur 2'];
+        const mockTitle = 'Titre de test';
+        service.openDialog(mockErrorMessages, mockTitle);
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: { messages: mockErrorMessages, title: mockTitle },
         });
     });
 });
