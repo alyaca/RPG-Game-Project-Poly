@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
+import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION } from '@app/constants';
 import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -214,7 +214,7 @@ describe('MapEditorPageComponent', () => {
         expect(component.items).toBe(mockItemsValue);
     });
 
-    /* it('should call saveNewGame if the map is new and is valid', (done) => {
+    it('should call saveNewGame if the map is new and is valid', (done) => {
         gameCreationServiceSpy.isNewGame = true;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
         component.startSaving();
@@ -235,5 +235,5 @@ describe('MapEditorPageComponent', () => {
             expect(saveGameServiceSpy.replaceMap).toHaveBeenCalled();
             done();
         }, TEST_VALIDATION_DURATION);
-    });*/
+    });
 });

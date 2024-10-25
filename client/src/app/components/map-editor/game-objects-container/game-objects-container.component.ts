@@ -19,7 +19,6 @@ export class GameObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
     isDraggingFromContainer: boolean = false;
     showDescription: boolean = true;
-    // private itemContainerChangeSubscription: Subscription;
     descriptionPosition: string = 'left';
 
     constructor(

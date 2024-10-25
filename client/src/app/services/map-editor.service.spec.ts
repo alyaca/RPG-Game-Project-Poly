@@ -7,8 +7,6 @@ import { GameObjectService } from '@app/services/game-object/game-object.service
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { BehaviorSubject } from 'rxjs';
 import { MapEditorService } from './map-editor.service';
-// import { Game } from '@common/game';
-// import { of } from 'rxjs';
 
 describe('MapEditorService', () => {
     let service: MapEditorService;
