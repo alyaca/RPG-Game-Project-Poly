@@ -51,10 +51,11 @@ export const VALIDATION_DURATION = 500;
 
 export const TEST_VALIDATION_DURATION = 800;
 
-// Constant for the time of the snakbar  message
+// Constant for the time of the snackbar message
 export const MESSAGE_DURATION_ERROR = 4000;
 export const MESSAGE_DURATION_CHARACTER_FORM = 2000;
 export const MESSAGE_DURATION_SAVE_CHOICE = 3000;
+export const MESSAGE_DURATION_VALIDATION_ERROR = 2000;
 
 // Constant for the padding length of the date
 export const PAD_LENGTH = 2;
@@ -66,7 +67,31 @@ export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
 
-export const MAX_PLAYER_SIZE_INT = 2;
-export const THREE_PLAYERS_LOBBY = 3;
-export const FOUR_PLAYERS_LOBBY = 4;
-export const FIVE_PLAYERS_LOBBY = 5;
+// Constants for timer component
+export const TOTAL_TIME = 60;
+export const WARNING_TIME = 3;
+export const TIMER_RADIUS = 45;
+export const MILLISECONDS_IN_SECOND = 1000;
+export const TIMER_CENTER_POSITION = 50;
+
+export const TEMP_DIALOG_DURATION = 1500;
+export const EVADE_SUCCES_RATE = 0.4;
+export const COMBAT_TURN_LENGTH = 5;
+export const SHORT_COMBAT_TURN_LENGTH = 3;
+
+export const ROLL_DURATION = 800;
+
+export const INIT_DISPLAY_DELAY = 50;
+export const EXIT_COMBAT_DELAY = 3000;
+export const INACTIVE_DICE_DELAY = 200;
+export const DISPLAY_TEXT_DELAY = 300;
+export const ATTACK_DELAY = 1200;
+export const TURN_DIALOG_DELAY = 1000;
+export const START_TURN_TIMER_DELAY = 2000;
+
+export const FAIL_EVASION_RANDOM_NUM = 0.5;
+export const SUCCES_EVASION_RANDOM_NUM = 0.1;
+export const TIMER_ARC_WIDTH = 5;
+
+// Constants for random generation
+export const MAX_GENERATION_VALUE = 1000000000;

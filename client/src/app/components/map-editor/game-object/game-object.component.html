@@ -5,7 +5,11 @@
         }
         <img class="object-image" [src]="imageUrl" alt="{{ name }}" />
     </div>
-    <div class="object-description-container" [ngClass]="{ 'hidden-description': isDragging }">
+    <div class="object-description-container" [ngClass]="{ 
+            'hidden-description': isDragging,
+            'left-description': descriptionPosition === 'left',
+            'bottom-description': descriptionPosition === 'bottom',
+        }">
         <p class="object-name">{{ name }}</p>
         <p class="object-description">{{ description }}</p>
     </div>

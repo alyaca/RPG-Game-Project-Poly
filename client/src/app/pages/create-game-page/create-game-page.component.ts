@@ -8,7 +8,7 @@ import { MESSAGE_DURATION_CHARACTER_FORM } from '@app/constants';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player } from '@common/player';
 import { Room } from '@common/room';

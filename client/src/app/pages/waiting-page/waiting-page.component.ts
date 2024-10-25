@@ -6,8 +6,6 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
-import { MAX_PLAYER_SIZE_INT } from '@app/constants';
-import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -45,6 +43,9 @@ export class WaitingPageComponent implements OnInit {
     }
 
     ngOnInit() {
+        if (!this.accessCode || !this.chosenGame) {
+            this.router.navigate(['/home']);
+        }
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }
@@ -93,15 +94,34 @@ export class WaitingPageComponent implements OnInit {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: {
-                title: 'Abandonner la partie?',
-                messages: ["- Vous quitteriez la page d'attente"],
-                confirm: true,
+                title,
+                messages,
+                options,
+                confirm,
             },
         });
+        return dialogRef.afterClosed();
+    }
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'leave') {
-                this.leaveGame(accessCode);
+    handleExit(accessCode: string) {
+        this.openConfirmationDialog('Abandonner la partie?', ["- Vous quitteriez la page d'attente"], ['Quitter', 'Rester'], true).subscribe(
+            (result) => {
+                if (result === 'left') {
+                    this.leaveGame(accessCode);
+                }
+            },
+        );
+    }
+
+    handleStartGame() {
+        this.openConfirmationDialog(
+            'Débuter la partie',
+            ['- Êtes-vous certains de vouloir débuter la partie?'],
+            ['Annuler', 'Confirmer'],
+            true,
+        ).subscribe((result) => {
+            if (result === 'right') {
+                this.router.navigate(['/game-page']);
             }
         });
     }

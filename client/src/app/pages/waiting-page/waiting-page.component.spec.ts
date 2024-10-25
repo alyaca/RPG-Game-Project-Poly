@@ -2,8 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MAX_PLAYER_SIZE_INT } from '@app/constants';
-import { PlayerSize } from '@app/interfaces/lobbyPlayer';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
@@ -20,6 +18,7 @@ describe('WaitingPageComponent', () => {
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
 
@@ -127,32 +126,7 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
-    it('should call leaveRoom and navigate to game creation if admin player on leftRoom event', () => {
-        const expectedRoute = '/game-creation';
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
-            if (event === 'leftRoom') {
-                callback(true as unknown as T);
-            }
-        });
-        component.leaveGame(accessCode);
-
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
-        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
-    });
-
-    describe('Player size', () => {
-        it('should return correct player size based on value', () => {
-            expect(component.getPlayerSize(2)).toBe(PlayerSize.Big);
-            expect(component.getPlayerSize(1)).toBe(PlayerSize.Medium);
-            expect(component.getPlayerSize(0)).toBe(PlayerSize.Small);
-        });
-
-        it('should return correct player size for maximum value', () => {
-            expect(component.getPlayerSize(MAX_PLAYER_SIZE_INT)).toBe(PlayerSize.Big);
-        });
-    });
-
-    describe('handeExit', () => {
+    describe('handleExit', () => {
         it('should open the dialog and navigate to /home if confirmed', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
             dialogRefSpy.afterClosed.and.returnValue(of('leave'));
@@ -164,6 +138,7 @@ describe('WaitingPageComponent', () => {
                 data: {
                     title: 'Abandonner la partie?',
                     messages: ["- Vous quitteriez la page d'attente"],
+                    options: ['Quitter', 'Rester'],
                     confirm: true,
                 },
             });
@@ -185,7 +160,7 @@ describe('WaitingPageComponent', () => {
         it('should open the dialog and call leaveGame if dialog result is leave', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
             spyOn(component, 'leaveGame');
-            dialogRefSpy.afterClosed.and.returnValue(of('leave'));
+            dialogRefSpy.afterClosed.and.returnValue(of('left'));
             dialogSpy.open.and.returnValue(dialogRefSpy);
             component.handleExit(accessCode);
 
@@ -194,6 +169,7 @@ describe('WaitingPageComponent', () => {
                 data: {
                     title: 'Abandonner la partie?',
                     messages: ["- Vous quitteriez la page d'attente"],
+                    options: ['Quitter', 'Rester'],
                     confirm: true,
                 },
             });
@@ -207,5 +183,33 @@ describe('WaitingPageComponent', () => {
 
         expect(gameServiceSpy.isRoomLocked).toBe(true);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
+    });
+
+    it('should navigate to /game-page when dialog result is "Confirmer"', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('right'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.handleStartGame();
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Débuter la partie',
+                messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
+                options: ['Annuler', 'Confirmer'],
+                confirm: true,
+            },
+        });
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+    });
+
+    it('should not navigate when the dialog is cancelled', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('left'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        component.handleStartGame();
+
+        expect(dialogSpy.open).toHaveBeenCalled();
     });
 });
