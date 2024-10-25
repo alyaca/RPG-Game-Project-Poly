@@ -40,7 +40,7 @@
 
     display: flex;
     align-items: center;
-    justify-content: center;    
+    justify-content: center;
     gap: 2%;
 }
 
@@ -67,33 +67,32 @@ img {
     background-color: none;
 }
 
-
 .motif {
     width: 100%;
     height: 8%;
     border: none;
     border-radius: 0;
-    margin-bottom: 10%
+    margin-bottom: 10%;
 }
 
 .player > .motif {
-    background-image: url('/assets/images/motifs/squared-motif-white.png');
+    background-image: url('../../../../assets/images/motifs/squared-motif-white.png');
     background-size: cover;
 }
 
 .admin > .motif {
-    background-image: url('/assets/images/motifs/squared-motif-gold.png');
+    background-image: url('../../../../assets/images/motifs/squared-motif-gold.png');
     background-size: cover;
 }
 
-.kick { 
+.kick {
     width: 1.6rem;
     height: 1.6rem;
     margin: 0;
 }
 
 :not(.admin) > * > .kick {
-    background-image: url('/assets/images/icones/kick.png');
+    background-image: url('../../../../assets/images/icones/kick.png');
     background-size: cover;
     border-radius: 50%;
     transition: ease 0.1s;
@@ -103,7 +102,7 @@ img {
     transform: scale(1.2);
 }
 
-.status { 
+.status {
     height: 1.6rem;
     width: 1.6rem;
     margin: 0;

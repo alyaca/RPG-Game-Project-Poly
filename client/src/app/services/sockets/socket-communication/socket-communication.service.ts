@@ -15,7 +15,7 @@ export class SocketCommunicationService {
         if (this.socket) {
             return;
         }
-        this.socket = io('http://localhost:3000', { transports: ['websocket'], upgrade: false });
+        this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/');
     }
 
     disconnect() {

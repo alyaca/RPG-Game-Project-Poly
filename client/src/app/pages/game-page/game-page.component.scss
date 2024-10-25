@@ -56,8 +56,7 @@ body {
 }
 
 .action-button {
-    // background-image: url('/assets/images/icones/action-deselected.png');
-    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-image: url('../../../assets/images/icones/action-deselected.png');
     background-size: 101%;
     background-position: center;
     border-radius: 50%;
@@ -75,14 +74,12 @@ body {
 
 .button-outer:hover .action-button {
     transform: scale(1.1);
-    // background-image: url('/assets/images/icones/action.png');
-    background: linear-gradient(to top right,  rgb(116, 3, 3), rgb(173, 13, 13)); //
+    background-image: url('../../../assets/images/icones/action.png');
 }
 
 .action-outer.selected .action-button {
     transform: scale(1.05);
-    // background-image: url('/assets/images/icones/action.png');
-    background: linear-gradient(to top right,  rgb(116, 3, 3), rgb(173, 13, 13)); //
+    background-image: url('../../../assets/images/icones/action.png');
 }
 
 .chat {
@@ -168,8 +165,7 @@ body {
     width: 5rem;
     height: 5rem;
     border-radius: 50%;
-    // background-image: url('/assets/images/icones/next-turn.png');
-    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-image: url('../../../assets/images/icones/next-turn.png');
     background-size: cover;
     background-position: center;
     transition:
@@ -185,8 +181,7 @@ body {
 }
 
 .button-outer:hover .end-turn-button-inner {
-    // background-image: url('/assets/images/icones/next-turn-red.png');
-    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-image: url('../../../assets/images/icones/next-turn-red.png');
     transform: scale(1.1);
 }
 

@@ -29,8 +29,7 @@
 
 .face.one {
     transform: rotateY(0deg) translateZ(50px);
-    // background-image: url('/assets/images/dice/dice1.png');
-    background: linear-gradient(to top right,  rgb(116, 3, 3), rgb(173, 13, 13)); //
+    background-image: url('../../../assets/images/dice/dice1.png');
     background-size: cover;
     background-position: center;
 
@@ -39,9 +38,7 @@
 
 .face.two {
     transform: rotateX(90deg) translateZ(50px);
-    // background-image: url('/assets/images/dice/dice2.png');
-    
-    background: linear-gradient(to top right, rgb(198, 109, 0), rgb(234, 134, 12)); //
+    background-image: url('../../../assets/images/dice/dice2.png');
     background-size: cover;
     background-position: center;
 
@@ -50,8 +47,7 @@
 
 .face.three {
     transform: rotateY(-90deg) translateZ(50px);
-    // background-image: url('/assets/images/dice/dice3.png');
-    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-image: url('../../../assets/images/dice/dice3.png');
     background-size: cover;
     background-position: center;
 
@@ -60,8 +56,7 @@
 
 .face.four {
     transform: rotateY(90deg) translateZ(50px);
-    // background-image: url('/assets/images/dice/dice4.png');
-    background: linear-gradient(to top right, rgb(45, 119, 81), rgb(83, 185, 138)); //
+    background-image: url('../../../assets/images/dice/dice4.png');
     background-size: cover;
     background-position: center;
 
@@ -70,8 +65,7 @@
 
 .face.five {
     transform: rotateX(-90deg) translateZ(50px);
-    // background-image: url('/assets/images/dice/dice5.png');
-    background: linear-gradient(to top right, rgb(48, 62, 132), rgb(81, 109, 194)); //
+    background-image: url('../../../assets/images/dice/dice5.png');
     background-size: cover;
     background-position: center;
 
@@ -80,8 +74,7 @@
 
 .face.six {
     transform: rotateY(180deg) translateZ(50px);
-    // background-image: url('/assets/images/dice/dice6.png');
-    background: linear-gradient(to top right, rgb(71, 23, 111), rgb(100, 38, 181)); //
+    background-image: url('../../../assets/images/dice/dice6.png');
     background-size: cover;
     background-position: center;
 
