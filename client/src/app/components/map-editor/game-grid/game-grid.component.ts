@@ -51,7 +51,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
     }
-
+    
     ngOnInit() {
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 

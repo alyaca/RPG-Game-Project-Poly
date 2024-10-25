@@ -7,14 +7,21 @@
             <app-player-info-inventory class="player-bar"></app-player-info-inventory>
         </div>
         <div class="action-container">
-            <img class="left-leaf" src="./assets/images/leaves/leafL.webp" alt="left-leaf" />
+            <!-- <img class="left-leaf" src="./assets/images/leaves/leafL.webp" alt="left-leaf" /> -->
             <div class="center-button">
-                <p class="action-text">Action</p>
+                <p class="action-text">Interagir avec porte</p>
                 <div class="button-outer action-outer" [class.selected]="isActionSelected" (click)="toggleActionSelected()">
-                    <div class="action-button"></div>
+                    <div class="action-button door-button"></div>
                 </div>
             </div>
-            <img class="right-leaf" src="./assets/images/leaves/leafR.webp" alt="left-leaf" />
+
+            <div class="center-button">
+                <p class="action-text">Attaquer</p>
+                <div class="button-outer action-outer" [class.selected]="isActionSelected" (click)="toggleActionSelected()">
+                    <div class="action-button attack-button"></div>
+                </div>
+            </div>
+            <!-- <img class="right-leaf" src="./assets/images/leaves/leafR.webp" alt="left-leaf" /> -->
         </div>
         <!-- <div class="chat">
             <app-chat-box></app-chat-box>
@@ -25,7 +32,8 @@
     </div>
     <div class="middle-container">
         <div class="game-info">
-            <p id="grid-size">10x10</p>
+            <p id="grid-size">{{ mapDimensions }}</p>
+            <p id="map-name">{{ mapName }}</p>
             <p id="player-count">2 joueurs</p>
         </div>
         @if (isTurnStartShowed) {

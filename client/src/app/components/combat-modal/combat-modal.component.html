@@ -80,7 +80,7 @@
         <div>
             <p class="action-text">Attaquer</p>
             <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 'player1turn' }" class="button-outer end-outer" (click)="triggerAttack()">
-                <div class="end-turn-button-inner"></div>
+                <div class="attack-button"></div>
             </div>
         </div>
     </div>

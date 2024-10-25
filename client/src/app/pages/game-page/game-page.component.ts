@@ -11,6 +11,7 @@ import { TimerComponent } from '@app/components/timer/timer.component';
 import { Status } from '@app/interfaces/player-object';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
+import { GameCreationService } from '@app/services/game-creation.service';
 
 @Component({
     selector: 'app-game-page',
@@ -28,19 +29,30 @@ export class GamePageComponent implements AfterViewInit {
     allPlayers: Player[] = mockLobbyPlayers;
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
+    mapDimensions: string = '';
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
     isActionSelected: boolean = true;
-    isInCombat = false;
-    isTurnStartShowed = true;
+    isInCombat: boolean = false;
+    isTurnStartShowed: boolean = true;
+
 
     constructor(
         private router: Router,
         private dialog: MatDialog,
+        private gameCreationService: GameCreationService,
     ) {
         this.determinePlayerTurn();
+        this.mapName = this.gameCreationService.loadedMapName;
+        this.mapDimensions = this.findMapDimensions();
     }
+
+    findMapDimensions(): string{
+        const mapSize = this.gameCreationService.updateDimensions();
+        return mapSize + " x " + mapSize;
+    }
+
 
     determinePlayerTurn() {
         this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
@@ -68,6 +80,7 @@ export class GamePageComponent implements AfterViewInit {
         if (this.turnTimerComponent) {
             this.turnTimerComponent.pauseTimer();
         }
+        
     }
 
     openCombatModal() {

@@ -26,13 +26,14 @@ body {
     width: 90%;
     height: 18rem;
     margin-top: 5%;
+    margin-bottom: 0;
 }
 
 .action-container {
     flex: 0 0 5%;
     text-align: center;
     margin-bottom: 1rem;
-    margin-top: -1rem;
+    //margin-top: -10rem;
     display: flex;
 }
 
@@ -52,11 +53,11 @@ body {
     margin: 0;
     font-family: papyrus;
     font-weight: 900;
-    font-size: 1.25rem;
+    font-size: 1rem;
 }
 
 .action-button {
-    background-image: url('../../../assets/images/icones/action-deselected.png');
+    
     background-size: 101%;
     background-position: center;
     border-radius: 50%;
@@ -74,11 +75,13 @@ body {
 
 .button-outer:hover .action-button {
     transform: scale(1.1);
-    background-image: url('../../../assets/images/icones/action.png');
 }
 
-.action-outer.selected .action-button {
-    transform: scale(1.05);
+.door-button {
+    background-image: url('../../../assets/images/icones/door-button.jpg');
+}
+
+.attack-button {
     background-image: url('../../../assets/images/icones/action.png');
 }
 
@@ -172,6 +175,8 @@ body {
         transform 0.3s ease,
         background-image 0.3s ease;
 }
+
+
 
 .button-outer:hover {
     transform: scale(1.05);
