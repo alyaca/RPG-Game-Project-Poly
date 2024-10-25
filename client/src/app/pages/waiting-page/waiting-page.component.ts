@@ -76,21 +76,7 @@ export class WaitingPageComponent implements OnInit {
         this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 
-    getPlayerSize(val: number): PlayerSize {
-        if (val >= MAX_PLAYER_SIZE_INT) {
-            return PlayerSize.Big;
-        } else if (val === 1) {
-            return PlayerSize.Medium;
-        } else {
-            return PlayerSize.Small;
-        }
-    }
-
-    handleStartGame() {
-        this.socketCommunicationService.send('startGame');
-    }
-
-    handleExit(accessCode: string) {
+    openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: {
@@ -119,9 +105,11 @@ export class WaitingPageComponent implements OnInit {
             ['- Êtes-vous certains de vouloir débuter la partie?'],
             ['Annuler', 'Confirmer'],
             true,
-        ).subscribe((result) => {
+        ).subscribe((result: string) => {
             if (result === 'right') {
                 this.router.navigate(['/game-page']);
+                //temporary
+                this.socketCommunicationService.send('startGame');
             }
         });
     }
