@@ -3,6 +3,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list.service';
+import { MapEditorService } from '@app/services/map-editor.service';
 import { Game } from '@common/game';
 import { of } from 'rxjs';
 import { GameListComponent } from './game-list.component';
@@ -12,10 +13,11 @@ describe('GameListComponent', () => {
     let fixture: ComponentFixture<GameListComponent>;
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+    let mapEditorServiceSpy: jasmine.SpyObj<MapEditorService>;
 
     beforeEach(async () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-
+        mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', ['setMapToEdit']);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
             'getAllVisibleGames',
             'selectGame',
@@ -29,7 +31,11 @@ describe('GameListComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [MatSnackBarModule, BrowserAnimationsModule],
-            providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
+            providers: [
+                { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: GameListService, useValue: gameListServiceSpy },
+                { provide: MapEditorService, useValue: mapEditorServiceSpy },
+            ],
         }).compileComponents();
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
@@ -46,11 +52,6 @@ describe('GameListComponent', () => {
         gameListServiceSpy.deselectGame.and.callFake((games: Game[]) => {
             games.forEach((game) => (game.isSelected = false));
         });
-
-        await TestBed.configureTestingModule({
-            imports: [GameListComponent],
-            providers: [{ provide: GameListService, useValue: gameListServiceSpy }],
-        }).compileComponents();
 
         fixture = TestBed.createComponent(GameListComponent);
         component = fixture.componentInstance;
@@ -114,5 +115,38 @@ describe('GameListComponent', () => {
         component.refreshGameList();
         expect(gameListServiceSpy.getAllGames).toHaveBeenCalled();
         expect(component.games).toEqual(mockGamesList);
+    });
+
+    describe('convertMapDimension', () => {
+        it('should return "small" if the game dimension is 10', () => {
+            const mockGame = { dimension: 10 } as Game;
+            const result = component.convertMapDimension(mockGame);
+            expect(result).toBe('small');
+        });
+
+        it('should return "medium" if the game dimension is 15', () => {
+            const mockGame = { dimension: 15 } as Game;
+            const result = component.convertMapDimension(mockGame);
+            expect(result).toBe('medium');
+        });
+
+        it('should return "large" if the game dimension is 20', () => {
+            const mockGame = { dimension: 20 } as Game;
+            const result = component.convertMapDimension(mockGame);
+            expect(result).toBe('large');
+        });
+
+        it('should return "none" if the game dimension is not 10, 15, or 20', () => {
+            const mockGame = { dimension: 25 } as Game;
+            const result = component.convertMapDimension(mockGame);
+            expect(result).toBe('none');
+        });
+
+        it('should edit game and navigate to edit-map', () => {
+            const game = mockGames[0];
+            component.editGame(game);
+
+            expect(mapEditorServiceSpy.setMapToEdit).toHaveBeenCalledWith(game);
+        });
     });
 });

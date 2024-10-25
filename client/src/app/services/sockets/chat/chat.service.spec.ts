@@ -21,13 +21,12 @@ describe('ChatService', () => {
     it('should send message', () => {
         const username = 'Player';
         const content = "Hey it's me Goku !";
-        const message: IMessage = {
+        service.sendMessage(content);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessage', {
             username,
             message: content,
-            timestamp: new Date(),
-        };
-        service.sendMessage(content);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessage', message);
+            timestamp: jasmine.any(Date),
+        });
     });
 
     it('should receive message', () => {

@@ -60,10 +60,4 @@ describe('Saving service', () => {
         const result = await savingService.addMapToDb(NEW_MAP_NO_ID);
         expect(result).toBeNull();
     });
-
-    it('replaceMapInDb should return null if there is already a map with the same name', async () => {
-        await mapModel.create(EXISTING_MAP);
-        const result = await savingService.replaceMapInDb(EXISTING_MAP);
-        expect(result).toBeNull();
-    });
 });

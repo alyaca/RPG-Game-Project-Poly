@@ -24,6 +24,7 @@ export class CreationDialogComponent {
     selectSize(size: string): void {
         this.selectedSize = size;
         this.gameCreationService.setSelectedSize(size);
+        this.gameCreationService.isNewGame = true;
     }
 
     selectMode(mode: string): void {
