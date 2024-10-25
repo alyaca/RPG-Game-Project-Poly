@@ -78,18 +78,15 @@ describe('MapEditorPageComponent', () => {
         gameCreationServiceSpy.loadedMapName = 'map title';
         gameCreationServiceSpy.loadedMapDescription = 'map description';
         gameObjectServiceSpy.draggedObject = mockObjects[0];
-
     });
 
     afterEach(() => {
         httpMock.verify();
     });
 
-
     it('should create the component', () => {
         expect(component).toBeTruthy();
     });
-
 
     it('should set the name and description if it is an existing map', () => {
         gameCreationServiceSpy.isNewGame = false;
@@ -97,48 +94,43 @@ describe('MapEditorPageComponent', () => {
         expect(component.mapName).toBe(gameCreationServiceSpy.loadedMapName);
         expect(component.mapDescription).toBe(gameCreationServiceSpy.loadedMapDescription);
     });
-    
 
+    it('should call event.preventDefault on drag over ', () => {
+        const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
+        component.onDragOver(mockEvent);
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+    });
 
-        it('should call event.preventDefault on drag over ', () => {
-            const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-            component.onDragOver(mockEvent);
-            expect(mockEvent.preventDefault).toHaveBeenCalled();
-        });
+    it('should add object to container when drop outside grid', () => {
+        const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
+        component.onDropOutside(mockEvent);
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
+    });
 
-        it('should add object to container when drop outside grid', () => {
-            const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-            component.onDropOutside(mockEvent);
-            expect(mockEvent.preventDefault).toHaveBeenCalled();
-        });
+    it('should set isDraggingFromContainer to false on drag end', () => {
+        gameObjectServiceSpy.isDraggingFromContainer = true;
+        component.onDragEnd();
+        expect(gameObjectServiceSpy.isDraggingFromContainer).toBeFalse();
+    });
 
-        it('should set isDraggingFromContainer to false on drag end', () => {
-            gameObjectServiceSpy.isDraggingFromContainer = true;
-            component.onDragEnd();
-            expect(gameObjectServiceSpy.isDraggingFromContainer).toBeFalse();
-        });
+    it('should not call removeObjectFromGrid if the object is moving from the container', () => {
+        mapEditorServiceSpy.getDraggedObject.and.returnValue(null);
+        gameObjectServiceSpy.isDraggingFromContainer = true;
+        mapEditorServiceSpy.isDraggingFromContainer.and.returnValue(true);
+        const event = new DragEvent('drop');
 
-        it('should not call removeObjectFromGrid if the object is moving from the container', () => {
-            mapEditorServiceSpy.getDraggedObject.and.returnValue(null);
-            gameObjectServiceSpy.isDraggingFromContainer = true;
-            mapEditorServiceSpy.isDraggingFromContainer.and.returnValue(true);
-            const event = new DragEvent('drop');
+        component.onDropOutside(event);
+        expect(mapEditorServiceSpy.removeObjectFromGrid).not.toHaveBeenCalled();
+    });
 
-            component.onDropOutside(event);
-            expect(mapEditorServiceSpy.removeObjectFromGrid).not.toHaveBeenCalled();
-        });
+    it('should call removeObjectFromGrid if gameObject has id', () => {
+        mapEditorServiceSpy.getDraggedObject.and.returnValue(mockObjects[0]);
+        gameObjectServiceSpy.isDraggingFromContainer = false;
+        const event = new DragEvent('drop');
 
-        it('should call removeObjectFromGrid if gameObject has id', () => {
-            mapEditorServiceSpy.getDraggedObject.and.returnValue(mockObjects[0]);
-            gameObjectServiceSpy.isDraggingFromContainer = false;
-            const event = new DragEvent('drop');
-
-            component.onDropOutside(event);
-            expect(mapEditorServiceSpy.removeObjectFromGrid).toHaveBeenCalled();
-        });
-    
-
-   
+        component.onDropOutside(event);
+        expect(mapEditorServiceSpy.removeObjectFromGrid).toHaveBeenCalled();
+    });
 
     it('should set the mapName and mapDescription when modifying a map', () => {
         gameCreationServiceSpy.isNewGame = false;
@@ -163,8 +155,6 @@ describe('MapEditorPageComponent', () => {
         expect(component.mapName).toBe('');
         expect(component.mapDescription).toBe('');
     });
-    
-
 
     it('should trigger save when handleSave is called', () => {
         component.handleSave();
@@ -175,9 +165,7 @@ describe('MapEditorPageComponent', () => {
             expect(component.saveTrigger).toBeFalse();
         }, 0);
     });
-    
 
-    
     it('should navigate to /administration if user confirms exit in handleExit', () => {
         const dialogRef: MatDialogRef<SimpleDialogComponent> = {
             afterClosed: () => of('leave'),
@@ -193,7 +181,6 @@ describe('MapEditorPageComponent', () => {
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
         });
     });
-    
 
     it('should update the map name when updateMapName is called', () => {
         const newName = 'New Map Name';
@@ -206,7 +193,6 @@ describe('MapEditorPageComponent', () => {
         component.updateMapDescription(newDescription);
         expect(component.mapDescription).toBe(newDescription);
     });
-    
 
     it('should set the grid attribute correctly', () => {
         component.setGrid(dummyMap.tiles);
@@ -228,8 +214,7 @@ describe('MapEditorPageComponent', () => {
         expect(component.items).toBe(mockItemsValue);
     });
 
-
-    /*it('should call saveNewGame if the map is new and is valid', (done) => {
+    /* it('should call saveNewGame if the map is new and is valid', (done) => {
         gameCreationServiceSpy.isNewGame = true;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
         component.startSaving();
@@ -251,5 +236,4 @@ describe('MapEditorPageComponent', () => {
             done();
         }, TEST_VALIDATION_DURATION);
     });*/
-    
 });

@@ -11,7 +11,6 @@ import {
 } from '@app/constants';
 import { GameListService } from '@app/services/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { environment } from 'src/environments/environment';
 
 export enum TileType {
     Ground = 1,
@@ -29,7 +28,7 @@ export class MapValidatorService {
     validMap: boolean;
     errorMessages: string[] = [];
     mapObjects: number[][];
-    apiURL = `${environment.serverUrl}/maps`;
+
     constructor(
         private dialog: MatDialog,
         private gameObjectService: GameObjectService,

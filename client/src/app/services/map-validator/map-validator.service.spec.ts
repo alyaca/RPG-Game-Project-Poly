@@ -1,10 +1,9 @@
-import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, ObjectType, VALIDATION_DURATION } from '@app/constants';
 
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { GameListService } from '@app/services/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { Game } from '@common/game';
 import { of } from 'rxjs';
@@ -13,37 +12,36 @@ import { MapValidatorService, TileType } from './map-validator.service';
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
-    let httpMock: HttpTestingController;
 
     let gameObjectServiceSpy: jasmine.SpyObj<GameObjectService>;
+    let gameListServiceSpy: jasmine.SpyObj<GameListService>;
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray']);
+        gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllGames']);
+        gameListServiceSpy.getAllGames.and.returnValue(of([]));
+
         gameObjectServiceSpy.objectsArray = [
             [ObjectType.Sandal, ObjectType.Spawn],
             [ObjectType.Spawn, NO_OBJECT],
         ];
         TestBed.configureTestingModule({
             providers: [
-                provideHttpClientTesting(),
-                provideHttpClient(),
                 MapValidatorService,
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: GameObjectService, useValue: gameObjectServiceSpy },
             ],
         });
         service = TestBed.inject(MapValidatorService);
-        httpMock = TestBed.inject(HttpTestingController);
     });
 
     afterEach(() => {
-        httpMock.verify();
         TestBed.resetTestingModule();
     });
 
     afterAll(() => {
-        httpMock.verify();
         TestBed.resetTestingModule();
     });
 
@@ -111,7 +109,7 @@ describe('MapValidatorService', () => {
                 lastModification: new Date(),
             },
         ];
-        spyOn(service.gameListService, 'getAllGames').and.returnValue(of(mockMaps));
+        gameListServiceSpy.getAllGames.and.returnValue(of(mockMaps));
         service.validateName('Map1');
         expect(service.errorMessages).toContain('- Une carte avec le même nom existe déjà');
     });
