@@ -18,6 +18,12 @@ describe('RoomService', () => {
             }),
             emit: jest.fn(),
             to: jest.fn().mockReturnThis(),
+            sockets: {
+                adapter: {
+                    rooms: new Map(),
+                },
+                sockets: new Map(),
+            },
         } as unknown as Server;
 
         mockSocket = {
@@ -38,10 +44,23 @@ describe('RoomService', () => {
         service = module.get<RoomService>(RoomService);
         service['io'] = mockServer;
         roomId = '1234';
+        service.rooms = new Map();
     });
 
     it('should be defined', () => {
         expect(service).toBeDefined();
+    });
+
+    describe('getServer', () => {
+        it('should return the server instance if initialized', () => {
+            const result = service.getServer();
+            expect(result).toBe(mockServer);
+        });
+
+        it('should throw an error if the server is not initialized', () => {
+            service['io'] = undefined;
+            expect(() => service.getServer()).toThrowError('Server is not initialized');
+        });
     });
 
     it('should set the io server instance', () => {
@@ -105,15 +124,23 @@ describe('RoomService', () => {
             const roomCode = service.getRoomId(mockSocket);
             expect(roomCode).toBe(null);
         });
+
+        it('should return null if roomCode is undefined', () => {
+            mockSocket.data = undefined;
+            jest.spyOn(service, 'isRoomActive').mockReturnValue(false);
+            const result = service.getRoomId(mockSocket);
+            expect(result).toBeNull();
+        });
     });
 
     it('should broadcast roomDeleted event, delete the room, and leave the room', () => {
-        service['io'] = mockServer;
+        jest.spyOn(service, 'cleanSocketsData');
         service.rooms.set(roomId, mockRooms[0]);
         service.deleteRoom(roomId, mockSocket);
 
         expect(mockSocket.broadcast.to).toHaveBeenCalledWith(roomId);
         expect(service.rooms.has(roomId)).toBe(false);
+        expect(service.cleanSocketsData).toHaveBeenCalled();
         expect(mockServer.in).toHaveBeenCalledWith(roomId);
         expect(mockServer.in(roomId).socketsLeave).toHaveBeenCalledWith(roomId);
     });
@@ -169,5 +196,18 @@ describe('RoomService', () => {
 
         expect(service.getRoomId).toHaveBeenCalled();
         expect(result).toBe(mockRooms[0]);
+    });
+
+    it('should clean socket data in the specified room', () => {
+        const socket1 = { id: 'socket1', data: { someData: 'data1' } } as unknown as Socket;
+        const socket2 = { id: 'socket2', data: { someData: 'data2' } } as unknown as Socket;
+
+        mockServer.sockets.adapter.rooms.set(roomId, new Set([socket1.id, socket2.id]));
+        mockServer.sockets.sockets.set(socket1.id, socket1);
+        mockServer.sockets.sockets.set(socket2.id, socket2);
+
+        service.cleanSocketsData(roomId);
+        expect(mockServer.sockets.sockets.get(socket1.id).data).toBeUndefined();
+        expect(mockServer.sockets.sockets.get(socket2.id).data).toBeUndefined();
     });
 });

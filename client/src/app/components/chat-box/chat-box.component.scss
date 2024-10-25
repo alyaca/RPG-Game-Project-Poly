@@ -7,7 +7,7 @@
     margin: 0;
     font-family: Papyrus;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 1rem;
     width: 100%;
 }
 
@@ -18,7 +18,7 @@
     display: none;
     z-index: 10;
     width: 222%;
-    height: 1400%;
+    height: 70vh;
 
     display: none;
 }
@@ -50,10 +50,9 @@
     margin-right: 0.5rem;
     font-size: 20px;
     color: white;
-
     width: 2.5rem;
     height: 2rem;
-    background-image: url('/assets/images/icones/chat-message.png');
+    background-image: url('../../../assets/images/icones/chat-message.png');
     background-size: cover;
     display: inline-block;
 }

@@ -1,6 +1,6 @@
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ChatMessage } from '@app/interfaces/chatMessage';
+import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
 import { ChatBoxComponent } from './chat-box.component';
 

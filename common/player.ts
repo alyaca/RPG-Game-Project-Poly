@@ -1,4 +1,4 @@
-import { GameObject } from '@common/gameObject';
+import { GameObject } from '@common/game-object';
 export interface Avatar {
     name: string;
     src: string;

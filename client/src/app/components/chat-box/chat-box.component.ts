@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
-import { ChatMessage } from '@app/interfaces/chatMessage';
+import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
 
 @Component({

@@ -1,0 +1,88 @@
+<div class="combat-modal">
+    <app-temporary-dialog #temporaryDialog></app-temporary-dialog>
+    <div class="top-section">
+        <div class="player-info">
+            <app-combat-stats-bar
+                [player]="player1"
+                [isOnRightSide]=false
+                [isDamaged]="combatService.isPlayer1Damaged"
+            ></app-combat-stats-bar>
+        </div>
+        <div class="timer-container">
+            <app-timer
+                [totalTime]="totalTime"
+                [timeRemaining]="timeRemaining"
+                [timerSize]="45"
+                (closeTimer)="onTimerFinished()"
+                #timer
+            ></app-timer>
+        </div>
+        <div class="player-info">
+            <app-combat-stats-bar
+                [player]="player2"
+                [isOnRightSide]=true
+                [isDamaged]="combatService.isPlayer2Damaged"
+            ></app-combat-stats-bar>
+        </div>
+    </div>
+    <div class="middle-section">
+        <div>
+            <div class="player-avatar-container" [ngClass]="{ 'damaged': combatService.isPlayer1Damaged }">
+                <img class="player-img left-player" src="{{ player1.avatar?.src }}" alt="right player portrait" />
+                <div class="damaged-overlay"></div>
+            </div>
+            <div class="evasions-remaining">
+                @for (evasion of combatService.evasionsArray1; track $index) {
+                    <div class="evasion-point"></div>
+                }
+            </div>
+            <p class="evasion-text">Points d'évasion restantes </p>
+        </div>
+        <div class="dice-container">
+            <div class="stats-and-dice-value">
+                <div>{{ combatService.playerStat1 }}</div>
+                <div>{{ combatService.statValue1 }}</div>
+            </div>
+            <app-dice #dice2></app-dice>
+        </div>
+        <div class="dice-container">
+            <div class="stats-and-dice-value">
+                <div>{{ combatService.playerStat2 }}</div>
+                <div>{{ combatService.statValue2 }}</div>
+            </div>
+            <app-dice #dice1></app-dice>
+        </div>
+        <div>
+            <div class="player-avatar-container" [ngClass]="{ 'damaged': combatService.isPlayer2Damaged }">
+                <img class="player-img right-player" src="{{ player2.avatar?.src }}" alt="right player portrait" />
+                <div class="damaged-overlay"></div>
+            </div>
+            <div class="evasions-remaining">
+                @for (evasion of combatService.evasionsArray2; track $index) {
+                    <div class="evasion-point"></div>
+                }
+            </div>
+            <p class="evasion-text">Points d'évasion restantes </p>
+        </div>
+    </div>
+    <div class="bottom-section">
+        <div class="evasion-container">
+            <div>
+                <p class="action-text">Évader</p>
+                <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 'player1turn' }" class="button-outer end-outer" (click)="triggerEvade()">
+                    <div class="end-turn-button-inner"></div>
+                </div>
+            </div>
+        </div>
+        <div class="display">
+            <div class="display-text"> {{ combatService.displayText }}</div>
+        </div>
+        <div>
+            <p class="action-text">Attaquer</p>
+            <div [ngClass]="{ 'disabled': this.combatService.currPlayerNum !== 'player1turn' }" class="button-outer end-outer" (click)="triggerAttack()">
+                <div class="end-turn-button-inner"></div>
+            </div>
+        </div>
+    </div>
+    <button class="close-button" (click)="closeModal()">X</button>
+</div>

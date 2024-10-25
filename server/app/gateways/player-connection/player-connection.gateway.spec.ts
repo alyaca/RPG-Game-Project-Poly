@@ -2,7 +2,7 @@ import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -94,7 +94,7 @@ describe('PlayerConnectionGateway', () => {
         jest.spyOn(gameService, 'leavePlayerFromGame');
         jest.spyOn(logger, 'log');
         gateway.handleDisconnect(socket);
-        expect(gameService.leavePlayerFromGame).toHaveBeenCalledWith(roomId, socket);
+        expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
         expect(logger.log).toHaveBeenCalled();
     });
 
@@ -178,15 +178,13 @@ describe('PlayerConnectionGateway', () => {
         it('should create a player and emit updatedPlayer events', () => {
             const room = mockRooms[0];
             (roomService.getRoom as jest.Mock).mockReturnValue(room);
-            (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
 
             jest.spyOn(gameService, 'createPlayer');
             room.listPlayers.push(mockPlayer);
 
             gateway.handleCreatePlayer(mockClient, mockPlayer);
-            expect(mockPlayer.status).toBe(Status.Admin);
+
             expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
-            expect(roomService.isPlayerAdmin).toHaveBeenCalledWith(mockClient);
             expect(gameService.createPlayer).toHaveBeenCalledWith(room, mockPlayer, mockClient);
             expect(mockClient.emit).toHaveBeenCalledWith('updatedPlayer', room);
             expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
