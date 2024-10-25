@@ -1,4 +1,13 @@
+import { GameObject } from '@app/interfaces/gameObject';
 import { Game } from '@common/game';
+
+export const mockGameObject: GameObject = {
+    id: 1,
+    name: 'map name',
+    image: 'image string',
+    description: 'the description for this beautiful map',
+    count: 1,
+};
 
 export const mockGames: Game[] = [
     {

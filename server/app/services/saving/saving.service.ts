@@ -15,6 +15,6 @@ export class SavingService {
         return null;
     }
     async replaceMapInDb(mapToAdd: Partial<Map>): Promise<Map | null> {
-        return await this.mapModel.findOneAndReplace({ _id: mapToAdd._id }, mapToAdd);
+        return await this.mapModel.findOneAndReplace({ _id: mapToAdd._id }, mapToAdd, { upsert: true });
     }
 }

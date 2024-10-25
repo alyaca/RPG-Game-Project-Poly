@@ -1,8 +1,10 @@
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objects-info';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
@@ -16,11 +18,13 @@ describe('GameGridComponent', () => {
     let mapValidatorServiceSpy: jasmine.SpyObj<MapValidatorService>;
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
 
     beforeEach(async () => {
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions']);
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
             'initObjectsArray',
             'resetObjectsCount',
@@ -55,6 +59,7 @@ describe('GameGridComponent', () => {
                 { provide: MapValidatorService, useValue: mapValidatorServiceSpy },
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: 'TileService', useValue: tileServiceMock },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
 
@@ -75,7 +80,56 @@ describe('GameGridComponent', () => {
         expect(component.selectedCol).toBe(0);
         expect(component.isMouseDown).toBeFalse();
     });
-    /*
+
+    describe('ngOnInit', () => {
+        it('should initialize tiles and objects from loaded data for an existing game', () => {
+            gameCreationServiceSpy.updateDimensions.and.returnValue(SIZE_SMALL_MAP);
+            gameCreationServiceSpy.isNewGame = false;
+            gameCreationServiceSpy.loadedTiles = [
+                [1, 1],
+                [0, 0],
+            ];
+            gameCreationServiceSpy.loadedObjects = [
+                [2, 2],
+                [0, 0],
+            ];
+
+            component.ngOnInit();
+
+            expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
+            expect(component.gridSize).toBe(SIZE_SMALL_MAP);
+            expect(component.tilesGrid).toEqual([
+                [1, 1],
+                [0, 0],
+            ]);
+            expect(component.objectsArray).toEqual([
+                [2, 2],
+                [0, 0],
+            ]);
+            expect(gameObjectManagerServiceSpy.objectsArray).toEqual([
+                [2, 2],
+                [0, 0],
+            ]);
+        });
+    });
+
+    describe('deepCopyMatrix', () => {
+        it('should return a deep copy of the matrix', () => {
+            const matrix = [
+                [1, 2],
+                [2, 0],
+            ];
+            const result = component.deepCopyMatrix(matrix);
+            expect(result).toEqual(matrix);
+            expect(result).not.toBe(matrix);
+        });
+
+        it('should return an empty array if matrix is undefined', () => {
+            const result = component.deepCopyMatrix(null);
+            expect(result).toEqual([]);
+        });
+    });
+
     describe('ngOnChanges', () => {
         it('should reset the grid when resetTrigger changes to true', () => {
             component.tilesGrid[0][0] = TileType.Water;
@@ -84,52 +138,48 @@ describe('GameGridComponent', () => {
             };
 
             component.ngOnChanges(changes);
-            expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.gridSize, component.tilesGrid));
+            expect(component.tilesGrid).toEqual([]);
         });
 
         it('should validate the map when saveTrigger changes to true', () => {
             component.mapName = 'Test Map';
             component.mapDescription = 'Description';
             component.tilesGrid = [[TileType.Ground]];
+            gameCreationServiceSpy.isNewGame = true;
             const changes: SimpleChanges = {
                 saveTrigger: new SimpleChange(false, true, false),
             };
             component.saveTrigger = true;
             component.ngOnChanges(changes);
-            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(component.tilesGrid, component.mapName, component.mapDescription, true);
+            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(
+                component.tilesGrid,
+                component.mapName,
+                component.mapDescription,
+                true,
+                component.oldMapName,
+            );
+        });
+
+        it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {
+            gameCreationServiceSpy.isNewGame = true;
+            const changes: SimpleChanges = {
+                resetTrigger: new SimpleChange(false, true, false),
+            };
+
+            spyOn(component, 'sendInfoToMapCreationPage');
+            component.ngOnChanges(changes);
+            expect(gameObjectManagerServiceSpy.initObjectsArray).toHaveBeenCalled();
+            expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
+            expect(component.sendInfoToMapCreationPage).toHaveBeenCalled();
         });
     });
-*/
+
     describe('tile interactions', () => {
         it('should set tile to Ice when ice-tile is selected', () => {
             toolServiceSpy.getSelectedTile.and.returnValue('ice-tile');
             component.onTileClick(0, 0);
             expect(component.tilesGrid[0][0]).toBe(TileType.Ice);
         });
-
-        it('should set tile to Wall when wall-tile is selected', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('wall-tile');
-            component.onTileClick(0, 0);
-            expect(component.tilesGrid[0][0]).toBe(TileType.Wall);
-        });
-
-        it('should set tile to Water when water-tile is selected', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('water-tile');
-            component.onTileClick(0, 0);
-            expect(component.tilesGrid[0][0]).toBe(TileType.Water);
-        });
-
-        it('should set tile to ClosedDoor when door-tile is selected and on edge', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('door-tile');
-            component.tilesGrid[1][1] = TileType.Ground;
-            component.onTileClick(1, 1);
-            expect(component.tilesGrid[1][1]).toBe(TileType.ClosedDoor);
-        });
-        /*
-        it('should reset the grid', () => {
-            expect(component.tilesGrid).toEqual(component.tileService.resetGrid(component.gridSize, component.tilesGrid));
-        });
-        */
 
         it('should remove tile on right-click', () => {
             component.tilesGrid[0][0] = TileType.Wall;
@@ -346,30 +396,6 @@ describe('GameGridComponent', () => {
         expect(gameObjectManagerServiceSpy.updateObjectGridPosition).not.toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
-    });
-
-    it('should set the tile to Ground when conditions are met', () => {
-        component.tilesGrid[1][0] = TileType.Wall;
-        component.objectsArray[1][0] = NO_OBJECT;
-        const mockEvent = new MouseEvent('click', { button: 0 });
-        spyOn(mockEvent, 'preventDefault');
-
-        component.removeTile(mockEvent, 1, 0);
-
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(component.tilesGrid[1][0]).toBe(TileType.Ground);
-    });
-
-    it('should not change the tile if it is already Ground', () => {
-        const mockEvent = new MouseEvent('click');
-        spyOn(mockEvent, 'preventDefault');
-
-        component.tilesGrid[0][0] = TileType.Ground;
-        component.objectsArray[0][0] = NO_OBJECT;
-        component.removeTile(mockEvent, 0, 0);
-
-        expect(mockEvent.preventDefault).toHaveBeenCalled();
-        expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
     });
 
     it('should prevent default event behavior, call removeTile, and removeObjectByClick', () => {

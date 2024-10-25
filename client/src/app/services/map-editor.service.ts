@@ -8,12 +8,10 @@ import { Game } from '@common/game';
     providedIn: 'root',
 })
 export class MapEditorService {
+    mapToEdit: Game;
     private mapValidator = inject(MapValidatorService);
     private gameObjectService = inject(GameObjectService);
     private gameCreationService = inject(GameCreationService);
-    mapToEdit: Game;
-
-    constructor() {}
 
     getGridSize() {
         return this.gameCreationService.getStoredSize();

@@ -9,9 +9,9 @@ import {
     ObjectType,
     VALIDATION_DURATION,
 } from '@app/constants';
+import { GameListService } from '@app/services/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { environment } from 'src/environments/environment';
-import { GameListService } from '../game-list.service';
 
 export enum TileType {
     Ground = 1,
@@ -38,10 +38,9 @@ export class MapValidatorService {
         this.gameObjectService.initObjectsArray();
     }
 
-    validateMap(array: number[][], title: string, description: string, isNewMap: boolean) {
+    validateMap(array: number[][], title: string, description: string, isNewMap: boolean, oldMapName: string) {
         this.errorMessages = [];
-
-        if (isNewMap) {
+        if (isNewMap || oldMapName !== title) {
             this.validateName(title);
         }
         this.validateSufficientTerrainTiles(array);
@@ -71,7 +70,7 @@ export class MapValidatorService {
     validateName(nameToCheck: string) {
         const trimmedNameToCheck = nameToCheck.trim();
         this.gameListService.getAllGames().subscribe((allMaps) => {
-            for (let index in allMaps) {
+            for (const index in allMaps) {
                 if (allMaps[index].name === trimmedNameToCheck) {
                     this.errorMessages.push('- Une carte avec le même nom existe déjà');
                 }
@@ -130,19 +129,6 @@ export class MapValidatorService {
         }
     }
 
-    private createVisitedArray(array: number[][]): boolean[][] {
-        return Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
-    }
-
-    private getDirections() {
-        return [
-            { x: 0, y: 1 },
-            { x: 1, y: 0 },
-            { x: 0, y: -1 },
-            { x: -1, y: 0 },
-        ];
-    }
-
     findStartPoint(array: number[][]): { row: number; col: number } | null {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
@@ -152,34 +138,6 @@ export class MapValidatorService {
             }
         }
         return null;
-    }
-
-    private dfs(array: number[][], visited: boolean[][], row: number, col: number, directions: { x: number; y: number }[]): void {
-        visited[row][col] = true;
-
-        for (const direction of directions) {
-            const newRow = row + direction.x;
-            const newCol = col + direction.y;
-
-            if (this.isValidMove(newRow, newCol, array, visited)) {
-                this.dfs(array, visited, newRow, newCol, directions);
-            }
-        }
-    }
-
-    private isValidMove(row: number, col: number, array: number[][], visited: boolean[][]): boolean {
-        return row >= 0 && row < array.length && col >= 0 && col < array[0].length && !visited[row][col] && array[row][col] !== TileType.Wall;
-    }
-
-    private allTilesAccessible(array: number[][], visited: boolean[][]): boolean {
-        for (let row = 0; row < array.length; row++) {
-            for (let col = 0; col < array[row].length; col++) {
-                if (array[row][col] !== TileType.Wall && !visited[row][col]) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     openDialog(errorMessages: string[], title: string) {
@@ -224,6 +182,47 @@ export class MapValidatorService {
         if (spawnObjectCount !== this.gameObjectService.maxCount) {
             this.errorMessages.push('- Tous les points de départ doivent être placés sur la carte.');
         }
+    }
+
+    private createVisitedArray(array: number[][]): boolean[][] {
+        return Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
+    }
+
+    private getDirections() {
+        return [
+            { x: 0, y: 1 },
+            { x: 1, y: 0 },
+            { x: 0, y: -1 },
+            { x: -1, y: 0 },
+        ];
+    }
+
+    private dfs(array: number[][], visited: boolean[][], row: number, col: number, directions: { x: number; y: number }[]): void {
+        visited[row][col] = true;
+
+        for (const direction of directions) {
+            const newRow = row + direction.x;
+            const newCol = col + direction.y;
+
+            if (this.isValidMove(newRow, newCol, array, visited)) {
+                this.dfs(array, visited, newRow, newCol, directions);
+            }
+        }
+    }
+
+    private isValidMove(row: number, col: number, array: number[][], visited: boolean[][]): boolean {
+        return row >= 0 && row < array.length && col >= 0 && col < array[0].length && !visited[row][col] && array[row][col] !== TileType.Wall;
+    }
+
+    private allTilesAccessible(array: number[][], visited: boolean[][]): boolean {
+        for (let row = 0; row < array.length; row++) {
+            for (let col = 0; col < array[row].length; col++) {
+                if (array[row][col] !== TileType.Wall && !visited[row][col]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private countSpawnPoints(): number {
