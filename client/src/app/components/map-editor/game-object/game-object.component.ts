@@ -15,4 +15,5 @@ export class GameObjectComponent {
     @Input() count?: number;
     @Input() id: number;
     @Input() isDragging: boolean;
+    @Input() descriptionPosition: string;
 }

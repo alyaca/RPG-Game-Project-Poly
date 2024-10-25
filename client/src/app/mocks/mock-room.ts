@@ -1,4 +1,4 @@
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Room } from '@common/room';
 import { mockGames } from './mock-game';
 

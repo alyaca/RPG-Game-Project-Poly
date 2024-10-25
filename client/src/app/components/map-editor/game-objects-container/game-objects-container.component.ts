@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { GameObject } from '@app/interfaces/gameObject';
+import { GameObject } from '@app/interfaces/game-object';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
@@ -18,6 +18,7 @@ export class GameObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
     isDraggingFromContainer: boolean = false;
     showDescription: boolean = true;
+    descriptionPosition: string = 'left';
 
     constructor(
         private gameObjectService: GameObjectService,
