@@ -61,9 +61,11 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     @SubscribeMessage(RoomEvents.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
+        const isAdmin = this.roomService.isPlayerAdmin(client);
         this.gameService.createPlayer(room, player, client);
         client.emit('updatedPlayer', room);
         client.to(room.roomId).emit('updatedPlayer', room);
+        client.emit('isPlayerAdmin', isAdmin);
     }
 
     @SubscribeMessage(RoomEvents.SelectCharacter)

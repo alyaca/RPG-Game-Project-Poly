@@ -24,6 +24,8 @@ export class WaitingPageComponent implements OnInit {
     accessCode: string;
     chosenGame: Game;
     isLocked: boolean = false;
+    isAdmin: boolean = false;
+
     players: Player[];
 
     constructor(
@@ -46,9 +48,6 @@ export class WaitingPageComponent implements OnInit {
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }
-        if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/home']);
-        }
 
         this.socketCommunicationService.on<string>('roomDeleted', (message: string) => {
             this.onAdminQuit(message);
@@ -56,6 +55,10 @@ export class WaitingPageComponent implements OnInit {
 
         this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
+        });
+
+        this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
+            this.isAdmin = isPlayerAdmin;
         });
     }
 
@@ -75,14 +78,6 @@ export class WaitingPageComponent implements OnInit {
         this.gameService.isRoomLocked = this.isLocked;
         this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
-
-    // // might become necessary later
-    // ensureAdminIsFirst() {
-    //     this.players = []
-    //         ...this.players.filter((player) => player.status === Status.Admin),
-    //         ...this.players.filter((player) => player.status !== Status.Admin),
-    //     ];
-    // }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
@@ -110,7 +105,7 @@ export class WaitingPageComponent implements OnInit {
     handleStartGame() {
         this.openConfirmationDialog(
             'Débuter la partie',
-            ['- Êtes-vous certains de vouloir débuter la partie?'],
+            ['Êtes-vous certains de vouloir débuter la partie?'],
             ['Annuler', 'Confirmer'],
             true,
         ).subscribe((result) => {

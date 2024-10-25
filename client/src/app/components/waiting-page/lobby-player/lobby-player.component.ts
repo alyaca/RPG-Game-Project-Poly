@@ -11,6 +11,7 @@ import { Player } from '@common/player';
 })
 export class LobbyPlayerComponent {
     @Input() lobbyPlayer: Player;
+    @Input() isPlayerAdmin: boolean;
     isAdmin() {
         return this.lobbyPlayer.status === Status.Admin;
     }

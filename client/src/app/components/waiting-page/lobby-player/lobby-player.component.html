@@ -1,7 +1,11 @@
 <div [ngClass]="['player', isAdmin() ? 'admin' : '']">
     <div class="motif"></div>
     <div class="player-name">
-        <div class="kick"></div>
+        @if(isPlayerAdmin) {
+        <div class="kick">
+            <img src="./assets/images/icones/kick.png" />
+        </div>
+        }
         {{ lobbyPlayer.name }}
         <div class="status"></div>
     </div>

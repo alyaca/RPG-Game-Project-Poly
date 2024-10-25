@@ -8,10 +8,7 @@
     <main>
         <div id="players-container">
             @for (player of players; track player.id) {
-                <app-lobby-player
-                    class = "medium"
-                    [lobbyPlayer]="players[$index]"
-                ></app-lobby-player>
+            <app-lobby-player class="medium" [lobbyPlayer]="players[$index]" [isPlayerAdmin]="isAdmin"></app-lobby-player>
             }
         </div>
     </main>
