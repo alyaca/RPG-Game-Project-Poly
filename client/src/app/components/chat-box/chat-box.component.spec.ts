@@ -26,13 +26,13 @@ describe('ChatBoxComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should toggle chat visibility', () => {
-        component.isChatVisible = false;
-        component.toggleChatVisibility();
-        expect(component.isChatVisible).toBe(true);
-        component.toggleChatVisibility();
-        expect(component.isChatVisible).toBe(false);
-    });
+    // it('should toggle chat visibility', () => {
+    //     component.isChatVisible = false;
+    //     component.toggleChatVisibility();
+    //     expect(component.isChatVisible).toBe(true);
+    //     component.toggleChatVisibility();
+    //     expect(component.isChatVisible).toBe(false);
+    // });
 
     it('should send message', () => {
         const message = "Hey it's me Goku !";

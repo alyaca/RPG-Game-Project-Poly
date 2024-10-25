@@ -16,7 +16,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
     messages: ChatMessage[] = [];
     newMessage: string = '';
-    isChatVisible: boolean = true;
+    // isChatVisible: boolean = true;
 
     constructor(private chatService: ChatService) {}
 
@@ -43,7 +43,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
         }
     }
 
-    toggleChatVisibility(): void {
-        this.isChatVisible = !this.isChatVisible;
-    }
+    // toggleChatVisibility(): void {
+    //     this.isChatVisible = !this.isChatVisible;
+    // }
 }

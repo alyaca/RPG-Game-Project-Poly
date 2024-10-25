@@ -1,3 +1,5 @@
+import { IMessage } from '@app/interfaces/message.interface';
+import { ChatService } from '@app/services/chat/chat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
@@ -17,6 +19,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         private roomService: RoomService,
         private logger: Logger,
         private gameService: GameService,
+        private chatService: ChatService,
     ) {}
 
     @SubscribeMessage(RoomEvents.CreateRoom)
@@ -70,6 +73,31 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
         this.gameService.selectedAvatar(room, avatar, client, this.server);
+    }
+
+    @SubscribeMessage(RoomEvents.SendMessage)
+    async handleMessage(client: Socket, message: IMessage): Promise<void> {
+        const roomId = this.roomService.getRoomId(client);
+        this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);
+
+        const messageWithRoomId: IMessage = {
+            roomId,
+            username: client.data.username,
+            message: message.message,
+            timestamp: message.timestamp,
+        };
+        await this.saveMessage(client, messageWithRoomId);
+    }
+
+    async saveMessage(client: Socket, message: IMessage): Promise<void> {
+        try {
+            const savedMessage = await this.chatService.saveMessage(message);
+            this.logger.log(`Message saved: ${savedMessage.message} from ${savedMessage.username}`);
+            this.server.to(message.roomId).emit('messageReceived', savedMessage);
+        } catch (error) {
+            this.logger.error(`Failed to save message: ${error.message}`);
+            client.emit('errorMessage', 'Failed to send message.');
+        }
     }
 
     onModuleInit() {
