@@ -16,8 +16,10 @@
         <div id="footer-container">
             <app-chat-box></app-chat-box>
             <div id="start-container">
-                <button id="start" (click)="handleStartGame()">Lancer une partie</button>
-                <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
+                <button id="start" class="big-button" (click)="handleStartGame()" [disabled]="!isAdmin" [ngClass]="{ 'disabled-start': !isAdmin }">
+                    Lancer une partie
+                </button>
+                <button id="quit-button" (click)="handleExit(accessCode)" [ngClass]="{ 'big-button': !isAdmin }">Quitter</button>
             </div>
             <div id="lock-container">
                 <p class="lock-text">Verrouiller la partie</p>
