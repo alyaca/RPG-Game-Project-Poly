@@ -89,6 +89,7 @@ export class GameListComponent implements OnInit {
     }
 
     editGame(game: Game) {
+        this.gameCreationService.isModifiable = true;
         this.mapEditorService.setMapToEdit(game);
         this.gameCreationService.setSelectedSize(this.gameCreationService.convertMapDimension(game));
         this.gameCreationService.isNewGame = false;

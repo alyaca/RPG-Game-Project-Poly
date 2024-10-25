@@ -119,9 +119,10 @@ export class WaitingPageComponent implements OnInit {
             true,
         ).subscribe((result: string) => {
             if (result === 'right') {
-                this.router.navigate(['/game-page']);
-                //temporary
+                // temporary (maybe)
+                this.socketCommunicationService.connect();
                 this.socketCommunicationService.send('startGame');
+                this.router.navigate(['/game-page']);
             }
         });
     }

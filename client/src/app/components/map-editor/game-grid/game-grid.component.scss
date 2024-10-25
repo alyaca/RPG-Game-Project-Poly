@@ -29,6 +29,7 @@
 }
 
 .tile {
+    // if player is on spawn point, put a green border
     border: solid 1px rgba(166, 154, 61, 0.8);
     font-size: 0;
     position: relative;
