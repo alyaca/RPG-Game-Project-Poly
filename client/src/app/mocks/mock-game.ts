@@ -1,4 +1,4 @@
-import { GameObject } from '@app/interfaces/gameObject';
+import { GameObject } from '@app/interfaces/game-object';
 import { Game } from '@common/game';
 
 export const mockGameObject: GameObject = {
