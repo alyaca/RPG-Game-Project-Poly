@@ -161,8 +161,8 @@ app-lobby-player {
     background-color: white;
     transition: 0.4s;
     border-radius: 50%;
-    // background-image: url('/assets/images/icones/unlocked.png');
-    background: linear-gradient(to right, rgba(255, 0, 0, 0.9), rgba(0, 64, 255, 0));
+    background-image: url('/log2990/20243/equipe-101/LOG2990-101/assets/images/icones/unlocked.png');
+    // background: linear-gradient(to right, rgba(255, 0, 0, 0.9), rgba(0, 64, 255, 0));
     background-size: 110%;
     background-position: center;
 }
@@ -173,8 +173,8 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(3.5rem);
-    // background-image: url('/assets/images/icones/locked.png');
-    background: linear-gradient(to right, rgba(98, 255, 0, 0.9), rgba(0, 255, 238, 0));
+    background-image: url('/log2990/20243/equipe-101/LOG2990-101/assets/images/icones/locked.png');
+    // background: linear-gradient(to right, rgba(98, 255, 0, 0.9), rgba(0, 255, 238, 0));
     background-size: cover;
     background-position: center;
 }
