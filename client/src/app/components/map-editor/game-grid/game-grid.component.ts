@@ -53,8 +53,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-        this.oldMapName = this.mapName;
-
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 
         if (this.gameCreationService.isNewGame) {
@@ -109,13 +107,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     onDragStart(event: DragEvent, row: number, col: number) {
-        this.toolService.deactivateTileApplicator();
-        this.gameObjectService.selectedTile = null;
-        this.isMouseDown = false;
-        this.gameObjectService.dragStartPosition = { row, col };
-        const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
-        if (gameObject) {
-            this.gameObjectService.draggedObject = gameObject;
+        if (this.gameCreationService.isModifiable) {
+            this.toolService.deactivateTileApplicator();
+            this.gameObjectService.selectedTile = null;
+            this.isMouseDown = false;
+            this.gameObjectService.dragStartPosition = { row, col };
+            const gameObject = this.gameObjectService.getGameObjectOnTile(row, col);
+            if (gameObject) {
+                this.gameObjectService.draggedObject = gameObject;
+            }
         }
     }
 
@@ -148,10 +148,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
-        event.preventDefault();
-        this.removeTile(event, row, col);
-        this.gameObjectService.removeObjectByClick(event, row, col);
-        this.sendInfoToMapCreationPage();
+        if (this.gameCreationService.isModifiable) {
+            event.preventDefault();
+            this.removeTile(event, row, col);
+            this.gameObjectService.removeObjectByClick(event, row, col);
+            this.sendInfoToMapCreationPage();
+        }
     }
 
     onTileClick(row: number, col: number) {

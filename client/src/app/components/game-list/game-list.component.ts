@@ -2,7 +2,7 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { MESSAGE_DURATION_ERROR, PAD_LENGTH, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { MESSAGE_DURATION_ERROR, PAD_LENGTH } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameListService } from '@app/services/game-list.service';
 import { MapEditorService } from '@app/services/map-editor.service';
@@ -90,7 +90,7 @@ export class GameListComponent implements OnInit {
 
     editGame(game: Game) {
         this.mapEditorService.setMapToEdit(game);
-        this.gameCreationService.setSelectedSize(this.convertMapDimension(game));
+        this.gameCreationService.setSelectedSize(this.gameCreationService.convertMapDimension(game));
         this.gameCreationService.isNewGame = false;
         this.gameCreationService.loadedTiles = game.tiles;
         this.gameCreationService.loadedObjects = game.itemPlacement;
@@ -101,18 +101,6 @@ export class GameListComponent implements OnInit {
         this.selectGame(game); // not sure if necessary
 
         this.router.navigate(['/edit-map']);
-    }
-
-    convertMapDimension(game: Game): string {
-        if (game.dimension === SIZE_SMALL_MAP) {
-            return 'small';
-        } else if (game.dimension === SIZE_MEDIUM_MAP) {
-            return 'medium';
-        } else if (game.dimension === SIZE_LARGE_MAP) {
-            return 'large';
-        } else {
-            return 'none';
-        }
     }
 
     refreshGameList() {

@@ -6,7 +6,9 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameListService } from '@app/services/game-list.service';
+import { MapEditorService } from '@app/services/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
@@ -27,6 +29,8 @@ export class WaitingPageComponent implements OnInit {
     players: Player[];
 
     constructor(
+        private mapEditorService: MapEditorService,
+        private gameCreationService: GameCreationService,
         private router: Router,
         private socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
@@ -43,9 +47,6 @@ export class WaitingPageComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/home']);
-        }
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }
@@ -99,7 +100,18 @@ export class WaitingPageComponent implements OnInit {
         );
     }
 
+    loadMap() {
+        this.gameCreationService.isModifiable = false;
+        this.mapEditorService.setMapToEdit(this.chosenGame);
+        this.gameCreationService.setSelectedSize(this.gameCreationService.convertMapDimension(this.chosenGame));
+        this.gameCreationService.isNewGame = false;
+        this.gameCreationService.loadedTiles = this.chosenGame.tiles;
+        this.gameCreationService.loadedObjects = this.chosenGame.itemPlacement;
+        this.gameCreationService.loadedMapName = this.chosenGame.name;
+    }
+
     handleStartGame() {
+        this.loadMap();
         this.openConfirmationDialog(
             'Débuter la partie',
             ['- Êtes-vous certains de vouloir débuter la partie?'],
