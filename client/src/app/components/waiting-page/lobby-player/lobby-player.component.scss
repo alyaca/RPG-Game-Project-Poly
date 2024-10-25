@@ -77,13 +77,11 @@ img {
 
 .player > .motif {
     background-image: url('../../../../assets/images/motifs/squared-motif-white.png');
-    // background: linear-gradient(to right, rgba(241, 0, 0, 0.9), rgba(255, 0, 0, 0));
     background-size: cover;
 }
 
 .admin > .motif {
     background-image: url('../../../../assets/images/motifs/squared-motif-gold.png');
-    // background: linear-gradient(to right, rgba(246, 255, 0, 0.9), rgba(225, 255, 0, 0));
     background-size: cover;
 }
 
@@ -94,8 +92,7 @@ img {
 }
 
 :not(.admin) > * > .kick {
-    // background-image: url('/assets/images/icones/kick.png');
-    background: linear-gradient(to right, rgba(191, 255, 0, 0.9), rgba(98, 0, 255, 0));
+    background-image: url('../../../../assets/images/icones/kick.png');
     background-size: cover;
     border-radius: 50%;
     transition: ease 0.1s;

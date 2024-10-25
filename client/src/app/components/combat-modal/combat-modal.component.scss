@@ -37,8 +37,7 @@
 .dice {
     height: 6rem;
     width: 6rem;
-    // background-image: url('/assets/images/icones/D4.png');
-    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-image: url('../../../assets/images/icones/D4.png');
     background-size: cover;
 }
 
@@ -84,8 +83,7 @@
     width: 7rem;
     height: 7rem;
     border-radius: 50%;
-    // background-image: url('/assets/images/icones/next-turn.png');
-    background: linear-gradient(to top right, rgb(196, 178, 78), rgb(255, 238, 139)); //
+    background-image: url('../../../assets/images/icones/next-turn.png');
     background-size: cover;
     background-position: center;
     transition:
@@ -101,8 +99,7 @@
 }
 
 .button-outer:hover .end-turn-button-inner {
-    // background-image: url('/assets/images/icones/next-turn-red.png');
-    background-color: red;
+    background-image: url('../../../assets/images/icones/next-turn-red.png');
     transform: scale(1.1);
 }
 
@@ -199,7 +196,6 @@ app-timer {
 .evasion-point {
     height: 0.5rem;
     width: 40%;
-
     border-radius: 3rem;
     background: linear-gradient(to top right, rgb(154, 144, 86), rgb(241, 224, 124));
 }
