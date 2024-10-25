@@ -1,15 +1,15 @@
-import { Component, ElementRef, Input, QueryList, ViewChildren, ViewChild, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
-import { TimerComponent } from '@app/components/timer/timer.component';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { Status } from '@app/interfaces/playerObject';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { TimerComponent } from '@app/components/timer/timer.component';
+import { Status } from '@app/interfaces/player-object';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
 
 @Component({

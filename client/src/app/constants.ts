@@ -51,10 +51,11 @@ export const VALIDATION_DURATION = 500;
 
 export const TEST_VALIDATION_DURATION = 800;
 
-// Constant for the time of the snakbar  message
+// Constant for the time of the snackbar message
 export const MESSAGE_DURATION_ERROR = 4000;
 export const MESSAGE_DURATION_CHARACTER_FORM = 2000;
 export const MESSAGE_DURATION_SAVE_CHOICE = 3000;
+export const MESSAGE_DURATION_VALIDATION_ERROR = 2000;
 
 // Constant for the padding length of the date
 export const PAD_LENGTH = 2;

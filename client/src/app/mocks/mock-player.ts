@@ -1,5 +1,5 @@
 import { ObjectType } from '@app/constants';
-import { PlayerObjects, Status } from '@app/interfaces/playerObject';
+import { PlayerObjects, Status } from '@app/interfaces/player-object';
 
 export const mockPlayer: PlayerObjects = {
     id: 0,

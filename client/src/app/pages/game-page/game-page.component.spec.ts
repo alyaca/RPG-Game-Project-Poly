@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { GamePageComponent } from './game-page.component';
+import { ElementRef, QueryList } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Status } from '@app/interfaces/player-object';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { Status } from '@app/interfaces/playerObject';
-import { ElementRef, QueryList } from '@angular/core';
+import { of } from 'rxjs';
+import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
     let component: GamePageComponent;

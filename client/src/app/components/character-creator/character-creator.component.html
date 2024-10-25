@@ -2,7 +2,7 @@
     <div class="choice-info">
         <div class="choices">
             <div class="icons-container">
-                @for( avatar of availableAvatars; track avatar){
+                @for( avatar of availableAvatars; track avatar.name){
                 <div
                     class="icon"
                     [ngClass]="{
@@ -17,7 +17,14 @@
         </div>
         <div class="character-info">
             <div class="name-container">
-                <input type="text" [(ngModel)]="characterName" placeholder="Nom de votre personnage" maxlength="15" minlength="1" />
+                <input
+                    type="text"
+                    [(ngModel)]="characterName"
+                    placeholder="Nom de votre personnage"
+                    maxlength="15"
+                    minlength="1"
+                    (keydown)="preventSpace($event)"
+                />
             </div>
             <div class="image-wrapper">
                 <img class="decoration" [src]="'./assets/images/leaves/leafL.webp'" />

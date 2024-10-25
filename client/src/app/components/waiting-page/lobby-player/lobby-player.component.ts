@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { Status } from '@app/interfaces/playerObject';
+import { Status } from '@app/interfaces/player-object';
 import { Player } from '@common/player';
 @Component({
     selector: 'app-lobby-player',

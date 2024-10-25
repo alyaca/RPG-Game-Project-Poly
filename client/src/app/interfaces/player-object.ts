@@ -1,4 +1,4 @@
-import { GameObject } from '@app/interfaces/gameObject';
+import { GameObject } from '@app/interfaces/game-object';
 
 export enum Status {
     Player = 'regular-player',
