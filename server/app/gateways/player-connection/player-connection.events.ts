@@ -1,5 +1,6 @@
 export enum RoomEvents {
     CreateRoom = 'createRoom',
+    StartGame = 'startGame',
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
     LeaveRoom = 'leaveRoom',
@@ -7,4 +8,5 @@ export enum RoomEvents {
     SelectCharacter = 'selectCharacter',
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
+    GetMap = 'getMap',
 }

@@ -22,6 +22,7 @@ export interface Player {
     status: Status;
     victories: number;
     inventory?: GameObject[];
+    position: { x: number; y: number };
 }
 
 export interface PlayerStats {

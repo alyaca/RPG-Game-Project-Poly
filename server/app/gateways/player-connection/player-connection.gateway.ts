@@ -1,4 +1,5 @@
 import { GameService } from '@app/services/game/game.service';
+import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Avatar, Player, Status } from '@common/player';
@@ -17,6 +18,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         private roomService: RoomService,
         private logger: Logger,
         private gameService: GameService,
+        private matchService: MatchService,
     ) {}
 
     @SubscribeMessage(RoomEvents.CreateRoom)
@@ -76,8 +78,14 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
+    @SubscribeMessage(RoomEvents.StartGame)
+    handleStartGame(client: Socket) {
+        this.matchService.processMapObjects(client);
+    }
+
     onModuleInit() {
         this.roomService.setServer(this.server);
+        this.matchService.setServer(this.server);
     }
 
     handleConnection(client: Socket) {

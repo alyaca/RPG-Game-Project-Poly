@@ -85,6 +85,10 @@ export class WaitingPageComponent implements OnInit {
         }
     }
 
+    handleStartGame() {
+        this.socketCommunicationService.send('startGame');
+    }
+
     handleExit(accessCode: string) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
