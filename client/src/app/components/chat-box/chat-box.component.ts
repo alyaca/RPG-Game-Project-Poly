@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
 import { ChatMessage } from '@app/interfaces/chatMessage';
@@ -17,12 +17,24 @@ export class ChatBoxComponent implements OnInit {
     newMessage: string = '';
     isChatVisible: boolean = true;
 
+    @ViewChild('messageContainer') public messageContainer: ElementRef<HTMLDivElement>;
+
+    scrollToBottom(): void {
+        if (this.messageContainer) {
+            this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        }
+    }
+
     constructor(private chatService: ChatService) {}
 
     ngOnInit(): void {
         this.chatService.onMessageReceived((message: ChatMessage) => {
             this.messages.push(message);
         });
+    }
+
+    ngAfterViewChecked(): void {
+        this.scrollToBottom();
     }
 
     sendMessage(): void {

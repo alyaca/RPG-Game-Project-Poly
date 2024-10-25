@@ -1,3 +1,4 @@
+import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ChatMessage } from '@app/interfaces/chatMessage';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
@@ -51,5 +52,25 @@ describe('ChatBoxComponent', () => {
         component.ngOnInit();
         chatServiceSpy.onMessageReceived.calls.mostRecent().args[0](message);
         expect(component.messages).toContain(message);
+    });
+
+    it('should scroll to bottom', () => {
+        const messageContainer = document.createElement('div');
+        const scrollHeight = 100;
+
+        // Simule `scrollHeight`
+        Object.defineProperty(messageContainer, 'scrollHeight', { value: scrollHeight, configurable: true });
+
+        // Définit `scrollTop` sur 0 au départ
+        messageContainer.scrollTop = 0;
+        component.messageContainer = new ElementRef(messageContainer);
+
+        // Appelle `scrollToBottom`
+        component.scrollToBottom();
+
+        // Simule la mise à jour de `scrollTop`
+        Object.defineProperty(messageContainer, 'scrollTop', { value: scrollHeight, writable: true });
+
+        expect(messageContainer.scrollTop).toBe(scrollHeight);
     });
 });

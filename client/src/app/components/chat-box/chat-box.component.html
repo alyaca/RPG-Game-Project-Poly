@@ -1,5 +1,5 @@
 <div class="chat-box">
-    <div class="past-messages" [ngClass]="{ visible: isChatVisible }">
+    <div class="past-messages" [ngClass]="{ visible: isChatVisible }" #messageContainer>
         @for(message of messages; track message.id;){
         <app-chat-message [timestamp]="message.timestamp" [username]="message.username" [message]="message.message"> </app-chat-message>
         }
