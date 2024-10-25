@@ -1,5 +1,5 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
-import { avatars } from '@common/avatarsInfo';
+import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
@@ -12,6 +12,13 @@ export class RoomService {
 
     setServer(io: Server) {
         this.io = io;
+    }
+
+    getServer(): Server {
+        if (!this.io) {
+            throw new Error('Server is not initialized');
+        }
+        return this.io;
     }
 
     createRoom(socket: Socket, game: Game): Room {
@@ -49,12 +56,23 @@ export class RoomService {
 
     deleteRoom(roomId: string, socket: Socket) {
         socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        this.cleanSocketsData(roomId);
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
     }
 
+    cleanSocketsData(roomId: string) {
+        const socketsInRoom = this.io.sockets.adapter.rooms.get(roomId);
+        socketsInRoom?.forEach((socketId) => {
+            const socketInRoom = this.io.sockets.sockets.get(socketId);
+            if (socketInRoom) {
+                delete socketInRoom.data;
+            }
+        });
+    }
+
     getRoomId(client: Socket) {
-        const roomCode = client.data.roomCode;
+        const roomCode = client.data?.roomCode;
         return this.isRoomActive(roomCode) ? roomCode : null;
     }
 

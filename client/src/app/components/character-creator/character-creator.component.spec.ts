@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
-import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, HIGH_ATTRIBUTE, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, HIGH_ATTRIBUTE, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { Status } from '@common/player';
@@ -131,7 +131,7 @@ describe('CharacterCreatorComponent', () => {
         it('should return if no avatar is clicked', () => {
             component.saveChoices();
             expect(snackBarSpy.open).toHaveBeenCalledWith('Veuillez sélectionner un avatar', 'Fermer', {
-                duration: MESSAGE_DURATION_SAVE_CHOICE,
+                duration: MESSAGE_DURATION_VALIDATION_ERROR,
             });
         });
 
@@ -142,7 +142,7 @@ describe('CharacterCreatorComponent', () => {
             component.saveChoices();
 
             expect(snackBarSpy.open).toHaveBeenCalledWith('Echec', 'Fermer', {
-                duration: MESSAGE_DURATION_SAVE_CHOICE,
+                duration: MESSAGE_DURATION_VALIDATION_ERROR,
             });
             expect(component.confirmCharacterSelection.emit).not.toHaveBeenCalled();
         });
@@ -184,5 +184,18 @@ describe('CharacterCreatorComponent', () => {
             status: Status.Player,
             victories: 0,
         });
+    });
+
+    it('should prevent space and show error message when space key is pressed', () => {
+        const mockEvent: KeyboardEvent = {
+            key: ' ',
+            preventDefault: jasmine.createSpy('preventDefault'),
+        } as unknown as KeyboardEvent;
+
+        component.preventSpace(mockEvent);
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Le nom ne peut pas contenir des espaces', 'Fermer', {
+            duration: MESSAGE_DURATION_VALIDATION_ERROR,
+        });
+        expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
 });

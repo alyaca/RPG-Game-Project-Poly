@@ -1,5 +1,5 @@
 import { RoomService } from '@app/services/room/room.service';
-import { Avatar, Player } from '@common/player';
+import { Avatar, Player, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -17,8 +17,15 @@ export class GameService {
         return this.roomService.rooms.get(roomId);
     }
 
+    isCodeFormatValid(roomCode: string): boolean {
+        return /^[0-9]{4}$/.test(roomCode);
+    }
+
     connectPlayerToGame(roomId: string) {
         const game = this.getGame(roomId);
+        if (!this.isCodeFormatValid(roomId)) {
+            return { event: 'joinError', errorType: 'invalidFormat' };
+        }
         if (!this.roomService.isRoomActive(roomId)) {
             return { event: 'joinError', errorType: 'roomNotFound' };
         }
@@ -29,28 +36,39 @@ export class GameService {
     }
 
     createPlayer(room: Room, player: Player, socket: Socket) {
-        socket.data.username = player.name;
+        player.id = socket.id;
+        this.setUniquePlayerName(player, socket);
+        if (this.roomService.isPlayerAdmin(socket)) {
+            player.status = Status.Admin;
+        }
         room.listPlayers.push(player);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
         takenAvatar.isTaken = true;
     }
 
-    leavePlayerFromGame(roomId: string, socket: Socket) {
+    setUniquePlayerName(player: Player, socket: Socket) {
+        const playerName = this.generateUniquePlayerName(player.name, socket);
+        player.name = playerName;
+        socket.data.username = player.name;
+    }
+
+    leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
         } else {
-            this.removePlayerFromRoom(roomId, socket);
+            this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
         }
     }
 
-    removePlayerFromRoom(roomId: string, socket: Socket) {
+    removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
         const room = this.roomService.rooms.get(roomId);
         room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
         this.freeUpAvatar(room, socket);
+        this.updateAvatarsForAllClients(server);
         this.roomService.leaveRoom(roomId, socket);
     }
 
@@ -68,7 +86,7 @@ export class GameService {
         }
     }
 
-    private freeUpAvatar(room: Room, socket: Socket) {
+    freeUpAvatar(room: Room, socket: Socket) {
         if (socket.data.clickedAvatar) {
             const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
             if (previousAvatar) {
@@ -77,7 +95,7 @@ export class GameService {
         }
     }
 
-    private sendAvatarListToClient(socket: Socket) {
+    sendAvatarListToClient(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const customizedAvatarsList = room.availableAvatars.map((avatar) => {
             const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
@@ -91,9 +109,25 @@ export class GameService {
         socket.emit('characterSelected', customizedAvatarsList);
     }
 
-    private updateAvatarsForAllClients(server: Server) {
+    updateAvatarsForAllClients(server: Server) {
         server.sockets.sockets.forEach((clientSocket: Socket) => {
             this.sendAvatarListToClient(clientSocket);
         });
+    }
+
+    isPlayerNameTaken(name: string, socket: Socket) {
+        const playersList = this.roomService.getRoom(socket).listPlayers;
+        return playersList.some((player) => player.name === name);
+    }
+
+    generateUniquePlayerName(playerName: string, socket: Socket): string {
+        let name = playerName;
+        let suffix = 2;
+
+        while (this.isPlayerNameTaken(name, socket)) {
+            name = `${playerName}-${suffix}`;
+            suffix++;
+        }
+        return name;
     }
 }

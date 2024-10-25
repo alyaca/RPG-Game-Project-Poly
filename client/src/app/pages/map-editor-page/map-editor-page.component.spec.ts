@@ -166,12 +166,13 @@ describe('MapEditorPageComponent', () => {
         }, 0);
     });
 
-    it('should navigate to /administration if user confirms exit in handleExit', () => {
-        const dialogRef: MatDialogRef<SimpleDialogComponent> = {
-            afterClosed: () => of('leave'),
-            close: jasmine.createSpy('close'),
-            disableClose: false,
-        } as unknown as MatDialogRef<SimpleDialogComponent>;
+    describe('handleExit', () => {
+        it('should navigate to /administration if user confirms exit in handleExit', () => {
+            const dialogRef: MatDialogRef<SimpleDialogComponent> = {
+                afterClosed: () => of('left'),
+                close: jasmine.createSpy('close'),
+                disableClose: false,
+            } as unknown as MatDialogRef<SimpleDialogComponent>;
 
         dialogSpy.open.and.returnValue(dialogRef);
         component.handleExit();

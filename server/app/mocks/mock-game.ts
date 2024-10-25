@@ -1,4 +1,6 @@
-export const mockGame = {
+import { Game } from '@common/game';
+
+export const mockGame: Game = {
     _id: '1',
     name: 'Map1',
     description: 'Description1',

@@ -11,17 +11,17 @@ export class TileService {
     getTileImage(value: number): string {
         switch (value) {
             case TileType.Ground:
-                return '/assets/images/tiles/grass.jpg';
+                return './assets/images/tiles/grass.jpg';
             case TileType.Ice:
-                return '/assets/images/tiles/ice.jpg';
+                return './assets/images/tiles/ice.jpg';
             case TileType.Wall:
-                return '/assets/images/tiles/wall.jpg';
+                return './assets/images/tiles/wall.jpg';
             case TileType.Water:
-                return '/assets/images/tiles/water.jpg';
+                return './assets/images/tiles/water.jpg';
             case TileType.ClosedDoor:
-                return '/assets/images/tiles/closed-door.jpg';
+                return './assets/images/tiles/closed-door.jpg';
             case TileType.OpenDoor:
-                return '/assets/images/tiles/open-door.jpg';
+                return './assets/images/tiles/open-door.jpg';
             default:
                 return '';
         }

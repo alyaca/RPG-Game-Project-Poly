@@ -11,6 +11,7 @@ import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MapEditorPageComponent } from '@app/pages/map-editor-page/map-editor-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
+import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { environment } from './environments/environment';
 
 if (environment.production) {
@@ -26,6 +27,7 @@ const routes: Routes = [
     { path: 'material', component: MaterialPageComponent },
     { path: 'waiting-page', component: WaitingPageComponent },
     {path: 'join-game', component: JoinGameComponent},
+    { path: 'game-page', component: GamePageComponent},
     { path: '**', redirectTo: '/home' },
 ];
 
