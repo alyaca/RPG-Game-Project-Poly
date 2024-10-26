@@ -19,6 +19,7 @@ export class ChatGateway {
 
     @SubscribeMessage(ChatEvents.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
+        console.log('messages');
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);
 

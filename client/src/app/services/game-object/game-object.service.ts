@@ -14,7 +14,7 @@ export class GameObjectService implements OnDestroy {
     dragStartPosition: { row: number; col: number } | null = null;
     gridSize: number;
     isDraggingFromContainer: boolean = false;
-    objects: GameObject[] = gameObjects;
+    objects: GameObject[] = [...gameObjects];
     objectsArray: number[][];
     mapSize: string | null;
     maxCount: number;

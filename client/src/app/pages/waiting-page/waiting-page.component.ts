@@ -55,8 +55,14 @@ export class WaitingPageComponent implements OnInit {
             this.onAdminQuit(message);
         });
 
-        this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
+        this.socketCommunicationService.on<Room>('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
+        });
+
+        this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
+            this.chosenGame = room.gameMap;
+            this.loadMap();
+            this.router.navigate(['/game-page']);
         });
     }
 
@@ -111,7 +117,6 @@ export class WaitingPageComponent implements OnInit {
     }
 
     handleStartGame() {
-        this.loadMap();
         this.openConfirmationDialog(
             'Débuter la partie',
             ['- Êtes-vous certains de vouloir débuter la partie?'],
@@ -120,9 +125,7 @@ export class WaitingPageComponent implements OnInit {
         ).subscribe((result: string) => {
             if (result === 'right') {
                 // temporary (maybe)
-                this.socketCommunicationService.connect();
                 this.socketCommunicationService.send('startGame');
-                this.router.navigate(['/game-page']);
             }
         });
     }

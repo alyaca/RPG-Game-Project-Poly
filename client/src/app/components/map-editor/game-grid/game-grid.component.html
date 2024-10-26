@@ -1,4 +1,4 @@
-<div id="map-grid" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" (mouseleave)="onMouseUp()">
+<div #entireMap id="map-grid" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" (mouseleave)="onMouseUp()">
     @for (row of tilesGrid; let rowIndex = $index; track $index) { @for (col of row; let colIndex = $index; track $index) {
     <div
         class="tile"
@@ -11,7 +11,14 @@
         (dragover)="onDragOver($event)"
     >
         <img class="tile-image" [src]="tileService.getTileImage(col)" draggable="false" />
-        @if(objectsArray[rowIndex][colIndex] > 0) {
+        @if(objectsArray[rowIndex][colIndex] > 8){
+        <img
+            class="player-on-spawn-points"
+            [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
+            draggable="true"
+            (dragstart)="onDragStart($event, rowIndex, colIndex)"
+        />
+        } @else if(objectsArray[rowIndex][colIndex] < 9) {
         <img
             class="overlay-object"
             [src]="getObjectImage(objectsArray[rowIndex][colIndex])"

@@ -4,8 +4,11 @@ import { NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
+import { Player } from '@common/player';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-game-grid',
@@ -44,15 +47,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
-        private gameObjectService: GameObjectService,
+        public gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
+        private socketCommunicationService: SocketCommunicationService,
     ) {}
 
     get selectedTile(): string {
         return this.toolService.getSelectedTile();
     }
-    
+
     ngOnInit() {
+        // if (!this.socketCommunicationService.isSocketAlive()) {
+        //     this.socketCommunicationService.connect();
+        // }
+
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 
         if (this.gameCreationService.isNewGame) {
@@ -63,6 +71,46 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
             this.gameObjectService.objectsArray = this.objectsArray;
             this.oldMapName = this.gameCreationService.loadedMapName;
+        }
+        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+            this.displayPortraitOnSpawnPoints(room.listPlayers);
+        });
+    }
+
+    displayPortraitOnSpawnPoints(players: Player[]) {
+        for (let i = 0; i < players.length; i++) {
+            this.objectsArray[players[i].position.x][players[i].position.y] = this.getPortraitId(players[i].avatar?.name);
+        }
+    }
+
+    getPortraitId(godName: string | undefined) {
+        switch (godName) {
+            case 'Hestia':
+                return 9;
+            case 'Zeus':
+                return 10;
+            case 'Hera':
+                return 11;
+            case 'Poseidon':
+                return 12;
+            case 'Artemis':
+                return 13;
+            case 'Demeter':
+                return 14;
+            case 'Hermes':
+                return 15;
+            case 'Athena':
+                return 16;
+            case 'Hephaestus':
+                return 17;
+            case 'Apollo':
+                return 18;
+            case 'Ares':
+                return 19;
+            case 'Aphrodite':
+                return 20;
+            default:
+                return 8;
         }
     }
 

@@ -52,3 +52,11 @@
     border-radius: 50%;
     transform: scale(0.9);
 }
+
+.player-on-spawn-points {
+    border: 3px solid green;
+    position: absolute;
+    z-index: 1;
+    border-radius: 50%;
+    transform: scale(0.9);
+}

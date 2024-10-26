@@ -29,7 +29,7 @@ export class GameObjectsContainerComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.gameObjects = this.gameObjectService.objects;
+        this.gameObjects = this.gameObjectService.objects.filter((object) => object.id <= 8);
         this.gameObjectService.resetObjectsCount();
         if (!this.gameCreationService.isNewGame) {
             this.gameObjectService.loadMapObjectCount();

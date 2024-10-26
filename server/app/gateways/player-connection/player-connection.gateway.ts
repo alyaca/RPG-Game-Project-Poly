@@ -76,7 +76,13 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
 
     @SubscribeMessage(RoomEvents.StartGame)
     handleStartGame(client: Socket) {
+        const room = this.roomService.getRoom(client);
         this.matchService.processMapObjects(client);
+        client.to(room.roomId).emit('startGame', room);
+        client.emit('startGame', room);
+
+        client.to(room.roomId).emit('mapInformation', room);
+        client.emit('mapInformation', room);
     }
 
     onModuleInit() {

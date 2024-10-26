@@ -47,7 +47,7 @@ export class MatchService {
         //TEMPORAIRE:
         console.log('MAP : ', this.game.tiles);
 
-        players[0].position = { x: 9, y: 0 };
+        // players[0].position = { x: 9, y: 0 };
         console.log('Position du joueur : ', players[0].position, 'Destination : ', { x: 0, y: 9 });
         this.findFastestPath(client, players[0], { x: 0, y: 9 });
 
