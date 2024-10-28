@@ -12,7 +12,7 @@ export enum TileType {
     OpenDoor = 6,
 }
 
-export const MODES = ['CTF', 'Normal'];
+export const MODES = ['ctf', 'classic'];
 export const GENERATE_COUNT = 5;
 export const BASE_36 = 36;
 export const TILE_COUNT = 6;

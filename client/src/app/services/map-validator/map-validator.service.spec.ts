@@ -1,6 +1,7 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    GameMode,
     MAX_LEN_MAP_DESCRIPTION,
     MAX_LEN_MAP_TITLE,
     NB_ITEMS_MEDIUM_MAP,
@@ -107,7 +108,7 @@ describe('MapValidatorService', () => {
                 name: 'Map1',
                 description: 'Description1',
                 visible: true,
-                mode: 'CTF',
+                mode: GameMode.Ctf,
                 nbPlayers: 6,
                 image: 'img1',
                 tiles: [[0, 1]],

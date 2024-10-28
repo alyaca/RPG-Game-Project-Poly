@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
+import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameObjectService } from './game-object.service';
 
@@ -151,7 +151,7 @@ describe('GameObjectService', () => {
 
         it('should set maxCount based on mapSize', () => {
             service.loadMapObjectCount();
-            service.mapSize = 'small';
+            service.mapSize = MapSize.Small;
             expect(service.maxCount).toBe(OBJECT_COUNT_MAP[service.mapSize]);
         });
 

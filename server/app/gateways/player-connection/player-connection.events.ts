@@ -7,5 +7,5 @@ export enum RoomEvents {
     SelectCharacter = 'selectCharacter',
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
-    SendMessage = 'sendMessages',
+    SendMessages = 'sendMessages',
 }

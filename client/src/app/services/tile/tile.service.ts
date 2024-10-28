@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { TileType } from '@app/constants';
+import { TileId, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 @Injectable({
@@ -29,16 +29,16 @@ export class TileService {
 
     setTile(selectedTile: string, row: number, col: number, array: number[][]) {
         switch (selectedTile) {
-            case 'ice-tile':
+            case TileId.Ice:
                 array[row][col] = TileType.Ice;
                 break;
-            case 'wall-tile':
+            case TileId.Wall:
                 array[row][col] = TileType.Wall;
                 break;
-            case 'water-tile':
+            case TileId.Water:
                 array[row][col] = TileType.Water;
                 break;
-            case 'door-tile':
+            case TileId.Door:
                 array[row][col] = array[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
                 break;
             default:

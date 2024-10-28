@@ -10,7 +10,6 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 export class ChatService {
     constructor(private socketCommunication: SocketCommunicationService) {}
 
-    // Envoyer un message sans le roomId (le serveur le gérera)
     sendMessage(content: string) {
         const username = 'Player';
         const message: IMessage = {
@@ -22,7 +21,6 @@ export class ChatService {
         this.socketCommunication.send('sendMessages', message);
     }
 
-    // Écouter les messages reçus
     onMessageReceived(callback: (message: ChatMessage) => void) {
         this.socketCommunication.on<IMessage>('messageReceived', (backendMessage) => {
             const formattedMessage: ChatMessage = {
@@ -35,7 +33,6 @@ export class ChatService {
         });
     }
 
-    // Générer un identifiant unique pour chaque message côté front
     private generateUniqueId(): number {
         return Math.floor(Math.random() * MAX_GENERATION_VALUE);
     }

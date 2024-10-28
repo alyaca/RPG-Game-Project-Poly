@@ -75,7 +75,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
-    @SubscribeMessage(RoomEvents.SendMessage)
+    @SubscribeMessage(RoomEvents.SendMessages)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);

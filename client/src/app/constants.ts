@@ -1,3 +1,13 @@
+export enum MapSize {
+    Small = 'small',
+    Medium = 'medium',
+    Large = 'large',
+}
+
+export enum GameMode {
+    Classic = 'classic',
+    Ctf = 'ctf',
+}
 // Constants for the number of items and spawn points for each type of map
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
@@ -130,10 +140,16 @@ export enum TileId {
     Wall = 'wall-tile',
     Door = 'door-tile',
 }
-
 export enum TileButtonName {
     Water = 'Eau',
     Ice = 'Glace',
     Door = 'Porte',
     Wall = 'Mur',
+}
+
+export enum TileClass {
+    Water = 'water',
+    Ice = 'ice',
+    Door = 'door',
+    Wall = 'wall',
 }
