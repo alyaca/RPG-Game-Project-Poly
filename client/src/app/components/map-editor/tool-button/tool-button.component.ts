@@ -1,13 +1,7 @@
-import { Component, Input } from '@angular/core';
-import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { CommonModule } from '@angular/common';
-
-export enum TileButtonName {
-    Water = 'Eau',
-    Ice = 'Glace',
-    Door = 'Porte',
-    Wall = 'Mur',
-}
+import { Component, Input } from '@angular/core';
+import { TileButtonName } from '@app/constants';
+import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
 @Component({
     selector: 'app-tool-button',

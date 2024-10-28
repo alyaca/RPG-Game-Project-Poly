@@ -1,6 +1,6 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileId, TileType } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objects-info';
@@ -176,7 +176,7 @@ describe('GameGridComponent', () => {
 
     describe('tile interactions', () => {
         it('should set tile to Ice when ice-tile is selected', () => {
-            toolServiceSpy.getSelectedTile.and.returnValue('ice-tile');
+            toolServiceSpy.getSelectedTile.and.returnValue(TileId.Ice);
             component.onTileClick(0, 0);
             expect(component.tilesGrid[0][0]).toBe(TileType.Ice);
         });

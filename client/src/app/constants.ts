@@ -122,3 +122,18 @@ export const MAX_GENERATION_VALUE = 1000000000;
 
 // Constants for main page test
 export const NUMBER_OF_TEAM_MEMBERS = 6;
+
+// Constants for tiles button in map editor
+export enum TileId {
+    Water = 'water-tile',
+    Ice = 'ice-tile',
+    Wall = 'wall-tile',
+    Door = 'door-tile',
+}
+
+export enum TileButtonName {
+    Water = 'Eau',
+    Ice = 'Glace',
+    Door = 'Porte',
+    Wall = 'Mur',
+}

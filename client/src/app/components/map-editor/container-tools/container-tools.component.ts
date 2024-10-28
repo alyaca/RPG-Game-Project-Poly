@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
+import { TileButtonName, TileId } from '@app/constants';
 import { ToolService } from '@app/services/tool/tool.service';
 
 @Component({
@@ -10,10 +11,12 @@ import { ToolService } from '@app/services/tool/tool.service';
     styleUrl: './container-tools.component.scss',
 })
 export class ContainerToolsComponent {
-    tileIds: string[] = this.toolService.tileIds;
-    tileNames: string[] = ['Eau', 'Glace', 'Mur', 'Porte'];
+    tileIds = TileId;
+    tileNames = TileButtonName;
+
     constructor(public toolService: ToolService) {}
-    onSelectTile(tile: string) {
+
+    onSelectTile(tile: TileId) {
         this.toolService.setSelectedTile(tile);
     }
 }
