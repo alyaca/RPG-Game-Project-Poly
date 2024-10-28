@@ -20,7 +20,7 @@ export class CharacterCreatorComponent implements OnDestroy {
     @Output() confirmCharacterSelection = new EventEmitter<Player>();
     @Output() selectCharacter = new EventEmitter<Avatar>();
 
-    avatars = avatars;
+    avatars: Avatar[] = avatars;
     clickedAvatar: Avatar | undefined;
     characterName: string = '';
     player: Player;

@@ -131,7 +131,7 @@ export class MapValidatorService {
     findStartPoint(array: number[][]): { row: number; col: number } | null {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
-                if (array[row][col] !== TileType.Wall) {
+                if (this.isTileAccessible(row, col, array)) {
                     return { row, col };
                 }
             }
@@ -210,13 +210,23 @@ export class MapValidatorService {
     }
 
     private isValidMove(row: number, col: number, array: number[][], visited: boolean[][]): boolean {
-        return row >= 0 && row < array.length && col >= 0 && col < array[0].length && !visited[row][col] && array[row][col] !== TileType.Wall;
+        const isValidRowIndex = row >= 0 && row < array.length;
+        const isValidColIndex = col >= 0 && col < array[0].length;
+        return isValidRowIndex && isValidColIndex && !this.isTileVisited(row, col, visited) && this.isTileAccessible(row, col, array);
+    }
+
+    private isTileAccessible(row: number, col: number, array: number[][]): boolean {
+        return array[row][col] !== TileType.Wall;
+    }
+
+    private isTileVisited(row: number, col: number, visited: boolean[][]): boolean {
+        return visited[row][col];
     }
 
     private allTilesAccessible(array: number[][], visited: boolean[][]): boolean {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
-                if (array[row][col] !== TileType.Wall && !visited[row][col]) {
+                if (this.isTileAccessible(row, col, array) && !this.isTileVisited(row, col, visited)) {
                     return false;
                 }
             }
