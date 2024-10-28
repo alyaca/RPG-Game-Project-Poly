@@ -30,9 +30,15 @@ describe('MapEditorPageComponent', () => {
     let httpMock: HttpTestingController;
 
     beforeEach(async () => {
+        gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', []);
         saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveNewGame', 'replaceMap']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions']);
-        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray', 'resetObjectsCount', 'removeObjectFromGrid']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions', 'sizeSubject']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', [
+            'initObjectsArray',
+            'resetObjectsCount',
+            'removeObjectFromGrid',
+            'objects',
+        ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', [
@@ -165,58 +171,57 @@ describe('MapEditorPageComponent', () => {
             expect(component.saveTrigger).toBeFalse();
         }, 0);
     });
-});
 
-describe('handleExit', () => {
-    it('should navigate to /administration if user confirms exit in handleExit', () => {
-        const dialogRef: MatDialogRef<SimpleDialogComponent> = {
-            afterClosed: () => of('left'),
-            close: jasmine.createSpy('close'),
-            disableClose: false,
-        } as unknown as MatDialogRef<SimpleDialogComponent>;
+    describe('handleExit', () => {
+        it('should navigate to /administration if user confirms exit in handleExit', () => {
+            const dialogRef: MatDialogRef<SimpleDialogComponent> = {
+                afterClosed: () => of('left'),
+                close: jasmine.createSpy('close'),
+                disableClose: false,
+            } as unknown as MatDialogRef<SimpleDialogComponent>;
 
-        dialogSpy.open.and.returnValue(dialogRef);
-        component.handleExit();
+            dialogSpy.open.and.returnValue(dialogRef);
+            component.handleExit();
 
-        expect(dialogSpy.open).toHaveBeenCalled();
-        dialogRef.afterClosed().subscribe(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
+            expect(dialogSpy.open).toHaveBeenCalled();
+            dialogRef.afterClosed().subscribe(() => {
+                expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
+            });
         });
-    });
 
-    it('should update the map name when updateMapName is called', () => {
-        const newName = 'New Map Name';
-        component.updateMapName(newName);
-        expect(component.mapName).toBe(newName);
-    });
+        it('should update the map name when updateMapName is called', () => {
+            const newName = 'New Map Name';
+            component.updateMapName(newName);
+            expect(component.mapName).toBe(newName);
+        });
 
-    it('should update the map description when updateMapDescription is called', () => {
-        const newDescription = 'New Map Description';
-        component.updateMapDescription(newDescription);
-        expect(component.mapDescription).toBe(newDescription);
-    });
+        it('should update the map description when updateMapDescription is called', () => {
+            const newDescription = 'New Map Description';
+            component.updateMapDescription(newDescription);
+            expect(component.mapDescription).toBe(newDescription);
+        });
 
-    it('should set the grid attribute correctly', () => {
-        component.setGrid(dummyMap.tiles);
-        expect(component.tiles).toBe(dummyMap.tiles);
-    });
+        it('should set the grid attribute correctly', () => {
+            component.setGrid(dummyMap.tiles);
+            expect(component.tiles).toBe(dummyMap.tiles);
+        });
 
-    it('should set the height attribute correctly', () => {
-        const mockHeightValue = SIZE_MEDIUM_MAP;
-        component.setHeight(mockHeightValue);
-        expect(component.height).toBe(mockHeightValue);
-    });
+        it('should set the height attribute correctly', () => {
+            const mockHeightValue = SIZE_MEDIUM_MAP;
+            component.setHeight(mockHeightValue);
+            expect(component.height).toBe(mockHeightValue);
+        });
 
-    it('should set the new items matrix correctly', () => {
-        const mockItemsValue = [
-            [NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
-            [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
-        ];
-        component.setItems(mockItemsValue);
-        expect(component.items).toBe(mockItemsValue);
-    });
+        it('should set the new items matrix correctly', () => {
+            const mockItemsValue = [
+                [NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+                [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
+            ];
+            component.setItems(mockItemsValue);
+            expect(component.items).toBe(mockItemsValue);
+        });
 
-    /*it('should call saveNewGame if the map is new and is valid', (done) => {
+        /*it('should call saveNewGame if the map is new and is valid', (done) => {
         gameCreationServiceSpy.isNewGame = true;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
         component.startSaving();
@@ -238,4 +243,5 @@ describe('handleExit', () => {
             done();
         }, TEST_VALIDATION_DURATION);
     });*/
+    });
 });

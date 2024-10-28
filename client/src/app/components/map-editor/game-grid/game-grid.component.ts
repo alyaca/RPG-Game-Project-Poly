@@ -57,9 +57,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-        // if (!this.socketCommunicationService.isSocketAlive()) {
-        //     this.socketCommunicationService.connect();
-        // }
+        if (!this.socketCommunicationService.isSocketAlive()) {
+            this.socketCommunicationService.connect();
+        }
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
 

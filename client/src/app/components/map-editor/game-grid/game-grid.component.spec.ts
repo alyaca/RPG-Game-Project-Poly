@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
+import { mockRoom } from '@app/mocks/mock-room';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -409,5 +410,23 @@ describe('GameGridComponent', () => {
         expect(mockEvent.preventDefault).toHaveBeenCalled();
         expect(component.removeTile).toHaveBeenCalledWith(mockEvent, 1, 1);
         expect(gameObjectManagerServiceSpy.removeObjectByClick).toHaveBeenCalledWith(mockEvent, 1, 1);
+    });
+
+    describe('spawn points update', () => {
+        it('should call getPortraitId', () => {
+            spyOn(component, 'getPortraitId');
+            component.displayPortraitOnSpawnPoints(mockRoom.listPlayers);
+            expect(component.getPortraitId).toHaveBeenCalled();
+        });
+
+        it("should return the correct god's name", () => {
+            const result = component.getPortraitId('Hestia');
+            expect(result).toEqual(9);
+        });
+
+        it('should return the spawn point if note other god fits', () => {
+            const result = component.getPortraitId('name');
+            expect(result).toEqual(8);
+        });
     });
 });
