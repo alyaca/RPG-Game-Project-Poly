@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
+import { MapPosition } from '@app/interfaces/map-position';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { Subscription } from 'rxjs';
@@ -11,14 +12,14 @@ import { Subscription } from 'rxjs';
 export class GameObjectService implements OnDestroy {
     countableObjects = [ObjectType.Random, ObjectType.Spawn];
     draggedObject: GameObject | null = null;
-    dragStartPosition: { row: number; col: number } | null = null;
+    dragStartPosition: MapPosition | null = null;
     gridSize: number;
     isDraggingFromContainer: boolean = false;
     objects: GameObject[] = gameObjects;
     objectsArray: number[][];
     mapSize: string | null;
     maxCount: number;
-    selectedTile: { row: number; col: number } | null = null;
+    selectedTile: MapPosition | null = null;
     private sizeSubscription!: Subscription;
 
     constructor(private gameCreationService: GameCreationService) {

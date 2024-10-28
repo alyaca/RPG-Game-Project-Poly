@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
+import { DialogData } from '@app/interfaces/dialog-data';
 
 @Component({
     selector: 'app-simple-dialog',
@@ -18,7 +19,7 @@ export class SimpleDialogComponent {
 
     constructor(
         private dialogRef: MatDialogRef<SimpleDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { messages: string[]; title: string; confirm: boolean; options: string[] },
+        @Inject(MAT_DIALOG_DATA) public data: DialogData,
         private router: Router,
     ) {
         this.options = data.options;
