@@ -8,11 +8,11 @@ import { ToolbarComponent } from '@app/components/map-editor/toolbar/toolbar.com
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { CHECK_BEFORE_SAVING_DELAY, MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { MapEditorService } from '@app/services/map-editor.service';
-import { SaveGameService } from '@app/services/save-game.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
+import { SaveGameService } from '@app/services/save-game/save-game.service';
 import html2canvas from 'html2canvas';
 
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 @Component({
     selector: 'app-map-editor-page',

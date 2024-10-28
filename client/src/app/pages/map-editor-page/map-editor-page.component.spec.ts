@@ -9,10 +9,10 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION } from '@app/constants';
 import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { MapEditorService } from '@app/services/map-editor.service';
-import { SaveGameService } from '@app/services/save-game.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
+import { SaveGameService } from '@app/services/save-game/save-game.service';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 

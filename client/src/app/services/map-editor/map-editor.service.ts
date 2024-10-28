@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { GameObject } from '@app/interfaces/game-object';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { Game } from '@common/game';

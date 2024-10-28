@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { TileType } from '@app/services/map-validator/map-validator.service';
 
 @Injectable({

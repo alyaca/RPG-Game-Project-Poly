@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
-import { GameListService } from '@app/services/game-list.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';

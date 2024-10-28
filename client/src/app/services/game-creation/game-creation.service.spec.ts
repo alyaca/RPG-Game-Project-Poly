@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 describe('GameCreationService', () => {
     let service: GameCreationService;

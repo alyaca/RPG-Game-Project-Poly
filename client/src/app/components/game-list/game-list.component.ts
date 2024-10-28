@@ -3,9 +3,9 @@ import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MESSAGE_DURATION_ERROR, PAD_LENGTH, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { GameCreationService } from '@app/services/game-creation.service';
-import { GameListService } from '@app/services/game-list.service';
-import { MapEditorService } from '@app/services/map-editor.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { Game } from '@common/game';
 
 @Component({

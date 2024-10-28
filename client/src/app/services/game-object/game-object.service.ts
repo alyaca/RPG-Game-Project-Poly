@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { gameObjects } from '@app/objects-info';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { Subscription } from 'rxjs';
 
 @Injectable({
