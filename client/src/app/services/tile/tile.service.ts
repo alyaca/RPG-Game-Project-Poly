@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
+import { TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
-import { TileType } from '@app/services/map-validator/map-validator.service';
 
 @Injectable({
     providedIn: 'root',

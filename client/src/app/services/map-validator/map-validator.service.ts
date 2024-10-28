@@ -7,19 +7,11 @@ import {
     MIN_LEN_MAP_DESCRIPTION,
     MIN_LEN_MAP_TITLE,
     ObjectType,
+    TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-
-export enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
 
 @Injectable({
     providedIn: 'root',

@@ -14,6 +14,15 @@ export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 128;
 
+export enum TileType {
+    Ground = 1,
+    Ice = 2,
+    Water = 3,
+    Wall = 4,
+    ClosedDoor = 5,
+    OpenDoor = 6,
+}
+
 export const OBJECT_COUNT_MAP: { [key: string]: number } = {
     small: NB_ITEMS_SMALL_MAP,
     medium: NB_ITEMS_MEDIUM_MAP,

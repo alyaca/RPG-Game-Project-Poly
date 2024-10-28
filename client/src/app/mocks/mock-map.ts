@@ -1,6 +1,5 @@
-import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
+import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TileType } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { TileType } from '@app/services/map-validator/map-validator.service';
 import { Game } from '@common/game';
 
 export const dummyInfo: Info = {
