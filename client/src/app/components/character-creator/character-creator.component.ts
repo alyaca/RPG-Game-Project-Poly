@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
+import { ErrorMessages, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { avatars } from '@common/avatars-info';
 import { Avatar, Player, PlayerStats, Status } from '@common/player';
@@ -93,7 +93,7 @@ export class CharacterCreatorComponent implements OnDestroy {
         this.attributesService.setCharacterName(this.characterName);
         const saveStatus = this.attributesService.saveAttributesValue();
         if (!this.clickedAvatar) {
-            this.showSaveErroMessage('Veuillez sélectionner un avatar');
+            this.showSaveErroMessage(ErrorMessages.MissingAvatar);
             return;
         }
         if (saveStatus.length > 1) {
@@ -123,7 +123,7 @@ export class CharacterCreatorComponent implements OnDestroy {
 
     preventSpace(event: KeyboardEvent): void {
         if (event.key === ' ') {
-            this.showSaveErroMessage('Le nom ne peut pas contenir des espaces');
+            this.showSaveErroMessage(ErrorMessages.NameWithSpace);
             event.preventDefault();
         }
     }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import {
+    DIRECTIONS,
     MAX_LEN_MAP_DESCRIPTION,
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
@@ -110,7 +111,7 @@ export class MapValidatorService {
 
     validateTileAccessibility(array: number[][]) {
         const visited = this.createVisitedArray(array);
-        const directions = this.getDirections();
+        const directions = [...DIRECTIONS];
         const start = this.findStartPoint(array);
         if (start) {
             this.dfs(array, visited, start.row, start.col, directions);
@@ -177,15 +178,6 @@ export class MapValidatorService {
 
     private createVisitedArray(array: number[][]): boolean[][] {
         return Array.from({ length: array.length }, () => Array(array[0].length).fill(false));
-    }
-
-    private getDirections() {
-        return [
-            { x: 0, y: 1 },
-            { x: 1, y: 0 },
-            { x: 0, y: -1 },
-            { x: -1, y: 0 },
-        ];
     }
 
     private dfs(array: number[][], visited: boolean[][], row: number, col: number, directions: { x: number; y: number }[]): void {

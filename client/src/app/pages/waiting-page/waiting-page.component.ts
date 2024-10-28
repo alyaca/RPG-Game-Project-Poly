@@ -46,9 +46,6 @@ export class WaitingPageComponent implements OnInit {
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }
-        if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/home']);
-        }
 
         this.socketCommunicationService.on<string>('roomDeleted', (message: string) => {
             this.onAdminQuit(message);
@@ -75,14 +72,6 @@ export class WaitingPageComponent implements OnInit {
         this.gameService.isRoomLocked = this.isLocked;
         this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
-
-    // // might become necessary later
-    // ensureAdminIsFirst() {
-    //     this.players = []
-    //         ...this.players.filter((player) => player.status === Status.Admin),
-    //         ...this.players.filter((player) => player.status !== Status.Admin),
-    //     ];
-    // }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {

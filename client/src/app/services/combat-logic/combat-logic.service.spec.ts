@@ -3,7 +3,7 @@ import { DiceComponent } from '@app/components/dice/dice.component';
 import { COMBAT_TURN_LENGTH, DISPLAY_TEXT_DELAY, FAIL_EVASION_RANDOM_NUM, SHORT_COMBAT_TURN_LENGTH, SUCCES_EVASION_RANDOM_NUM } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
-import { CombatLogicService, Roles } from './combat-logic/combat-logic.service';
+import { CombatLogicService, Roles } from './combat-logic.service';
 
 describe('CombatLogicService', () => {
     let service: CombatLogicService;

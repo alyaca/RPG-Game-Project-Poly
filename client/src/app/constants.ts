@@ -23,6 +23,14 @@ export enum TileType {
     OpenDoor = 6,
 }
 
+// To validate a door position on a map
+export const DIRECTIONS = [
+    { x: 0, y: 1 },
+    { x: 1, y: 0 },
+    { x: 0, y: -1 },
+    { x: -1, y: 0 },
+];
+
 export const OBJECT_COUNT_MAP: { [key: string]: number } = {
     small: NB_ITEMS_SMALL_MAP,
     medium: NB_ITEMS_MEDIUM_MAP,
@@ -79,6 +87,8 @@ export const DEFAULT_ACTION_POINT = 1;
 export enum ErrorMessages {
     MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
     MissingName = 'Veuillez entrer un nom de personnage',
+    MissingAvatar = 'Veuillez sélectionner un avatar',
+    NameWithSpace = 'Le nom ne peut pas contenir des espaces',
 }
 
 // Constants for timer component
@@ -109,3 +119,6 @@ export const TIMER_ARC_WIDTH = 5;
 
 // Constants for random generation
 export const MAX_GENERATION_VALUE = 1000000000;
+
+// Constants for main page test
+export const NUMBER_OF_TEAM_MEMBERS = 6;
