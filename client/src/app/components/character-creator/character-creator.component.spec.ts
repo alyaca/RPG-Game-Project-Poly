@@ -25,6 +25,7 @@ describe('CharacterCreatorComponent', () => {
             'setDefense',
             'isButtonSelected',
             'getAttributValue',
+            'getAttributes',
             'resetAttributes',
             'getDiceMessage',
             'saveAttributesValue',

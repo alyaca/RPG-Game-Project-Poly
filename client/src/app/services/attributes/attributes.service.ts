@@ -14,11 +14,6 @@ export class AttributesService {
         this.name = name;
     }
 
-    setAttribute(highAttribute: keyof PlayerStats, defaultAttribute: keyof PlayerStats) {
-        this.attributes[highAttribute] = HIGH_ATTRIBUTE;
-        this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
-    }
-
     setHealth() {
         this.setAttribute('totalHp', 'speed');
     }
@@ -41,21 +36,6 @@ export class AttributesService {
         } else {
             this.setAttribute('defDiceMax', 'atkDiceMax');
         }
-    }
-
-    hasName() {
-        return this.name.trim();
-    }
-
-    hasSelectedAttributes() {
-        const { totalHp, speed } = this.attributes;
-        const selectedHealthSpeed = totalHp === DEFAULT_ATTRIBUTE && speed === DEFAULT_ATTRIBUTE;
-        return !selectedHealthSpeed && this.hasSelectedDice();
-    }
-
-    hasSelectedDice() {
-        const { atkDiceMax, defDiceMax } = this.attributes;
-        return !(atkDiceMax === DEFAULT_ATTRIBUTE && defDiceMax === DEFAULT_ATTRIBUTE);
     }
 
     resetAttributes() {
@@ -108,8 +88,33 @@ export class AttributesService {
         }
     }
 
-    setAllStats() {
+    getAttributes() {
+        this.setAllStats();
+        return this.attributes;
+    }
+
+    private setAllStats() {
         this.attributes.currentHp = this.attributes.totalHp;
         this.attributes.movementPointsLeft = this.attributes.speed;
+    }
+
+    private hasName() {
+        return this.name.trim();
+    }
+
+    private hasSelectedAttributes() {
+        const { totalHp, speed } = this.attributes;
+        const selectedHealthSpeed = totalHp === DEFAULT_ATTRIBUTE && speed === DEFAULT_ATTRIBUTE;
+        return !selectedHealthSpeed && this.hasSelectedDice();
+    }
+
+    private hasSelectedDice() {
+        const { atkDiceMax, defDiceMax } = this.attributes;
+        return !(atkDiceMax === DEFAULT_ATTRIBUTE && defDiceMax === DEFAULT_ATTRIBUTE);
+    }
+
+    private setAttribute(highAttribute: keyof PlayerStats, defaultAttribute: keyof PlayerStats) {
+        this.attributes[highAttribute] = HIGH_ATTRIBUTE;
+        this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
     }
 }
