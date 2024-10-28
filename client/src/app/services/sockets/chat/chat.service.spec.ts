@@ -22,7 +22,7 @@ describe('ChatService', () => {
         const username = 'Player';
         const content = "Hey it's me Goku !";
         service.sendMessage(content);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessage', {
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessages', {
             username,
             message: content,
             timestamp: jasmine.any(Date),
