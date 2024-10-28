@@ -23,8 +23,8 @@ describe('GameObjectService', () => {
 
     it('should initialize objectsArray correctly and set maxCount if mapSize is defined', () => {
         const mockMapSize = 'medium';
-        service.gridSize = SIZE_MEDIUM_MAP;
-        service.mapSize = mockMapSize;
+        service['gridSize'] = SIZE_MEDIUM_MAP;
+        service['mapSize'] = mockMapSize;
 
         service.initObjectsArray();
 
@@ -60,9 +60,9 @@ describe('GameObjectService', () => {
             expect(service.objectsArray[0][0]).toBe(NO_OBJECT);
             expect(service.objectsArray[1][0]).toBe(gameObject.id);
 
-            spyOn(service, 'resetDrag');
+            spyOn<any>(service, 'resetDrag');
             service.updateObjectGridPosition(gameObject, 1, 0);
-            expect(service.resetDrag).toHaveBeenCalled();
+            expect(service['resetDrag']).toHaveBeenCalled();
         });
     });
 
@@ -101,8 +101,8 @@ describe('GameObjectService', () => {
         it('should set max count for countable object', () => {
             const mockGameObject = mockObjects[2];
             mockGameObject.count = ITEM_COUNT;
-            service.mapSize = 'medium';
-            service.maxCount = OBJECT_COUNT_MAP[service.mapSize];
+            service['mapSize'] = 'medium';
+            service.maxCount = OBJECT_COUNT_MAP[service['mapSize']];
             service.objectsArray[0][0] = mockGameObject.id;
             service.dragStartPosition = mockSelectedTile;
             service.removeObjectFromGrid(mockGameObject);
@@ -113,7 +113,7 @@ describe('GameObjectService', () => {
 
         it('should not increment object count if it is max count', () => {
             const mockGameObject = mockObjects[0];
-            service.mapSize = 'medium';
+            service['mapSize'] = 'medium';
             service.maxCount = ITEM_COUNT;
             service.objectsArray[0][0] = mockGameObject.id;
             service.dragStartPosition = mockSelectedTile;
@@ -125,17 +125,17 @@ describe('GameObjectService', () => {
     });
 
     it('should reset object counts correctly when mapSize is defined', () => {
-        service.mapSize = 'medium';
+        service['mapSize'] = 'medium';
         service.resetObjectsCount();
 
         expect(service.objects[0].count).toBe(ITEM_COUNT);
         expect(service.objects[1].count).toBe(ITEM_COUNT);
-        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[service.mapSize]);
+        expect(service.objects[2].count).toBe(OBJECT_COUNT_MAP[service['mapSize']]);
     });
 
     describe('loadMapObjectCount', () => {
         beforeEach(() => {
-            service.mapSize = MapSize.Small;
+            service['mapSize'] = MapSize.Small;
             service.objectsArray = [
                 [1, NO_OBJECT, 2],
                 [NO_OBJECT, NO_OBJECT, NO_OBJECT],
@@ -148,8 +148,8 @@ describe('GameObjectService', () => {
 
         it('should set maxCount based on mapSize', () => {
             service.loadMapObjectCount();
-            service.mapSize = MapSize.Small;
-            expect(service.maxCount).toBe(OBJECT_COUNT_MAP[service.mapSize]);
+            service['mapSize'] = MapSize.Small;
+            expect(service.maxCount).toBe(OBJECT_COUNT_MAP[service['mapSize']]);
         });
 
         it('should reset objects count', () => {

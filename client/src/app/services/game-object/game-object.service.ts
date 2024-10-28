@@ -10,16 +10,16 @@ import { Subscription } from 'rxjs';
     providedIn: 'root',
 })
 export class GameObjectService implements OnDestroy {
-    countableObjects = [ObjectType.Random, ObjectType.Spawn];
     draggedObject: GameObject | null = null;
     dragStartPosition: MapPosition | null = null;
-    gridSize: number;
     isDraggingFromContainer: boolean = false;
+    maxCount: number;
     objects: GameObject[] = gameObjects;
     objectsArray: number[][];
-    mapSize: string | null;
-    maxCount: number;
     selectedTile: MapPosition | null = null;
+    private countableObjects = [ObjectType.Random, ObjectType.Spawn];
+    private gridSize: number;
+    private mapSize: string | null;
     private sizeSubscription!: Subscription;
 
     constructor(private gameCreationService: GameCreationService) {
@@ -86,11 +86,6 @@ export class GameObjectService implements OnDestroy {
         }
     }
 
-    resetDrag() {
-        this.dragStartPosition = null;
-        this.draggedObject = null;
-    }
-
     loadMapObjectCount() {
         if (this.mapSize) {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
@@ -111,5 +106,10 @@ export class GameObjectService implements OnDestroy {
         if (this.sizeSubscription) {
             this.sizeSubscription.unsubscribe();
         }
+    }
+
+    private resetDrag() {
+        this.dragStartPosition = null;
+        this.draggedObject = null;
     }
 }

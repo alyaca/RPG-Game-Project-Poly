@@ -19,8 +19,8 @@ import { GameObjectService } from '@app/services/game-object/game-object.service
 })
 export class MapValidatorService {
     validMap: boolean;
-    errorMessages: string[] = [];
-    mapObjects: number[][];
+    private errorMessages: string[] = [];
+    private mapObjects: number[][];
 
     constructor(
         private dialog: MatDialog,
@@ -45,7 +45,7 @@ export class MapValidatorService {
         this.showValidationResult();
     }
 
-    showValidationResult() {
+    private showValidationResult() {
         setTimeout(() => {
             const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
 
@@ -59,7 +59,7 @@ export class MapValidatorService {
         }, VALIDATION_DURATION);
     }
 
-    validateName(nameToCheck: string) {
+    private validateName(nameToCheck: string) {
         const trimmedNameToCheck = nameToCheck.trim();
         this.gameListService.getAllGames().subscribe((allMaps) => {
             for (const index in allMaps) {
@@ -70,7 +70,7 @@ export class MapValidatorService {
         });
     }
 
-    isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
+    private isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
         const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
         const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
         const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
@@ -84,18 +84,18 @@ export class MapValidatorService {
         return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
-    validateAllDoors(array: number[][]) {
+    private validateAllDoors(array: number[][]) {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (array[row][col] > TileType.Wall && !this.isDoorPlacementValid(array, row, col)) {
                     this.errorMessages.push("- Au moins une porte n'est pas valide: ");
-                    this.errorMessages.push("chacun doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
+                    this.errorMessages.push("Chacune doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
                 }
             }
         }
     }
 
-    validateSufficientTerrainTiles(array: number[][]) {
+    private validateSufficientTerrainTiles(array: number[][]) {
         let nTerrainTiles = 0;
         for (const row of array) {
             for (const tile of row) {
@@ -109,7 +109,7 @@ export class MapValidatorService {
         }
     }
 
-    validateTileAccessibility(array: number[][]) {
+    private validateTileAccessibility(array: number[][]) {
         const visited = this.createVisitedArray(array);
         const directions = [...DIRECTIONS];
         const start = this.findStartPoint(array);
@@ -121,7 +121,7 @@ export class MapValidatorService {
         }
     }
 
-    findStartPoint(array: number[][]): { row: number; col: number } | null {
+    private findStartPoint(array: number[][]): { row: number; col: number } | null {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
                 if (this.isTileAccessible(row, col, array)) {
@@ -132,18 +132,18 @@ export class MapValidatorService {
         return null;
     }
 
-    openDialog(errorMessages: string[], title: string) {
+    private openDialog(errorMessages: string[], title: string) {
         this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: { messages: errorMessages, title },
         });
     }
 
-    containsAcharacter(text: string): boolean {
-        return text?.trim() !== '' && text?.trim() !== '';
+    private containsAcharacter(text: string): boolean {
+        return text?.trim() !== '';
     }
 
-    validateTitle(title: string) {
+    private validateTitle(title: string) {
         if (!(this.isTitleValidLength(title) && this.containsAcharacter(title))) {
             this.errorMessages.push(
                 '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
@@ -151,11 +151,11 @@ export class MapValidatorService {
         }
     }
 
-    isTitleValidLength(title: string): boolean {
+    private isTitleValidLength(title: string): boolean {
         return title.length >= MIN_LEN_MAP_TITLE && title.length <= MAX_LEN_MAP_TITLE;
     }
 
-    validateDescription(description: string) {
+    private validateDescription(description: string) {
         if (!this.isDescriptionValid(description)) {
             this.errorMessages.push(
                 '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
@@ -163,11 +163,11 @@ export class MapValidatorService {
         }
     }
 
-    isDescriptionValid(description: string): boolean {
+    private isDescriptionValid(description: string): boolean {
         return description.length >= MIN_LEN_MAP_DESCRIPTION && description.length <= MAX_LEN_MAP_DESCRIPTION && this.containsAcharacter(description);
     }
 
-    validateAllSpawnPointsPlaced() {
+    private validateAllSpawnPointsPlaced() {
         this.mapObjects = this.gameObjectService.objectsArray;
         const spawnObjectCount = this.countSpawnPoints();
 

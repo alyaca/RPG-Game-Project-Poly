@@ -196,13 +196,13 @@ describe('MapEditorPageComponent', () => {
 
     it('should set the grid attribute correctly', () => {
         component.setGrid(dummyMap.tiles);
-        expect(component.tiles).toBe(dummyMap.tiles);
+        expect(component['tiles']).toBe(dummyMap.tiles);
     });
 
     it('should set the height attribute correctly', () => {
         const mockHeightValue = SIZE_MEDIUM_MAP;
         component.setHeight(mockHeightValue);
-        expect(component.height).toBe(mockHeightValue);
+        expect(component['height']).toBe(mockHeightValue);
     });
 
     it('should set the new items matrix correctly', () => {
@@ -211,13 +211,13 @@ describe('MapEditorPageComponent', () => {
             [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
         ];
         component.setItems(mockItemsValue);
-        expect(component.items).toBe(mockItemsValue);
+        expect(component['items']).toBe(mockItemsValue);
     });
 
     it('should call saveNewGame if the map is new and is valid', (done) => {
         gameCreationServiceSpy.isNewGame = true;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
-        component.startSaving();
+        component['startSaving']();
         setTimeout(() => {
             expect(saveGameServiceSpy.saveNewGame).toHaveBeenCalled();
             expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
@@ -229,7 +229,7 @@ describe('MapEditorPageComponent', () => {
         mapEditorServiceSpy.mapToEdit = dummyMap;
         gameCreationServiceSpy.isNewGame = false;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
-        component.startSaving();
+        component['startSaving']();
         setTimeout(() => {
             expect(saveGameServiceSpy.saveNewGame).not.toHaveBeenCalled();
             expect(saveGameServiceSpy.replaceMap).toHaveBeenCalled();

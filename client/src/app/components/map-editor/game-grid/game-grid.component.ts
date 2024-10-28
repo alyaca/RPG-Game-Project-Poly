@@ -43,7 +43,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     constructor(
         private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
-        private tileService: TileService,
+        public tileService: TileService,
         private gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
     ) {}

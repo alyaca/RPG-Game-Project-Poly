@@ -64,11 +64,11 @@ describe('MapValidatorService', () => {
             [TileType.Ground, TileType.Ground, TileType.Wall],
             [TileType.Ground, TileType.Ground, TileType.Wall],
         ];
-        spyOn(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
+        spyOn<any>(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
         service.validateMap(mockMap, 'Valid Title', 'Valid Description', false, 'Valid Title');
-        expect(service.errorMessages.length).toBe(0);
+        expect(service['errorMessages'].length).toBe(0);
     });
 
     it('should not add an error message if the map is valid', () => {
@@ -77,28 +77,28 @@ describe('MapValidatorService', () => {
             [TileType.Ground, TileType.Ground, TileType.Wall],
             [TileType.Ground, TileType.Ground, TileType.Wall],
         ];
-        spyOn(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
+        spyOn<any>(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
         service.validateMap(mockMap, 'Valid Title', 'Valid Description', true, 'Valid Title');
-        expect(service.errorMessages.length).toBe(0);
+        expect(service['errorMessages'].length).toBe(0);
     });
 
     it('should set validMap to true and open dialog with "Sauvegarde réussie" if there are not error messages', fakeAsync(() => {
-        service.errorMessages = [];
-        spyOn(service, 'openDialog');
-        service.showValidationResult();
+        service['errorMessages'] = [];
+        spyOn<any>(service, 'openDialog');
+        service['showValidationResult']();
         tick(VALIDATION_DURATION);
         expect(service.validMap).toBeTrue();
     }));
 
     it('should set validMap to false and open dialog with "Carte invalide" if there are error messages', fakeAsync(() => {
-        service.errorMessages = ['Erreur 1'];
-        spyOn(service, 'openDialog');
-        service.showValidationResult();
+        service['errorMessages'] = ['Erreur 1'];
+        spyOn<any>(service, 'openDialog');
+        service['showValidationResult']();
         tick(VALIDATION_DURATION);
         expect(service.validMap).toBeFalse();
-        expect(service.openDialog).toHaveBeenCalledWith(service.errorMessages, 'Carte invalide');
+        expect(service['openDialog']).toHaveBeenCalledWith(service['errorMessages'], 'Carte invalide');
     }));
 
     it('should add an error message if a map with the same name exists', () => {
@@ -119,8 +119,8 @@ describe('MapValidatorService', () => {
             },
         ];
         gameListServiceSpy.getAllGames.and.returnValue(of(mockMaps));
-        service.validateName('Map1');
-        expect(service.errorMessages).toContain('- Une carte avec le même nom existe déjà');
+        service['validateName']('Map1');
+        expect(service['errorMessages']).toContain('- Une carte avec le même nom existe déjà');
     });
 
     describe('isDoorPlacementValid', () => {
@@ -131,7 +131,7 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Ground, TileType.Wall],
             ];
 
-            expect(service.isDoorPlacementValid(mockMap, 1, 1)).toBeTrue();
+            expect(service['isDoorPlacementValid'](mockMap, 1, 1)).toBeTrue();
         });
 
         it('should return true for a valid door placement', () => {
@@ -141,7 +141,7 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
 
-            expect(service.isDoorPlacementValid(mockMap, 1, 1)).toBeTrue();
+            expect(service['isDoorPlacementValid'](mockMap, 1, 1)).toBeTrue();
         });
 
         it('should return false for an invalid door placement', () => {
@@ -151,7 +151,7 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
 
-            expect(service.isDoorPlacementValid(mockMap, 1, 1)).toBeFalse();
+            expect(service['isDoorPlacementValid'](mockMap, 1, 1)).toBeFalse();
         });
     });
 
@@ -162,9 +162,9 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.ClosedDoor, TileType.Wall],
                 [TileType.Wall, TileType.Ground, TileType.Wall],
             ];
-            service.validateAllDoors(mockMap);
-            expect(service.errorMessages.length).toBe(0);
-            expect(service.errorMessages).toEqual([]);
+            service['validateAllDoors'](mockMap);
+            expect(service['errorMessages'].length).toBe(0);
+            expect(service['errorMessages']).toEqual([]);
         });
 
         it('should add error messages for invalid door placements', () => {
@@ -172,8 +172,8 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.ClosedDoor, TileType.Ground],
                 [TileType.Wall, TileType.Wall, TileType.Wall],
             ];
-            service.validateAllDoors(mockMap);
-            expect(service.errorMessages.length).toBeGreaterThan(0);
+            service['validateAllDoors'](mockMap);
+            expect(service['errorMessages'].length).toBeGreaterThan(0);
         });
     });
 
@@ -183,8 +183,8 @@ describe('MapValidatorService', () => {
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
-            service.validateSufficientTerrainTiles(mockMap);
-            expect(service.errorMessages.length).toBe(0);
+            service['validateSufficientTerrainTiles'](mockMap);
+            expect(service['errorMessages'].length).toBe(0);
         });
 
         it('should add error messages if less than half of the map contains terrain tiles', () => {
@@ -192,8 +192,8 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Ground],
                 [TileType.Wall, TileType.Wall],
             ];
-            service.validateSufficientTerrainTiles(mockMap);
-            expect(service.errorMessages.length).toBeGreaterThan(0);
+            service['validateSufficientTerrainTiles'](mockMap);
+            expect(service['errorMessages'].length).toBeGreaterThan(0);
         });
     });
 
@@ -203,8 +203,8 @@ describe('MapValidatorService', () => {
                 [TileType.Ground, TileType.Ground],
                 [TileType.Wall, TileType.Ground],
             ];
-            service.validateTileAccessibility(mockMap);
-            expect(service.errorMessages.length).toBe(0);
+            service['validateTileAccessibility'](mockMap);
+            expect(service['errorMessages'].length).toBe(0);
         });
 
         it('should add error messages if any non-wall tile is inaccessible', () => {
@@ -213,44 +213,44 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Ground],
             ];
 
-            service.validateTileAccessibility(mockMap);
-            expect(service.errorMessages.length).toBeGreaterThan(0);
+            service['validateTileAccessibility'](mockMap);
+            expect(service['errorMessages'].length).toBeGreaterThan(0);
         });
     });
 
     describe('validateMap', () => {
         describe('containsAcharacter', () => {
             it('should return true for non-empty strings', () => {
-                expect(service.containsAcharacter('Hello')).toBeTrue();
-                expect(service.containsAcharacter(' A ')).toBeTrue();
+                expect(service['containsAcharacter']('Hello')).toBeTrue();
+                expect(service['containsAcharacter'](' A ')).toBeTrue();
             });
 
             it('should return false for empty strings', () => {
-                expect(service.containsAcharacter('')).toBeFalse();
-                expect(service.containsAcharacter('   ')).toBeFalse();
+                expect(service['containsAcharacter']('')).toBeFalse();
+                expect(service['containsAcharacter']('   ')).toBeFalse();
             });
         });
 
         describe('validateTitleLength', () => {
             it('should return true for valid titles', () => {
-                expect(service.isTitleValidLength('Valid Title')).toBeTrue();
-                expect(service.isTitleValidLength('Another Title')).toBeTrue();
+                expect(service['isTitleValidLength']('Valid Title')).toBeTrue();
+                expect(service['isTitleValidLength']('Another Title')).toBeTrue();
             });
 
             it('should return false for titles that are too short', () => {
-                expect(service.isTitleValidLength('A')).toBeFalse();
-                expect(service.isTitleValidLength('AB')).toBeFalse();
+                expect(service['isTitleValidLength']('A')).toBeFalse();
+                expect(service['isTitleValidLength']('AB')).toBeFalse();
             });
 
             it('should return false for titles that are too long', () => {
                 const longTitle = 'A'.repeat(MAX_LEN_MAP_TITLE + 1);
-                expect(service.isTitleValidLength(longTitle)).toBeFalse();
+                expect(service['isTitleValidLength'](longTitle)).toBeFalse();
             });
 
             it('should add an error message if the title is invalid', () => {
                 const invalidTitle = '  ';
-                service.validateTitle(invalidTitle);
-                expect(service.errorMessages).toContain(
+                service['validateTitle'](invalidTitle);
+                expect(service['errorMessages']).toContain(
                     '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
                 );
             });
@@ -258,27 +258,27 @@ describe('MapValidatorService', () => {
 
         describe('validateDescriptionLength', () => {
             it('should return true for valid descriptions', () => {
-                expect(service.isDescriptionValid('This is a valid description.')).toBeTrue();
+                expect(service['isDescriptionValid']('This is a valid description.')).toBeTrue();
             });
 
             it('should return false for descriptions that are too short', () => {
-                expect(service.isDescriptionValid('Too short')).toBeFalse();
+                expect(service['isDescriptionValid']('Too short')).toBeFalse();
             });
 
             it('should return false for descriptions that are too long', () => {
                 const longDescription = 'A'.repeat(MAX_LEN_MAP_DESCRIPTION + 1);
-                expect(service.isDescriptionValid(longDescription)).toBeFalse();
+                expect(service['isDescriptionValid'](longDescription)).toBeFalse();
             });
 
             it('should return false for descriptions that do not contain a character', () => {
-                expect(service.isDescriptionValid('   ')).toBeFalse();
+                expect(service['isDescriptionValid']('   ')).toBeFalse();
             });
         });
 
         it('should add an error message if the description is invalid', () => {
             const invalidDescription = '  ';
-            service.validateDescription(invalidDescription);
-            expect(service.errorMessages).toContain(
+            service['validateDescription'](invalidDescription);
+            expect(service['errorMessages']).toContain(
                 '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
             );
         });
@@ -290,10 +290,10 @@ describe('MapValidatorService', () => {
                 [ObjectType.Spawn, ObjectType.Spawn],
                 [ObjectType.Spawn, NO_OBJECT],
             ];
-            service.mapObjects = gameObjectServiceSpy.objectsArray;
+            service['mapObjects'] = gameObjectServiceSpy.objectsArray;
             gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
-            service.validateAllSpawnPointsPlaced();
-            expect(service.errorMessages.length).toBeGreaterThan(0);
+            service['validateAllSpawnPointsPlaced']();
+            expect(service['errorMessages'].length).toBeGreaterThan(0);
         });
 
         it('should not add an error message if all spawn points are placed', () => {
@@ -301,10 +301,10 @@ describe('MapValidatorService', () => {
                 [ObjectType.Spawn, ObjectType.Spawn],
                 [ObjectType.Spawn, ObjectType.Spawn],
             ];
-            service.mapObjects = gameObjectServiceSpy.objectsArray;
+            service['mapObjects'] = gameObjectServiceSpy.objectsArray;
             gameObjectServiceSpy.maxCount = NB_ITEMS_MEDIUM_MAP;
-            service.validateAllSpawnPointsPlaced();
-            expect(service.errorMessages.length).toBe(0);
+            service['validateAllSpawnPointsPlaced']();
+            expect(service['errorMessages'].length).toBe(0);
         });
         it('should return null if all tiles are walls', () => {
             const mockMap = [
@@ -312,14 +312,14 @@ describe('MapValidatorService', () => {
                 [TileType.Wall, TileType.Wall],
             ];
 
-            const result = service.findStartPoint(mockMap);
+            const result = service['findStartPoint'](mockMap);
             expect(result).toBeNull();
         });
     });
     it('should open the dialog with correct parameters', () => {
         const mockErrorMessages = ['Erreur 1', 'Erreur 2'];
         const mockTitle = 'Titre de test';
-        service.openDialog(mockErrorMessages, mockTitle);
+        service['openDialog'](mockErrorMessages, mockTitle);
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
             disableClose: true,
             data: { messages: mockErrorMessages, title: mockTitle },
