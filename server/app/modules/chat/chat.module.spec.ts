@@ -1,4 +1,3 @@
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { Message, messageSchema } from '@app/model/schema/message.schema';
 import { ChatService } from '@app/services/chat/chat.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -12,7 +11,6 @@ describe('ChatModule', () => {
     let module: TestingModule;
     let chatService: ChatService;
     let roomService: RoomService;
-    let chatGateway: ChatGateway;
     let mongoServer: MongoMemoryServer;
 
     beforeAll(async () => {
@@ -28,12 +26,11 @@ describe('ChatModule', () => {
                 MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]),
                 ChatModule,
             ],
-            providers: [ChatService, RoomService, ChatGateway, Logger],
+            providers: [ChatService, RoomService, Logger],
         }).compile();
 
         chatService = module.get<ChatService>(ChatService);
         roomService = module.get<RoomService>(RoomService);
-        chatGateway = module.get<ChatGateway>(ChatGateway);
     });
 
     afterAll(async () => {
@@ -45,13 +42,5 @@ describe('ChatModule', () => {
         expect(module).toBeDefined();
         expect(chatService).toBeDefined();
         expect(roomService).toBeDefined();
-        expect(chatGateway).toBeDefined();
-    });
-
-    it('should inject ChatService and RoomService into ChatGateway', () => {
-        const injectedChatService = chatGateway['chatService'];
-        const injectedRoomService = chatGateway['roomService'];
-        expect(injectedChatService).toBe(chatService);
-        expect(injectedRoomService).toBe(roomService);
     });
 });

@@ -1,5 +1,7 @@
+import { IMessage } from '@app/interfaces/message.interface';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
+import { ChatService } from '@app/services/chat/chat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
@@ -12,16 +14,22 @@ import { PlayerConnectionGateway } from './player-connection.gateway';
 
 describe('PlayerConnectionGateway', () => {
     let gateway: PlayerConnectionGateway;
-    let socket: SinonStubbedInstance<Socket>;
-    let server: SinonStubbedInstance<Server>;
+    let socket: jest.Mocked<Socket>;
+    let server: jest.Mocked<Server>;
     let roomService: RoomService;
     let gameService: GameService;
+    let chatService: ChatService;
     let logger: SinonStubbedInstance<Logger>;
     let roomId: string;
     let mockClient: Socket;
     let mockPlayer: Player;
 
     beforeEach(async () => {
+        const chatServiceMock = {
+            saveMessage: jest.fn(),
+            getMessagesByRoom: jest.fn(),
+        };
+
         const roomServiceMock = {
             setServer: jest.fn(),
             joinRoom: jest.fn(),
@@ -42,8 +50,20 @@ describe('PlayerConnectionGateway', () => {
             selectedAvatar: jest.fn(),
         };
 
-        socket = createStubInstance<Socket>(Socket);
-        server = createStubInstance<Server>(Server);
+        socket = {
+            emit: jest.fn(),
+            to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+            data: {},
+        } as unknown as jest.Mocked<Socket>;
+
+        const broadcastOperator = {
+            emit: jest.fn(),
+        };
+
+        server = {
+            to: jest.fn().mockReturnValue(broadcastOperator),
+        } as unknown as jest.Mocked<Server>;
+
         logger = createStubInstance(Logger);
         roomId = '1234';
         mockClient = {
@@ -65,12 +85,20 @@ describe('PlayerConnectionGateway', () => {
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: Logger, useValue: logger },
                 { provide: GameService, useValue: gameServiceMock },
+                { provide: ChatService, useValue: chatServiceMock },
             ],
         }).compile();
 
         gateway = module.get<PlayerConnectionGateway>(PlayerConnectionGateway);
         roomService = module.get<RoomService>(RoomService);
         gameService = module.get<GameService>(GameService);
+        chatService = module.get<ChatService>(ChatService);
+
+        gateway['server'] = server;
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     it('should be defined', () => {
@@ -78,7 +106,6 @@ describe('PlayerConnectionGateway', () => {
     });
 
     it('should call setServer on roomService when onModuleInit is called', () => {
-        gateway['server'] = server;
         gateway.onModuleInit();
         expect(roomService.setServer).toHaveBeenCalledWith(server);
     });
@@ -139,7 +166,7 @@ describe('PlayerConnectionGateway', () => {
         gateway.handleCreateRoom(socket as Socket, mockGame);
 
         expect(roomService.createRoom).toHaveBeenCalledWith(socket, mockGame);
-        expect(socket.emit.calledWith('roomCreated', room)).toBeTruthy();
+        expect(socket.emit).toHaveBeenCalledWith('roomCreated', room);
         expect(logger.log.calledOnce).toBeTruthy();
     });
 
@@ -188,6 +215,71 @@ describe('PlayerConnectionGateway', () => {
             expect(gameService.createPlayer).toHaveBeenCalledWith(room, mockPlayer, mockClient);
             expect(mockClient.emit).toHaveBeenCalledWith('updatedPlayer', room);
             expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
+        });
+    });
+
+    describe('handleMessage', () => {
+        it('should handle sending and saving a message successfully', async () => {
+            const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
+            jest.spyOn(logger, 'log');
+
+            socket.data.username = 'Luffy';
+            socket.data.roomCode = roomId;
+
+            const mockMessageData: IMessage = {
+                roomId,
+                username: socket.data.username,
+                message: 'I am going to be the Pirate King!',
+                timestamp: new Date(),
+            };
+
+            (chatService.saveMessage as jest.Mock).mockResolvedValue(mockMessageData);
+            (roomService.getRoomId as jest.Mock).mockReturnValue(roomId);
+
+            await gateway.handleMessage(socket, mockMessageData);
+
+            expect(logger.log).toHaveBeenCalled();
+
+            expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
+
+            expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
+
+            expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
+
+            expect(server.to).toHaveBeenCalledWith(roomId);
+
+            const broadcastOperator = server.to(roomId);
+            expect(broadcastOperator.emit).toHaveBeenCalledWith('messageReceived', mockMessageData);
+        });
+
+        it('should emit an errorMessage on saveMessage failure', async () => {
+            const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
+            jest.spyOn(logger, 'error');
+
+            socket.data.username = 'Vegeta';
+            socket.data.roomCode = roomId;
+            const mockMessageData: IMessage = {
+                roomId,
+                username: socket.data.username,
+                message: 'I am the prince of all Saiyans!',
+                timestamp: new Date(),
+            };
+
+            const failedMessage = 'Save failed';
+            (roomService.getRoomId as jest.Mock).mockReturnValue(roomId);
+            (chatService.saveMessage as jest.Mock).mockRejectedValue(new Error(failedMessage));
+
+            await gateway.handleMessage(socket, mockMessageData);
+
+            expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
+
+            expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
+
+            expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
+
+            expect(logger.error).toHaveBeenCalled();
+
+            expect(socket.emit).toHaveBeenCalledWith('errorMessage', 'Failed to send message.');
         });
     });
 });
