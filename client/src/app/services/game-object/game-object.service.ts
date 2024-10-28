@@ -38,11 +38,7 @@ export class GameObjectService implements OnDestroy {
 
     resetObjectsCount() {
         this.objects.forEach((object) => {
-            if (this.countableObjects.includes(object.id) && this.mapSize) {
-                object.count = OBJECT_COUNT_MAP[this.mapSize];
-            } else {
-                object.count = ITEM_COUNT;
-            }
+            object.count = this.countableObjects.includes(object.id) && this.mapSize ? OBJECT_COUNT_MAP[this.mapSize] : ITEM_COUNT;
         });
     }
 

@@ -67,6 +67,11 @@ export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
 
+export enum ErrorMessages {
+    MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
+    MissingName = 'Veuillez entrer un nom de personnage',
+}
+
 // Constants for timer component
 export const TOTAL_TIME = 60;
 export const WARNING_TIME = 3;

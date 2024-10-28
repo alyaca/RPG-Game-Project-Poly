@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, HIGH_ATTRIBUTE } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, ErrorMessages, HIGH_ATTRIBUTE } from '@app/constants';
 import { AttributesService } from './attributes.service';
 
 describe('AttributesService', () => {
@@ -192,7 +192,7 @@ describe('AttributesService', () => {
             spyOn(service, 'hasName').and.returnValue('');
             const result = service.saveAttributesValue();
 
-            expect(result).toBe(service.validateError.missingName);
+            expect(result).toBe(ErrorMessages.MissingName);
         });
 
         it('should return missingAttributes error when attributes are missing', () => {
@@ -201,7 +201,7 @@ describe('AttributesService', () => {
 
             const result = service.saveAttributesValue();
 
-            expect(result).toBe(service.validateError.missingAttributes);
+            expect(result).toBe(ErrorMessages.MissingAttributes);
         });
 
         it('should return empty string when name and attributes are defined', () => {

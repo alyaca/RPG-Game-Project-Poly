@@ -63,7 +63,7 @@ export class GameListComponent implements OnInit {
     changeVisibility(game: Game) {
         this.gameListService.changeVisibility(game).subscribe({
             next: (result: boolean) => {
-                if (result === false) {
+                if (!result) {
                     this.showErrorMessage();
                 }
             },

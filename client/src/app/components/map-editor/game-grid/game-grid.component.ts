@@ -76,7 +76,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.resetTrigger && changes.resetTrigger.previousValue === false && changes.resetTrigger.currentValue === true) {
+        if (!changes.resetTrigger?.previousValue && changes.resetTrigger?.currentValue) {
             if (!this.gameCreationService.isNewGame) {
                 this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
                 this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
@@ -141,10 +141,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     getObjectImage(id: number): string {
         const gameObject = this.gameObjectService.getObjectById(id);
-        if (gameObject) {
-            return gameObject.image;
-        }
-        return '';
+        return gameObject ? gameObject.image : '';
     }
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
