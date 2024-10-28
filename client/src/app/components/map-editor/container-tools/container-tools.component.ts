@@ -14,7 +14,7 @@ export class ContainerToolsComponent {
     tileIds = TileId;
     tileNames = TileButtonName;
 
-    constructor(public toolService: ToolService) {}
+    constructor(private toolService: ToolService) {}
 
     onSelectTile(tile: TileId) {
         this.toolService.setSelectedTile(tile);

@@ -25,7 +25,7 @@ export class MapValidatorService {
     constructor(
         private dialog: MatDialog,
         private gameObjectService: GameObjectService,
-        public gameListService: GameListService,
+        private gameListService: GameListService,
     ) {
         this.gameObjectService.initObjectsArray();
     }

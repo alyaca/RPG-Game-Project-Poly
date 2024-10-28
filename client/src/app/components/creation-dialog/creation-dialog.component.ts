@@ -17,10 +17,10 @@ export class CreationDialogComponent {
     selectedMode: string;
 
     constructor(
-        public dialogRef: MatDialogRef<CreationDialogComponent>,
+        private dialogRef: MatDialogRef<CreationDialogComponent>,
         private router: Router,
         private gameCreationService: GameCreationService,
-        public snackBar: MatSnackBar,
+        private snackBar: MatSnackBar,
     ) {}
 
     selectSize(size: MapSize) {
