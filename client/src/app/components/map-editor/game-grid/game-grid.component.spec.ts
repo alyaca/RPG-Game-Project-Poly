@@ -68,7 +68,7 @@ describe('GameGridComponent', () => {
         component.gridSize = SIZE_SMALL_MAP;
         component.tilesGrid = tileServiceMock.resetGrid(component.gridSize, component.tilesGrid);
         component.objectsArray = gameObjectServiceMock.initObjectsArray();
-        gameObjectManagerServiceSpy.gridSize = SIZE_SMALL_MAP;
+        gameObjectManagerServiceSpy['gridSize'] = SIZE_SMALL_MAP;
     });
 
     it('should create the component', () => {
@@ -236,10 +236,8 @@ describe('GameGridComponent', () => {
 
     describe('drag event', () => {
         it('should set dragStartPosition and draggedObject on drag start', () => {
-            const mockDragEvent = new DragEvent('dragstart');
-
             gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(gameObjects[0]);
-            component.onDragStart(mockDragEvent, MOCK_ROW, MOCK_COLUMN);
+            component.onDragStart(MOCK_ROW, MOCK_COLUMN);
 
             expect(gameObjectManagerServiceSpy.dragStartPosition).toEqual({ row: MOCK_ROW, col: MOCK_COLUMN });
             expect(gameObjectManagerServiceSpy.getGameObjectOnTile).toHaveBeenCalledWith(MOCK_ROW, MOCK_COLUMN);

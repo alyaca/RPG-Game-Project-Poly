@@ -54,18 +54,24 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.oldMapName = this.mapName;
-
         this.gridSize = this.gameCreationService.updateDimensions() as number;
-
         if (this.gameCreationService.isNewGame) {
-            this.objectsArray = this.gameObjectService.initObjectsArray();
-            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+            this.loadNewGame();
         } else {
-            this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
-            this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
-            this.gameObjectService.objectsArray = this.objectsArray;
-            this.oldMapName = this.gameCreationService.loadedMapName;
+            this.loadExistingGame();
         }
+    }
+
+    loadNewGame() {
+        this.objectsArray = this.gameObjectService.initObjectsArray();
+        this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
+    }
+
+    loadExistingGame() {
+        this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
+        this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
+        this.gameObjectService.objectsArray = this.objectsArray;
+        this.oldMapName = this.gameCreationService.loadedMapName;
     }
 
     deepCopyMatrix(matrix: number[][] | null): number[][] {
@@ -77,18 +83,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (!changes.resetTrigger?.previousValue && changes.resetTrigger?.currentValue) {
-            if (!this.gameCreationService.isNewGame) {
-                this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
-                this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
-                this.gameObjectService.objectsArray = this.objectsArray;
-                this.gameObjectService.loadMapObjectCount();
-            } else {
-                this.objectsArray = this.gameObjectService.initObjectsArray();
-                this.gameObjectService.resetObjectsCount();
-                this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-            }
-
-            this.sendInfoToMapCreationPage();
+            this.onResetTrigger();
         }
         if (changes.saveTrigger && this.saveTrigger) {
             this.mapValidatorService.validateMap(
@@ -98,8 +93,29 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.gameCreationService.isNewGame,
                 this.oldMapName,
             );
-            this.sendInfoToMapCreationPage();
         }
+        this.sendInfoToMapCreationPage();
+    }
+
+    onResetTrigger() {
+        if (!this.gameCreationService.isNewGame) {
+            this.resetNewMap();
+        } else {
+            this.resetExistingMap();
+        }
+    }
+
+    resetNewMap() {
+        this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
+        this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
+        this.gameObjectService.objectsArray = this.objectsArray;
+        this.gameObjectService.loadMapObjectCount();
+    }
+
+    resetExistingMap() {
+        this.objectsArray = this.gameObjectService.initObjectsArray();
+        this.gameObjectService.resetObjectsCount();
+        this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
     }
 
     sendInfoToMapCreationPage() {
@@ -108,7 +124,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.heightChange.emit(this.gridSize);
     }
 
-    onDragStart(event: DragEvent, row: number, col: number) {
+    onDragStart(row: number, col: number) {
         this.toolService.deactivateTileApplicator();
         this.gameObjectService.selectedTile = null;
         this.isMouseDown = false;
