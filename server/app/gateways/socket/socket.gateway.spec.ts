@@ -10,10 +10,10 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
-import { PlayerConnectionGateway } from './player-connection.gateway';
+import { SocketGateway } from './socket.gateway';
 
-describe('PlayerConnectionGateway', () => {
-    let gateway: PlayerConnectionGateway;
+describe('SocketGateway', () => {
+    let gateway: SocketGateway;
     let socket: jest.Mocked<Socket>;
     let server: jest.Mocked<Server>;
     let roomService: RoomService;
@@ -81,7 +81,7 @@ describe('PlayerConnectionGateway', () => {
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                PlayerConnectionGateway,
+                SocketGateway,
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: Logger, useValue: logger },
                 { provide: GameService, useValue: gameServiceMock },
@@ -89,7 +89,7 @@ describe('PlayerConnectionGateway', () => {
             ],
         }).compile();
 
-        gateway = module.get<PlayerConnectionGateway>(PlayerConnectionGateway);
+        gateway = module.get<SocketGateway>(SocketGateway);
         roomService = module.get<RoomService>(RoomService);
         gameService = module.get<GameService>(GameService);
         chatService = module.get<ChatService>(ChatService);

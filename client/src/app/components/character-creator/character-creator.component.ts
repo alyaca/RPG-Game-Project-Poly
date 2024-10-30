@@ -106,7 +106,7 @@ export class CharacterCreatorComponent implements OnDestroy {
     }
 
     setAttributes() {
-        this.attributes = this.attributesService.attributes;
+        this.attributes = this.attributesService.getAttributes();
     }
 
     createPlayer() {

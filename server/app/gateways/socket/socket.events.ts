@@ -1,4 +1,4 @@
-export enum RoomEvents {
+export enum SocketEvents {
     CreateRoom = 'createRoom',
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
