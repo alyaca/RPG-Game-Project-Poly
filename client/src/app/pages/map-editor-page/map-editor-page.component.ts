@@ -154,7 +154,7 @@ export class MapEditorPageComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (!this.gameCreationService.sizeSubject.value) {
+        if (!this.mapEditorService.isMapChosen()) {
             this.router.navigate(['/administration']);
         }
 

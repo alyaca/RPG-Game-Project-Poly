@@ -15,22 +15,25 @@
     position: absolute;
     bottom: 100%;
     background: linear-gradient(to bottom, rgba(35, 33, 33, 1), rgba(44, 39, 39, 0.93) 33%, rgba(62, 55, 55, 0.86) 67%, rgba(105, 96, 96, 0.79));
-    display: none;
+    display: block;
     z-index: 10;
     width: 222%;
-    height: 70vh;
-
-    display: none;
-}
-
-.past-messages.visible {
-    display: block;
-    max-height: 80vh;
+    height: 30vh;
+    max-height: 30vh;
     overflow-y: auto;
     overflow-x: hidden;
     white-space: normal;
     word-break: break-word;
 }
+
+// .past-messages.visible {
+//     display: block;
+//     max-height: 80vh;
+//     overflow-y: auto;
+//     overflow-x: hidden;
+//     white-space: normal;
+//     word-break: break-word;
+// }
 
 .chat-box {
     height: 50%;

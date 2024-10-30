@@ -37,3 +37,8 @@ export interface PlayerStats {
     defense: number;
     defDiceMax: number;
 }
+
+export interface Position {
+    x: number;
+    y: number;
+}

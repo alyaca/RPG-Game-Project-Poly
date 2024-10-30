@@ -4,10 +4,12 @@ import { NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { NavigationService } from '@app/services/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { Player } from '@common/player';
+import { Game } from '@common/game';
+import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -34,6 +36,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     tilesGrid: number[][];
     objectsArray: number[][];
     gridSize: number;
+    players: Player[] = [];
 
     selectedRow: number = 0;
     selectedCol: number = 0;
@@ -42,6 +45,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     previousRow: number | null = null;
     previousCol: number | null = null;
+    gameMap: Game;
+
+    //Pas sure
+    reachableTiles: Position[] = [];
+    fastestPath: Position[] | null = [];
 
     constructor(
         private toolService: ToolService,
@@ -50,6 +58,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
         private socketCommunicationService: SocketCommunicationService,
+        private navigationService: NavigationService,
     ) {}
 
     get selectedTile(): string {
@@ -73,14 +82,25 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.oldMapName = this.gameCreationService.loadedMapName;
         }
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
-            this.displayPortraitOnSpawnPoints(room.listPlayers);
+            this.players = room.listPlayers;
+            this.gameMap = room.gameMap;
+            //this.displayPortraitOnSpawnPoints(room.listPlayers);
+            this.displayPortraitOnSpawnPoints();
+            this.findReachableTiles();
         });
     }
 
-    displayPortraitOnSpawnPoints(players: Player[]) {
-        for (let i = 0; i < players.length; i++) {
-            this.objectsArray[players[i].position.x][players[i].position.y] = this.getPortraitId(players[i].avatar?.name);
+    displayPortraitOnSpawnPoints() {
+        for (const player of this.players) {
+            const { x, y } = player.position;
+            if (this.isPositionWithinBounds(x, y, this.objectsArray)) {
+                this.objectsArray[x][y] = this.getPortraitId(player.avatar?.name);
+            }
         }
+    }
+
+    private isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
+        return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
     }
 
     getPortraitId(godName: string | undefined) {
@@ -258,5 +278,26 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.gameObjectService.selectedTile = { row, col };
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }
+    }
+
+    private findReachableTiles() {
+        this.reachableTiles = this.navigationService.findReachableTiles(this.players[0], this.gameMap, this.players[0].attributes.movementPointsLeft);
+        console.log(this.players[0].attributes.movementPointsLeft);
+        console.log(this.reachableTiles);
+    }
+
+    isReachableTile(row: number, col: number): boolean {
+        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+    }
+
+    onHover(row: number, col: number) {
+        this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
+    }
+
+    isOnFastestPath(row: number, col: number): boolean {
+        if (!this.fastestPath) {
+            return false;
+        }
+        return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 }

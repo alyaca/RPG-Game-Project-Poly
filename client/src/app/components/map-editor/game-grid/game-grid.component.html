@@ -10,7 +10,7 @@
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
     >
-        <img class="tile-image" [src]="tileService.getTileImage(col)" draggable="false" />
+        <img class="tile-image" [src]="tileService.getTileImage(col)" (mouseover)="onHover(rowIndex, colIndex)" draggable="false" />
         @if(objectsArray[rowIndex][colIndex] > 8){
         <img
             class="player-on-spawn-points"
@@ -25,6 +25,10 @@
             draggable="true"
             (dragstart)="onDragStart($event, rowIndex, colIndex)"
         />
+        } @if (isReachableTile(rowIndex, colIndex)) {
+        <div class="reachable-tile"></div>
+        } @if (isOnFastestPath(rowIndex, colIndex)) {
+        <div class="fastest-path-tile"></div>
         }
     </div>
     } }

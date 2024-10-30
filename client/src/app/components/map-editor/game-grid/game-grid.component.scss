@@ -60,3 +60,19 @@
     border-radius: 50%;
     transform: scale(0.9);
 }
+
+.reachable-tile {
+    border: 10px solid green;
+    position: absolute;
+    z-index: 1;
+    border-radius: 50%;
+    transform: scale(0.9);
+}
+
+.fastest-path-tile {
+    border: 15px solid white;
+    position: absolute;
+    z-index: 1;
+    border-radius: 50%;
+    transform: scale(0.9);
+}

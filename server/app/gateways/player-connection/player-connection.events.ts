@@ -9,4 +9,5 @@ export enum RoomEvents {
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
     GetMap = 'getMap',
+    SendMessage = 'sendMessages',
 }

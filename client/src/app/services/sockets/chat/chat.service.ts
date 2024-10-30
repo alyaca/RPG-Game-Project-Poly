@@ -19,7 +19,7 @@ export class ChatService {
             timestamp: new Date(),
         };
 
-        this.socketCommunication.send('sendMessage', message);
+        this.socketCommunication.send('sendMessages', message);
     }
 
     // Écouter les messages reçus

@@ -81,6 +81,10 @@ export class RoomService {
         return this.rooms.get(roomCode);
     }
 
+    getRoomMap(roomId: string): Game {
+        return this.rooms.get(roomId).gameMap;
+    }
+
     joinRoom(socket: Socket, roomId: string) {
         if (!this.isRoomActive(roomId)) {
             return;
