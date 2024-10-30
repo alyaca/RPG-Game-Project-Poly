@@ -216,6 +216,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
+        event.preventDefault();
         if (this.gameCreationService.isModifiable) {
             event.preventDefault();
             this.removeTile(event, row, col);
