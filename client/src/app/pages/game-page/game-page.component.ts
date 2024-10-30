@@ -44,7 +44,7 @@ export class GamePageComponent implements AfterViewInit, OnInit{
         private router: Router,
         private dialog: MatDialog,
         private gameCreationService: GameCreationService,
-        private socketCommunicationService: SocketCommunicationService
+        public socketCommunicationService: SocketCommunicationService
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
