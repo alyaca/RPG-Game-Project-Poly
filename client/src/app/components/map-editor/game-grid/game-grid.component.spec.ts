@@ -404,6 +404,7 @@ describe('GameGridComponent', () => {
 
         spyOn(component, 'removeTile');
 
+        gameCreationServiceSpy.isModifiable = true;
         component.removeOnRightClick(mockEvent, 1, 1);
 
         expect(mockEvent.preventDefault).toHaveBeenCalled();
