@@ -59,7 +59,7 @@ describe('GameObjectService', () => {
 
             expect(service.objectsArray[0][0]).toBe(NO_OBJECT);
             expect(service.objectsArray[1][0]).toBe(gameObject.id);
-
+            // eslint-disable-next-line -- resetDrag is private and we want to spy for the test
             spyOn<any>(service, 'resetDrag');
             service.updateObjectGridPosition(gameObject, 1, 0);
             expect(service['resetDrag']).toHaveBeenCalled();

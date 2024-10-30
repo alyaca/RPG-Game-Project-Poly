@@ -162,7 +162,7 @@ describe('CharacterCreatorComponent', () => {
             defense: DEFAULT_ATTRIBUTE,
             defDiceMax: DEFAULT_ATTRIBUTE,
         };
-        attributesServiceSpy.attributes = mockAttributes;
+        attributesServiceSpy.getAttributes.and.returnValue(mockAttributes);
         component.setAttributes();
 
         expect(component.attributes).toEqual(mockAttributes);

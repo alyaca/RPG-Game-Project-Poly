@@ -126,6 +126,19 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
+    it('should call leaveRoom and navigate to game-creation if admin on leftRoom event', () => {
+        const expectedRoute = '/game-creation';
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
+            if (event === 'leftRoom') {
+                callback(true as unknown as T);
+            }
+        });
+        component.leaveGame(accessCode);
+
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
+    });
+
     describe('handleExit', () => {
         it('should open the dialog and navigate to /home if confirmed', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);

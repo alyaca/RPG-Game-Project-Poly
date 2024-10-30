@@ -1,5 +1,6 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import {
     GameMode,
     MAX_LEN_MAP_DESCRIPTION,
@@ -10,14 +11,13 @@ import {
     TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
-
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { Game } from '@common/game';
 import { of } from 'rxjs';
 import { MapValidatorService } from './map-validator.service';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 describe('MapValidatorService', () => {
     let service: MapValidatorService;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
