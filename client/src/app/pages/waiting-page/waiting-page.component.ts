@@ -54,13 +54,26 @@ export class WaitingPageComponent implements OnInit {
         });
 
         this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
+            console.log('Player:', this.socketCommunicationService.socket.id);
+            console.log('Room:', room);
             this.players = room.listPlayers;
         });
 
         this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
             this.isAdmin = isPlayerAdmin;
         });
-    }
+        
+    
+        
+        this.socketCommunicationService.on<string>('kickPlayer', (playerId: string) => {
+            console.log('Le joueur quiiiii  est retiré:', playerId);
+            if(playerId === this.socketCommunicationService.socket.id){
+                this.onPlayerKickedOut();
+            }
+            
+        });
+       
+}
 
     onAdminQuit(message: string) {
         const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
@@ -73,6 +86,20 @@ export class WaitingPageComponent implements OnInit {
             }
         });
     }
+
+    onPlayerKickedOut() {
+        const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: { title: 'Vous avez été retiré du jeu'},
+        });
+        dialogNavigate.afterClosed().subscribe((result) => {
+            if (result === 'close') {
+                this.router.navigate(['/join-game']);
+            }
+        });
+        
+    }
+
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;

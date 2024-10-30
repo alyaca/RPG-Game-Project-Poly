@@ -2,7 +2,7 @@
     <div class="motif"></div>
     <div class="player-name">
         @if(isPlayerAdmin) {
-        <div class="kick">
+        <div class="kick" (click)="kickOutPlayer()">
             <img src="./assets/images/icones/kick.png" />
         </div>
         }

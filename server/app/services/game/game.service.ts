@@ -63,13 +63,15 @@ export class GameService {
             socket.to(roomId).emit('updatedPlayer', room);
         }
     }
-
+    
+//appeler cette fonction
     removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
         const room = this.roomService.rooms.get(roomId);
         room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
         this.freeUpAvatar(room, socket);
         this.updateAvatarsForAllClients(server);
         this.roomService.leaveRoom(roomId, socket);
+        socket.to(roomId).emit('kickPlayer', socket.id);
     }
 
     getAvatarByName(room: Room, avatar: Avatar) {
@@ -130,4 +132,6 @@ export class GameService {
         }
         return name;
     }
+
+
 }
