@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
+import { MIN_NUMBER_PLAYER } from '@app/constants';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -74,7 +75,7 @@ export class WaitingPageComponent implements OnInit {
             
         });
        
-}
+    }
 
     onAdminQuit(message: string) {
         const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
@@ -142,16 +143,27 @@ export class WaitingPageComponent implements OnInit {
     }
 
     handleStartGame() {
-        this.openConfirmationDialog(
-            'Débuter la partie',
-            ['Êtes-vous certains de vouloir débuter la partie?'],
-            ['Annuler', 'Confirmer'],
-            true,
-        ).subscribe((result) => {
-            if (result === 'right') {
-                this.router.navigate(['/game-page']);
-            }
-        });
+        if(this.players.length<MIN_NUMBER_PLAYER){
+            this.openConfirmationDialog(
+                'Débuter la partie',
+                ['Il faut au moins ' + MIN_NUMBER_PLAYER + ' joueurs pour commencer la partie'],
+                ['Fermer'],
+                false,
+            );
+            return;
+        }
+        else{
+            this.openConfirmationDialog(
+                'Débuter la partie',
+                ['Êtes-vous certains de vouloir débuter la partie?'],
+                ['Annuler', 'Confirmer'],
+                true,
+            ).subscribe((result) => {
+                if (result === 'right') {
+                    this.router.navigate(['/game-page']);
+                }
+            });
+        }
     }
 
     leaveGame(accessCode: string) {
