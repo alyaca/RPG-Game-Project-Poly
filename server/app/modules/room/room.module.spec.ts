@@ -1,10 +1,10 @@
 import { Message, messageSchema } from '@app/model/schema/message.schema';
+import { ChatModule } from '@app/modules/chat/chat.module';
 import { ChatService } from '@app/services/chat/chat.service';
 import { RoomService } from '@app/services/room/room.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { ChatModule } from '../chat/chat.module';
 import { RoomModule } from './room.module';
 
 describe('RoomModule', () => {
@@ -40,5 +40,13 @@ describe('RoomModule', () => {
 
     it('should be defined', () => {
         expect(module).toBeDefined();
+    });
+
+    it('should have a room service', () => {
+        expect(roomService).toBeDefined();
+    });
+
+    it('should have a chat service', () => {
+        expect(chatService).toBeDefined();
     });
 });

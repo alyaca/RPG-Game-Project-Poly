@@ -2,6 +2,7 @@ import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Response } from 'express';
 import { ChatController } from './chat.controller';
 
 describe('ChatController', () => {
@@ -33,11 +34,11 @@ describe('ChatController', () => {
 
     describe('getMessagesByRoomId', () => {
         it('should return messages array for a given room ID', async () => {
-            const response = {
+            const response: Partial<Response> = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn(),
             };
-            await chatController.getMessagesByRoomId('4954', response as any);
+            await chatController.getMessagesByRoomId('4954', response as Response);
             expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
             expect(response.json).toHaveBeenCalledWith(mockMessages);
             expect(chatService.getMessagesByRoom).toHaveBeenCalledWith('4954');
@@ -46,12 +47,12 @@ describe('ChatController', () => {
         it('should handle errors and respond with a bad request status', async () => {
             jest.spyOn(chatService, 'getMessagesByRoom').mockRejectedValue(new Error('Test error'));
 
-            const response = {
+            const response: Partial<Response> = {
                 status: jest.fn().mockReturnThis(),
                 send: jest.fn(),
             };
 
-            await chatController.getMessagesByRoomId('invalid-room-id', response as any);
+            await chatController.getMessagesByRoomId('invalid-room-id', response as Response);
             expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
             expect(response.send).toHaveBeenCalledWith('Test error');
         });
