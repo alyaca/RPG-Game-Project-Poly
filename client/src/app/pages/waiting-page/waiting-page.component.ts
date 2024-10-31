@@ -57,6 +57,7 @@ export class WaitingPageComponent implements OnInit {
             console.log('Player:', this.socketCommunicationService.socket.id);
             console.log('Room:', room);
             this.players = room.listPlayers;
+            this.isMaxPlayersReached()
         });
 
         this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
@@ -66,7 +67,7 @@ export class WaitingPageComponent implements OnInit {
     
         
         this.socketCommunicationService.on<string>('kickPlayer', (playerId: string) => {
-            console.log('Le joueur quiiiii  est retiré:', playerId);
+            console.log('Le joueur qui  est retiré:', playerId);
             if(playerId === this.socketCommunicationService.socket.id){
                 this.onPlayerKickedOut();
             }
@@ -100,6 +101,17 @@ export class WaitingPageComponent implements OnInit {
         
     }
 
+    isMaxPlayersReached() {
+        if(this.players.length == this.gameService.getPlayerNumber(this.chosenGame.dimension)){
+            this.isLocked = true;  
+            console.log('Max players reached', this.players.length);
+            this.onLockChange();
+        }
+        else{
+            this.isLocked = false; 
+            this.onLockChange();
+        }
+    }
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
@@ -146,6 +158,7 @@ export class WaitingPageComponent implements OnInit {
         this.socketCommunicationService.send('leaveRoom', accessCode);
         this.socketCommunicationService.on('leftRoom', (isAdmin) => {
             if (isAdmin) {
+                console.log('le admin a quité la partie');
                 this.router.navigate(['/game-creation']);
             } else {
                 this.router.navigate(['/home']);

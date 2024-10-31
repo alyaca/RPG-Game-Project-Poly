@@ -95,3 +95,20 @@ export const TIMER_ARC_WIDTH = 5;
 
 // Constants for random generation
 export const MAX_GENERATION_VALUE = 1000000000;
+
+// Maximum number of players in a room
+export const MAX_PLAYER_SMALL_MAP = 2;
+export const MAX_PLAYER_MEDIUM_MAP = 4;
+export const MAX_PLAYER_LARGE_MAP = 6;
+
+
+// Constants for the maximum number of players for each type of map
+export const MAX_NUMBER_PLAYER: { [key: string]: number } = {
+    small: MAX_PLAYER_SMALL_MAP,
+    medium: MAX_PLAYER_MEDIUM_MAP,
+    large: MAX_PLAYER_LARGE_MAP,
+};
+
+
+// Constant for the minimum number of players for each type of map
+export const MIN_NUMBER_PLAYER = 2;

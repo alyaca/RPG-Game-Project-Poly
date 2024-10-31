@@ -74,13 +74,11 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
-    //ici 
     @SubscribeMessage(RoomEvents.kickPlayer)
     handleKickPlayer(client: Socket, playerId: string) {
         const room = this.roomService.getRoom(client);
-        this.logger.debug(`client ${playerId} was kidded out of room `); // for debug
-        //okay la personne qu'on kick out c'est PlayerID et pas client.id
-        client.emit('kickPlayer', playerId);
+        this.logger.debug(`client ${playerId} was kicked out of room `); // Debug log
+        client.emit('kickPlayer', playerId); 
         client.to(room.roomId).emit('kickPlayer', playerId);
         const playerSocket = this.server.sockets.sockets.get(playerId);
         this.gameService.removePlayerFromRoom(room.roomId, playerSocket, this.server);
@@ -96,6 +94,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         this.logger.log(`Client connected: ${client.id}`);
     }
 
+    //pt faudrait appeler ici pour deconnecter ....
     handleDisconnect(client: Socket) {
         const room = this.roomService.getRoom(client);
         if (room) {
