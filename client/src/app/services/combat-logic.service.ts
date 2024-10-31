@@ -33,6 +33,8 @@ export class CombatLogicService {
     roles: Roles;
     isDraw: boolean;
 
+    attackInProgress: boolean = false;
+
     initCombat(player1: Player, player2: Player) {
         this.isGameOngoing = true;
         this.isDraw = false;
@@ -64,6 +66,8 @@ export class CombatLogicService {
     }
 
     processAttack(roles: Roles, currPlayerNum: string, player1: Player, player2: Player) {
+        this.attackInProgress = true;
+        
         const { attacker, defender, activeDice, inactiveDice } = roles[currPlayerNum];
         const isDefenderPlayer1 = currPlayerNum === 'player1turn';
 
@@ -78,6 +82,8 @@ export class CombatLogicService {
         } else {
             this.setDisplayText('attaque échouée de ' + attacker.name);
         }
+
+        this.attackInProgress = false; 
     }
 
     determineTimerLength(evasions: number[], currPlayerNum: string): number {

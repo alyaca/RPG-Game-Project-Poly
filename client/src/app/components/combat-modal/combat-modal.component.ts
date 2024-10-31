@@ -88,9 +88,11 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     triggerAttack() {
         this.totalTime = this.combatService.determineTimerLength(this.combatService.evasionsArray1, this.combatService.currPlayerNum);
         this.timeRemaining = this.totalTime;
-        if (!this.combatService.isGameOngoing) {
+        if (!this.combatService.isGameOngoing || this.combatService.attackInProgress) {
             return;
         }
+        this.combatService.attackInProgress = true;
+
         this.combatService.switchTurn(this.player1, this.player2);
         const { attacker, defender, activeDice, inactiveDice } = this.combatService.roles[this.combatService.currPlayerNum];
 
@@ -102,6 +104,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         setTimeout(() => {
             this.attack();
+            this.combatService.attackInProgress = false;
         }, ATTACK_DELAY);
     }
 
@@ -117,6 +120,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     onTimerFinished() {
-        this.triggerAttack();
+        if (!this.combatService.attackInProgress) {
+            this.triggerAttack();
+        }
     }
 }
