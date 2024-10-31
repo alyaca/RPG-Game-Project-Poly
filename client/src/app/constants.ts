@@ -94,7 +94,7 @@ export const SHORT_COMBAT_TURN_LENGTH = 3;
 export const ROLL_DURATION = 800;
 
 export const INIT_DISPLAY_DELAY = 50;
-export const EXIT_COMBAT_DELAY = 3000;
+export const EXIT_COMBAT_DELAY = 4000;
 export const INACTIVE_DICE_DELAY = 200;
 export const DISPLAY_TEXT_DELAY = 300;
 export const ATTACK_DELAY = 1200;

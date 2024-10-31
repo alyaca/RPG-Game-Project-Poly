@@ -99,8 +99,8 @@ export class CombatLogicService {
 
     switchTurn(player1: Player, player2: Player) {
         this.currPlayerNum = this.currPlayerNum === 'player1turn' ? 'player2turn' : 'player1turn';
-        const nextPlayer = this.currPlayerNum === 'player1turn' ? player1.name : player2.name;
-        this.setDisplayText("C'est le tour de " + nextPlayer);
+        // const nextPlayer = this.currPlayerNum === 'player1turn' ? player1.name : player2.name;
+        // this.setDisplayText("C'est le tour de " + nextPlayer);
     }
 
     attemptEvade() {
