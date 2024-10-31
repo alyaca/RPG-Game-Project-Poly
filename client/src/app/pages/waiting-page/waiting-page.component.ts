@@ -160,6 +160,8 @@ export class WaitingPageComponent implements OnInit {
                 true,
             ).subscribe((result) => {
                 if (result === 'right') {
+                    //everyplayer in the room needs to go to the game page 
+                    this.isLocked = true;  
                     this.router.navigate(['/game-page']);
                 }
             });
