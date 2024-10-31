@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { COMBAT_TURN_LENGTH, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, INACTIVE_DICE_DELAY, ATTACK_DELAY, TURN_DIALOG_DELAY, TEMP_DIALOG_DURATION } from '@app/constants';
+import { COMBAT_TURN_LENGTH, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, INACTIVE_DICE_DELAY, ATTACK_DELAY, TURN_DIALOG_DELAY, TEMP_DIALOG_DURATION, LONG_TEMP_DIALOG_DURATION } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
 import { DiceComponent } from '@app/components/dice/dice.component';
@@ -62,7 +62,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     endGameIfNeeded() {
         const finalResult: string = this.combatService.checkIfDuelOver(this.player1, this.player2);
         if (finalResult) {
-            this.triggerTempDialog(finalResult, TEMP_DIALOG_DURATION * 3);
+            this.triggerTempDialog(finalResult, LONG_TEMP_DIALOG_DURATION);
             this.combatService.isGameOngoing = false;
             this.timerComponent.totalTime = 3;
             this.timerComponent.resetTimer();
