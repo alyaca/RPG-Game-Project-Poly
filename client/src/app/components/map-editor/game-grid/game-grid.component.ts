@@ -263,6 +263,21 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    isReachableTile(row: number, col: number): boolean {
+        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+    }
+
+    onHover(row: number, col: number) {
+        this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
+    }
+
+    isOnFastestPath(row: number, col: number): boolean {
+        if (!this.fastestPath) {
+            return false;
+        }
+        return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
+    }
+
     private isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
     }
@@ -283,22 +298,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     private findReachableTiles() {
         this.reachableTiles = this.navigationService.findReachableTiles(this.players[0], this.gameMap, this.players[0].attributes.movementPointsLeft);
-        console.log(this.players[0].attributes.movementPointsLeft);
-        console.log(this.reachableTiles);
-    }
-
-    isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
-    }
-
-    onHover(row: number, col: number) {
-        this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
-    }
-
-    isOnFastestPath(row: number, col: number): boolean {
-        if (!this.fastestPath) {
-            return false;
-        }
-        return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
+        // console.log(this.players[0].attributes.movementPointsLeft);
+        // console.log(this.reachableTiles);
     }
 }

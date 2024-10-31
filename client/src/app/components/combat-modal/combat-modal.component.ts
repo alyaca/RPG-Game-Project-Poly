@@ -1,7 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { COMBAT_TURN_LENGTH, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, INACTIVE_DICE_DELAY, ATTACK_DELAY, TURN_DIALOG_DELAY, TEMP_DIALOG_DURATION, LONG_TEMP_DIALOG_DURATION } from '@app/constants';
+import {
+    COMBAT_TURN_LENGTH,
+    INIT_DISPLAY_DELAY,
+    EXIT_COMBAT_DELAY,
+    INACTIVE_DICE_DELAY,
+    ATTACK_DELAY,
+    TURN_DIALOG_DELAY,
+    TEMP_DIALOG_DURATION,
+    LONG_TEMP_DIALOG_DURATION,
+} from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
 import { DiceComponent } from '@app/components/dice/dice.component';
@@ -95,7 +104,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         }
         this.combatService.attackInProgress = true;
 
-        this.combatService.switchTurn(this.player1, this.player2);
+        this.combatService.switchTurn();
         const { attacker, defender, activeDice, inactiveDice } = this.combatService.roles[this.combatService.currPlayerNum];
 
         activeDice.rollDice(attacker.attributes.atkDiceMax);

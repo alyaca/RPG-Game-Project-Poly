@@ -22,7 +22,7 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements AfterViewInit, OnInit{
+export class GamePageComponent implements AfterViewInit, OnInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
@@ -39,46 +39,44 @@ export class GamePageComponent implements AfterViewInit, OnInit{
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = true;
 
-
     constructor(
         private router: Router,
         private dialog: MatDialog,
         private gameCreationService: GameCreationService,
-        public socketCommunicationService: SocketCommunicationService
+        public socketCommunicationService: SocketCommunicationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
     }
 
-    ngOnInit(){
+    ngOnInit() {
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
             this.determinePlayerTurn();
             this.replenishHealth();
-        });  
+        });
     }
 
-    getPlayerCount(){
-        if (this.allPlayers){
+    getPlayerCount() {
+        if (this.allPlayers) {
             return this.allPlayers.length;
         }
         return -1;
     }
 
-    findMapDimensions(): string{
+    findMapDimensions(): string {
         const mapSize = this.gameCreationService.updateDimensions();
-        return mapSize + " x " + mapSize;
+        return mapSize + ' x ' + mapSize;
     }
 
-    replenishHealth(){
-        for(const player of this.allPlayers){
+    replenishHealth() {
+        for (const player of this.allPlayers) {
             player.attributes.currentHp = player.attributes.totalHp;
         }
     }
 
     determinePlayerTurn() {
-        console.log(this.allPlayers);
-        if(this.allPlayers.length > 1){
+        if (this.allPlayers.length > 1) {
             this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
             this.allPlayers = [
                 ...this.allPlayers.filter((player) => player.status !== Status.Disconnected),
@@ -106,7 +104,6 @@ export class GamePageComponent implements AfterViewInit, OnInit{
         if (this.turnTimerComponent) {
             this.turnTimerComponent.pauseTimer();
         }
-        
     }
 
     openCombatModal() {

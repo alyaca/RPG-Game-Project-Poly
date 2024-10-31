@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 
-//TEMPORAIRE:
+// TEMPORAIRE:
 enum TileType {
     Ground = 1,
     Ice = 2,
@@ -11,7 +11,7 @@ enum TileType {
     ClosedDoor = 5,
     OpenDoor = 6,
 }
-//Doivent etre dans un fichier commun
+// Doivent etre dans un fichier commun
 
 interface PointWithDistance {
     x: number;
@@ -24,11 +24,11 @@ interface PointWithDistance {
 export class NavigationService {
     private distances: number[][];
     private previous: Position[][];
-    //private game: Game;
+    // private game: Game;
     constructor() {}
 
-    //////////////////////////////////////////////////////////////////
-    //Djikstra
+    /// ///////////////////////////////////////////////////////////////
+    // Djikstra
     // Trouver le chemin le plus rapide
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.initializeDistances(player, game);
