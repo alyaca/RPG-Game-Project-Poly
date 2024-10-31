@@ -32,8 +32,8 @@ export class PlayerInfoInventoryComponent {
             const foundPlayer = room.listPlayers.find((player) => player.id === this.playerId);
             if (foundPlayer) {
                 this.player = foundPlayer;
-                this.actionPointsArray = Array(this.player.attributes.actionPoints);
-                this.movementPointsArray = Array(this.player.attributes.movementPointsLeft);
+                this.actionPointsArray = Array(1);
+                this.movementPointsArray = Array(this.player.attributes.speed);
             }
         });
     }

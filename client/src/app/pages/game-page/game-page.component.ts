@@ -54,6 +54,7 @@ export class GamePageComponent implements AfterViewInit, OnInit{
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
             this.determinePlayerTurn();
+            this.replenishHealth();
         });  
     }
 
@@ -62,6 +63,11 @@ export class GamePageComponent implements AfterViewInit, OnInit{
         return mapSize + " x " + mapSize;
     }
 
+    replenishHealth(){
+        for(const player of this.allPlayers){
+            player.attributes.currentHp = player.attributes.totalHp;
+        }
+    }
 
     determinePlayerTurn() {
         console.log(this.allPlayers);
