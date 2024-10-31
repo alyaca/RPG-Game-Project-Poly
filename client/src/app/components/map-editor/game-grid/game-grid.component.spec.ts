@@ -1,7 +1,9 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { ITEM_COUNT, NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
+import { mockPlayers } from '@app/mocks/mock-players';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation.service';
@@ -19,13 +21,15 @@ describe('GameGridComponent', () => {
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+    let gameObjectsContainerSpy: jasmine.SpyObj<GameObjectsContainerComponent>;
 
     beforeEach(async () => {
+        gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions']);
-        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
+        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', [
             'initObjectsArray',
             'resetObjectsCount',
             'getObjectById',
@@ -37,6 +41,7 @@ describe('GameGridComponent', () => {
             'loadMapObjectCount',
             'ngOnDestroy',
             'resetObjectsCount',
+            'objects',
         ]);
 
         const tileServiceMock = {
@@ -60,11 +65,14 @@ describe('GameGridComponent', () => {
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: 'TileService', useValue: tileServiceMock },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
+                { provide: GameObjectsContainerComponent, useValue: gameObjectsContainerSpy },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameGridComponent);
         component = fixture.componentInstance;
+        gameObjectManagerServiceSpy.objects = mockObjects;
+        gameObjectsContainerSpy.gameObjects = mockObjects;
         component.gridSize = SIZE_SMALL_MAP;
         component.tilesGrid = tileServiceMock.resetGrid(component.gridSize, component.tilesGrid);
         component.objectsArray = gameObjectServiceMock.initObjectsArray();
@@ -238,6 +246,7 @@ describe('GameGridComponent', () => {
         it('should set dragStartPosition and draggedObject on drag start', () => {
             const mockDragEvent = new DragEvent('dragstart');
 
+            gameCreationServiceSpy.isModifiable = true;
             gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(gameObjects[0]);
             component.onDragStart(mockDragEvent, MOCK_ROW, MOCK_COLUMN);
 
@@ -414,6 +423,7 @@ describe('GameGridComponent', () => {
 
     describe('spawn points update', () => {
         it('should call getPortraitId', () => {
+            component.players = mockPlayers;
             spyOn(component, 'getPortraitId');
             component.displayPortraitOnSpawnPoints();
             expect(component.getPortraitId).toHaveBeenCalled();

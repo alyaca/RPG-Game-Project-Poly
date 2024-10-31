@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NO_OBJECT } from '@app/constants';
+import { NO_OBJECT, ObjectType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
@@ -47,7 +47,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     previousCol: number | null = null;
     gameMap: Game;
 
-    //Pas sure
+    // Not sure
     reachableTiles: Position[] = [];
     fastestPath: Position[] | null = [];
 
@@ -84,7 +84,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.players = room.listPlayers;
             this.gameMap = room.gameMap;
-            //this.displayPortraitOnSpawnPoints(room.listPlayers);
+            // this.displayPortraitOnSpawnPoints(room.listPlayers);
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
         });
@@ -99,38 +99,34 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    private isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
-        return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
-    }
-
     getPortraitId(godName: string | undefined) {
         switch (godName) {
             case 'Hestia':
-                return 9;
+                return ObjectType.Hestia;
             case 'Zeus':
-                return 10;
+                return ObjectType.Zeus;
             case 'Hera':
-                return 11;
+                return ObjectType.Hera;
             case 'Poseidon':
-                return 12;
+                return ObjectType.Poseidon;
             case 'Artemis':
-                return 13;
+                return ObjectType.Artemis;
             case 'Demeter':
-                return 14;
+                return ObjectType.Demeter;
             case 'Hermes':
-                return 15;
+                return ObjectType.Hermes;
             case 'Athena':
-                return 16;
+                return ObjectType.Athena;
             case 'Hephaestus':
-                return 17;
+                return ObjectType.Hephaestus;
             case 'Apollo':
-                return 18;
+                return ObjectType.Apollo;
             case 'Ares':
-                return 19;
+                return ObjectType.Ares;
             case 'Aphrodite':
-                return 20;
+                return ObjectType.Aphrodite;
             default:
-                return 8;
+                return ObjectType.Spawn;
         }
     }
 
@@ -264,6 +260,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
             this.tilesGrid[row][col] = TileType.Ground;
         }
+    }
+
+    private isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
+        return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
     }
 
     private updateSelectedTile(row: number, col: number) {

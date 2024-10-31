@@ -18,7 +18,7 @@ describe('GameListComponent', () => {
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
 
     beforeEach(async () => {
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['convertMapDimensions']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['convertMapDimension', 'setSelectedSize']);
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
         mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', ['setMapToEdit']);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
@@ -38,6 +38,7 @@ describe('GameListComponent', () => {
                 { provide: MatSnackBar, useValue: snackBarSpy },
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: MapEditorService, useValue: mapEditorServiceSpy },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
@@ -121,30 +122,6 @@ describe('GameListComponent', () => {
     });
 
     describe('convertMapDimension', () => {
-        it('should return "small" if the game dimension is 10', () => {
-            const mockGame = { dimension: 10 } as Game;
-            const result = gameCreationServiceSpy.convertMapDimension(mockGame);
-            expect(result).toBe('small');
-        });
-
-        it('should return "medium" if the game dimension is 15', () => {
-            const mockGame = { dimension: 15 } as Game;
-            const result = gameCreationServiceSpy.convertMapDimension(mockGame);
-            expect(result).toBe('medium');
-        });
-
-        it('should return "large" if the game dimension is 20', () => {
-            const mockGame = { dimension: 20 } as Game;
-            const result = gameCreationServiceSpy.convertMapDimension(mockGame);
-            expect(result).toBe('large');
-        });
-
-        it('should return "none" if the game dimension is not 10, 15, or 20', () => {
-            const mockGame = { dimension: 25 } as Game;
-            const result = gameCreationServiceSpy.convertMapDimension(mockGame);
-            expect(result).toBe('none');
-        });
-
         it('should edit game and navigate to edit-map', () => {
             const game = mockGames[0];
             component.editGame(game);

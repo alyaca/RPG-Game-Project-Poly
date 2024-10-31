@@ -4,7 +4,9 @@ import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
+import { GameCreationService } from '@app/services/game-creation.service';
 import { GameListService } from '@app/services/game-list.service';
+import { MapEditorService } from '@app/services/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
@@ -17,6 +19,8 @@ describe('WaitingPageComponent', () => {
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let mapEditorServiceSpy: jasmine.SpyObj<MapEditorService>;
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
 
     let dialogSpy: jasmine.SpyObj<MatDialog>;
@@ -29,6 +33,15 @@ describe('WaitingPageComponent', () => {
         gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', ['setMapToEdit']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', [
+            'isModifiable',
+            'setSelectedSize',
+            'convertMapDimension',
+            'loadedTiles',
+            'loadedObjects',
+            'loadedMapName',
+        ]);
         accessCode = '1234';
 
         await TestBed.configureTestingModule({
@@ -39,6 +52,8 @@ describe('WaitingPageComponent', () => {
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: MapEditorService, useValue: mapEditorServiceSpy },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
 
@@ -126,6 +141,19 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
+    it('should go to game-creation if isAdmin is true', () => {
+        const expectedRoute = '/game-creation';
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
+            if (event === 'leftRoom') {
+                callback(true as unknown as T);
+            }
+        });
+        component.leaveGame(accessCode);
+
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
+    });
+
     describe('handleExit', () => {
         it('should open the dialog and navigate to /home if confirmed', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
@@ -200,7 +228,7 @@ describe('WaitingPageComponent', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startGame');
     });
 
     it('should not navigate when the dialog is cancelled', () => {
@@ -211,5 +239,33 @@ describe('WaitingPageComponent', () => {
         component.handleStartGame();
 
         expect(dialogSpy.open).toHaveBeenCalled();
+    });
+
+    it('should call loadMap and set the chosenGame when startGame is received', () => {
+        spyOn(component, 'loadMap');
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'startGame') {
+                callback(mockRoom as unknown as T);
+            }
+        });
+        component.ngOnInit();
+        expect(component.chosenGame).toEqual(mockRoom.gameMap);
+        expect(component.loadMap).toHaveBeenCalled();
+    });
+
+    it('should do everything in loadMap correctly', () => {
+        gameCreationServiceSpy.isModifiable = true;
+        gameCreationServiceSpy.isNewGame = true;
+        component.chosenGame = mockGames[0];
+        component.loadMap();
+
+        expect(gameCreationServiceSpy.isModifiable).toBeFalse();
+        expect(gameCreationServiceSpy.isNewGame).toBeFalse();
+        expect(mapEditorServiceSpy.setMapToEdit).toHaveBeenCalled();
+        expect(gameCreationServiceSpy.setSelectedSize).toHaveBeenCalled();
+        expect(gameCreationServiceSpy.convertMapDimension).toHaveBeenCalled();
+        expect(gameCreationServiceSpy.loadedTiles).toEqual(component.chosenGame.tiles);
+        expect(gameCreationServiceSpy.loadedObjects).toEqual(component.chosenGame.itemPlacement);
+        expect(gameCreationServiceSpy.loadedMapName).toEqual(component.chosenGame.name);
     });
 });
