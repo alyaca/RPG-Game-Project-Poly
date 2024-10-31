@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-chat-box',
@@ -14,11 +16,16 @@ import { ChatService } from '@app/services/sockets/chat/chat.service';
 })
 export class ChatBoxComponent implements OnInit, AfterViewChecked {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
+    private routeSub: Subscription;
     messages: ChatMessage[] = [];
     newMessage: string = '';
+    roomCode: string;
     // isChatVisible: boolean = true;
 
-    constructor(private chatService: ChatService) {}
+    constructor(
+        private chatService: ChatService,
+        private route: ActivatedRoute,
+    ) {}
 
     scrollToBottom(): void {
         if (this.messageContainer) {
@@ -27,6 +34,9 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     }
 
     ngOnInit(): void {
+        this.routeSub = this.route.queryParams.subscribe((params) => {
+            this.roomCode = params['roomCode'];
+        });
         this.chatService.onMessageReceived((message: ChatMessage) => {
             this.messages.push(message);
         });
@@ -41,6 +51,10 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
             this.chatService.sendMessage(this.newMessage);
             this.newMessage = '';
         }
+    }
+
+    ngOnDestroy(): void {
+        this.routeSub.unsubscribe();
     }
 
     // toggleChatVisibility(): void {

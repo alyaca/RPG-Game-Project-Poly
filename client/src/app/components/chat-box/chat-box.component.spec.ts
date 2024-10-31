@@ -1,20 +1,27 @@
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { BehaviorSubject } from 'rxjs';
 import { ChatBoxComponent } from './chat-box.component';
 
 describe('ChatBoxComponent', () => {
     let component: ChatBoxComponent;
     let fixture: ComponentFixture<ChatBoxComponent>;
     let chatServiceSpy: jasmine.SpyObj<ChatService>;
+    let queryParamsSubject: BehaviorSubject<any>;
 
     beforeEach(async () => {
         chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage']);
+        queryParamsSubject = new BehaviorSubject({ roomCode: '1234' }); // Créer un sujet pour les paramètres de requête
 
         await TestBed.configureTestingModule({
             imports: [ChatBoxComponent],
-            providers: [{ provide: ChatService, useValue: chatServiceSpy }],
+            providers: [
+                { provide: ChatService, useValue: chatServiceSpy },
+                { provide: ActivatedRoute, useValue: { queryParams: queryParamsSubject.asObservable() } }, // Utiliser l'Observable
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ChatBoxComponent);
@@ -33,6 +40,11 @@ describe('ChatBoxComponent', () => {
     //     component.toggleChatVisibility();
     //     expect(component.isChatVisible).toBe(false);
     // });
+
+    it('should set roomCode on init', () => {
+        component.ngOnInit();
+        expect(component.roomCode).toBe('1234');
+    });
 
     it('should send message', () => {
         const message = "Hey it's me Goku !";

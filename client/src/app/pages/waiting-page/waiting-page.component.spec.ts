@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -22,6 +22,10 @@ describe('WaitingPageComponent', () => {
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
 
+    let activatedRouteSpy = {
+        queryParams: of({ roomCode: '1234' }),
+    };
+
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
@@ -39,6 +43,7 @@ describe('WaitingPageComponent', () => {
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: ActivatedRoute, useValue: activatedRouteSpy },
             ],
         }).compileComponents();
 
@@ -200,7 +205,7 @@ describe('WaitingPageComponent', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page'], { queryParams: { roomCode: component.accessCode } });
     });
 
     it('should not navigate when the dialog is cancelled', () => {
