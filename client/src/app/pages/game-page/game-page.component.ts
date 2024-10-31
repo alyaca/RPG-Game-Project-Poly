@@ -58,6 +58,13 @@ export class GamePageComponent implements AfterViewInit, OnInit{
         });  
     }
 
+    getPlayerCount(){
+        if (this.allPlayers){
+            return this.allPlayers.length;
+        }
+        return -1;
+    }
+
     findMapDimensions(): string{
         const mapSize = this.gameCreationService.updateDimensions();
         return mapSize + " x " + mapSize;
