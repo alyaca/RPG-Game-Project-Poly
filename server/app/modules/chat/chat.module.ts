@@ -1,4 +1,3 @@
-import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { Message, messageSchema } from '@app/model/schema/message.schema';
 import { LoggerModule } from '@app/modules/logger/logger.module';
 import { RoomModule } from '@app/modules/room/room.module';
@@ -8,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
     imports: [LoggerModule, RoomModule, MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }])],
-    providers: [ChatGateway, ChatService],
+    providers: [ChatService],
+    exports: [ChatService],
 })
 export class ChatModule {}
