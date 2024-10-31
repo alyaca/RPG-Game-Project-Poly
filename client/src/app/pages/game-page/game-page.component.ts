@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
@@ -9,9 +9,11 @@ import { PlayerInfoInventoryComponent } from '@app/components/player-info-invent
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { Status } from '@app/interfaces/player-object';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
 import { GameCreationService } from '@app/services/game-creation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-game-page',
@@ -20,13 +22,13 @@ import { GameCreationService } from '@app/services/game-creation.service';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements AfterViewInit {
+export class GamePageComponent implements AfterViewInit, OnInit{
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
     @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
-    allPlayers: Player[] = mockLobbyPlayers;
+    allPlayers: Player[];
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
     mapDimensions: string = '';
@@ -42,10 +44,25 @@ export class GamePageComponent implements AfterViewInit {
         private router: Router,
         private dialog: MatDialog,
         private gameCreationService: GameCreationService,
+        public socketCommunicationService: SocketCommunicationService
     ) {
-        this.determinePlayerTurn();
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
+    }
+
+    ngOnInit(){
+        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+            this.allPlayers = room.listPlayers;
+            this.determinePlayerTurn();
+            this.replenishHealth();
+        });  
+    }
+
+    getPlayerCount(){
+        if (this.allPlayers){
+            return this.allPlayers.length;
+        }
+        return -1;
     }
 
     findMapDimensions(): string{
@@ -53,13 +70,22 @@ export class GamePageComponent implements AfterViewInit {
         return mapSize + " x " + mapSize;
     }
 
+    replenishHealth(){
+        for(const player of this.allPlayers){
+            player.attributes.currentHp = player.attributes.totalHp;
+        }
+    }
 
     determinePlayerTurn() {
-        this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
-        this.allPlayers = [
-            ...this.allPlayers.filter((player) => player.status !== Status.Disconnected),
-            ...this.allPlayers.filter((player) => player.status === Status.Disconnected),
-        ];
+        console.log(this.allPlayers);
+        if(this.allPlayers.length > 1){
+            this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
+            this.allPlayers = [
+                ...this.allPlayers.filter((player) => player.status !== Status.Disconnected),
+                ...this.allPlayers.filter((player) => player.status === Status.Disconnected),
+            ];
+        }
+        this.allPlayers[0].isActive = true;
     }
 
     enableClicks() {
