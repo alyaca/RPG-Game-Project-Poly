@@ -62,7 +62,7 @@ export class WaitingPageComponent implements OnInit {
         this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
             this.chosenGame = room.gameMap;
             this.loadMap();
-            this.router.navigate(['/game-page']);
+            this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
         });
     }
 
