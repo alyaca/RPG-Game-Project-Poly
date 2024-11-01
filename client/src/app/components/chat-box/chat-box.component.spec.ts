@@ -1,38 +1,67 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { BehaviorSubject, of } from 'rxjs';
 import { ChatBoxComponent } from './chat-box.component';
 
 describe('ChatBoxComponent', () => {
     let component: ChatBoxComponent;
     let fixture: ComponentFixture<ChatBoxComponent>;
     let chatServiceSpy: jasmine.SpyObj<ChatService>;
+    let queryParamsSubject: BehaviorSubject<{ roomCode: string }>;
+    let httpMock: HttpTestingController;
+    let mockMessages: ChatMessage[];
 
     beforeEach(async () => {
-        chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage']);
+        chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage', 'getMessagesByRoom']);
+        queryParamsSubject = new BehaviorSubject({ roomCode: '1234' });
+        mockMessages = [
+            { id: 1, username: 'User1', message: 'Hello', timestamp: new Date() },
+            { id: 2, username: 'User2', message: 'Hi', timestamp: new Date() },
+        ];
+        chatServiceSpy.getMessagesByRoom.and.returnValue(of(mockMessages));
 
         await TestBed.configureTestingModule({
             imports: [ChatBoxComponent],
-            providers: [{ provide: ChatService, useValue: chatServiceSpy }],
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                { provide: ChatService, useValue: chatServiceSpy },
+                { provide: ActivatedRoute, useValue: { queryParams: queryParamsSubject.asObservable() } },
+            ],
         }).compileComponents();
 
+        httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(ChatBoxComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    // it('should toggle chat visibility', () => {
-    //     component.isChatVisible = false;
-    //     component.toggleChatVisibility();
-    //     expect(component.isChatVisible).toBe(true);
-    //     component.toggleChatVisibility();
-    //     expect(component.isChatVisible).toBe(false);
-    // });
+    it('should load messages', () => {
+        spyOn(component, 'loadMessages').and.callThrough();
+        component.ngOnInit();
+
+        expect(component.loadMessages).toHaveBeenCalled();
+        expect(chatServiceSpy.getMessagesByRoom).toHaveBeenCalledWith('1234');
+        expect(component.messages).toEqual(mockMessages);
+    });
+
+    it('should set roomCode on init', () => {
+        component.ngOnInit();
+        expect(component.roomCode).toBe('1234');
+    });
 
     it('should send message', () => {
         const message = "Hey it's me Goku !";

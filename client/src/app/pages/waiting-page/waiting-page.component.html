@@ -8,16 +8,13 @@
     <main>
         <div id="players-container">
             @for (player of players; track player.id) {
-                <app-lobby-player
-                    class = "medium"
-                    [lobbyPlayer]="players[$index]"
-                ></app-lobby-player>
+            <app-lobby-player class="medium" [lobbyPlayer]="players[$index]"></app-lobby-player>
             }
         </div>
     </main>
     <footer>
         <div id="footer-container">
-            <app-chat-box [isToggleable]="true"></app-chat-box>
+            <app-chat-box [isToggleable]="false"></app-chat-box>
             <div id="start-container">
                 <button id="start" (click)="handleStartGame()">Lancer une partie</button>
                 <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
