@@ -63,7 +63,7 @@ export class WaitingPageComponent implements OnInit {
             this.isAdmin = isPlayerAdmin;
         });
 
-        this.socketCommunicationService.on('kickPlayer', (playerId: string) => {
+        this.socketCommunicationService.on('kickPlayer', () => {
             this.onPlayerKickedOut();
         });
 

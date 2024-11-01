@@ -108,7 +108,6 @@ export class GameService {
         });
     }
 
-    //ICI
     sendAvatarListToClient(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const customizedAvatarsList = room.availableAvatars.map((avatar) => {

@@ -55,8 +55,19 @@ export class RoomService {
         socket.data = {};
     }
 
+    removeAdmin(socket: Socket) {
+        const index = this.adminList.indexOf(socket.id);
+        if (index > -1) {
+            this.adminList.splice(index, 1);
+        }
+    }
+
     deleteRoom(roomId: string, socket: Socket) {
         socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        if (this.isPlayerAdmin(socket)) {
+            this.removeAdmin(socket);
+            console.log('dans la focntion');
+        }
         this.cleanSocketsData(roomId);
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
