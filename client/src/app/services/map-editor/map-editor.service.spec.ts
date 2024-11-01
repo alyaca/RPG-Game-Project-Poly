@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { mockGameObject } from '@app/mocks/mock-game';
 import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { BehaviorSubject } from 'rxjs';

@@ -9,11 +9,9 @@ export class SavingService {
 
     async addMapToDb(mapToAdd: Partial<Map>): Promise<Map | null> {
         const existsAlready = await this.mapModel.find({ name: mapToAdd.name });
-        if (existsAlready.length === 0) {
-            return (await this.mapModel.create(mapToAdd)).save();
-        }
-        return null;
+        return existsAlready.length ? null : (await this.mapModel.create(mapToAdd)).save();
     }
+
     async replaceMapInDb(mapToAdd: Partial<Map>): Promise<Map | null> {
         return await this.mapModel.findOneAndReplace({ _id: mapToAdd._id }, mapToAdd, { upsert: true });
     }

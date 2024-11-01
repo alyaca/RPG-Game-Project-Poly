@@ -1,23 +1,23 @@
+import {
+    BASE_36,
+    COLUMN_LENGTH,
+    DEFAULT_DATE,
+    DIMENSION,
+    GENERATE_COUNT,
+    MEDIUM_MAP_PLAYERS,
+    MODES,
+    NB_PLAYERS,
+    NO_ITEM,
+    RANDOM_ITEM,
+    ROW_LENGTH,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+    SMALL_MAP_PLAYERS,
+    TILE_COUNT,
+    TileType,
+} from '@app/constants';
 import { Map } from '@app/model/schema/map.schema';
 import mongoose from 'mongoose';
-
-enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
-
-export const MODES = ['CTF', 'Normal'];
-export const GENERATE_COUNT = 5;
-export const BASE_36 = 36;
-export const TILE_COUNT = 6;
-export const DIMENSION = 20;
-export const NB_PLAYERS = 6;
-export const COLUMN_LENGTH = 2;
-export const ROW_LENGTH = 2;
 
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
 
@@ -47,16 +47,6 @@ export const getFakeMaps = (count: number = GENERATE_COUNT): Map[] => {
     return maps;
 };
 
-const NO_ITEM = 0;
-const RANDOM_ITEM = 1;
-
-const SMALL_MAP_PLAYERS = 2;
-const MEDIUM_MAP_PLAYERS = 4;
-
-const SIZE_SMALL_MAP = 10;
-const SIZE_MEDIUM_MAP = 15;
-
-const DEFAULT_DATE = new Date();
 export const NEW_MAP_NO_ID = {
     name: 'map name',
     description: 'description of the map',

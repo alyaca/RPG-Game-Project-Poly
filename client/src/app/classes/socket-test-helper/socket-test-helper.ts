@@ -1,6 +1,4 @@
-export interface TestEventData {
-    test: string;
-}
+import { TestEventData } from '@app/interfaces/test-event-data';
 
 export class SocketTestHelper {
     connected = false;

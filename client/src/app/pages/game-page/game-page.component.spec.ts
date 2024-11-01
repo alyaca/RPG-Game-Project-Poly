@@ -4,6 +4,7 @@ import { ElementRef, QueryList } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { Status } from '@app/interfaces/player-object';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -16,7 +17,7 @@ describe('GamePageComponent', () => {
     let fixture: ComponentFixture<GamePageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
-    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<SimpleDialogComponent>>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let httpMock: HttpTestingController;
     const accessCode = '1234';
@@ -27,9 +28,10 @@ describe('GamePageComponent', () => {
 
     beforeEach(async () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
         dialogRefSpy.afterClosed.and.returnValue(of('left'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
 
         await TestBed.configureTestingModule({
@@ -47,6 +49,7 @@ describe('GamePageComponent', () => {
         httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
+        component['dialog'] = dialogSpy;
         fixture.detectChanges();
 
         const request = httpMock.expectOne(`${environment.serverUrl}/chat?roomCode=${accessCode}`);
@@ -118,23 +121,23 @@ describe('GamePageComponent', () => {
         expect(component.turnTimerComponent.resumeTimer).toHaveBeenCalled();
     });
 
-    // it('should open a confirmation dialog and navigate when quitting the game', () => {
-    //     component.handleExit();
-    //     expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-    //         disableClose: true,
-    //         data: {
-    //             title: 'Abandonner la partie?',
-    //             messages: ['- Êtes-vous certains de vouloir quitter?'],
-    //             options: ['Quitter', 'Rester'],
-    //             confirm: true,
-    //         },
-    //     });
-    //     expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-    // });
+    it('should open a confirmation dialog and navigate when quitting the game', () => {
+        component.handleExit();
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Abandonner la partie?',
+                messages: ['- Êtes-vous certains de vouloir quitter?'],
+                options: ['Quitter', 'Rester'],
+                confirm: true,
+            },
+        });
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
 
-    // it('should not navigate if the dialog result is not "left"', () => {
-    //     dialogRefSpy.afterClosed.and.returnValue(of('stay'));
-    //     component.handleExit();
-    //     expect(routerSpy.navigate).not.toHaveBeenCalled();
-    // });
+    it('should not navigate if the dialog result is not "left"', () => {
+        dialogRefSpy.afterClosed.and.returnValue(of('stay'));
+        component.handleExit();
+        expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
 });

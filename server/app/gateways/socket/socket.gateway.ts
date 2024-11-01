@@ -7,11 +7,11 @@ import { Avatar, Player } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { RoomEvents } from './player-connection.events';
+import { SocketEvents } from './socket.events';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
-export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
 
@@ -22,14 +22,14 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         private chatService: ChatService,
     ) {}
 
-    @SubscribeMessage(RoomEvents.CreateRoom)
+    @SubscribeMessage(SocketEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
         client.emit('roomCreated', room);
         this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`);
     }
 
-    @SubscribeMessage(RoomEvents.JoinRoom)
+    @SubscribeMessage(SocketEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
         const connectionRes = this.gameService.connectPlayerToGame(roomId);
         const room = this.roomService.rooms.get(roomId);
@@ -43,25 +43,25 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         }
     }
 
-    @SubscribeMessage(RoomEvents.LeaveRoom)
+    @SubscribeMessage(SocketEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
         this.gameService.leavePlayerFromGame(roomId, client, this.server);
     }
 
-    @SubscribeMessage(RoomEvents.ChangeLockRoom)
+    @SubscribeMessage(SocketEvents.ChangeLockRoom)
     handleLockRoom(client: Socket, data: { isLocked: boolean }) {
         const roomId = this.roomService.getRoomId(client);
         this.gameService.toggleLockRoom(roomId, data.isLocked);
     }
 
-    @SubscribeMessage(RoomEvents.IsLocked)
+    @SubscribeMessage(SocketEvents.IsLocked)
     handleIsRoomLocked(client: Socket) {
         const room = this.roomService.getRoom(client);
         client.emit('isRoomLocked', room.isLocked);
     }
 
-    @SubscribeMessage(RoomEvents.CreatePlayer)
+    @SubscribeMessage(SocketEvents.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
         this.gameService.createPlayer(room, player, client);
@@ -69,13 +69,13 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         client.to(room.roomId).emit('updatedPlayer', room);
     }
 
-    @SubscribeMessage(RoomEvents.SelectCharacter)
+    @SubscribeMessage(SocketEvents.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
-    @SubscribeMessage(RoomEvents.SendMessage)
+    @SubscribeMessage(SocketEvents.SendMessages)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);

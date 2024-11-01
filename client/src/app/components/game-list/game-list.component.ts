@@ -2,10 +2,10 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { MESSAGE_DURATION_ERROR, PAD_LENGTH, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { GameCreationService } from '@app/services/game-creation.service';
-import { GameListService } from '@app/services/game-list.service';
-import { MapEditorService } from '@app/services/map-editor.service';
+import { MapSize, MESSAGE_DURATION_ERROR, PAD_LENGTH, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { Game } from '@common/game';
 
 @Component({
@@ -63,7 +63,7 @@ export class GameListComponent implements OnInit {
     changeVisibility(game: Game) {
         this.gameListService.changeVisibility(game).subscribe({
             next: (result: boolean) => {
-                if (result === false) {
+                if (!result) {
                     this.showErrorMessage();
                 }
             },
@@ -105,11 +105,11 @@ export class GameListComponent implements OnInit {
 
     convertMapDimension(game: Game): string {
         if (game.dimension === SIZE_SMALL_MAP) {
-            return 'small';
+            return MapSize.Small;
         } else if (game.dimension === SIZE_MEDIUM_MAP) {
-            return 'medium';
+            return MapSize.Medium;
         } else if (game.dimension === SIZE_LARGE_MAP) {
-            return 'large';
+            return MapSize.Large;
         } else {
             return 'none';
         }

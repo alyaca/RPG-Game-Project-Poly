@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
+import { TileId } from '@app/constants';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ToolService {
-    tileIds: string[] = ['water-tile', 'ice-tile', 'wall-tile', 'door-tile'];
-    selectedTile: string;
+    selectedTile: TileId | '';
 
     constructor(private toolButtonService: ToolButtonService) {}
 
-    setSelectedTile(tile: string) {
+    setSelectedTile(tile: TileId | '') {
         this.selectedTile = this.selectedTile !== tile ? tile : '';
     }
 

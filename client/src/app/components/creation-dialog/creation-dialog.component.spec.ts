@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { GameMode, MapSize, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { CreationDialogComponent } from './creation-dialog.component';
 
 describe('CreationDialogComponent', () => {
@@ -41,13 +41,12 @@ describe('CreationDialogComponent', () => {
     });
 
     it('should select the correct size of the map', () => {
-        const size = 'small';
-        component.selectSize(size);
-        expect(component.selectedSize).toBe(size);
+        component.selectSize(MapSize.Small);
+        expect(component.selectedSize).toBe(MapSize.Small);
     });
 
     it('should select the correct mode of the map', () => {
-        const mode = 'classic';
+        const mode = GameMode.Classic;
         component.selectMode(mode);
         expect(component.selectedMode).toBe(mode);
     });
@@ -63,15 +62,13 @@ describe('CreationDialogComponent', () => {
     });
 
     it('the submit button should be disabled when the size is not selected ', () => {
-        const mode = 'classic';
-        component.selectMode(mode);
+        component.selectMode(GameMode.Classic);
         const result = component.isSubmitDisabled();
         expect(result).toBe(true);
     });
 
     it('the submit button should be disabled when the mode is not selected ', () => {
-        const size = 'small';
-        component.selectSize(size);
+        component.selectSize(MapSize.Small);
         const result = component.isSubmitDisabled();
         expect(result).toBe(true);
     });
@@ -85,10 +82,8 @@ describe('CreationDialogComponent', () => {
     });
 
     it('should navigate to the map creation page and close the dialog when size and mode are selected', () => {
-        const size = 'small';
-        const mode = 'classic';
-        component.selectSize(size);
-        component.selectMode(mode);
+        component.selectSize(MapSize.Small);
+        component.selectMode(GameMode.Classic);
         component.changePage();
         expect(dialogRefSpy.close).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/edit-map']);

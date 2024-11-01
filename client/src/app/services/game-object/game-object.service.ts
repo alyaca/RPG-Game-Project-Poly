@@ -1,24 +1,25 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, TileType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
+import { MapPosition } from '@app/interfaces/map-position';
 import { gameObjects } from '@app/objects-info';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameObjectService implements OnDestroy {
-    countableObjects = [ObjectType.Random, ObjectType.Spawn];
     draggedObject: GameObject | null = null;
-    dragStartPosition: { row: number; col: number } | null = null;
-    gridSize: number;
+    dragStartPosition: MapPosition | null = null;
     isDraggingFromContainer: boolean = false;
+    maxCount: number;
     objects: GameObject[] = gameObjects;
     objectsArray: number[][];
-    mapSize: string | null;
-    maxCount: number;
-    selectedTile: { row: number; col: number } | null = null;
+    selectedTile: MapPosition | null = null;
+    private countableObjects = [ObjectType.Random, ObjectType.Spawn];
+    private gridSize: number;
+    private mapSize: string | null;
     private sizeSubscription!: Subscription;
 
     constructor(private gameCreationService: GameCreationService) {
@@ -38,11 +39,7 @@ export class GameObjectService implements OnDestroy {
 
     resetObjectsCount() {
         this.objects.forEach((object) => {
-            if (this.countableObjects.includes(object.id) && this.mapSize) {
-                object.count = OBJECT_COUNT_MAP[this.mapSize];
-            } else {
-                object.count = ITEM_COUNT;
-            }
+            object.count = this.countableObjects.includes(object.id) && this.mapSize ? OBJECT_COUNT_MAP[this.mapSize] : ITEM_COUNT;
         });
     }
 
@@ -89,11 +86,6 @@ export class GameObjectService implements OnDestroy {
         }
     }
 
-    resetDrag() {
-        this.dragStartPosition = null;
-        this.draggedObject = null;
-    }
-
     loadMapObjectCount() {
         if (this.mapSize) {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
@@ -114,5 +106,43 @@ export class GameObjectService implements OnDestroy {
         if (this.sizeSubscription) {
             this.sizeSubscription.unsubscribe();
         }
+    }
+
+    checkGameObject(row: number, col: number) {
+        const gameObject = this.getGameObjectOnTile(row, col);
+        if (gameObject) {
+            this.draggedObject = gameObject;
+        }
+    }
+
+    isValidTileForObject(row: number, col: number, tiles: number[][]): boolean {
+        const validTileType = [TileType.Ground, TileType.Ice, TileType.Water];
+        return validTileType.includes(tiles[row][col]);
+    }
+
+    onDrop(event: DragEvent, row: number, col: number, objects: number[][], tiles: number[][]) {
+        event.preventDefault();
+        if (this.draggedObject && objects[row][col] === NO_OBJECT && this.isValidTileForObject(row, col, tiles)) {
+            this.updateObjectGridPosition(this.draggedObject, row, col);
+        }
+    }
+
+    handleGameObjectOnTile(row: number, col: number, tiles: number[][]) {
+        const gameObject = this.getGameObjectOnTile(row, col);
+        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col, tiles)) {
+            this.selectedTile = { row, col };
+            this.removeObjectFromGrid(gameObject);
+        }
+    }
+
+    onDragStart(row: number, col: number) {
+        this.selectedTile = null;
+        this.dragStartPosition = { row, col };
+        this.checkGameObject(row, col);
+    }
+
+    private resetDrag() {
+        this.dragStartPosition = null;
+        this.draggedObject = null;
     }
 }

@@ -6,12 +6,11 @@ import { Routes, provideRouter } from '@angular/router';
 import { AdministrationPageComponent } from '@app/pages/administration-page/administration-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreateGamePageComponent } from '@app/pages/create-game-page/create-game-page.component';
+import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { JoinGameComponent } from '@app/pages/join-game/join-game.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MapEditorPageComponent } from '@app/pages/map-editor-page/map-editor-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { WaitingPageComponent } from '@app/pages/waiting-page/waiting-page.component';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { environment } from './environments/environment';
 
 if (environment.production) {
@@ -24,10 +23,9 @@ const routes: Routes = [
     { path: 'home', component: MainPageComponent },
     { path: 'administration', component: AdministrationPageComponent },
     { path: 'edit-map', component: MapEditorPageComponent },
-    { path: 'material', component: MaterialPageComponent },
     { path: 'waiting-page', component: WaitingPageComponent },
-    {path: 'join-game', component: JoinGameComponent},
-    { path: 'game-page', component: GamePageComponent},
+    { path: 'join-game', component: JoinGameComponent },
+    { path: 'game-page', component: GamePageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
