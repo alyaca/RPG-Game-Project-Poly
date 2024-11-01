@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +20,7 @@ describe('WaitingPageComponent', () => {
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let httpMock: HttpTestingController;
 
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
@@ -38,6 +41,8 @@ describe('WaitingPageComponent', () => {
         await TestBed.configureTestingModule({
             imports: [WaitingPageComponent],
             providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: GameService, useValue: gameServiceSpy },
@@ -47,9 +52,14 @@ describe('WaitingPageComponent', () => {
             ],
         }).compileComponents();
 
+        httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(WaitingPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     afterAll(() => {
