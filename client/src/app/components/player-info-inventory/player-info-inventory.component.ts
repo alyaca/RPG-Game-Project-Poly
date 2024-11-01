@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { Player } from '@common/player';
 // import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
@@ -76,6 +76,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
         this.player.attributes.currentHp += 1;
         this.healthBar.nativeElement.value += 1;
     }
+
     decreaseHP() {
         if (this.player.attributes.currentHp === 0) {
             return;
