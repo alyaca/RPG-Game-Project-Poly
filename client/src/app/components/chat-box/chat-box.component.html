@@ -1,11 +1,20 @@
 <div class="chat-box">
-    <div class="past-messages" #messageContainer>
-        @for(message of messages; track message.id;){
-        <app-chat-message [timestamp]="message.timestamp" [username]="message.username" [message]="message.message"> </app-chat-message>
-        }
-    </div>
+    @if(!areLogsVisible){
+        <div class="past-messages" #messageContainer>
+            @for(message of messages; track message.id;){
+            <app-chat-message [timestamp]="message.timestamp" [username]="message.username" [message]="message.message"> </app-chat-message>
+            }
+        </div>
+    }
+    @else {
+        <div class="past-messages">
+            @for(log of logs; track log.id;){
+            <app-chat-message [timestamp]="log.timestamp" [username]="log.username" [message]="log.message"> </app-chat-message>
+            }
+        </div>
+    }
     <div class="input-container">
-        <span class="toggle-icon" id="toggleIcon"></span>
+        <span class="toggle-icon" id="toggleIcon" [ngClass]="toggleIconClass" (click)="toggleChatLogs()"></span>
         <label for="chatInput"></label>
         <input
             type="text"
@@ -13,7 +22,7 @@
             [(ngModel)]="newMessage"
             (keyup.enter)="sendMessage()"
             name="chatInput"
-            placeholder="Tapez votre message"
+            placeholder="{{ chatType }}"
             maxlength="200"
         />
     </div>

@@ -55,7 +55,23 @@
     color: white;
     width: 2.5rem;
     height: 2rem;
-    background-image: url('../../../assets/images/icones/chat-message.png');
-    background-size: cover;
     display: inline-block;
+    background-size: cover; 
+    transition: transform 0.2s ease
+}
+
+.icon-chat {
+    background-image: url('../../../assets/images/icones/chat-message.png'); 
+}
+
+.icon-chat:hover {
+    transform: scale(1.1);
+}
+
+.icon-logs {
+    background-image: url('../../../assets/images/icones/logs.png'); 
+}
+
+.icon-logs:hover {
+    transform: scale(1.1);
 }
