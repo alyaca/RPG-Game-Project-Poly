@@ -13,7 +13,7 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { WaitingPageComponent } from './waiting-page.component';
 
 describe('WaitingPageComponent', () => {
