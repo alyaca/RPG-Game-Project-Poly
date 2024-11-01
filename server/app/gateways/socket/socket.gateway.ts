@@ -8,7 +8,7 @@ import { Avatar, Player } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { RoomEvents } from './socket.events';
+import { SocketEvents } from './socket.events';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
@@ -24,14 +24,14 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private chatService: ChatService,
     ) {}
 
-    @SubscribeMessage(RoomEvents.CreateRoom)
+    @SubscribeMessage(SocketEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
         client.emit('roomCreated', room);
         this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`);
     }
 
-    @SubscribeMessage(RoomEvents.JoinRoom)
+    @SubscribeMessage(SocketEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
         const connectionRes = this.gameService.connectPlayerToGame(roomId);
         const room = this.roomService.rooms.get(roomId);
@@ -45,50 +45,73 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
     }
 
-    @SubscribeMessage(RoomEvents.LeaveRoom)
+    @SubscribeMessage(SocketEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
         this.gameService.leavePlayerFromGame(roomId, client, this.server);
     }
 
-    @SubscribeMessage(RoomEvents.ChangeLockRoom)
+    @SubscribeMessage(SocketEvents.ChangeLockRoom)
     handleLockRoom(client: Socket, data: { isLocked: boolean }) {
         const roomId = this.roomService.getRoomId(client);
         this.gameService.toggleLockRoom(roomId, data.isLocked);
     }
 
-    @SubscribeMessage(RoomEvents.IsLocked)
+    @SubscribeMessage(SocketEvents.IsLocked)
     handleIsRoomLocked(client: Socket) {
         const room = this.roomService.getRoom(client);
         client.emit('isRoomLocked', room.isLocked);
     }
 
-    @SubscribeMessage(RoomEvents.CreatePlayer)
+    @SubscribeMessage(SocketEvents.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
         this.gameService.createPlayer(room, player, client);
-        client.emit('updatedPlayer', room);
-        client.to(room.roomId).emit('updatedPlayer', room);
+        this.server.to(room.roomId).emit('updatedPlayer', room);
     }
 
-    @SubscribeMessage(RoomEvents.SelectCharacter)
+    @SubscribeMessage(SocketEvents.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
-    @SubscribeMessage(RoomEvents.StartGame)
+    @SubscribeMessage(SocketEvents.StartGame)
     handleStartGame(client: Socket) {
         const room = this.roomService.getRoom(client);
         this.matchService.processMapObjects(client);
-        client.to(room.roomId).emit('startGame', room);
-        client.emit('startGame', room);
-
-        client.to(room.roomId).emit('mapInformation', room);
-        client.emit('mapInformation', room);
+        this.gameService.onStartGame(room);
+        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        this.server.to(room.roomId).emit('startGame', room);
+        this.server.to(room.roomId).emit('mapInformation', room);
+        this.server.to(room.roomId).emit('isActive', activePlayer.id);
     }
 
-    @SubscribeMessage(RoomEvents.SendMessage)
+    @SubscribeMessage(SocketEvents.EndTurn)
+    handleEndTurn(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.updateActivePlayer(client);
+        this.logger.debug(`client ${client.id} turn is over`); // for debug
+        this.server.to(room.roomId).emit('turnEnded', room.listPlayers);
+    }
+
+    @SubscribeMessage(SocketEvents.BeforeStartTurn)
+    handleBeforeStartTurn(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.onStartTurn(room, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.StartTurn)
+    handleStartTurn(client: Socket, duration: number) {
+        this.gameService.onPlayerTurnStarted(duration, client, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.StartFight)
+    handleStartFight(client: Socket, duration: number) {
+        const room = this.roomService.getRoom(client);
+    }
+
+    @SubscribeMessage(SocketEvents.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);

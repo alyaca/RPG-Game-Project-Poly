@@ -47,12 +47,13 @@ describe('PlayerInfoInventoryComponent', () => {
     });
 
     it('should update the action points', () => {
-        component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.actionPoints;
+        component.player = mockLobbyPlayers[0];
+        // component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.actionPoints;
         component.increaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(mockLobbyPlayers[0].attributes.actionPoints + 1);
+        expect(component.player.attributes.actionPoints).toBe(5);
 
         component.decreaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(mockLobbyPlayers[0].attributes.actionPoints);
+        expect(component.player.attributes.actionPoints).toBe(4);
     });
 
     it('should not update the action points value if it is already at the max or min', () => {

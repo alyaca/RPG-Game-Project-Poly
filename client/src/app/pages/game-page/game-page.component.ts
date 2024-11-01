@@ -8,7 +8,8 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { Status } from '@app/interfaces/player-object';
+import { STARTING_TIME, TURN_TIME } from '@app/constants';
+// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
@@ -36,7 +37,12 @@ export class GamePageComponent implements AfterViewInit, OnInit {
 
     isActionSelected: boolean = true;
     isInCombat: boolean = false;
-    isTurnStartShowed: boolean = true;
+    isTurnStartShowed: boolean = false;
+    timeRemainingBeforeStartTurn: number = STARTING_TIME;
+    timeRemainingStartTurn: number = TURN_TIME;
+    isFirstTimerDone: boolean = false;
+    beforeTurnTotalTime: number = STARTING_TIME;
+    turnTotalTime: number = TURN_TIME;
 
     constructor(
         private router: Router,
@@ -51,8 +57,38 @@ export class GamePageComponent implements AfterViewInit, OnInit {
     ngOnInit() {
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
-            this.determinePlayerTurn();
             this.replenishHealth();
+        });
+    }
+
+    ngAfterViewInit() {
+        this.socketCommunicationService.on('isActive', (playerId: string) => {
+            this.isTurnStartShowed = playerId === this.socketCommunicationService.socket.id;
+        });
+        this.timerEvents();
+    }
+
+    timerEvents() {
+        this.socketCommunicationService.on('beforeStartTurnTimer', (timeRemaining: number) => {
+            this.timeRemainingBeforeStartTurn = timeRemaining;
+        });
+        this.socketCommunicationService.on('beforeStartTurnTimerEnd', () => {
+            this.closeTurnStartPopUp();
+        });
+        this.socketCommunicationService.on('turnEnded', (listPlayers: []) => {
+            this.allPlayers = listPlayers;
+            this.onBeforeStartTurn();
+        });
+    }
+
+    onBeforeStartTurn() {
+        this.socketCommunicationService.send('beforeStartTurn');
+    }
+
+    onStartTurn() {
+        this.socketCommunicationService.send('startTurn', TURN_TIME);
+        this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
+            this.timeRemainingStartTurn = timeRemaining;
         });
     }
 
@@ -74,35 +110,20 @@ export class GamePageComponent implements AfterViewInit, OnInit {
         }
     }
 
-    determinePlayerTurn() {
-        if (this.allPlayers.length > 1) {
-            this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
-            this.allPlayers = [
-                ...this.allPlayers.filter((player) => player.status !== Status.Disconnected),
-                ...this.allPlayers.filter((player) => player.status === Status.Disconnected),
-            ];
-        }
-        this.allPlayers[0].isActive = true;
-    }
-
     enableClicks() {
         this.pageDiv.first.nativeElement.id = 'enabled';
     }
 
     closeTurnStartPopUp() {
         this.isTurnStartShowed = false;
+        this.isFirstTimerDone = true;
+        this.beforeTurnTotalTime = STARTING_TIME;
         this.enableClicks();
-        this.turnTimerComponent.resumeTimer();
+        this.onStartTurn();
     }
 
     toggleActionSelected() {
         this.isActionSelected = !this.isActionSelected;
-    }
-
-    ngAfterViewInit() {
-        if (this.turnTimerComponent) {
-            this.turnTimerComponent.pauseTimer();
-        }
     }
 
     openCombatModal() {
@@ -131,5 +152,9 @@ export class GamePageComponent implements AfterViewInit, OnInit {
                 this.router.navigate(['/home']);
             }
         });
+    }
+
+    onTimerDone() {
+        this.socketCommunicationService.send('endTurn');
     }
 }

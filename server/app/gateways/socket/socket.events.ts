@@ -1,4 +1,4 @@
-export enum RoomEvents {
+export enum SocketEvents {
     CreateRoom = 'createRoom',
     StartGame = 'startGame',
     BroadcastAll = 'broadcastAll',
@@ -10,4 +10,9 @@ export enum RoomEvents {
     IsLocked = 'isLocked',
     GetMap = 'getMap',
     SendMessage = 'sendMessages',
+    EndTurn = 'endTurn',
+    StartTurn = 'startTurn',
+    StartTimer = 'startTimer',
+    BeforeStartTurn = 'beforeStartTurn',
+    StartFight = 'startFight',
 }

@@ -23,10 +23,9 @@
         <div id="turn-start-timer">
             <p>Votre tour commence dans</p>
             <app-timer
-                [isShowed]="isTurnStartShowed"
-                [totalTime]="1"
-                [timeRemaining]="1"
-                [timerSize]="45"
+                [totalTime]="beforeTurnTotalTime"
+                [timeRemaining]="timeRemainingBeforeStartTurn"
+                (startTimer)="onBeforeStartTurn()"
                 (closeTimer)="closeTurnStartPopUp()"
             ></app-timer>
         </div>
@@ -39,7 +38,8 @@
     </div>
     <div class="right-container">
         <div class="timer">
-            <app-timer [totalTime]="60" [timeRemaining]="60" [timerSize]="45" #turnTimer> </app-timer>
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" (startTimer)="onStartTurn()" (closeTimer)="onTimerDone()">
+            </app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id ;){

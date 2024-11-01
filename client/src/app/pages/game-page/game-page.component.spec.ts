@@ -5,8 +5,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { Status } from '@app/interfaces/player-object';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
@@ -69,19 +67,6 @@ describe('GamePageComponent', () => {
         const initialActionSelected = component.isActionSelected;
         component.toggleActionSelected();
         expect(component.isActionSelected).toBe(!initialActionSelected);
-    });
-
-    it('should sort players by speed and move disconnected players to the end', () => {
-        component.allPlayers = [...mockLobbyPlayers];
-        component.allPlayers[0].status = Status.Disconnected;
-        component.determinePlayerTurn();
-
-        const connectedPlayers = component.allPlayers.filter((player) => player.status !== Status.Disconnected);
-        const disconnectedPlayers = component.allPlayers.filter((player) => player.status === Status.Disconnected);
-
-        expect(connectedPlayers.length).toBeGreaterThan(0);
-        expect(disconnectedPlayers.length).toBeGreaterThan(0);
-        expect(component.allPlayers).toEqual([...connectedPlayers, ...disconnectedPlayers]);
     });
 
     it('should set the id of the first pageDiv element to "enabled"', () => {
