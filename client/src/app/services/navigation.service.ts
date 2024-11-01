@@ -24,12 +24,13 @@ interface PointWithDistance {
 export class NavigationService {
     private distances: number[][];
     private previous: Position[][];
+    private reachableTiles: Position[];
+    public path: Position[];
     // private game: Game;
     constructor() {}
 
-    /// ///////////////////////////////////////////////////////////////
-    // Djikstra
-    // Trouver le chemin le plus rapide
+    //////////////////////////////////////////////////////////////////
+    //Djikstra
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.initializeDistances(player, game);
 
@@ -45,7 +46,7 @@ export class NavigationService {
         return this.reconstructPath(destination);
     }
 
-    private initializeDistances(player: Player, game: Game): void {
+    public initializeDistances(player: Player, game: Game): void {
         const dimension = game.dimension;
         this.distances = Array.from({ length: dimension }, () => Array(dimension).fill(Infinity));
         this.previous = Array.from({ length: dimension }, () => Array(dimension).fill(null));
@@ -135,6 +136,7 @@ export class NavigationService {
             const neighbors = this.getNeighbors(nextNode, game);
             this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
         }
+        this.reachableTiles = reachableTiles;
         return reachableTiles;
     }
 
@@ -159,5 +161,21 @@ export class NavigationService {
                 priorityQueue.push({ x: newX, y: newY, distance: newDistance });
             }
         }
+    }
+    isReachableTile(row: number, col: number): boolean {
+        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+    }
+
+    navigateToTile(player: Player, destination: Position, game: Game): Position[] {
+        console.log('navigateToTile');
+        if (this.isReachableTile(destination.x, destination.y)) {
+            this.path = this.findFastestPath(player, destination, game);
+            if (this.path.length > 0) {
+                this.path.shift();
+                console.log(this.path);
+                return this.path;
+            }
+        }
+        return [];
     }
 }
