@@ -1,6 +1,6 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_OBJECT, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -99,7 +99,7 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ];
             gameCreationServiceSpy.loadedObjects = [
-                [2, 2],
+                [ObjectType.Armor, ObjectType.Armor],
                 [0, 0],
             ];
 
@@ -112,11 +112,11 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
             expect(component.objectsArray).toEqual([
-                [2, 2],
+                [ObjectType.Armor, ObjectType.Armor],
                 [0, 0],
             ]);
             expect(gameObjectManagerServiceSpy.objectsArray).toEqual([
-                [2, 2],
+                [ObjectType.Armor, ObjectType.Armor],
                 [0, 0],
             ]);
         });

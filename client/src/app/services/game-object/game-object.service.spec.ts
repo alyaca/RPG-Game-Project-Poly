@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
+import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP, TileType } from '@app/constants';
 import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
@@ -180,19 +180,19 @@ describe('GameObjectService', () => {
 
     it('isValidTileForObject should return false if it is a wall or a door', () => {
         let result = service.isValidTileForObject(0, 0, [
-            [4, 1],
+            [TileType.Wall, 1],
             [1, 1],
         ]);
         expect(result).toBeFalse();
 
         result = service.isValidTileForObject(0, 0, [
-            [5, 1],
+            [TileType.ClosedDoor, 1],
             [1, 1],
         ]);
         expect(result).toBeFalse();
 
         result = service.isValidTileForObject(0, 0, [
-            [6, 1],
+            [TileType.OpenDoor, 1],
             [1, 1],
         ]);
         expect(result).toBeFalse();
