@@ -269,17 +269,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
-
+    /*
     onHover(row: number, col: number) {
         this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
     }
-
+        */
+    /*
     isOnFastestPath(row: number, col: number): boolean {
         if (!this.fastestPath) {
             return false;
         }
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
+        */
 
     private isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
@@ -303,10 +305,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.reachableTiles = [];
         this.reachableTiles = this.navigationService.findReachableTiles(this.players[0], this.gameMap, this.players[0].attributes.movementPointsLeft);
     }
-
+    /*
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
+        */
 
     findPath(row: number, col: number) {
         if (this.isReachableTile(row, col)) {
@@ -319,6 +322,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             return false;
         }
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
+    }
+
+    print() {
+        console.log('PPPPPPP');
     }
 
     //A deplacer dans le service de navigation
@@ -361,7 +368,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.findReachableTiles();
                 currentPosition = this.players[0].position;
                 if (this.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
-                    if (!this.verifyGlace()) {
+                    if (!this.checkFell()) {
                         //Est ce que c'est comme ca qu'on envoie le message?
                         this.socketCommunicationService.send('playerFell', this.players[0]);
                         //Todo affichage de message de TOMBER
@@ -373,7 +380,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.isMoving = false;
     }
-    verifyGlace(): boolean {
+    checkFell(): boolean {
         const randomValue = Math.random();
         return randomValue > 0.1;
     }

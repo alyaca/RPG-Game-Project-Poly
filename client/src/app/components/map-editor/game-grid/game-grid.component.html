@@ -9,6 +9,7 @@
         (contextmenu)="removeOnRightClick($event, rowIndex, colIndex)"
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
+        (click)="navigateToTile(rowIndex, colIndex)"
     >
         <img
             class="tile-image"
@@ -32,9 +33,9 @@
             (dragstart)="onDragStart($event, rowIndex, colIndex)"
         />
         } @if (isReachableTile(rowIndex, colIndex)) {
-        <div class="reachable-tile"></div>
+        <div class="reachable-tile" (mouseover)="findPath(rowIndex, colIndex)"></div>
         } @if (isOnFastestPath(rowIndex, colIndex)) {
-        <div class="fastest-path-tile"></div>
+        <div class="fastest-path-tile" (click)="navigateToTile(rowIndex, colIndex)"></div>
         }
     </div>
     } }

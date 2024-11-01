@@ -167,6 +167,7 @@ export class NavigationService {
     }
 
     navigateToTile(player: Player, destination: Position, game: Game): Position[] {
+        console.log('navigateToTile');
         if (this.isReachableTile(destination.x, destination.y)) {
             this.path = this.findFastestPath(player, destination, game);
             if (this.path.length > 0) {
