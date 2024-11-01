@@ -45,7 +45,20 @@
 .input-container {
     display: flex;
     align-items: center;
-    width: 222%;
+}
+
+.input-container.logs-active {
+    width: 222%; 
+    display: flex;
+    justify-content: space-around; 
+}
+
+.input-container.chat-active {
+    width: 222%; 
+}
+
+#chat-input {
+    flex: 1; 
 }
 
 .toggle-icon {
@@ -53,9 +66,42 @@
     margin-right: 0.5rem;
     font-size: 20px;
     color: white;
-    width: 2.5rem;
+    width: 2rem;
     height: 2rem;
-    background-image: url('../../../assets/images/icones/chat-message.png');
-    background-size: cover;
     display: inline-block;
+    background-size: cover; 
+    transition: transform 0.2s ease
+}
+
+.icon-chat {
+    background-image: url('../../../assets/images/icones/chat-message.png'); 
+}
+
+.icon-chat:hover {
+    transform: scale(1.1);
+}
+
+.icon-logs {
+    background-image: url('../../../assets/images/icones/logs.png'); 
+}
+
+.icon-logs:hover {
+    transform: scale(1.1);
+}
+
+.filter-icon {
+    cursor: pointer;
+    margin-right: 0.5rem;
+    font-size: 20px;
+    color: white;
+    width: 2rem;
+    height: 2rem;
+    display: inline-block;
+    background-size: cover; 
+    transform: scale(0.9);
+}
+
+input::placeholder {
+    color:  rgb(175, 158, 83);
+    opacity: 1; 
 }

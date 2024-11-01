@@ -7,8 +7,8 @@
             <app-player-info-inventory class="player-bar" [playerId]="socketCommunicationService.socket.id"></app-player-info-inventory>
         </div>
         <div class="chat">
-            <app-chat-box></app-chat-box>
-        </div>
+            <app-chat-box [isToggleable]="true"></app-chat-box>
+        </div> 
         <div class="quit" (click)="handleExit()">
             <p>Abandonner la partie</p>
         </div>

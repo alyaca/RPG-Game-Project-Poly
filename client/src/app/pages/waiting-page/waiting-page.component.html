@@ -14,7 +14,7 @@
     </main>
     <footer>
         <div id="footer-container">
-            <app-chat-box></app-chat-box>
+            <app-chat-box [isToggleable]="false"></app-chat-box>
             <div id="start-container">
                 <button id="start" (click)="handleStartGame()">Lancer une partie</button>
                 <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
