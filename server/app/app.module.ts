@@ -3,7 +3,7 @@ import { RoomModule } from '@app/modules/room/room.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PlayerConnectionGateway } from './gateways/player-connection/player-connection.gateway';
+import { SocketGateway } from './gateways/socket/socket.gateway';
 import { ChatModule } from './modules/chat/chat.module';
 import { MapModule } from './modules/map/map.module';
 import { GameService } from './services/game/game.service';
@@ -23,6 +23,6 @@ import { GameService } from './services/game/game.service';
         RoomModule,
         LoggerModule,
     ],
-    providers: [PlayerConnectionGateway, GameService],
+    providers: [SocketGateway, GameService],
 })
 export class AppModule {}

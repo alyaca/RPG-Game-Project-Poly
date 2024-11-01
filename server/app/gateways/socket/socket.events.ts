@@ -1,4 +1,4 @@
-export enum RoomEvents {
+export enum SocketEvents {
     CreateRoom = 'createRoom',
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
@@ -7,5 +7,5 @@ export enum RoomEvents {
     SelectCharacter = 'selectCharacter',
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
-    SendMessage = 'sendMessages',
+    SendMessages = 'sendMessages',
 }

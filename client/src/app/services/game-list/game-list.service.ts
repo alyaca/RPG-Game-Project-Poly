@@ -17,11 +17,7 @@ export class GameListService {
     constructor(private http: HttpClient) {}
 
     getGames(usingPage: string) {
-        if (usingPage === 'game-list') {
-            return this.getAllVisibleGames();
-        } else {
-            return this.getAllGames();
-        }
+        return usingPage === 'game-list' ? this.getAllVisibleGames() : this.getAllGames();
     }
 
     getAllVisibleGames() {
@@ -69,27 +65,11 @@ export class GameListService {
     }
 
     changeVisibility(game: Game): Observable<boolean> {
-        return this.checkIfGameExists(game).pipe(
-            switchMap((exists) => {
-                if (exists) {
-                    return this.performChangeVisibility(game);
-                } else {
-                    return of(false);
-                }
-            }),
-        );
+        return this.checkIfGameExists(game).pipe(switchMap((exists) => (exists ? this.performChangeVisibility(game) : of(false))));
     }
 
     deleteGame(game: Game): Observable<boolean> {
-        return this.checkIfGameExists(game).pipe(
-            switchMap((exists) => {
-                if (exists) {
-                    return this.performDeleteGame(game);
-                } else {
-                    return of(false);
-                }
-            }),
-        );
+        return this.checkIfGameExists(game).pipe(switchMap((exists) => (exists ? this.performDeleteGame(game) : of(false))));
     }
 
     checkIfGameExists(game: Game): Observable<boolean> {

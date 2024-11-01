@@ -34,8 +34,7 @@ export class JoinGameService {
         if (!errorType) {
             return;
         }
-        const message = this.errorMessagesConnection.get(errorType);
-        return message;
+        return this.errorMessagesConnection.get(errorType);
     }
 
     onJoinGame(roomInfo: Room) {

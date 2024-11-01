@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameMode, MapSize, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 describe('GameCreationService', () => {
     let service: GameCreationService;
@@ -15,27 +15,27 @@ describe('GameCreationService', () => {
     });
 
     it('should select the right size', () => {
-        service.setSelectedSize('small');
-        expect(service.sizeSubject.getValue()).toEqual('small');
+        service.setSelectedSize(MapSize.Small);
+        expect(service.sizeSubject.getValue()).toEqual(MapSize.Small);
     });
 
     it('should select the right mode', () => {
-        service.setSelectedMode('classic');
-        expect(service.modeSubject.getValue()).toEqual('classic');
+        service.setSelectedMode(GameMode.Classic);
+        expect(service.modeSubject.getValue()).toEqual(GameMode.Classic);
     });
 
     it('should update map dimensions when size is small', () => {
-        service.setSelectedSize('small');
+        service.setSelectedSize(MapSize.Small);
         expect(service.updateDimensions()).toEqual(SIZE_SMALL_MAP);
     });
 
     it('should update map dimensions when size is medium', () => {
-        service.setSelectedSize('medium');
+        service.setSelectedSize(MapSize.Medium);
         expect(service.updateDimensions()).toEqual(SIZE_MEDIUM_MAP);
     });
 
     it('should update map dimensions when size is large', () => {
-        service.setSelectedSize('large');
+        service.setSelectedSize(MapSize.Large);
         expect(service.updateDimensions()).toEqual(SIZE_LARGE_MAP);
     });
 });

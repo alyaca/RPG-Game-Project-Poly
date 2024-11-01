@@ -1,6 +1,7 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { GameMode } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { Game } from '@common/game';
 import { BehaviorSubject, of, throwError } from 'rxjs';
@@ -39,7 +40,7 @@ describe('GameListService', () => {
                 name: 'Map1',
                 description: 'Description1',
                 visible: true,
-                mode: 'CTF',
+                mode: GameMode.Ctf,
                 nbPlayers: 6,
                 image: 'img1',
                 tiles: [[0, 1]],
