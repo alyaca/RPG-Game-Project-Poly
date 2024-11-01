@@ -1,12 +1,12 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
-import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP } from '@app/constants';
+import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { gameObjects } from '@app/objects-info';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { TileService } from '@app/services/tile/tile.service';
@@ -193,6 +193,7 @@ describe('GameGridComponent', () => {
     });
 
     it('should call the methods to remove the tile on right click', () => {
+        gameCreationServiceSpy.isModifiable = true;
         const event = new MouseEvent('click', { button: 2 });
         component.removeOnRightClick(event, 0, 0);
         expect(tileServiceSpy.removeTile).toHaveBeenCalled();
@@ -210,11 +211,9 @@ describe('GameGridComponent', () => {
 
     describe('drag event', () => {
         it('should set dragStartPosition and draggedObject on drag start', () => {
-            const mockDragEvent = new DragEvent('dragstart');
-
             gameCreationServiceSpy.isModifiable = true;
             gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(gameObjects[0]);
-            component.onDragStart(mockDragEvent, MOCK_ROW, MOCK_COLUMN);
+            component.onDragStart(MOCK_ROW, MOCK_COLUMN);
 
             expect(gameObjectManagerServiceSpy.dragStartPosition).toEqual({ row: MOCK_ROW, col: MOCK_COLUMN });
             expect(gameObjectManagerServiceSpy.getGameObjectOnTile).toHaveBeenCalledWith(MOCK_ROW, MOCK_COLUMN);

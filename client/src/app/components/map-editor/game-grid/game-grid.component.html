@@ -23,7 +23,7 @@
             class="player-on-spawn-points"
             [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
             draggable="true"
-            (dragstart)="onDragStart($event, rowIndex, colIndex)"
+            (dragstart)="onDragStart(rowIndex, colIndex)"
         />
         } @else if(objectsArray[rowIndex][colIndex] < 9) {
         <img

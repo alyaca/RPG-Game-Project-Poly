@@ -1,13 +1,14 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { GameService } from '@app/services/game/game.service';
+import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Avatar, Player } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { SocketEvents } from './socket.events';
+import { RoomEvents } from './socket.events';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
@@ -16,20 +17,21 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     private server: Server;
 
     constructor(
+        private matchService: MatchService,
         private roomService: RoomService,
         private logger: Logger,
         private gameService: GameService,
         private chatService: ChatService,
     ) {}
 
-    @SubscribeMessage(SocketEvents.CreateRoom)
+    @SubscribeMessage(RoomEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
         client.emit('roomCreated', room);
         this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`);
     }
 
-    @SubscribeMessage(SocketEvents.JoinRoom)
+    @SubscribeMessage(RoomEvents.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
         const connectionRes = this.gameService.connectPlayerToGame(roomId);
         const room = this.roomService.rooms.get(roomId);
@@ -43,25 +45,25 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
     }
 
-    @SubscribeMessage(SocketEvents.LeaveRoom)
+    @SubscribeMessage(RoomEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
         this.gameService.leavePlayerFromGame(roomId, client, this.server);
     }
 
-    @SubscribeMessage(SocketEvents.ChangeLockRoom)
+    @SubscribeMessage(RoomEvents.ChangeLockRoom)
     handleLockRoom(client: Socket, data: { isLocked: boolean }) {
         const roomId = this.roomService.getRoomId(client);
         this.gameService.toggleLockRoom(roomId, data.isLocked);
     }
 
-    @SubscribeMessage(SocketEvents.IsLocked)
+    @SubscribeMessage(RoomEvents.IsLocked)
     handleIsRoomLocked(client: Socket) {
         const room = this.roomService.getRoom(client);
         client.emit('isRoomLocked', room.isLocked);
     }
 
-    @SubscribeMessage(SocketEvents.CreatePlayer)
+    @SubscribeMessage(RoomEvents.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
         this.gameService.createPlayer(room, player, client);
@@ -69,13 +71,24 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         client.to(room.roomId).emit('updatedPlayer', room);
     }
 
-    @SubscribeMessage(SocketEvents.SelectCharacter)
+    @SubscribeMessage(RoomEvents.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
-    @SubscribeMessage(SocketEvents.SendMessages)
+    @SubscribeMessage(RoomEvents.StartGame)
+    handleStartGame(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.matchService.processMapObjects(client);
+        client.to(room.roomId).emit('startGame', room);
+        client.emit('startGame', room);
+
+        client.to(room.roomId).emit('mapInformation', room);
+        client.emit('mapInformation', room);
+    }
+
+    @SubscribeMessage(RoomEvents.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);

@@ -12,6 +12,7 @@ import {
 } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
+import { TimerComponent } from '../timer/timer.component';
 import { CombatModalComponent } from './combat-modal.component';
 
 describe('CombatModalComponent', () => {

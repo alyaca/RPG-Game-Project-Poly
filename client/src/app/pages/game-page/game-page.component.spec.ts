@@ -13,7 +13,6 @@ import { environment } from 'src/environments/environment.prod';
 import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
-    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;

@@ -137,6 +137,9 @@ export class NavigationService {
             this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
         }
         this.reachableTiles = reachableTiles;
+        console.log(this.reachableTiles);
+        console.log('oooooooooooooooooooooooooo');
+        console.log(reachableTiles);
         return reachableTiles;
     }
 
@@ -162,6 +165,7 @@ export class NavigationService {
             }
         }
     }
+
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
