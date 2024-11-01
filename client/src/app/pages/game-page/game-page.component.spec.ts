@@ -1,11 +1,14 @@
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElementRef, QueryList } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Status } from '@app/interfaces/player-object';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
@@ -14,20 +17,44 @@ describe('GamePageComponent', () => {
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let httpMock: HttpTestingController;
+    const accessCode = '1234';
+
+    const activatedRouteSpy = {
+        queryParams: of({ roomCode: '1234' }),
+    };
+
     beforeEach(async () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
         dialogRefSpy.afterClosed.and.returnValue(of('left'));
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
-            providers: [provideHttpClient(), { provide: MatDialog, useValue: dialogSpy }, { provide: Router, useValue: routerSpy }],
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                { provide: MatDialog, useValue: dialogSpy },
+                { provide: Router, useValue: routerSpy },
+                { provide: ActivatedRoute, useValue: activatedRouteSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+            ],
         }).compileComponents();
 
+        httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+
+        const request = httpMock.expectOne(`${environment.serverUrl}/chat?roomCode=${accessCode}`);
+        request.flush([]);
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     it('should create the component', () => {

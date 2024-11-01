@@ -27,6 +27,7 @@ export class RoomService {
 
     createRoom(socket: Socket, game: Game): Room {
         const roomCode: string = this.getNewRoomCode();
+        this.chatService.deleteMessagesByRoom(roomCode);
         const room: Room = {
             gameMap: game,
             roomId: roomCode,

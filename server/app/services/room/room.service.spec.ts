@@ -189,6 +189,7 @@ describe('RoomService', () => {
         service['getNewRoomCode'] = jest.fn().mockReturnValue(roomId);
         const room = service.createRoom(mockSocket, mockGame);
 
+        expect(chatService.deleteMessagesByRoom).toHaveBeenCalledWith(roomId);
         expect(room).toEqual(mockRooms[0]);
         expect(mockSocket.join).toHaveBeenCalledWith(roomId);
         expect(mockSocket.data.roomCode).toEqual(roomId);

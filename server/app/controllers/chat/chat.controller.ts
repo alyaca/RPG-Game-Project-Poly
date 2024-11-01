@@ -1,7 +1,7 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { Message } from '@app/model/schema/message.schema';
 import { ChatService } from '@app/services/chat/chat.service';
-import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -14,8 +14,8 @@ export class ChatController {
         type: Message,
         isArray: true,
     })
-    @Get('/:roomId')
-    async getMessagesByRoomId(@Param('roomId') roomId: string, @Res() response: Response) {
+    @Get()
+    async getMessagesByRoomId(@Query('roomCode') roomId: string, @Res() response: Response) {
         try {
             const messages: IMessage[] = await this.chatService.getMessagesByRoom(roomId);
             return response.status(HttpStatus.OK).json(messages);
