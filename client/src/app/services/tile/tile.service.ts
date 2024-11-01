@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { GameCreationService } from '@app/services/game-creation.service';
-import { TileType } from '@app/services/map-validator/map-validator.service';
+import { NO_OBJECT, TileId, TileType } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 @Injectable({
     providedIn: 'root',
@@ -29,16 +29,16 @@ export class TileService {
 
     setTile(selectedTile: string, row: number, col: number, array: number[][]) {
         switch (selectedTile) {
-            case 'ice-tile':
+            case TileId.Ice:
                 array[row][col] = TileType.Ice;
                 break;
-            case 'wall-tile':
+            case TileId.Wall:
                 array[row][col] = TileType.Wall;
                 break;
-            case 'water-tile':
+            case TileId.Water:
                 array[row][col] = TileType.Water;
                 break;
-            case 'door-tile':
+            case TileId.Door:
                 array[row][col] = array[row][col] === TileType.ClosedDoor ? TileType.OpenDoor : TileType.ClosedDoor;
                 break;
             default:
@@ -52,5 +52,13 @@ export class TileService {
         }
         array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
         return array;
+    }
+
+    removeTile(event: MouseEvent, row: number, col: number, tiles: number[][], objects: number[][]) {
+        event.preventDefault();
+        if (tiles[row][col] !== TileType.Ground && objects[row][col] === NO_OBJECT) {
+            tiles[row][col] = TileType.Ground;
+        }
+        return tiles;
     }
 }

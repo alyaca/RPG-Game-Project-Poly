@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
-import { GameListService } from '@app/services/game-list.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
@@ -46,9 +46,6 @@ export class WaitingPageComponent implements OnInit {
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }
-        if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/home']);
-        }
 
         this.socketCommunicationService.on<string>('roomDeleted', (message: string) => {
             this.onAdminQuit(message);
@@ -75,14 +72,6 @@ export class WaitingPageComponent implements OnInit {
         this.gameService.isRoomLocked = this.isLocked;
         this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
-
-    // // might become necessary later
-    // ensureAdminIsFirst() {
-    //     this.players = []
-    //         ...this.players.filter((player) => player.status === Status.Admin),
-    //         ...this.players.filter((player) => player.status !== Status.Admin),
-    //     ];
-    // }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
@@ -115,7 +104,7 @@ export class WaitingPageComponent implements OnInit {
             true,
         ).subscribe((result) => {
             if (result === 'right') {
-                this.router.navigate(['/game-page']);
+                this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
             }
         });
     }

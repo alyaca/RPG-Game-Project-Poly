@@ -1,13 +1,7 @@
-import { Component, Input } from '@angular/core';
-import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { CommonModule } from '@angular/common';
-
-export enum TileButtonName {
-    Water = 'Eau',
-    Ice = 'Glace',
-    Door = 'Porte',
-    Wall = 'Mur',
-}
+import { Component, Input } from '@angular/core';
+import { TileButtonName, TileClass } from '@app/constants';
+import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 
 @Component({
     selector: 'app-tool-button',
@@ -36,16 +30,16 @@ export class ToolButtonComponent {
         this.isActive = !this.isActive;
     }
 
-    private getInactiveClass(): string {
+    private getInactiveClass() {
         switch (this.buttonName) {
             case TileButtonName.Water:
-                return 'water';
+                return TileClass.Water;
             case TileButtonName.Ice:
-                return 'ice';
+                return TileClass.Ice;
             case TileButtonName.Wall:
-                return 'wall';
+                return TileClass.Wall;
             case TileButtonName.Door:
-                return 'door';
+                return TileClass.Door;
             default:
                 return '';
         }
