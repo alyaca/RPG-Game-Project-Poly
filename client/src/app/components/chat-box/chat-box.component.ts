@@ -27,7 +27,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         },
     ];
     newMessage: string = '';
-    newLog: string = 'lalala';
+    newLog: string = '';
     areLogsVisible: boolean = false;
     chatType: string = 'Messagerie';
     toggleIconImage: string = './assets/images/icones/chat-message.png';
@@ -78,13 +78,13 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         }
     }
 
+    ngOnDestroy(): void {
+        this.routeSub.unsubscribe();
+    }
     toggleChatLogs() {
         if (this.isToggleable) {
             this.areLogsVisible = !this.areLogsVisible;
             this.chatType = this.areLogsVisible ? 'Journal de jeu' : 'Messagerie';
         }
-    }
-    ngOnDestroy(): void {
-        this.routeSub.unsubscribe();
     }
 }
