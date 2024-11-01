@@ -5,7 +5,7 @@ import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { map, Observable } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
