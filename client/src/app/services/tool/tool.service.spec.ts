@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { TileId } from '@app/constants';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from './tool.service';
 
@@ -21,27 +22,27 @@ describe('ToolService', () => {
 
     describe('setSelectedTile', () => {
         it('should set the selectedTile to the given tile if it is not already selected', () => {
-            service.setSelectedTile('water-tile');
-            expect(service.getSelectedTile()).toBe('water-tile');
+            service.setSelectedTile(TileId.Water);
+            expect(service.getSelectedTile()).toBe(TileId.Water);
         });
 
         it('should set the selectedTile to an empty string if the same tile is selected again', () => {
-            service.setSelectedTile('water-tile');
-            service.setSelectedTile('water-tile');
+            service.setSelectedTile(TileId.Water);
+            service.setSelectedTile(TileId.Water);
             expect(service.getSelectedTile()).toBe('');
         });
 
         it('should allow selecting a different tile', () => {
-            service.setSelectedTile('water-tile');
-            service.setSelectedTile('ice-tile');
-            expect(service.getSelectedTile()).toBe('ice-tile');
+            service.setSelectedTile(TileId.Water);
+            service.setSelectedTile(TileId.Ice);
+            expect(service.getSelectedTile()).toBe(TileId.Ice);
         });
     });
 
     describe('getSelectedTile', () => {
         it('should return the current selected tile', () => {
-            service.setSelectedTile('wall-tile');
-            expect(service.getSelectedTile()).toBe('wall-tile');
+            service.setSelectedTile(TileId.Wall);
+            expect(service.getSelectedTile()).toBe(TileId.Wall);
         });
 
         it('should return undefined if no tile has been selected', () => {

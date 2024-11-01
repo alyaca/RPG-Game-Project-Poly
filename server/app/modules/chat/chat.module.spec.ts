@@ -1,6 +1,5 @@
 import { Message, messageSchema } from '@app/model/schema/message.schema';
 import { ChatService } from '@app/services/chat/chat.service';
-import { RoomService } from '@app/services/room/room.service';
 import { Logger } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,7 +9,6 @@ import { ChatModule } from './chat.module';
 describe('ChatModule', () => {
     let module: TestingModule;
     let chatService: ChatService;
-    let roomService: RoomService;
     let mongoServer: MongoMemoryServer;
 
     beforeAll(async () => {
@@ -26,11 +24,10 @@ describe('ChatModule', () => {
                 MongooseModule.forFeature([{ name: Message.name, schema: messageSchema }]),
                 ChatModule,
             ],
-            providers: [ChatService, RoomService, Logger],
+            providers: [ChatService, Logger],
         }).compile();
 
         chatService = module.get<ChatService>(ChatService);
-        roomService = module.get<RoomService>(RoomService);
     });
 
     afterAll(async () => {
@@ -41,6 +38,5 @@ describe('ChatModule', () => {
     it('should be defined', () => {
         expect(module).toBeDefined();
         expect(chatService).toBeDefined();
-        expect(roomService).toBeDefined();
     });
 });

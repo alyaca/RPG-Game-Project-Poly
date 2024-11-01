@@ -1,6 +1,7 @@
 import { ACCESS_CODE_LENGTH } from '@app/constants';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
+import { ChatService } from '@app/services/chat/chat.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from './room.service';
@@ -10,8 +11,12 @@ describe('RoomService', () => {
     let mockSocket: Socket;
     let mockServer: Server;
     let roomId: string;
+    let chatService: ChatService;
 
     beforeEach(async () => {
+        const chatServiceMock = {
+            deleteMessagesByRoom: jest.fn(),
+        };
         mockServer = {
             in: jest.fn().mockReturnValue({
                 socketsLeave: jest.fn(),
@@ -38,13 +43,14 @@ describe('RoomService', () => {
         } as unknown as Socket;
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [RoomService],
+            providers: [RoomService, { provide: ChatService, useValue: chatServiceMock }],
         }).compile();
 
         service = module.get<RoomService>(RoomService);
         service['io'] = mockServer;
         roomId = '1234';
         service.rooms = new Map();
+        chatService = module.get<ChatService>(ChatService);
     });
 
     it('should be defined', () => {
@@ -141,6 +147,7 @@ describe('RoomService', () => {
         expect(mockSocket.broadcast.to).toHaveBeenCalledWith(roomId);
         expect(service.rooms.has(roomId)).toBe(false);
         expect(service.cleanSocketsData).toHaveBeenCalled();
+        expect(chatService.deleteMessagesByRoom).toHaveBeenCalledWith(roomId);
         expect(mockServer.in).toHaveBeenCalledWith(roomId);
         expect(mockServer.in(roomId).socketsLeave).toHaveBeenCalledWith(roomId);
     });
@@ -182,6 +189,7 @@ describe('RoomService', () => {
         service['getNewRoomCode'] = jest.fn().mockReturnValue(roomId);
         const room = service.createRoom(mockSocket, mockGame);
 
+        expect(chatService.deleteMessagesByRoom).toHaveBeenCalledWith(roomId);
         expect(room).toEqual(mockRooms[0]);
         expect(mockSocket.join).toHaveBeenCalledWith(roomId);
         expect(mockSocket.data.roomCode).toEqual(roomId);

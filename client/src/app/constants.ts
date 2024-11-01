@@ -1,3 +1,13 @@
+export enum MapSize {
+    Small = 'small',
+    Medium = 'medium',
+    Large = 'large',
+}
+
+export enum GameMode {
+    Classic = 'classic',
+    Ctf = 'ctf',
+}
 // Constants for the number of items and spawn points for each type of map
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
@@ -13,6 +23,23 @@ export const MIN_LEN_MAP_TITLE = 3;
 export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 128;
+
+export enum TileType {
+    Ground = 1,
+    Ice = 2,
+    Water = 3,
+    Wall = 4,
+    ClosedDoor = 5,
+    OpenDoor = 6,
+}
+
+// To validate a door position on a map
+export const DIRECTIONS = [
+    { x: 0, y: 1 },
+    { x: 1, y: 0 },
+    { x: 0, y: -1 },
+    { x: -1, y: 0 },
+];
 
 export const OBJECT_COUNT_MAP: { [key: string]: number } = {
     small: NB_ITEMS_SMALL_MAP,
@@ -67,6 +94,13 @@ export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
 
+export enum ErrorMessages {
+    MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
+    MissingName = 'Veuillez entrer un nom de personnage',
+    MissingAvatar = 'Veuillez sélectionner un avatar',
+    NameWithSpace = 'Le nom ne peut pas contenir des espaces',
+}
+
 // Constants for timer component
 export const TOTAL_TIME = 60;
 export const WARNING_TIME = 3;
@@ -95,3 +129,27 @@ export const TIMER_ARC_WIDTH = 5;
 
 // Constants for random generation
 export const MAX_GENERATION_VALUE = 1000000000;
+
+// Constants for main page test
+export const NUMBER_OF_TEAM_MEMBERS = 6;
+
+// Constants for tiles button in map editor
+export enum TileId {
+    Water = 'water-tile',
+    Ice = 'ice-tile',
+    Wall = 'wall-tile',
+    Door = 'door-tile',
+}
+export enum TileButtonName {
+    Water = 'Eau',
+    Ice = 'Glace',
+    Door = 'Porte',
+    Wall = 'Mur',
+}
+
+export enum TileClass {
+    Water = 'water',
+    Ice = 'ice',
+    Door = 'door',
+    Wall = 'wall',
+}

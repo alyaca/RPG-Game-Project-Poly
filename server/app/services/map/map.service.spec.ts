@@ -1,4 +1,4 @@
-import { getFakeMaps } from '@app/mocks/mapMocks';
+import { getFakeMaps } from '@app/mocks/map-mocks';
 import { Map, MapDocument, mapSchema } from '@app/model/schema/map.schema';
 import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';

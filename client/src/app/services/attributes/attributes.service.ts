@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, HIGH_ATTRIBUTE } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, ErrorMessages, HIGH_ATTRIBUTE } from '@app/constants';
 import { defaultAttributes } from '@app/default-attributes';
 import { PlayerStats } from '@common/player';
 
@@ -7,20 +7,11 @@ import { PlayerStats } from '@common/player';
     providedIn: 'root',
 })
 export class AttributesService {
-    readonly validateError = {
-        missingAttributes: 'Veuillez sélectionner les valeurs des attributs souhaités',
-        missingName: 'Veuillez entrer un nom de personnage',
-    };
     name: string = '';
     attributes: PlayerStats = { ...defaultAttributes };
 
     setCharacterName(name: string) {
         this.name = name;
-    }
-
-    setAttribute(highAttribute: keyof PlayerStats, defaultAttribute: keyof PlayerStats) {
-        this.attributes[highAttribute] = HIGH_ATTRIBUTE;
-        this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
     }
 
     setHealth() {
@@ -47,21 +38,6 @@ export class AttributesService {
         }
     }
 
-    hasName() {
-        return this.name.trim();
-    }
-
-    hasSelectedAttributes() {
-        const { totalHp, speed } = this.attributes;
-        const selectedHealthSpeed = totalHp === DEFAULT_ATTRIBUTE && speed === DEFAULT_ATTRIBUTE;
-        return !selectedHealthSpeed && this.hasSelectedDice();
-    }
-
-    hasSelectedDice() {
-        const { atkDiceMax, defDiceMax } = this.attributes;
-        return !(atkDiceMax === DEFAULT_ATTRIBUTE && defDiceMax === DEFAULT_ATTRIBUTE);
-    }
-
     resetAttributes() {
         this.name = '';
         this.attributes = { ...defaultAttributes };
@@ -75,19 +51,18 @@ export class AttributesService {
     }
 
     saveAttributesValue() {
-        if (!this.hasName()) return this.validateError.missingName;
+        if (!this.hasName()) {
+            return ErrorMessages.MissingName;
+        }
         if (!this.hasSelectedAttributes()) {
-            return this.validateError.missingAttributes;
+            return ErrorMessages.MissingAttributes;
         }
         return '';
     }
 
     getDiceMessage(chosenAttribute: keyof PlayerStats) {
         const diceValue = this.attributes[chosenAttribute];
-        if (diceValue === DEFAULT_ATTRIBUTE) {
-            return DICE_4;
-        }
-        return DICE_6;
+        return diceValue === DEFAULT_ATTRIBUTE ? DICE_4 : DICE_6;
     }
 
     isButtonSelected(buttonName: string) {
@@ -113,8 +88,33 @@ export class AttributesService {
         }
     }
 
-    setAllStats() {
+    getAttributes() {
+        this.setAllStats();
+        return this.attributes;
+    }
+
+    private setAllStats() {
         this.attributes.currentHp = this.attributes.totalHp;
         this.attributes.movementPointsLeft = this.attributes.speed;
+    }
+
+    private hasName() {
+        return this.name.trim();
+    }
+
+    private hasSelectedAttributes() {
+        const { totalHp, speed } = this.attributes;
+        const selectedHealthSpeed = totalHp === DEFAULT_ATTRIBUTE && speed === DEFAULT_ATTRIBUTE;
+        return !selectedHealthSpeed && this.hasSelectedDice();
+    }
+
+    private hasSelectedDice() {
+        const { atkDiceMax, defDiceMax } = this.attributes;
+        return !(atkDiceMax === DEFAULT_ATTRIBUTE && defDiceMax === DEFAULT_ATTRIBUTE);
+    }
+
+    private setAttribute(highAttribute: keyof PlayerStats, defaultAttribute: keyof PlayerStats) {
+        this.attributes[highAttribute] = HIGH_ATTRIBUTE;
+        this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
     }
 }

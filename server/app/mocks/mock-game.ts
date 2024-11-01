@@ -5,7 +5,7 @@ export const mockGame: Game = {
     name: 'Map1',
     description: 'Description1',
     visible: true,
-    mode: 'CTF',
+    mode: 'ctf',
     nbPlayers: 6,
     image: 'img1',
     tiles: [

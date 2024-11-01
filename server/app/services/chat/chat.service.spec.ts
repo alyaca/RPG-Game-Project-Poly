@@ -96,5 +96,34 @@ describe('ChatService', () => {
         });
     });
 
+    describe('deleteMessagesByRoom', () => {
+        it('should delete messages by roomId', async () => {
+            const roomId = 'room123';
+
+            const messages: IMessage[] = [
+                { roomId, username: 'Vegeta', message: "Let's fight Kakarot", timestamp: new Date() },
+                { roomId, username: 'Kakarot', message: 'Okay Vegeta', timestamp: new Date() },
+                { roomId, username: 'Vegeta', message: 'Galick Gun', timestamp: new Date() },
+            ];
+
+            await messageModel.insertMany(messages);
+
+            await service.deleteMessagesByRoom(roomId);
+
+            const foundMessages = await service.getMessagesByRoom(roomId);
+
+            expect(foundMessages.length).toBe(0);
+        });
+
+        it('should not throw an error if no messages are found for the roomId', async () => {
+            const roomId = 'roomNotExist';
+
+            await service.deleteMessagesByRoom(roomId);
+
+            const foundMessages = await service.getMessagesByRoom(roomId);
+
+            expect(foundMessages.length).toBe(0);
+        });
+    });
     const MESSAGES_LENGTH = 3;
 });
