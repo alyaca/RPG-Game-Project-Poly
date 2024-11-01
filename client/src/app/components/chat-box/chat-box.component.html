@@ -13,7 +13,7 @@
             }
         </div>
     }
-    <div class="input-container">
+    <div class="input-container" [ngClass]="{ 'logs-active': areLogsVisible, 'chat-active': !areLogsVisible }">
         <span class="toggle-icon" id="toggleIcon" [ngClass]="toggleIconClass" (click)="toggleChatLogs()"></span>
         <label for="chatInput"></label>
         <input
@@ -25,5 +25,11 @@
             placeholder="{{ chatType }}"
             maxlength="200"
         />
+        @if(areLogsVisible && areLogsFiltered){
+            <img class="filter-icon" src="/assets/images/icones/filter.png" alt="filter" (click)="toggleLogsFilter()">
+        }
+        @else if(areLogsVisible && !areLogsFiltered){
+            <img class="filter-icon" src="/assets/images/icones/unfiltered.png" alt="filter" (click)="toggleLogsFilter()">
+        }
     </div>
 </div>
