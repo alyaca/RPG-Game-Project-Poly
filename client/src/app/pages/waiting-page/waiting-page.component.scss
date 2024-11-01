@@ -185,6 +185,10 @@ input:checked + .slider:before {
     box-shadow: 0 0 1px #000;
 }
 
+input[type='checkbox']:disabled + .slider {
+    cursor: default;
+}
+
 .lock-text {
     margin-top: 0;
 }
