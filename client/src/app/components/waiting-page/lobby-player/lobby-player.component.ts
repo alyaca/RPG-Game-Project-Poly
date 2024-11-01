@@ -20,11 +20,10 @@ export class LobbyPlayerComponent {
         private dialog: MatDialog,
         private socketCommunicationService: SocketCommunicationService,
     ) {}
-    
+
     isAdmin() {
         return this.lobbyPlayer.status === Status.Admin;
     }
-
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
@@ -39,14 +38,16 @@ export class LobbyPlayerComponent {
         return dialogRef.afterClosed();
     }
 
-    kickOutPlayer(){
-        this.openConfirmationDialog('Supprimer un joueur', ["Êtes-vous certain de vouloir supprimer le joueur?"], ['Supprimer', 'Annuler'], true).subscribe(
-            (result) => {
-                if (result === 'left') {
-                    console.log(this.lobbyPlayer.id);
-                    this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
-                }
-            },
-        );
+    kickOutPlayer() {
+        this.openConfirmationDialog(
+            'Supprimer un joueur',
+            ['Êtes-vous certain de vouloir supprimer le joueur?'],
+            ['Supprimer', 'Annuler'],
+            true,
+        ).subscribe((result) => {
+            if (result === 'left') {
+                this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
+            }
+        });
     }
 }

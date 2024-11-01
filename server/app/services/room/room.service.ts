@@ -11,7 +11,6 @@ export class RoomService {
     adminList: string[] = [];
     private io: Server;
 
-
     setServer(io: Server) {
         this.io = io;
     }

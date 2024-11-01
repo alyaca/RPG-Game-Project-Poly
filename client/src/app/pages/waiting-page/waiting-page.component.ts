@@ -55,27 +55,20 @@ export class WaitingPageComponent implements OnInit {
         });
 
         this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
-            console.log('Player:', this.socketCommunicationService.socket.id);
-            console.log('Room:', room);
             this.players = room.listPlayers;
-            this.isMaxPlayersReached()
+            this.isMaxPlayersReached();
         });
 
         this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
             this.isAdmin = isPlayerAdmin;
         });
-        
+
         this.socketCommunicationService.on('kickPlayer', (playerId: string) => {
-            console.log('Le joueur qui  est retiré:', playerId);
-            if(playerId === this.socketCommunicationService.socket.id){
-                this.onPlayerKickedOut();
-            }
-            
+            this.onPlayerKickedOut();
         });
 
         this.socketCommunicationService.on('leftRoom', (isAdmin) => {
             if (isAdmin) {
-                console.log('le admin a quité la partie');
                 this.router.navigate(['/game-creation']);
             } else {
                 this.router.navigate(['/home']);
@@ -98,33 +91,31 @@ export class WaitingPageComponent implements OnInit {
     onPlayerKickedOut() {
         const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
-            data: { title: 'Vous avez été retiré du jeu'},
+            data: { title: 'Vous avez été retiré du jeu' },
         });
         dialogNavigate.afterClosed().subscribe((result) => {
             if (result === 'close') {
                 this.router.navigate(['/join-game']);
             }
         });
-        
     }
 
-    maxPlayers(){
-        return this.players.length >= this.gameService.getPlayerNumber(this.chosenGame.dimension)
+    maxPlayers() {
+        return this.players.length >= this.gameService.getPlayerNumber(this.chosenGame.dimension);
     }
 
     isMaxPlayersReached() {
-       if(this.maxPlayers()){
-            this.isLocked = true;  
+        if (this.maxPlayers()) {
+            this.isLocked = true;
             this.onLockChange();
-        }
-        else{
+        } else {
             this.onLockChange();
         }
     }
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
-        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked })
+        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
     }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
@@ -151,7 +142,7 @@ export class WaitingPageComponent implements OnInit {
     }
 
     handleStartGame() {
-        if(this.players.length<MIN_NUMBER_PLAYER){
+        if (this.players.length < MIN_NUMBER_PLAYER) {
             this.openConfirmationDialog(
                 'Débuter la partie',
                 ['Il faut au moins ' + MIN_NUMBER_PLAYER + ' joueurs pour commencer la partie'],
@@ -159,8 +150,7 @@ export class WaitingPageComponent implements OnInit {
                 false,
             );
             return;
-        }
-        else{
+        } else {
             this.openConfirmationDialog(
                 'Débuter la partie',
                 ['Êtes-vous certains de vouloir débuter la partie?'],
@@ -168,7 +158,7 @@ export class WaitingPageComponent implements OnInit {
                 true,
             ).subscribe((result) => {
                 if (result === 'right') {
-                    this.isLocked = true;  
+                    this.isLocked = true;
                     this.router.navigate(['/game-page']);
                 }
             });
@@ -177,6 +167,5 @@ export class WaitingPageComponent implements OnInit {
 
     leaveGame(accessCode: string) {
         this.socketCommunicationService.send('leaveRoom', accessCode);
-
     }
 }
