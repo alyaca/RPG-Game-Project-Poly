@@ -80,11 +80,11 @@ describe('ChatBoxComponent', () => {
         component.chatType = 'Messagerie';
 
         component.toggleChatLogs();
-    
+
         expect(component.areLogsVisible).toBe(true);
         expect(component.chatType).toBe('Journal de jeu');
         component.toggleChatLogs();
-    
+
         expect(component.areLogsVisible).toBe(false);
         expect(component.chatType).toBe('Messagerie');
     });
@@ -93,7 +93,7 @@ describe('ChatBoxComponent', () => {
         component.areLogsVisible = true;
         expect(component.toggleIconClass).toBe('icon-logs');
     });
-    
+
     it('should return "icon-chat" when areLogsVisible is false', () => {
         component.areLogsVisible = false;
         expect(component.toggleIconClass).toBe('icon-chat');
