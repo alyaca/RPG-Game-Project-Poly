@@ -16,4 +16,8 @@ export class ChatService {
     async getMessagesByRoom(roomId: string): Promise<Message[]> {
         return this.messageModel.find({ roomId }).sort({ timestamp: 1 }).exec();
     }
+
+    async deleteMessagesByRoom(roomId: string): Promise<void> {
+        await this.messageModel.deleteMany({ roomId }).exec();
+    }
 }

@@ -104,7 +104,7 @@ export class WaitingPageComponent implements OnInit {
             true,
         ).subscribe((result) => {
             if (result === 'right') {
-                this.router.navigate(['/game-page']);
+                this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
             }
         });
     }
