@@ -34,6 +34,10 @@
     font-size: 0;
     position: relative;
     z-index: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tile img {
@@ -48,31 +52,36 @@
 
 .overlay-object {
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     border-radius: 50%;
     transform: scale(0.9);
 }
 
 .player-on-spawn-points {
-    border: 3px solid green;
+    //border: 3px solid green;
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     border-radius: 50%;
     transform: scale(0.9);
 }
 
 .reachable-tile {
-    border: 2px solid green;
     position: absolute;
-    z-index: 1;
-    border-radius: 50%;
-    transform: scale(0.9);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(88, 255, 166, 0.3);
+    z-index: 2;
 }
 
 .fastest-path-tile {
-    border: 3px solid white;
+    width: 30%;
+    height: 30%;
+    background: linear-gradient(to top right, rgba(27, 27, 27, 0.7), rgba(73, 73, 73, 0.7));
+    border: 0.1rem solid gray;
     position: absolute;
-    z-index: 1;
+    z-index: 4;
     border-radius: 50%;
     transform: scale(0.9);
 }

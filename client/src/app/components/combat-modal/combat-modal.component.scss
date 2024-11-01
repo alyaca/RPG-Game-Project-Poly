@@ -91,6 +91,22 @@
         background-image 0.3s ease;
 }
 
+.evade-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    background-image: url('../../../assets/images/icones/evade.png');
+    background-size: cover;
+    background-position: center;
+    transition:
+        transform 0.3s ease,
+        background-image 0.3s ease;
+}
+
 .button-outer:hover {
     transform: scale(1.05);
     box-shadow:

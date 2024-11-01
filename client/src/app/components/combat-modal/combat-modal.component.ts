@@ -1,7 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import { COMBAT_TURN_LENGTH, INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, INACTIVE_DICE_DELAY, ATTACK_DELAY, TURN_DIALOG_DELAY } from '@app/constants';
+import {
+    COMBAT_TURN_LENGTH,
+    INIT_DISPLAY_DELAY,
+    EXIT_COMBAT_DELAY,
+    INACTIVE_DICE_DELAY,
+    ATTACK_DELAY,
+    TURN_DIALOG_DELAY,
+    TEMP_DIALOG_DURATION,
+    LONG_TEMP_DIALOG_DURATION,
+} from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player } from '@common/player';
 import { DiceComponent } from '@app/components/dice/dice.component';
@@ -41,7 +50,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     initializeDisplay() {
         setTimeout(() => {
             const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
-            this.triggerTempDialog(message);
+            this.triggerTempDialog(message, TEMP_DIALOG_DURATION);
         }, INIT_DISPLAY_DELAY);
     }
 
@@ -62,8 +71,10 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     endGameIfNeeded() {
         const finalResult: string = this.combatService.checkIfDuelOver(this.player1, this.player2);
         if (finalResult) {
-            this.triggerTempDialog(finalResult);
+            this.triggerTempDialog(finalResult, LONG_TEMP_DIALOG_DURATION);
             this.combatService.isGameOngoing = false;
+            this.timerComponent.totalTime = 3;
+            this.timerComponent.resetTimer();
             setTimeout(() => {
                 this.closeModal();
             }, EXIT_COMBAT_DELAY);
@@ -74,7 +85,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
             this.combatService.processTurnDialog(this.player1, this.player2);
             const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
-            this.triggerTempDialog(message);
+            this.triggerTempDialog(message, TEMP_DIALOG_DURATION);
         }, TURN_DIALOG_DELAY);
     }
 
@@ -88,10 +99,12 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     triggerAttack() {
         this.totalTime = this.combatService.determineTimerLength(this.combatService.evasionsArray1, this.combatService.currPlayerNum);
         this.timeRemaining = this.totalTime;
-        if (!this.combatService.isGameOngoing) {
+        if (!this.combatService.isGameOngoing || this.combatService.attackInProgress) {
             return;
         }
-        this.combatService.switchTurn(this.player1, this.player2);
+        this.combatService.attackInProgress = true;
+
+        this.combatService.switchTurn();
         const { attacker, defender, activeDice, inactiveDice } = this.combatService.roles[this.combatService.currPlayerNum];
 
         activeDice.rollDice(attacker.attributes.atkDiceMax);
@@ -102,6 +115,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         setTimeout(() => {
             this.attack();
+            this.combatService.attackInProgress = false;
         }, ATTACK_DELAY);
     }
 
@@ -110,13 +124,15 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.endGameIfNeeded();
     }
 
-    triggerTempDialog(message: string) {
+    triggerTempDialog(message: string, duration: number) {
         if (this.combatService.isGameOngoing) {
-            this.temporaryDialogComponent.show(message);
+            this.temporaryDialogComponent.show(message, duration);
         }
     }
 
     onTimerFinished() {
-        this.triggerAttack();
+        if (!this.combatService.attackInProgress) {
+            this.triggerAttack();
+        }
     }
 }

@@ -87,6 +87,7 @@ export const MILLISECONDS_IN_SECOND = 1000;
 export const TIMER_CENTER_POSITION = 50;
 
 export const TEMP_DIALOG_DURATION = 1500;
+export const LONG_TEMP_DIALOG_DURATION = 4500;
 export const EVADE_SUCCES_RATE = 0.4;
 export const COMBAT_TURN_LENGTH = 5;
 export const SHORT_COMBAT_TURN_LENGTH = 3;
@@ -94,7 +95,7 @@ export const SHORT_COMBAT_TURN_LENGTH = 3;
 export const ROLL_DURATION = 800;
 
 export const INIT_DISPLAY_DELAY = 50;
-export const EXIT_COMBAT_DELAY = 3000;
+export const EXIT_COMBAT_DELAY = 4000;
 export const INACTIVE_DICE_DELAY = 200;
 export const DISPLAY_TEXT_DELAY = 300;
 export const ATTACK_DELAY = 1200;

@@ -4,7 +4,15 @@ import { CombatLogicService } from '@app/services/combat-logic.service';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-import { INIT_DISPLAY_DELAY, EXIT_COMBAT_DELAY, COMBAT_TURN_LENGTH, INACTIVE_DICE_DELAY, TURN_DIALOG_DELAY } from '@app/constants';
+import {
+    INIT_DISPLAY_DELAY,
+    EXIT_COMBAT_DELAY,
+    COMBAT_TURN_LENGTH,
+    INACTIVE_DICE_DELAY,
+    TURN_DIALOG_DELAY,
+    TEMP_DIALOG_DURATION,
+    LONG_TEMP_DIALOG_DURATION,
+} from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 
 describe('CombatModalComponent', () => {
@@ -49,7 +57,7 @@ describe('CombatModalComponent', () => {
         component.ngOnInit();
         component.combatService.currPlayerNum = 'player1turn';
         tick(INIT_DISPLAY_DELAY);
-        expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour');
+        expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour', TEMP_DIALOG_DURATION);
     }));
 
     it('should initialize display correctly when opponent starts', fakeAsync(() => {
@@ -57,7 +65,7 @@ describe('CombatModalComponent', () => {
         component.ngOnInit();
         component.combatService.currPlayerNum = 'player2turn';
         tick(INIT_DISPLAY_DELAY);
-        expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire");
+        expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire", TEMP_DIALOG_DURATION);
     }));
 
     it('should set roles correctly on ngAfterViewInit', () => {
@@ -101,7 +109,7 @@ describe('CombatModalComponent', () => {
         spyOn(component, 'triggerTempDialog');
         spyOn(component, 'closeModal');
         component.endGameIfNeeded();
-        expect(component.triggerTempDialog).toHaveBeenCalledWith('Game Over');
+        expect(component.triggerTempDialog).toHaveBeenCalledWith('Game Over', LONG_TEMP_DIALOG_DURATION);
         tick(EXIT_COMBAT_DELAY);
         expect(component.closeModal).toHaveBeenCalled();
     }));
@@ -110,8 +118,8 @@ describe('CombatModalComponent', () => {
         mockCombatService.isGameOngoing = true;
 
         spyOn(component.temporaryDialogComponent, 'show');
-        component.triggerTempDialog('Test Message');
-        expect(component.temporaryDialogComponent.show).toHaveBeenCalledWith('Test Message');
+        component.triggerTempDialog('Test Message', TEMP_DIALOG_DURATION);
+        expect(component.temporaryDialogComponent.show).toHaveBeenCalledWith('Test Message', TEMP_DIALOG_DURATION);
     });
 
     it('should trigger attack on timer finished', () => {
@@ -128,7 +136,7 @@ describe('CombatModalComponent', () => {
         tick(TURN_DIALOG_DELAY);
         expect(mockCombatService.processTurnDialog).toHaveBeenCalledWith(component.player1, component.player2);
         tick(TURN_DIALOG_DELAY);
-        expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour');
+        expect(component.triggerTempDialog).toHaveBeenCalledWith('Votre tour', TEMP_DIALOG_DURATION);
     }));
 
     it('should trigger the turn dialog correctly when opponent starts', fakeAsync(() => {
@@ -139,7 +147,7 @@ describe('CombatModalComponent', () => {
         tick(TURN_DIALOG_DELAY);
         expect(mockCombatService.processTurnDialog).toHaveBeenCalledWith(component.player1, component.player2);
         tick(TURN_DIALOG_DELAY);
-        expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire");
+        expect(component.triggerTempDialog).toHaveBeenCalledWith("Tour de l'adversaire", TEMP_DIALOG_DURATION);
     }));
 
     it('should process attack and follow the flow in attack method', fakeAsync(() => {
@@ -176,7 +184,7 @@ describe('CombatModalComponent', () => {
 
         expect(mockCombatService.determineTimerLength).toHaveBeenCalledWith(mockCombatService.evasionsArray1, mockCombatService.currPlayerNum);
 
-        expect(mockCombatService.switchTurn).toHaveBeenCalledWith(component.player1, component.player2);
+        expect(mockCombatService.switchTurn).toHaveBeenCalledWith();
         expect(component.dice1.rollDice).toHaveBeenCalledWith(component.player1.attributes.atkDiceMax);
         tick(INACTIVE_DICE_DELAY);
         expect(component.dice2.rollDice).toHaveBeenCalledWith(component.player2.attributes.defDiceMax);

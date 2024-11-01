@@ -25,35 +25,28 @@ body {
     flex: 0 0 50%;
     width: 90%;
     height: 18rem;
-    margin-top: 5%;
-    margin-bottom: 0;
+    margin-top: 0;
+    margin-bottom: -40%;
 }
 
 .action-container {
     flex: 0 0 5%;
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 5rem;
     //margin-top: -10rem;
     display: flex;
-}
-
-.left-leaf {
-    margin-top: 6%;
-    flex: 0 0 25%;
-    height: 9rem;
-}
-
-.right-leaf {
-    margin-top: 6%;
-    flex: 0 0 25%;
-    height: 9rem;
+    justify-content: space-around;
 }
 
 .action-text {
     margin: 0;
     font-family: papyrus;
     font-weight: 900;
-    font-size: 1rem;
+    font-size: 0.95rem;
+}
+
+.center-button {
+    margin: 0.4rem;
 }
 
 .action-button {
@@ -61,8 +54,8 @@ body {
     background-size: 101%;
     background-position: center;
     border-radius: 50%;
-    height: 5rem;
-    width: 5rem;
+    height: 4.5rem;
+    width: 4.5rem;
     border: 0.15rem solid black;
 
     display: flex;
@@ -88,7 +81,8 @@ body {
 .chat {
     flex: 0 0 4%;
     width: 52.5%;
-
+    margin-top: 15rem;
+    margin-bottom: -3rem;
     margin-left: -38%;
 }
 
@@ -151,8 +145,8 @@ body {
     justify-content: center;
     align-items: center;
     border: 1px solid black;
-    width: 7rem;
-    height: 7rem;
+    width: 5.5rem;
+    height: 5.5rem;
     border-radius: 50%;
     background: linear-gradient(to top right, rgb(39, 39, 39), rgb(88, 88, 88) 33%, rgb(162, 162, 162) 67%, rgb(220, 220, 220) 100%);
     transition:
@@ -190,15 +184,6 @@ body {
     transform: scale(1.1);
 }
 
-.end-turn-text {
-    text-align: center;
-    font-family: papyrus;
-    font-size: 1.2rem;
-    font-weight: 900;
-    margin-bottom: 0;
-    transition: color 0.3s ease;
-}
-
 .button-outer:hover .end-turn-text {
     color: red;
 }
@@ -221,6 +206,10 @@ body {
 }
 
 #turn-start-timer {
+    background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
+    padding: 2rem;
+    border-radius: 3rem;
+
     position: fixed;
     top: 50%;
     left: 50%;
@@ -231,6 +220,10 @@ body {
     font-weight: 900;
     margin-top: -3%;
     height: 25%;
+
+    
+
+    z-index: 999;
 }
 
 #enabled {
