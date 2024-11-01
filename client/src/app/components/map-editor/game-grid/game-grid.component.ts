@@ -354,8 +354,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     async navigateToTile(row: number, col: number) {
         //Temporaire , peut etre il faut le deplacer au backend
-        const path = this.navigationService.navigateToTile(this.players[0], { x: row, y: col }, this.gameMap);
         if (!this.isMoving) {
+            const path = this.navigationService.navigateToTile(this.players[0], { x: row, y: col }, this.gameMap);
             let currentPosition = this.players[0].position;
             for (const tile of path) {
                 this.isMoving = true;
@@ -377,12 +377,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 }
                 await this.delay(150); //Constant
             }
+            this.isMoving = false;
         }
-        this.isMoving = false;
     }
     checkFell(): boolean {
         const randomValue = Math.random();
-        return randomValue > 0.1;
+        return randomValue > 0;
     }
 
     delay(ms: number) {
