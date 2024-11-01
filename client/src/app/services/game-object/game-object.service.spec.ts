@@ -1,13 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
 import { MapPosition } from '@app/interfaces/map-position';
-import { mockGameObject, mockGameObjectZeroId } from '@app/mocks/mock-game';
+import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
 import { GameObjectService } from './game-object.service';
 
 describe('GameObjectService', () => {
     let service: GameObjectService;
+    const mockGameObject = mockObjects[0];
+    const mockGameObject2 = mockObjects[2];
 
     beforeEach(() => {
         TestBed.configureTestingModule({});
@@ -83,7 +85,6 @@ describe('GameObjectService', () => {
 
     describe('removeObjectFromGrid', () => {
         it('should remove object when right-click on object on tile', () => {
-            const mockGameObject = mockObjects[1];
             service.objectsArray[0][0] = ObjectType.Armor;
             service.selectedTile = mockSelectedTile;
             service.removeObjectFromGrid(mockGameObject);
@@ -92,7 +93,6 @@ describe('GameObjectService', () => {
         });
 
         it('should remove object from start tile when drag to another tile', () => {
-            const mockGameObject = mockObjects[1];
             service.objectsArray[0][0] = ObjectType.Armor;
             service.dragStartPosition = mockSelectedTile;
             service.removeObjectFromGrid(mockGameObject);
@@ -101,20 +101,18 @@ describe('GameObjectService', () => {
         });
 
         it('should set max count for countable object', () => {
-            const mockGameObject = mockObjects[2];
-            mockGameObject.count = ITEM_COUNT;
+            mockGameObject2.count = ITEM_COUNT;
             service['mapSize'] = 'medium';
             service.maxCount = OBJECT_COUNT_MAP[service['mapSize']];
-            service.objectsArray[0][0] = mockGameObject.id;
+            service.objectsArray[0][0] = mockGameObject2.id;
             service.dragStartPosition = mockSelectedTile;
-            service.removeObjectFromGrid(mockGameObject);
+            service.removeObjectFromGrid(mockGameObject2);
 
             expect(service.objectsArray[0][0]).toBe(NO_OBJECT);
-            expect(mockGameObject.count).toBe(ITEM_COUNT + 1);
+            expect(mockGameObject2.count).toBe(ITEM_COUNT + 1);
         });
 
         it('should not increment object count if it is max count', () => {
-            const mockGameObject = mockObjects[0];
             service['mapSize'] = 'medium';
             service.maxCount = ITEM_COUNT;
             service.objectsArray[0][0] = mockGameObject.id;

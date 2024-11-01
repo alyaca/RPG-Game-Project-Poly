@@ -86,7 +86,7 @@ describe('GameGridComponent', () => {
     });
 
     it('should call getSelectedTile', () => {
-        component.selectedTile;
+        component.getSelectedTile();
         expect(toolServiceSpy.getSelectedTile).toHaveBeenCalled();
     });
 

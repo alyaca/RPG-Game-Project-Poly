@@ -47,7 +47,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private gameCreationService: GameCreationService,
     ) {}
 
-    get selectedTile(): string {
+    getSelectedTile(): string {
         return this.toolService.getSelectedTile();
     }
 
@@ -159,7 +159,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
             return;
         }
-        this.tileService.setTile(this.selectedTile, row, col, this.tilesGrid);
+        this.tileService.setTile(this.getSelectedTile(), row, col, this.tilesGrid);
         this.gameObjectService.handleGameObjectOnTile(row, col, this.tilesGrid);
         this.previousRow = row;
         this.previousCol = col;
