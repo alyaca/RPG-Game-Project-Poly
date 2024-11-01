@@ -41,6 +41,7 @@ describe('GameGridComponent', () => {
             'onDrop',
             'handleGameObjectOnTile',
             'isValidTileForObject',
+            'onDragStart',
         ]);
 
         tileServiceSpy.resetGrid.and.callFake((gridSize: number) => {
@@ -235,11 +236,8 @@ describe('GameGridComponent', () => {
         component.isMouseDown = true;
         component.onDragStart(1, 1);
         expect(toolServiceSpy.deactivateTileApplicator).toHaveBeenCalled();
-        expect(gameObjectManagerServiceSpy.selectedTile).toBeNull();
         expect(component.isMouseDown).toBeFalse();
-        expect(gameObjectManagerServiceSpy.dragStartPosition?.row).toEqual(1);
-        expect(gameObjectManagerServiceSpy.dragStartPosition?.col).toEqual(1);
-        expect(gameObjectManagerServiceSpy.checkGameObject).toHaveBeenCalledWith(1, 1);
+        expect(gameObjectManagerServiceSpy.onDragStart).toHaveBeenCalled();
     });
 
     it('onDrop should call the correct methods', () => {

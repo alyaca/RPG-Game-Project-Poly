@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
+import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObject, mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
@@ -279,5 +280,15 @@ describe('GameObjectService', () => {
             ]);
             expect(service.removeObjectFromGrid).not.toHaveBeenCalled();
         });
+    });
+
+    it('onDragStart should set the attributes and call checkGameObject', () => {
+        const mockMapPosition: MapPosition = { row: 1, col: 1 };
+        service.selectedTile = mockMapPosition;
+        spyOn(service, 'checkGameObject');
+        service.onDragStart(mockMapPosition.row, mockMapPosition.col);
+        expect(service.selectedTile).toBeNull();
+        expect(service.dragStartPosition).toEqual(mockMapPosition);
+        expect(service.checkGameObject).toHaveBeenCalled();
     });
 });
