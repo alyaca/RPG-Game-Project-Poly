@@ -98,10 +98,10 @@
     height: 2rem;
     display: inline-block;
     background-size: cover; 
-    // transition: transform 0.2s ease;
     transform: scale(0.9);
 }
 
-// .filter-icon:hover {
-//     transform: scale(1.1);
-// }
+input::placeholder {
+    color:  rgb(175, 158, 83);
+    opacity: 1; 
+}

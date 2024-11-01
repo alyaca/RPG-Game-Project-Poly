@@ -111,7 +111,7 @@ describe('ChatBoxComponent', () => {
         component.toggleChatLogs();
 
         expect(component.areLogsVisible).toBe(true);
-        expect(component.chatType).toBe('Journal de jeu');
+        expect(component.chatType).toBe('Journal de jeu non filtré');
         component.toggleChatLogs();
 
         expect(component.areLogsVisible).toBe(false);
@@ -126,5 +126,17 @@ describe('ChatBoxComponent', () => {
     it('should return "icon-chat" when areLogsVisible is false', () => {
         component.areLogsVisible = false;
         expect(component.toggleIconClass).toBe('icon-chat');
+    });
+
+    it('should toggle areLogsFiltered and update chatType correctly', () => {
+        component.areLogsFiltered = false;
+        component.chatType = 'Journal de jeu non filtré';
+        component.toggleLogsFilter();
+        expect(component.areLogsFiltered).toBeTrue();
+        expect(component.chatType).toBe('Journal de jeu filtré');
+
+        component.toggleLogsFilter();
+        expect(component.areLogsFiltered).toBeFalse();
+        expect(component.chatType).toBe('Journal de jeu non filtré');
     });
 });
