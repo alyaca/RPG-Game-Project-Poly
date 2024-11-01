@@ -9,10 +9,10 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION } from '@app/constants';
 import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { MapEditorService } from '@app/services/map-editor.service';
-import { SaveGameService } from '@app/services/save-game.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
+import { SaveGameService } from '@app/services/save-game/save-game.service';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -203,13 +203,13 @@ describe('MapEditorPageComponent', () => {
 
     it('should set the grid attribute correctly', () => {
         component.setGrid(dummyMap.tiles);
-        expect(component.tiles).toBe(dummyMap.tiles);
+        expect(component['tiles']).toBe(dummyMap.tiles);
     });
 
     it('should set the height attribute correctly', () => {
         const mockHeightValue = SIZE_MEDIUM_MAP;
         component.setHeight(mockHeightValue);
-        expect(component.height).toBe(mockHeightValue);
+        expect(component['height']).toBe(mockHeightValue);
     });
 
     it('should set the new items matrix correctly', () => {
@@ -218,13 +218,13 @@ describe('MapEditorPageComponent', () => {
             [NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM],
         ];
         component.setItems(mockItemsValue);
-        expect(component.items).toBe(mockItemsValue);
+        expect(component['items']).toBe(mockItemsValue);
     });
 
     it('should call saveNewGame if the map is new and is valid', (done) => {
         gameCreationServiceSpy.isNewGame = true;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
-        component.startSaving();
+        component['startSaving']();
         setTimeout(() => {
             expect(saveGameServiceSpy.saveNewGame).toHaveBeenCalled();
             expect(saveGameServiceSpy.replaceMap).not.toHaveBeenCalled();
@@ -236,7 +236,7 @@ describe('MapEditorPageComponent', () => {
         mapEditorServiceSpy.mapToEdit = dummyMap;
         gameCreationServiceSpy.isNewGame = false;
         mapEditorServiceSpy.isMapValid.and.returnValue(true);
-        component.startSaving();
+        component['startSaving']();
         setTimeout(() => {
             expect(saveGameServiceSpy.saveNewGame).not.toHaveBeenCalled();
             expect(saveGameServiceSpy.replaceMap).toHaveBeenCalled();

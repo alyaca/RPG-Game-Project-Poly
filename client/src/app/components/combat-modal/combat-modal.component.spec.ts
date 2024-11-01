@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { CombatModalComponent } from './combat-modal.component';
-import { CombatLogicService } from '@app/services/combat-logic.service';
 import { DiceComponent } from '@app/components/dice/dice.component';
-import { TimerComponent } from '@app/components/timer/timer.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import {
-    INIT_DISPLAY_DELAY,
-    EXIT_COMBAT_DELAY,
     COMBAT_TURN_LENGTH,
+    EXIT_COMBAT_DELAY,
     INACTIVE_DICE_DELAY,
-    TURN_DIALOG_DELAY,
-    TEMP_DIALOG_DURATION,
+    INIT_DISPLAY_DELAY,
     LONG_TEMP_DIALOG_DURATION,
+    TEMP_DIALOG_DURATION,
+    TURN_DIALOG_DELAY,
 } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
+import { CombatModalComponent } from './combat-modal.component';
 
 describe('CombatModalComponent', () => {
     let component: CombatModalComponent;

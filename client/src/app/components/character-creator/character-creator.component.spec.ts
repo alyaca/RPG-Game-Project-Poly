@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
-import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, HIGH_ATTRIBUTE, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, ErrorMessages, HIGH_ATTRIBUTE, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { Status } from '@common/player';
@@ -25,6 +25,7 @@ describe('CharacterCreatorComponent', () => {
             'setDefense',
             'isButtonSelected',
             'getAttributValue',
+            'getAttributes',
             'resetAttributes',
             'getDiceMessage',
             'saveAttributesValue',
@@ -130,7 +131,7 @@ describe('CharacterCreatorComponent', () => {
 
         it('should return if no avatar is clicked', () => {
             component.saveChoices();
-            expect(snackBarSpy.open).toHaveBeenCalledWith('Veuillez sélectionner un avatar', 'Fermer', {
+            expect(snackBarSpy.open).toHaveBeenCalledWith(ErrorMessages.MissingAvatar, 'Fermer', {
                 duration: MESSAGE_DURATION_VALIDATION_ERROR,
             });
         });
@@ -138,10 +139,10 @@ describe('CharacterCreatorComponent', () => {
         it('should not emit closeCharacterCreator if missing attribute', () => {
             component.clickedAvatar = mockAvatar;
             spyOn(component.confirmCharacterSelection, 'emit');
-            attributesServiceSpy.saveAttributesValue.and.returnValue('Echec');
+            attributesServiceSpy.saveAttributesValue.and.returnValue(ErrorMessages.MissingAttributes);
             component.saveChoices();
 
-            expect(snackBarSpy.open).toHaveBeenCalledWith('Echec', 'Fermer', {
+            expect(snackBarSpy.open).toHaveBeenCalledWith(ErrorMessages.MissingAttributes, 'Fermer', {
                 duration: MESSAGE_DURATION_VALIDATION_ERROR,
             });
             expect(component.confirmCharacterSelection.emit).not.toHaveBeenCalled();
@@ -161,7 +162,7 @@ describe('CharacterCreatorComponent', () => {
             defense: DEFAULT_ATTRIBUTE,
             defDiceMax: DEFAULT_ATTRIBUTE,
         };
-        attributesServiceSpy.attributes = mockAttributes;
+        attributesServiceSpy.getAttributes.and.returnValue(mockAttributes);
         component.setAttributes();
 
         expect(component.attributes).toEqual(mockAttributes);

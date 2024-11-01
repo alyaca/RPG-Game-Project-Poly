@@ -30,7 +30,7 @@
             class="overlay-object"
             [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
             draggable="true"
-            (dragstart)="onDragStart($event, rowIndex, colIndex)"
+            (dragstart)="onDragStart(rowIndex, colIndex)"
         />
         } @if (isReachableTile(rowIndex, colIndex)) {
         <div class="reachable-tile" (mouseover)="findPath(rowIndex, colIndex)"></div>

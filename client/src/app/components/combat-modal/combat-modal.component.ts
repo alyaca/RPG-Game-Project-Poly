@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
-import {
-    COMBAT_TURN_LENGTH,
-    INIT_DISPLAY_DELAY,
-    EXIT_COMBAT_DELAY,
-    INACTIVE_DICE_DELAY,
-    ATTACK_DELAY,
-    TURN_DIALOG_DELAY,
-    TEMP_DIALOG_DURATION,
-    LONG_TEMP_DIALOG_DURATION,
-} from '@app/constants';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { Player } from '@common/player';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { CombatLogicService } from '@app/services/combat-logic.service';
+import {
+    ATTACK_DELAY,
+    COMBAT_TURN_LENGTH,
+    EXIT_COMBAT_DELAY,
+    INACTIVE_DICE_DELAY,
+    INIT_DISPLAY_DELAY,
+    LONG_TEMP_DIALOG_DURATION,
+    TEMP_DIALOG_DURATION,
+    TURN_DIALOG_DELAY,
+} from '@app/constants';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
+import { Player } from '@common/player';
 
 @Component({
     selector: 'app-combat-modal',

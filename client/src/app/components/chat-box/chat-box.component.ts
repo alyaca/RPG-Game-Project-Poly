@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-chat-box',
@@ -12,13 +14,17 @@ import { ChatService } from '@app/services/sockets/chat/chat.service';
     templateUrl: './chat-box.component.html',
     styleUrl: './chat-box.component.scss',
 })
-export class ChatBoxComponent implements OnInit, AfterViewChecked {
+export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
     messages: ChatMessage[] = [];
     newMessage: string = '';
-    // isChatVisible: boolean = true;
+    roomCode: string;
+    private routeSub: Subscription;
 
-    constructor(private chatService: ChatService) {}
+    constructor(
+        private chatService: ChatService,
+        private route: ActivatedRoute,
+    ) {}
 
     scrollToBottom(): void {
         if (this.messageContainer) {
@@ -27,8 +33,20 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
     }
 
     ngOnInit(): void {
+        this.routeSub = this.route.queryParams.subscribe((params) => {
+            this.roomCode = params['roomCode'];
+            this.loadMessages();
+        });
         this.chatService.onMessageReceived((message: ChatMessage) => {
             this.messages.push(message);
+        });
+    }
+
+    loadMessages(): void {
+        this.chatService.getMessagesByRoom(this.roomCode).subscribe((messages) => {
+            if (messages.length !== 0) {
+                this.messages = messages;
+            }
         });
     }
 
@@ -43,7 +61,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked {
         }
     }
 
-    // toggleChatVisibility(): void {
-    //     this.isChatVisible = !this.isChatVisible;
-    // }
+    ngOnDestroy(): void {
+        this.routeSub.unsubscribe();
+    }
 }

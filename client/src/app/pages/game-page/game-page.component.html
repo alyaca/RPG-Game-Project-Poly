@@ -6,6 +6,16 @@
         <div class="player-bar">
             <app-player-info-inventory class="player-bar" [playerId]="socketCommunicationService.socket.id"></app-player-info-inventory>
         </div>
+        <div class="action-container">
+            <img class="left-leaf" src="./assets/images/leaves/leafL.webp" alt="left-leaf" />
+            <div class="center-button">
+                <p class="action-text">Action</p>
+                <div class="button-outer action-outer" [class.selected]="isActionSelected" (click)="toggleActionSelected()">
+                    <div class="action-button"></div>
+                </div>
+            </div>
+            <img class="right-leaf" src="./assets/images/leaves/leafR.webp" alt="left-leaf" />
+        </div>
         <div class="chat">
             <app-chat-box></app-chat-box>
         </div>
@@ -54,7 +64,7 @@
                         <div class="action-button door-button"></div>
                     </div>
                 </div>
-    
+
                 <div class="center-button">
                     <p class="action-text">Attaquer</p>
                     <div class="button-outer action-outer" [class.selected]="isActionSelected" (click)="toggleActionSelected()">
@@ -68,7 +78,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

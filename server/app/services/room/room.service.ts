@@ -1,14 +1,18 @@
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
+import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
 @Injectable()
 export class RoomService {
     rooms = new Map<string, Room>();
     adminList: string[] = [];
     private io: Server;
+
+    constructor(private chatService: ChatService) {}
 
     setServer(io: Server) {
         this.io = io;
@@ -23,6 +27,7 @@ export class RoomService {
 
     createRoom(socket: Socket, game: Game): Room {
         const roomCode: string = this.getNewRoomCode();
+        this.chatService.deleteMessagesByRoom(roomCode);
         const room: Room = {
             gameMap: game,
             roomId: roomCode,
@@ -57,6 +62,7 @@ export class RoomService {
     deleteRoom(roomId: string, socket: Socket) {
         socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
         this.cleanSocketsData(roomId);
+        this.chatService.deleteMessagesByRoom(roomId);
         this.rooms.delete(roomId);
         this.io.in(roomId).socketsLeave(roomId);
     }

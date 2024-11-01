@@ -2,26 +2,24 @@
     <div class="dialog-content">
         <div class="title">Choisir un mode de jeu :</div>
         <div class="button" class="options">
-            <button [class.select]="selectedMode === 'classic'" (click)="selectMode('classic')">Classique</button>
-            <button [attr.disabled]="selectedMode === 'CTF'" (click)="selectMode('CTF')">CTF</button>
+            <button [class.select]="selectedMode === gameMode.Classic" (click)="selectMode(gameMode.Classic)">Classique</button>
+            <button [attr.disabled]="selectedMode === gameMode.Ctf" (click)="selectMode(gameMode.Ctf)">CTF</button>
         </div>
-        
         <div class="title">Choisir la taille du jeu :</div>
-        
         <div class="size-container">
-            <div class="game-size"> 
-            <button id="small-map" [class.selected]="selectedSize === 'small'" (click)="selectSize('small')">10x10</button>
-            (2 joueurs)
-         </div>
-         <div class="game-size"> 
-            <button id="medium-map" [class.selected]="selectedSize === 'medium'" (click)="selectSize('medium')">15x15</button>
-            (2 à 4 joueurs)
+            <div class="game-size">
+                <button id="small-map" [class.selected]="selectedSize === mapSize.Small" (click)="selectSize(mapSize.Small)">10x10</button>
+                (2 joueurs)
+            </div>
+            <div class="game-size">
+                <button id="medium-map" [class.selected]="selectedSize === mapSize.Medium" (click)="selectSize(mapSize.Medium)">15x15</button>
+                (2 à 4 joueurs)
+            </div>
+            <div class="game-size">
+                <button id="large-map" [class.selected]="selectedSize === mapSize.Large" (click)="selectSize(mapSize.Large)">20x20</button>
+                (2 à 6 joueurs)
+            </div>
         </div>
-        <div class="game-size"> 
-            <button id="large-map" [class.selected]="selectedSize === 'large'" (click)="selectSize('large')">20x20</button>
-            (2 à 6 joueurs)
-        </div>
-    </div>
         <div class="options">
             <button mat-button (click)="close()">Annuler</button>
             <button mat-button (click)="changePage()">Création</button>

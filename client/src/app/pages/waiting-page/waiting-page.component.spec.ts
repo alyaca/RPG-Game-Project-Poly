@@ -1,16 +1,19 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameCreationService } from '@app/services/game-creation.service';
-import { GameListService } from '@app/services/game-list.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
+import { environment } from 'src/environments/environment.prod';
 import { WaitingPageComponent } from './waiting-page.component';
 
 describe('WaitingPageComponent', () => {
@@ -22,9 +25,14 @@ describe('WaitingPageComponent', () => {
     let mapEditorServiceSpy: jasmine.SpyObj<MapEditorService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let httpMock: HttpTestingController;
 
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
+
+    const activatedRouteSpy = {
+        queryParams: of({ roomCode: '1234' }),
+    };
 
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
@@ -47,19 +55,30 @@ describe('WaitingPageComponent', () => {
         await TestBed.configureTestingModule({
             imports: [WaitingPageComponent],
             providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: ActivatedRoute, useValue: activatedRouteSpy },
                 { provide: MapEditorService, useValue: mapEditorServiceSpy },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
 
+        httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(WaitingPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+
+        const request = httpMock.expectOne(`${environment.serverUrl}/chat?roomCode=${accessCode}`);
+        request.flush([]);
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     afterAll(() => {
@@ -141,7 +160,7 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
-    it('should go to game-creation if isAdmin is true', () => {
+    it('should call leaveRoom and navigate to game-creation if admin on leftRoom event', () => {
         const expectedRoute = '/game-creation';
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
             if (event === 'leftRoom') {
@@ -228,7 +247,7 @@ describe('WaitingPageComponent', () => {
                 confirm: true,
             },
         });
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startGame');
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startGame', { queryParams: { roomCode: component.accessCode } });
     });
 
     it('should not navigate when the dialog is cancelled', () => {

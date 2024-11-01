@@ -8,11 +8,11 @@ import { ToolbarComponent } from '@app/components/map-editor/toolbar/toolbar.com
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { CHECK_BEFORE_SAVING_DELAY, MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { MapEditorService } from '@app/services/map-editor.service';
-import { SaveGameService } from '@app/services/save-game.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
+import { SaveGameService } from '@app/services/save-game/save-game.service';
 import html2canvas from 'html2canvas';
 
-import { GameCreationService } from '@app/services/game-creation.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 @Component({
     selector: 'app-map-editor-page',
@@ -29,19 +29,18 @@ export class MapEditorPageComponent implements OnInit {
 
     mapName: string = '';
     mapDescription: string = '';
-    items: number[][];
-    tiles: number[][];
-    height: number;
-
     maxLenMapTitle = MAX_LEN_MAP_TITLE;
     maxLenMapDescription = MAX_LEN_MAP_DESCRIPTION;
-
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
+    private items: number[][];
+    private tiles: number[][];
+    private height: number;
     private saveGameService = inject(SaveGameService);
     private mapEditorService = inject(MapEditorService);
     private gameCreationService = inject(GameCreationService);
+
     constructor(
         private dialog: MatDialog,
         private router: Router,
@@ -124,7 +123,18 @@ export class MapEditorPageComponent implements OnInit {
         this.mapDescription = newDescription;
     }
 
-    startSaving() {
+    ngOnInit() {
+        if (!this.mapEditorService.isMapChosen()) {
+            this.router.navigate(['/administration']);
+        }
+
+        if (!this.gameCreationService.isNewGame) {
+            this.mapName = this.gameCreationService.loadedMapName;
+            this.mapDescription = this.gameCreationService.loadedMapDescription;
+        }
+    }
+
+    private startSaving() {
         let infoTransferred: Info;
         let baseImage: string;
         html2canvas(this.canvas.nativeElement, { scale: 0.2 }).then((canvas) => {
@@ -151,16 +161,5 @@ export class MapEditorPageComponent implements OnInit {
                 }, CHECK_BEFORE_SAVING_DELAY);
             }
         });
-    }
-
-    ngOnInit() {
-        if (!this.mapEditorService.isMapChosen()) {
-            this.router.navigate(['/administration']);
-        }
-
-        if (!this.gameCreationService.isNewGame) {
-            this.mapName = this.gameCreationService.loadedMapName;
-            this.mapDescription = this.gameCreationService.loadedMapDescription;
-        }
     }
 }
