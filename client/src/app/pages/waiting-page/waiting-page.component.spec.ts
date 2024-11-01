@@ -22,7 +22,7 @@ describe('WaitingPageComponent', () => {
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
 
-    let activatedRouteSpy = {
+    const activatedRouteSpy = {
         queryParams: of({ roomCode: '1234' }),
     };
 

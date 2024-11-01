@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
@@ -14,12 +14,12 @@ import { Subscription } from 'rxjs';
     templateUrl: './chat-box.component.html',
     styleUrl: './chat-box.component.scss',
 })
-export class ChatBoxComponent implements OnInit, AfterViewChecked {
+export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
-    private routeSub: Subscription;
     messages: ChatMessage[] = [];
     newMessage: string = '';
     roomCode: string;
+    private routeSub: Subscription;
     // isChatVisible: boolean = true;
 
     constructor(

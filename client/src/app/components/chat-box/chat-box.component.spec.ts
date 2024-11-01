@@ -10,17 +10,16 @@ describe('ChatBoxComponent', () => {
     let component: ChatBoxComponent;
     let fixture: ComponentFixture<ChatBoxComponent>;
     let chatServiceSpy: jasmine.SpyObj<ChatService>;
-    let queryParamsSubject: BehaviorSubject<any>;
+    let queryParamsSubject: BehaviorSubject<{ roomCode: string }>;
 
     beforeEach(async () => {
         chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage']);
-        queryParamsSubject = new BehaviorSubject({ roomCode: '1234' }); // Créer un sujet pour les paramètres de requête
-
+        queryParamsSubject = new BehaviorSubject({ roomCode: '1234' });
         await TestBed.configureTestingModule({
             imports: [ChatBoxComponent],
             providers: [
                 { provide: ChatService, useValue: chatServiceSpy },
-                { provide: ActivatedRoute, useValue: { queryParams: queryParamsSubject.asObservable() } }, // Utiliser l'Observable
+                { provide: ActivatedRoute, useValue: { queryParams: queryParamsSubject.asObservable() } },
             ],
         }).compileComponents();
 
