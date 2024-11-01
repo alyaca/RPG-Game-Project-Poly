@@ -36,9 +36,18 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     ngOnInit(): void {
         this.routeSub = this.route.queryParams.subscribe((params) => {
             this.roomCode = params['roomCode'];
+            this.loadMessages();
         });
         this.chatService.onMessageReceived((message: ChatMessage) => {
             this.messages.push(message);
+        });
+    }
+
+    loadMessages(): void {
+        this.chatService.getMessagesByRoom(this.roomCode).subscribe((messages) => {
+            if (messages.length !== 0) {
+                this.messages = messages;
+            }
         });
     }
 

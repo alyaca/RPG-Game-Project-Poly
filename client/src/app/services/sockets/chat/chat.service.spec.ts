@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
+import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { environment } from 'src/environments/environment';
 import { ChatService } from './chat.service';
@@ -64,18 +65,27 @@ describe('ChatService', () => {
 
     it('should get messages by room', () => {
         const roomCode = 'room123';
-        const mockMessages: IMessage[] = [
-            { username: 'User1', message: 'Hello', timestamp: new Date() },
-            { username: 'User2', message: 'Hi', timestamp: new Date() },
+        const mockBackendMessages: ChatMessage[] = [
+            { id: 1, username: 'User1', message: 'Hello', timestamp: new Date() },
+            { id: 2, username: 'User2', message: 'Hi', timestamp: new Date() },
         ];
 
+        const mockTransformedMessages: ChatMessage[] = mockBackendMessages.map((backendMessage) => ({
+            id: 1,
+            username: backendMessage.username,
+            message: backendMessage.message,
+            timestamp: backendMessage.timestamp,
+        }));
+
+        spyOn(service, 'generateUniqueId').and.returnValue(1); // Mock generateUniqueId to return a fixed value
+
         service.getMessagesByRoom(roomCode).subscribe((messages) => {
-            expect(messages).toEqual(mockMessages);
+            expect(messages).toEqual(mockTransformedMessages);
         });
 
-        const req = httpMock.expectOne((request) => request.url === chatsUrl && request.params.has('roomCode'));
+        const req = httpMock.expectOne((request) => request.url === chatsUrl && request.params.get('roomCode') === roomCode);
         expect(req.request.method).toBe('GET');
         expect(req.request.params.get('roomCode')).toBe(roomCode);
-        req.flush(mockMessages);
+        req.flush(mockBackendMessages);
     });
 });
