@@ -65,16 +65,22 @@ export class WaitingPageComponent implements OnInit {
             this.isAdmin = isPlayerAdmin;
         });
         
-    
-        
-        this.socketCommunicationService.on<string>('kickPlayer', (playerId: string) => {
+        this.socketCommunicationService.on('kickPlayer', (playerId: string) => {
             console.log('Le joueur qui  est retiré:', playerId);
             if(playerId === this.socketCommunicationService.socket.id){
                 this.onPlayerKickedOut();
             }
             
         });
-       
+
+        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
+            if (isAdmin) {
+                console.log('le admin a quité la partie');
+                this.router.navigate(['/game-creation']);
+            } else {
+                this.router.navigate(['/home']);
+            }
+        });
     }
 
     onAdminQuit(message: string) {
@@ -102,21 +108,23 @@ export class WaitingPageComponent implements OnInit {
         
     }
 
+    maxPlayers(){
+        return this.players.length >= this.gameService.getPlayerNumber(this.chosenGame.dimension)
+    }
+
     isMaxPlayersReached() {
-        if(this.players.length == this.gameService.getPlayerNumber(this.chosenGame.dimension)){
+       if(this.maxPlayers()){
             this.isLocked = true;  
-            console.log('Max players reached', this.players.length);
             this.onLockChange();
         }
         else{
-            this.isLocked = false; 
             this.onLockChange();
         }
     }
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
-        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
+        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked })
     }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
@@ -160,7 +168,6 @@ export class WaitingPageComponent implements OnInit {
                 true,
             ).subscribe((result) => {
                 if (result === 'right') {
-                    //everyplayer in the room needs to go to the game page 
                     this.isLocked = true;  
                     this.router.navigate(['/game-page']);
                 }
@@ -170,13 +177,6 @@ export class WaitingPageComponent implements OnInit {
 
     leaveGame(accessCode: string) {
         this.socketCommunicationService.send('leaveRoom', accessCode);
-        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
-            if (isAdmin) {
-                console.log('le admin a quité la partie');
-                this.router.navigate(['/game-creation']);
-            } else {
-                this.router.navigate(['/home']);
-            }
-        });
+
     }
 }

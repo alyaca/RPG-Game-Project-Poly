@@ -4,11 +4,13 @@ import { Game } from '@common/game';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
 @Injectable()
 export class RoomService {
     rooms = new Map<string, Room>();
     adminList: string[] = [];
     private io: Server;
+
 
     setServer(io: Server) {
         this.io = io;
@@ -66,7 +68,7 @@ export class RoomService {
         socketsInRoom?.forEach((socketId) => {
             const socketInRoom = this.io.sockets.sockets.get(socketId);
             if (socketInRoom) {
-                delete socketInRoom.data;
+                socketInRoom.data = {};
             }
         });
     }

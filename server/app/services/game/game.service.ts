@@ -1,12 +1,13 @@
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Status } from '@common/player';
 import { Room } from '@common/room';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
-    constructor(private roomService: RoomService) {}
+    constructor(private roomService: RoomService,
+                private logger: Logger) {}
 
     toggleLockRoom(roomId: string, isLocked: boolean) {
         const game = this.getGame(roomId);
@@ -58,6 +59,7 @@ export class GameService {
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
+            this.logger.debug(`admin: ${socket.id} left room ${roomId}`); //for debug 
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
@@ -71,7 +73,9 @@ export class GameService {
         this.freeUpAvatar(room, socket);
         this.updateAvatarsForAllClients(server);
         this.roomService.leaveRoom(roomId, socket);
-        //socket.to(roomId).emit('kickPlayer', socket.id);
+        socket.to(roomId).emit('kickPlayer', socket.id);
+        socket.to(room.roomId).emit('kickPlayer',  socket.id);
+
     }
 
     getAvatarByName(room: Room, avatar: Avatar) {
@@ -97,6 +101,14 @@ export class GameService {
         }
     }
 
+    
+    updateAvatarsForAllClients(server: Server) {
+        server.sockets.sockets.forEach((clientSocket: Socket) => {
+            this.sendAvatarListToClient(clientSocket);
+        });
+    }
+    
+    //ICI
     sendAvatarListToClient(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const customizedAvatarsList = room.availableAvatars.map((avatar) => {
@@ -109,12 +121,6 @@ export class GameService {
         });
 
         socket.emit('characterSelected', customizedAvatarsList);
-    }
-
-    updateAvatarsForAllClients(server: Server) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
-            this.sendAvatarListToClient(clientSocket);
-        });
     }
 
     isPlayerNameTaken(name: string, socket: Socket) {

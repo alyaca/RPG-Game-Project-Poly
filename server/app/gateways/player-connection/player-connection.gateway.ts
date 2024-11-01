@@ -26,7 +26,7 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
         client.emit('roomCreated', room);
-        this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`);
+        this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`); //for debug
     }
 
     @SubscribeMessage(RoomEvents.JoinRoom)
@@ -77,12 +77,13 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
+    //Ne pas toucher l'ordre 
     @SubscribeMessage(RoomEvents.kickPlayer)
     handleKickPlayer(client: Socket, playerId: string) {
         const room = this.roomService.getRoom(client);
         this.logger.debug(`client ${playerId} was kicked out of room `); // Debug log
-        client.emit('kickPlayer', playerId); 
-        client.to(room.roomId).emit('kickPlayer', playerId);
+        //client.emit('kickPlayer', playerId);
+        //client.to(room.roomId).emit('kickPlayer', playerId);
         const playerSocket = this.server.sockets.sockets.get(playerId);
         this.gameService.removePlayerFromRoom(room.roomId, playerSocket, this.server);
         client.emit('updatedPlayer', room);
@@ -122,7 +123,6 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
         this.logger.log(`Client connected: ${client.id}`);
     }
 
-    //pt faudrait appeler ici pour deconnecter ....
     handleDisconnect(client: Socket) {
         const room = this.roomService.getRoom(client);
         if (room) {
