@@ -90,4 +90,35 @@ describe('TileService', () => {
         const result = service.resetGrid(mapSize, array);
         expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
     });
+
+    describe('removeTile', () => {
+        it('should not set the tile to Ground if it is already a Ground tile', () => {
+            const mockEvent = new MouseEvent('click', { button: 2 });
+            const mockTiles = [
+                [1, 1],
+                [1, 1],
+            ];
+            const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
+                [1, 0],
+                [0, 0],
+            ]);
+            expect(result).toEqual(mockTiles);
+        });
+
+        it('should set tile to Ground it is not a Ground tile and there is no object', () => {
+            const mockEvent = new MouseEvent('click', { button: 2 });
+            const mockTiles = [
+                [2, 1],
+                [1, 1],
+            ];
+            const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
+                [0, 0],
+                [0, 0],
+            ]);
+            expect(result).toEqual([
+                [1, 1],
+                [1, 1],
+            ]);
+        });
+    });
 });

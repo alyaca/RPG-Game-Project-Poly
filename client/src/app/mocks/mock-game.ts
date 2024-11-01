@@ -10,6 +10,14 @@ export const mockGameObject: GameObject = {
     count: 1,
 };
 
+export const mockGameObjectZeroId: GameObject = {
+    id: 0,
+    name: 'map name',
+    image: 'image',
+    description: 'description of the map',
+    count: 1,
+};
+
 export const mockGames: Game[] = [
     {
         _id: '1',

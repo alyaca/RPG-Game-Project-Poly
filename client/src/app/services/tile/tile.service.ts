@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { TileId, TileType } from '@app/constants';
+import { NO_OBJECT, TileId, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 
 @Injectable({
@@ -52,5 +52,13 @@ export class TileService {
         }
         array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
         return array;
+    }
+
+    removeTile(event: MouseEvent, row: number, col: number, tiles: number[][], objects: number[][]) {
+        event.preventDefault();
+        if (tiles[row][col] !== TileType.Ground && objects[row][col] === NO_OBJECT) {
+            tiles[row][col] = TileType.Ground;
+        }
+        return tiles;
     }
 }

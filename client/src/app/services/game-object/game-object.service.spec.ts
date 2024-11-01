@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP } from '@app/constants';
+import { mockGameObject, mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
 import { GameObjectService } from './game-object.service';
@@ -155,6 +156,128 @@ describe('GameObjectService', () => {
         it('should reset objects count', () => {
             service.loadMapObjectCount();
             expect(service.resetObjectsCount).toHaveBeenCalled();
+        });
+    });
+
+    it('should set draggedObject if the gameObject exists', () => {
+        spyOn(service, 'getGameObjectOnTile').and.returnValue(mockGameObject);
+        service.checkGameObject(0, 0);
+        expect(service.draggedObject).toEqual(mockGameObject);
+    });
+
+    it('should not set draggedObject if the gameObject does not exist', () => {
+        spyOn(service, 'getGameObjectOnTile').and.returnValue(undefined);
+        service.checkGameObject(0, 0);
+        expect(service.draggedObject).toBeDefined();
+    });
+
+    it('should return true if the tile is ground', () => {
+        const result = service.isValidTileForObject(0, 0, [
+            [1, 1],
+            [1, 1],
+        ]);
+        expect(result).toBeTrue();
+    });
+
+    it('isValidTileForObject should return false if it is a wall or a door', () => {
+        let result = service.isValidTileForObject(0, 0, [
+            [4, 1],
+            [1, 1],
+        ]);
+        expect(result).toBeFalse();
+
+        result = service.isValidTileForObject(0, 0, [
+            [5, 1],
+            [1, 1],
+        ]);
+        expect(result).toBeFalse();
+
+        result = service.isValidTileForObject(0, 0, [
+            [6, 1],
+            [1, 1],
+        ]);
+        expect(result).toBeFalse();
+    });
+
+    describe('onDrop', () => {
+        beforeEach(() => {
+            spyOn(service, 'updateObjectGridPosition');
+        });
+
+        it('should not call updateObjectGridPosition if the condition is not met', () => {
+            service.draggedObject = null;
+            const mockEvent = new DragEvent('drop');
+            spyOn(service, 'isValidTileForObject').and.returnValue(false);
+            service.onDrop(
+                mockEvent,
+                0,
+                0,
+                [
+                    [0, 0],
+                    [1, 0],
+                ],
+                [
+                    [1, 1],
+                    [1, 1],
+                ],
+            );
+            expect(service.updateObjectGridPosition).not.toHaveBeenCalled();
+        });
+
+        it('should call updateObjectGridPosition if the condition is met', () => {
+            service.draggedObject = mockGameObject;
+            const mockEvent = new DragEvent('drop');
+            spyOn(service, 'isValidTileForObject').and.returnValue(true);
+            service.onDrop(
+                mockEvent,
+                0,
+                0,
+                [
+                    [NO_OBJECT, 0],
+                    [1, 0],
+                ],
+                [
+                    [1, 1],
+                    [1, 1],
+                ],
+            );
+            expect(service.updateObjectGridPosition).toHaveBeenCalled();
+        });
+    });
+
+    describe('handleGameObjectOnTile', () => {
+        beforeEach(() => {
+            spyOn(service, 'removeObjectFromGrid');
+        });
+
+        it('should call removeObjectFromGrid if condition is met', () => {
+            spyOn(service, 'getGameObjectOnTile').and.returnValue(mockGameObject);
+            spyOn(service, 'isValidTileForObject').and.returnValue(false);
+
+            service.handleGameObjectOnTile(0, 0, [
+                [1, 1],
+                [1, 1],
+            ]);
+            expect(service.removeObjectFromGrid).toHaveBeenCalled();
+        });
+
+        it('should not call removeObjectFromGrid if condition is not met', () => {
+            spyOn(service, 'getGameObjectOnTile').and.returnValue(undefined);
+            spyOn(service, 'isValidTileForObject').and.returnValue(true);
+            service.handleGameObjectOnTile(0, 0, [
+                [0, 0],
+                [0, 0],
+            ]);
+            expect(service.removeObjectFromGrid).not.toHaveBeenCalled();
+        });
+
+        it('should not call removeObjectFromGrid if the gameObject.id is 0', () => {
+            spyOn(service, 'getGameObjectOnTile').and.returnValue(mockGameObjectZeroId);
+            service.handleGameObjectOnTile(0, 0, [
+                [1, 1],
+                [1, 1],
+            ]);
+            expect(service.removeObjectFromGrid).not.toHaveBeenCalled();
         });
     });
 });

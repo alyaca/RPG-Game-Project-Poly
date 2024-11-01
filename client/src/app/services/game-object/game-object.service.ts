@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, TileType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { MapPosition } from '@app/interfaces/map-position';
 import { gameObjects } from '@app/objects-info';
@@ -105,6 +105,33 @@ export class GameObjectService implements OnDestroy {
     ngOnDestroy() {
         if (this.sizeSubscription) {
             this.sizeSubscription.unsubscribe();
+        }
+    }
+
+    checkGameObject(row: number, col: number) {
+        const gameObject = this.getGameObjectOnTile(row, col);
+        if (gameObject) {
+            this.draggedObject = gameObject;
+        }
+    }
+
+    isValidTileForObject(row: number, col: number, tiles: number[][]): boolean {
+        const validTileType = [TileType.Ground, TileType.Ice, TileType.Water];
+        return validTileType.includes(tiles[row][col]);
+    }
+
+    onDrop(event: DragEvent, row: number, col: number, objects: number[][], tiles: number[][]) {
+        event.preventDefault();
+        if (this.draggedObject && objects[row][col] === NO_OBJECT && this.isValidTileForObject(row, col, tiles)) {
+            this.updateObjectGridPosition(this.draggedObject, row, col);
+        }
+    }
+
+    handleGameObjectOnTile(row: number, col: number, tiles: number[][]) {
+        const gameObject = this.getGameObjectOnTile(row, col);
+        if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col, tiles)) {
+            this.selectedTile = { row, col };
+            this.removeObjectFromGrid(gameObject);
         }
     }
 
