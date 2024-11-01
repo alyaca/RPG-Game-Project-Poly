@@ -82,8 +82,8 @@ export class PlayerConnectionGateway implements OnGatewayConnection, OnGatewayDi
     handleKickPlayer(client: Socket, playerId: string) {
         const room = this.roomService.getRoom(client);
         this.logger.debug(`client ${playerId} was kicked out of room `); // Debug log
-        //client.emit('kickPlayer', playerId);
-        //client.to(room.roomId).emit('kickPlayer', playerId);
+        client.emit('kickPlayer', playerId);
+        client.to(room.roomId).emit('kickPlayer', playerId);
         const playerSocket = this.server.sockets.sockets.get(playerId);
         this.gameService.removePlayerFromRoom(room.roomId, playerSocket, this.server);
         client.emit('updatedPlayer', room);

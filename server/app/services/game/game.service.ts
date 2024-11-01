@@ -73,8 +73,8 @@ export class GameService {
         this.freeUpAvatar(room, socket);
         this.updateAvatarsForAllClients(server);
         this.roomService.leaveRoom(roomId, socket);
-        socket.to(roomId).emit('kickPlayer', socket.id);
-        socket.to(room.roomId).emit('kickPlayer',  socket.id);
+        //socket.to(roomId).emit('kickPlayer', socket.id);
+        //socket.to(room.roomId).emit('kickPlayer',  socket.id);
 
     }
 
