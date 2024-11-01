@@ -121,7 +121,7 @@ export class NavigationService {
         }
     }
 
-    // Prévisualisation des cases atteignables
+    //Tuiles atteignables
     findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
         this.initializeDistances(player, game);
 
@@ -172,7 +172,6 @@ export class NavigationService {
             this.path = this.findFastestPath(player, destination, game);
             if (this.path.length > 0) {
                 this.path.shift();
-                console.log(this.path);
                 return this.path;
             }
         }

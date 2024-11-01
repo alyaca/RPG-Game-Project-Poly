@@ -382,7 +382,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
     checkFell(): boolean {
         const randomValue = Math.random();
-        return randomValue > 0;
+        return randomValue > 0.1;
     }
 
     delay(ms: number) {
