@@ -1,20 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
     let fixture: ComponentFixture<PlayerInfoInventoryComponent>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
 
     beforeEach(async () => {
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on']);
         await TestBed.configureTestingModule({
             imports: [PlayerInfoInventoryComponent],
+            providers: [{ provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(PlayerInfoInventoryComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        component.player = mockLobbyPlayers[0];
     });
 
     it('should create', () => {

@@ -5,16 +5,19 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Status } from '@app/interfaces/player-object';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
     beforeEach(async () => {
+        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['on', 'send']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed', 'close']);
@@ -22,7 +25,12 @@ describe('GamePageComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
-            providers: [provideHttpClient(), { provide: MatDialog, useValue: dialogSpy }, { provide: Router, useValue: routerSpy }],
+            providers: [
+                provideHttpClient(),
+                { provide: MatDialog, useValue: dialogSpy },
+                { provide: Router, useValue: routerSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GamePageComponent);
@@ -111,5 +119,3 @@ describe('GamePageComponent', () => {
     //     expect(routerSpy.navigate).not.toHaveBeenCalled();
     // });
 });
-
-
