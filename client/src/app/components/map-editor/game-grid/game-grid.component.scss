@@ -62,7 +62,7 @@
 }
 
 .reachable-tile {
-    border: 10px solid green;
+    border: 2px solid green;
     position: absolute;
     z-index: 1;
     border-radius: 50%;
@@ -70,7 +70,7 @@
 }
 
 .fastest-path-tile {
-    border: 15px solid white;
+    border: 3px solid white;
     position: absolute;
     z-index: 1;
     border-radius: 50%;

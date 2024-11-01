@@ -37,6 +37,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     objectsArray: number[][];
     gridSize: number;
     players: Player[] = [];
+    currentPlayer: Player;
 
     selectedRow: number = 0;
     selectedCol: number = 0;
@@ -50,6 +51,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     //Pas sure
     reachableTiles: Position[] = [];
     fastestPath: Position[] | null = [];
+    isMoving: boolean = false;
 
     constructor(
         private toolService: ToolService,
@@ -87,6 +89,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             //this.displayPortraitOnSpawnPoints(room.listPlayers);
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
+            //To do : assignier le currentPlayer...
         });
     }
 
@@ -281,17 +284,18 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private findReachableTiles() {
+        this.reachableTiles = [];
         this.reachableTiles = this.navigationService.findReachableTiles(this.players[0], this.gameMap, this.players[0].attributes.movementPointsLeft);
-        console.log(this.players[0].attributes.movementPointsLeft);
-        console.log(this.reachableTiles);
     }
 
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
 
-    onHover(row: number, col: number) {
-        this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
+    findPath(row: number, col: number) {
+        if (this.isReachableTile(row, col)) {
+            this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
+        }
     }
 
     isOnFastestPath(row: number, col: number): boolean {
@@ -299,5 +303,66 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             return false;
         }
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
+    }
+
+    //A deplacer dans le service de navigation
+    /*
+    async navigateToTile(row: number, col: number) {
+        if (this.isReachableTile(row, col) && !this.isMoving) {
+            this.findPath(row, col);
+
+            if (this.fastestPath && this.fastestPath.length > 0) {
+                this.isMoving = true;
+                for (const tile of this.fastestPath) {
+                    const currentPosition = this.players[0].position;
+                    //TODO : replacer point de depart, si il y en avait avant
+                    this.objectsArray[currentPosition.x][currentPosition.y] = 0;
+                    this.players[0].position = { x: tile.x, y: tile.y };
+                    //this.objectsArray[tile.x][tile.y] = 1;
+                    this.displayPortraitOnSpawnPoints();
+                    this.findReachableTiles();
+                    await this.delay(150);
+                }
+            }
+            this.isMoving = false;
+        }
+    }
+        */
+
+    async navigateToTile(row: number, col: number) {
+        //Temporaire , peut etre il faut le deplacer au backend
+        const path = this.navigationService.navigateToTile(this.players[0], { x: row, y: col }, this.gameMap);
+        if (!this.isMoving) {
+            let currentPosition = this.players[0].position;
+            for (const tile of path) {
+                this.isMoving = true;
+                //TODO : replacer point de depart, si il y en avait avant
+                this.objectsArray[currentPosition.x][currentPosition.y] = 0;
+                this.players[0].position = { x: tile.x, y: tile.y };
+                //this.objectsArray[tile.x][tile.y] = 1;
+                this.displayPortraitOnSpawnPoints();
+                //verifaication de 10%:
+                this.findReachableTiles();
+                currentPosition = this.players[0].position;
+                if (this.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
+                    if (!this.verifyGlace()) {
+                        //Est ce que c'est comme ca qu'on envoie le message?
+                        this.socketCommunicationService.send('playerFell', this.players[0]);
+                        //Todo affichage de message de TOMBER
+                        break;
+                    }
+                }
+                await this.delay(150); //Constant
+            }
+        }
+        this.isMoving = false;
+    }
+    verifyGlace(): boolean {
+        const randomValue = Math.random();
+        return randomValue > 0.1;
+    }
+
+    delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }

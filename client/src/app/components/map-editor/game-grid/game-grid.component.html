@@ -10,7 +10,13 @@
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
     >
-        <img class="tile-image" [src]="tileService.getTileImage(col)" (mouseover)="onHover(rowIndex, colIndex)" draggable="false" />
+        <img
+            class="tile-image"
+            [src]="tileService.getTileImage(col)"
+            (mouseover)="findPath(rowIndex, colIndex)"
+            (click)="navigateToTile(rowIndex, colIndex)"
+            draggable="false"
+        />
         @if(objectsArray[rowIndex][colIndex] > 8){
         <img
             class="player-on-spawn-points"
