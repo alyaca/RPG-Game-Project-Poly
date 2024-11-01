@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 import { ChatService } from './chat.service';
 
 describe('ChatService', () => {
@@ -77,7 +77,7 @@ describe('ChatService', () => {
             timestamp: backendMessage.timestamp,
         }));
 
-        spyOn(service, 'generateUniqueId').and.returnValue(1); // Mock generateUniqueId to return a fixed value
+        spyOn(service, 'generateUniqueId').and.returnValue(1);
 
         service.getMessagesByRoom(roomCode).subscribe((messages) => {
             expect(messages).toEqual(mockTransformedMessages);

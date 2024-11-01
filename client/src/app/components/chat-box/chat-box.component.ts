@@ -20,7 +20,6 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     newMessage: string = '';
     roomCode: string;
     private routeSub: Subscription;
-    // isChatVisible: boolean = true;
 
     constructor(
         private chatService: ChatService,
@@ -65,8 +64,4 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     ngOnDestroy(): void {
         this.routeSub.unsubscribe();
     }
-
-    // toggleChatVisibility(): void {
-    //     this.isChatVisible = !this.isChatVisible;
-    // }
 }
