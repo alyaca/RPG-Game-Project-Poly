@@ -9,6 +9,7 @@ import { MapModule } from './modules/map/map.module';
 import { GameService } from './services/game/game.service';
 import { MatchService } from './services/match/match.service';
 import { RoomService } from './services/room/room.service';
+import { TimerService } from './services/timer/timer.service';
 
 @Module({
     imports: [
@@ -25,6 +26,6 @@ import { RoomService } from './services/room/room.service';
         RoomModule,
         LoggerModule,
     ],
-    providers: [MatchService, RoomService, SocketGateway, Logger, GameService],
+    providers: [MatchService, RoomService, SocketGateway, Logger, GameService, TimerService],
 })
 export class AppModule {}

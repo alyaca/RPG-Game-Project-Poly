@@ -143,6 +143,10 @@ export const TIMER_ARC_WIDTH = 5;
 // Constants for random generation
 export const MAX_GENERATION_VALUE = 1000000000;
 
+// Constants for timer
+export const STARTING_TIME = 3;
+export const TURN_TIME = 30;
+
 // Constants for main page test
 export const NUMBER_OF_TEAM_MEMBERS = 6;
 
