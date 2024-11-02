@@ -135,12 +135,16 @@ describe('RoomService', () => {
 
     it('should broadcast roomDeleted event, delete the room, and leave the room', () => {
         jest.spyOn(service, 'cleanSocketsData');
+        jest.spyOn(service, 'removeAdmin');
+        jest.spyOn(service, 'isPlayerAdmin').mockReturnValue(true);
+
         service.rooms.set(roomId, mockRooms[0]);
         service.deleteRoom(roomId, mockSocket);
 
         expect(mockSocket.broadcast.to).toHaveBeenCalledWith(roomId);
         expect(service.rooms.has(roomId)).toBe(false);
         expect(service.cleanSocketsData).toHaveBeenCalled();
+        expect(service.removeAdmin).toHaveBeenCalled();
         expect(mockServer.in).toHaveBeenCalledWith(roomId);
         expect(mockServer.in(roomId).socketsLeave).toHaveBeenCalledWith(roomId);
     });
@@ -207,7 +211,13 @@ describe('RoomService', () => {
         mockServer.sockets.sockets.set(socket2.id, socket2);
 
         service.cleanSocketsData(roomId);
-        expect(mockServer.sockets.sockets.get(socket1.id).data).toBeUndefined();
-        expect(mockServer.sockets.sockets.get(socket2.id).data).toBeUndefined();
+        expect(mockServer.sockets.sockets.get(socket1.id).data).toEqual({});
+        expect(mockServer.sockets.sockets.get(socket2.id).data).toEqual({});
+    });
+
+    it('should remove the admin socket from the admin list', () => {
+        service.adminList = ['admin1234'];
+        service.removeAdmin(mockSocket);
+        expect(service.adminList).toEqual([]);
     });
 });

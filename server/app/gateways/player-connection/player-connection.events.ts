@@ -8,5 +8,5 @@ export enum RoomEvents {
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
     SendMessage = 'sendMessages',
-    kickPlayer= 'kickPlayer',
+    KickPlayer = 'kickPlayer',
 }

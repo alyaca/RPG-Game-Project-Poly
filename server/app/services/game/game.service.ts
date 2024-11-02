@@ -1,15 +1,12 @@
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Status } from '@common/player';
 import { Room } from '@common/room';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
-    constructor(
-        private roomService: RoomService,
-        private logger: Logger,
-    ) {}
+    constructor(private roomService: RoomService) {}
 
     toggleLockRoom(roomId: string, isLocked: boolean) {
         const game = this.getGame(roomId);
@@ -61,14 +58,12 @@ export class GameService {
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
-            this.logger.debug(`admin: ${socket.id} left room ${roomId}`); //for debug
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
         }
     }
 
-    //appeler cette fonction
     removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
         const room = this.roomService.rooms.get(roomId);
         room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
