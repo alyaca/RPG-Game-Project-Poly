@@ -1,4 +1,4 @@
-<div class="page-element disabled" #pageElement>
+<div class="page-element" [class.disabled]="isTurnStartShowed" #pageElement>
     @if (isInCombat){
     <app-combat-modal [isInCombat]="isInCombat" (closeModalEvent)="closeCombatModal()"></app-combat-modal>
     }
@@ -8,7 +8,7 @@
         </div>
         <div class="chat">
             <app-chat-box [isToggleable]="true"></app-chat-box>
-        </div> 
+        </div>
         <div class="quit" (click)="handleExit()">
             <p>Abandonner la partie</p>
         </div>
@@ -50,20 +50,30 @@
             <div class="action-container">
                 <div class="center-button">
                     <p class="action-text">Porte</p>
-                    <div class="button-outer action-outer" [class.selected]="isActionSelected" (click)="toggleActionSelected()">
+                    <div
+                        class="button-outer action-outer"
+                        [class.selected]="isActionSelected"
+                        [class.disabled]="!isActivePlayer"
+                        (click)="toggleActionSelected()"
+                    >
                         <div class="action-button door-button"></div>
                     </div>
                 </div>
 
                 <div class="center-button">
                     <p class="action-text">Attaquer</p>
-                    <div class="button-outer action-outer" [class.selected]="isActionSelected" (click)="toggleActionSelected()">
+                    <div
+                        class="button-outer action-outer"
+                        [class.selected]="isActionSelected"
+                        [class.disabled]="!isActivePlayer"
+                        (click)="toggleActionSelected()"
+                    >
                         <div class="action-button attack-button" (click)="openCombatModal()"></div>
                     </div>
                 </div>
                 <div class="center-button">
                     <p class="action-text">Fin de tour</p>
-                    <div class="button-outer end-outer">
+                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer">
                         <div class="end-turn-button-inner"></div>
                     </div>
                 </div>

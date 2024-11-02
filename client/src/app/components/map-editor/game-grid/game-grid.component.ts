@@ -50,6 +50,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     reachableTiles: Position[] = [];
     fastestPath: Position[] = [];
     isMoving: boolean = false;
+    isActivePlayer: boolean = false;
 
     constructor(
         private toolService: ToolService,
@@ -81,6 +82,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
             // To do : assignier le currentPlayer...
+        });
+
+        this.socketCommunicationService.on('isActive', (playerId: string) => {
+            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
+            const activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+            if (activePlayer && this.isActivePlayer) {
+                this.currentPlayer = activePlayer;
+            }
         });
     }
 
@@ -247,11 +256,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     findPath(row: number, col: number) {
         if (this.isReachableTile(row, col)) {
-            this.fastestPath = this.navigationService.findFastestPath(
-                this.navigationService.players[0], //TODO : currentPlayer
-                { x: row, y: col },
-                this.navigationService.gameMap,
-            );
+            this.fastestPath = this.navigationService.findFastestPath(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
         }
     }
 
@@ -263,24 +268,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     async navigateToTile(row: number, col: number) {
         if (!this.gameCreationService.isModifiable) {
             if (!this.isMoving) {
-                const path = this.navigationService.navigateToTile(
-                    this.navigationService.players[0],
-                    { x: row, y: col },
-                    this.navigationService.gameMap,
-                );
-                let currentPosition = this.navigationService.players[0].position;
+                const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+                let currentPosition = this.currentPlayer.position;
                 for (const tile of path) {
                     this.isMoving = true;
                     // TODO : replacer point de depart, si il y en avait avant
                     this.objectsArray[currentPosition.x][currentPosition.y] = 0;
-                    this.navigationService.players[0].position = { x: tile.x, y: tile.y };
+                    this.currentPlayer.position = { x: tile.x, y: tile.y };
                     this.displayPortraitOnSpawnPoints();
                     this.findReachableTiles();
-                    currentPosition = this.navigationService.players[0].position;
+                    currentPosition = this.currentPlayer.position;
                     if (this.navigationService.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
                         if (!this.navigationService.checkFell()) {
                             //Est ce que c'est comme ca qu'on envoie le message?
-                            this.socketCommunicationService.send('playerFell', this.navigationService.players[0]);
+                            this.socketCommunicationService.send('playerFell', this.currentPlayer);
                             //Todo affichage de message de TOMBER
                             break;
                         }

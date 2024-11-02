@@ -1,18 +1,14 @@
 import { MILLISECONDS_IN_SECOND } from '@app/constants';
-import { Injectable } from '@nestjs/common';
 
-@Injectable()
-export class TimerService {
+export class Timer {
     private intervalId: NodeJS.Timeout | null = null;
     private timeRemaining: number;
-    private totalTime: number;
     private isPaused = false;
-    isTimerRunning: boolean = true;
+    private isTimerRunning: boolean = true;
 
     startTimer(duration: number, onTickCallback: (timeRemaining: number) => void) {
         clearInterval(this.intervalId);
-        this.totalTime = duration;
-        this.timeRemaining = this.totalTime;
+        this.timeRemaining = duration;
         onTickCallback(this.timeRemaining);
 
         if (this.isTimerRunning && !this.isPaused) {
@@ -32,7 +28,7 @@ export class TimerService {
         if (this.intervalId) {
             clearInterval(this.intervalId);
         }
-        this.timeRemaining = this.totalTime;
+        this.timeRemaining = duration;
         this.startTimer(duration, onTickCallback);
     }
 

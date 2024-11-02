@@ -17,6 +17,7 @@ import {
 } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 
 @Component({
@@ -40,11 +41,18 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
 
-    constructor(public combatService: CombatLogicService) {}
+    constructor(
+        public combatService: CombatLogicService,
+        private socketCommunicationService: SocketCommunicationService,
+    ) {}
 
     ngOnInit() {
         this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
+
+        this.socketCommunicationService.on('fightTime', (timeRemaining: number) => {
+            this.timeRemaining = timeRemaining;
+        });
     }
 
     initializeDisplay() {

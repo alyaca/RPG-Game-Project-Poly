@@ -12,7 +12,7 @@ export enum SocketEvents {
     SendMessage = 'sendMessages',
     EndTurn = 'endTurn',
     StartTurn = 'startTurn',
-    StartTimer = 'startTimer',
     BeforeStartTurn = 'beforeStartTurn',
     StartFight = 'startFight',
+    EndFight = 'endFight',
 }

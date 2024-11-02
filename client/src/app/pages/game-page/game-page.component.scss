@@ -8,7 +8,6 @@ body {
     width: 100vw;
     height: 100vh;
     background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 50%, #514c3e);
-
     color: white;
 }
 
@@ -33,7 +32,6 @@ body {
     flex: 0 0 5%;
     text-align: center;
     margin-bottom: 5rem;
-    //margin-top: -10rem;
     display: flex;
     justify-content: space-around;
 }
@@ -50,14 +48,12 @@ body {
 }
 
 .action-button {
-    
     background-size: 101%;
     background-position: center;
     border-radius: 50%;
     height: 4.5rem;
     width: 4.5rem;
     border: 0.15rem solid black;
-
     display: flex;
     justify-content: center;
     align-items: center;
@@ -170,8 +166,6 @@ body {
         background-image 0.3s ease;
 }
 
-
-
 .button-outer:hover {
     transform: scale(1.05);
     box-shadow:
@@ -221,8 +215,6 @@ body {
     margin-top: -3%;
     height: 25%;
 
-    
-
     z-index: 999;
 }
 
@@ -232,4 +224,9 @@ body {
 
 .disabled {
     pointer-events: none;
+}
+
+.button-outer.disabled > div {
+    pointer-events: none;
+    filter: grayscale(60%) brightness(75%);
 }

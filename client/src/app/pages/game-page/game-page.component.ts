@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -18,7 +19,15 @@ import { Room } from '@common/room';
 @Component({
     selector: 'app-game-page',
     standalone: true,
-    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent, CombatModalComponent, ChatBoxComponent],
+    imports: [
+        GameGridComponent,
+        PlayerInfoInventoryComponent,
+        IngamePlayersSidebarComponent,
+        TimerComponent,
+        CombatModalComponent,
+        ChatBoxComponent,
+        CommonModule,
+    ],
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
@@ -35,6 +44,7 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
+    isActivePlayer: boolean = false;
     isActionSelected: boolean = true;
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = false;
@@ -63,7 +73,8 @@ export class GamePageComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
-            this.isTurnStartShowed = playerId === this.socketCommunicationService.socket.id;
+            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
+            this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
     }
@@ -130,7 +141,8 @@ export class GamePageComponent implements OnInit, AfterViewInit {
 
     openCombatModal() {
         this.isInCombat = true;
-        this.turnTimerComponent.pauseTimer();
+        this.socketCommunicationService.send('startFight');
+        // this.turnTimerComponent.pauseTimer();
     }
 
     closeCombatModal() {

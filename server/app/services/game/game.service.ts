@@ -1,17 +1,17 @@
-import { STARTING_TIME } from '@app/constants';
+import { Timer } from '@app/classes/timer/timer';
+import { FIGHT_TIME, STARTING_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { TimerService } from '../timer/timer.service';
 
 @Injectable()
 export class GameService {
-    constructor(
-        private roomService: RoomService,
-        private timerService: TimerService,
-    ) {}
+    turnTimer = new Timer();
+    fightTimer = new Timer();
+
+    constructor(private roomService: RoomService) {}
 
     toggleLockRoom(roomId: string, isLocked: boolean) {
         const game = this.getGame(roomId);
@@ -141,7 +141,7 @@ export class GameService {
 
     onStartTurn(room: Room, server: Server) {
         const activePlayer = room.listPlayers.find((player) => player.isActive === true);
-        this.timerService.startTimer(STARTING_TIME, (timeRemaining) => {
+        this.turnTimer.startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
                 server.to(activePlayer.id).emit('beforeStartTurnTimerEnd');
@@ -151,7 +151,7 @@ export class GameService {
 
     onPlayerTurnStarted(duration: number, client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.timerService.startTimer(duration, (timeRemaining) => {
+        this.turnTimer.startTimer(duration, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
                 this.onTurnEnded(client, server);
@@ -165,6 +165,20 @@ export class GameService {
         this.updateActivePlayer(client);
         const activePlayer = room.listPlayers.find((player) => player.isActive === true);
         server.to(room.roomId).emit('isActive', activePlayer.id);
+    }
+
+    onStartFight(client: Socket, opponent: Player, server: Server) {
+        this.turnTimer.pauseTimer();
+        this.fightTimer.startTimer(FIGHT_TIME, (timeRemaining) => {
+            client.emit('fightTime', timeRemaining);
+            server.to(opponent.id).emit('fightTime', timeRemaining);
+        });
+    }
+
+    onEndFight(server: Server, room: Room) {
+        this.turnTimer.resumeTimer((timeRemaining) => {
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+        });
     }
 
     isPlayerNameTaken(name: string, socket: Socket) {
