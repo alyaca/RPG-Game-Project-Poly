@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { NO_OBJECT, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -8,7 +8,6 @@ import { NavigationService } from '@app/services/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 
@@ -36,7 +35,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     tilesGrid: number[][];
     objectsArray: number[][];
     gridSize: number;
-    players: Player[] = [];
+    //players: Player[] = [];
+    //gameMap: Game;
     currentPlayer: Player;
 
     selectedRow: number = 0;
@@ -46,10 +46,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     previousRow: number | null = null;
     previousCol: number | null = null;
-    gameMap: Game;
 
     reachableTiles: Position[] = [];
-    fastestPath: Position[] | null = [];
+    fastestPath: Position[] = [];
     isMoving: boolean = false;
 
     constructor(
@@ -88,12 +87,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
-            this.players = room.listPlayers;
-            this.gameMap = room.gameMap;
-            // this.displayPortraitOnSpawnPoints(room.listPlayers);
+            this.navigationService.initialize(room.gameMap, room.listPlayers);
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
-            //To do : assignier le currentPlayer...
         });
     }
 
@@ -133,42 +129,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     displayPortraitOnSpawnPoints() {
-        for (const player of this.players) {
+        for (const player of this.navigationService.players) {
             const { x, y } = player.position;
-            if (this.isPositionWithinBounds(x, y, this.objectsArray)) {
-                this.objectsArray[x][y] = this.getPortraitId(player.avatar?.name);
+            if (this.navigationService.isPositionWithinBounds(x, y, this.objectsArray)) {
+                this.objectsArray[x][y] = this.navigationService.getPortraitId(player.avatar?.name);
             }
-        }
-    }
-
-    getPortraitId(godName: string | undefined) {
-        switch (godName) {
-            case 'Hestia':
-                return ObjectType.Hestia;
-            case 'Zeus':
-                return ObjectType.Zeus;
-            case 'Hera':
-                return ObjectType.Hera;
-            case 'Poseidon':
-                return ObjectType.Poseidon;
-            case 'Artemis':
-                return ObjectType.Artemis;
-            case 'Demeter':
-                return ObjectType.Demeter;
-            case 'Hermes':
-                return ObjectType.Hermes;
-            case 'Athena':
-                return ObjectType.Athena;
-            case 'Hephaestus':
-                return ObjectType.Hephaestus;
-            case 'Apollo':
-                return ObjectType.Apollo;
-            case 'Ares':
-                return ObjectType.Ares;
-            case 'Aphrodite':
-                return ObjectType.Aphrodite;
-            default:
-                return ObjectType.Spawn;
         }
     }
 
@@ -277,97 +242,54 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
-    }
-    /*
-    onHover(row: number, col: number) {
-        this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
-    }
-        */
-    /*
-    isOnFastestPath(row: number, col: number): boolean {
-        if (!this.fastestPath) {
-            return false;
-        }
-        return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
-    }
-        */
-
-    private isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
-        return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
+        return this.navigationService.isReachableTile(row, col);
     }
 
-    private findReachableTiles() {
+    findReachableTiles() {
         this.reachableTiles = [];
-        this.reachableTiles = this.navigationService.findReachableTiles(this.players[0], this.gameMap, this.players[0].attributes.movementPointsLeft);
+        this.reachableTiles = this.navigationService.findReachableTiles(
+            this.navigationService.players[0],
+            this.navigationService.gameMap,
+            this.navigationService.players[0].attributes.movementPointsLeft,
+        );
     }
-    /*
-    isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
-    }
-        */
 
     findPath(row: number, col: number) {
         if (this.isReachableTile(row, col)) {
-            this.fastestPath = this.navigationService.findFastestPath(this.players[0], { x: row, y: col }, this.gameMap);
+            this.fastestPath = this.navigationService.findFastestPath(
+                this.navigationService.players[0], //TODO : currentPlayer
+                { x: row, y: col },
+                this.navigationService.gameMap,
+            );
         }
     }
 
     isOnFastestPath(row: number, col: number): boolean {
-        if (!this.fastestPath) {
-            return false;
-        }
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 
-    print() {
-        console.log('PPPPPPP');
-    }
-
-    //A deplacer dans le service de navigation
-    /*
+    //TODO : Qualite a revoir, il faut d<abord impelmenter la gestion des tours...
     async navigateToTile(row: number, col: number) {
-        if (this.isReachableTile(row, col) && !this.isMoving) {
-            this.findPath(row, col);
-
-            if (this.fastestPath && this.fastestPath.length > 0) {
-                this.isMoving = true;
-                for (const tile of this.fastestPath) {
-                    const currentPosition = this.players[0].position;
-                    //TODO : replacer point de depart, si il y en avait avant
-                    this.objectsArray[currentPosition.x][currentPosition.y] = 0;
-                    this.players[0].position = { x: tile.x, y: tile.y };
-                    //this.objectsArray[tile.x][tile.y] = 1;
-                    this.displayPortraitOnSpawnPoints();
-                    this.findReachableTiles();
-                    await this.delay(150);
-                }
-            }
-            this.isMoving = false;
-        }
-    }
-        */
-
-    async navigateToTile(row: number, col: number) {
-        //Temporaire , peut etre il faut le deplacer au backend
         if (!this.gameCreationService.isModifiable) {
             if (!this.isMoving) {
-                const path = this.navigationService.navigateToTile(this.players[0], { x: row, y: col }, this.gameMap);
-                let currentPosition = this.players[0].position;
+                const path = this.navigationService.navigateToTile(
+                    this.navigationService.players[0],
+                    { x: row, y: col },
+                    this.navigationService.gameMap,
+                );
+                let currentPosition = this.navigationService.players[0].position;
                 for (const tile of path) {
                     this.isMoving = true;
                     //TODO : replacer point de depart, si il y en avait avant
                     this.objectsArray[currentPosition.x][currentPosition.y] = 0;
-                    this.players[0].position = { x: tile.x, y: tile.y };
-                    //this.objectsArray[tile.x][tile.y] = 1;
+                    this.navigationService.players[0].position = { x: tile.x, y: tile.y };
                     this.displayPortraitOnSpawnPoints();
-                    //verifaication de 10%:
                     this.findReachableTiles();
-                    currentPosition = this.players[0].position;
-                    if (this.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
-                        if (!this.checkFell()) {
+                    currentPosition = this.navigationService.players[0].position;
+                    if (this.navigationService.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
+                        if (!this.navigationService.checkFell()) {
                             //Est ce que c'est comme ca qu'on envoie le message?
-                            this.socketCommunicationService.send('playerFell', this.players[0]);
+                            this.socketCommunicationService.send('playerFell', this.navigationService.players[0]);
                             //Todo affichage de message de TOMBER
                             break;
                         }
@@ -377,10 +299,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.isMoving = false;
             }
         }
-    }
-    checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > 0.1;
     }
 
     delay(ms: number) {
