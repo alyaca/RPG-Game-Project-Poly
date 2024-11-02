@@ -20,7 +20,6 @@ describe('SocketGateway', () => {
     let roomService: RoomService;
     let gameService: GameService;
     let chatService: ChatService;
-    let matchService: MatchService;
     let logger: SinonStubbedInstance<Logger>;
     let roomId: string;
     let mockClient: Socket;
