@@ -81,24 +81,18 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.socketCommunicationService.on('beforeStartTurnTimer', (timeRemaining: number) => {
             this.timeRemainingBeforeStartTurn = timeRemaining;
         });
-        this.socketCommunicationService.on('beforeStartTurnTimerEnd', () => {
-            this.closeTurnStartPopUp();
-        });
         this.socketCommunicationService.on('turnEnded', (listPlayers: []) => {
             this.allPlayers = listPlayers;
             this.onBeforeStartTurn();
         });
         this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
+            this.closeTurnStartPopUp();
             this.timeRemainingStartTurn = timeRemaining;
         });
     }
 
     onBeforeStartTurn() {
-        this.socketCommunicationService.send('beforeStartTurn');
-    }
-
-    onStartTurn() {
-        this.socketCommunicationService.send('startTurn', TURN_TIME);
+        this.socketCommunicationService.send('startTurn');
     }
 
     getPlayerCount() {
@@ -130,7 +124,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.isFirstTimerDone = true;
         this.beforeTurnTotalTime = STARTING_TIME;
         this.enableClicks();
-        this.onStartTurn();
     }
 
     toggleActionSelected() {
@@ -139,13 +132,12 @@ export class GamePageComponent implements OnInit, AfterViewInit {
 
     openCombatModal() {
         this.isInCombat = true;
-        this.socketCommunicationService.send('startFight');
+        // this.socketCommunicationService.send('startFight');
     }
 
     closeCombatModal() {
         this.isInCombat = false;
-        this.socketCommunicationService.send('endFight');
-        // this.turnTimerComponent.resumeTimer();
+        // this.socketCommunicationService.send('endFight');
     }
 
     handleExit() {

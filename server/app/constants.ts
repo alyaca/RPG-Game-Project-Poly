@@ -33,9 +33,11 @@ export const SIZE_MEDIUM_MAP = 15;
 export const DEFAULT_DATE = new Date();
 
 export const SPAWN_POINT_ID = 8;
+
 // constants for timer
 export const WARNING_TIME = 3;
 export const STARTING_TIME = 3;
+export const TURN_TIME = 30;
 export const FIGHT_TIME = 5;
 export const NO_EVASION_TIME = 3;
 export const MILLISECONDS_IN_SECOND = 1000;

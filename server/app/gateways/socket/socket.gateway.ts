@@ -89,21 +89,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.gameService.updateActivePlayer(client);
+        this.gameService.onTurnEnded(client, this.server);
         this.logger.debug(`client ${client.id} turn is over`); // for debug
-        this.server.to(room.roomId).emit('turnEnded', room.listPlayers);
-    }
-
-    @SubscribeMessage(SocketEvents.BeforeStartTurn)
-    handleBeforeStartTurn(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.gameService.onStartTurn(room, this.server);
     }
 
     @SubscribeMessage(SocketEvents.StartTurn)
-    handleStartTurn(client: Socket, duration: number) {
-        this.gameService.onPlayerTurnStarted(duration, client, this.server);
+    handleBeforeStartTurn(client: Socket) {
+        this.gameService.onStartTurn(client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.StartFight)

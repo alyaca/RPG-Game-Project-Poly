@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { FIGHT_TIME, STARTING_TIME } from '@app/constants';
+import { FIGHT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Status } from '@common/player';
 import { Room } from '@common/room';
@@ -139,23 +139,24 @@ export class GameService {
         this.sortPlayersBySpeed(room);
     }
 
-    onStartTurn(room: Room, server: Server) {
+    onStartTurn(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
         const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        client.to(room.roomId).emit('otherPlayerTurn', client.data.username);
         this.turnTimer.startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
-                server.to(activePlayer.id).emit('beforeStartTurnTimerEnd');
+                this.onTurnStarted(client, server);
             }
         });
     }
 
-    onPlayerTurnStarted(duration: number, client: Socket, server: Server) {
+    onTurnStarted(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.turnTimer.startTimer(duration, (timeRemaining) => {
+        this.turnTimer.startTimer(TURN_TIME, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
                 this.onTurnEnded(client, server);
-                server.to(room.roomId).emit('turnEnded', room.listPlayers);
             }
         });
     }
@@ -165,6 +166,7 @@ export class GameService {
         this.updateActivePlayer(client);
         const activePlayer = room.listPlayers.find((player) => player.isActive === true);
         server.to(room.roomId).emit('isActive', activePlayer.id);
+        server.to(room.roomId).emit('turnEnded', room.listPlayers);
     }
 
     onStartFight(client: Socket, opponent: Player, server: Server) {
