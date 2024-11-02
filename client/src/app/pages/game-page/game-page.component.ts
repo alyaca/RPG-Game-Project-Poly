@@ -9,8 +9,8 @@ import { PlayerInfoInventoryComponent } from '@app/components/player-info-invent
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { STARTING_TIME, TURN_TIME } from '@app/constants';
-// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -22,11 +22,11 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements AfterViewInit, OnInit {
+export class GamePageComponent implements OnInit, AfterViewInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
-    @ViewChild('startTimer') startTimerComponent!: TimerComponent;
+    // @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
     allPlayers: Player[];
     mapName: string = 'Exemple';
@@ -111,7 +111,9 @@ export class GamePageComponent implements AfterViewInit, OnInit {
     }
 
     enableClicks() {
-        this.pageDiv.first.nativeElement.id = 'enabled';
+        if (this.pageDiv && this.pageDiv.length > 0) {
+            this.pageDiv.first.nativeElement.id = 'enabled';
+        }
     }
 
     closeTurnStartPopUp() {

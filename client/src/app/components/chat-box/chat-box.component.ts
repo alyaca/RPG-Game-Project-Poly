@@ -80,7 +80,9 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.routeSub.unsubscribe();
+        if (this.routeSub) {
+            this.routeSub.unsubscribe();
+        }
     }
 
     toggleChatLogs() {

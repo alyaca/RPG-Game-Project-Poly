@@ -208,16 +208,6 @@ describe('GameGridComponent', () => {
     });
 
     describe('drag event', () => {
-        // it('should set dragStartPosition and draggedObject on drag start', () => {
-        //     gameCreationServiceSpy.isModifiable = true;
-        //     gameObjectManagerServiceSpy.getGameObjectOnTile.and.returnValue(gameObjects[0]);
-        //     component.onDragStart(MOCK_ROW, MOCK_COLUMN);
-
-        //     expect(gameObjectManagerServiceSpy.dragStartPosition).toEqual({ row: MOCK_ROW, col: MOCK_COLUMN });
-        //     expect(gameObjectManagerServiceSpy.getGameObjectOnTile).toHaveBeenCalledWith(MOCK_ROW, MOCK_COLUMN);
-        //     expect(gameObjectManagerServiceSpy.draggedObject).toEqual(gameObjects[0]);
-        // });
-
         it('should prevent default behaviour on drag over ', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             component.onDragOver(mockEvent);
@@ -254,6 +244,7 @@ describe('GameGridComponent', () => {
 
     it('onDragStart should call and set the correct methods', () => {
         component.isMouseDown = true;
+        gameCreationServiceSpy.isModifiable = true;
         component.onDragStart(1, 1);
         expect(toolServiceSpy.deactivateTileApplicator).toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ElementRef } from '@angular/core';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { mockPlayer } from '@app/mocks/mock-player';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
 
@@ -20,6 +22,8 @@ describe('PlayerInfoInventoryComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
         component.player = mockLobbyPlayers[0];
+        component.healthBar = new ElementRef(document.createElement('progress'));
+        component.playerId = mockPlayer.id.toString();
     });
 
     it('should create', () => {
@@ -48,12 +52,13 @@ describe('PlayerInfoInventoryComponent', () => {
 
     it('should update the action points', () => {
         component.player = mockLobbyPlayers[0];
+        component.player.attributes.actionPoints = 2;
         // component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.actionPoints;
         component.increaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(5);
+        expect(component.player.attributes.actionPoints).toBe(3);
 
         component.decreaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(4);
+        expect(component.player.attributes.actionPoints).toBe(2);
     });
 
     it('should not update the action points value if it is already at the max or min', () => {
@@ -68,12 +73,13 @@ describe('PlayerInfoInventoryComponent', () => {
     });
 
     it('should update the totalHp value', () => {
-        component.player.attributes.currentHp = mockLobbyPlayers[0].attributes.currentHp - 1;
+        component.player = mockLobbyPlayers[0];
+        component.player.attributes.currentHp = 1;
         component.increaseHP();
-        expect(component.player.attributes.currentHp).toBe(mockLobbyPlayers[0].attributes.currentHp);
+        expect(component.player.attributes.currentHp).toBe(2);
 
         component.decreaseHP();
-        expect(component.player.attributes.currentHp).toBe(mockLobbyPlayers[0].attributes.currentHp - 1);
+        expect(component.player.attributes.currentHp).toBe(1);
     });
 
     it('should not update the totalHp value if already at max or min', () => {
