@@ -38,7 +38,7 @@
     </div>
     <div class="right-container">
         <div class="timer">
-            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" (startTimer)="onStartTurn()" (closeTimer)="onTimerDone()">
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" (startTimer)="onStartTurn()" (closeTimer)="onEndTurn()">
             </app-timer>
         </div>
         <div class="players">
@@ -74,7 +74,7 @@
                 <div class="center-button">
                     <p class="action-text">Fin de tour</p>
                     <div class="button-outer end-outer" [class.disabled]="!isActivePlayer">
-                        <div class="end-turn-button-inner"></div>
+                        <div class="end-turn-button-inner" (click)="onEndTurn()"></div>
                     </div>
                 </div>
             </div>

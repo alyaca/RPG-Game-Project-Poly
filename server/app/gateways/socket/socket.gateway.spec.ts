@@ -3,6 +3,7 @@ import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { ChatService } from '@app/services/chat/chat.service';
 import { GameService } from '@app/services/game/game.service';
+import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
@@ -19,6 +20,7 @@ describe('SocketGateway', () => {
     let roomService: RoomService;
     let gameService: GameService;
     let chatService: ChatService;
+    let matchService: MatchService;
     let logger: SinonStubbedInstance<Logger>;
     let roomId: string;
     let mockClient: Socket;
@@ -30,6 +32,9 @@ describe('SocketGateway', () => {
             getMessagesByRoom: jest.fn(),
         };
 
+        const matchServiceMock = {
+            processMapObjects: jest.fn(),
+        };
         const roomServiceMock = {
             setServer: jest.fn(),
             joinRoom: jest.fn(),
@@ -86,6 +91,7 @@ describe('SocketGateway', () => {
                 { provide: Logger, useValue: logger },
                 { provide: GameService, useValue: gameServiceMock },
                 { provide: ChatService, useValue: chatServiceMock },
+                { provide: MatchService, useValue: matchServiceMock },
             ],
         }).compile();
 
@@ -213,8 +219,7 @@ describe('SocketGateway', () => {
 
             expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
             expect(gameService.createPlayer).toHaveBeenCalledWith(room, mockPlayer, mockClient);
-            expect(mockClient.emit).toHaveBeenCalledWith('updatedPlayer', room);
-            expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
+            expect(server.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
         });
     });
 

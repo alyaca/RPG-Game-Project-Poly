@@ -59,8 +59,8 @@ export class GameService {
 
     isActivePlayer(socket: Socket) {
         const room = this.roomService.getRoom(socket);
-        const player = room.listPlayers.find((player) => player.id === socket.id);
-        return player.isActive;
+        const currentPlayer = room.listPlayers.find((player) => player.id === socket.id);
+        return currentPlayer.isActive;
     }
 
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {

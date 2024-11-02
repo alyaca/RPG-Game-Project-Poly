@@ -1,28 +1,9 @@
+import { SPAWN_POINT_ID } from '@app/constants';
+import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Player } from '@common/player';
+import { Player, Position } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { RoomService } from '../room/room.service';
-
-//TEMPORAIRE:
-enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
-//Doivent etre dans un fichier commun
-interface Position {
-    x: number;
-    y: number;
-}
-interface PointWithDistance {
-    x: number;
-    y: number;
-    distance: number;
-}
 
 @Injectable()
 export class MatchService {
@@ -30,7 +11,7 @@ export class MatchService {
 
     constructor(private roomService: RoomService) {}
 
-    //TODO: retourner la liste des joueurs avec leur position
+    // TODO: return player list with position
     processMapObjects(client: Socket): void {
         const players = this.roomService.getRoom(client).listPlayers;
         this.game = this.roomService.getRoom(client).gameMap;
@@ -42,7 +23,7 @@ export class MatchService {
         const spawnPoints: Position[] = [];
         for (let x = 0; x < mapObjects.length; x++) {
             for (let y = 0; y < mapObjects[x].length; y++) {
-                if (mapObjects[x][y] === 8) {
+                if (mapObjects[x][y] === SPAWN_POINT_ID) {
                     spawnPoints.push({ x, y });
                 }
             }
@@ -55,8 +36,8 @@ export class MatchService {
             const randomIndex = this.getRandomIndex(spawnPoints.length);
             const selectedSpawnPoint = spawnPoints[randomIndex];
             player.position = { x: selectedSpawnPoint.x, y: selectedSpawnPoint.y };
-            spawnPoints.splice(randomIndex, 1); //A verfier
-            //Il faut aussi voir si on retourne les point non utilise pour pas les afficher
+            spawnPoints.splice(randomIndex, 1); // To check
+            // TODO: not send unused spawn point
         });
     }
 
