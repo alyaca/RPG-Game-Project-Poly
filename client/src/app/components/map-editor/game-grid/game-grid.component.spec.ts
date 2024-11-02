@@ -350,11 +350,26 @@ describe('GameGridComponent', () => {
             expect(component.onTileClick).not.toHaveBeenCalled();
         });
     });
-    /*
-    it('should find and display reachable tiles', () => {
-        navigationServiceSpy.findReachableTiles.and.returnValue([{ x: 0, y: 0 }]);
-        component.findReachableTiles();
-        expect(component.reachableTiles).toEqual([{ x: 0, y: 0 }]);
+
+    describe('spawn points update', () => {
+        it('should call getPortraitId', () => {
+            component.players = mockPlayers;
+            spyOn(component, 'getPortraitId');
+            component.displayPortraitOnSpawnPoints();
+            expect(component.getPortraitId).toHaveBeenCalled();
+        });
+
+        it("should return the correct god's name", () => {
+            const id = 9;
+            const result = component.getPortraitId('Hestia');
+            expect(result).toEqual(id);
+        });
+
+        it('should return the spawn point if note other god fits', () => {
+            const id = 8;
+            const result = component.getPortraitId('name');
+            expect(result).toEqual(id);
+        });
     });
     */
 });

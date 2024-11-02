@@ -76,20 +76,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.loadExistingGame();
         }
 
-        if (this.gameCreationService.isNewGame) {
-            this.objectsArray = this.gameObjectService.initObjectsArray();
-            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-        } else {
-            this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
-            this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
-            this.gameObjectService.objectsArray = this.objectsArray;
-            this.oldMapName = this.gameCreationService.loadedMapName;
-        }
-
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.navigationService.initialize(room.gameMap, room.listPlayers);
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
+            // To do : assignier le currentPlayer...
         });
     }
 
@@ -280,7 +271,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 let currentPosition = this.navigationService.players[0].position;
                 for (const tile of path) {
                     this.isMoving = true;
-                    //TODO : replacer point de depart, si il y en avait avant
+                    // TODO : replacer point de depart, si il y en avait avant
                     this.objectsArray[currentPosition.x][currentPosition.y] = 0;
                     this.navigationService.players[0].position = { x: tile.x, y: tile.y };
                     this.displayPortraitOnSpawnPoints();
@@ -294,7 +285,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                             break;
                         }
                     }
-                    await this.delay(150); //Constant
+                    await this.delay(150); // Constant
                 }
                 this.isMoving = false;
             }

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { ObjectType } from '@app/constants';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 
@@ -23,61 +22,13 @@ interface PointWithDistance {
     providedIn: 'root',
 })
 export class NavigationService {
+    public path: Position[];
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
-    public path: Position[];
-    players: Player[];
-    gameMap: Game;
-    fastestPath: Position[] = [];
-    constructor() {}
+    // private game: Game;
 
-    initialize(game: Game, players: Player[]): void {
-        this.gameMap = game;
-        this.players = players;
-    }
-
-    placePlayers(): Position[] {
-        return this.players.map((player) => player.position);
-    }
-
-    isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
-        return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
-    }
-
-    getPortraitId(godName: string | undefined) {
-        switch (godName) {
-            case 'Hestia':
-                return ObjectType.Hestia;
-            case 'Zeus':
-                return ObjectType.Zeus;
-            case 'Hera':
-                return ObjectType.Hera;
-            case 'Poseidon':
-                return ObjectType.Poseidon;
-            case 'Artemis':
-                return ObjectType.Artemis;
-            case 'Demeter':
-                return ObjectType.Demeter;
-            case 'Hermes':
-                return ObjectType.Hermes;
-            case 'Athena':
-                return ObjectType.Athena;
-            case 'Hephaestus':
-                return ObjectType.Hephaestus;
-            case 'Apollo':
-                return ObjectType.Apollo;
-            case 'Ares':
-                return ObjectType.Ares;
-            case 'Aphrodite':
-                return ObjectType.Aphrodite;
-            default:
-                return ObjectType.Spawn;
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////
-    //Djikstra
+    // Djikstra
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.initializeDistances(player, game);
 
@@ -168,7 +119,7 @@ export class NavigationService {
         }
     }
 
-    //Tuiles atteignables
+    // Tuiles atteignables
     findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
         this.initializeDistances(player, game);
 
@@ -215,7 +166,7 @@ export class NavigationService {
     }
 
     navigateToTile(player: Player, destination: Position, game: Game): Position[] {
-        console.log('navigateToTile');
+        // console.log('navigateToTile');
         if (this.isReachableTile(destination.x, destination.y)) {
             this.path = this.findFastestPath(player, destination, game);
             if (this.path.length > 0) {
