@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ObjectType } from '@app/constants';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 
@@ -26,7 +27,53 @@ export class NavigationService {
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
-    // private game: Game;
+    players: Player[];
+    gameMap: Game;
+    fastestPath: Position[] = [];
+
+    initialize(game: Game, players: Player[]): void {
+        this.gameMap = game;
+        this.players = players;
+    }
+
+    placePlayers(): Position[] {
+        return this.players.map((player) => player.position);
+    }
+
+    isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
+        return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
+    }
+
+    getPortraitId(godName: string | undefined) {
+        switch (godName) {
+            case 'Hestia':
+                return ObjectType.Hestia;
+            case 'Zeus':
+                return ObjectType.Zeus;
+            case 'Hera':
+                return ObjectType.Hera;
+            case 'Poseidon':
+                return ObjectType.Poseidon;
+            case 'Artemis':
+                return ObjectType.Artemis;
+            case 'Demeter':
+                return ObjectType.Demeter;
+            case 'Hermes':
+                return ObjectType.Hermes;
+            case 'Athena':
+                return ObjectType.Athena;
+            case 'Hephaestus':
+                return ObjectType.Hephaestus;
+            case 'Apollo':
+                return ObjectType.Apollo;
+            case 'Ares':
+                return ObjectType.Ares;
+            case 'Aphrodite':
+                return ObjectType.Aphrodite;
+            default:
+                return ObjectType.Spawn;
+        }
+    }
 
     // Djikstra
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
