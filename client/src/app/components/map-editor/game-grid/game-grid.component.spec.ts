@@ -2,7 +2,9 @@ import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { mockGameNavigation } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
+import { playerNavigation } from '@app/mocks/mock-player';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -59,6 +61,8 @@ describe('GameGridComponent', () => {
             'findFastestPath',
             'navigateToTile',
             'checkFell',
+            'getPortraitId',
+            'isPositionWithinBounds',
         ]);
 
         tileServiceSpy.resetGrid.and.callFake((gridSize: number) => {
@@ -351,25 +355,53 @@ describe('GameGridComponent', () => {
         });
     });
 
-    describe('spawn points update', () => {
-        it('should call getPortraitId', () => {
-            component.players = mockPlayers;
-            spyOn(component, 'getPortraitId');
-            component.displayPortraitOnSpawnPoints();
-            expect(component.getPortraitId).toHaveBeenCalled();
+    it('should set the correct portrait ID for each player at their position', () => {
+        navigationServiceSpy.players = [playerNavigation];
+        navigationServiceSpy.isPositionWithinBounds.and.returnValue(true);
+        navigationServiceSpy.getPortraitId.and.callFake((godName: string | undefined) => {
+            switch (godName) {
+                case 'Hestia':
+                    return ObjectType.Hestia;
+                default:
+                    return ObjectType.Spawn;
+            }
         });
-
-        it("should return the correct god's name", () => {
-            const id = 9;
-            const result = component.getPortraitId('Hestia');
-            expect(result).toEqual(id);
-        });
-
-        it('should return the spawn point if note other god fits', () => {
-            const id = 8;
-            const result = component.getPortraitId('name');
-            expect(result).toEqual(id);
-        });
+        component.displayPortraitOnSpawnPoints();
+        expect(component.objectsArray[0][0]).toBe(8);
     });
-    */
+
+    it('should set the tile to Ground if conditions are met', () => {
+        component.tilesGrid = [
+            [TileType.Water, TileType.Ground],
+            [TileType.Ground, TileType.Ground],
+        ];
+        component.objectsArray = [
+            [NO_OBJECT, NO_OBJECT],
+            [NO_OBJECT, NO_OBJECT],
+        ];
+
+        const event = new MouseEvent('click');
+        component.removeTile(event, 0, 0);
+
+        expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
+    });
+
+    it('should call navigationService.findReachableTiles with the correct arguments', () => {
+        const mockReachableTiles = [
+            { x: 0, y: 1 },
+            { x: 1, y: 2 },
+        ];
+        navigationServiceSpy.findReachableTiles.and.returnValue(mockReachableTiles);
+        navigationServiceSpy.players = [{ ...playerNavigation }];
+        navigationServiceSpy.gameMap = { ...mockGameNavigation };
+
+        component.findReachableTiles();
+
+        expect(navigationServiceSpy.findReachableTiles).toHaveBeenCalledWith(
+            navigationServiceSpy.players[0],
+            navigationServiceSpy.gameMap,
+            navigationServiceSpy.players[0].attributes.movementPointsLeft,
+        );
+        expect(component.reachableTiles).toEqual(mockReachableTiles);
+    });
 });

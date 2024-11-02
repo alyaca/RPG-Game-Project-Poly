@@ -55,7 +55,7 @@ export const playerNavigation: Player = {
     },
     avatar: { name: 'a', src: 'a.img', isSelected: true, isTaken: true },
     isActive: true,
-    name: 'abc',
+    name: 'Hestia',
     status: Status.Player,
     victories: 1,
     inventory: [],
