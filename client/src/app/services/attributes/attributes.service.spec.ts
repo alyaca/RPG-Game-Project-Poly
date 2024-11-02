@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-
-import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, HIGH_ATTRIBUTE } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, ErrorMessages, HIGH_ATTRIBUTE } from '@app/constants';
 import { AttributesService } from './attributes.service';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// To spyOn private method of the service
 describe('AttributesService', () => {
     let service: AttributesService;
 
@@ -21,7 +22,7 @@ describe('AttributesService', () => {
     });
 
     it('should set the first attribute to HIGH_ATTRIBUTE and the second to DEFAULT_ATTRIBUTE', () => {
-        service.setAttribute('totalHp', 'speed');
+        service['setAttribute']('totalHp', 'speed');
 
         expect(service.attributes.totalHp).toBe(HIGH_ATTRIBUTE);
         expect(service.attributes.speed).toBe(DEFAULT_ATTRIBUTE);
@@ -29,86 +30,86 @@ describe('AttributesService', () => {
 
     describe('setAttribute', () => {
         beforeEach(() => {
-            spyOn(service, 'setAttribute');
+            spyOn<any>(service, 'setAttribute');
         });
 
         it('should call setAttribute with "totalHp" and "speed"', () => {
             service.setHealth();
-            expect(service.setAttribute).toHaveBeenCalledWith('totalHp', 'speed');
+            expect(service['setAttribute']).toHaveBeenCalledWith('totalHp', 'speed');
         });
 
         it('should call setAttribute with "speed" and "totalHp"', () => {
             service.setSpeed();
-            expect(service.setAttribute).toHaveBeenCalledWith('speed', 'totalHp');
+            expect(service['setAttribute']).toHaveBeenCalledWith('speed', 'totalHp');
         });
 
         it('should call setAttribute with defDiceMax and atkDiceMax when attack4 is passed', () => {
             service.setAttack('attack4');
-            expect(service.setAttribute).toHaveBeenCalledWith('defDiceMax', 'atkDiceMax');
+            expect(service['setAttribute']).toHaveBeenCalledWith('defDiceMax', 'atkDiceMax');
         });
 
         it('should call setAttribute with atkDiceMax and defDiceMax when attack6 is passed', () => {
             service.setAttack('attack6');
-            expect(service.setAttribute).toHaveBeenCalledWith('atkDiceMax', 'defDiceMax');
+            expect(service['setAttribute']).toHaveBeenCalledWith('atkDiceMax', 'defDiceMax');
         });
 
         it('should call setAttribute with atkDiceMax and defDiceMax when defense4 is passed', () => {
             service.setDefense('defense4');
-            expect(service.setAttribute).toHaveBeenCalledWith('atkDiceMax', 'defDiceMax');
+            expect(service['setAttribute']).toHaveBeenCalledWith('atkDiceMax', 'defDiceMax');
         });
 
         it('should call setAttribute with defDiceMax and atkDiceMax when defense6 is passed', () => {
             service.setDefense('defense6');
-            expect(service.setAttribute).toHaveBeenCalledWith('defDiceMax', 'atkDiceMax');
+            expect(service['setAttribute']).toHaveBeenCalledWith('defDiceMax', 'atkDiceMax');
         });
     });
 
     it('should return true if character name is valid', () => {
         service.name = 'ABC';
-        expect(service.hasName()).toBeTruthy();
+        expect(service['hasName']()).toBeTruthy();
     });
 
     it('should return false if character name is not given', () => {
-        expect(service.hasName()).toBeFalsy();
+        expect(service['hasName']()).toBeFalsy();
     });
 
     describe('hasSelectedAttributes', () => {
         it('should return true when totalHp is not DEFAULT_ATTRIBUTE and hasSelectedDice returns true', () => {
             service.attributes.totalHp = HIGH_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
-            const result = service.hasSelectedAttributes();
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
+            const result = service['hasSelectedAttributes']();
             expect(result).toBeTrue();
         });
 
         it('should return true when speed is not DEFAULT_ATTRIBUTE and hasSelectedDice returns true', () => {
             service.attributes.speed = HIGH_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
-            const result = service.hasSelectedAttributes();
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
+            const result = service['hasSelectedAttributes']();
             expect(result).toBeTrue();
         });
 
         it('should return false when totalHp and speed are DEFAULT_ATTRIBUTE and hasSelectedDice returns true', () => {
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
-            const result = service.hasSelectedAttributes();
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
+            const result = service['hasSelectedAttributes']();
             expect(result).toBeFalse();
         });
 
         it('should return false when totalHp is not DEFAULT_ATTRIBUTE and hasSelectedDice returns false', () => {
             service.attributes.totalHp = HIGH_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(false);
-            const result = service.hasSelectedAttributes();
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
+            const result = service['hasSelectedAttributes']();
             expect(result).toBeFalse();
         });
 
         it('should return false when speed is not DEFAULT_ATTRIBUTE and hasSelectedDice returns false', () => {
             service.attributes.speed = HIGH_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(false);
-            const result = service.hasSelectedAttributes();
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
+            const result = service['hasSelectedAttributes']();
             expect(result).toBeFalse();
         });
         it('should return false when totalHp and speed are DEFAULT_ATTRIBUTE and hasSelectedDice returns false', () => {
-            spyOn(service, 'hasSelectedDice').and.returnValue(false);
-            const result = service.hasSelectedAttributes();
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
+            const result = service['hasSelectedAttributes']();
             expect(result).toBeFalse();
         });
     });
@@ -116,12 +117,18 @@ describe('AttributesService', () => {
     describe('hasSelectedDice', () => {
         it('should return true when atkDiceMax is HIGH_ATTRIBUTE', () => {
             service.attributes.atkDiceMax = HIGH_ATTRIBUTE;
-            const result = service.hasSelectedDice();
+            const result = service['hasSelectedDice']();
+            expect(result).toBeTrue();
+        });
+
+        it('should return true when defDiceMax is HIGH_ATTRIBUTE', () => {
+            service.attributes.defDiceMax = HIGH_ATTRIBUTE;
+            const result = service['hasSelectedDice']();
             expect(result).toBeTrue();
         });
 
         it('should return false when defDiceMax is DEFAULT_ATTRIBUTE', () => {
-            const result = service.hasSelectedDice();
+            const result = service['hasSelectedDice']();
             expect(result).toBeFalse();
         });
     });
@@ -142,7 +149,7 @@ describe('AttributesService', () => {
     describe('getAttributValue', () => {
         it('should return the dice message when chosenAttribute is atkDiceMax and hasSelectedDice() is true', () => {
             service.attributes.atkDiceMax = HIGH_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
             service.getAttributValue('atkDiceMax');
             expect(service.getDiceMessage).toHaveBeenCalledWith('atkDiceMax');
@@ -150,14 +157,14 @@ describe('AttributesService', () => {
 
         it('should return the dice message when chosenAttribute is defDiceMax and hasSelectedDice() is true', () => {
             service.attributes.defDiceMax = HIGH_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
             service.getAttributValue('atkDiceMax');
             expect(service.getDiceMessage).toHaveBeenCalledWith('atkDiceMax');
         });
 
         it('should return DEFAULT_ATTRIBUTE when chosenAttribute is defDiceMax and hasSelectedDice() is false', () => {
-            spyOn(service, 'hasSelectedDice').and.returnValue(false);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
             const result = service.getAttributValue('atkDiceMax');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
@@ -165,7 +172,7 @@ describe('AttributesService', () => {
         });
 
         it('should return DEFAULT_ATTRIBUTE when chosenAttribute is totalHp and hasSelectedDice() is true', () => {
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage');
             const result = service.getAttributValue('totalHp');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
@@ -173,7 +180,7 @@ describe('AttributesService', () => {
         });
 
         it('should return DEFAUL_ATTRIBUTE when chosenAttribute is speed and hasSelectedDice() is true', () => {
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage');
             const result = service.getAttributValue('speed');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
@@ -183,24 +190,24 @@ describe('AttributesService', () => {
 
     describe('saveAttributesValue', () => {
         it('should return missingName error when no name is given', () => {
-            spyOn(service, 'hasName').and.returnValue('');
+            spyOn<any>(service, 'hasName').and.returnValue('');
             const result = service.saveAttributesValue();
 
-            expect(result).toBe(service.validateError.missingName);
+            expect(result).toBe(ErrorMessages.MissingName);
         });
 
         it('should return missingAttributes error when attributes are missing', () => {
-            spyOn(service, 'hasName').and.returnValue('test');
-            spyOn(service, 'hasSelectedAttributes').and.returnValue(false);
+            spyOn<any>(service, 'hasName').and.returnValue('test');
+            spyOn<any>(service, 'hasSelectedAttributes').and.returnValue(false);
 
             const result = service.saveAttributesValue();
 
-            expect(result).toBe(service.validateError.missingAttributes);
+            expect(result).toBe(ErrorMessages.MissingAttributes);
         });
 
         it('should return empty string when name and attributes are defined', () => {
-            spyOn(service, 'hasName').and.returnValue('test');
-            spyOn(service, 'hasSelectedAttributes').and.returnValue(true);
+            spyOn<any>(service, 'hasName').and.returnValue('test');
+            spyOn<any>(service, 'hasSelectedAttributes').and.returnValue(true);
 
             const result = service.saveAttributesValue();
 
@@ -245,14 +252,14 @@ describe('AttributesService', () => {
 
         it('should return true for attack4 button when atkDiceMax is DEFAULT_ATTRIBUTE and hasSelectedDice is true', () => {
             service.attributes.atkDiceMax = DEFAULT_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             const result = service.isButtonSelected('attack4');
             expect(result).toBe(true);
         });
 
         it('should return false for attack4 button when hasSelectedDice is false', () => {
             service.attributes.atkDiceMax = DEFAULT_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(false);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
             const result = service.isButtonSelected('attack4');
             expect(result).toBe(false);
         });
@@ -265,14 +272,14 @@ describe('AttributesService', () => {
 
         it('should return true for defense4 button when defDiceMax is DEFAULT_ATTRIBUTE and hasSelectedDice is true', () => {
             service.attributes.defDiceMax = DEFAULT_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(true);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             const result = service.isButtonSelected('defense4');
             expect(result).toBe(true);
         });
 
         it('should return false for defense4 button when hasSelectedDice is false', () => {
             service.attributes.defDiceMax = DEFAULT_ATTRIBUTE;
-            spyOn(service, 'hasSelectedDice').and.returnValue(false);
+            spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
             const result = service.isButtonSelected('defense4');
             expect(result).toBe(false);
         });
@@ -290,8 +297,9 @@ describe('AttributesService', () => {
     });
 
     it('should set currentHp to totalHp and actionPoints, maxActionPoints, movementPointsLeft to speed', () => {
-        service.setAllStats();
-        expect(service.attributes.currentHp).toBe(service.attributes.totalHp);
-        expect(service.attributes.movementPointsLeft).toBe(service.attributes.speed);
+        service['setAllStats']();
+        const attributes = service.getAttributes();
+        expect(attributes.currentHp).toBe(attributes.totalHp);
+        expect(attributes.movementPointsLeft).toBe(attributes.speed);
     });
 });

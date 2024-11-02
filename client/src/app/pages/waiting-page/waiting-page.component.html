@@ -14,7 +14,7 @@
     </main>
     <footer>
         <div id="footer-container">
-            <app-chat-box></app-chat-box>
+            <app-chat-box [isToggleable]="false"></app-chat-box>
             <div id="start-container">
                 <button id="start" class="big-button" (click)="handleStartGame()" [disabled]="!isAdmin" [ngClass]="{ disabled: !isAdmin }">
                     Lancer une partie
@@ -26,7 +26,7 @@
                     <p class="lock-text">Verrouiller la partie</p>
                     <label class="switch">
                         <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" [disabled]="isMaxPlayersReached()" />
-                        <span class="slider"> </span>
+                        <span class="slider"></span>
                     </label>
                 </div>
             </div>

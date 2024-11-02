@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { mockGames } from '@app/mocks/mock-game';
-import { GameListService } from '@app/services/game-list.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
 import { of } from 'rxjs';
 import { AdministrationPageComponent } from './administration-page.component';
 

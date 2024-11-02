@@ -1,15 +1,18 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
-import { GameListService } from '@app/services/game-list.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { WaitingPageComponent } from './waiting-page.component';
 
 describe('WaitingPageComponent', () => {
@@ -19,9 +22,14 @@ describe('WaitingPageComponent', () => {
     let routerSpy: jasmine.SpyObj<Router>;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let httpMock: HttpTestingController;
 
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
+
+    const activatedRouteSpy = {
+        queryParams: of({ roomCode: '1234' }),
+    };
 
     beforeEach(async () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
@@ -35,18 +43,29 @@ describe('WaitingPageComponent', () => {
         await TestBed.configureTestingModule({
             imports: [WaitingPageComponent],
             providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: Router, useValue: routerSpy },
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: ActivatedRoute, useValue: activatedRouteSpy },
             ],
         }).compileComponents();
 
+        httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(WaitingPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
         component.players = mockLobbyPlayers;
+
+        const request = httpMock.expectOne(`${environment.serverUrl}/chat?roomCode=${accessCode}`);
+        request.flush([]);
+    });
+
+    afterEach(() => {
+        httpMock.verify();
     });
 
     afterAll(() => {
@@ -165,17 +184,9 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should call leaveRoom and navigate to home if normal player on leftRoom event', () => {
-        const expectedRoute = '/home';
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (isAdmin: T) => void) => {
-            if (event === 'leftRoom') {
-                callback(false as unknown as T);
-            }
-        });
+    it('should send leaveRoom event if leaveGame is called', () => {
         component.leaveGame(accessCode);
-
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
-        expect(routerSpy.navigate).toHaveBeenCalledWith([expectedRoute]);
     });
 
     describe('handleExit', () => {
@@ -234,7 +245,7 @@ describe('WaitingPageComponent', () => {
         component.onLockChange();
 
         expect(gameServiceSpy.isRoomLocked).toBe(true);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', { isLocked: true });
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', true);
     });
 
     it('should navigate to /game-page when dialog result is "Confirmer"', () => {
@@ -252,7 +263,7 @@ describe('WaitingPageComponent', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page'], { queryParams: { roomCode: component.accessCode } });
     });
 
     it('should not navigate when the dialog is cancelled', () => {

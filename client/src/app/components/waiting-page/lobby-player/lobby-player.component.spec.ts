@@ -61,7 +61,7 @@ describe('LobbyPlayerComponent', () => {
             disableClose: true,
             data: {
                 title: 'Exclure un joueur',
-                messages: 'Êtes-vous certain de vouloir exclure le joueur?',
+                messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
                 options: ['Annuler', 'Exclure'],
                 confirm: true,
             },

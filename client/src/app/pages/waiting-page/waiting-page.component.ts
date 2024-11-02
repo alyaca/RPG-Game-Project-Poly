@@ -7,7 +7,7 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { MIN_NUMBER_PLAYER } from '@app/constants';
-import { GameListService } from '@app/services/game-list.service';
+import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
@@ -26,7 +26,6 @@ export class WaitingPageComponent implements OnInit {
     chosenGame: Game;
     isLocked: boolean = false;
     isAdmin: boolean = false;
-
     players: Player[];
 
     constructor(
@@ -50,7 +49,7 @@ export class WaitingPageComponent implements OnInit {
             this.router.navigate(['/home']);
         }
 
-        this.socketCommunicationService.on<string>('roomDeleted', (message: string) => {
+        this.socketCommunicationService.on('roomDeleted', (message: string) => {
             this.onAdminQuit(message);
         });
 
@@ -111,7 +110,7 @@ export class WaitingPageComponent implements OnInit {
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
-        this.socketCommunicationService.send('changeLockRoom', { isLocked: this.isLocked });
+        this.socketCommunicationService.send('changeLockRoom', this.isLocked);
     }
 
     openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
@@ -155,7 +154,7 @@ export class WaitingPageComponent implements OnInit {
             ).subscribe((result) => {
                 if (result === 'right') {
                     this.isLocked = true;
-                    this.router.navigate(['/game-page']);
+                    this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
                 }
             });
         }
