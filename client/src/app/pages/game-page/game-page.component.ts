@@ -11,7 +11,6 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
-// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -35,7 +34,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
-    // @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
     allPlayers: Player[];
     mapName: string = 'Exemple';
@@ -142,7 +140,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     openCombatModal() {
         this.isInCombat = true;
         this.socketCommunicationService.send('startFight');
-        // this.turnTimerComponent.pauseTimer();
     }
 
     closeCombatModal() {

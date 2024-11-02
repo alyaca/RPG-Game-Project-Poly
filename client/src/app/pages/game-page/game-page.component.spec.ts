@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
+import { TURN_TIME, WARNING_TIME } from '@app/constants';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -69,7 +70,7 @@ describe('GamePageComponent', () => {
 
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'beforeStartTurnTimer') {
-                callback(3 as T);
+                callback(WARNING_TIME as T);
             }
         });
 
@@ -81,7 +82,7 @@ describe('GamePageComponent', () => {
 
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'startedTurnTimer') {
-                callback(30 as T);
+                callback(TURN_TIME as T);
             }
         });
 
