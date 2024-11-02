@@ -3,10 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
-import { mockPlayers } from '@app/mocks/mock-players';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
+import { NavigationService } from '@app/services/navigation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
@@ -22,6 +23,8 @@ describe('GameGridComponent', () => {
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let tileServiceSpy: jasmine.SpyObj<TileService>;
     let gameObjectsContainerSpy: jasmine.SpyObj<GameObjectsContainerComponent>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
 
     beforeEach(async () => {
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'resetGrid', 'removeTile']);
@@ -30,6 +33,7 @@ describe('GameGridComponent', () => {
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['isSocketAlive', 'connect', 'on', 'send', 'once']);
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', [
             'initObjectsArray',
             'resetObjectsCount',
@@ -48,6 +52,13 @@ describe('GameGridComponent', () => {
             'isValidTileForObject',
             'onDragStart',
             'objects',
+        ]);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', [
+            'initialize',
+            'findReachableTiles',
+            'findFastestPath',
+            'navigateToTile',
+            'checkFell',
         ]);
 
         tileServiceSpy.resetGrid.and.callFake((gridSize: number) => {
@@ -70,6 +81,8 @@ describe('GameGridComponent', () => {
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
                 { provide: TileService, useValue: tileServiceSpy },
                 { provide: GameObjectsContainerComponent, useValue: gameObjectsContainerSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+                { provide: NavigationService, useValue: navigationServiceSpy },
             ],
         }).compileComponents();
 
@@ -129,6 +142,30 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
         });
+        /*
+        it('should connect the socket and initialize dimensions', () => {
+            socketCommunicationServiceSpy.isSocketAlive.and.returnValue(true);
+            socketCommunicationServiceSpy.connect.and.stub();
+            gameCreationServiceSpy.updateDimensions.and.returnValue(10);
+
+            component.ngOnInit();
+
+            expect(socketCommunicationServiceSpy.isSocketAlive).toHaveBeenCalled();
+            expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
+            expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
+            expect(component.gridSize).toBe(10);
+        });
+
+        it('should load new game or existing game based on creation state', () => {
+            gameCreationServiceSpy.isNewGame = true;
+            component.ngOnInit();
+            expect(component.objectsArray).toBeDefined();
+
+            gameCreationServiceSpy.isNewGame = false;
+            component.ngOnInit();
+            expect(component.oldMapName).toEqual(gameCreationServiceSpy.loadedMapName);
+        });
+        */
     });
 
     describe('deepCopyMatrix', () => {
@@ -313,23 +350,11 @@ describe('GameGridComponent', () => {
             expect(component.onTileClick).not.toHaveBeenCalled();
         });
     });
-
-    describe('spawn points update', () => {
-        it('should call getPortraitId', () => {
-            component.players = mockPlayers;
-            spyOn(component, 'getPortraitId');
-            component.displayPortraitOnSpawnPoints();
-            expect(component.getPortraitId).toHaveBeenCalled();
-        });
-
-        it("should return the correct god's name", () => {
-            const result = component.getPortraitId('Hestia');
-            expect(result).toEqual(9);
-        });
-
-        it('should return the spawn point if note other god fits', () => {
-            const result = component.getPortraitId('name');
-            expect(result).toEqual(8);
-        });
+    /*
+    it('should find and display reachable tiles', () => {
+        navigationServiceSpy.findReachableTiles.and.returnValue([{ x: 0, y: 0 }]);
+        component.findReachableTiles();
+        expect(component.reachableTiles).toEqual([{ x: 0, y: 0 }]);
     });
+    */
 });

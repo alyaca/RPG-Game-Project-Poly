@@ -1,5 +1,6 @@
 import { ObjectType } from '@app/constants';
 import { PlayerObjects, Status } from '@app/interfaces/player-object';
+import { Player } from '@common/player';
 
 export const mockPlayer: PlayerObjects = {
     id: 0,
@@ -36,4 +37,27 @@ export const mockPlayer: PlayerObjects = {
             },
         ],
     },
+};
+
+export const playerNavigation: Player = {
+    id: '123',
+    attributes: {
+        totalHp: 100,
+        currentHp: 100,
+        speed: 1,
+        movementPointsLeft: 1,
+        maxActionPoints: 1,
+        actionPoints: 1,
+        attack: 1,
+        atkDiceMax: 1,
+        defense: 1,
+        defDiceMax: 1,
+    },
+    avatar: { name: 'a', src: 'a.img', isSelected: true, isTaken: true },
+    isActive: true,
+    name: 'abc',
+    status: Status.Player,
+    victories: 1,
+    inventory: [],
+    position: { x: 0, y: 0 },
 };
