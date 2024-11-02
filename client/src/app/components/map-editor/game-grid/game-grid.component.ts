@@ -77,23 +77,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.loadExistingGame();
         }
 
-        if (this.gameCreationService.isNewGame) {
-            this.objectsArray = this.gameObjectService.initObjectsArray();
-            this.tilesGrid = this.tileService.resetGrid(this.gridSize, this.tilesGrid);
-        } else {
-            this.tilesGrid = this.deepCopyMatrix(this.gameCreationService.loadedTiles);
-            this.objectsArray = this.deepCopyMatrix(this.gameCreationService.loadedObjects);
-            this.gameObjectService.objectsArray = this.objectsArray;
-            this.oldMapName = this.gameCreationService.loadedMapName;
-        }
-
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.players = room.listPlayers;
             this.gameMap = room.gameMap;
             // this.displayPortraitOnSpawnPoints(room.listPlayers);
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
-            //To do : assignier le currentPlayer...
+            // To do : assignier le currentPlayer...
         });
     }
 
@@ -324,7 +314,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         console.log('PPPPPPP');
     }
 
-    //A deplacer dans le service de navigation
+    // A deplacer dans le service de navigation
     /*
     async navigateToTile(row: number, col: number) {
         if (this.isReachableTile(row, col) && !this.isMoving) {
@@ -334,10 +324,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.isMoving = true;
                 for (const tile of this.fastestPath) {
                     const currentPosition = this.players[0].position;
-                    //TODO : replacer point de depart, si il y en avait avant
+                    // TODO : replacer point de depart, si il y en avait avant
                     this.objectsArray[currentPosition.x][currentPosition.y] = 0;
                     this.players[0].position = { x: tile.x, y: tile.y };
-                    //this.objectsArray[tile.x][tile.y] = 1;
+                    // this.objectsArray[tile.x][tile.y] = 1;
                     this.displayPortraitOnSpawnPoints();
                     this.findReachableTiles();
                     await this.delay(150);
@@ -349,30 +339,30 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         */
 
     async navigateToTile(row: number, col: number) {
-        //Temporaire , peut etre il faut le deplacer au backend
+        // Temporaire , peut etre il faut le deplacer au backend
         if (!this.gameCreationService.isModifiable) {
             if (!this.isMoving) {
                 const path = this.navigationService.navigateToTile(this.players[0], { x: row, y: col }, this.gameMap);
                 let currentPosition = this.players[0].position;
                 for (const tile of path) {
                     this.isMoving = true;
-                    //TODO : replacer point de depart, si il y en avait avant
+                    // TODO : replacer point de depart, si il y en avait avant
                     this.objectsArray[currentPosition.x][currentPosition.y] = 0;
                     this.players[0].position = { x: tile.x, y: tile.y };
-                    //this.objectsArray[tile.x][tile.y] = 1;
+                    // this.objectsArray[tile.x][tile.y] = 1;
                     this.displayPortraitOnSpawnPoints();
-                    //verifaication de 10%:
+                    // verifaication de 10%:
                     this.findReachableTiles();
                     currentPosition = this.players[0].position;
                     if (this.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
                         if (!this.checkFell()) {
-                            //Est ce que c'est comme ca qu'on envoie le message?
+                            // Est ce que c'est comme ca qu'on envoie le message?
                             this.socketCommunicationService.send('playerFell', this.players[0]);
-                            //Todo affichage de message de TOMBER
+                            // Todo affichage de message de TOMBER
                             break;
                         }
                     }
-                    await this.delay(150); //Constant
+                    await this.delay(150); // Constant
                 }
                 this.isMoving = false;
             }

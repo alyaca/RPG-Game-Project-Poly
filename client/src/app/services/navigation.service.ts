@@ -22,15 +22,13 @@ interface PointWithDistance {
     providedIn: 'root',
 })
 export class NavigationService {
+    public path: Position[];
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
-    public path: Position[];
     // private game: Game;
-    constructor() {}
 
-    //////////////////////////////////////////////////////////////////
-    //Djikstra
+    // Djikstra
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.initializeDistances(player, game);
 
@@ -121,7 +119,7 @@ export class NavigationService {
         }
     }
 
-    //Tuiles atteignables
+    // Tuiles atteignables
     findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
         this.initializeDistances(player, game);
 
@@ -137,9 +135,9 @@ export class NavigationService {
             this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
         }
         this.reachableTiles = reachableTiles;
-        console.log(this.reachableTiles);
-        console.log('oooooooooooooooooooooooooo');
-        console.log(reachableTiles);
+        // console.log(this.reachableTiles);
+        // console.log('oooooooooooooooooooooooooo');
+        // console.log(reachableTiles);
         return reachableTiles;
     }
 
@@ -171,7 +169,7 @@ export class NavigationService {
     }
 
     navigateToTile(player: Player, destination: Position, game: Game): Position[] {
-        console.log('navigateToTile');
+        // console.log('navigateToTile');
         if (this.isReachableTile(destination.x, destination.y)) {
             this.path = this.findFastestPath(player, destination, game);
             if (this.path.length > 0) {

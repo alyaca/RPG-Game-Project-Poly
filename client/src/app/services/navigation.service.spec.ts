@@ -6,7 +6,7 @@ import { NavigationService } from './navigation.service';
 describe('NavigationServiceService', () => {
     let service: NavigationService;
 
-    //TODO : placer ca dans un fichier Mock
+    // TODO : placer ca dans un fichier Mock
     const player: Player = {
         id: '123',
         attributes: {
@@ -79,8 +79,8 @@ describe('NavigationServiceService', () => {
             { x: 2, y: 2 },
             { x: 1, y: 1 },
             { x: 0, y: 1 },
-            //{ x: 0, y: 2 },
-            //{ x: 0, y: 2 },
+            // { x: 0, y: 2 },
+            // { x: 0, y: 2 },
         ]);
     });
 

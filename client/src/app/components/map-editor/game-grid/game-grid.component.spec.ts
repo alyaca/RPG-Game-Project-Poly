@@ -323,13 +323,15 @@ describe('GameGridComponent', () => {
         });
 
         it("should return the correct god's name", () => {
+            const id = 9;
             const result = component.getPortraitId('Hestia');
-            expect(result).toEqual(9);
+            expect(result).toEqual(id);
         });
 
         it('should return the spawn point if note other god fits', () => {
+            const id = 8;
             const result = component.getPortraitId('name');
-            expect(result).toEqual(8);
+            expect(result).toEqual(id);
         });
     });
 });

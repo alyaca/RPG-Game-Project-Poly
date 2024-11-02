@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ElementRef, QueryList } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +12,7 @@ import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { GamePageComponent } from './game-page.component';
 
@@ -24,17 +26,19 @@ describe('GamePageComponent', () => {
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<SimpleDialogComponent>>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let httpMock: HttpTestingController;
+    let mockSocket: Socket;
     const accessCode = '1234';
 
     beforeEach(async () => {
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
-        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['on', 'send']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['on', 'send', 'isSocketAlive', 'connect']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         dialogRefSpy.afterClosed.and.returnValue(of('left'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
+        mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
@@ -50,6 +54,7 @@ describe('GamePageComponent', () => {
             ],
         }).compileComponents();
 
+        socketCommunicationServiceSpy.socket = mockSocket;
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'mapInformation') {
                 callback(mockRoom as T);
@@ -99,36 +104,20 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // it('should toggle isActionSelected correctly', () => {
-    //     const initialActionSelected = component.isActionSelected;
-    //     component.toggleActionSelected();
-    //     expect(component.isActionSelected).toBe(!initialActionSelected);
-    // });
+    it('should toggle isActionSelected correctly', () => {
+        const initialActionSelected = component.isActionSelected;
+        component.toggleActionSelected();
+        expect(component.isActionSelected).toBe(!initialActionSelected);
+    });
 
-    // it('should set the id of the first pageDiv element to "enabled"', () => {
-    // const mockDivs = new QueryList<ElementRef<HTMLDivElement>>();
-    // const elementRef = new ElementRef(document.createElement('div'));
-    //     const mockDiv = document.createElement('div');
-    //     const elementRef = new ElementRef(mockDiv);
-    //     const mockDivs = new QueryList<ElementRef<HTMLDivElement>>();
-    //     mockDivs.reset([elementRef]);
-    //     component.pageDiv = mockDivs;
-    //     component.enableClicks();
-    //     expect(component.pageDiv.first.nativeElement.id).toBe('enabled');
-    // });
-
-    // it('should pause the turn timer after view initialization', () => {
-    //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['pauseTimer']);
-    //     component.ngAfterViewInit();
-    //     expect(component.turnTimerComponent.pauseTimer).toHaveBeenCalled();
-    // });
-
-    // it('should resume the turn timer when closing the turn start pop-up', () => {
-    //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['resumeTimer', 'pauseTimer']);
-    //     component.closeTurnStartPopUp();
-    //     expect(component.turnTimerComponent.resumeTimer).toHaveBeenCalled();
-    //     expect(component.isTurnStartShowed).toBe(false);
-    // });
+    it('should set the id of the first pageDiv element to "enabled"', () => {
+        const mockDivs = new QueryList<ElementRef<HTMLDivElement>>();
+        const elementRef = new ElementRef(document.createElement('div'));
+        mockDivs.reset([elementRef]);
+        component.pageDiv = mockDivs;
+        component.enableClicks();
+        expect(component.pageDiv.first.nativeElement.id).toBe('enabled');
+    });
 
     // it('should open the combat modal and pause the timer', () => {
     //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['pauseTimer']);
@@ -144,23 +133,23 @@ describe('GamePageComponent', () => {
     //     expect(component.turnTimerComponent.resumeTimer).toHaveBeenCalled();
     // });
 
-    // it('should open a confirmation dialog and navigate when quitting the game', () => {
-    //     component.handleExit();
-    //     expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-    //         disableClose: true,
-    //         data: {
-    //             title: 'Abandonner la partie?',
-    //             messages: ['- Êtes-vous certains de vouloir quitter?'],
-    //             options: ['Quitter', 'Rester'],
-    //             confirm: true,
-    //         },
-    //     });
-    //     expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-    // });
+    it('should open a confirmation dialog and navigate when quitting the game', () => {
+        component.handleExit();
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Abandonner la partie?',
+                messages: ['- Êtes-vous certains de vouloir quitter?'],
+                options: ['Quitter', 'Rester'],
+                confirm: true,
+            },
+        });
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
 
-    // it('should not navigate if the dialog result is not "left"', () => {
-    //     dialogRefSpy.afterClosed.and.returnValue(of('stay'));
-    //     component.handleExit();
-    //     expect(routerSpy.navigate).not.toHaveBeenCalled();
-    // });
+    it('should not navigate if the dialog result is not "left"', () => {
+        dialogRefSpy.afterClosed.and.returnValue(of('stay'));
+        component.handleExit();
+        expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
 });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
+import { TimerComponent } from '@app/components/timer/timer.component';
 import {
     COMBAT_TURN_LENGTH,
     EXIT_COMBAT_DELAY,
@@ -12,7 +13,6 @@ import {
 } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
-import { TimerComponent } from '../timer/timer.component';
 import { CombatModalComponent } from './combat-modal.component';
 
 describe('CombatModalComponent', () => {
