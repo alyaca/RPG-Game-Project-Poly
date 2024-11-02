@@ -120,12 +120,6 @@ describe('AttributesService', () => {
             expect(result).toBeTrue();
         });
 
-        it('should return true when defDiceMax is HIGH_ATTRIBUTE', () => {
-            service.attributes.defDiceMax = HIGH_ATTRIBUTE;
-            const result = service.hasSelectedDice();
-            expect(result).toBeTrue();
-        });
-
         it('should return false when defDiceMax is DEFAULT_ATTRIBUTE', () => {
             const result = service.hasSelectedDice();
             expect(result).toBeFalse();

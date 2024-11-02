@@ -56,7 +56,7 @@ export class WaitingPageComponent implements OnInit {
 
         this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
-            this.isMaxPlayersReached();
+            this.onMaxPlayers();
         });
 
         this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
@@ -100,17 +100,13 @@ export class WaitingPageComponent implements OnInit {
         });
     }
 
-    maxPlayers() {
-        return this.players.length >= this.gameService.getPlayerNumber(this.chosenGame.dimension);
+    isMaxPlayersReached() {
+        return this.players?.length >= this.gameService.getPlayerNumber(this.chosenGame?.dimension);
     }
 
-    isMaxPlayersReached() {
-        if (this.maxPlayers()) {
-            this.isLocked = true;
-            this.onLockChange();
-        } else {
-            this.onLockChange();
-        }
+    onMaxPlayers() {
+        this.isLocked = this.isMaxPlayersReached();
+        this.onLockChange();
     }
 
     onLockChange() {

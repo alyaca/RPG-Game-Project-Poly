@@ -38,7 +38,7 @@ export class GameService {
             case SIZE_LARGE_MAP:
                 return MAX_PLAYER_LARGE_MAP;
             default:
-                throw new Error("Nombre de joueur invalide");
+                throw new Error('Nombre de joueur invalide');
         }
     }
 }

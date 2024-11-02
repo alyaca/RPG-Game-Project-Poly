@@ -25,27 +25,18 @@ export class LobbyPlayerComponent {
         return this.lobbyPlayer.status === Status.Admin;
     }
 
-    openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
+    kickOutPlayer() {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: {
-                title,
-                messages,
-                options,
-                confirm,
+                title: 'Exclure un joueur',
+                messages: 'Êtes-vous certain de vouloir exclure le joueur?',
+                options: ['Annuler', 'Exclure'],
+                confirm: true,
             },
         });
-        return dialogRef.afterClosed();
-    }
-
-    kickOutPlayer() {
-        this.openConfirmationDialog(
-            'Supprimer un joueur',
-            ['Êtes-vous certain de vouloir supprimer le joueur?'],
-            ['Supprimer', 'Annuler'],
-            true,
-        ).subscribe((result) => {
-            if (result === 'left') {
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === 'right') {
                 this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
             }
         });

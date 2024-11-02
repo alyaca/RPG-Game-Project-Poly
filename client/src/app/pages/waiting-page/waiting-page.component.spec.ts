@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockGames } from '@app/mocks/mock-game';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameListService } from '@app/services/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -26,7 +27,7 @@ describe('WaitingPageComponent', () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom', 'getPlayerNumber']);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         accessCode = '1234';
@@ -45,6 +46,7 @@ describe('WaitingPageComponent', () => {
         fixture = TestBed.createComponent(WaitingPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        component.players = mockLobbyPlayers;
     });
 
     afterAll(() => {
@@ -88,6 +90,56 @@ describe('WaitingPageComponent', () => {
             });
             component.ngOnInit();
             expect(component.players).toBe(mockRoom.listPlayers);
+        });
+
+        it('should set isAdmin to true is player admin', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'isPlayerAdmin') {
+                    callback(true as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.isAdmin).toBe(true);
+        });
+
+        it('should call onPlayerKickedOut when receive kickPlayer event', () => {
+            component.accessCode = accessCode;
+            component.chosenGame = mockGames[0];
+            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+            dialogRefSpy.afterClosed.and.returnValue(of('close'));
+            dialogSpy.open.and.returnValue(dialogRefSpy);
+
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'kickPlayer') {
+                    callback(event as T);
+                }
+            });
+            component.ngOnInit();
+            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                disableClose: true,
+                data: { title: 'Vous avez été retiré du jeu' },
+            });
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/join-game']);
+        });
+
+        it('should navigate to game-creation if player admin', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'leftRoom') {
+                    callback(true as T);
+                }
+            });
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+        });
+
+        it('should navigate to home if player not admin', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'leftRoom') {
+                    callback(false as T);
+                }
+            });
+            component.ngOnInit();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
         });
     });
 
@@ -195,7 +247,7 @@ describe('WaitingPageComponent', () => {
             disableClose: true,
             data: {
                 title: 'Débuter la partie',
-                messages: ['- Êtes-vous certains de vouloir débuter la partie?'],
+                messages: ['Êtes-vous certains de vouloir débuter la partie?'],
                 options: ['Annuler', 'Confirmer'],
                 confirm: true,
             },
@@ -211,5 +263,23 @@ describe('WaitingPageComponent', () => {
         component.handleStartGame();
 
         expect(dialogSpy.open).toHaveBeenCalled();
+    });
+
+    it('should open the dialog and not navigate when only 1 player', () => {
+        component.players = [];
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('close'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        component.handleStartGame();
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Débuter la partie',
+                messages: ['Il faut au moins 2 joueurs pour commencer la partie'],
+                options: ['Fermer'],
+                confirm: false,
+            },
+        });
     });
 });
