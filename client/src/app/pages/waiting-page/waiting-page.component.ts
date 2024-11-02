@@ -145,7 +145,7 @@ export class WaitingPageComponent implements OnInit {
                 false,
             );
             return;
-        } else {
+        } else if (this.isLocked) {
             this.openConfirmationDialog(
                 'Débuter la partie',
                 ['Êtes-vous certains de vouloir débuter la partie?'],
@@ -157,6 +157,8 @@ export class WaitingPageComponent implements OnInit {
                     this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
                 }
             });
+        } else {
+            this.openConfirmationDialog('Débuter la partie', ['Il faut verrouiller la salle afin de commencer la partie'], ['Fermer'], false);
         }
     }
 

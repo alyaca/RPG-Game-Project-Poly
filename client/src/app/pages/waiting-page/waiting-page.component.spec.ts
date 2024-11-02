@@ -252,6 +252,7 @@ describe('WaitingPageComponent', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('right'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.isLocked = true;
         component.handleStartGame();
 
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
@@ -288,6 +289,23 @@ describe('WaitingPageComponent', () => {
             data: {
                 title: 'Débuter la partie',
                 messages: ['Il faut au moins 2 joueurs pour commencer la partie'],
+                options: ['Fermer'],
+                confirm: false,
+            },
+        });
+    });
+
+    it('should open the dialog when the room is not locked', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('right'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.handleStartGame();
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Débuter la partie',
+                messages: ['Il faut verrouiller la salle afin de commencer la partie'],
                 options: ['Fermer'],
                 confirm: false,
             },
