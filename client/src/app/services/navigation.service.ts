@@ -19,6 +19,22 @@ interface PointWithDistance {
     y: number;
     distance: number;
 }
+
+const godNameToObjectType = new Map<string, ObjectType>([
+    ['Hestia', ObjectType.Hestia],
+    ['Zeus', ObjectType.Zeus],
+    ['Hera', ObjectType.Hera],
+    ['Poseidon', ObjectType.Poseidon],
+    ['Artemis', ObjectType.Artemis],
+    ['Demeter', ObjectType.Demeter],
+    ['Hermes', ObjectType.Hermes],
+    ['Athena', ObjectType.Athena],
+    ['Hephaestus', ObjectType.Hephaestus],
+    ['Apollo', ObjectType.Apollo],
+    ['Ares', ObjectType.Ares],
+    ['Aphrodite', ObjectType.Aphrodite],
+]);
+
 @Injectable({
     providedIn: 'root',
 })
@@ -44,35 +60,8 @@ export class NavigationService {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
     }
 
-    getPortraitId(godName: string | undefined) {
-        switch (godName) {
-            case 'Hestia':
-                return ObjectType.Hestia;
-            case 'Zeus':
-                return ObjectType.Zeus;
-            case 'Hera':
-                return ObjectType.Hera;
-            case 'Poseidon':
-                return ObjectType.Poseidon;
-            case 'Artemis':
-                return ObjectType.Artemis;
-            case 'Demeter':
-                return ObjectType.Demeter;
-            case 'Hermes':
-                return ObjectType.Hermes;
-            case 'Athena':
-                return ObjectType.Athena;
-            case 'Hephaestus':
-                return ObjectType.Hephaestus;
-            case 'Apollo':
-                return ObjectType.Apollo;
-            case 'Ares':
-                return ObjectType.Ares;
-            case 'Aphrodite':
-                return ObjectType.Aphrodite;
-            default:
-                return ObjectType.Spawn;
-        }
+    getPortraitId(godName: string | undefined): ObjectType {
+        return godNameToObjectType.get(godName || '') ?? ObjectType.Spawn;
     }
 
     // Djikstra
@@ -213,7 +202,6 @@ export class NavigationService {
     }
 
     navigateToTile(player: Player, destination: Position, game: Game): Position[] {
-        // console.log('navigateToTile');
         if (this.isReachableTile(destination.x, destination.y)) {
             this.path = this.findFastestPath(player, destination, game);
             if (this.path.length > 0) {
