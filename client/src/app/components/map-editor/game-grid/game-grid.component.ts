@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NO_OBJECT, TileType } from '@app/constants';
+import { NAVIGATION_DELAY, NO_OBJECT, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -35,8 +35,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     tilesGrid: number[][];
     objectsArray: number[][];
     gridSize: number;
-    //players: Player[] = [];
-    //gameMap: Game;
     currentPlayer: Player;
 
     selectedRow: number = 0;
@@ -52,14 +50,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
 
+    private toolService = inject(ToolService);
+    private socketCommunicationService = inject(SocketCommunicationService);
+    private navigationService = inject(NavigationService);
+
     constructor(
-        private toolService: ToolService,
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
         public gameObjectService: GameObjectService,
         private gameCreationService: GameCreationService,
-        private socketCommunicationService: SocketCommunicationService,
-        private navigationService: NavigationService,
     ) {}
 
     getSelectedTile(): string {
@@ -264,7 +263,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 
-    //TODO : Qualite a revoir, il faut d<abord impelmenter la gestion des tours...
+    //  TODO : Qualite a revoir, il faut d<abord impelmenter la gestion des tours...
     async navigateToTile(row: number, col: number) {
         if (!this.gameCreationService.isModifiable) {
             if (!this.isMoving) {
@@ -272,7 +271,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 let currentPosition = this.currentPlayer.position;
                 for (const tile of path) {
                     this.isMoving = true;
-                    // TODO : replacer point de depart, si il y en avait avant
+                    //  TODO : replacer point de depart, si il y en avait avant
                     this.objectsArray[currentPosition.x][currentPosition.y] = 0;
                     this.currentPlayer.position = { x: tile.x, y: tile.y };
                     this.displayPortraitOnSpawnPoints();
@@ -280,20 +279,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                     currentPosition = this.currentPlayer.position;
                     if (this.navigationService.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
                         if (!this.navigationService.checkFell()) {
-                            //Est ce que c'est comme ca qu'on envoie le message?
                             this.socketCommunicationService.send('playerFell', this.currentPlayer);
-                            //Todo affichage de message de TOMBER
+                            //  Todo affichage de message de TOMBER
                             break;
                         }
                     }
-                    await this.delay(150); // Constant
+                    await this.delay(NAVIGATION_DELAY);
                 }
                 this.isMoving = false;
             }
         }
     }
 
-    delay(ms: number) {
+    async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }

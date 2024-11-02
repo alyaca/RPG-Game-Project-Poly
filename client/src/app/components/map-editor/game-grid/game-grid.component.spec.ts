@@ -367,7 +367,7 @@ describe('GameGridComponent', () => {
             }
         });
         component.displayPortraitOnSpawnPoints();
-        expect(component.objectsArray[0][0]).toBe(8);
+        expect(component.objectsArray[0][0]).toBe(ObjectType.Spawn);
     });
 
     it('should set the tile to Ground if conditions are met', () => {

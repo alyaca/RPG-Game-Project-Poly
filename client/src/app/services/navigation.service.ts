@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ObjectType } from '@app/constants';
+import { FELLING_PROBABILITY, ObjectType } from '@app/constants';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 
@@ -39,13 +39,13 @@ const godNameToObjectType = new Map<string, ObjectType>([
     providedIn: 'root',
 })
 export class NavigationService {
-    public path: Position[];
-    private distances: number[][];
-    private previous: Position[][];
-    private reachableTiles: Position[];
+    path: Position[];
     players: Player[];
     gameMap: Game;
     fastestPath: Position[] = [];
+    private distances: number[][];
+    private previous: Position[][];
+    private reachableTiles: Position[];
 
     initialize(game: Game, players: Player[]): void {
         this.gameMap = game;
@@ -80,11 +80,72 @@ export class NavigationService {
         return this.reconstructPath(destination);
     }
 
-    public initializeDistances(player: Player, game: Game): void {
+    isReachableTile(row: number, col: number): boolean {
+        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+    }
+
+    initializeDistances(player: Player, game: Game): void {
         const dimension = game.dimension;
         this.distances = Array.from({ length: dimension }, () => Array(dimension).fill(Infinity));
         this.previous = Array.from({ length: dimension }, () => Array(dimension).fill(null));
         this.distances[player.position.x][player.position.y] = 0;
+    }
+
+    findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
+        this.initializeDistances(player, game);
+
+        const reachableTiles: Position[] = [];
+        const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
+
+        while (priorityQueue.length > 0) {
+            const nextNode = this.getNextNode(priorityQueue);
+            if (!nextNode || nextNode.distance > maxMovementPoints) continue;
+
+            reachableTiles.push({ x: nextNode.x, y: nextNode.y });
+            const neighbors = this.getNeighbors(nextNode, game);
+            this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
+        }
+        this.reachableTiles = reachableTiles;
+        return reachableTiles;
+    }
+
+    navigateToTile(player: Player, destination: Position, game: Game): Position[] {
+        if (this.isReachableTile(destination.x, destination.y)) {
+            this.path = this.findFastestPath(player, destination, game);
+            if (this.path.length > 0) {
+                this.path.shift();
+                return this.path;
+            }
+        }
+        return [];
+    }
+
+    checkFell(): boolean {
+        const randomValue = Math.random();
+        return randomValue > FELLING_PROBABILITY;
+    }
+
+    private exploreNeighborsForReachableTiles(
+        neighbors: Position[],
+        current: PointWithDistance,
+        priorityQueue: PointWithDistance[],
+        maxMovementPoints: number,
+        game: Game,
+    ): void {
+        const { x: currentX, y: currentY, distance: currentDistance } = current;
+        for (const neighbor of neighbors) {
+            const { x: newX, y: newY } = neighbor;
+            if (game.tiles[newX][newY] === TileType.Wall) continue;
+
+            const tileCost = this.getTileCost(game.tiles[newX][newY]);
+            const newDistance = currentDistance + tileCost;
+
+            if (newDistance < this.distances[newX][newY] && newDistance <= maxMovementPoints) {
+                this.distances[newX][newY] = newDistance;
+                this.previous[newX][newY] = { x: currentX, y: currentY };
+                priorityQueue.push({ x: newX, y: newY, distance: newDistance });
+            }
+        }
     }
 
     private getNextNode(priorityQueue: PointWithDistance[]): PointWithDistance | undefined {
@@ -153,67 +214,5 @@ export class NavigationService {
             default:
                 return Infinity;
         }
-    }
-
-    // Tuiles atteignables
-    findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
-        this.initializeDistances(player, game);
-
-        const reachableTiles: Position[] = [];
-        const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
-
-        while (priorityQueue.length > 0) {
-            const nextNode = this.getNextNode(priorityQueue);
-            if (!nextNode || nextNode.distance > maxMovementPoints) continue;
-
-            reachableTiles.push({ x: nextNode.x, y: nextNode.y });
-            const neighbors = this.getNeighbors(nextNode, game);
-            this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
-        }
-        this.reachableTiles = reachableTiles;
-        return reachableTiles;
-    }
-
-    private exploreNeighborsForReachableTiles(
-        neighbors: Position[],
-        current: PointWithDistance,
-        priorityQueue: PointWithDistance[],
-        maxMovementPoints: number,
-        game: Game,
-    ): void {
-        const { x: currentX, y: currentY, distance: currentDistance } = current;
-        for (const neighbor of neighbors) {
-            const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
-
-            const tileCost = this.getTileCost(game.tiles[newX][newY]);
-            const newDistance = currentDistance + tileCost;
-
-            if (newDistance < this.distances[newX][newY] && newDistance <= maxMovementPoints) {
-                this.distances[newX][newY] = newDistance;
-                this.previous[newX][newY] = { x: currentX, y: currentY };
-                priorityQueue.push({ x: newX, y: newY, distance: newDistance });
-            }
-        }
-    }
-
-    isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
-    }
-
-    navigateToTile(player: Player, destination: Position, game: Game): Position[] {
-        if (this.isReachableTile(destination.x, destination.y)) {
-            this.path = this.findFastestPath(player, destination, game);
-            if (this.path.length > 0) {
-                this.path.shift();
-                return this.path;
-            }
-        }
-        return [];
-    }
-
-    checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > 0.1;
     }
 }

@@ -35,9 +35,9 @@ export const mockGameNavigation: Game = {
     nbPlayers: 1,
     image: 'mock-image.png',
     tiles: [
-        [1, 3, 4],
-        [2, 6, 4],
-        [2, 2, 2],
+        [TileType.Ground, TileType.Water, TileType.Wall],
+        [TileType.Ice, TileType.OpenDoor, TileType.Wall],
+        [TileType.Ice, TileType.Ice, TileType.Ice],
     ],
     dimension: 3,
     itemPlacement: [

@@ -15,9 +15,9 @@ export class SocketCommunicationService {
         if (this.socket) {
             return;
         }
-        // First link is for production (deployment)
-        // Second is to test locally (npm start and all that)
-        // this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/');
+        //  First link is for production (deployment)
+        //  Second is to test locally (npm start and all that)
+        //  this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/');
         this.socket = io('http://localhost:3000/');
     }
 

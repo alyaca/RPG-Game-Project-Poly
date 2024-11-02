@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
@@ -27,15 +27,15 @@ export class WaitingPageComponent implements OnInit {
     chosenGame: Game;
     isLocked: boolean = false;
     players: Player[];
+    private dialog = inject(MatDialog);
+    private router = inject(Router);
+    private gameService = inject(GameService);
 
     constructor(
         private mapEditorService: MapEditorService,
         private gameCreationService: GameCreationService,
-        private router: Router,
         private socketCommunicationService: SocketCommunicationService,
-        private gameService: GameService,
         private gameListService: GameListService,
-        private dialog: MatDialog,
     ) {
         this.gameListService.chosenGameSubject.subscribe((game: Game | null) => {
             if (game) {

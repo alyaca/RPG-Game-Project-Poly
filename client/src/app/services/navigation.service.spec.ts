@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ObjectType } from '@app/constants';
+import { FELLING_PROBABILITY, ObjectType } from '@app/constants';
 import { mockGameNavigation as mockGame, mockGameNavigation } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { Position } from '@common/player';
@@ -82,7 +82,7 @@ describe('NavigationServiceService', () => {
     });
 
     it('should return false if Math.random returns a value less than or equal to 0.1', () => {
-        spyOn(Math, 'random').and.returnValue(0.1);
+        spyOn(Math, 'random').and.returnValue(FELLING_PROBABILITY);
         const result = service.checkFell();
         expect(result).toBeFalse();
     });
