@@ -36,9 +36,8 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
 
     allPlayers: Player[];
-    mapName: string = 'Exemple';
-    mapDescription: string = 'Ma tres courte description';
-    mapDimensions: string = '';
+    mapName: string;
+    mapDimensions: string;
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
@@ -63,6 +62,9 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
+        if (!this.mapDimensions || !this.mapName) {
+            this.router.navigate(['/home']);
+        }
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
             this.replenishHealth();

@@ -153,7 +153,7 @@ export class GameService {
 
     onTurnStarted(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.turnTimer.startTimer(TURN_TIME, (timeRemaining) => {
+        this.turnTimer.resetTimer(TURN_TIME, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
                 this.onTurnEnded(client, server);
