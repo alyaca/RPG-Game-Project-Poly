@@ -1,23 +1,8 @@
 import { Injectable } from '@angular/core';
-import { FELLING_PROBABILITY, ObjectType } from '@app/constants';
+import { FELLING_PROBABILITY, ObjectType, TileType } from '@app/constants';
+import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
-
-// TEMPORAIRE:
-enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
-
-interface PointWithDistance {
-    x: number;
-    y: number;
-    distance: number;
-}
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
