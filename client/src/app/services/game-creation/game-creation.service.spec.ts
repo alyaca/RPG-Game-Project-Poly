@@ -42,7 +42,6 @@ describe('GameCreationService', () => {
         expect(service.updateDimensions()).toEqual(SIZE_LARGE_MAP);
     });
 
-
     it('should return "Small" for SIZE_SMALL_MAP', () => {
         game.dimension = SIZE_SMALL_MAP;
         const result = service.convertMapDimension(game);
