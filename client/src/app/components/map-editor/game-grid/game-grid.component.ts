@@ -268,18 +268,18 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 
-    //TODO : Verifier si isMoving fonctionne bien (important)
+    // TODO : Verifier si isMoving fonctionne bien (important)
     async navigateToTile(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
-            //if (!this.isMoving) {
+            // if (!this.isMoving) {
             this.isMoving = true;
             const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
             this.socketCommunicationService.send('playerNavigation', path);
-            //}
+            // }
         }
     }
 
-    //TODO : Changer le nom de la fonction, et refactor
+    // TODO : Changer le nom de la fonction, et refactor
     navigateToTile2(position: Position) {
         console.log(this.activePlayer);
         if (!this.activePlayer) {

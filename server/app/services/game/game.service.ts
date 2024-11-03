@@ -91,7 +91,7 @@ export class GameService {
         const room = this.roomService.rooms.get(roomId);
         room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
         this.freeUpAvatar(room, socket);
-        this.updateAvatarsForAllClients(server);
+        this.updateAvatarsForAllClients(server, roomId);
         this.roomService.leaveRoom(roomId, socket);
     }
 
@@ -101,7 +101,7 @@ export class GameService {
         if (selectedAvatar && !selectedAvatar.isTaken) {
             selectedAvatar.isTaken = true;
             socket.data.clickedAvatar = selectedAvatar;
-            this.updateAvatarsForAllClients(server);
+            this.updateAvatarsForAllClients(server, room.roomId);
         }
     }
 
@@ -112,6 +112,14 @@ export class GameService {
                 previousAvatar.isTaken = false;
             }
         }
+    }
+
+    updateAvatarsForAllClients(server: Server, roomId: string) {
+        server.sockets.sockets.forEach((clientSocket: Socket) => {
+            if (clientSocket.rooms.has(roomId)) {
+                this.sendAvatarListToClient(clientSocket);
+            }
+        });
     }
 
     sendAvatarListToClient(socket: Socket) {
