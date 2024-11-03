@@ -17,6 +17,7 @@ export const NB_ITEMS_LARGE_MAP = 6;
 export const SIZE_SMALL_MAP = 10;
 export const SIZE_MEDIUM_MAP = 15;
 export const SIZE_LARGE_MAP = 20;
+export const TEST_INVALID_SIZE = 12;
 
 // Constants for edition page input min/max lengths
 export const MIN_LEN_MAP_TITLE = 3;
@@ -173,3 +174,18 @@ export enum TileClass {
 
 export const FELLING_PROBABILITY = 0.1;
 export const NAVIGATION_DELAY = 150;
+
+// Maximum number of players in a room
+export const MAX_PLAYER_SMALL_MAP = 2;
+export const MAX_PLAYER_MEDIUM_MAP = 4;
+export const MAX_PLAYER_LARGE_MAP = 6;
+
+// Constants for the maximum number of players for each type of map
+export const MAX_NUMBER_PLAYER: { [key: string]: number } = {
+    small: MAX_PLAYER_SMALL_MAP,
+    medium: MAX_PLAYER_MEDIUM_MAP,
+    large: MAX_PLAYER_LARGE_MAP,
+};
+
+// Constant for the minimum number of players for each type of map
+export const MIN_NUMBER_PLAYER = 2;
