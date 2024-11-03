@@ -44,9 +44,24 @@ describe('NavigationServiceService', () => {
     });
 
     it('should initialize gameMap and playsers ', () => {
-        service.initialize(mockGame, [player]);
+        service.initialize(mockGame, [player], mockGame.tiles);
         expect(service.gameMap).toEqual(mockGame);
         expect(service.players).toEqual([player]);
+    });
+
+    it('should return true if the position contains an spwan point ', () => {
+        service.initialize(mockGame, [player], mockGame.tiles);
+        expect(service.isInInitialPosition({ x: 0, y: 0 })).toBeTruthy();
+    });
+
+    it('should return true if the position contains an object ', () => {
+        service.initialize(mockGame, [player], mockGame.tiles);
+        expect(service.isObject({ x: 0, y: 0 })).toBeTrue();
+    });
+
+    it('should return the object at the position ', () => {
+        service.initialize(mockGame, [player], mockGame.tiles);
+        expect(service.getObject({ x: 0, y: 0 })).toEqual(1);
     });
 
     it('should return the position of the players ', () => {
@@ -63,7 +78,7 @@ describe('NavigationServiceService', () => {
     });
 
     it('should return the path excluding the first position if the destination is reachable', () => {
-        service.initialize(mockGameNavigation, [playerNavigation]);
+        service.initialize(mockGameNavigation, [playerNavigation], mockGame.tiles);
         const destination: Position = { x: 2, y: 2 };
         spyOn(service, 'isReachableTile').and.returnValue(true);
         spyOn(service, 'findFastestPath').and.returnValue([

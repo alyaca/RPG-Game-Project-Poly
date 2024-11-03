@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NAVIGATION_DELAY, NO_OBJECT, TileType } from '@app/constants';
+import { NAVIGATION_DELAY, NO_OBJECT, ObjectType, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -77,10 +77,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
-            this.navigationService.initialize(room.gameMap, room.listPlayers);
+            this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
+            //  this.objectsArray = this.navigationService.objects;
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
-            // To do : assignier le currentPlayer...
+            //  To do : assignier le currentPlayer...
         });
 
         this.socketCommunicationService.on('isActive', (playerId: string) => {
@@ -271,9 +272,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 let currentPosition = this.currentPlayer.position;
                 for (const tile of path) {
                     this.isMoving = true;
-                    //  TODO : replacer point de depart, si il y en avait avant
-                    this.objectsArray[currentPosition.x][currentPosition.y] = 0;
                     this.currentPlayer.position = { x: tile.x, y: tile.y };
+                    if (this.navigationService.isInInitialPosition(currentPosition)) {
+                        this.objectsArray[currentPosition.x][currentPosition.y] = ObjectType.Spawn;
+                    } else if (this.navigationService.isObject(currentPosition)) {
+                        this.objectsArray[currentPosition.x][currentPosition.y] = this.navigationService.getObject(currentPosition);
+                    } else {
+                        this.objectsArray[currentPosition.x][currentPosition.y] = 0;
+                    }
+
                     this.displayPortraitOnSpawnPoints();
                     this.findReachableTiles();
                     currentPosition = this.currentPlayer.position;
