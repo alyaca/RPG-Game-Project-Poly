@@ -175,7 +175,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             ).subscribe((result) => {
                 if (result === 'right') {
                     this.isLocked = true;
-                    this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
+                    this.socketCommunicationService.send('startGame');
                 }
             });
         } else {

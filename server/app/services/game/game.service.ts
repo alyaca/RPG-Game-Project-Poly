@@ -128,9 +128,7 @@ export class GameService {
     }
 
     updateActivePlayer(socket: Socket) {
-        let listPlayers = this.roomService.getRoom(socket).listPlayers.filter((player) => {
-            player.status !== Status.Disconnected;
-        });
+        let listPlayers = this.roomService.getRoom(socket).listPlayers;
         const index = listPlayers.findIndex((item) => item.id === socket.id);
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;

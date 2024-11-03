@@ -85,6 +85,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
+        this.socketCommunicationService.off('mapInformation');
+        this.socketCommunicationService.off('disconnectedPlayer');
+        this.socketCommunicationService.off('isActive');
+        this.socketCommunicationService.off('beforeStartTurnTimer');
+        this.socketCommunicationService.off('turnEnded');
+        this.socketCommunicationService.off('startedTurnTimer');
     }
 
     timerEvents() {
