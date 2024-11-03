@@ -2,7 +2,15 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import {
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+    TEST_INVALID_SIZE,
+} from '@app/constants';
 import { dummyInfo, dummyMap } from '@app/mocks/mock-map';
 import { SaveGameService } from './save-game.service';
 
@@ -72,7 +80,7 @@ describe('SaveGameService', () => {
         expect(function () {
             // This comment is to be able to test private methods
             // @ts-ignore
-            service.getPlayerNumber(12);
+            service.getPlayerNumber(TEST_INVALID_SIZE);
         }).toThrow(new Error('Taille de carte invalide'));
     });
 
