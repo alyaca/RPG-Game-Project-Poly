@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { TemporaryDialogComponent } from './temporary-dialog.component';
 import { INACTIVE_DICE_DELAY } from '@app/constants';
@@ -30,14 +30,12 @@ describe('TemporaryDialogComponent', () => {
         expect(component.isVisible).toBe(true);
     });
 
-    it('should hide the dialog after the specified duration', (done) => {
+    it('should hide the dialog after the specified duration', fakeAsync(() => {
         component.show('Test Message');
 
-        setTimeout(() => {
-            expect(component.isVisible).toBe(false);
-            done();
-        }, INACTIVE_DICE_DELAY);
-    });
+        tick(INACTIVE_DICE_DELAY);
+        expect(component.isVisible).toBe(false);
+    }));
 
     it('should set the message correctly when shown multiple times', () => {
         component.show('First Message');
