@@ -27,4 +27,10 @@ export class SocketTestHelper {
             action({ test: 'data' });
         }
     }
+
+    off(event: string): void {
+        if (event === 'testEvent') {
+            return;
+        }
+    }
 }

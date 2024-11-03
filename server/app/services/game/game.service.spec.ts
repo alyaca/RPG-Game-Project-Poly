@@ -21,6 +21,7 @@ describe('GameService', () => {
             emit: jest.fn(),
             data: { roomCode: '1234' },
             id: 'admin1234',
+            rooms: new Set(['1234']),
             to: jest.fn().mockReturnThis(),
         } as unknown as Socket;
 
@@ -230,7 +231,7 @@ describe('GameService', () => {
             return avatars;
         });
         mockServer.sockets.sockets.set(mockSocket.id, mockSocket);
-        service.updateAvatarsForAllClients(mockServer);
+        service.updateAvatarsForAllClients(mockServer, roomId);
 
         expect(service.sendAvatarListToClient).toHaveBeenCalledTimes(1);
     });

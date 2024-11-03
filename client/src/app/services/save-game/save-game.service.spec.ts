@@ -2,7 +2,15 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import {
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+    TEST_INVALID_SIZE,
+} from '@app/constants';
 import { dummyInfo, dummyMap } from '@app/mocks/mock-map';
 import { SaveGameService } from './save-game.service';
 
@@ -46,20 +54,19 @@ describe('SaveGameService', () => {
             lastModification: jasmine.any(Date),
         });
     });
-    /*
-    it('should create a PUT request if there is a selected game', () => {
-        dummyInfo.height = SIZE_MEDIUM_MAP;
-        service.saveNewGame(dummyInfo);
 
+    it('should create a PUT request', () => {
+        dummyInfo.height = SIZE_MEDIUM_MAP;
+        service.replaceMap(dummyInfo, 'id');
         const request = httpMock.expectOne(`${service.apiURL}`);
         expect(request.request.method).toBe('PUT');
         expect(request.request.body).toEqual({
-            _id: dummyMap._id,
+            _id: 'id',
             name: dummyInfo.name,
             description: dummyInfo.description,
             visible: false,
-            mode: dummyMap.mode,
-            nbPlayers: dummyMap.nbPlayers,
+            mode: 'normal',
+            nbPlayers: NB_ITEMS_MEDIUM_MAP,
             image: dummyInfo.image,
             tiles: dummyInfo.grid,
             dimension: dummyMap.dimension,
@@ -67,9 +74,15 @@ describe('SaveGameService', () => {
             isSelected: false,
             lastModification: jasmine.any(Date),
         });
-      
     });
-      */
+
+    it('should throw an error if the height is not valid', () => {
+        expect(function () {
+            // This comment is to be able to test private methods
+            // @ts-ignore
+            service.getPlayerNumber(TEST_INVALID_SIZE);
+        }).toThrow(new Error('Taille de carte invalide'));
+    });
 
     it('should have the correct number of players', () => {
         dummyInfo.height = SIZE_SMALL_MAP;

@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { ChatService } from './chat.service';
 
 describe('ChatService', () => {
