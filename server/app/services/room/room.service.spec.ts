@@ -32,10 +32,8 @@ describe('RoomService', () => {
         } as unknown as Server;
 
         mockSocket = {
-            broadcast: {
-                to: jest.fn().mockReturnThis(),
-                emit: jest.fn(),
-            },
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
             join: jest.fn(),
             leave: jest.fn(),
             data: { roomCode: '1234' },
@@ -147,7 +145,7 @@ describe('RoomService', () => {
         service.rooms.set(roomId, mockRooms[0]);
         service.deleteRoom(roomId, mockSocket);
 
-        expect(mockSocket.broadcast.to).toHaveBeenCalledWith(roomId);
+        expect(mockSocket.to).toHaveBeenCalledWith(roomId);
         expect(service.rooms.has(roomId)).toBe(false);
         expect(service.cleanSocketsData).toHaveBeenCalled();
         expect(service.removeAdmin).toHaveBeenCalled();
