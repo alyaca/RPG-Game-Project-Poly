@@ -25,7 +25,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() mapName: string;
     @Input() mapDescription: string;
-
+    @Input() hasStarted: boolean;
     @Output() gridChange = new EventEmitter<number[][]>();
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
@@ -265,7 +265,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     //  TODO : Qualite a revoir, il faut d<abord impelmenter la gestion des tours...
     async navigateToTile(row: number, col: number) {
-        if (!this.gameCreationService.isModifiable) {
+        if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
                 const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
                 let currentPosition = this.currentPlayer.position;
