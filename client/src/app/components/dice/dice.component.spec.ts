@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { DiceComponent } from './dice.component';
 import { INACTIVE_DICE_DELAY, ROLL_DURATION } from '@app/constants';
 
@@ -37,18 +37,18 @@ describe('DiceComponent', () => {
         }, ROLL_DURATION);
     });
 
-    it('should not roll if already rolling', () => {
+    it('should not roll if already rolling', fakeAsync(() => {
         const maxValue = 6;
         component.isRolling = true;
 
         component.rollDice(maxValue);
 
         const previousValue = component.value;
-        setTimeout(() => {
-            expect(component.value).toBe(previousValue);
-            expect(component.isRolling).toBe(true);
-        }, INACTIVE_DICE_DELAY);
-    });
+        tick(INACTIVE_DICE_DELAY); // Advance time by the inactive dice delay
+
+        expect(component.value).toBe(previousValue);
+        expect(component.isRolling).toBe(true);
+    }));
 
     it('should allow rolling again after completing the first roll', (done) => {
         const maxValue = 6;
