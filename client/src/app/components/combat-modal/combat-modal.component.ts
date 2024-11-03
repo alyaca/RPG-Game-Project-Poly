@@ -40,8 +40,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
 
-    constructor(public combatService: CombatLogicService) // private socketCommunicationService: SocketCommunicationService,
-    {}
+    constructor(public combatService: CombatLogicService) {}
 
     ngOnInit() {
         this.combatService.initCombat(this.player1, this.player2);

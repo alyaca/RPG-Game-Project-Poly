@@ -1,24 +1,8 @@
 import { Injectable } from '@angular/core';
-import { FELLING_PROBABILITY, ObjectType } from '@app/constants';
+import { FELLING_PROBABILITY, ObjectType, TileType } from '@app/constants';
+import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
-
-// TEMPORAIRE:
-enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
-// Doivent etre dans un fichier commun
-
-interface PointWithDistance {
-    x: number;
-    y: number;
-    distance: number;
-}
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -43,13 +27,47 @@ export class NavigationService {
     players: Player[];
     gameMap: Game;
     fastestPath: Position[] = [];
+    initialPositions: Position[] = [];
+    private objects: number[][];
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
 
-    initialize(game: Game, players: Player[]): void {
+    initialize(game: Game, players: Player[], objects: number[][]): void {
         this.gameMap = game;
         this.players = players;
+        this.objects = JSON.parse(JSON.stringify(objects));
+        this.initializeObjects(objects);
+    }
+
+    isInInitialPosition(position: Position): boolean {
+        return this.initialPositions.some((initialPosition) => initialPosition.x === position.x && initialPosition.y === position.y);
+    }
+
+    isObject(position: Position): boolean {
+        return this.objects[position.x][position.y] >= ObjectType.Trident && this.objects[position.x][position.y] <= ObjectType.Spawn;
+    }
+
+    getObject(position: Position): number {
+        return this.objects[position.x][position.y];
+    }
+
+    initializeObjects(objects: number[][]): void {
+        for (let i = 0; i < this.objects.length; i++) {
+            for (let j = 0; j < this.objects[i].length; j++) {
+                if (this.objects[i][j] === ObjectType.Spawn) {
+                    this.objects[i][j] = 0;
+                    objects[i][j] = 0;
+                }
+            }
+        }
+        this.setInitialPositions();
+    }
+
+    setInitialPositions(): void {
+        for (const player of this.players) {
+            this.initialPositions.push({ x: player.position.x, y: player.position.y });
+        }
     }
 
     placePlayers(): Position[] {
@@ -64,7 +82,6 @@ export class NavigationService {
         return godNameToObjectType.get(godName || '') ?? ObjectType.Spawn;
     }
 
-    // Djikstra
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.initializeDistances(player, game);
 

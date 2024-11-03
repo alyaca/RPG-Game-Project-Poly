@@ -4,7 +4,6 @@ import { MatchService } from './match.service';
 
 describe('MatchService', () => {
     let service: MatchService;
-    let roomService: RoomService;
 
     beforeEach(async () => {
         const roomServiceMock = {
