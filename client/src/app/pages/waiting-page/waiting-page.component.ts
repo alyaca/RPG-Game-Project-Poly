@@ -81,8 +81,8 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
             this.chosenGame = room.gameMap;
             this.loadMap();
-            this.router.navigate(['/game-page'], {queryParams: { roomCode: this.accessCode }});
-        })
+            this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
+        });
     }
 
     onAdminQuit(message: string) {
