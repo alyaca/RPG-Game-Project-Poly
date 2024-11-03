@@ -88,6 +88,5 @@ export class CreateGamePageComponent implements OnDestroy {
     ngOnDestroy() {
         this.gameListService.selectedGameSubject.next(null);
         this.subscription.unsubscribe();
-        this.socketCommunicationService.disconnect();
     }
 }
