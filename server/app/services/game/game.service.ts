@@ -114,14 +114,6 @@ export class GameService {
         }
     }
 
-    updateAvatarsForAllClients(server: Server, roomId: string) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
-            if (clientSocket.rooms.has(roomId)) {
-                this.sendAvatarListToClient(clientSocket);
-            }
-        });
-    }
-
     sendAvatarListToClient(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const customizedAvatarsList = room.availableAvatars.map((avatar) => {
@@ -136,7 +128,9 @@ export class GameService {
     }
 
     updateActivePlayer(socket: Socket) {
-        const listPlayers = this.roomService.getRoom(socket).listPlayers;
+        let listPlayers = this.roomService.getRoom(socket).listPlayers.filter((player) => {
+            player.status !== Status.Disconnected;
+        });
         const index = listPlayers.findIndex((item) => item.id === socket.id);
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
@@ -248,9 +242,11 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateAvatarsForAllClients(server: Server) {
+    private updateAvatarsForAllClients(server: Server, roomId: string) {
         server.sockets.sockets.forEach((clientSocket: Socket) => {
-            this.sendAvatarListToClient(clientSocket);
+            if (clientSocket.rooms.has(roomId)) {
+                this.sendAvatarListToClient(clientSocket);
+            }
         });
     }
 }

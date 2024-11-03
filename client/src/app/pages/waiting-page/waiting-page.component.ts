@@ -29,6 +29,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     isLocked: boolean = false;
     isAdmin: boolean = false;
     players: Player[];
+
     private dialog = inject(MatDialog);
     private router = inject(Router);
     private gameService = inject(GameService);
@@ -76,12 +77,6 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             } else {
                 this.router.navigate(['/home']);
             }
-        });
-
-        this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
-            this.chosenGame = room.gameMap;
-            this.loadMap();
-            this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
         });
 
         this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
