@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
@@ -30,7 +30,7 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class GamePageComponent implements OnInit, AfterViewInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
@@ -168,12 +168,5 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onEndTurn() {
         this.socketCommunicationService.send('endTurn');
-    }
-
-    ngOnDestroy() {
-        this.socketCommunicationService.off('beforeStartTurnTimer');
-        this.socketCommunicationService.off('beforeStartTurnTimerEnd');
-        this.socketCommunicationService.off('turnEnded');
-        this.socketCommunicationService.off('startedTurnTimer');    
     }
 }
