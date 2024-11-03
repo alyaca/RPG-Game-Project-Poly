@@ -32,11 +32,13 @@ export class NavigationService {
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
+    private positions: number[][];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
+        this.objects = JSON.parse(JSON.stringify(objects));
         this.gameMap = game;
         this.players = players;
-        this.objects = JSON.parse(JSON.stringify(objects));
+        this.positions = objects;
         this.initializeObjects(objects);
     }
 
@@ -76,6 +78,10 @@ export class NavigationService {
 
     isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
+    }
+
+    getActivePlayer(): Player {
+        return this.players.find((player) => player.isActive) || this.players[0];
     }
 
     getPortraitId(godName: string | undefined): ObjectType {
@@ -137,10 +143,16 @@ export class NavigationService {
         return [];
     }
 
+    //A enlever peut etre (probalbement)
     checkFell(): boolean {
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
     }
+    /*
+    checkAttack(): boolean {
+        console.log(this.getNeighbors(this.getActivePlayer().position, this.gameMap));
+    }
+        */
 
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
@@ -153,7 +165,7 @@ export class NavigationService {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-
+            if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -191,7 +203,7 @@ export class NavigationService {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-
+            if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 

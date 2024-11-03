@@ -1,7 +1,7 @@
 import { Timer } from '@app/classes/timer/timer';
 import { FIGHT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
-import { Avatar, Player, Status } from '@common/player';
+import { Avatar, Player, Position, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -141,7 +141,8 @@ export class GameService {
 
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        //const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        const activePlayer = this.getActivePlayer(room);
         client.to(room.roomId).emit('otherPlayerTurn', client.data.username);
         this.turnTimer.startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
@@ -197,6 +198,25 @@ export class GameService {
             suffix++;
         }
         return name;
+    }
+
+    async proccesNavigation(room: Room, server: Server, path: Position[]) {
+        //const playersList = this.roomService.getRoom(socket).listPlayers;
+        for (const tile of path) {
+            this.getActivePlayer(room).position = tile;
+            //socket.emit('playerNavigation', this.getActivePlayer(room), tile);
+            await this.delay(150); //CONSTANT A ENLEVER
+            //socket.emit('playerNavigation', tile);
+            server.to(room.roomId).emit('playerNavigation', tile);
+        }
+    }
+
+    async delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    getActivePlayer(room: Room): Player {
+        return room.listPlayers.find((player) => player.isActive === true);
     }
 
     private sortPlayersBySpeed(room: Room) {

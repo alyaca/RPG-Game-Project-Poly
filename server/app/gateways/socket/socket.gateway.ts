@@ -4,7 +4,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, Player } from '@common/player';
+import { Avatar, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -81,7 +81,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         this.matchService.processMapObjects(client);
         this.gameService.onStartGame(room);
-        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        //const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        const activePlayer = this.gameService.getActivePlayer(room);
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
         this.server.to(room.roomId).emit('isActive', activePlayer.id);
@@ -121,6 +122,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             timestamp: message.timestamp,
         };
         await this.saveMessage(client, messageWithRoomId);
+    }
+
+    @SubscribeMessage(SocketEvents.PlayerNavigation)
+    handlePlayerNavigation(client: Socket, path: Position[]) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.proccesNavigation(room, this.server, path);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

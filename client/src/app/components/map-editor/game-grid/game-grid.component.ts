@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NAVIGATION_DELAY, NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -36,6 +36,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     objectsArray: number[][];
     gridSize: number;
     currentPlayer: Player;
+    actualPlayer: Player;
+    activePlayer: Player | undefined;
 
     selectedRow: number = 0;
     selectedCol: number = 0;
@@ -78,18 +80,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
-            //  this.objectsArray = this.navigationService.objects;
             this.displayPortraitOnSpawnPoints();
             this.findReachableTiles();
-            //  To do : assignier le currentPlayer...
         });
 
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            const activePlayer = this.navigationService.players.find((player) => player.id === playerId);
-            if (activePlayer && this.isActivePlayer) {
-                this.currentPlayer = activePlayer;
+            this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+            if (this.activePlayer && this.isActivePlayer) {
+                this.currentPlayer = this.activePlayer;
             }
+        });
+
+        this.socketCommunicationService.on('playerNavigation', (tile: Position) => {
+            this.navigateToTile2(tile);
         });
     }
 
@@ -264,37 +268,38 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 
-    //  TODO : Qualite a revoir, il faut d<abord impelmenter la gestion des tours...
+    //TODO : Verifier si isMoving fonctionne bien (important)
     async navigateToTile(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
-            if (!this.isMoving) {
-                const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
-                let currentPosition = this.currentPlayer.position;
-                for (const tile of path) {
-                    this.isMoving = true;
-                    this.currentPlayer.position = { x: tile.x, y: tile.y };
-                    if (this.navigationService.isInInitialPosition(currentPosition)) {
-                        this.objectsArray[currentPosition.x][currentPosition.y] = ObjectType.Spawn;
-                    } else if (this.navigationService.isObject(currentPosition)) {
-                        this.objectsArray[currentPosition.x][currentPosition.y] = this.navigationService.getObject(currentPosition);
-                    } else {
-                        this.objectsArray[currentPosition.x][currentPosition.y] = 0;
-                    }
+            //if (!this.isMoving) {
+            this.isMoving = true;
+            const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+            this.socketCommunicationService.send('playerNavigation', path);
+            //}
+        }
+    }
 
-                    this.displayPortraitOnSpawnPoints();
-                    this.findReachableTiles();
-                    currentPosition = this.currentPlayer.position;
-                    if (this.navigationService.gameMap.tiles[currentPosition.x][currentPosition.y] === TileType.Ice) {
-                        if (!this.navigationService.checkFell()) {
-                            this.socketCommunicationService.send('playerFell', this.currentPlayer);
-                            //  Todo affichage de message de TOMBER
-                            break;
-                        }
-                    }
-                    await this.delay(NAVIGATION_DELAY);
-                }
-                this.isMoving = false;
-            }
+    //TODO : Changer le nom de la fonction, et refactor
+    navigateToTile2(position: Position) {
+        console.log(this.activePlayer);
+        if (!this.activePlayer) {
+            return;
+        }
+        if (this.navigationService.isInInitialPosition(this.activePlayer.position)) {
+            this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = ObjectType.Spawn;
+        } else if (this.navigationService.isObject(this.activePlayer.position)) {
+            this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = this.navigationService.getObject(
+                this.activePlayer.position,
+            );
+        } else {
+            this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = 0;
+        }
+        this.activePlayer.position = position;
+        this.displayPortraitOnSpawnPoints();
+        this.findReachableTiles();
+
+        if (this.activePlayer === this.currentPlayer) {
+            this.isMoving = false;
         }
     }
 
