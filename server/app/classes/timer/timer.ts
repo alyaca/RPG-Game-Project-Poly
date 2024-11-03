@@ -25,11 +25,15 @@ export class Timer {
     }
 
     resetTimer(duration: number, onTickCallback: (timeRemaining: number) => void) {
+        this.stopTimer();
+        this.timeRemaining = duration;
+        this.startTimer(duration, onTickCallback);
+    }
+
+    stopTimer() {
         if (this.intervalId) {
             clearInterval(this.intervalId);
         }
-        this.timeRemaining = duration;
-        this.startTimer(duration, onTickCallback);
     }
 
     pauseTimer() {

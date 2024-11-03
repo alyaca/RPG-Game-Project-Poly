@@ -169,6 +169,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             this.logger.log(`Client disconnected: ${client.id}`);
         } else {
             this.logger.log(`Client disconnected when no room: ${client.id}`);
+            this.roomService.getFightTimer(room.roomId).stopTimer();
+            this.roomService.getTurnTimer(room.roomId).stopTimer();
         }
     }
 }
