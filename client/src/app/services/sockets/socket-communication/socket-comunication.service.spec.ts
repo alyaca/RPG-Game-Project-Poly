@@ -94,5 +94,13 @@ describe('SocketCommunicationService', () => {
             expect(spy).toHaveBeenCalled();
             expect(spy).toHaveBeenCalledWith(event, action);
         });
+
+        it('should call socket.off with an event', () => {
+            const event = 'helloWorld';
+            const spy = spyOn(service.socket, 'off');
+            service.send(event);
+            service.off(event);
+            expect(spy).toHaveBeenCalledWith(event);
+        });
     });
 });

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
@@ -21,7 +21,7 @@ import { Room } from '@common/room';
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
-export class WaitingPageComponent implements OnInit {
+export class WaitingPageComponent implements OnInit, OnDestroy {
     accessCode: string;
     chosenGame: Game;
     isLocked: boolean = false;
@@ -164,5 +164,13 @@ export class WaitingPageComponent implements OnInit {
 
     leaveGame(accessCode: string) {
         this.socketCommunicationService.send('leaveRoom', accessCode);
+    }
+
+    ngOnDestroy() {
+        this.socketCommunicationService.off('roomDeleted');
+        this.socketCommunicationService.off('updatedPlayer');
+        this.socketCommunicationService.off('isPlayerAdmin');
+        this.socketCommunicationService.off('kickPlayer');
+        this.socketCommunicationService.off('leftRoom');
     }
 }

@@ -67,7 +67,7 @@ export class RoomService {
     }
 
     deleteRoom(roomId: string, socket: Socket) {
-        socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        socket.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
         if (this.isPlayerAdmin(socket)) {
             this.removeAdmin(socket);
         }
