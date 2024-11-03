@@ -154,6 +154,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         if (room) {
             this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
             this.logger.log(`Client disconnected: ${client.id}`);
+        } else {
+            this.logger.log(`Admin disconnected before creating a game: ${client.id}`);
         }
     }
 }

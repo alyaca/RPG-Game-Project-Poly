@@ -2,7 +2,7 @@ import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
-import { Room } from '@common/room';
+import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
@@ -35,6 +35,7 @@ export class RoomService {
             availableAvatars: avatars.map((avatar) => ({ ...avatar, isTaken: false })),
             adminId: socket.id,
             isLocked: false,
+            gameStatus: GameStatus.Lobby,
         };
         this.rooms.set(roomCode, room);
         this.adminList.push(socket.id);

@@ -55,9 +55,7 @@ export class CreateGamePageComponent implements OnDestroy {
             if (game) {
                 this.isCharacterFormVisible = true;
                 this.gameListService.chosenGameSubject.next(game);
-                if (!this.socketCommunicationService.isSocketAlive()) {
-                    this.socketCommunicationService.connect();
-                }
+                this.socketCommunicationService.connect();
             } else {
                 this.snackBar.open("Le jeu sélectionné n'existe pas ou a été caché", 'Fermer', {
                     duration: MESSAGE_DURATION_CHARACTER_FORM,
@@ -90,5 +88,6 @@ export class CreateGamePageComponent implements OnDestroy {
     ngOnDestroy() {
         this.gameListService.selectedGameSubject.next(null);
         this.subscription.unsubscribe();
+        this.socketCommunicationService.disconnect();
     }
 }

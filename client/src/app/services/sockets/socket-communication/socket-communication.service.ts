@@ -12,7 +12,7 @@ export class SocketCommunicationService {
     }
 
     connect() {
-        if (this.socket) {
+        if (this.isSocketAlive()) {
             return;
         }
         //  First link is for production (deployment)

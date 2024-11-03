@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
@@ -30,7 +30,7 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements OnInit, AfterViewInit {
+export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
@@ -69,6 +69,10 @@ export class GamePageComponent implements OnInit, AfterViewInit {
             this.allPlayers = room.listPlayers;
             this.replenishHealth();
         });
+        this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
+            console.log('receiving list', listPlayers);
+            this.allPlayers = listPlayers;
+        });
     }
 
     ngAfterViewInit() {
@@ -79,11 +83,15 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.timerEvents();
     }
 
+    ngOnDestroy() {
+        this.socketCommunicationService.disconnect();
+    }
+
     timerEvents() {
         this.socketCommunicationService.on('beforeStartTurnTimer', (timeRemaining: number) => {
             this.timeRemainingBeforeStartTurn = timeRemaining;
         });
-        this.socketCommunicationService.on('turnEnded', (listPlayers: []) => {
+        this.socketCommunicationService.on('turnEnded', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
             this.onBeforeStartTurn();
         });
@@ -155,6 +163,7 @@ export class GamePageComponent implements OnInit, AfterViewInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'left') {
+                this.socketCommunicationService.disconnect();
                 this.router.navigate(['/home']);
             }
         });
