@@ -63,7 +63,6 @@
 img {
     width: 90%;
     border-radius: 2rem;
-    border: 2px solid black;
     background-color: none;
 }
 
@@ -91,8 +90,11 @@ img {
     margin: 0;
 }
 
-:not(.admin) > * > .kick {
-    background-image: url('../../../../assets/images/icones/kick.png');
+.admin .kick {
+    display: none;
+}
+
+.kick img {
     background-size: cover;
     border-radius: 50%;
     transition: ease 0.1s;
@@ -110,4 +112,9 @@ img {
 
 .player-img {
     margin-bottom: 10%;
+    border: 2px solid black;
+}
+
+.player-img img {
+    border: 2px solid black;
 }

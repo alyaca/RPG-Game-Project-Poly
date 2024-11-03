@@ -8,4 +8,5 @@ export enum SocketEvents {
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
     SendMessages = 'sendMessages',
+    KickPlayer = 'kickPlayer',
 }

@@ -59,8 +59,18 @@ export class RoomService {
         socket.data = {};
     }
 
+    removeAdmin(socket: Socket) {
+        const index = this.adminList.indexOf(socket.id);
+        if (index > -1) {
+            this.adminList.splice(index, 1);
+        }
+    }
+
     deleteRoom(roomId: string, socket: Socket) {
-        socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        socket.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        if (this.isPlayerAdmin(socket)) {
+            this.removeAdmin(socket);
+        }
         this.cleanSocketsData(roomId);
         this.chatService.deleteMessagesByRoom(roomId);
         this.rooms.delete(roomId);
@@ -72,7 +82,7 @@ export class RoomService {
         socketsInRoom?.forEach((socketId) => {
             const socketInRoom = this.io.sockets.sockets.get(socketId);
             if (socketInRoom) {
-                delete socketInRoom.data;
+                socketInRoom.data = {};
             }
         });
     }

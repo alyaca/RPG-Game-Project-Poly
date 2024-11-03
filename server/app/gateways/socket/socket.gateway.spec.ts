@@ -48,6 +48,7 @@ describe('SocketGateway', () => {
             toggleLockRoom: jest.fn(),
             createPlayer: jest.fn(),
             selectedAvatar: jest.fn(),
+            removePlayerFromRoom: jest.fn(),
         };
 
         socket = {
@@ -62,6 +63,9 @@ describe('SocketGateway', () => {
 
         server = {
             to: jest.fn().mockReturnValue(broadcastOperator),
+            sockets: {
+                sockets: new Map(),
+            },
         } as unknown as jest.Mocked<Server>;
 
         logger = createStubInstance(Logger);
@@ -74,7 +78,7 @@ describe('SocketGateway', () => {
         } as unknown as Socket;
 
         mockPlayer = {
-            id: '',
+            id: 'test-client-id',
             name: 'Test Player',
             status: Status.Player,
         } as Player;
@@ -186,10 +190,10 @@ describe('SocketGateway', () => {
     });
 
     it('should call getRoomId and toggleLockRoom on changeLockRoom event', () => {
-        const data = { isLocked: false };
+        const isLocked = false;
         jest.spyOn(roomService, 'getRoomId');
         jest.spyOn(gameService, 'toggleLockRoom');
-        gateway.handleLockRoom(socket, data);
+        gateway.handleLockRoom(socket, isLocked);
         expect(roomService.getRoomId).toHaveBeenCalled();
         expect(gameService.toggleLockRoom).toHaveBeenCalled();
     });
@@ -205,6 +209,7 @@ describe('SocketGateway', () => {
         it('should create a player and emit updatedPlayer events', () => {
             const room = mockRooms[0];
             (roomService.getRoom as jest.Mock).mockReturnValue(room);
+            (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
 
             jest.spyOn(gameService, 'createPlayer');
             room.listPlayers.push(mockPlayer);
@@ -212,9 +217,25 @@ describe('SocketGateway', () => {
             gateway.handleCreatePlayer(mockClient, mockPlayer);
 
             expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
+            expect(roomService.isPlayerAdmin).toHaveBeenCalled();
             expect(gameService.createPlayer).toHaveBeenCalledWith(room, mockPlayer, mockClient);
-            expect(mockClient.emit).toHaveBeenCalledWith('updatedPlayer', room);
-            expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
+            expect(mockClient.emit).toHaveBeenCalledWith('isPlayerAdmin', false);
+            expect(server.to(room.roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
+        });
+    });
+
+    describe('handleKickPlayer', () => {
+        it('should call removePlayerFromRoom on kickPlayer event', () => {
+            server.sockets.sockets.set(mockClient.id, mockClient);
+            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+
+            jest.spyOn(gameService, 'removePlayerFromRoom');
+            gateway.handleKickPlayer(socket, mockPlayer.id);
+
+            expect(server.to(mockPlayer.id).emit).toHaveBeenCalledWith('kickPlayer', mockPlayer.id);
+            expect(gameService.removePlayerFromRoom).toHaveBeenCalled();
+            expect(logger.debug.calledOnce).toBeTruthy();
+            expect(server.to(roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRooms[0]);
         });
     });
 
