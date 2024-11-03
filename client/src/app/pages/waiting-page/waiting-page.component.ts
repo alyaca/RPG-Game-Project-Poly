@@ -1,12 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
-import { MIN_NUMBER_PLAYER } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, MIN_NUMBER_PLAYER } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
@@ -30,7 +28,6 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     isAdmin: boolean = false;
     players: Player[];
 
-    private dialog = inject(MatDialog);
     private router = inject(Router);
     private gameService = inject(GameService);
 
@@ -55,7 +52,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         }
 
         this.socketCommunicationService.on('roomDeleted', (message: string) => {
-            this.onAdminQuit(message);
+            this.gameService.onAdminQuit(message);
         });
 
         this.socketCommunicationService.on<Room>('updatedPlayer', (room: Room) => {
@@ -71,13 +68,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             this.onPlayerKickedOut();
         });
 
-        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
-            if (isAdmin) {
-                this.router.navigate(['/game-creation']);
-            } else {
-                this.router.navigate(['/home']);
-            }
-        });
+        this.gameService.onLeftRoomEvent();
 
         this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
             this.chosenGame = room.gameMap;
@@ -86,28 +77,19 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         });
     }
 
-    onAdminQuit(message: string) {
-        const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: { title: 'Partie annulée', messages: [message] },
-        });
-        dialogNavigate.afterClosed().subscribe((result) => {
-            if (result === 'close') {
-                this.router.navigate(['/home']);
-            }
-        });
-    }
-
     onPlayerKickedOut() {
-        const dialogNavigate = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: { title: 'Vous avez été retiré du jeu' },
-        });
-        dialogNavigate.afterClosed().subscribe((result) => {
-            if (result === 'close') {
-                this.router.navigate(['/join-game']);
-            }
-        });
+        this.gameService
+            .openDialog({
+                title: DialogTitle.KickedOut,
+                messages: [DialogMessages.KickedOut],
+                options: [DialogOptions.Close],
+                confirm: false,
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Close) {
+                    this.router.navigate(['/join-game']);
+                }
+            });
     }
 
     isMaxPlayersReached() {
@@ -124,27 +106,8 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.socketCommunicationService.send('changeLockRoom', this.isLocked);
     }
 
-    openConfirmationDialog(title: string, messages: string[], options: string[], confirm: boolean) {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title,
-                messages,
-                options,
-                confirm,
-            },
-        });
-        return dialogRef.afterClosed();
-    }
-
     handleExit(accessCode: string) {
-        this.openConfirmationDialog('Abandonner la partie?', ["- Vous quitteriez la page d'attente"], ['Quitter', 'Rester'], true).subscribe(
-            (result) => {
-                if (result === 'left') {
-                    this.leaveGame(accessCode);
-                }
-            },
-        );
+        this.gameService.onPlayerQuit(accessCode);
     }
 
     loadMap() {
@@ -159,32 +122,23 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
 
     handleStartGame() {
         if (this.players.length < MIN_NUMBER_PLAYER) {
-            this.openConfirmationDialog(
-                'Débuter la partie',
-                ['Il faut au moins ' + MIN_NUMBER_PLAYER + ' joueurs pour commencer la partie'],
-                ['Fermer'],
-                false,
-            );
+            this.gameService.openDialog({
+                title: DialogTitle.StartGame,
+                messages: [DialogMessages.NotEnoughPlayers],
+                options: [DialogOptions.Close],
+                confirm: false,
+            });
             return;
         } else if (this.isLocked) {
-            this.openConfirmationDialog(
-                'Débuter la partie',
-                ['Êtes-vous certains de vouloir débuter la partie?'],
-                ['Annuler', 'Confirmer'],
-                true,
-            ).subscribe((result) => {
-                if (result === 'right') {
-                    this.isLocked = true;
-                    this.socketCommunicationService.send('startGame');
-                }
-            });
+            this.confirmStartGame();
         } else {
-            this.openConfirmationDialog('Débuter la partie', ['Il faut verrouiller la salle afin de commencer la partie'], ['Fermer'], false);
+            this.gameService.openDialog({
+                title: DialogTitle.StartGame,
+                messages: [DialogMessages.RoomLocked],
+                options: [DialogOptions.Close],
+                confirm: false,
+            });
         }
-    }
-
-    leaveGame(accessCode: string) {
-        this.socketCommunicationService.send('leaveRoom', accessCode);
     }
 
     ngOnDestroy() {
@@ -193,5 +147,21 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         this.socketCommunicationService.off('isPlayerAdmin');
         this.socketCommunicationService.off('kickPlayer');
         this.socketCommunicationService.off('leftRoom');
+    }
+
+    private confirmStartGame() {
+        this.gameService
+            .openDialog({
+                title: DialogTitle.StartGame,
+                messages: [DialogMessages.ConfirmStartGame],
+                options: [DialogOptions.Cancel, DialogOptions.Confirm],
+                confirm: true,
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Right) {
+                    this.isLocked = true;
+                    this.socketCommunicationService.send('startGame');
+                }
+            });
     }
 }

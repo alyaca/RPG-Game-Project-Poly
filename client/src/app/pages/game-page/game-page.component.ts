@@ -1,16 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -53,9 +52,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(
         private router: Router,
-        private dialog: MatDialog,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
+        private gameService: GameService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -70,8 +69,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.replenishHealth();
         });
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
-            console.log('receiving list', listPlayers);
             this.allPlayers = listPlayers;
+        });
+
+        this.socketCommunicationService.on('roomDeleted', (message: string) => {
+            this.gameService.onAdminQuit(message);
         });
     }
 
@@ -81,19 +83,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
-    }
-
-    ngOnDestroy() {
-        this.socketCommunicationService.disconnect();
-        this.removeListener();
-    }
-
-    removeListener() {
-        this.socketCommunicationService.off('disconnectedPlayer');
-        this.socketCommunicationService.off('isActive');
-        this.socketCommunicationService.off('beforeStartTurnTimer');
-        this.socketCommunicationService.off('startedTurnTimer');
-        this.socketCommunicationService.off('turnEnded');
     }
 
     timerEvents() {
@@ -160,25 +149,35 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     handleExit() {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Abandonner la partie?',
-                messages: ['- Êtes-vous certains de vouloir quitter?'],
-                options: ['Quitter', 'Rester'],
+        this.gameService
+            .openDialog({
+                title: DialogTitle.QuitGame,
+                messages: [DialogMessages.QuitGame],
+                options: [DialogOptions.Quit, DialogOptions.Stay],
                 confirm: true,
-            },
-        });
-
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'left') {
-                this.socketCommunicationService.disconnect();
-                this.router.navigate(['/home']);
-            }
-        });
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Left) {
+                    this.socketCommunicationService.disconnect();
+                    this.router.navigate(['/home']);
+                }
+            });
     }
 
     onEndTurn() {
         this.socketCommunicationService.send('endTurn');
+    }
+
+    ngOnDestroy() {
+        this.socketCommunicationService.disconnect();
+        this.removeListener();
+    }
+
+    removeListener() {
+        this.socketCommunicationService.off('disconnectedPlayer');
+        this.socketCommunicationService.off('isActive');
+        this.socketCommunicationService.off('beforeStartTurnTimer');
+        this.socketCommunicationService.off('startedTurnTimer');
+        this.socketCommunicationService.off('turnEnded');
     }
 }
