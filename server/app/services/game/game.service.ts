@@ -69,8 +69,6 @@ export class GameService {
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
-            this.turnTimer.pauseTimer();
-            this.fightTimer.pauseTimer();
         } else if (room.gameStatus === GameStatus.Started) {
             this.onPlayerDisconnected(room, socket);
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
@@ -239,6 +237,7 @@ export class GameService {
                 ...listPlayers.filter((player) => player.status === Status.Disconnected),
             ];
         }
+        room.listPlayers = listPlayers;
     }
 
     private updateAvatarsForAllClients(server: Server) {
