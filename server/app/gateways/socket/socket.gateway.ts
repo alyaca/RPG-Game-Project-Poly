@@ -100,6 +100,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
     }
 
+    @SubscribeMessage(SocketEvents.SendGameLog)
+    handleGameLog(client: Socket, log: string) {
+        const roomId = this.roomService.getRoomId(client);
+        this.logger.log(`Game log received: ${log} from ${client.id} with roomCode: ${roomId}`);
+        client.to(roomId).emit('gameLogReceived', log);
+    }
+
     onModuleInit() {
         this.roomService.setServer(this.server);
     }
