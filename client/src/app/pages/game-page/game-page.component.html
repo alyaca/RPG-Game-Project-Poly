@@ -1,6 +1,6 @@
 <div class="page-element" #pageElement>
     @if (isInCombat){
-    <app-combat-modal [isInCombat]="isInCombat" (closeModalEvent)="closeCombatModal()"></app-combat-modal>
+    <app-combat-modal [isInCombat]="isInCombat" [player1Id]="socketCommunicationService.socket.id" (closeModalEvent)="closeCombatModal()"></app-combat-modal>
     }
     <div class="left-container">
         <div class="player-bar">

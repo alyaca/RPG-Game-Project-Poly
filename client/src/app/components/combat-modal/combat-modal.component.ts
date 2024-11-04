@@ -18,6 +18,8 @@ import {
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
 import { Player } from '@common/player';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-combat-modal',
@@ -27,6 +29,7 @@ import { Player } from '@common/player';
     styleUrl: './combat-modal.component.scss',
 })
 export class CombatModalComponent implements OnInit, AfterViewInit {
+    @Input() player1Id: string | undefined;
     @Input() isInCombat = false; // isInCombat = is combat popup open ; isGameOngoing = has no winner been decided yet
     @Output() closeModalEvent = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
@@ -34,21 +37,34 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
 
-    @Input() player1: Player = mockLobbyPlayers[0];
+    // @Input() player1: Player = mockLobbyPlayers[0];
     @Input() player2: Player = mockLobbyPlayers[1];
+
+    @Input() player1: Player;
+    //@Input() player2: Player;
 
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
 
-    constructor(public combatService: CombatLogicService) {}
+    constructor(public combatService: CombatLogicService, public socketCommunicationService: SocketCommunicationService) {}
 
     ngOnInit() {
+        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+            // console.log(room.listPlayers[0])
+            this.player1 = room.listPlayers[0];
+            this.player2 = room.listPlayers[1];
+        });
+        // this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+        //     const foundPlayer = room.listPlayers.find((player) => player.id === this.player1Id);
+        //     if (foundPlayer) {
+        //         this.player1 = foundPlayer;
+        //     }
+        // });
+
         this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
 
-        // this.socketCommunicationService.on('fightTime', (timeRemaining: number) => {
-        //     this.timeRemaining = timeRemaining;
-        // });
+
     }
 
     initializeDisplay() {
@@ -63,7 +79,24 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             player1turn: { attacker: this.player2, defender: this.player1, activeDice: this.dice1, inactiveDice: this.dice2 },
             player2turn: { attacker: this.player1, defender: this.player2, activeDice: this.dice2, inactiveDice: this.dice1 },
         };
+        this.timerEvents();
     }
+
+    timerEvents() {
+        this.socketCommunicationService.on('turnEnded', () => {
+            this.onBeforeStartTurn();
+        });
+        this.socketCommunicationService.on('fightTime', (timeRemaining: number) => {
+            this.timeRemaining = timeRemaining;
+            this.onBeforeStartTurn();
+        });
+    }
+
+    onBeforeStartTurn() {
+        this.socketCommunicationService.send('fightTime');
+        this.socketCommunicationService.send('startFight');
+    }
+
 
     closeModal() {
         this.combatService.setDisplayText('');
@@ -95,6 +128,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     attack() {
         this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2);
+        this.socketCommunicationService.send('fightTime', this.timeRemaining);
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.endGameIfNeeded();

@@ -2,10 +2,10 @@
     <app-temporary-dialog #temporaryDialog></app-temporary-dialog>
     <div class="top-section">
         <div class="player-info">
-            <app-combat-stats-bar [player]="player1" [isOnRightSide]="false" [isDamaged]="combatService.isPlayer1Damaged"></app-combat-stats-bar>
+            <app-combat-stats-bar [player]="player1" [isOnRightSide]="false" [isDamaged]="combatService.isPlayer1Damaged" [playerId]="socketCommunicationService.socket.id"></app-combat-stats-bar>
         </div>
         <div class="timer-container">
-            <app-timer [totalTime]="totalTime" (closeTimer)="onTimerFinished()" #timer></app-timer>
+            <app-timer [totalTime]="totalTime" (startTimer)="onBeforeStartTurn()" (closeTimer)="onTimerFinished()" #timer></app-timer>
         </div>
         <div class="player-info">
             <app-combat-stats-bar [player]="player2" [isOnRightSide]="true" [isDamaged]="combatService.isPlayer2Damaged"></app-combat-stats-bar>
