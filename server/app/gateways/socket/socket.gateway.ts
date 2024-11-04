@@ -1,6 +1,7 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { GameService } from '@app/services/game/game.service';
+import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Avatar, Player } from '@common/player';
@@ -16,6 +17,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     private server: Server;
 
     constructor(
+        private matchService: MatchService,
         private roomService: RoomService,
         private logger: Logger,
         private gameService: GameService,
@@ -67,7 +69,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const isAdmin = this.roomService.isPlayerAdmin(client);
         this.gameService.createPlayer(room, player, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
-        client.emit('isPlayerAdmin', isAdmin);
+        client.emit('isPlayerAdmin', isAdmin); //
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)
@@ -87,7 +89,48 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('updatedPlayer', room);
     }
 
-    @SubscribeMessage(SocketEvents.SendMessages)
+    @SubscribeMessage(SocketEvents.StartGame)
+    handleStartGame(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.matchService.processMapObjects(client);
+        this.gameService.onStartGame(room);
+        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        this.server.to(room.roomId).emit('startGame', room);
+        this.server.to(room.roomId).emit('mapInformation', room);
+        this.server.to(room.roomId).emit('isActive', activePlayer.id);
+    }
+
+    @SubscribeMessage(SocketEvents.EndTurn)
+    handleEndTurn(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.updateActivePlayer(client);
+        this.logger.debug(`client ${client.id} turn is over`); // for debug
+        this.server.to(room.roomId).emit('turnEnded', room.listPlayers);
+    }
+
+    @SubscribeMessage(SocketEvents.BeforeStartTurn)
+    handleBeforeStartTurn(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.onStartTurn(room, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.StartTurn)
+    handleStartTurn(client: Socket, duration: number) {
+        this.gameService.onPlayerTurnStarted(duration, client, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.StartFight)
+    handleStartFight(client: Socket, opponent: Player) {
+        this.gameService.onStartFight(client, opponent, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.EndFight)
+    handleEndFight(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.onEndFight(this.server, room);
+    }
+
+    @SubscribeMessage(SocketEvents.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);

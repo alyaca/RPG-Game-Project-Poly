@@ -86,10 +86,10 @@ describe('CombatLogicService', () => {
     it('should switch turns between players', () => {
         service.initCombat(player1, player2);
         service.currPlayerNum = 'player1turn';
-        service.switchTurn(player1, player2);
+        service.switchTurn();
         expect(service.currPlayerNum).toEqual('player2turn');
 
-        service.switchTurn(player1, player2);
+        service.switchTurn();
         expect(service.currPlayerNum).toEqual('player1turn');
     });
 

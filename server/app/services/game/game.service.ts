@@ -1,3 +1,5 @@
+import { Timer } from '@app/classes/timer/timer';
+import { FIGHT_TIME, STARTING_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Status } from '@common/player';
 import { Room } from '@common/room';
@@ -6,6 +8,9 @@ import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
+    turnTimer = new Timer();
+    fightTimer = new Timer();
+
     constructor(private roomService: RoomService) {}
 
     toggleLockRoom(roomId: string, isLocked: boolean) {
@@ -50,6 +55,12 @@ export class GameService {
         const playerName = this.generateUniquePlayerName(player.name, socket);
         player.name = playerName;
         socket.data.username = player.name;
+    }
+
+    isActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const currentPlayer = room.listPlayers.find((player) => player.id === socket.id);
+        return currentPlayer.isActive;
     }
 
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
@@ -117,6 +128,61 @@ export class GameService {
         socket.emit('characterSelected', customizedAvatarsList);
     }
 
+    updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = room.listPlayers;
+        const index = listPlayers.findIndex((item) => item.id === socket.id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
+    }
+
+    onStartGame(room: Room) {
+        this.sortPlayersBySpeed(room);
+    }
+
+    onStartTurn(room: Room, server: Server) {
+        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        this.turnTimer.startTimer(STARTING_TIME, (timeRemaining) => {
+            server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
+            if (timeRemaining === 0) {
+                server.to(activePlayer.id).emit('beforeStartTurnTimerEnd');
+            }
+        });
+    }
+
+    onPlayerTurnStarted(duration: number, client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.turnTimer.startTimer(duration, (timeRemaining) => {
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+            if (timeRemaining === 0) {
+                this.onTurnEnded(client, server);
+                server.to(room.roomId).emit('turnEnded', room.listPlayers);
+            }
+        });
+    }
+
+    onTurnEnded(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.updateActivePlayer(client);
+        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        server.to(room.roomId).emit('isActive', activePlayer.id);
+    }
+
+    onStartFight(client: Socket, opponent: Player, server: Server) {
+        this.turnTimer.pauseTimer();
+        this.fightTimer.startTimer(FIGHT_TIME, (timeRemaining) => {
+            client.emit('fightTime', timeRemaining);
+            server.to(opponent.id).emit('fightTime', timeRemaining);
+        });
+    }
+
+    onEndFight(server: Server, room: Room) {
+        this.turnTimer.resumeTimer((timeRemaining) => {
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+        });
+    }
+
     isPlayerNameTaken(name: string, socket: Socket) {
         const playersList = this.roomService.getRoom(socket).listPlayers;
         return playersList.some((player) => player.name === name);
@@ -131,5 +197,17 @@ export class GameService {
             suffix++;
         }
         return name;
+    }
+
+    private sortPlayersBySpeed(room: Room) {
+        let listPlayers = room.listPlayers;
+        if (listPlayers.length > 1) {
+            listPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
+            listPlayers = [
+                ...listPlayers.filter((player) => player.status !== Status.Disconnected),
+                ...listPlayers.filter((player) => player.status === Status.Disconnected),
+            ];
+        }
+        listPlayers[0].isActive = true;
     }
 }

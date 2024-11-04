@@ -30,9 +30,15 @@ describe('MapEditorPageComponent', () => {
     let httpMock: HttpTestingController;
 
     beforeEach(async () => {
+        gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
         saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveNewGame', 'replaceMap']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions']);
-        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray', 'resetObjectsCount', 'removeObjectFromGrid']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions', 'sizeSubject']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', [
+            'initObjectsArray',
+            'resetObjectsCount',
+            'removeObjectFromGrid',
+            'objects',
+        ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', [
@@ -75,6 +81,7 @@ describe('MapEditorPageComponent', () => {
             gameObjectServiceSpy.isDraggingFromContainer = false;
         });
 
+        gameObjectServiceSpy.objects = mockObjects;
         gameCreationServiceSpy.loadedMapName = 'map title';
         gameCreationServiceSpy.loadedMapDescription = 'map description';
         gameObjectServiceSpy.draggedObject = mockObjects[0];
