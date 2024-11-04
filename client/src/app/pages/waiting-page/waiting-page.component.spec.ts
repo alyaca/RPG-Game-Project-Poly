@@ -39,7 +39,15 @@ describe('WaitingPageComponent', () => {
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['chosenGameSubject']);
         gameListServiceSpy.chosenGameSubject = new BehaviorSubject<Game | null>(mockGames[0]);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['joinRoom', 'getPlayerNumber']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', [
+            'joinRoom',
+            'getPlayerNumber',
+            'onRoomDeleted',
+            'onLeftRoom',
+            'onLeftRoom',
+            'onKickPlayer',
+            'openDialog',
+        ]);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send', 'off']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', ['setMapToEdit']);
