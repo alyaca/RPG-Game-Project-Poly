@@ -64,6 +64,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.mapDimensions || !this.mapName) {
             this.router.navigate(['/home']);
         }
+
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
             this.replenishHealth();
@@ -77,10 +78,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
             this.activePlayerName = name;
-        });
-
-        this.socketCommunicationService.on('roomDeleted', (message: string) => {
-            this.gameService.onAdminQuit(message);
         });
     }
 
@@ -194,14 +191,5 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
-        this.removeListener();
-    }
-
-    removeListener() {
-        this.socketCommunicationService.off('disconnectedPlayer');
-        this.socketCommunicationService.off('isActive');
-        this.socketCommunicationService.off('beforeStartTurnTimer');
-        this.socketCommunicationService.off('startedTurnTimer');
-        this.socketCommunicationService.off('turnEnded');
     }
 }

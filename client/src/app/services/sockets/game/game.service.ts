@@ -79,6 +79,18 @@ export class GameService {
         );
     }
 
+    onRoomDeleted() {
+        this.socketCommunicationService.once('roomDeleted', (message: string) => {
+            this.onAdminQuit(message);
+        });
+    }
+
+    onKickPlayer() {
+        this.socketCommunicationService.on('kickPlayer', () => {
+            this.onPlayerKickedOut();
+        });
+    }
+
     onPlayerQuit(roomId: string) {
         this.openDialog({
             title: DialogTitle.QuitGame,
@@ -92,7 +104,20 @@ export class GameService {
         });
     }
 
-    onLeftRoomEvent() {
+    onPlayerKickedOut() {
+        this.openDialog({
+            title: DialogTitle.KickedOut,
+            messages: [DialogMessages.KickedOut],
+            options: [DialogOptions.Close],
+            confirm: false,
+        }).subscribe((result) => {
+            if (result === DialogResult.Close) {
+                this.router.navigate(['/join-game']);
+            }
+        });
+    }
+
+    onLeftRoom() {
         this.socketCommunicationService.on('leftRoom', (isAdmin) => {
             if (isAdmin) {
                 this.router.navigate(['/game-creation']);
@@ -100,5 +125,23 @@ export class GameService {
                 this.router.navigate(['/home']);
             }
         });
+    }
+
+    // Check if needed
+    removeListenersWaitingPage() {
+        this.socketCommunicationService.off('roomDeleted');
+        this.socketCommunicationService.off('updatedPlayer');
+        this.socketCommunicationService.off('isPlayerAdmin');
+        this.socketCommunicationService.off('kickPlayer');
+        this.socketCommunicationService.off('leftRoom');
+    }
+
+    // Check if needed
+    removeListenersGamePage() {
+        this.socketCommunicationService.off('disconnectedPlayer');
+        this.socketCommunicationService.off('isActive');
+        this.socketCommunicationService.off('beforeStartTurnTimer');
+        this.socketCommunicationService.off('startedTurnTimer');
+        this.socketCommunicationService.off('turnEnded');
     }
 }

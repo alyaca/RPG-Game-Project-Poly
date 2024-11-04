@@ -146,6 +146,7 @@ describe('GameService', () => {
 
     describe('leavePlayerFromGame', () => {
         it('should emit leftRoom and delete room if player is admin', () => {
+            room.gameStatus = GameStatus.Lobby;
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
             jest.spyOn(service, 'removePlayerFromRoom');
             service.leavePlayerFromGame(roomId, mockSocket, mockServer);

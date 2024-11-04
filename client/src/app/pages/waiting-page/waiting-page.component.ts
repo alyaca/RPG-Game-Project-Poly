@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
@@ -21,7 +21,7 @@ import { Room } from '@common/room';
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
-export class WaitingPageComponent implements OnInit, OnDestroy {
+export class WaitingPageComponent implements OnInit {
     accessCode: string;
     chosenGame: Game;
     isLocked: boolean = false;
@@ -50,11 +50,13 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         if (!this.accessCode || !this.chosenGame) {
             this.router.navigate(['/home']);
         }
+        this.initSocketListeners();
+    }
 
-        this.socketCommunicationService.on('roomDeleted', (message: string) => {
-            this.gameService.onAdminQuit(message);
-        });
-
+    initSocketListeners() {
+        this.gameService.onRoomDeleted();
+        this.gameService.onLeftRoom();
+        this.gameService.onKickPlayer();
         this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
             this.onMaxPlayers();
@@ -64,32 +66,11 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             this.isAdmin = isPlayerAdmin;
         });
 
-        this.socketCommunicationService.on('kickPlayer', () => {
-            this.onPlayerKickedOut();
-        });
-
-        this.gameService.onLeftRoomEvent();
-
         this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
             this.chosenGame = room.gameMap;
             this.loadMap();
             this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
         });
-    }
-
-    onPlayerKickedOut() {
-        this.gameService
-            .openDialog({
-                title: DialogTitle.KickedOut,
-                messages: [DialogMessages.KickedOut],
-                options: [DialogOptions.Close],
-                confirm: false,
-            })
-            .subscribe((result) => {
-                if (result === DialogResult.Close) {
-                    this.router.navigate(['/join-game']);
-                }
-            });
     }
 
     isMaxPlayersReached() {
@@ -139,14 +120,6 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
                 confirm: false,
             });
         }
-    }
-
-    ngOnDestroy() {
-        this.socketCommunicationService.off('roomDeleted');
-        this.socketCommunicationService.off('updatedPlayer');
-        this.socketCommunicationService.off('isPlayerAdmin');
-        this.socketCommunicationService.off('kickPlayer');
-        this.socketCommunicationService.off('leftRoom');
     }
 
     private confirmStartGame() {
