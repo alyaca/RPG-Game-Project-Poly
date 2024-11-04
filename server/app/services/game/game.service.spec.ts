@@ -482,7 +482,7 @@ describe('GameService', () => {
             service['playerTurnTimer'] = jest.fn();
             service.onStartTurn(mockSocket, mockServer);
             turnTimerCallback(remainingTime);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('otherPlayerTurn', mockSocket.data.username);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('otherPlayerTurn', listPlayers[0].name);
             expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('beforeStartTurnTimer', remainingTime);
 
             turnTimerCallback(0);

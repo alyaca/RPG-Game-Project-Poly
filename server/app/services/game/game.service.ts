@@ -100,7 +100,7 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
-        server.to(room.roomId).emit('otherPlayerTurn', client.data.username);
+        server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
