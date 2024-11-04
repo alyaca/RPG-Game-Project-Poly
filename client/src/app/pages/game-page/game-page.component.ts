@@ -38,7 +38,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     mapDimensions: string;
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
-    activePlayerMessage: string | null;
+    activePlayerName: string | null;
 
     isActivePlayer: boolean = false;
     isActionSelected: boolean = true;
@@ -76,7 +76,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
-            this.activePlayerMessage = `Le tour de ${name} va commencer`;
+            this.activePlayerName = name;
         });
 
         this.socketCommunicationService.on('roomDeleted', (message: string) => {
@@ -138,7 +138,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isTurnStartShowed = false;
         this.isFirstTimerDone = true;
         this.beforeTurnTotalTime = STARTING_TIME;
-        this.activePlayerMessage = null;
+        this.activePlayerName = null;
         this.enableClicks();
     }
 

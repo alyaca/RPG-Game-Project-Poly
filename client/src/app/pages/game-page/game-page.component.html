@@ -29,9 +29,11 @@
                 (closeTimer)="closeTurnStartPopUp()"
             ></app-timer>
         </div>
-        } @if(activePlayerMessage && !isTurnStartShowed){
+        } @if(activePlayerName && !isTurnStartShowed){
         <div class="turn-start">
-            <p>{{ activePlayerMessage }}</p>
+            <p>Le tour de</p>
+            <p class="player-name-modal">{{ activePlayerName }}</p>
+            <p>va commencer</p>
         </div>
         }
         <div id="game-grid-background-gradient">
