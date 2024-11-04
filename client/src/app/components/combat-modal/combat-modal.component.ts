@@ -19,7 +19,7 @@ import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
 import { Player } from '@common/player';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Room } from '@common/room';
+// import { Room } from '@common/room';
 
 @Component({
     selector: 'app-combat-modal',
@@ -37,29 +37,29 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
 
-    // @Input() player1: Player = mockLobbyPlayers[0];
+    @Input() player1: Player = mockLobbyPlayers[0];
     @Input() player2: Player = mockLobbyPlayers[1];
 
-    @Input() player1: Player;
+    //@Input() player1: Player;
     //@Input() player2: Player;
 
     totalTime: number = COMBAT_TURN_LENGTH;
-    timeRemaining: number = COMBAT_TURN_LENGTH;
+    combatTimeRemaining: number = COMBAT_TURN_LENGTH;
 
     constructor(public combatService: CombatLogicService, public socketCommunicationService: SocketCommunicationService) {}
 
     ngOnInit() {
-        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
-            // console.log(room.listPlayers[0])
-            this.player1 = room.listPlayers[0];
-            this.player2 = room.listPlayers[1];
-        });
         // this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
-        //     const foundPlayer = room.listPlayers.find((player) => player.id === this.player1Id);
-        //     if (foundPlayer) {
-        //         this.player1 = foundPlayer;
-        //     }
+        //     // console.log(room.listPlayers[0])
+        //     this.player1 = room.listPlayers[0];
+        //     this.player2 = room.listPlayers[1];
         // });
+        // // this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+        // //     const foundPlayer = room.listPlayers.find((player) => player.id === this.player1Id);
+        // //     if (foundPlayer) {
+        // //         this.player1 = foundPlayer;
+        // //     }
+        // // });
 
         this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
@@ -86,8 +86,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.socketCommunicationService.on('turnEnded', () => {
             this.onBeforeStartTurn();
         });
-        this.socketCommunicationService.on('fightTime', (timeRemaining: number) => {
-            this.timeRemaining = timeRemaining;
+        this.socketCommunicationService.on('fightTime', (combatTimeRemaining: number) => {
+            this.combatTimeRemaining = combatTimeRemaining;
             this.onBeforeStartTurn();
         });
     }
@@ -128,7 +128,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     attack() {
         this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2);
-        this.socketCommunicationService.send('fightTime', this.timeRemaining);
+        this.socketCommunicationService.send('fightTime', this.combatTimeRemaining);
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.endGameIfNeeded();
@@ -136,7 +136,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     triggerAttack() {
         this.totalTime = this.combatService.determineTimerLength(this.combatService.evasionsArray1, this.combatService.currPlayerNum);
-        this.timeRemaining = this.totalTime;
+        this.combatTimeRemaining = this.totalTime;
         if (!this.combatService.isGameOngoing || this.combatService.attackInProgress) {
             return;
         }
