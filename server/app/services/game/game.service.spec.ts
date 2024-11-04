@@ -10,6 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { GameService } from './game.service';
 
+/* eslint-disable max-lines */
 describe('GameService', () => {
     let service: GameService;
     let mockSocket: Socket;
@@ -18,8 +19,6 @@ describe('GameService', () => {
     let room: Room;
     let mockPlayer: Player;
     let listPlayers: Player[];
-    // let fightTimerMock: Timer;
-    // let turnTimerMock: Timer;
 
     beforeEach(async () => {
         mockSocket = {
@@ -29,9 +28,6 @@ describe('GameService', () => {
             rooms: new Set(['1234']),
             to: jest.fn().mockReturnThis(),
         } as unknown as Socket;
-
-        // fightTimerMock = { stopTimer: jest.fn() } as unknown as Timer;
-        // turnTimerMock = { stopTimer: jest.fn() } as unknown as Timer;
 
         listPlayers = [
             { id: 'player1', attributes: { speed: 10 }, status: Status.Player, isActive: true },
@@ -146,6 +142,7 @@ describe('GameService', () => {
 
     describe('leavePlayerFromGame', () => {
         it('should emit leftRoom and delete room if player is admin', () => {
+            room.gameStatus = GameStatus.Lobby;
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
             jest.spyOn(service, 'removePlayerFromRoom');
             service.leavePlayerFromGame(roomId, mockSocket, mockServer);
@@ -365,7 +362,7 @@ describe('GameService', () => {
         jest.spyOn(roomService, 'getFightTimer');
         jest.spyOn(roomService, 'getTurnTimer');
 
-        service.stopGameTimers(mockServer, roomId);
+        service.stopGameTimers(mockServer, room);
 
         expect(roomService.getFightTimer).toHaveBeenCalledWith(roomId);
         expect(roomService.getTurnTimer).toHaveBeenCalledWith(roomId);
@@ -434,11 +431,22 @@ describe('GameService', () => {
 
             jest.spyOn(service, 'getPlayerById').mockReturnValue(activePlayer);
             service['isActivePlayer'] = jest.fn().mockReturnValue(true);
-            jest.spyOn(service, 'onTurnEnded').mockImplementation(() => {});
+            jest.spyOn(service, 'onTurnEnded').mockImplementation();
 
             service['playerDisconnected'](room, mockSocket, mockServer);
 
             expect(service.onTurnEnded).toHaveBeenCalledWith(mockSocket, mockServer);
+        });
+
+        it('should emit draw if player is the last one in game', () => {
+            const player = { id: 'player-id', status: Status.Player } as unknown as Player;
+            jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
+            service['isActivePlayer'] = jest.fn().mockReturnValue(false);
+            service['isLastPlayer'] = jest.fn().mockReturnValue(true);
+            service['sortPlayersBySpeed'] = jest.fn();
+
+            service['playerDisconnected'](room, mockSocket, mockServer);
+            expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('draw');
         });
     });
 
@@ -454,7 +462,7 @@ describe('GameService', () => {
             } as unknown as Timer;
 
             jest.spyOn(roomService, 'getTurnTimer').mockReturnValue(turnTimer);
-            jest.spyOn(service, 'onTurnEnded').mockImplementation(() => {});
+            jest.spyOn(service, 'onTurnEnded').mockImplementation();
             service['playerTurnTimer'](mockSocket, mockServer);
             turnTimerCallback(remainingTime);
 
@@ -492,7 +500,8 @@ describe('GameService', () => {
 
     describe('checkFell', () => {
         it('should return true if random value is greater than FELLING_PROBABILITY', () => {
-            jest.spyOn(Math, 'random').mockReturnValue(0.4);
+            const value = 0.4;
+            jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });

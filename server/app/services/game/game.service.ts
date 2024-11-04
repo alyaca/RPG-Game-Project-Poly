@@ -1,4 +1,4 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, STARTING_TIME, TileType, TURN_TIME } from '@app/constants';
+import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileType, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -50,7 +50,7 @@ export class GameService {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
-        if (isAdmin) {
+        if (isAdmin && room.gameStatus === GameStatus.Lobby) {
             this.roomService.deleteRoom(roomId, socket);
         } else if (room.gameStatus === GameStatus.Started) {
             this.playerDisconnected(room, socket, server);
@@ -71,10 +71,10 @@ export class GameService {
         }
     }
 
-    stopGameTimers(server: Server, roomId: string) {
-        if (!server.sockets.adapter.rooms.get(roomId)) {
-            this.roomService.getFightTimer(roomId).stopTimer();
-            this.roomService.getTurnTimer(roomId).stopTimer();
+    stopGameTimers(server: Server, room: Room) {
+        if (!server.sockets.adapter.rooms.get(room.roomId)) {
+            this.roomService.getFightTimer(room.roomId).stopTimer();
+            this.roomService.getTurnTimer(room.roomId).stopTimer();
         }
     }
 
@@ -117,24 +117,7 @@ export class GameService {
         server.to(room.roomId).emit('turnEnded', room.listPlayers);
     }
 
-    // To do for fight
-    // onStartFight(client: Socket, opponent: Player, server: Server) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.roomService.getTurnTimer(room.roomId).pauseTimer();
-    //     this.roomService.getFightTimer(room.roomId).startTimer(FIGHT_TIME, (timeRemaining) => {
-    //         client.emit('fightTime', timeRemaining);
-    //         server.to(opponent.id).emit('fightTime', timeRemaining);
-    //     });
-    // }
-
-    // To do for fight
-    // onEndFight(server: Server, room: Room) {
-    //     this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
-    //         server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-    //     });
-    // }
-
-    async proccesNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+    async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         const player = this.getActivePlayer(room);
         for (const tile of path) {
             player.position = tile;
@@ -211,6 +194,10 @@ export class GameService {
         return currentPlayer.isActive;
     }
 
+    private isLastPlayer(room: Room) {
+        return this.getPlayerConnectedInRoom(room).length === SINGLE_PLAYER;
+    }
+
     private isCodeFormatValid(roomCode: string): boolean {
         return /^[0-9]{4}$/.test(roomCode);
     }
@@ -226,6 +213,9 @@ export class GameService {
             this.onTurnEnded(socket, server);
         }
         disconnectedPlayer.status = Status.Disconnected;
+        if (this.isLastPlayer(room)) {
+            server.to(room.roomId).emit('draw');
+        }
         server.to(room.roomId).emit('playerDisconnected', disconnectedPlayer);
         this.sortPlayersBySpeed(room);
     }

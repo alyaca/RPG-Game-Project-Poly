@@ -44,3 +44,8 @@ export const MILLISECONDS_IN_SECOND = 1000;
 
 export const MOVEMENT_TIME = 150;
 export const FELLING_PROBABILITY = 0.1;
+
+export const SINGLE_PLAYER = 1;
+
+// constant for tests
+export const FOWARD_TIME = 1000;

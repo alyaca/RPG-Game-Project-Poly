@@ -89,7 +89,6 @@ describe('GamePageComponent', () => {
         httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
-        component['dialog'] = dialogSpy;
         component.allPlayers = mockPlayers;
         fixture.detectChanges();
 
@@ -119,20 +118,6 @@ describe('GamePageComponent', () => {
         component.enableClicks();
         expect(component.pageDiv.first.nativeElement.id).toBe('enabled');
     });
-
-    // it('should open the combat modal and pause the timer', () => {
-    //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['pauseTimer']);
-    //     component.openCombatModal();
-    //     expect(component.isInCombat).toBeTrue();
-    //     expect(component.turnTimerComponent.pauseTimer).toHaveBeenCalled();
-    // });
-
-    // it('should close the combat modal and resume the timer', () => {
-    //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['resumeTimer']);
-    //     component.closeCombatModal();
-    //     expect(component.isInCombat).toBeFalse();
-    //     expect(component.turnTimerComponent.resumeTimer).toHaveBeenCalled();
-    // });
 
     it('should open a confirmation dialog and navigate when quitting the game', () => {
         component.handleExit();

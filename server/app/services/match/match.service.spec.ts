@@ -1,3 +1,4 @@
+import { SPAWN_POINT_ID } from '@app/constants';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
@@ -63,10 +64,10 @@ describe('MatchService', () => {
 
     it('should return array of spawn point', () => {
         const mapObjects = [
-            [0, 8, 0, 0],
-            [0, 2, 0, 8],
-            [0, 8, 3, 2],
-            [1, 0, 0, 8],
+            [0, SPAWN_POINT_ID, 0, 0],
+            [0, 2, 0, SPAWN_POINT_ID],
+            [0, SPAWN_POINT_ID, 1, 0],
+            [1, 0, 0, SPAWN_POINT_ID],
         ];
         const spawnPoints = service['getSpawnPoints'](mapObjects);
         expect(spawnPoints).toEqual(expectedSpawnPoints);
@@ -84,9 +85,11 @@ describe('MatchService', () => {
 
     it('should return a random index within the specified range', () => {
         const max = 10;
-        jest.spyOn(Math, 'random').mockReturnValue(0.5);
+        const value = 0.5;
+        const expectedValue = 5;
+        jest.spyOn(Math, 'random').mockReturnValue(value);
 
         const result = service['getRandomIndex'](max);
-        expect(result).toBe(5);
+        expect(result).toBe(expectedValue);
     });
 });

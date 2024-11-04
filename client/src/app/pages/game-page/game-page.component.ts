@@ -7,11 +7,11 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, SINGLE_PLAYER, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player, Status } from '@common/player';
+import { Player } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -64,23 +64,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.mapDimensions || !this.mapName) {
             this.router.navigate(['/home']);
         }
+
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
             this.replenishHealth();
         });
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            if (this.allPlayers.filter((player) => player.status !== Status.Disconnected).length === SINGLE_PLAYER) {
-                this.handleDraw();
-            }
         });
-
+        this.socketCommunicationService.on('draw', () => {
+            this.socketCommunicationService.disconnect();
+            this.handleDraw();
+        });
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
             this.activePlayerName = name;
-        });
-
-        this.socketCommunicationService.on('roomDeleted', (message: string) => {
-            this.gameService.onAdminQuit(message);
         });
     }
 
@@ -194,14 +191,5 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
-        this.removeListener();
-    }
-
-    removeListener() {
-        this.socketCommunicationService.off('disconnectedPlayer');
-        this.socketCommunicationService.off('isActive');
-        this.socketCommunicationService.off('beforeStartTurnTimer');
-        this.socketCommunicationService.off('startedTurnTimer');
-        this.socketCommunicationService.off('turnEnded');
     }
 }

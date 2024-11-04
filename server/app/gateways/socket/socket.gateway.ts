@@ -103,24 +103,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
         this.gameService.onTurnEnded(client, this.server);
-        this.logger.debug(`client ${client.id} turn is over`); // for debug
+        this.logger.debug(`client ${client.id} turn is over`);
     }
 
     @SubscribeMessage(SocketEvents.StartTurn)
     handleBeforeStartTurn(client: Socket) {
         this.gameService.onStartTurn(client, this.server);
     }
-
-    // @SubscribeMessage(SocketEvents.StartFight)
-    // handleStartFight(client: Socket, opponent: Player) {
-    //     this.gameService.onStartFight(client, opponent, this.server);
-    // }
-
-    // @SubscribeMessage(SocketEvents.EndFight)
-    // handleEndFight(client: Socket) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.gameService.onEndFight(this.server, room);
-    // }
 
     @SubscribeMessage(SocketEvents.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
@@ -139,7 +128,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        this.gameService.proccesNavigation(room, this.server, path, client);
+        this.gameService.processNavigation(room, this.server, path, client);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
@@ -165,7 +154,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         if (room) {
             this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
-            this.gameService.stopGameTimers(this.server, room.roomId);
+            this.gameService.stopGameTimers(this.server, room);
             this.logger.log(`Client disconnected: ${client.id}`);
         } else {
             this.logger.log(`Client disconnected when no room: ${client.id}`);
