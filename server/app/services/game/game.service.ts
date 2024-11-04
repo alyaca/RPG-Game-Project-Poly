@@ -139,7 +139,7 @@ export class GameService {
         for (const tile of path) {
             player.position = tile;
             await this.delay(MOVEMENT_TIME);
-            server.to(room.roomId).emit('playerNavigation', tile);
+            server.to(room.roomId).emit('playerNavigation', { player, tile });
             if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
                 server.to(room.roomId).emit('playerFell');
                 this.onTurnEnded(client, server);

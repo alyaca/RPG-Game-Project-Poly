@@ -97,8 +97,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.findReachableTiles();
         });
 
-        this.socketCommunicationService.on('playerNavigation', (tile: Position) => {
-            this.navigateToTile(tile);
+        this.socketCommunicationService.on<{ tile: Position; player: Player }>('playerNavigation', ({ tile, player }) => {
+            this.navigateToTile(tile, player);
         });
 
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
@@ -307,32 +307,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    navigateToTile(position: Position) {
-        if (!this.activePlayer) {
-            return;
-        }
-        this.navigationService.updateTuile(this.activePlayer);
-        /*
-        if (this.navigationService.isInInitialPosition(this.activePlayer.position)) {
-            this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = ObjectType.Spawn;
-        } else if (this.navigationService.isObject(this.activePlayer.position)) {
-            this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = this.navigationService.getObject(
-                this.activePlayer.position,
-            );
-        } else {
-            this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = 0;
-        }
-            */
+    navigateToTile(position: Position, player: Player) {
+        if (this.activePlayer?.name !== player.name) return;
         if (this.activePlayer) {
+            this.navigationService.updateTuile(this.activePlayer);
             this.activePlayer.attributes.movementPointsLeft--;
+            this.activePlayer.position = position;
         }
-        this.activePlayer.position = position;
         this.displayPortraitOnSpawnPoints();
         this.findReachableTiles();
-
+        /*
         if (this.activePlayer === this.currentPlayer) {
             this.isMoving = false;
         }
+            */
     }
 
     async delay(ms: number) {
