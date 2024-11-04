@@ -60,7 +60,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private mapValidatorService: MapValidatorService,
         public tileService: TileService,
         public gameObjectService: GameObjectService,
-        private gameCreationService: GameCreationService,
+        public gameCreationService: GameCreationService,
     ) {}
 
     getSelectedTile(): string {

@@ -55,7 +55,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             this.gameService.onAdminQuit(message);
         });
 
-        this.socketCommunicationService.on<Room>('updatedPlayer', (room: Room) => {
+        this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
             this.players = room.listPlayers;
             this.onMaxPlayers();
         });
