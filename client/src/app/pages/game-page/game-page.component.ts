@@ -9,6 +9,7 @@ import { PlayerInfoInventoryComponent } from '@app/components/player-info-invent
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, SINGLE_PLAYER, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player, Status } from '@common/player';
@@ -55,6 +56,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
+        private combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -81,6 +83,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('roomDeleted', (message: string) => {
             this.gameService.onAdminQuit(message);
+        });
+
+        this.combatService.OnCombatReceived(() => {
+            this.isInCombat = true;
         });
     }
 
@@ -147,14 +153,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     openCombatModal() {
-        this.isInCombat = true;
-        this.socketCommunicationService.send('startFight');
+        this.socketCommunicationService.send('startFight'); /*logique commencement de combat 
+        (envoyer l evenement si le joueur peut declencher combat) POUR GHADI
+        */
     }
 
-    closeCombatModal() {
-        this.isInCombat = false;
-        this.socketCommunicationService.send('endFight');
-    }
+    // closeCombatModal() {
+    //     this.isInCombat = false;
+    //     this.socketCommunicationService.send('endFight');
+    // }
 
     handleExit() {
         this.gameService

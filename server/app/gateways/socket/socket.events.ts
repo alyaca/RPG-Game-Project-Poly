@@ -13,8 +13,8 @@ export enum SocketEvents {
     EndTurn = 'endTurn',
     StartTurn = 'startTurn',
     BeforeStartTurn = 'beforeStartTurn',
-    StartFight = 'startFight',
-    EndFight = 'endFight',
+    StartCombat = 'startCombat',
+    EndCombat = 'endCombat',
     PlayerNavigation = 'playerNavigation',
     KickPlayer = 'kickPlayer',
 }
