@@ -14,8 +14,8 @@ export const mockGame: Game = {
     ],
     dimension: 20,
     itemPlacement: [
-        [0, 1],
-        [0, 1],
+        [0, 8],
+        [0, 8],
     ],
     isSelected: false,
     lastModification: new Date(),

@@ -1,3 +1,4 @@
+import { Timer } from '@app/classes/timer/timer';
 import { ACCESS_CODE_LENGTH } from '@app/constants';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
@@ -187,7 +188,6 @@ describe('RoomService', () => {
     it('should return the room corresponding to the client', () => {
         service.rooms.set(roomId, mockRooms[0]);
         jest.spyOn(service, 'getRoomId').mockReturnValue(roomId);
-
         const result = service.getRoom(mockSocket);
 
         expect(service.getRoomId).toHaveBeenCalled();
@@ -211,5 +211,24 @@ describe('RoomService', () => {
         service.adminList = ['admin1234'];
         service.removeAdmin(mockSocket);
         expect(service.adminList).toEqual([]);
+    });
+
+    it('should retrieve the correct game map for a room', () => {
+        service.rooms.set(roomId, mockRooms[0]);
+        const gameMap = service.getRoomMap(roomId);
+        expect(gameMap).toEqual(mockGame);
+    });
+
+    it('should return the room timers', () => {
+        const turnTimerInstance = new Timer();
+        const fightTimerInstance = new Timer();
+        const gameTimers = { turnTimer: turnTimerInstance, fightTimer: fightTimerInstance };
+        service.gameTimers.set(roomId, gameTimers);
+
+        const turnTimer = service.getTurnTimer(roomId);
+        const fightTimer = service.getFightTimer(roomId);
+
+        expect(turnTimer).toEqual(turnTimerInstance);
+        expect(fightTimer).toEqual(fightTimerInstance);
     });
 });
