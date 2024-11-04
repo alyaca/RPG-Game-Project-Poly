@@ -43,3 +43,4 @@ export const NO_EVASION_TIME = 3;
 export const MILLISECONDS_IN_SECOND = 1000;
 
 export const MOVEMENT_TIME = 150;
+export const FELLING_PROBABILITY = 0.1;

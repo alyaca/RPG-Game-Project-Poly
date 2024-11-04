@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FELLING_PROBABILITY, ObjectType, TileType } from '@app/constants';
+import { ObjectType, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -147,12 +147,13 @@ export class NavigationService {
         }
         return [];
     }
-
+    /*
     //A enlever peut etre (probalbement)
     checkFell(): boolean {
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
     }
+        */
 
     /* TEMPORAIRE
     checkAttack(): boolean {

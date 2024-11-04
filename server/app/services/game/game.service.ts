@@ -1,4 +1,4 @@
-import { MOVEMENT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { FELLING_PROBABILITY, MOVEMENT_TIME, STARTING_TIME, TileType, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -135,18 +135,24 @@ export class GameService {
     // }
 
     async proccesNavigation(room: Room, server: Server, path: Position[]) {
-        // const playersList = this.roomService.getRoom(socket).listPlayers;
         for (const tile of path) {
             this.getActivePlayer(room).position = tile;
-            // socket.emit('playerNavigation', this.getActivePlayer(room), tile);
-            await this.delay(MOVEMENT_TIME); // CONSTANT A ENLEVER
-            // socket.emit('playerNavigation', tile);
+            await this.delay(MOVEMENT_TIME);
             server.to(room.roomId).emit('playerNavigation', tile);
+            if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
+                server.to(room.roomId).emit('playerFell');
+                break;
+            }
         }
     }
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private checkFell(): boolean {
+        const randomValue = Math.random();
+        return randomValue > FELLING_PROBABILITY;
     }
 
     private freeUpAvatar(room: Room, socket: Socket) {

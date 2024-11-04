@@ -99,6 +99,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
+
+        this.socketCommunicationService.on('playerFell', () => {
+            //TODO : afficher un message pour dire que le joueur est tombé
+            console.log('Player fell');
+        });
     }
 
     loadNewGame() {
@@ -286,7 +291,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     // TODO : Changer le nom de la fonction, et refactor
     navigateToTile2(position: Position) {
-        console.log(this.activePlayer);
         if (!this.activePlayer) {
             return;
         }
