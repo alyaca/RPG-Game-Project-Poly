@@ -200,4 +200,10 @@ describe('CharacterCreatorComponent', () => {
         });
         expect(mockEvent.preventDefault).toHaveBeenCalled();
     });
+
+    it('should remove spaces from characterName', () => {
+        component.characterName = 'Test Name';
+        component.removeSpaces();
+        expect(component.characterName).toBe('TestName');
+    });
 });

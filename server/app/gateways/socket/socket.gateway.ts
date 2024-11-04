@@ -41,20 +41,20 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             client.emit(connectionRes.event, connectionRes.errorType);
         } else {
             client.emit(connectionRes.event, room);
-            this.logger.debug(`client ${client.id} joined room ${roomId}`); // for debug
+            this.logger.debug(`client ${client.id} joined room ${roomId}`);
         }
     }
 
     @SubscribeMessage(SocketEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
-        this.logger.debug(`client ${client.id} left room ${roomId}`); // for debug
+        this.logger.debug(`client ${client.id} left room ${roomId}`);
         this.gameService.leavePlayerFromGame(roomId, client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.ChangeLockRoom)
-    handleLockRoom(client: Socket, data: { isLocked: boolean }) {
+    handleLockRoom(client: Socket, isLocked: boolean) {
         const roomId = this.roomService.getRoomId(client);
-        this.gameService.toggleLockRoom(roomId, data.isLocked);
+        this.gameService.toggleLockRoom(roomId, isLocked);
     }
 
     @SubscribeMessage(SocketEvents.IsLocked)
@@ -66,8 +66,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
+        const isAdmin = this.roomService.isPlayerAdmin(client);
         this.gameService.createPlayer(room, player, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
+        client.emit('isPlayerAdmin', isAdmin);
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)
@@ -76,12 +78,22 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.selectedAvatar(room, avatar, client, this.server);
     }
 
+    @SubscribeMessage(SocketEvents.KickPlayer)
+    handleKickPlayer(client: Socket, playerId: string) {
+        const room = this.roomService.getRoom(client);
+        this.logger.debug(`client ${playerId} was kicked out of room`);
+        this.server.to(playerId).emit('kickPlayer', playerId);
+
+        const playerSocket = this.server.sockets.sockets.get(playerId);
+        this.gameService.removePlayerFromRoom(room.roomId, playerSocket, this.server);
+        this.server.to(room.roomId).emit('updatedPlayer', room);
+    }
+
     @SubscribeMessage(SocketEvents.StartGame)
     handleStartGame(client: Socket) {
         const room = this.roomService.getRoom(client);
         this.matchService.processMapObjects(client);
         this.gameService.onStartGame(room);
-        //const activePlayer = room.listPlayers.find((player) => player.isActive === true);
         const activePlayer = this.gameService.getActivePlayer(room);
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
@@ -153,7 +165,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         if (room) {
             this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
+            this.gameService.stopGameTimers(this.server, room.roomId);
             this.logger.log(`Client disconnected: ${client.id}`);
+        } else {
+            this.logger.log(`Client disconnected when no room: ${client.id}`);
         }
     }
 }

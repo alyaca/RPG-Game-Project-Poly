@@ -1,30 +1,13 @@
-import { Timer } from '@app/classes/timer/timer';
-import { FIGHT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { FIGHT_TIME, MOVEMENT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
-import { Room } from '@common/room';
+import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
-    turnTimer = new Timer();
-    fightTimer = new Timer();
-
     constructor(private roomService: RoomService) {}
-
-    toggleLockRoom(roomId: string, isLocked: boolean) {
-        const game = this.getGame(roomId);
-        game.isLocked = isLocked;
-    }
-
-    getGame(roomId) {
-        return this.roomService.rooms.get(roomId);
-    }
-
-    isCodeFormatValid(roomCode: string): boolean {
-        return /^[0-9]{4}$/.test(roomCode);
-    }
 
     connectPlayerToGame(roomId: string) {
         const game = this.getGame(roomId);
@@ -51,16 +34,16 @@ export class GameService {
         takenAvatar.isTaken = true;
     }
 
-    setUniquePlayerName(player: Player, socket: Socket) {
-        const playerName = this.generateUniquePlayerName(player.name, socket);
-        player.name = playerName;
-        socket.data.username = player.name;
+    getActivePlayer(room: Room): Player {
+        return room.listPlayers.find((player) => player.isActive === true);
     }
 
-    isActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const currentPlayer = room.listPlayers.find((player) => player.id === socket.id);
-        return currentPlayer.isActive;
+    getGame(roomId) {
+        return this.roomService.rooms.get(roomId);
+    }
+
+    getPlayerById(room: Room, socket: Socket) {
+        return room.listPlayers.find((player) => player.id === socket.id);
     }
 
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
@@ -69,22 +52,13 @@ export class GameService {
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
+        } else if (room.gameStatus === GameStatus.Started) {
+            this.playerDisconnected(room, socket, server);
+            socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
         }
-    }
-
-    removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
-        const room = this.roomService.rooms.get(roomId);
-        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
-        this.freeUpAvatar(room, socket);
-        this.updateAvatarsForAllClients(server);
-        this.roomService.leaveRoom(roomId, socket);
-    }
-
-    getAvatarByName(room: Room, avatar: Avatar) {
-        return room.availableAvatars.find((av) => av.name === avatar.name);
     }
 
     selectedAvatar(room: Room, avatar: Avatar, socket: Socket, server: Server) {
@@ -93,11 +67,89 @@ export class GameService {
         if (selectedAvatar && !selectedAvatar.isTaken) {
             selectedAvatar.isTaken = true;
             socket.data.clickedAvatar = selectedAvatar;
-            this.updateAvatarsForAllClients(server);
+            this.updateAvatarsForAllClients(server, room.roomId);
         }
     }
 
-    freeUpAvatar(room: Room, socket: Socket) {
+    stopGameTimers(server: Server, roomId: string) {
+        if (!server.sockets.adapter.rooms.get(roomId)) {
+            this.roomService.getFightTimer(roomId).stopTimer();
+            this.roomService.getTurnTimer(roomId).stopTimer();
+        }
+    }
+
+    removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
+        const room = this.roomService.rooms.get(roomId);
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
+        this.freeUpAvatar(room, socket);
+        this.updateAvatarsForAllClients(server, roomId);
+        this.roomService.leaveRoom(roomId, socket);
+    }
+
+    toggleLockRoom(roomId: string, isLocked: boolean) {
+        const game = this.getGame(roomId);
+        game.isLocked = isLocked;
+    }
+
+    onStartGame(room: Room) {
+        room.gameStatus = GameStatus.Started;
+        this.sortPlayersBySpeed(room);
+        room.listPlayers[0].isActive = true;
+    }
+
+    onStartTurn(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        const activePlayer = this.getActivePlayer(room);
+        client.to(room.roomId).emit('otherPlayerTurn', client.data.username);
+        this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
+            server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
+            if (timeRemaining === 0) {
+                this.playerTurnTimer(client, server);
+            }
+        });
+    }
+
+    onTurnEnded(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.updateActivePlayer(client);
+        const activePlayer = this.getActivePlayer(room);
+        server.to(room.roomId).emit('isActive', activePlayer.id);
+        server.to(room.roomId).emit('turnEnded', room.listPlayers);
+    }
+
+    // To do for fight
+    onStartFight(client: Socket, opponent: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).pauseTimer();
+        this.roomService.getFightTimer(room.roomId).startTimer(FIGHT_TIME, (timeRemaining) => {
+            client.emit('fightTime', timeRemaining);
+            server.to(opponent.id).emit('fightTime', timeRemaining);
+        });
+    }
+
+    // To do for fight
+    onEndFight(server: Server, room: Room) {
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+        });
+    }
+
+    async proccesNavigation(room: Room, server: Server, path: Position[]) {
+        // const playersList = this.roomService.getRoom(socket).listPlayers;
+        for (const tile of path) {
+            this.getActivePlayer(room).position = tile;
+            // socket.emit('playerNavigation', this.getActivePlayer(room), tile);
+            await this.delay(MOVEMENT_TIME); // CONSTANT A ENLEVER
+            // socket.emit('playerNavigation', tile);
+            server.to(room.roomId).emit('playerNavigation', tile);
+        }
+    }
+
+    async delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private freeUpAvatar(room: Room, socket: Socket) {
         if (socket.data.clickedAvatar) {
             const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
             if (previousAvatar) {
@@ -106,90 +158,7 @@ export class GameService {
         }
     }
 
-    sendAvatarListToClient(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
-            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
-            return {
-                ...avatar,
-                isTaken: !isSelectedByClient && avatar.isTaken,
-                isSelected: isSelectedByClient,
-            };
-        });
-
-        socket.emit('characterSelected', customizedAvatarsList);
-    }
-
-    updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = room.listPlayers;
-        const index = listPlayers.findIndex((item) => item.id === socket.id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
-    updateAvatarsForAllClients(server: Server) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
-            this.sendAvatarListToClient(clientSocket);
-        });
-    }
-
-    onStartGame(room: Room) {
-        this.sortPlayersBySpeed(room);
-    }
-
-    onStartTurn(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
-        //const activePlayer = room.listPlayers.find((player) => player.isActive === true);
-        const activePlayer = this.getActivePlayer(room);
-        client.to(room.roomId).emit('otherPlayerTurn', client.data.username);
-        this.turnTimer.startTimer(STARTING_TIME, (timeRemaining) => {
-            server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
-                this.onTurnStarted(client, server);
-            }
-        });
-    }
-
-    onTurnStarted(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
-        this.turnTimer.resetTimer(TURN_TIME, (timeRemaining) => {
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
-                this.onTurnEnded(client, server);
-            }
-        });
-    }
-
-    onTurnEnded(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
-        this.updateActivePlayer(client);
-        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
-        server.to(room.roomId).emit('isActive', activePlayer.id);
-        server.to(room.roomId).emit('turnEnded', room.listPlayers);
-    }
-
-    onStartFight(client: Socket, opponent: Player, server: Server) {
-        this.turnTimer.pauseTimer();
-        this.fightTimer.startTimer(FIGHT_TIME, (timeRemaining) => {
-            client.emit('fightTime', timeRemaining);
-            server.to(opponent.id).emit('fightTime', timeRemaining);
-        });
-    }
-
-    onEndFight(server: Server, room: Room) {
-        this.turnTimer.resumeTimer((timeRemaining) => {
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-        });
-    }
-
-    isPlayerNameTaken(name: string, socket: Socket) {
-        const playersList = this.roomService.getRoom(socket).listPlayers;
-        return playersList.some((player) => player.name === name);
-    }
-
-    generateUniquePlayerName(playerName: string, socket: Socket): string {
+    private generateUniquePlayerName(playerName: string, socket: Socket): string {
         let name = playerName;
         let suffix = 2;
 
@@ -200,20 +169,66 @@ export class GameService {
         return name;
     }
 
-    async proccesNavigation(room: Room, server: Server, path: Position[]) {
-        for (const tile of path) {
-            this.getActivePlayer(room).position = tile;
-            await this.delay(150); //CONSTANT A ENLEVER
-            server.to(room.roomId).emit('playerNavigation', tile);
+    private getAvatarByName(room: Room, avatar: Avatar) {
+        return room.availableAvatars.find((av) => av.name === avatar.name);
+    }
+
+    private getPlayerConnectedInRoom(room: Room) {
+        return room.listPlayers.filter((player) => player.status !== Status.Disconnected);
+    }
+
+    private isActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const currentPlayer = this.getPlayerById(room, socket);
+        return currentPlayer.isActive;
+    }
+
+    private isCodeFormatValid(roomCode: string): boolean {
+        return /^[0-9]{4}$/.test(roomCode);
+    }
+
+    private isPlayerNameTaken(name: string, socket: Socket) {
+        const playersList = this.roomService.getRoom(socket).listPlayers;
+        return playersList.some((player) => player.name === name);
+    }
+
+    private playerDisconnected(room: Room, socket: Socket, server: Server) {
+        const disconnectedPlayer = this.getPlayerById(room, socket);
+        if (this.isActivePlayer(socket)) {
+            this.onTurnEnded(socket, server);
         }
+        disconnectedPlayer.status = Status.Disconnected;
+        // TODO: remove player avatar from grid
+        this.sortPlayersBySpeed(room);
     }
 
-    async delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    private playerTurnTimer(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+            if (timeRemaining === 0) {
+                this.onTurnEnded(client, server);
+            }
+        });
     }
 
-    getActivePlayer(room: Room): Player {
-        return room.listPlayers.find((player) => player.isActive === true);
+    private sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
+    private setUniquePlayerName(player: Player, socket: Socket) {
+        const playerName = this.generateUniquePlayerName(player.name, socket);
+        player.name = playerName;
+        socket.data.username = player.name;
     }
 
     private sortPlayersBySpeed(room: Room) {
@@ -225,6 +240,23 @@ export class GameService {
                 ...listPlayers.filter((player) => player.status === Status.Disconnected),
             ];
         }
-        listPlayers[0].isActive = true;
+        room.listPlayers = listPlayers;
+    }
+
+    private updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === socket.id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
+    }
+
+    private updateAvatarsForAllClients(server: Server, roomId: string) {
+        server.sockets.sockets.forEach((clientSocket: Socket) => {
+            if (clientSocket.rooms.has(roomId)) {
+                this.sendAvatarListToClient(clientSocket);
+            }
+        });
     }
 }

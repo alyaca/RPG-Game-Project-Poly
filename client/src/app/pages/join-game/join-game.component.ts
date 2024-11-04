@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
@@ -13,7 +13,7 @@ import { Room } from '@common/room';
     templateUrl: './join-game.component.html',
     styleUrl: './join-game.component.scss',
 })
-export class JoinGameComponent {
+export class JoinGameComponent implements OnDestroy {
     accessCode: string;
     isCharacterFormVisible: boolean = false;
     errorMessage: string = '';
@@ -28,6 +28,10 @@ export class JoinGameComponent {
         this.socketCommunicationService.on('characterSelected', (availableAvatars: Avatar[]) => {
             this.availableAvatars = availableAvatars;
         });
+    }
+
+    ngOnDestroy() {
+        this.socketCommunicationService.off('characterSelected');
     }
 
     joinGame(accessCode: string) {

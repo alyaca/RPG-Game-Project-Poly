@@ -1,14 +1,18 @@
+import { Timer } from '@app/classes/timer/timer';
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
+import { GameTimers } from '@app/interfaces/game-timers';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
-import { Room } from '@common/room';
+import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class RoomService {
     rooms = new Map<string, Room>();
+    gameTimers = new Map<string, GameTimers>();
+
     adminList: string[] = [];
     private io: Server;
 
@@ -35,8 +39,10 @@ export class RoomService {
             availableAvatars: avatars.map((avatar) => ({ ...avatar, isTaken: false })),
             adminId: socket.id,
             isLocked: false,
+            gameStatus: GameStatus.Lobby,
         };
         this.rooms.set(roomCode, room);
+        this.setRoomTimers(roomCode);
         this.adminList.push(socket.id);
         socket.join(roomCode);
         socket.data.roomCode = roomCode;
@@ -59,8 +65,18 @@ export class RoomService {
         socket.data = {};
     }
 
+    removeAdmin(socket: Socket) {
+        const index = this.adminList.indexOf(socket.id);
+        if (index > -1) {
+            this.adminList.splice(index, 1);
+        }
+    }
+
     deleteRoom(roomId: string, socket: Socket) {
-        socket.broadcast.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        socket.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        if (this.isPlayerAdmin(socket)) {
+            this.removeAdmin(socket);
+        }
         this.cleanSocketsData(roomId);
         this.chatService.deleteMessagesByRoom(roomId);
         this.rooms.delete(roomId);
@@ -72,7 +88,7 @@ export class RoomService {
         socketsInRoom?.forEach((socketId) => {
             const socketInRoom = this.io.sockets.sockets.get(socketId);
             if (socketInRoom) {
-                delete socketInRoom.data;
+                socketInRoom.data = {};
             }
         });
     }
@@ -91,12 +107,28 @@ export class RoomService {
         return this.rooms.get(roomId).gameMap;
     }
 
+    getTurnTimer(roomId: string) {
+        return this.gameTimers.get(roomId).turnTimer;
+    }
+
+    getFightTimer(roomId: string) {
+        return this.gameTimers.get(roomId).fightTimer;
+    }
+
     joinRoom(socket: Socket, roomId: string) {
         if (!this.isRoomActive(roomId)) {
             return;
         }
         socket.join(roomId);
         socket.data.roomCode = roomId;
+    }
+
+    private setRoomTimers(roomId: string) {
+        const timers: GameTimers = {
+            turnTimer: new Timer(),
+            fightTimer: new Timer(),
+        };
+        this.gameTimers.set(roomId, timers);
     }
 
     private generateRoomCode(): string {

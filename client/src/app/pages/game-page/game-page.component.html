@@ -20,7 +20,7 @@
             <p id="player-count">{{ getPlayerCount() }} joueurs</p>
         </div>
         @if (isTurnStartShowed) {
-        <div id="turn-start-timer">
+        <div id="turn-start-timer" class="turn-start">
             <p>Votre tour commence dans</p>
             <app-timer
                 [totalTime]="beforeTurnTotalTime"
@@ -28,6 +28,12 @@
                 (startTimer)="onBeforeStartTurn()"
                 (closeTimer)="closeTurnStartPopUp()"
             ></app-timer>
+        </div>
+        } @if(activePlayerName && !isTurnStartShowed){
+        <div class="turn-start">
+            <p>Le tour de</p>
+            <p class="player-name-modal">{{ activePlayerName }}</p>
+            <p>va commencer</p>
         </div>
         }
         <div id="game-grid-background-gradient">
