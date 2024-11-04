@@ -1,3 +1,4 @@
+import { Timer } from '@app/classes/timer/timer';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
@@ -23,7 +24,7 @@ describe('GameService', () => {
     beforeEach(async () => {
         mockSocket = {
             emit: jest.fn(),
-            data: { roomCode: '1234' },
+            data: { roomCode: '1234', username: 'the-user' },
             id: 'admin1234',
             rooms: new Set(['1234']),
             to: jest.fn().mockReturnThis(),
@@ -397,5 +398,120 @@ describe('GameService', () => {
 
         expect(mockServer.to(roomId).emit).toHaveBeenCalled();
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('turnEnded', room.listPlayers);
+    });
+
+    it('should sort players by speed descending and move disconnected players to the end', () => {
+        const player1 = { attributes: { speed: 10 }, status: Status.Disconnected } as unknown as Player;
+        const player2 = { attributes: { speed: 15 }, status: Status.Player } as unknown as Player;
+        const player3 = { attributes: { speed: 5 }, status: Status.Player } as unknown as Player;
+        const player4 = { attributes: { speed: 20 }, status: Status.Player } as unknown as Player;
+
+        room.listPlayers = [player1, player2, player3, player4];
+
+        service['sortPlayersBySpeed'](room);
+
+        expect(room.listPlayers).toEqual([player4, player2, player3, player1]);
+    });
+
+    describe('playerDisconnected', () => {
+        it('should mark player as disconnected and emit event', () => {
+            const player = { id: 'player-id', status: Status.Player } as unknown as Player;
+            room.listPlayers = [player];
+            jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
+            service['sortPlayersBySpeed'] = jest.fn();
+
+            service['playerDisconnected'](room, mockSocket, mockServer);
+
+            expect(player.status).toBe(Status.Disconnected);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('playerDisconnected', player);
+            expect(service['sortPlayersBySpeed']).toHaveBeenCalled();
+            expect(service.getPlayerById).toHaveBeenCalled();
+        });
+
+        it('should call onTurnEnded if the disconnected player is active', () => {
+            const activePlayer = { id: 'active-player-id', isActive: true, status: Status.Player } as unknown as Player;
+            room.listPlayers = [activePlayer];
+
+            jest.spyOn(service, 'getPlayerById').mockReturnValue(activePlayer);
+            service['isActivePlayer'] = jest.fn().mockReturnValue(true);
+            jest.spyOn(service, 'onTurnEnded').mockImplementation(() => {});
+
+            service['playerDisconnected'](room, mockSocket, mockServer);
+
+            expect(service.onTurnEnded).toHaveBeenCalledWith(mockSocket, mockServer);
+        });
+    });
+
+    describe('playerTurnTimer', () => {
+        it('should emit startedTurnTimer with remaining time', () => {
+            const remainingTime = 5;
+            const turnTimerCallback = jest.fn();
+            const resetTimerMock = jest.fn((time, callback) => {
+                turnTimerCallback.mockImplementation(callback);
+            });
+            const turnTimer = {
+                resetTimer: resetTimerMock,
+            } as unknown as Timer;
+
+            jest.spyOn(roomService, 'getTurnTimer').mockReturnValue(turnTimer);
+            jest.spyOn(service, 'onTurnEnded').mockImplementation(() => {});
+            service['playerTurnTimer'](mockSocket, mockServer);
+            turnTimerCallback(remainingTime);
+
+            expect(roomService.getTurnTimer).toHaveBeenCalledWith(room.roomId);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('startedTurnTimer', remainingTime);
+            turnTimerCallback(0);
+            expect(service.onTurnEnded).toHaveBeenCalledWith(mockSocket, mockServer);
+        });
+    });
+
+    describe('onStartTurn', () => {
+        it('should start the turn timer and emit otherPlayerTurn', () => {
+            const remainingTime = 5;
+            const turnTimerCallback = jest.fn();
+            const startTimerMock = jest.fn((time, callback) => {
+                turnTimerCallback.mockImplementation(callback);
+            });
+            const turnTimer = {
+                startTimer: startTimerMock,
+            } as unknown as Timer;
+
+            jest.spyOn(roomService, 'getTurnTimer').mockReturnValue(turnTimer);
+            jest.spyOn(service, 'getActivePlayer').mockReturnValue(listPlayers[0]);
+
+            service['playerTurnTimer'] = jest.fn();
+            service.onStartTurn(mockSocket, mockServer);
+            turnTimerCallback(remainingTime);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('otherPlayerTurn', mockSocket.data.username);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('beforeStartTurnTimer', remainingTime);
+
+            turnTimerCallback(0);
+            expect(service['playerTurnTimer']).toHaveBeenCalledWith(mockSocket, mockServer);
+        });
+    });
+
+    describe('checkFell', () => {
+        it('should return true if random value is greater than FELLING_PROBABILITY', () => {
+            jest.spyOn(Math, 'random').mockReturnValue(0.4);
+            const result = service['checkFell']();
+            expect(result).toBe(true);
+        });
+        it('should return false if random value is less than or equal to FELLING_PROBABILITY', () => {
+            jest.spyOn(Math, 'random').mockReturnValue(0);
+            const result = service['checkFell']();
+            expect(result).toBe(false);
+        });
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+    });
+
+    it('should resolve after the specified delay', async () => {
+        const ms = 100;
+        const startTime = Date.now();
+        await service.delay(ms);
+        const elapsedTime = Date.now() - startTime;
+
+        expect(elapsedTime).toBeGreaterThanOrEqual(ms);
     });
 });
