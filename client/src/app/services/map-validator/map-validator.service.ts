@@ -230,3 +230,5 @@ export class MapValidatorService {
         return spawnObjectCount;
     }
 }
+
+export { TileType };

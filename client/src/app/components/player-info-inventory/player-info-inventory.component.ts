@@ -1,7 +1,8 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-player-info-inventory',
@@ -10,18 +11,31 @@ import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
     templateUrl: './player-info-inventory.component.html',
     styleUrl: './player-info-inventory.component.scss',
 })
-export class PlayerInfoInventoryComponent {
-    // VERY TEMPORARY, JUST FOR THE STATIC VIEW OF THE PAGE
-    @Input() player: Player = mockLobbyPlayers[2];
+export class PlayerInfoInventoryComponent implements OnInit {
+    @Input() playerId: string | undefined;
     @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
-    actionPointsArray = Array(this.player.attributes.actionPoints);
-    movementPointsArray = Array(this.player.attributes.movementPointsLeft);
-
+    player: Player;
+    actionPointsArray: number[];
+    movementPointsArray: number[];
     descriptionPosition: string = 'bottom';
     // check if when the hp changes, the hp bar visual also changes
 
     // Those functions are just for testing purposes to make sure that the page is reactive but,
     // we can use them to display the change in hp and all the other stuff when we do the game's logic.
+
+    constructor(private socketCommunicationService: SocketCommunicationService) {}
+
+    ngOnInit() {
+        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+            const foundPlayer = room.listPlayers.find((player) => player.id === this.playerId);
+            if (foundPlayer) {
+                this.player = foundPlayer;
+                this.actionPointsArray = Array(1);
+                this.movementPointsArray = Array(this.player.attributes.speed);
+            }
+        });
+    }
+
     increaseMovement() {
         if (this.player.attributes.movementPointsLeft === this.player.attributes.speed) {
             return;
@@ -61,6 +75,7 @@ export class PlayerInfoInventoryComponent {
         this.player.attributes.currentHp += 1;
         this.healthBar.nativeElement.value += 1;
     }
+
     decreaseHP() {
         if (this.player.attributes.currentHp === 0) {
             return;

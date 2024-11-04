@@ -1,18 +1,20 @@
 import { TestBed } from '@angular/core/testing';
-import { TileType } from '@app/constants';
+import { TileType, TileId, NO_OBJECT } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { TileService } from './tile.service';
 
 describe('TileService', () => {
     let service: TileService;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+
     beforeEach(() => {
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', [], {
             loadedTiles: [
-                [1, 1, 1],
-                [1, 1, 1],
-                [1, 1, 1],
+                [TileType.Ground, TileType.Ground, TileType.Ground],
+                [TileType.Ground, TileType.Ground, TileType.Ground],
+                [TileType.Ground, TileType.Ground, TileType.Ground],
             ],
+            isNewGame: true,
         });
         TestBed.configureTestingModule({
             providers: [TileService, { provide: GameCreationService, useValue: gameCreationServiceSpy }],
@@ -47,34 +49,35 @@ describe('TileService', () => {
         });
 
         it('should set the tile to Ice when selectedTile is ice-tile', () => {
-            service.setTile('ice-tile', 0, 0, array);
+            service.setTile(TileId.Ice, 0, 0, array);
             expect(array[0][0]).toBe(TileType.Ice);
         });
 
         it('should set the tile to Wall when selectedTile is wall-tile', () => {
-            service.setTile('wall-tile', 0, 1, array);
+            service.setTile(TileId.Wall, 0, 1, array);
             expect(array[0][1]).toBe(TileType.Wall);
         });
 
         it('should set the tile to Water when selectedTile is water-tile', () => {
-            service.setTile('water-tile', 1, 0, array);
+            service.setTile(TileId.Water, 1, 0, array);
             expect(array[1][0]).toBe(TileType.Water);
         });
 
         it('should toggle between OpenDoor and ClosedDoor for door-tile', () => {
-            service.setTile('door-tile', 1, 1, array);
+            service.setTile(TileId.Door, 1, 1, array);
             expect(array[1][1]).toBe(TileType.ClosedDoor);
 
-            service.setTile('door-tile', 1, 1, array);
+            service.setTile(TileId.Door, 1, 1, array);
             expect(array[1][1]).toBe(TileType.OpenDoor);
 
-            service.setTile('door-tile', 1, 1, array);
+            service.setTile(TileId.Door, 1, 1, array);
             expect(array[1][1]).toBe(TileType.ClosedDoor);
         });
 
         it('should not change the array if selectedTile is invalid', () => {
+            const initialTile = array[0][0];
             service.setTile('invalid-tile', 0, 0, array);
-            expect(array[0][0]).toBe(TileType.Ground);
+            expect(array[0][0]).toBe(initialTile);
         });
     });
 
@@ -82,43 +85,87 @@ describe('TileService', () => {
         gameCreationServiceSpy.isNewGame = false;
         const mapSize = 3;
         const array = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
+            [TileType.Ground, TileType.Ground, TileType.Ground],
+            [TileType.Ground, TileType.Ground, TileType.Ground],
+            [TileType.Ground, TileType.Ground, TileType.Ground],
         ];
 
         const result = service.resetGrid(mapSize, array);
         expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
     });
 
+    it('should reset the grid to Ground tiles when isNewGame is true', () => {
+        const mapSize = 3;
+        const result = service.resetGrid(mapSize, []);
+        expect(result).toEqual([
+            [TileType.Ground, TileType.Ground, TileType.Ground],
+            [TileType.Ground, TileType.Ground, TileType.Ground],
+            [TileType.Ground, TileType.Ground, TileType.Ground],
+        ]);
+    });
+
     describe('removeTile', () => {
-        it('should not set the tile to Ground if it is already a Ground tile', () => {
+        it('should not change tiles if it is already a Ground tile and no object', () => {
             const mockEvent = new MouseEvent('click', { button: 2 });
             const mockTiles = [
-                [1, 1],
-                [1, 1],
+                [TileType.Ground, TileType.Ground],
+                [TileType.Ground, TileType.Ground],
             ];
             const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
-                [1, 0],
-                [0, 0],
+                [NO_OBJECT, NO_OBJECT],
+                [NO_OBJECT, NO_OBJECT],
             ]);
             expect(result).toEqual(mockTiles);
         });
 
-        it('should set tile to Ground it is not a Ground tile and there is no object', () => {
+        it('should set tile to Ground if it is not a Ground tile and there is no object', () => {
             const mockEvent = new MouseEvent('click', { button: 2 });
             const mockTiles = [
-                [2, 1],
-                [1, 1],
+                [TileType.Ice, TileType.Ground],
+                [TileType.Water, TileType.Ground],
             ];
             const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
-                [0, 0],
-                [0, 0],
+                [NO_OBJECT, NO_OBJECT],
+                [NO_OBJECT, NO_OBJECT],
             ]);
             expect(result).toEqual([
-                [1, 1],
-                [1, 1],
+                [TileType.Ground, TileType.Ground],
+                [TileType.Water, TileType.Ground],
             ]);
+        });
+
+        it('should not change tiles if there is an object', () => {
+            const mockEvent = new MouseEvent('click', { button: 2 });
+            const mockTiles = [
+                [TileType.Ice, TileType.Ground],
+                [TileType.Water, TileType.Ground],
+            ];
+            const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
+                [1, 0], // Assuming 1 indicates an object
+                [NO_OBJECT, NO_OBJECT],
+            ]);
+            expect(result).toEqual(mockTiles);
+        });
+    });
+
+    describe('resetGrid', () => {
+        it('should return loadedTiles when isNewGame is false', () => {
+            gameCreationServiceSpy.isNewGame = false;
+            gameCreationServiceSpy.loadedTiles = [
+                [TileType.Wall, TileType.Ground, TileType.Water],
+                [TileType.Ground, TileType.Ice, TileType.Ground],
+                [TileType.Ground, TileType.Ground, TileType.Ground],
+            ];
+            const mapSize = 3;
+
+            const map = [
+                [TileType.Ground, TileType.Ground, TileType.Water],
+                [TileType.Ground, TileType.Ice, TileType.Ground],
+                [TileType.Ground, TileType.Ground, TileType.Ground],
+            ];
+            const result = service.resetGrid(mapSize, map);
+
+            expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
         });
     });
 });

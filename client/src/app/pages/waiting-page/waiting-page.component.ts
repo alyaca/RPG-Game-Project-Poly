@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { MIN_NUMBER_PLAYER } from '@app/constants';
 import { GameListService } from '@app/services/game-list/game-list.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
@@ -27,13 +29,15 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
     isLocked: boolean = false;
     isAdmin: boolean = false;
     players: Player[];
+    private dialog = inject(MatDialog);
+    private router = inject(Router);
+    private gameService = inject(GameService);
 
     constructor(
-        private router: Router,
+        private mapEditorService: MapEditorService,
+        private gameCreationService: GameCreationService,
         private socketCommunicationService: SocketCommunicationService,
-        private gameService: GameService,
         private gameListService: GameListService,
-        private dialog: MatDialog,
     ) {
         this.gameListService.chosenGameSubject.subscribe((game: Game | null) => {
             if (game) {
@@ -72,6 +76,12 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             } else {
                 this.router.navigate(['/home']);
             }
+        });
+
+        this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
+            this.chosenGame = room.gameMap;
+            this.loadMap();
+            this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
         });
     }
 
@@ -136,6 +146,16 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
         );
     }
 
+    loadMap() {
+        this.gameCreationService.isModifiable = false;
+        this.mapEditorService.setMapToEdit(this.chosenGame);
+        this.gameCreationService.setSelectedSize(this.gameCreationService.convertMapDimension(this.chosenGame));
+        this.gameCreationService.isNewGame = false;
+        this.gameCreationService.loadedTiles = this.chosenGame.tiles;
+        this.gameCreationService.loadedObjects = this.chosenGame.itemPlacement;
+        this.gameCreationService.loadedMapName = this.chosenGame.name;
+    }
+
     handleStartGame() {
         if (this.players.length < MIN_NUMBER_PLAYER) {
             this.openConfirmationDialog(
@@ -154,7 +174,7 @@ export class WaitingPageComponent implements OnInit, OnDestroy {
             ).subscribe((result) => {
                 if (result === 'right') {
                     this.isLocked = true;
-                    this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
+                    this.socketCommunicationService.send('startGame');
                 }
             });
         } else {
