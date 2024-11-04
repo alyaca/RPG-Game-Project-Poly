@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { NO_OBJECT, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -86,14 +86,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
             this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+            //Pas sure de ce que ça fait
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
+            }
+
+            if (this.activePlayer) {
+                this.activePlayer.attributes.movementPointsLeft = this.activePlayer.attributes.speed;
             }
             this.findReachableTiles();
         });
 
         this.socketCommunicationService.on('playerNavigation', (tile: Position) => {
-            this.navigateToTile2(tile);
+            this.navigateToTile(tile);
         });
 
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
@@ -212,6 +217,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.sendInfoToMapCreationPage();
         }
     }
+    showDetails(row: number, col: number) {
+        const description = this.navigationService.showDetails(row, col);
+        if (description) {
+            console.log(description);
+        }
+    }
 
     onTileClick(row: number, col: number) {
         if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
@@ -279,21 +290,29 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // TODO : Verifier si isMoving fonctionne bien (important)
-    async navigateToTile(row: number, col: number) {
+    async sendNavigation(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             // if (!this.isMoving) {
             this.isMoving = true;
             const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+            //this.activePlayer.attributes.maxActionPoints -= path.length;
+            /*
+            const player = this.navigationService.players.find((player) => player.id === this.currentPlayer.id);
+            if (player) {
+                player.attributes.movementPointsLeft -= path.length;
+            }
+                */
             this.socketCommunicationService.send('playerNavigation', path);
             // }
         }
     }
 
-    // TODO : Changer le nom de la fonction, et refactor
-    navigateToTile2(position: Position) {
+    navigateToTile(position: Position) {
         if (!this.activePlayer) {
             return;
         }
+        this.navigationService.updateTuile(this.activePlayer);
+        /*
         if (this.navigationService.isInInitialPosition(this.activePlayer.position)) {
             this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.navigationService.isObject(this.activePlayer.position)) {
@@ -302,6 +321,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             );
         } else {
             this.objectsArray[this.activePlayer.position.x][this.activePlayer.position.y] = 0;
+        }
+            */
+        if (this.activePlayer) {
+            this.activePlayer.attributes.movementPointsLeft--;
         }
         this.activePlayer.position = position;
         this.displayPortraitOnSpawnPoints();

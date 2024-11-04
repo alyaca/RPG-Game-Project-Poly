@@ -139,7 +139,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        this.gameService.proccesNavigation(room, this.server, path);
+        this.gameService.proccesNavigation(room, this.server, path, client);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

@@ -42,9 +42,29 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
+    updateTuile(activePlayer: Player): void {
+        if (this.isInInitialPosition(activePlayer.position)) {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
+        } else if (this.isObject(activePlayer.position)) {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+        } else {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
+        }
+    }
+
     removePlayer(player: Player): void {
         this.players = this.players.filter((p) => p.id !== player.id);
         this.positions[player.position.x][player.position.y] = 0;
+    }
+
+    showDetails(row: number, col: number): string {
+        const player = this.players.find((player) => player.position.x === row && player.position.y === col);
+        if (player) {
+            return `${player.name}, ${player.avatar}`;
+        } else {
+            //TODO: completer les details
+            return `${this.positions[row][col].valueOf()}`;
+        }
     }
 
     isInInitialPosition(position: Position): boolean {

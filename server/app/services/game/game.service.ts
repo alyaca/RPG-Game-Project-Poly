@@ -134,16 +134,22 @@ export class GameService {
     //     });
     // }
 
-    async proccesNavigation(room: Room, server: Server, path: Position[]) {
+    async proccesNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+        const player = this.getActivePlayer(room);
         for (const tile of path) {
-            this.getActivePlayer(room).position = tile;
+            player.position = tile;
             await this.delay(MOVEMENT_TIME);
             server.to(room.roomId).emit('playerNavigation', tile);
             if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
                 server.to(room.roomId).emit('playerFell');
+                this.onTurnEnded(client, server);
                 break;
             }
+            if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
+                player.attributes.movementPointsLeft--;
+            }
         }
+        this.getActivePlayer(room).attributes.movementPointsLeft = this.getActivePlayer(room).attributes.speed;
     }
 
     async delay(ms: number) {
