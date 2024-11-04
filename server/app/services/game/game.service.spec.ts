@@ -10,6 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { GameService } from './game.service';
 
+/* eslint-disable max-lines */
 describe('GameService', () => {
     let service: GameService;
     let mockSocket: Socket;
@@ -18,8 +19,6 @@ describe('GameService', () => {
     let room: Room;
     let mockPlayer: Player;
     let listPlayers: Player[];
-    // let fightTimerMock: Timer;
-    // let turnTimerMock: Timer;
 
     beforeEach(async () => {
         mockSocket = {
@@ -29,9 +28,6 @@ describe('GameService', () => {
             rooms: new Set(['1234']),
             to: jest.fn().mockReturnThis(),
         } as unknown as Socket;
-
-        // fightTimerMock = { stopTimer: jest.fn() } as unknown as Timer;
-        // turnTimerMock = { stopTimer: jest.fn() } as unknown as Timer;
 
         listPlayers = [
             { id: 'player1', attributes: { speed: 10 }, status: Status.Player, isActive: true },
@@ -435,7 +431,7 @@ describe('GameService', () => {
 
             jest.spyOn(service, 'getPlayerById').mockReturnValue(activePlayer);
             service['isActivePlayer'] = jest.fn().mockReturnValue(true);
-            jest.spyOn(service, 'onTurnEnded').mockImplementation(() => {});
+            jest.spyOn(service, 'onTurnEnded').mockImplementation();
 
             service['playerDisconnected'](room, mockSocket, mockServer);
 
@@ -466,7 +462,7 @@ describe('GameService', () => {
             } as unknown as Timer;
 
             jest.spyOn(roomService, 'getTurnTimer').mockReturnValue(turnTimer);
-            jest.spyOn(service, 'onTurnEnded').mockImplementation(() => {});
+            jest.spyOn(service, 'onTurnEnded').mockImplementation();
             service['playerTurnTimer'](mockSocket, mockServer);
             turnTimerCallback(remainingTime);
 
@@ -504,7 +500,8 @@ describe('GameService', () => {
 
     describe('checkFell', () => {
         it('should return true if random value is greater than FELLING_PROBABILITY', () => {
-            jest.spyOn(Math, 'random').mockReturnValue(0.4);
+            const value = 0.4;
+            jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });

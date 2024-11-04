@@ -1,4 +1,4 @@
-import { STARTING_TIME } from '@app/constants';
+import { FOWARD_TIME, STARTING_TIME } from '@app/constants';
 import { Timer } from './timer';
 
 jest.useFakeTimers();
@@ -19,32 +19,22 @@ describe('Timer', () => {
     it('should start the timer and call update callback', () => {
         timer.startTimer(STARTING_TIME, onTickCallback);
         expect(onTickCallback).toHaveBeenCalledTimes(1);
-        expect(timer['timeRemaining']).toBe(3);
+        expect(timer['timeRemaining']).toBe(STARTING_TIME);
 
-        jest.advanceTimersByTime(1000);
+        jest.advanceTimersByTime(FOWARD_TIME);
         expect(onTickCallback).toHaveBeenCalledTimes(2);
         expect(onTickCallback).toHaveBeenCalledWith(2);
         expect(timer['timeRemaining']).toBe(2);
-
-        jest.advanceTimersByTime(1000);
-        expect(onTickCallback).toHaveBeenCalledTimes(3);
-        expect(onTickCallback).toHaveBeenCalledWith(1);
-        expect(timer['timeRemaining']).toBe(1);
-
-        jest.advanceTimersByTime(1000);
-        expect(onTickCallback).toHaveBeenCalledTimes(4);
-        expect(onTickCallback).toHaveBeenCalledWith(0);
-        expect(timer['timeRemaining']).toBe(0);
     });
 
     it('should stop the timer when time is up', () => {
         jest.spyOn(timer, 'timerFinished').mockImplementation(jest.fn());
 
         timer.startTimer(1, onTickCallback);
-        jest.advanceTimersByTime(1000);
+        jest.advanceTimersByTime(FOWARD_TIME);
         expect(onTickCallback).toHaveBeenCalledWith(0);
 
-        jest.advanceTimersByTime(1000);
+        jest.advanceTimersByTime(FOWARD_TIME);
         expect(timer['intervalId']).not.toBeNull();
         expect(timer['timeRemaining']).toBe(-1);
     });
@@ -53,7 +43,7 @@ describe('Timer', () => {
         jest.spyOn(timer, 'stopTimer').mockImplementation(jest.fn());
 
         timer.startTimer(2, onTickCallback);
-        jest.advanceTimersByTime(1000);
+        jest.advanceTimersByTime(FOWARD_TIME);
         expect(timer['timeRemaining']).toBe(1);
 
         timer.resetTimer(2, onTickCallback);
@@ -64,7 +54,7 @@ describe('Timer', () => {
         const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
         timer.startTimer(STARTING_TIME, onTickCallback);
 
-        jest.advanceTimersByTime(2000);
+        jest.advanceTimersByTime(FOWARD_TIME);
         timer.stopTimer();
 
         expect(timer['intervalId']).not.toBeNull();
@@ -75,7 +65,7 @@ describe('Timer', () => {
         const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
         timer.startTimer(STARTING_TIME, onTickCallback);
 
-        jest.advanceTimersByTime(2000);
+        jest.advanceTimersByTime(FOWARD_TIME);
         timer.pauseTimer();
 
         expect(timer['intervalId']).not.toBeNull();

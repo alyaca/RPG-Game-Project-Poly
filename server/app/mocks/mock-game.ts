@@ -1,3 +1,4 @@
+import { SPAWN_POINT_ID } from '@app/constants';
 import { Game } from '@common/game';
 
 export const mockGame: Game = {
@@ -14,8 +15,8 @@ export const mockGame: Game = {
     ],
     dimension: 20,
     itemPlacement: [
-        [0, 8],
-        [0, 8],
+        [0, SPAWN_POINT_ID],
+        [0, SPAWN_POINT_ID],
     ],
     isSelected: false,
     lastModification: new Date(),
