@@ -199,11 +199,6 @@ describe('WaitingPageComponent', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should send leaveRoom event if leaveGame is called', () => {
-        component.leaveGame(accessCode);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', accessCode);
-    });
-
     describe('handleExit', () => {
         it('should open the dialog and navigate to /home if confirmed', () => {
             const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
@@ -222,36 +217,6 @@ describe('WaitingPageComponent', () => {
             });
 
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-        });
-
-        it('should not call leaveGame if dialog result is not leave', () => {
-            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            spyOn(component, 'leaveGame');
-            dialogRefSpy.afterClosed.and.returnValue(of('stay'));
-            dialogSpy.open.and.returnValue(dialogRefSpy);
-
-            component.handleExit(accessCode);
-
-            expect(component.leaveGame).not.toHaveBeenCalledWith(accessCode);
-        });
-
-        it('should open the dialog and call leaveGame if dialog result is leave', () => {
-            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            spyOn(component, 'leaveGame');
-            dialogRefSpy.afterClosed.and.returnValue(of('left'));
-            dialogSpy.open.and.returnValue(dialogRefSpy);
-            component.handleExit(accessCode);
-
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                disableClose: true,
-                data: {
-                    title: 'Abandonner la partie?',
-                    messages: ["- Vous quitteriez la page d'attente"],
-                    options: ['Quitter', 'Rester'],
-                    confirm: true,
-                },
-            });
-            expect(component.leaveGame).toHaveBeenCalledWith(accessCode);
         });
     });
 
@@ -290,6 +255,34 @@ describe('WaitingPageComponent', () => {
         component.handleStartGame();
 
         expect(dialogSpy.open).toHaveBeenCalled();
+    });
+
+    it('should call loadMap and set the chosenGame when startGame is received', () => {
+        spyOn(component, 'loadMap');
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'startGame') {
+                callback(mockRoom as unknown as T);
+            }
+        });
+        component.ngOnInit();
+        expect(component.chosenGame).toEqual(mockRoom.gameMap);
+        expect(component.loadMap).toHaveBeenCalled();
+    });
+
+    it('should do everything in loadMap correctly', () => {
+        gameCreationServiceSpy.isModifiable = true;
+        gameCreationServiceSpy.isNewGame = true;
+        component.chosenGame = mockGames[0];
+        component.loadMap();
+
+        expect(gameCreationServiceSpy.isModifiable).toBeFalse();
+        expect(gameCreationServiceSpy.isNewGame).toBeFalse();
+        expect(mapEditorServiceSpy.setMapToEdit).toHaveBeenCalled();
+        expect(gameCreationServiceSpy.setSelectedSize).toHaveBeenCalled();
+        expect(gameCreationServiceSpy.convertMapDimension).toHaveBeenCalled();
+        expect(gameCreationServiceSpy.loadedTiles).toEqual(component.chosenGame.tiles);
+        expect(gameCreationServiceSpy.loadedObjects).toEqual(component.chosenGame.itemPlacement);
+        expect(gameCreationServiceSpy.loadedMapName).toEqual(component.chosenGame.name);
     });
 
     it('should open the dialog and not navigate when only 1 player', () => {

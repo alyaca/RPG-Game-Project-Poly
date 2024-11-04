@@ -25,17 +25,17 @@ describe('DiceComponent', () => {
         expect(component.isRolling).toBe(false);
     });
 
-    it('should roll the dice and update the value', (done) => {
+    it('should roll the dice and update the value', fakeAsync(() => {
         const maxValue = 6;
         component.rollDice(maxValue);
         expect(component.isRolling).toBe(true);
-        setTimeout(() => {
-            expect(component.value).toBeGreaterThan(0);
-            expect(component.value).toBeLessThanOrEqual(maxValue);
-            expect(component.isRolling).toBe(false);
-            done();
-        }, ROLL_DURATION);
-    });
+
+        tick(ROLL_DURATION); // Simulate the passage of ROLL_DURATION time
+
+        expect(component.value).toBeGreaterThan(0);
+        expect(component.value).toBeLessThanOrEqual(maxValue);
+        expect(component.isRolling).toBe(false);
+    }));
 
     it('should not roll if already rolling', fakeAsync(() => {
         const maxValue = 6;
@@ -44,21 +44,23 @@ describe('DiceComponent', () => {
         component.rollDice(maxValue);
 
         const previousValue = component.value;
-        tick(INACTIVE_DICE_DELAY); // Advance time by the inactive dice delay
+        tick(INACTIVE_DICE_DELAY);
 
         expect(component.value).toBe(previousValue);
         expect(component.isRolling).toBe(true);
     }));
 
-    it('should allow rolling again after completing the first roll', (done) => {
+    it('should allow rolling again after completing the first roll', fakeAsync(() => {
         const maxValue = 6;
         component.rollDice(maxValue);
 
-        setTimeout(() => {
-            expect(component.isRolling).toBe(false);
-            component.rollDice(maxValue);
-            expect(component.isRolling).toBe(true);
-            done();
-        }, ROLL_DURATION);
-    });
+        tick(ROLL_DURATION);
+        expect(component.isRolling).toBe(false);
+
+        component.rollDice(maxValue);
+        expect(component.isRolling).toBe(true);
+
+        tick(ROLL_DURATION);
+        expect(component.isRolling).toBe(false);
+    }));
 });
