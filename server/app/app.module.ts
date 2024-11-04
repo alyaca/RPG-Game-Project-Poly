@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SocketGateway } from './gateways/socket/socket.gateway';
 import { ChatModule } from './modules/chat/chat.module';
 import { MapModule } from './modules/map/map.module';
+import { CombatService } from './services/combat/combat.service';
 import { GameService } from './services/game/game.service';
 import { MatchService } from './services/match/match.service';
 import { RoomService } from './services/room/room.service';
@@ -25,6 +26,6 @@ import { RoomService } from './services/room/room.service';
         RoomModule,
         LoggerModule,
     ],
-    providers: [MatchService, RoomService, SocketGateway, Logger, GameService],
+    providers: [MatchService, RoomService, SocketGateway, Logger, GameService, CombatService],
 })
 export class AppModule {}

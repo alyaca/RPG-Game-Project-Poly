@@ -153,7 +153,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     openCombatModal() {
-        this.socketCommunicationService.send('startFight'); /*logique commencement de combat 
+        const combatPlayers = { player1: this.allPlayers[0], player2: this.allPlayers[1] };
+        this.socketCommunicationService.send('startCombat', combatPlayers); /*logique commencement de combat 
         (envoyer l evenement si le joueur peut declencher combat) POUR GHADI
         */
     }
