@@ -201,12 +201,9 @@ export class GameService {
     }
 
     async proccesNavigation(room: Room, server: Server, path: Position[]) {
-        //const playersList = this.roomService.getRoom(socket).listPlayers;
         for (const tile of path) {
             this.getActivePlayer(room).position = tile;
-            //socket.emit('playerNavigation', this.getActivePlayer(room), tile);
             await this.delay(150); //CONSTANT A ENLEVER
-            //socket.emit('playerNavigation', tile);
             server.to(room.roomId).emit('playerNavigation', tile);
         }
     }

@@ -81,7 +81,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints();
-            this.findReachableTiles();
         });
 
         this.socketCommunicationService.on('isActive', (playerId: string) => {
@@ -90,6 +89,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
             }
+            this.findReachableTiles();
         });
 
         this.socketCommunicationService.on('playerNavigation', (tile: Position) => {
@@ -251,10 +251,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     findReachableTiles() {
         this.reachableTiles = [];
+        if (!this.activePlayer) return;
         this.reachableTiles = this.navigationService.findReachableTiles(
-            this.navigationService.players[0],
+            this.activePlayer,
             this.navigationService.gameMap,
-            this.navigationService.players[0].attributes.movementPointsLeft,
+            this.activePlayer.attributes.movementPointsLeft,
         );
     }
 

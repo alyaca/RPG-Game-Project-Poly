@@ -28,11 +28,11 @@ export class NavigationService {
     gameMap: Game;
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
+    positions: number[][];
     private objects: number[][];
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
-    private positions: number[][];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
         this.objects = JSON.parse(JSON.stringify(objects));
@@ -148,11 +148,13 @@ export class NavigationService {
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
     }
-    /*
+
+    /* TEMPORAIRE
     checkAttack(): boolean {
         console.log(this.getNeighbors(this.getActivePlayer().position, this.gameMap));
+        return true;
     }
-        */
+    */
 
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
@@ -186,7 +188,7 @@ export class NavigationService {
         return position.x === destination.x && position.y === destination.y;
     }
 
-    private getNeighbors(position: PointWithDistance, game: Game): Position[] {
+    private getNeighbors(position: Position, game: Game): Position[] {
         const directions = [
             { dx: 0, dy: 1 },
             { dx: 0, dy: -1 },
