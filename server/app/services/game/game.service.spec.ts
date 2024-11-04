@@ -366,7 +366,7 @@ describe('GameService', () => {
         jest.spyOn(roomService, 'getFightTimer');
         jest.spyOn(roomService, 'getTurnTimer');
 
-        service.stopGameTimers(mockServer, roomId);
+        service.stopGameTimers(mockServer, room);
 
         expect(roomService.getFightTimer).toHaveBeenCalledWith(roomId);
         expect(roomService.getTurnTimer).toHaveBeenCalledWith(roomId);
@@ -440,6 +440,17 @@ describe('GameService', () => {
             service['playerDisconnected'](room, mockSocket, mockServer);
 
             expect(service.onTurnEnded).toHaveBeenCalledWith(mockSocket, mockServer);
+        });
+
+        it('should emit draw if player is the last one in game', () => {
+            const player = { id: 'player-id', status: Status.Player } as unknown as Player;
+            jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
+            service['isActivePlayer'] = jest.fn().mockReturnValue(false);
+            service['isLastPlayer'] = jest.fn().mockReturnValue(true);
+            service['sortPlayersBySpeed'] = jest.fn();
+
+            service['playerDisconnected'](room, mockSocket, mockServer);
+            expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('draw');
         });
     });
 
