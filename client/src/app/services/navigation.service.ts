@@ -153,6 +153,7 @@ export class NavigationService {
             const neighbors = this.getNeighbors(nextNode, game);
             this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
         }
+        reachableTiles.shift();
         this.reachableTiles = reachableTiles;
         return reachableTiles;
     }
@@ -167,20 +168,29 @@ export class NavigationService {
         }
         return [];
     }
-    /*
-    //A enlever peut etre (probalbement)
-    checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
-    }
-        */
 
-    /* TEMPORAIRE
-    checkAttack(): boolean {
-        console.log(this.getNeighbors(this.getActivePlayer().position, this.gameMap));
-        return true;
+    checkAttack(): Position | undefined {
+        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
+                return neighbor;
+            }
+        }
+        return undefined;
     }
-    */
+
+    checkDoor(): Position | undefined {
+        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
+            ) {
+                return neighbor;
+            }
+        }
+        return undefined;
+    }
 
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
@@ -258,7 +268,7 @@ export class NavigationService {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
 
-    private getTileCost(tileType: number): number {
+    getTileCost(tileType: number): number {
         switch (tileType) {
             case TileType.Ground:
                 return 1;

@@ -101,6 +101,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigateToTile(tile, player);
         });
 
+        this.socketCommunicationService.on('endMovement', () => {
+            this.isMoving = false;
+        });
+
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
@@ -289,21 +293,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 
-    // TODO : Verifier si isMoving fonctionne bien (important)
     async sendNavigation(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
-            // if (!this.isMoving) {
-            this.isMoving = true;
-            const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
-            //this.activePlayer.attributes.maxActionPoints -= path.length;
-            /*
-            const player = this.navigationService.players.find((player) => player.id === this.currentPlayer.id);
-            if (player) {
-                player.attributes.movementPointsLeft -= path.length;
+            if (!this.isMoving) {
+                this.isMoving = true;
+                const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+                this.socketCommunicationService.send('playerNavigation', path);
             }
-                */
-            this.socketCommunicationService.send('playerNavigation', path);
-            // }
         }
     }
 
@@ -311,16 +307,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.activePlayer?.name !== player.name) return;
         if (this.activePlayer) {
             this.navigationService.updateTuile(this.activePlayer);
-            this.activePlayer.attributes.movementPointsLeft--;
+            this.activePlayer.attributes.movementPointsLeft -= this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
             this.activePlayer.position = position;
         }
         this.displayPortraitOnSpawnPoints();
         this.findReachableTiles();
-        /*
-        if (this.activePlayer === this.currentPlayer) {
-            this.isMoving = false;
-        }
-            */
+        //console.log('attack ' + this.navigationService.checkAttack());
+        //console.log('DOOR ' + this.navigationService.checkDoor());
     }
 
     async delay(ms: number) {

@@ -129,14 +129,30 @@ export class GameService {
                 break;
             }
             if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
-                player.attributes.movementPointsLeft--;
+                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
             }
         }
         this.getActivePlayer(room).attributes.movementPointsLeft = this.getActivePlayer(room).attributes.speed;
+        server.to(room.roomId).emit('endMovement');
     }
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private getCost(tileType: number): number {
+        switch (tileType) {
+            case TileType.Ground:
+                return 1;
+            case TileType.Water:
+                return 2;
+            case TileType.Ice:
+                return 0;
+            case TileType.OpenDoor:
+                return 1;
+            default:
+                return Infinity;
+        }
     }
 
     private checkFell(): boolean {
