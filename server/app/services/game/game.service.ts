@@ -1,4 +1,4 @@
-import { FIGHT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { FIGHT_TIME, MOVEMENT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -43,18 +43,6 @@ export class GameService {
         takenAvatar.isTaken = true;
     }
 
-    setUniquePlayerName(player: Player, socket: Socket) {
-        const playerName = this.generateUniquePlayerName(player.name, socket);
-        player.name = playerName;
-        socket.data.username = player.name;
-    }
-
-    isActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const currentPlayer = this.getPlayerById(room, socket);
-        return currentPlayer.isActive;
-    }
-
     getPlayerById(room: Room, socket: Socket) {
         return room.listPlayers.find((player) => player.id === socket.id);
     }
@@ -67,21 +55,12 @@ export class GameService {
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
         } else if (room.gameStatus === GameStatus.Started) {
-            this.onPlayerDisconnected(room, socket);
+            this.playerDisconnected(room, socket, server);
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
         }
-    }
-
-    onPlayerDisconnected(room: Room, socket: Socket) {
-        const disconnectedPlayer = this.getPlayerById(room, socket);
-        disconnectedPlayer.status = Status.Disconnected;
-        if (this.isActivePlayer(socket)) {
-            this.updateActivePlayer(socket);
-        }
-        this.sortPlayersBySpeed(room);
     }
 
     removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
@@ -102,36 +81,6 @@ export class GameService {
         }
     }
 
-    freeUpAvatar(room: Room, socket: Socket) {
-        if (socket.data.clickedAvatar) {
-            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
-            if (previousAvatar) {
-                previousAvatar.isTaken = false;
-            }
-        }
-    }
-
-    sendAvatarListToClient(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
-            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
-            return {
-                ...avatar,
-                isTaken: !isSelectedByClient && avatar.isTaken,
-                isSelected: isSelectedByClient,
-            };
-        });
-        socket.emit('characterSelected', customizedAvatarsList);
-    }
-
-    updateActivePlayer(socket: Socket) {
-        const listPlayers = this.roomService.getRoom(socket).listPlayers;
-        const index = listPlayers.findIndex((item) => item.id === socket.id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
     onStartGame(room: Room) {
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
@@ -145,17 +94,7 @@ export class GameService {
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
-                this.onTurnStarted(client, server);
-            }
-        });
-    }
-
-    onTurnStarted(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
-        this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
-                this.onTurnEnded(client, server);
+                this.playerTurnTimer(client, server);
             }
         });
     }
@@ -184,12 +123,12 @@ export class GameService {
     }
 
     async proccesNavigation(room: Room, server: Server, path: Position[]) {
-        //const playersList = this.roomService.getRoom(socket).listPlayers;
+        // const playersList = this.roomService.getRoom(socket).listPlayers;
         for (const tile of path) {
             this.getActivePlayer(room).position = tile;
-            //socket.emit('playerNavigation', this.getActivePlayer(room), tile);
-            await this.delay(150); //CONSTANT A ENLEVER
-            //socket.emit('playerNavigation', tile);
+            // socket.emit('playerNavigation', this.getActivePlayer(room), tile);
+            await this.delay(MOVEMENT_TIME); // CONSTANT A ENLEVER
+            // socket.emit('playerNavigation', tile);
             server.to(room.roomId).emit('playerNavigation', tile);
         }
     }
@@ -200,6 +139,15 @@ export class GameService {
 
     getActivePlayer(room: Room): Player {
         return room.listPlayers.find((player) => player.isActive === true);
+    }
+
+    private freeUpAvatar(room: Room, socket: Socket) {
+        if (socket.data.clickedAvatar) {
+            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
+            if (previousAvatar) {
+                previousAvatar.isTaken = false;
+            }
+        }
     }
 
     private generateUniquePlayerName(playerName: string, socket: Socket): string {
@@ -217,6 +165,16 @@ export class GameService {
         return room.availableAvatars.find((av) => av.name === avatar.name);
     }
 
+    private getPlayerConnectedInRoom(room: Room) {
+        return room.listPlayers.filter((player) => player.status !== Status.Disconnected);
+    }
+
+    private isActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const currentPlayer = this.getPlayerById(room, socket);
+        return currentPlayer.isActive;
+    }
+
     private isCodeFormatValid(roomCode: string): boolean {
         return /^[0-9]{4}$/.test(roomCode);
     }
@@ -224,6 +182,44 @@ export class GameService {
     private isPlayerNameTaken(name: string, socket: Socket) {
         const playersList = this.roomService.getRoom(socket).listPlayers;
         return playersList.some((player) => player.name === name);
+    }
+
+    private playerDisconnected(room: Room, socket: Socket, server: Server) {
+        const disconnectedPlayer = this.getPlayerById(room, socket);
+        if (this.isActivePlayer(socket)) {
+            this.onTurnEnded(socket, server);
+        }
+        disconnectedPlayer.status = Status.Disconnected;
+        this.sortPlayersBySpeed(room);
+    }
+
+    private playerTurnTimer(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+            if (timeRemaining === 0) {
+                this.onTurnEnded(client, server);
+            }
+        });
+    }
+
+    private sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
+    private setUniquePlayerName(player: Player, socket: Socket) {
+        const playerName = this.generateUniquePlayerName(player.name, socket);
+        player.name = playerName;
+        socket.data.username = player.name;
     }
 
     private sortPlayersBySpeed(room: Room) {
@@ -243,6 +239,15 @@ export class GameService {
             this.roomService.getFightTimer(roomId).stopTimer();
             this.roomService.getTurnTimer(roomId).stopTimer();
         }
+    }
+
+    private updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === socket.id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
     }
 
     private updateAvatarsForAllClients(server: Server, roomId: string) {

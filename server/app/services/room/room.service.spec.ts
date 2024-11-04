@@ -1,15 +1,15 @@
 import { ACCESS_CODE_LENGTH } from '@app/constants';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
+import { mockServer } from '@app/mocks/mock-server';
 import { ChatService } from '@app/services/chat/chat.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { RoomService } from './room.service';
 
 describe('RoomService', () => {
     let service: RoomService;
     let mockSocket: Socket;
-    let mockServer: Server;
     let roomId: string;
     let chatService: ChatService;
 
@@ -17,20 +17,6 @@ describe('RoomService', () => {
         const chatServiceMock = {
             deleteMessagesByRoom: jest.fn(),
         };
-        mockServer = {
-            in: jest.fn().mockReturnValue({
-                socketsLeave: jest.fn(),
-            }),
-            emit: jest.fn(),
-            to: jest.fn().mockReturnThis(),
-            sockets: {
-                adapter: {
-                    rooms: new Map(),
-                },
-                sockets: new Map(),
-            },
-        } as unknown as Server;
-
         mockSocket = {
             to: jest.fn().mockReturnThis(),
             emit: jest.fn(),

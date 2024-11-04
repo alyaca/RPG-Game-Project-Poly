@@ -1,16 +1,16 @@
 import { mockRooms } from '@app/mocks/mock-room';
+import { mockServer } from '@app/mocks/mock-server';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { GameService } from './game.service';
 
 describe('GameService', () => {
     let service: GameService;
     let mockSocket: Socket;
-    let mockServer: Server;
     let roomId: string;
     let roomService: RoomService;
     let room: Room;
@@ -25,18 +25,18 @@ describe('GameService', () => {
             to: jest.fn().mockReturnThis(),
         } as unknown as Socket;
 
-        mockServer = {
-            sockets: {
-                sockets: new Map(),
-            },
-        } as unknown as Server;
-
         const roomServiceMock = {
             isRoomActive: jest.fn(),
             isPlayerAdmin: jest.fn(),
             getRoom: jest.fn(),
             deleteRoom: jest.fn(),
             leaveRoom: jest.fn(),
+            getFightTimer: jest.fn().mockReturnValue({
+                stopTimer: jest.fn(),
+            }),
+            getTurnTimer: jest.fn().mockReturnValue({
+                stopTimer: jest.fn(),
+            }),
             rooms: new Map([[roomId, room]]),
         };
 
@@ -72,14 +72,13 @@ describe('GameService', () => {
 
     describe('connectPlayerToGame', () => {
         it('should return an error if the room code format is invalid', () => {
-            jest.spyOn(service, 'isCodeFormatValid');
+            service['isCodeFormatValid'] = jest.fn().mockReturnValue(false);
 
-            (service.isCodeFormatValid as jest.Mock).mockReturnValue(false);
             const code = 'test';
             const result = service.connectPlayerToGame(code);
 
             expect(result).toEqual({ event: 'joinError', errorType: 'invalidFormat' });
-            expect(service.isCodeFormatValid).toHaveBeenCalledWith(code);
+            expect(service['isCodeFormatValid']).toHaveBeenCalledWith(code);
         });
 
         it('should return an error if the room is not active', () => {
@@ -115,7 +114,7 @@ describe('GameService', () => {
     });
 
     it('should create a player on createPlayer', () => {
-        jest.spyOn(service, 'setUniquePlayerName').mockImplementation(() => {
+        service['setUniquePlayerName'] = jest.fn().mockImplementation(() => {
             mockPlayer.name = 'name';
             mockSocket.data.username = mockPlayer.name;
         });
@@ -126,7 +125,7 @@ describe('GameService', () => {
         expect(mockPlayer.status).toBe(Status.Admin);
         expect(mockSocket.data.username).toBe(mockPlayer.name);
         expect(room.listPlayers).toContainEqual(mockPlayer);
-        expect(service.setUniquePlayerName).toHaveBeenCalled();
+        expect(service['setUniquePlayerName']).toHaveBeenCalled();
     });
 
     describe('leavePlayerFromGame', () => {
@@ -156,7 +155,7 @@ describe('GameService', () => {
     it('should select an avatar and update the socket data on selectedAvatar', () => {
         const avatar = avatars[0];
         avatar.isTaken = false;
-        jest.spyOn(service, 'getAvatarByName').mockReturnValue(avatar);
+        service['getAvatarByName'] = jest.fn().mockReturnValue(avatar);
         service.selectedAvatar(room, avatar, mockSocket, mockServer);
 
         expect(avatar.isTaken).toBe(true);
@@ -168,16 +167,16 @@ describe('GameService', () => {
         const clickedAvatar = avatars[0];
         clickedAvatar.isTaken = true;
         mockSocket.data.clickedAvatar = clickedAvatar;
-        const getAvatarSpy = jest.spyOn(service, 'getAvatarByName').mockReturnValue(clickedAvatar);
+        service['getAvatarByName'] = jest.fn().mockReturnValue(clickedAvatar);
 
-        service.freeUpAvatar(room, mockSocket);
+        service['freeUpAvatar'](room, mockSocket);
 
-        expect(getAvatarSpy).toHaveBeenCalledWith(room, clickedAvatar);
+        expect(service['getAvatarByName']).toHaveBeenCalledWith(room, clickedAvatar);
         expect(clickedAvatar.isTaken).toBe(false);
     });
 
     it('should not free up avatar if none is clicked', () => {
-        service.freeUpAvatar(room, mockSocket);
+        service['freeUpAvatar'](room, mockSocket);
         expect(mockSocket.data.clickedAvatar).toBeUndefined();
     });
 
@@ -192,7 +191,7 @@ describe('GameService', () => {
         mockSocket.data.clickedAvatar = clickedAvatar;
         jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
 
-        service.sendAvatarListToClient(mockSocket);
+        service['sendAvatarListToClient'](mockSocket);
 
         expect(mockSocket.emit).toHaveBeenCalledWith('characterSelected', [
             {
@@ -214,7 +213,7 @@ describe('GameService', () => {
             }));
         jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
 
-        service.sendAvatarListToClient(mockSocket);
+        service['sendAvatarListToClient'](mockSocket);
 
         expect(mockSocket.emit).toHaveBeenCalledWith('characterSelected', [
             {
@@ -227,18 +226,18 @@ describe('GameService', () => {
     });
 
     it('should call sendAvatarListToClient for each connected socket', () => {
-        jest.spyOn(service, 'sendAvatarListToClient').mockImplementation(() => {
+        service['sendAvatarListToClient'] = jest.fn().mockImplementation(() => {
             return avatars;
         });
         mockServer.sockets.sockets.set(mockSocket.id, mockSocket);
-        service.updateAvatarsForAllClients(mockServer, roomId);
+        service['updateAvatarsForAllClients'](mockServer, roomId);
 
-        expect(service.sendAvatarListToClient).toHaveBeenCalledTimes(1);
+        expect(service['sendAvatarListToClient']).toHaveBeenCalledTimes(1);
     });
 
     it('should set an unique player name', () => {
-        jest.spyOn(service, 'generateUniquePlayerName').mockReturnValue('uniqueName');
-        service.setUniquePlayerName(mockPlayer, mockSocket);
+        service['generateUniquePlayerName'] = jest.fn().mockReturnValue('uniqueName');
+        service['setUniquePlayerName'](mockPlayer, mockSocket);
         expect(mockPlayer.name).toBe('uniqueName');
     });
 
@@ -249,7 +248,7 @@ describe('GameService', () => {
         ];
         room.listPlayers = playersList;
         jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
-        const result = service.isPlayerNameTaken(mockPlayer.name, mockSocket);
+        const result = service['isPlayerNameTaken'](mockPlayer.name, mockSocket);
 
         expect(result).toBe(true);
         expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
@@ -257,43 +256,43 @@ describe('GameService', () => {
 
     it('should return the same name if it is unique', () => {
         const playerName = 'uniquePlayer';
-        jest.spyOn(service, 'isPlayerNameTaken').mockReturnValue(false);
-        const result = service.generateUniquePlayerName(playerName, mockSocket);
+        service['isPlayerNameTaken'] = jest.fn().mockReturnValue(false);
+        const result = service['generateUniquePlayerName'](playerName, mockSocket);
 
         expect(result).toBe(playerName);
-        expect(service.isPlayerNameTaken).toHaveBeenCalledWith(playerName, mockSocket);
+        expect(service['isPlayerNameTaken']).toHaveBeenCalledWith(playerName, mockSocket);
     });
 
     it('should return a name with suffix if the name is taken', () => {
         const playerName = 'player1';
-        jest.spyOn(service, 'isPlayerNameTaken').mockReturnValueOnce(true).mockReturnValueOnce(false);
+        service['isPlayerNameTaken'] = jest.fn().mockReturnValueOnce(true).mockReturnValueOnce(false);
 
-        const result = service.generateUniquePlayerName(playerName, mockSocket);
+        const result = service['generateUniquePlayerName'](playerName, mockSocket);
 
         expect(result).toBe('player1-2');
-        expect(service.isPlayerNameTaken).toHaveBeenCalledTimes(2);
-        expect(service.isPlayerNameTaken).toHaveBeenCalledWith(playerName, mockSocket);
-        expect(service.isPlayerNameTaken).toHaveBeenCalledWith('player1-2', mockSocket);
+        expect(service['isPlayerNameTaken']).toHaveBeenCalledTimes(2);
+        expect(service['isPlayerNameTaken']).toHaveBeenCalledWith(playerName, mockSocket);
+        expect(service['isPlayerNameTaken']).toHaveBeenCalledWith('player1-2', mockSocket);
     });
 
     describe('isCodeFormatValid', () => {
         it('should be true if the code is 4 numbers', () => {
-            expect(service.isCodeFormatValid(roomId)).toBeTruthy();
+            expect(service['isCodeFormatValid'](roomId)).toBeTruthy();
         });
 
         it('should be false if the code is not composed of 4 numbers', () => {
             const roomCode = '12o4';
-            expect(service.isCodeFormatValid(roomCode)).toBeFalsy();
+            expect(service['isCodeFormatValid'](roomCode)).toBeFalsy();
         });
 
         it('should be false if the code length is smaller than 4 numbers', () => {
             const roomCode = '123';
-            expect(service.isCodeFormatValid(roomCode)).toBeFalsy();
+            expect(service['isCodeFormatValid'](roomCode)).toBeFalsy();
         });
 
         it('should be false if the code are not numbers', () => {
             const roomCode = 'pljd';
-            expect(service.isCodeFormatValid(roomCode)).toBeFalsy();
+            expect(service['isCodeFormatValid'](roomCode)).toBeFalsy();
         });
     });
 });
