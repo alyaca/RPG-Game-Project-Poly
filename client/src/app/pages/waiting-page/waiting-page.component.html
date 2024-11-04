@@ -25,6 +25,11 @@
                 <div [ngClass]="{ disabled: !isAdmin }">
                     <p class="lock-text">Verrouiller la partie</p>
                     <label class="switch">
+                        @if(isMaxPlayersReached()){
+                        <div class="tooltiptext">
+                            La salle d'attente a atteint le nombre maximum de joueurs. Vous ne pouvez pas déverrouiller la partie.
+                        </div>
+                        }
                         <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" [disabled]="isMaxPlayersReached()" />
                         <span class="slider"></span>
                     </label>

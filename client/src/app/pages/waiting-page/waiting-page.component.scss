@@ -213,3 +213,23 @@ app-lobby-player {
     height: 27.5rem;
     flex: 0 0 15.5%;
 }
+
+
+.switch .tooltiptext {
+    visibility: hidden;
+    width: 300%;
+    background-image: linear-gradient(to left, rgb(85, 88, 44), rgb(255, 249, 144) 30%, rgb(255, 252, 186));
+    color: black;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    transform: translateX(-50%);
+}
+
+.switch:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
