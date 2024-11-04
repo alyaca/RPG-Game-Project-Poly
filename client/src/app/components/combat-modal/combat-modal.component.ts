@@ -80,6 +80,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             player2turn: { attacker: this.player1, defender: this.player2, activeDice: this.dice2, inactiveDice: this.dice1 },
         };
         this.timerEvents();
+        this.timerEvents();
     }
 
     timerEvents() {
