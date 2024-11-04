@@ -7,11 +7,11 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, SINGLE_PLAYER, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -70,6 +70,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
+            if (this.allPlayers.filter((player) => player.status !== Status.Disconnected).length === SINGLE_PLAYER) {
+                this.handleDraw();
+            }
         });
 
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
@@ -163,6 +166,22 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             })
             .subscribe((result) => {
                 if (result === DialogResult.Left) {
+                    this.socketCommunicationService.disconnect();
+                    this.router.navigate(['/home']);
+                }
+            });
+    }
+
+    handleDraw() {
+        this.gameService
+            .openDialog({
+                title: DialogTitle.DrawGame,
+                messages: [DialogMessages.DrawGame],
+                options: [DialogOptions.Close],
+                confirm: false,
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Close) {
                     this.socketCommunicationService.disconnect();
                     this.router.navigate(['/home']);
                 }

@@ -190,6 +190,9 @@ export const MAX_NUMBER_PLAYER: { [key: string]: number } = {
 // Constant for the minimum number of players for each type of map
 export const MIN_NUMBER_PLAYER = 2;
 
+// Constant for only player
+export const SINGLE_PLAYER = 1;
+
 // Constants for dialog
 export enum DialogOptions {
     Close = 'Fermer',
@@ -198,22 +201,21 @@ export enum DialogOptions {
     Quit = 'Quitter',
     Stay = 'Rester',
 }
-
 export enum DialogTitle {
     StartGame = 'Débuter la partie',
     GameCanceled = 'Partie annulée',
     QuitGame = 'Abandonner la partie',
     KickedOut = 'Vous avez été exclu de la partie',
+    DrawGame = 'Partie nulle',
 }
-
 export enum DialogMessages {
     NotEnoughPlayers = `Il faut au moins ${MIN_NUMBER_PLAYER} joueurs pour commencer la partie`,
     ConfirmStartGame = 'Êtes-vous certains de vouloir débuter la partie?',
     RoomLocked = 'Il faut verrouiller la salle afin de commencer la partie',
     QuitGame = 'Voulez-vous quitter la partie ?',
     KickedOut = "L'administrateur a décidé de vous retirer de la partie. Vous allez être redirigé vers l'accueil.",
+    DrawGame = "Tous les joueurs ont abandonné. Vous aller être redirigé vers l'accueil.",
 }
-
 export enum DialogResult {
     Right = 'right',
     Left = 'left',

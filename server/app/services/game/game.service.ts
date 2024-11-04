@@ -9,15 +9,6 @@ import { Server, Socket } from 'socket.io';
 export class GameService {
     constructor(private roomService: RoomService) {}
 
-    toggleLockRoom(roomId: string, isLocked: boolean) {
-        const game = this.getGame(roomId);
-        game.isLocked = isLocked;
-    }
-
-    getGame(roomId) {
-        return this.roomService.rooms.get(roomId);
-    }
-
     connectPlayerToGame(roomId: string) {
         const game = this.getGame(roomId);
         if (!this.isCodeFormatValid(roomId)) {
@@ -43,6 +34,14 @@ export class GameService {
         takenAvatar.isTaken = true;
     }
 
+    getActivePlayer(room: Room): Player {
+        return room.listPlayers.find((player) => player.isActive === true);
+    }
+
+    getGame(roomId) {
+        return this.roomService.rooms.get(roomId);
+    }
+
     getPlayerById(room: Room, socket: Socket) {
         return room.listPlayers.find((player) => player.id === socket.id);
     }
@@ -50,7 +49,6 @@ export class GameService {
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
-        this.stopGameTimers(server, room.roomId);
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
@@ -63,14 +61,6 @@ export class GameService {
         }
     }
 
-    removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
-        const room = this.roomService.rooms.get(roomId);
-        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
-        this.freeUpAvatar(room, socket);
-        this.updateAvatarsForAllClients(server, roomId);
-        this.roomService.leaveRoom(roomId, socket);
-    }
-
     selectedAvatar(room: Room, avatar: Avatar, socket: Socket, server: Server) {
         this.freeUpAvatar(room, socket);
         const selectedAvatar = this.getAvatarByName(room, avatar);
@@ -79,6 +69,26 @@ export class GameService {
             socket.data.clickedAvatar = selectedAvatar;
             this.updateAvatarsForAllClients(server, room.roomId);
         }
+    }
+
+    stopGameTimers(server: Server, roomId: string) {
+        if (!server.sockets.adapter.rooms.get(roomId)) {
+            this.roomService.getFightTimer(roomId).stopTimer();
+            this.roomService.getTurnTimer(roomId).stopTimer();
+        }
+    }
+
+    removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
+        const room = this.roomService.rooms.get(roomId);
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
+        this.freeUpAvatar(room, socket);
+        this.updateAvatarsForAllClients(server, roomId);
+        this.roomService.leaveRoom(roomId, socket);
+    }
+
+    toggleLockRoom(roomId: string, isLocked: boolean) {
+        const game = this.getGame(roomId);
+        game.isLocked = isLocked;
     }
 
     onStartGame(room: Room) {
@@ -107,6 +117,7 @@ export class GameService {
         server.to(room.roomId).emit('turnEnded', room.listPlayers);
     }
 
+    // To do for fight
     onStartFight(client: Socket, opponent: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
@@ -116,6 +127,7 @@ export class GameService {
         });
     }
 
+    // To do for fight
     onEndFight(server: Server, room: Room) {
         this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
@@ -135,10 +147,6 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    getActivePlayer(room: Room): Player {
-        return room.listPlayers.find((player) => player.isActive === true);
     }
 
     private freeUpAvatar(room: Room, socket: Socket) {
@@ -232,13 +240,6 @@ export class GameService {
             ];
         }
         room.listPlayers = listPlayers;
-    }
-
-    private stopGameTimers(server: Server, roomId: string) {
-        if (!server.sockets.adapter.rooms.get(roomId)) {
-            this.roomService.getFightTimer(roomId).stopTimer();
-            this.roomService.getTurnTimer(roomId).stopTimer();
-        }
     }
 
     private updateActivePlayer(socket: Socket) {
