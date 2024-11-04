@@ -42,6 +42,11 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
+    removePlayer(player: Player): void {
+        this.players = this.players.filter((p) => p.id !== player.id);
+        this.positions[player.position.x][player.position.y] = 0;
+    }
+
     isInInitialPosition(position: Position): boolean {
         return this.initialPositions.some((initialPosition) => initialPosition.x === position.x && initialPosition.y === position.y);
     }
