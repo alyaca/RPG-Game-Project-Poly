@@ -1,4 +1,4 @@
-import { FIGHT_TIME, MOVEMENT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { MOVEMENT_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -118,21 +118,21 @@ export class GameService {
     }
 
     // To do for fight
-    onStartFight(client: Socket, opponent: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
-        this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        this.roomService.getFightTimer(room.roomId).startTimer(FIGHT_TIME, (timeRemaining) => {
-            client.emit('fightTime', timeRemaining);
-            server.to(opponent.id).emit('fightTime', timeRemaining);
-        });
-    }
+    // onStartFight(client: Socket, opponent: Player, server: Server) {
+    //     const room = this.roomService.getRoom(client);
+    //     this.roomService.getTurnTimer(room.roomId).pauseTimer();
+    //     this.roomService.getFightTimer(room.roomId).startTimer(FIGHT_TIME, (timeRemaining) => {
+    //         client.emit('fightTime', timeRemaining);
+    //         server.to(opponent.id).emit('fightTime', timeRemaining);
+    //     });
+    // }
 
     // To do for fight
-    onEndFight(server: Server, room: Room) {
-        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-        });
-    }
+    // onEndFight(server: Server, room: Room) {
+    //     this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
+    //         server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+    //     });
+    // }
 
     async proccesNavigation(room: Room, server: Server, path: Position[]) {
         // const playersList = this.roomService.getRoom(socket).listPlayers;

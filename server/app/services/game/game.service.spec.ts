@@ -1,9 +1,10 @@
+import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
-import { Room } from '@common/room';
+import { GameStatus, Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { GameService } from './game.service';
@@ -15,6 +16,7 @@ describe('GameService', () => {
     let roomService: RoomService;
     let room: Room;
     let mockPlayer: Player;
+    let listPlayers: Player[];
 
     beforeEach(async () => {
         mockSocket = {
@@ -24,6 +26,13 @@ describe('GameService', () => {
             rooms: new Set(['1234']),
             to: jest.fn().mockReturnThis(),
         } as unknown as Socket;
+
+        listPlayers = [
+            { id: 'player1', attributes: { speed: 10 }, status: Status.Player, isActive: true },
+            { id: 'player2', attributes: { speed: 20 }, status: Status.Disconnected, isActive: false },
+            { id: 'player3', attributes: { speed: 15 }, status: Status.Admin, isActive: false },
+            { id: 'player4', attributes: { speed: 5 }, status: Status.Disconnected, isActive: false },
+        ] as unknown as Player[];
 
         const roomServiceMock = {
             isRoomActive: jest.fn(),
@@ -149,6 +158,18 @@ describe('GameService', () => {
             expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', false);
             expect(service.removePlayerFromRoom).toHaveBeenCalledWith(roomId, mockSocket, mockServer);
             expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
+        });
+
+        it('should emit disconnectedPlayer when leaving a started game', () => {
+            (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
+            room.gameStatus = GameStatus.Started;
+            (roomService.getRoom as jest.Mock).mockReturnValue(room);
+            service['playerDisconnected'] = jest.fn();
+            service.leavePlayerFromGame(roomId, mockSocket, mockServer);
+
+            expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', false);
+            expect(service['playerDisconnected']).toHaveBeenCalledWith(room, mockSocket, mockServer);
+            expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith('disconnectedPlayer', room.listPlayers);
         });
     });
 
@@ -294,5 +315,50 @@ describe('GameService', () => {
             const roomCode = 'pljd';
             expect(service['isCodeFormatValid'](roomCode)).toBeFalsy();
         });
+    });
+
+    it('should update the active player correctly', () => {
+        room.listPlayers = mockPlayers;
+        jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
+        service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue(mockPlayers);
+
+        service['updateActivePlayer'](mockSocket);
+        console.log(mockPlayers);
+        expect(mockPlayers[0].isActive).toBe(false);
+        expect(mockPlayers[1].isActive).toBe(true);
+
+        expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
+        expect(service['getPlayerConnectedInRoom']).toHaveBeenCalledWith(room);
+    });
+
+    it('should return only connected players', () => {
+        room.listPlayers = listPlayers;
+        const connectedPlayers = service['getPlayerConnectedInRoom'](room);
+
+        const expectedPlayers = [
+            { id: 'player1', attributes: { speed: 10 }, status: Status.Player, isActive: true },
+            { id: 'player3', attributes: { speed: 15 }, status: Status.Admin, isActive: false },
+        ];
+        expect(connectedPlayers).toEqual(expectedPlayers);
+    });
+
+    it('should return true if the player is active', () => {
+        jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
+        jest.spyOn(service, 'getPlayerById').mockReturnValue(listPlayers[0]);
+
+        const isActive = service['isActivePlayer'](mockSocket);
+        expect(isActive).toBe(true);
+    });
+
+    it('should return active player', () => {
+        room.listPlayers = listPlayers;
+        const activePlayer = service.getActivePlayer(room);
+        expect(activePlayer).toBe(listPlayers[0]);
+    });
+
+    it('should return player by id', () => {
+        room.listPlayers = mockPlayers;
+        const player = service.getPlayerById(room, mockSocket);
+        expect(player).toBe(mockPlayers[0]);
     });
 });
