@@ -198,7 +198,7 @@ export class GameService {
             this.onTurnEnded(socket, server);
         }
         disconnectedPlayer.status = Status.Disconnected;
-        // TODO: remove player avatar from grid
+        server.to(room.roomId).emit('playerDisconnected', disconnectedPlayer);
         this.sortPlayersBySpeed(room);
     }
 
