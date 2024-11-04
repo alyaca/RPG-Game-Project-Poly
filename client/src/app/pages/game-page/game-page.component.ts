@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -32,13 +32,13 @@ import { Room } from '@common/room';
 export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
-    @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
 
     allPlayers: Player[];
     mapName: string;
     mapDimensions: string;
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
+    activePlayerMessage: string | null;
 
     isActivePlayer: boolean = false;
     isActionSelected: boolean = true;
@@ -70,6 +70,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
+        });
+
+        this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
+            this.activePlayerMessage = `Le tour de ${name} va commencer`;
         });
 
         this.socketCommunicationService.on('roomDeleted', (message: string) => {
@@ -131,6 +135,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isTurnStartShowed = false;
         this.isFirstTimerDone = true;
         this.beforeTurnTotalTime = STARTING_TIME;
+        this.activePlayerMessage = null;
         this.enableClicks();
     }
 

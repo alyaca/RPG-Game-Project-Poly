@@ -62,6 +62,7 @@ export class GameService {
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
+        this.stopGameTimers(server, room.roomId);
         socket.emit('leftRoom', isAdmin);
         if (isAdmin) {
             this.roomService.deleteRoom(roomId, socket);
@@ -140,7 +141,7 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
-        client.to(room.roomId).emit('otherPlayerTurn', client.data.username); // to do in client
+        client.to(room.roomId).emit('otherPlayerTurn', client.data.username);
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining === 0) {
@@ -235,6 +236,13 @@ export class GameService {
             ];
         }
         room.listPlayers = listPlayers;
+    }
+
+    private stopGameTimers(server: Server, roomId: string) {
+        if (!server.sockets.adapter.rooms.get(roomId)) {
+            this.roomService.getFightTimer(roomId).stopTimer();
+            this.roomService.getTurnTimer(roomId).stopTimer();
+        }
     }
 
     private updateAvatarsForAllClients(server: Server, roomId: string) {
