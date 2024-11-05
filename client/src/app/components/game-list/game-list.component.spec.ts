@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { mockGames } from '@app/mocks/mock-game';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { Game } from '@common/game';
@@ -14,8 +15,10 @@ describe('GameListComponent', () => {
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let mapEditorServiceSpy: jasmine.SpyObj<MapEditorService>;
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
 
     beforeEach(async () => {
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['convertMapDimension', 'setSelectedSize']);
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
         mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', ['setMapToEdit']);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', [
@@ -35,6 +38,7 @@ describe('GameListComponent', () => {
                 { provide: MatSnackBar, useValue: snackBarSpy },
                 { provide: GameListService, useValue: gameListServiceSpy },
                 { provide: MapEditorService, useValue: mapEditorServiceSpy },
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
@@ -118,30 +122,6 @@ describe('GameListComponent', () => {
     });
 
     describe('convertMapDimension', () => {
-        it('should return "small" if the game dimension is 10', () => {
-            const mockGame = { dimension: 10 } as Game;
-            const result = component.convertMapDimension(mockGame);
-            expect(result).toBe('small');
-        });
-
-        it('should return "medium" if the game dimension is 15', () => {
-            const mockGame = { dimension: 15 } as Game;
-            const result = component.convertMapDimension(mockGame);
-            expect(result).toBe('medium');
-        });
-
-        it('should return "large" if the game dimension is 20', () => {
-            const mockGame = { dimension: 20 } as Game;
-            const result = component.convertMapDimension(mockGame);
-            expect(result).toBe('large');
-        });
-
-        it('should return "none" if the game dimension is not 10, 15, or 20', () => {
-            const mockGame = { dimension: 25 } as Game;
-            const result = component.convertMapDimension(mockGame);
-            expect(result).toBe('none');
-        });
-
         it('should edit game and navigate to edit-map', () => {
             const game = mockGames[0];
             component.editGame(game);

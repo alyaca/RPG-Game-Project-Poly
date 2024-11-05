@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
@@ -8,76 +9,143 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { Status } from '@app/interfaces/player-object';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { STARTING_TIME, TURN_TIME } from '@app/constants';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
+import { Room } from '@common/room';
 
 @Component({
     selector: 'app-game-page',
     standalone: true,
-    imports: [GameGridComponent, PlayerInfoInventoryComponent, IngamePlayersSidebarComponent, TimerComponent, CombatModalComponent, ChatBoxComponent],
+    imports: [
+        GameGridComponent,
+        PlayerInfoInventoryComponent,
+        IngamePlayersSidebarComponent,
+        TimerComponent,
+        CombatModalComponent,
+        ChatBoxComponent,
+        CommonModule,
+    ],
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements AfterViewInit {
+export class GamePageComponent implements OnInit, AfterViewInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
-    @ViewChild('startTimer') startTimerComponent!: TimerComponent;
 
-    allPlayers: Player[] = mockLobbyPlayers;
+    allPlayers: Player[];
     mapName: string = 'Exemple';
     mapDescription: string = 'Ma tres courte description';
+    mapDimensions: string = '';
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
 
+    isActivePlayer: boolean = false;
     isActionSelected: boolean = true;
-    isInCombat = false;
-    isTurnStartShowed = true;
+    isInCombat: boolean = false;
+    isTurnStartShowed: boolean = false;
+    timeRemainingBeforeStartTurn: number = STARTING_TIME;
+    timeRemainingStartTurn: number = TURN_TIME;
+    isFirstTimerDone: boolean = false;
+    beforeTurnTotalTime: number = STARTING_TIME;
+    turnTotalTime: number = TURN_TIME;
 
     constructor(
         private router: Router,
         private dialog: MatDialog,
+        private gameCreationService: GameCreationService,
+        public socketCommunicationService: SocketCommunicationService,
     ) {
-        this.determinePlayerTurn();
+        this.mapName = this.gameCreationService.loadedMapName;
+        this.mapDimensions = this.findMapDimensions();
     }
 
-    determinePlayerTurn() {
-        this.allPlayers.sort((player1, player2) => player2.attributes.speed - player1.attributes.speed);
-        this.allPlayers = [
-            ...this.allPlayers.filter((player) => player.status !== Status.Disconnected),
-            ...this.allPlayers.filter((player) => player.status === Status.Disconnected),
-        ];
+    ngOnInit() {
+        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+            this.allPlayers = room.listPlayers;
+            this.replenishHealth();
+        });
+    }
+
+    ngAfterViewInit() {
+        this.socketCommunicationService.on('isActive', (playerId: string) => {
+            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
+            this.isTurnStartShowed = this.isActivePlayer;
+        });
+        this.timerEvents();
+    }
+
+    timerEvents() {
+        this.socketCommunicationService.on('beforeStartTurnTimer', (timeRemaining: number) => {
+            this.timeRemainingBeforeStartTurn = timeRemaining;
+        });
+        this.socketCommunicationService.on('beforeStartTurnTimerEnd', () => {
+            this.closeTurnStartPopUp();
+        });
+        this.socketCommunicationService.on('turnEnded', (listPlayers: []) => {
+            this.allPlayers = listPlayers;
+            this.onBeforeStartTurn();
+        });
+        this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
+            this.timeRemainingStartTurn = timeRemaining;
+        });
+    }
+
+    onBeforeStartTurn() {
+        this.socketCommunicationService.send('beforeStartTurn');
+    }
+
+    onStartTurn() {
+        this.socketCommunicationService.send('startTurn', TURN_TIME);
+    }
+
+    getPlayerCount() {
+        if (this.allPlayers) {
+            return this.allPlayers.length;
+        }
+        return -1;
+    }
+
+    findMapDimensions(): string {
+        const mapSize = this.gameCreationService.updateDimensions();
+        return mapSize + ' x ' + mapSize;
+    }
+
+    replenishHealth() {
+        for (const player of this.allPlayers) {
+            player.attributes.currentHp = player.attributes.totalHp;
+        }
     }
 
     enableClicks() {
-        this.pageDiv.first.nativeElement.id = 'enabled';
+        if (this.pageDiv && this.pageDiv.length > 0) {
+            this.pageDiv.first.nativeElement.id = 'enabled';
+        }
     }
 
     closeTurnStartPopUp() {
         this.isTurnStartShowed = false;
+        this.isFirstTimerDone = true;
+        this.beforeTurnTotalTime = STARTING_TIME;
         this.enableClicks();
-        this.turnTimerComponent.resumeTimer();
+        this.onStartTurn();
     }
 
     toggleActionSelected() {
         this.isActionSelected = !this.isActionSelected;
     }
 
-    ngAfterViewInit() {
-        if (this.turnTimerComponent) {
-            this.turnTimerComponent.pauseTimer();
-        }
-    }
-
     openCombatModal() {
         this.isInCombat = true;
-        this.turnTimerComponent.pauseTimer();
+        this.socketCommunicationService.send('startFight');
     }
 
     closeCombatModal() {
         this.isInCombat = false;
-        this.turnTimerComponent.resumeTimer();
+        this.socketCommunicationService.send('endFight');
+        // this.turnTimerComponent.resumeTimer();
     }
 
     handleExit() {
@@ -96,5 +164,9 @@ export class GamePageComponent implements AfterViewInit {
                 this.router.navigate(['/home']);
             }
         });
+    }
+
+    onEndTurn() {
+        this.socketCommunicationService.send('endTurn');
     }
 }

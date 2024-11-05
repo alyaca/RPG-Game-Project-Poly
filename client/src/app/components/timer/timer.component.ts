@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, WARNING_TIME, TIMER_RADIUS, TIMER_ARC_WIDTH } from '@app/constants';
+import { TIMER_ARC_WIDTH, TIMER_CENTER_POSITION, TIMER_RADIUS, WARNING_TIME } from '@app/constants';
 
 @Component({
     selector: 'app-timer',
@@ -11,30 +11,29 @@ import { MILLISECONDS_IN_SECOND, TIMER_CENTER_POSITION, WARNING_TIME, TIMER_RADI
 })
 export class TimerComponent implements OnInit, OnDestroy {
     @Input() totalTime: number;
-    @Input() isShowed: boolean = false;
-
     @Input() timeRemaining: number;
-    @Input() timerSize: number = TIMER_RADIUS;
+    @Output() startTimer = new EventEmitter<void>();
     @Output() closeTimer = new EventEmitter<void>();
+
     intervalId: ReturnType<typeof setInterval> | null = null;
     isPaused: boolean = false;
     isTimerRunning: boolean = true;
     warningTime: number = WARNING_TIME;
-    radius = this.timerSize;
+    radius = TIMER_RADIUS;
     circumference = 2 * Math.PI * this.radius;
     strokeDashoffset = 0;
 
     circleProperties = {
         cx: TIMER_CENTER_POSITION,
         cy: TIMER_CENTER_POSITION,
-        r: this.timerSize,
+        r: this.radius,
         strokeWidth: TIMER_ARC_WIDTH,
     };
 
     ngOnInit() {
-        this.radius = this.timerSize;
+        this.radius = TIMER_RADIUS;
         this.circumference = 2 * Math.PI * this.radius;
-        this.startTimer();
+        this.start();
     }
 
     ngOnDestroy() {
@@ -43,19 +42,8 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
     }
 
-    startTimer() {
-        if (this.isTimerRunning && !this.isPaused) {
-            this.intervalId = setInterval(() => {
-                this.timeRemaining--;
-
-                if (this.timeRemaining <= -1 && this.intervalId !== null) {
-                    clearInterval(this.intervalId);
-                    this.timerFinished();
-                }
-
-                this.updateProgress();
-            }, MILLISECONDS_IN_SECOND);
-        }
+    start() {
+        this.startTimer.emit();
     }
 
     resetTimer() {
@@ -65,7 +53,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
         this.timeRemaining = this.totalTime;
         this.updateProgress();
-        this.startTimer();
+        this.start();
     }
 
     pauseTimer() {
@@ -78,7 +66,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     resumeTimer() {
         if (this.isPaused) {
             this.isPaused = false;
-            this.startTimer();
+            this.start();
         }
     }
 

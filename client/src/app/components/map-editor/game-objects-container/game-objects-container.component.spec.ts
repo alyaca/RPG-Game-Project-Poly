@@ -37,6 +37,7 @@ describe('GameObjectsContainerComponent', () => {
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
             ],
         }).compileComponents();
+        gameObjectManagerServiceSpy.objects = mockObjects;
 
         fixture = TestBed.createComponent(GameObjectsContainerComponent);
         component = fixture.componentInstance;

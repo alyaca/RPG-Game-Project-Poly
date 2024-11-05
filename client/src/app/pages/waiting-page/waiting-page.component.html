@@ -8,7 +8,7 @@
     <main>
         <div id="players-container">
             @for (player of players; track player.id) {
-            <app-lobby-player class="medium" [lobbyPlayer]="players[$index]"></app-lobby-player>
+            <app-lobby-player class="medium" [lobbyPlayer]="players[$index]" [isPlayerAdmin]="isAdmin"></app-lobby-player>
             }
         </div>
     </main>
@@ -16,15 +16,24 @@
         <div id="footer-container">
             <app-chat-box [isToggleable]="false"></app-chat-box>
             <div id="start-container">
-                <button id="start" (click)="handleStartGame()">Lancer une partie</button>
-                <button id="quit-button" (click)="handleExit(accessCode)">Quitter</button>
+                <button id="start" class="big-button" (click)="handleStartGame()" [disabled]="!isAdmin" [ngClass]="{ disabled: !isAdmin }">
+                    Lancer une partie
+                </button>
+                <button id="quit-button" (click)="handleExit(accessCode)" [ngClass]="{ 'big-button': !isAdmin }">Quitter</button>
             </div>
             <div id="lock-container">
-                <p class="lock-text">Verrouiller la partie</p>
-                <label class="switch">
-                    <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" />
-                    <span class="slider"> </span>
-                </label>
+                <div [ngClass]="{ disabled: !isAdmin }">
+                    <p class="lock-text">Verrouiller la partie</p>
+                    <label class="switch">
+                        @if(isMaxPlayersReached()){
+                        <div class="tooltiptext">
+                            La salle d'attente a atteint le nombre maximum de joueurs. Vous ne pouvez pas déverrouiller la partie.
+                        </div>
+                        }
+                        <input type="checkbox" [(ngModel)]="isLocked" (change)="onLockChange()" [disabled]="isMaxPlayersReached()" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </footer>

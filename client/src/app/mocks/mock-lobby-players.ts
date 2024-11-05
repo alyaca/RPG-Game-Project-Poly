@@ -12,6 +12,7 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Admin,
         victories: 0,
         isActive: true,
+        position: { x: 1, y: 2 },
     },
     {
         id: 'mefe',
@@ -21,6 +22,7 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
+        position: { x: 1, y: 2 },
     },
     {
         id: 'ur32n',
@@ -30,6 +32,7 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
+        position: { x: 1, y: 2 },
     },
     {
         id: 'luke0324',
@@ -39,6 +42,7 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
+        position: { x: 1, y: 2 },
     },
     {
         id: 'leia1214',
@@ -48,6 +52,7 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
+        position: { x: 1, y: 2 },
     },
     {
         id: 'chew0242',
@@ -57,5 +62,6 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
+        position: { x: 1, y: 2 },
     },
 ];

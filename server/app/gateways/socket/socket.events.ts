@@ -1,5 +1,6 @@
 export enum SocketEvents {
     CreateRoom = 'createRoom',
+    StartGame = 'startGame',
     BroadcastAll = 'broadcastAll',
     JoinRoom = 'joinRoom',
     LeaveRoom = 'leaveRoom',
@@ -7,6 +8,13 @@ export enum SocketEvents {
     SelectCharacter = 'selectCharacter',
     ChangeLockRoom = 'changeLockRoom',
     IsLocked = 'isLocked',
-    SendMessages = 'sendMessages',
+    GetMap = 'getMap',
+    SendMessage = 'sendMessages',
+    EndTurn = 'endTurn',
+    StartTurn = 'startTurn',
+    BeforeStartTurn = 'beforeStartTurn',
+    StartFight = 'startFight',
+    EndFight = 'endFight',
+    KickPlayer = 'kickPlayer',
     SendGameLog = 'sendGameLog',
 }

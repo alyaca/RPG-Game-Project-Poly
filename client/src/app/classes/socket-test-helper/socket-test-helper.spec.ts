@@ -54,4 +54,10 @@ describe('SocketTestHelper', () => {
             socketHelper.emit('testEvent', { test: 'data' });
         }).not.toThrow();
     });
+
+    it('should handle off', () => {
+        expect(() => {
+            socketHelper.off('testEvent');
+        }).not.toThrow();
+    });
 });

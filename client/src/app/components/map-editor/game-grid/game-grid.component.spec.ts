@@ -1,9 +1,15 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { mockGameNavigation } from '@app/mocks/mock-map';
+import { mockObjects } from '@app/mocks/mock-object';
+import { playerNavigation } from '@app/mocks/mock-player';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
+import { NavigationService } from '@app/services/navigation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
@@ -18,14 +24,19 @@ describe('GameGridComponent', () => {
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let tileServiceSpy: jasmine.SpyObj<TileService>;
+    let gameObjectsContainerSpy: jasmine.SpyObj<GameObjectsContainerComponent>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
 
     beforeEach(async () => {
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'resetGrid', 'removeTile']);
+        gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', [], { selectedButton: null });
         mapValidatorServiceSpy = jasmine.createSpyObj('MapValidatorService', ['validateMap']);
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions']);
-        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectManagerService', [
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['isSocketAlive', 'connect', 'on', 'send', 'once']);
+        gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', [
             'initObjectsArray',
             'resetObjectsCount',
             'getObjectById',
@@ -42,6 +53,16 @@ describe('GameGridComponent', () => {
             'handleGameObjectOnTile',
             'isValidTileForObject',
             'onDragStart',
+            'objects',
+        ]);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', [
+            'initialize',
+            'findReachableTiles',
+            'findFastestPath',
+            'navigateToTile',
+            'checkFell',
+            'getPortraitId',
+            'isPositionWithinBounds',
         ]);
 
         tileServiceSpy.resetGrid.and.callFake((gridSize: number) => {
@@ -63,11 +84,16 @@ describe('GameGridComponent', () => {
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
                 { provide: TileService, useValue: tileServiceSpy },
+                { provide: GameObjectsContainerComponent, useValue: gameObjectsContainerSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+                { provide: NavigationService, useValue: navigationServiceSpy },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(GameGridComponent);
         component = fixture.componentInstance;
+        gameObjectManagerServiceSpy.objects = mockObjects;
+        gameObjectsContainerSpy.gameObjects = mockObjects;
         component.gridSize = SIZE_SMALL_MAP;
         component.tilesGrid = tileServiceSpy.resetGrid(component.gridSize, component.tilesGrid);
         component.objectsArray = gameObjectServiceMock.initObjectsArray();
@@ -120,6 +146,30 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
         });
+        /*
+        it('should connect the socket and initialize dimensions', () => {
+            socketCommunicationServiceSpy.isSocketAlive.and.returnValue(true);
+            socketCommunicationServiceSpy.connect.and.stub();
+            gameCreationServiceSpy.updateDimensions.and.returnValue(10);
+
+            component.ngOnInit();
+
+            expect(socketCommunicationServiceSpy.isSocketAlive).toHaveBeenCalled();
+            expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
+            expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
+            expect(component.gridSize).toBe(10);
+        });
+
+        it('should load new game or existing game based on creation state', () => {
+            gameCreationServiceSpy.isNewGame = true;
+            component.ngOnInit();
+            expect(component.objectsArray).toBeDefined();
+
+            gameCreationServiceSpy.isNewGame = false;
+            component.ngOnInit();
+            expect(component.oldMapName).toEqual(gameCreationServiceSpy.loadedMapName);
+        });
+        */
     });
 
     describe('deepCopyMatrix', () => {
@@ -182,6 +232,7 @@ describe('GameGridComponent', () => {
     });
 
     it('should call the methods to remove the tile on right click', () => {
+        gameCreationServiceSpy.isModifiable = true;
         const event = new MouseEvent('click', { button: 2 });
         component.removeOnRightClick(event, 0, 0);
         expect(tileServiceSpy.removeTile).toHaveBeenCalled();
@@ -234,6 +285,7 @@ describe('GameGridComponent', () => {
 
     it('onDragStart should call and set the correct methods', () => {
         component.isMouseDown = true;
+        gameCreationServiceSpy.isModifiable = true;
         component.onDragStart(1, 1);
         expect(toolServiceSpy.deactivateTileApplicator).toHaveBeenCalled();
         expect(component.isMouseDown).toBeFalse();
@@ -301,5 +353,55 @@ describe('GameGridComponent', () => {
             component.onMouseMove(0, 0);
             expect(component.onTileClick).not.toHaveBeenCalled();
         });
+    });
+
+    it('should set the correct portrait ID for each player at their position', () => {
+        navigationServiceSpy.players = [playerNavigation];
+        navigationServiceSpy.isPositionWithinBounds.and.returnValue(true);
+        navigationServiceSpy.getPortraitId.and.callFake((godName: string | undefined) => {
+            switch (godName) {
+                case 'Hestia':
+                    return ObjectType.Hestia;
+                default:
+                    return ObjectType.Spawn;
+            }
+        });
+        component.displayPortraitOnSpawnPoints();
+        expect(component.objectsArray[0][0]).toBe(ObjectType.Spawn);
+    });
+
+    it('should set the tile to Ground if conditions are met', () => {
+        component.tilesGrid = [
+            [TileType.Water, TileType.Ground],
+            [TileType.Ground, TileType.Ground],
+        ];
+        component.objectsArray = [
+            [NO_OBJECT, NO_OBJECT],
+            [NO_OBJECT, NO_OBJECT],
+        ];
+
+        const event = new MouseEvent('click');
+        component.removeTile(event, 0, 0);
+
+        expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
+    });
+
+    it('should call navigationService.findReachableTiles with the correct arguments', () => {
+        const mockReachableTiles = [
+            { x: 0, y: 1 },
+            { x: 1, y: 2 },
+        ];
+        navigationServiceSpy.findReachableTiles.and.returnValue(mockReachableTiles);
+        navigationServiceSpy.players = [{ ...playerNavigation }];
+        navigationServiceSpy.gameMap = { ...mockGameNavigation };
+
+        component.findReachableTiles();
+
+        expect(navigationServiceSpy.findReachableTiles).toHaveBeenCalledWith(
+            navigationServiceSpy.players[0],
+            navigationServiceSpy.gameMap,
+            navigationServiceSpy.players[0].attributes.movementPointsLeft,
+        );
+        expect(component.reachableTiles).toEqual(mockReachableTiles);
     });
 });

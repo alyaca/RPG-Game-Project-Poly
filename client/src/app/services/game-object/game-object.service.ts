@@ -14,7 +14,7 @@ export class GameObjectService implements OnDestroy {
     dragStartPosition: MapPosition | null = null;
     isDraggingFromContainer: boolean = false;
     maxCount: number;
-    objects: GameObject[] = gameObjects;
+    objects: GameObject[] = [...gameObjects];
     objectsArray: number[][];
     selectedTile: MapPosition | null = null;
     private countableObjects = [ObjectType.Random, ObjectType.Spawn];
