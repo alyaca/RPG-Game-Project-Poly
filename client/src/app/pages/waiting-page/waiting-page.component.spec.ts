@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DialogMessages, DialogOptions, DialogTitle } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -27,7 +27,6 @@ describe('WaitingPageComponent', () => {
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let httpMock: HttpTestingController;
-
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let accessCode: string;
 
@@ -253,5 +252,31 @@ describe('WaitingPageComponent', () => {
         expect(gameCreationServiceSpy.loadedTiles).toEqual(component.chosenGame.tiles);
         expect(gameCreationServiceSpy.loadedObjects).toEqual(component.chosenGame.itemPlacement);
         expect(gameCreationServiceSpy.loadedMapName).toEqual(component.chosenGame.name);
+    });
+
+    it('should open the dialog and send startGame on confirm', (done) => {
+        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Right));
+
+        component['confirmStartGame']();
+        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+            title: DialogTitle.StartGame,
+            messages: [DialogMessages.ConfirmStartGame],
+            options: [DialogOptions.Cancel, DialogOptions.Confirm],
+            confirm: true,
+        });
+
+        setTimeout(() => {
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startGame');
+            expect(component.isLocked).toBeTrue();
+            done();
+        });
+    });
+
+    it('should locked room when max players', () => {
+        spyOn(component, 'isMaxPlayersReached').and.returnValue(true);
+        spyOn(component, 'onLockChange');
+        component.onMaxPlayers();
+        expect(component.isLocked).toBeTrue();
+        expect(component.onLockChange).toHaveBeenCalled();
     });
 });
