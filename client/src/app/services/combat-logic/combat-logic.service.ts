@@ -1,14 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Player } from '@common/player';
-import { DiceComponent } from '@app/components/dice/dice.component';
 import { COMBAT_TURN_LENGTH, SHORT_COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE, DISPLAY_TEXT_DELAY } from '@app/constants';
 
 export type Roles = {
     [key: string]: {
         attacker: Player;
         defender: Player;
-        activeDice: DiceComponent;
-        inactiveDice: DiceComponent;
     };
 };
 
@@ -65,18 +62,18 @@ export class CombatLogicService {
         this.isPlayer2Damaged = !isDefenderPlayer1;
     }
 
-    processAttack(roles: Roles, currPlayerNum: string, player1: Player, player2: Player) {
+    processAttack(activeDiceValue: number, inactiveDiceValue: number, player1: Player, player2: Player) {
         this.attackInProgress = true;
 
-        const { attacker, defender, activeDice, inactiveDice } = roles[currPlayerNum];
-        const isDefenderPlayer1 = currPlayerNum === 'player1turn';
+        const { attacker, defender } = this.roles[this.currPlayerNum];
+        const isDefenderPlayer1 = this.currPlayerNum === 'player1turn';
 
         this.statValue2 =
-            currPlayerNum === 'player1turn' ? activeDice.value + player1.attributes.attack : inactiveDice.value + player1.attributes.defense;
+            this.currPlayerNum === 'player1turn' ? activeDiceValue + player1.attributes.attack : inactiveDiceValue + player1.attributes.defense;
         this.statValue1 =
-            currPlayerNum === 'player2turn' ? activeDice.value + player2.attributes.attack : inactiveDice.value + player2.attributes.defense;
+            this.currPlayerNum === 'player2turn' ? activeDiceValue + player2.attributes.attack : inactiveDiceValue + player2.attributes.defense;
 
-        if (activeDice.value + attacker.attributes.attack > inactiveDice.value + defender.attributes.defense) {
+        if (activeDiceValue + attacker.attributes.attack > inactiveDiceValue + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
             this.setDisplayText('attaque réussie de ' + attacker.name);
         } else {

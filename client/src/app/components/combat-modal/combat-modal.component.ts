@@ -76,8 +76,8 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
         this.combatService.roles = {
-            player1turn: { attacker: this.player2, defender: this.player1, activeDice: this.dice1, inactiveDice: this.dice2 },
-            player2turn: { attacker: this.player1, defender: this.player2, activeDice: this.dice2, inactiveDice: this.dice1 },
+            player1turn: { attacker: this.player2, defender: this.player1 },
+            player2turn: { attacker: this.player1, defender: this.player2 },
         };
         this.timerEvents();
         this.timerEvents();
@@ -128,7 +128,9 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     attack() {
-        this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2);
+        const activeDiceValue = this.combatService.currPlayerNum === 'player1turn' ? this.dice1.value : this.dice2.value;
+        const inactiveDiceValue = this.combatService.currPlayerNum === 'player1turn' ? this.dice2.value : this.dice1.value;
+        this.combatService.processAttack(activeDiceValue, inactiveDiceValue, this.player1, this.player2);
         this.socketCommunicationService.send('fightTime', this.combatTimeRemaining);
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
@@ -144,7 +146,10 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         this.combatService.attackInProgress = true;
 
         this.combatService.switchTurn();
-        const { attacker, defender, activeDice, inactiveDice } = this.combatService.roles[this.combatService.currPlayerNum];
+        const { attacker, defender } = this.combatService.roles[this.combatService.currPlayerNum];
+        const activeDice = this.combatService.currPlayerNum === 'player1turn' ? this.dice1 : this.dice2;
+        const inactiveDice = this.combatService.currPlayerNum === 'player1turn' ? this.dice2 : this.dice1;
+
 
         activeDice.rollDice(attacker.attributes.atkDiceMax);
 
