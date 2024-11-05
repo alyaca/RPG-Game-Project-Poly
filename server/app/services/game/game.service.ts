@@ -1,5 +1,4 @@
-import { FELLING_PROBABILITY, FIGHT_TIME, MOVEMENT_TIME, STARTING_TIME, TileType, TURN_TIME } from '@app/constants';
-
+import { FELLING_PROBABILITY, MOVEMENT_TIME, STARTING_TIME, TileType, TURN_TIME } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -104,7 +103,7 @@ export class GameService {
         server.to(room.roomId).emit('otherPlayerTurn', client.data.username);
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
+            if (timeRemaining <= 0) {
                 this.playerTurnTimer(client, server);
             }
         });
@@ -119,14 +118,6 @@ export class GameService {
     }
 
     // To do for fight
-    onStartFight(client: Socket, opponent: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
-        this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        this.roomService.getFightTimer(room.roomId).startTimer(FIGHT_TIME, (combatTimeRemaining) => {
-            client.emit('fightTime', combatTimeRemaining);
-            server.to(opponent.id).emit('fightTime', combatTimeRemaining);
-        });
-    }
 
     // To do for fight
     onEndFight(server: Server, room: Room) {
@@ -213,7 +204,7 @@ export class GameService {
         const room = this.roomService.getRoom(client);
         this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
+            if (timeRemaining <= 0) {
                 this.onTurnEnded(client, server);
             }
         });

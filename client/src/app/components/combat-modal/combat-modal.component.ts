@@ -17,8 +17,8 @@ import {
 } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
-import { Player } from '@common/player';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Player } from '@common/player';
 // import { Room } from '@common/room';
 
 @Component({
@@ -46,7 +46,10 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     totalTime: number = COMBAT_TURN_LENGTH;
     combatTimeRemaining: number = COMBAT_TURN_LENGTH;
 
-    constructor(public combatService: CombatLogicService, public socketCommunicationService: SocketCommunicationService) {}
+    constructor(
+        public combatService: CombatLogicService,
+        public socketCommunicationService: SocketCommunicationService,
+    ) {}
 
     ngOnInit() {
         // this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
@@ -63,8 +66,6 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
-
-
     }
 
     initializeDisplay() {
@@ -84,20 +85,18 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     timerEvents() {
-        this.socketCommunicationService.on('turnEnded', () => {
+        this.socketCommunicationService.on('CombatTurnEnded', () => {
             this.onBeforeStartTurn();
         });
-        this.socketCommunicationService.on('fightTime', (combatTimeRemaining: number) => {
+        this.socketCommunicationService.on('combatTime', (combatTimeRemaining: number) => {
             this.combatTimeRemaining = combatTimeRemaining;
             this.onBeforeStartTurn();
         });
     }
 
     onBeforeStartTurn() {
-        this.socketCommunicationService.send('fightTime');
-        this.socketCommunicationService.send('startFight');
+        this.socketCommunicationService.send('combatTime');
     }
-
 
     closeModal() {
         this.combatService.setDisplayText('');
@@ -129,7 +128,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     attack() {
         this.combatService.processAttack(this.combatService.roles, this.combatService.currPlayerNum, this.player1, this.player2);
-        this.socketCommunicationService.send('fightTime', this.combatTimeRemaining);
+        this.socketCommunicationService.send('combatTime', this.combatTimeRemaining);
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
         this.endGameIfNeeded();
