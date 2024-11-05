@@ -11,7 +11,6 @@ import { GameTileInfoService } from '@app/services/game-tile-info.service';
 export class TilePlayerInfoComponent {
   @Output() closePopup = new EventEmitter<void>();
 
-
   constructor(public gameTileInfoService: GameTileInfoService){}
 
   close() {

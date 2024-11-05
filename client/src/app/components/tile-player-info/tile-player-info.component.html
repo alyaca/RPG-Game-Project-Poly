@@ -1,17 +1,21 @@
 <div class="tile-player-info">
     <!-- Add additional information as needed -->
-        
-    <h1> {{ gameTileInfoService.getTile().name}}</h1>
-    <p>  description de la tuile: </p>
-    <p> {{ gameTileInfoService.getTile().description }}</p>
-    <img class="item-image" [src]="gameTileInfoService.getTile().image" alt="tile image"> 
-
-     @if(gameTileInfoService.getItem()){
-        <h1> {{ gameTileInfoService.getItem()?.name }}</h1>
-        <p> description de l'objet: </p>
-        <p> {{ gameTileInfoService.getItem()?.description }}</p>
-        <img class="item-image" [src]="gameTileInfoService.getItem()?.image" alt="item image"> 
-     }
-
+    @if(gameTileInfoService.getPlayer()) {
+        <h1> {{ gameTileInfoService.getPlayer()?.name }}</h1>
+        <img class="item-image" [src]="gameTileInfoService.getItem()?.image" alt="player image"> 
+    }   
+    @else {
+        <h1> {{ gameTileInfoService.getTile().name}}</h1>
+        <p>  description de la tuile: </p>
+        <p> {{ gameTileInfoService.getTile().description }}</p>
+        <img class="item-image" [src]="gameTileInfoService.getTile().image" alt="tile image"> 
+    
+         @if(gameTileInfoService.getItem()){
+            <h1> {{ gameTileInfoService.getItem()?.name }}</h1>
+            <p> description de l'objet: </p>
+            <p> {{ gameTileInfoService.getItem()?.description }}</p>
+            <img class="item-image" [src]="gameTileInfoService.getItem()?.image" alt="item image"> 
+         }
+    }
     <button (click)="close()">Fermer</button>
 </div>

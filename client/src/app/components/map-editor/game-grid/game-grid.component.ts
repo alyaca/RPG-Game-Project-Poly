@@ -233,6 +233,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.isPopupVisible = true;
             this.gameTileInfoService.tileId = this.tilesGrid[row][col];
             this.gameTileInfoService.itemId = this.objectsArray[row][col];
+            this.gameTileInfoService.selectedRow = row;
+            this.gameTileInfoService.selectedCol = col;   
         }
     }
 

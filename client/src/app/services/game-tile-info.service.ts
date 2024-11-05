@@ -2,14 +2,19 @@ import { Injectable } from '@angular/core';
 import { gameObjects } from '@app/objects-info';
 
 import { TileService } from '@app/services/tile/tile.service';
+import { NavigationService } from './navigation/navigation.service';
 import { GameTile } from '@common/game-tile';
+// import { ObjectType } from '@app/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameTileInfoService {
+  // isPlayerOnTile: boolean = false;
   tileId: number = 0;
   itemId: number = 0;
+  selectedRow: number = -1;
+  selectedCol: number = -1;
   gameTile: GameTile = {
     id: 1,
     name: '',
@@ -41,7 +46,7 @@ export class GameTileInfoService {
     'Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'
   ]
 
-  constructor(public tileService: TileService) {}
+  constructor(public tileService: TileService, public navigationService: NavigationService) {}
 
   getItem(){
     if (this.itemId > 0){
@@ -56,5 +61,14 @@ export class GameTileInfoService {
     this.gameTile.image = this.tileService.getTileImage(this.tileId);
     this.gameTile.description = this.tileDescriptions[this.tileId - 1];
     return this.gameTile;
+  }
+
+  getPlayer(){
+    for(const player of this.navigationService.players){
+      if (player.position.x === this.selectedRow && player.position.y === this.selectedCol){
+        return player;
+      }
+    }
+    return null;
   }
 }
