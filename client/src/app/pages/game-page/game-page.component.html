@@ -58,7 +58,7 @@
                     <div
                         class="button-outer action-outer"
                         [class.selected]="isActionSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkDoors()"
                         (click)="toggleActionSelected()"
                     >
                         <div class="action-button door-button"></div>
@@ -70,7 +70,7 @@
                     <div
                         class="button-outer action-outer"
                         [class.selected]="isActionSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack()"
                         (click)="toggleActionSelected()"
                     >
                         <div class="action-button attack-button" (click)="openCombatModal()"></div>

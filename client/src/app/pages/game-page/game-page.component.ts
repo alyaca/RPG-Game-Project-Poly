@@ -9,6 +9,7 @@ import { PlayerInfoInventoryComponent } from '@app/components/player-info-invent
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
@@ -55,6 +56,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
+        private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -191,5 +193,22 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
+    }
+
+    checkDoors(): boolean {
+        if (this.navigationService.checkDoor()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    checkAttack(): boolean {
+        console.log(this.navigationService.checkAttack());
+        if (this.navigationService.checkAttack()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
