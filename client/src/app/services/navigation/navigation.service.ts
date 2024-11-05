@@ -106,10 +106,6 @@ export class NavigationService {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
     }
 
-    getActivePlayer(): Player {
-        return this.players.find((player) => player.isActive) || this.players[0];
-    }
-
     getPortraitId(godName: string | undefined): ObjectType {
         return godNameToObjectType.get(godName || '') ?? ObjectType.Spawn;
     }
@@ -170,8 +166,8 @@ export class NavigationService {
         return [];
     }
 
-    checkAttack(): Player | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+    checkAttack(activePlayer: Player): Player | undefined {
+        const neighbors = this.getNeighbors(activePlayer.position, this.gameMap);
         for (const neighbor of neighbors) {
             if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
                 return this.players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
@@ -180,15 +176,15 @@ export class NavigationService {
         return undefined;
     }
 
-    haveActions(): boolean {
-        if (this.checkAttack() || this.checkDoor()) {
+    haveActions(activePlayer: Player): boolean {
+        if (this.checkAttack(activePlayer) || this.checkDoor(activePlayer)) {
             return true;
         }
         return false;
     }
 
-    checkDoor(): Position | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+    checkDoor(activePlayer: Player): Position | undefined {
+        const neighbors = this.getNeighbors(activePlayer.position, this.gameMap);
         return neighbors.find(
             (neighbor) =>
                 this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
