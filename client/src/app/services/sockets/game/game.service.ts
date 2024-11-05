@@ -126,22 +126,4 @@ export class GameService {
             }
         });
     }
-
-    // Check if needed
-    removeListenersWaitingPage() {
-        this.socketCommunicationService.off('roomDeleted');
-        this.socketCommunicationService.off('updatedPlayer');
-        this.socketCommunicationService.off('isPlayerAdmin');
-        this.socketCommunicationService.off('kickPlayer');
-        this.socketCommunicationService.off('leftRoom');
-    }
-
-    // Check if needed
-    removeListenersGamePage() {
-        this.socketCommunicationService.off('disconnectedPlayer');
-        this.socketCommunicationService.off('isActive');
-        this.socketCommunicationService.off('beforeStartTurnTimer');
-        this.socketCommunicationService.off('startedTurnTimer');
-        this.socketCommunicationService.off('turnEnded');
-    }
 }

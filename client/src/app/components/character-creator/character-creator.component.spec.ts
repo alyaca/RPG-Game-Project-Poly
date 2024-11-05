@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
 import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, ErrorMessages, HIGH_ATTRIBUTE, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
@@ -13,7 +12,6 @@ describe('CharacterCreatorComponent', () => {
     let component: CharacterCreatorComponent;
     let fixture: ComponentFixture<CharacterCreatorComponent>;
     let attributesServiceSpy: SpyObj<AttributesService>;
-    let routerSpy: jasmine.SpyObj<Router>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
@@ -36,7 +34,6 @@ describe('CharacterCreatorComponent', () => {
             imports: [MatSnackBarModule, BrowserAnimationsModule],
             providers: [
                 { provide: AttributesService, useValue: attributesServiceSpy },
-                { provide: Router, useValue: routerSpy },
                 { provide: MatSnackBar, useValue: snackBarSpy },
             ],
         }).compileComponents();
