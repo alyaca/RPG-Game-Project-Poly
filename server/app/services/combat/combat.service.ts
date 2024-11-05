@@ -23,4 +23,16 @@ export class CombatService {
         client.emit('receivedCombat', data);
         server.to(player2.id).emit('receivedCombat', data);
     }
+
+    combatTime(client: Socket, server: Server, player1: Player, player2: Player) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getFightTimer(room.roomId).resetTimer(FIGHT_TIME, (timeRemaining) => {
+            client.emit('combatTime', timeRemaining);
+            server.to(room.roomId).emit('combatTime', timeRemaining);
+            if (timeRemaining <= 0) {
+                client.emit('CombatTurnEnded');
+                server.to(room.roomId).emit('CombatTurnEnded');
+            }
+        });
+    }
 }

@@ -15,8 +15,8 @@ import {
     TEMP_DIALOG_DURATION,
     TURN_DIALOG_DELAY,
 } from '@app/constants';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 // import { Room } from '@common/room';
@@ -36,19 +36,16 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     @ViewChild('dice2') dice2!: DiceComponent;
     @ViewChild('timer') timerComponent!: TimerComponent;
     @ViewChild('temporaryDialog') temporaryDialogComponent!: TemporaryDialogComponent;
-
-    @Input() player1: Player = mockLobbyPlayers[0];
-    @Input() player2: Player = mockLobbyPlayers[1];
-
-    //@Input() player1: Player;
-    //@Input() player2: Player;
+    player1: Player;
+    player2: Player;
 
     totalTime: number = COMBAT_TURN_LENGTH;
     combatTimeRemaining: number = COMBAT_TURN_LENGTH;
 
     constructor(
-        public combatService: CombatLogicService,
+        public combatLogicService: CombatLogicService,
         public socketCommunicationService: SocketCommunicationService,
+        public combatService: CombatService,
     ) {}
 
     ngOnInit() {
@@ -63,52 +60,51 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         // //         this.player1 = foundPlayer;
         // //     }
         // // });
+        this.player1 = this.combatService.player1;
+        this.player2 = this.combatService.player2;
+        this.socketCommunicationService.on('CombatTurnEnded', () => {
+            this.onBeforeStartTurn();
+        });
 
-        this.combatService.initCombat(this.player1, this.player2);
+        this.socketCommunicationService.on('combatTime', (combatTimeRemaining: number) => {
+            this.combatTimeRemaining = combatTimeRemaining;
+        });
+
+        this.combatLogicService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
     }
 
     initializeDisplay() {
         setTimeout(() => {
-            const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
+            const message = this.combatLogicService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message, TEMP_DIALOG_DURATION);
         }, INIT_DISPLAY_DELAY);
     }
 
     ngAfterViewInit() {
-        this.combatService.roles = {
+        this.combatLogicService.roles = {
             player1turn: { attacker: this.player2, defender: this.player1 },
             player2turn: { attacker: this.player1, defender: this.player2 },
         };
-        this.timerEvents();
-    }
-
-    timerEvents() {
-        this.socketCommunicationService.on('CombatTurnEnded', () => {
-            this.onBeforeStartTurn();
-        });
-        this.socketCommunicationService.on('combatTime', (combatTimeRemaining: number) => {
-            this.combatTimeRemaining = combatTimeRemaining;
-            this.onBeforeStartTurn();
-        });
     }
 
     onBeforeStartTurn() {
-        this.socketCommunicationService.send('combatTime');
+        const combatPlayers = { player1: this.player1, player2: this.player2 };
+        this.socketCommunicationService.send('combatTime', combatPlayers);
     }
 
     closeModal() {
-        this.combatService.setDisplayText('');
-        this.combatService.resetPlayerHp(this.player1, this.player2);
+        this.combatLogicService.setDisplayText('');
+        this.combatLogicService.resetPlayerHp(this.player1, this.player2);
         this.isInCombat = false;
         this.closeModalEvent.emit();
     }
 
     endGameIfNeeded() {
-        const finalResult: string = this.combatService.checkIfDuelOver(this.player1, this.player2);
+        const finalResult: string = this.combatLogicService.checkIfDuelOver(this.player1, this.player2);
         if (finalResult) {
             this.triggerTempDialog(finalResult, LONG_TEMP_DIALOG_DURATION);
-            this.combatService.isGameOngoing = false;
+            this.combatLogicService.isGameOngoing = false;
             this.timerComponent.totalTime = 3;
             this.timerComponent.resetTimer();
             setTimeout(() => {
@@ -119,16 +115,16 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     triggerTurnDialog() {
         setTimeout(() => {
-            this.combatService.processTurnDialog(this.player1, this.player2);
-            const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
+            this.combatLogicService.processTurnDialog(this.player1, this.player2);
+            const message = this.combatLogicService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message, TEMP_DIALOG_DURATION);
         }, TURN_DIALOG_DELAY);
     }
 
     attack() {
-        const activeDiceValue = this.combatService.currPlayerNum === 'player1turn' ? this.dice1.value : this.dice2.value;
-        const inactiveDiceValue = this.combatService.currPlayerNum === 'player1turn' ? this.dice2.value : this.dice1.value;
-        this.combatService.processAttack(activeDiceValue, inactiveDiceValue, this.player1, this.player2);
+        const activeDiceValue = this.combatLogicService.currPlayerNum === 'player1turn' ? this.dice1.value : this.dice2.value;
+        const inactiveDiceValue = this.combatLogicService.currPlayerNum === 'player1turn' ? this.dice2.value : this.dice1.value;
+        this.combatLogicService.processAttack(activeDiceValue, inactiveDiceValue, this.player1, this.player2);
         this.socketCommunicationService.send('combatTime', this.combatTimeRemaining);
         this.timerComponent.resetTimer();
         this.triggerTurnDialog();
@@ -136,17 +132,17 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     triggerAttack() {
-        this.totalTime = this.combatService.determineTimerLength(this.combatService.evasionsArray1, this.combatService.currPlayerNum);
+        this.totalTime = this.combatLogicService.determineTimerLength(this.combatLogicService.evasionsArray1, this.combatLogicService.currPlayerNum);
         this.combatTimeRemaining = this.totalTime;
-        if (!this.combatService.isGameOngoing || this.combatService.attackInProgress) {
+        if (!this.combatLogicService.isGameOngoing || this.combatLogicService.attackInProgress) {
             return;
         }
-        this.combatService.attackInProgress = true;
+        this.combatLogicService.attackInProgress = true;
 
-        this.combatService.switchTurn();
-        const { attacker, defender } = this.combatService.roles[this.combatService.currPlayerNum];
-        const activeDice = this.combatService.currPlayerNum === 'player1turn' ? this.dice1 : this.dice2;
-        const inactiveDice = this.combatService.currPlayerNum === 'player1turn' ? this.dice2 : this.dice1;
+        this.combatLogicService.switchTurn();
+        const { attacker, defender } = this.combatLogicService.roles[this.combatLogicService.currPlayerNum];
+        const activeDice = this.combatLogicService.currPlayerNum === 'player1turn' ? this.dice1 : this.dice2;
+        const inactiveDice = this.combatLogicService.currPlayerNum === 'player1turn' ? this.dice2 : this.dice1;
 
         activeDice.rollDice(attacker.attributes.atkDiceMax);
 
@@ -156,23 +152,23 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         setTimeout(() => {
             this.attack();
-            this.combatService.attackInProgress = false;
+            this.combatLogicService.attackInProgress = false;
         }, ATTACK_DELAY);
     }
 
     triggerEvade() {
-        this.combatService.attemptEvade();
+        this.combatLogicService.attemptEvade();
         this.endGameIfNeeded();
     }
 
     triggerTempDialog(message: string, duration: number) {
-        if (this.combatService.isGameOngoing) {
+        if (this.combatLogicService.isGameOngoing) {
             this.temporaryDialogComponent.show(message, duration);
         }
     }
 
     onTimerFinished() {
-        if (!this.combatService.attackInProgress) {
+        if (!this.combatLogicService.attackInProgress) {
             this.triggerAttack();
         }
     }
