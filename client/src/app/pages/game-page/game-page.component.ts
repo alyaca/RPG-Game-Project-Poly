@@ -131,10 +131,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getPlayerCount() {
-        if (this.allPlayers) {
-            return this.allPlayers.length;
-        }
-        return -1;
+        return this.allPlayers ? this.allPlayers.length : -1;
     }
 
     findMapDimensions(): string {
