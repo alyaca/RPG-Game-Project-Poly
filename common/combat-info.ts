@@ -1,4 +1,5 @@
-import { Roles } from './roles'
+import { Player } from './player';
+import { Roles } from './roles';
 
 export interface CombatInfo {
     isPlayer1Damaged: boolean;
@@ -19,4 +20,6 @@ export interface CombatInfo {
     isDraw: boolean;
 
     attackInProgress: boolean;
+    player1: Player;
+    player2: Player;
 }

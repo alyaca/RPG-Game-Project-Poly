@@ -5,7 +5,7 @@
             <app-combat-stats-bar
                 [player]="player1"
                 [isOnRightSide]="false"
-                [isDamaged]="combatLogicService.combatInfo.isPlayer1Damaged"
+                [isDamaged]="combatService.combatInfo.isPlayer1Damaged"
                 [playerId]="socketCommunicationService.socket.id"
             ></app-combat-stats-bar>
         </div>
@@ -22,18 +22,18 @@
             <app-combat-stats-bar
                 [player]="player2"
                 [isOnRightSide]="true"
-                [isDamaged]="combatLogicService.combatInfo.isPlayer2Damaged"
+                [isDamaged]="combatService.combatInfo.isPlayer2Damaged"
             ></app-combat-stats-bar>
         </div>
     </div>
     <div class="middle-section">
         <div>
-            <div class="player-avatar-container" [ngClass]="{ damaged: combatLogicService.combatInfo.isPlayer1Damaged }">
+            <div class="player-avatar-container" [ngClass]="{ damaged: combatService.combatInfo.isPlayer1Damaged }">
                 <img class="player-img left-player" src="{{ player1.avatar?.src }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
-                @for (evasion of combatLogicService.combatInfo.evasionsArray1; track $index) {
+                @for (evasion of combatService.combatInfo.evasionsArray1; track $index) {
                 <div class="evasion-point"></div>
                 }
             </div>
@@ -41,25 +41,25 @@
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ combatLogicService.combatInfo.playerStat1 }}</div>
-                <div>{{ combatLogicService.combatInfo.statValue1 }}</div>
+                <div>{{ combatService.combatInfo.playerStat1 }}</div>
+                <div>{{ combatService.combatInfo.statValue1 }}</div>
             </div>
             <app-dice #dice2></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ combatLogicService.combatInfo.playerStat2 }}</div>
-                <div>{{ combatLogicService.combatInfo.statValue2 }}</div>
+                <div>{{ combatService.combatInfo.playerStat2 }}</div>
+                <div>{{ combatService.combatInfo.statValue2 }}</div>
             </div>
             <app-dice #dice1></app-dice>
         </div>
         <div>
-            <div class="player-avatar-container" [ngClass]="{ damaged: combatLogicService.combatInfo.isPlayer2Damaged }">
+            <div class="player-avatar-container" [ngClass]="{ damaged: combatService.combatInfo.isPlayer2Damaged }">
                 <img class="player-img right-player" src="{{ player2.avatar?.src }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
-                @for (evasion of combatLogicService.combatInfo.evasionsArray2; track $index) {
+                @for (evasion of combatService.combatInfo.evasionsArray2; track $index) {
                 <div class="evasion-point"></div>
                 }
             </div>
@@ -71,7 +71,7 @@
             <div>
                 <p class="action-text">Évader</p>
                 <div
-                    [ngClass]="{ disabled: this.combatLogicService.combatInfo.currPlayerNum !== 'player1turn' }"
+                    [ngClass]="{ disabled: this.combatService.combatInfo.currPlayerNum !== 'player1turn' }"
                     class="button-outer end-outer"
                     (click)="triggerEvade()"
                 >
@@ -80,12 +80,12 @@
             </div>
         </div>
         <div class="display">
-            <div class="display-text">{{ combatLogicService.combatInfo.displayText }}</div>
+            <div class="display-text">{{ combatService.combatInfo.displayText }}</div>
         </div>
         <div>
             <p class="action-text">Attaquer</p>
             <div
-                [ngClass]="{ disabled: this.combatLogicService.combatInfo.currPlayerNum !== 'player1turn' }"
+                [ngClass]="{ disabled: this.combatService.combatInfo.currPlayerNum !== 'player1turn' }"
                 class="button-outer end-outer"
                 (click)="triggerAttack()"
             >
