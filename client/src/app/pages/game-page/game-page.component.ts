@@ -146,8 +146,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     openCombatModal() {
-        this.isInCombat = true;
-        // this.socketCommunicationService.send('startFight');
+        const player1 = this.navigationService.getActivePlayer();
+        const player2 = this.navigationService.checkAttack();
+        console.log(player1, player2);
+        this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
     }
 
     closeCombatModal() {
@@ -204,7 +206,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     checkAttack(): boolean {
-        console.log(this.navigationService.checkAttack());
         if (this.navigationService.checkAttack()) {
             return true;
         } else {
