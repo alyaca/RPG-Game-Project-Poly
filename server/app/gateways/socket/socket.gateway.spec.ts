@@ -77,6 +77,9 @@ describe('SocketGateway', () => {
             to: jest.fn().mockReturnValue(broadcastOperator),
             sockets: {
                 sockets: new Map(),
+                adapter: {
+                    rooms: new Map(),
+                },
             },
         } as unknown as jest.Mocked<Server>;
 

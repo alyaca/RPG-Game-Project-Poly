@@ -42,9 +42,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
     activePlayerName: string | null;
+    activePlayer: Player | undefined;
 
     isActivePlayer: boolean = false;
-    isActionSelected: boolean = true;
+    isActionDoorSelected: boolean = false;
+    isActionCombatSelected: boolean = false;
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
@@ -138,11 +140,16 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     // A appeler quand on click sur attaquer
     attackPlayer() {
         this.socketCommunicationService.send('attackPlayer');
+
+        this.socketCommunicationService.on('playerFell', () => {
+            this.onPlayerFell();
+        });
     }
 
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
+            this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -163,7 +170,19 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onBeforeStartTurn() {
+        this.isActionCombatSelected = false;
+        this.isActionDoorSelected = false;
         this.socketCommunicationService.send('startTurn');
+    }
+
+    onPlayerFell() {
+        this.gameService
+            .openDialog({ title: DialogTitle.EndTurn, messages: [DialogMessages.Fell], confirm: false, options: [DialogOptions.Close] })
+            .subscribe((result) => {
+                if (result === DialogResult.Close) {
+                    this.onEndTurn();
+                }
+            });
     }
 
     getPlayerCount() {
@@ -198,8 +217,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.enableClicks();
     }
 
-    toggleActionSelected() {
-        this.isActionSelected = !this.isActionSelected;
+    toggleActionDoorSelected() {
+        this.isActionDoorSelected = !this.isActionDoorSelected;
+        this.isActionCombatSelected = false;
+    }
+
+    toggleActionCombatSelected() {
+        this.isActionCombatSelected = !this.isActionCombatSelected;
+        this.isActionDoorSelected = false;
     }
 
     openCombatModal() {
@@ -254,19 +279,21 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.disconnect();
     }
 
-    checkDoors(): boolean {
-        if (this.navigationService.checkDoor()) {
-            return true;
-        } else {
-            return false;
+    checkDoors() {
+        if (this.activePlayer) {
+            if (this.navigationService.checkDoor(this.activePlayer)) {
+                return true;
+            }
         }
+        return false;
     }
 
-    checkAttack(): boolean {
-        if (this.navigationService.checkAttack()) {
-            return true;
-        } else {
-            return false;
+    checkAttack() {
+        if (this.activePlayer) {
+            if (this.navigationService.checkAttack(this.activePlayer)) {
+                return true;
+            }
         }
+        return false;
     }
 }
