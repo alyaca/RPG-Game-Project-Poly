@@ -169,14 +169,21 @@ export class NavigationService {
         return [];
     }
 
-    checkAttack(): Position | undefined {
+    checkAttack(): Player | undefined {
         const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
         for (const neighbor of neighbors) {
             if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
-                return neighbor;
+                return this.players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
             }
         }
         return undefined;
+    }
+
+    haveActions(): boolean {
+        if (this.checkAttack() || this.checkDoor()) {
+            return true;
+        }
+        return false;
     }
 
     checkDoor(): Position | undefined {

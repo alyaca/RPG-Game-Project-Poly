@@ -36,7 +36,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     objectsArray: number[][];
     gridSize: number;
     currentPlayer: Player;
-    actualPlayer: Player;
     activePlayer: Player | undefined;
 
     selectedRow: number = 0;
@@ -86,7 +85,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
             this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
-            //Pas sure de ce que ça fait
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
             }
@@ -98,11 +96,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on<{ tile: Position; player: Player }>('playerNavigation', ({ tile, player }) => {
-            this.navigateToTile(tile, player);
+            this.navigateToTile(tile);
         });
 
         this.socketCommunicationService.on('endMovement', () => {
             this.isMoving = false;
+            this.checkEndTurn();
         });
 
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
@@ -279,7 +278,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.reachableTiles = this.navigationService.findReachableTiles(
             this.activePlayer,
             this.navigationService.gameMap,
-            this.activePlayer.attributes.movementPointsLeft + 10,
+            this.activePlayer.attributes.movementPointsLeft,
         );
     }
 
@@ -303,21 +302,41 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    navigateToTile(position: Position, player: Player) {
-        //if (this.activePlayer?.name !== player.name) return;
-
+    navigateToTile(position: Position) {
         if (this.activePlayer) {
             this.navigationService.updateTuile(this.activePlayer);
-            this.activePlayer.attributes.movementPointsLeft -= this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
+            const cost = this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
+            this.activePlayer.attributes.movementPointsLeft -= cost;
             this.activePlayer.position = position;
         }
         this.displayPortraitOnSpawnPoints();
         this.findReachableTiles();
-        //console.log('attack ' + this.navigationService.checkAttack());
-        //console.log('DOOR ' + this.navigationService.checkDoor());
     }
 
-    async delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    checkEndTurn() {
+        if (!this.activePlayer) return;
+        if (this.activePlayer.id !== this.currentPlayer.id) return;
+        const reachableTileCount = this.navigationService.findReachableTiles(
+            this.activePlayer,
+            this.navigationService.gameMap,
+            this.activePlayer.attributes.movementPointsLeft,
+        ).length;
+
+        //Le joueur n’a plus d’action à faire. Il lui reste des points de mouvement, mais il
+        //ne peut pas se déplacer (bloqué par des portes fermées ou joueurs).
+        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
+            this.socketCommunicationService.send('endTurn');
+        }
+
+        //Le joueur n’a plus de points de mouvement. Il lui reste une action à faire, mais il
+        //n’y a aucune cible valide sur les tuiles adjacentes.
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
+            this.socketCommunicationService.send('endTurn');
+        }
+
+        //Le joueur n’a plus de points de mouvement ni d’action à faire.
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && this.activePlayer.attributes.actionPoints === 0) {
+            this.socketCommunicationService.send('endTurn');
+        }
     }
 }

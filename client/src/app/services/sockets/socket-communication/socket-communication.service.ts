@@ -30,6 +30,7 @@ export class SocketCommunicationService {
     }
 
     send<T>(event: string, data?: T, callback?: () => void): void {
+        console.log('send ' + event);
         this.socket.emit(event, ...[data, callback].filter((x) => x));
     }
 
