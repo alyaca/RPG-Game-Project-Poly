@@ -27,7 +27,7 @@ import { Player } from '@common/player';
     styleUrl: './combat-modal.component.scss',
 })
 export class CombatModalComponent implements OnInit, AfterViewInit {
-    @Input() isInCombat = false; // isInCombat = is combat popup open ; isGameOngoing = has no winner been decided yet
+    @Input() isInCombat = false;
     @Output() closeModalEvent = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;
@@ -45,10 +45,6 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
-
-        // this.socketCommunicationService.on('fightTime', (timeRemaining: number) => {
-        //     this.timeRemaining = timeRemaining;
-        // });
     }
 
     initializeDisplay() {

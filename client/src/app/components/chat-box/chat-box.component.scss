@@ -26,15 +26,6 @@
     word-break: break-word;
 }
 
-// .past-messages.visible {
-//     display: block;
-//     max-height: 80vh;
-//     overflow-y: auto;
-//     overflow-x: hidden;
-//     white-space: normal;
-//     word-break: break-word;
-// }
-
 .chat-box {
     height: 50%;
     width: 80%;
@@ -48,17 +39,17 @@
 }
 
 .input-container.logs-active {
-    width: 222%; 
+    width: 222%;
     display: flex;
-    justify-content: space-around; 
+    justify-content: space-around;
 }
 
 .input-container.chat-active {
-    width: 222%; 
+    width: 222%;
 }
 
 #chat-input {
-    flex: 1; 
+    flex: 1;
 }
 
 .toggle-icon {
@@ -69,12 +60,12 @@
     width: 2rem;
     height: 2rem;
     display: inline-block;
-    background-size: cover; 
-    transition: transform 0.2s ease
+    background-size: cover;
+    transition: transform 0.2s ease;
 }
 
 .icon-chat {
-    background-image: url('../../../assets/images/icones/chat-message.png'); 
+    background-image: url('../../../assets/images/icones/chat-message.png');
 }
 
 .icon-chat:hover {
@@ -82,7 +73,7 @@
 }
 
 .icon-logs {
-    background-image: url('../../../assets/images/icones/logs.png'); 
+    background-image: url('../../../assets/images/icones/logs.png');
 }
 
 .icon-logs:hover {
@@ -97,11 +88,11 @@
     width: 2rem;
     height: 2rem;
     display: inline-block;
-    background-size: cover; 
+    background-size: cover;
     transform: scale(0.9);
 }
 
 input::placeholder {
-    color:  rgb(175, 158, 83);
-    opacity: 1; 
+    color: rgb(175, 158, 83);
+    opacity: 1;
 }

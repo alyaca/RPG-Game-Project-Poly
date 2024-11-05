@@ -9,7 +9,7 @@
         (contextmenu)="removeOnRightClick($event, rowIndex, colIndex)"
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
-        (click)="sendNavigation(rowIndex, colIndex)"
+        (click)="handleTileClick(rowIndex, colIndex)"
         (contextmenu)="showDetails(rowIndex, colIndex)"
     >
         <img

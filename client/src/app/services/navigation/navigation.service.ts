@@ -207,6 +207,23 @@ export class NavigationService {
         }
     }
 
+    isNeighbor(row: number, col: number, player: Player): boolean {
+        const neighbors = this.getNeighbors(player.position, this.gameMap);
+        return neighbors.some((neighbor) => neighbor.x === row && neighbor.y === col);
+    }
+
+    getNeighbors(position: Position, game: Game): Position[] {
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+        ];
+        return directions
+            .map(({ dx, dy }) => ({ x: position.x + dx, y: position.y + dy }))
+            .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
+    }
+
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
         current: PointWithDistance,
@@ -237,18 +254,6 @@ export class NavigationService {
 
     private isDestinationReached(position: PointWithDistance, destination: Position): boolean {
         return position.x === destination.x && position.y === destination.y;
-    }
-
-    private getNeighbors(position: Position, game: Game): Position[] {
-        const directions = [
-            { dx: 0, dy: 1 },
-            { dx: 0, dy: -1 },
-            { dx: 1, dy: 0 },
-            { dx: -1, dy: 0 },
-        ];
-        return directions
-            .map(({ dx, dy }) => ({ x: position.x + dx, y: position.y + dy }))
-            .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
     }
 
     private exploreNeighbors(neighbors: Position[], current: PointWithDistance, priorityQueue: PointWithDistance[], game: Game): void {

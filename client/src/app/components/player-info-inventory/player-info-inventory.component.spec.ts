@@ -6,8 +6,6 @@ import { mockPlayer } from '@app/mocks/mock-player';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
-// import { mockRoom } from '@app/mocks/mock-room';
-// import { Room } from '@common/room';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
@@ -57,7 +55,6 @@ describe('PlayerInfoInventoryComponent', () => {
         const initialActionPoints = 2;
         component.player = mockLobbyPlayers[0];
         component.player.attributes.actionPoints = initialActionPoints;
-        // component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.actionPoints;
         component.increaseActionPoints();
         expect(component.player.attributes.actionPoints).toBe(initialActionPoints + 1);
 

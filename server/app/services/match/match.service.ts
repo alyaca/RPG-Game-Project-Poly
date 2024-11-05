@@ -11,7 +11,6 @@ export class MatchService {
 
     constructor(private roomService: RoomService) {}
 
-    // TODO: return player list with position
     processMapObjects(client: Socket): void {
         const players = this.roomService.getRoom(client).listPlayers;
         this.game = this.roomService.getRoom(client).gameMap;
@@ -37,7 +36,6 @@ export class MatchService {
             const selectedSpawnPoint = spawnPoints[randomIndex];
             player.position = { x: selectedSpawnPoint.x, y: selectedSpawnPoint.y };
             spawnPoints.splice(randomIndex, 1); // To check
-            // TODO: not send unused spawn point
         });
     }
 

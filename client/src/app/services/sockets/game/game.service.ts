@@ -17,7 +17,9 @@ import {
 import { DialogData } from '@app/interfaces/dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
+import { Player } from '@common/player';
 import { Room } from '@common/room';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -27,12 +29,25 @@ export class GameService {
     isRoomLocked: boolean;
     isJoined: boolean = false;
     selectedGame: Game;
+    isActionDoorSelected: boolean = false;
+    isActionCombatSelected: boolean = false;
+
+    private activePlayerSubject = new BehaviorSubject<Player | undefined>(undefined);
+    activePlayer$ = this.activePlayerSubject.asObservable();
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
         private dialog: MatDialog,
         private router: Router,
     ) {}
+
+    setActivePlayer(player: Player | undefined): void {
+        this.activePlayerSubject.next(player);
+    }
+
+    getActivePlayer(): Player | undefined {
+        return this.activePlayerSubject.value;
+    }
 
     setRoomId(room: string) {
         this.roomId = room;
@@ -125,5 +140,12 @@ export class GameService {
                 this.router.navigate(['/home']);
             }
         });
+    }
+
+    hasActionPoints(player: Player) {
+        if (player) {
+            return player.attributes.actionPoints > 0;
+        }
+        return false;
     }
 }

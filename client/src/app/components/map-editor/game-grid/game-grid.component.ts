@@ -1,10 +1,11 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { NO_OBJECT, TileType } from '@app/constants';
+import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
@@ -54,6 +55,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
     private navigationService = inject(NavigationService);
+    private gameService = inject(GameService);
 
     constructor(
         private mapValidatorService: MapValidatorService,
@@ -68,6 +70,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
+        this.gameService.activePlayer$.subscribe((player) => {
+            this.activePlayer = player;
+        });
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         if (this.gameCreationService.isNewGame) {
@@ -84,6 +89,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
             this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+            this.gameService.setActivePlayer(this.activePlayer);
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
             }
@@ -286,6 +292,27 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return this.fastestPath.some((tile) => tile.x === row && tile.y === col);
     }
 
+    handleTileClick(row: number, col: number) {
+        if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
+            this.handleDoorAction(row, col);
+            return;
+        } else {
+            this.sendNavigation(row, col);
+        }
+    }
+
+    handleDoorAction(row: number, col: number) {
+        let tiles = this.navigationService.gameMap.tiles;
+        const playersObject = this.navigationService.gameMap.itemPlacement;
+        if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && playersObject[row][col] < ObjectType.Spawn) {
+            tiles[row][col] = this.tileService.toggleDoorState(tiles[row][col]);
+            this.tilesGrid = tiles;
+            this.activePlayer.attributes.actionPoints--;
+            this.gameService.isActionDoorSelected = false;
+            this.findReachableTiles();
+        }
+    }
+
     async sendNavigation(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
@@ -329,7 +356,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         // Player has no movement point or action left.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && this.activePlayer.attributes.actionPoints === 0) {
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.gameService.hasActionPoints(this.activePlayer)) {
             this.socketCommunicationService.send('endTurn');
         }
     }
