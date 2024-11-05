@@ -159,10 +159,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         */
     }
 
-    // closeCombatModal() {
-    //     this.isInCombat = false;
-    //     this.socketCommunicationService.send('endFight');
-    // }
+    closeCombatModal() {
+        this.isInCombat = false;
+        this.socketCommunicationService.send('endFight');
+    }
 
     handleExit() {
         this.gameService
