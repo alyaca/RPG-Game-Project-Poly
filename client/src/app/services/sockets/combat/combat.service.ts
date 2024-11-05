@@ -1,33 +1,31 @@
 import { Injectable } from '@angular/core';
+import { CombatInfo } from '@common/combat-info';
 import { Player } from '@common/player';
 import { SocketCommunicationService } from '../socket-communication/socket-communication.service';
-import { Roles } from '@common/roles'
 @Injectable({
     providedIn: 'root',
 })
-
 export class CombatService {
     public player1: Player;
     public player2: Player;
 
-    isPlayer1Damaged: boolean = false;
-    isPlayer2Damaged: boolean = false;
-    statValue1: number = 0;
-    statValue2: number = 0;
+    combatInfo: CombatInfo = {
+        isPlayer1Damaged: false,
+        isPlayer2Damaged: false,
+        statValue1: 0,
+        statValue2: 0,
+        displayText: '',
+        isGameOngoing: true,
+        currPlayerNum: '',
+        evasionsArray1: new Array(2).fill(1),
+        evasionsArray2: new Array(2).fill(1),
+        playerStat1: '',
+        playerStat2: '',
+        roles: {},
+        isDraw: false,
 
-    displayText: string = '';
-    isGameOngoing: boolean = true;
-
-    currPlayerNum: string;
-
-    evasionsArray1: number[];
-    evasionsArray2: number[];
-    playerStat1: string;
-    playerStat2: string;
-    roles: Roles;
-    isDraw: boolean;
-
-    attackInProgress: boolean = false;
+        attackInProgress: false,
+    };
 
     constructor(private socketCommunication: SocketCommunicationService) {}
 
