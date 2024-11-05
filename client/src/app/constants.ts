@@ -223,3 +223,11 @@ export enum DialogResult {
     Left = 'left',
     Close = 'close',
 }
+
+// constants for tile cost
+export enum TileCost {
+    Ground = 1,
+    Water = 2,
+    Ice = 0,
+    OpenDoor = 1,
+}

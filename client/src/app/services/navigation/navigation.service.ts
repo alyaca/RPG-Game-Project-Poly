@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ObjectType, TileType } from '@app/constants';
+import { ObjectType, TileCost, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -189,27 +189,23 @@ export class NavigationService {
 
     checkDoor(): Position | undefined {
         const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (
+        return neighbors.find(
+            (neighbor) =>
                 this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
-            ) {
-                return neighbor;
-            }
-        }
-        return undefined;
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor,
+        );
     }
 
     getTileCost(tileType: number): number {
         switch (tileType) {
             case TileType.Ground:
-                return 1;
+                return TileCost.Ground;
             case TileType.Water:
-                return 2;
+                return TileCost.Water;
             case TileType.Ice:
-                return 0;
+                return TileCost.Ice;
             case TileType.OpenDoor:
-                return 1;
+                return TileCost.OpenDoor;
             default:
                 return Infinity;
         }
