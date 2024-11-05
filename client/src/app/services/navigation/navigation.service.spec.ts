@@ -11,6 +11,7 @@ describe('NavigationServiceService', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({});
         service = TestBed.inject(NavigationService);
+        service.initialize(mockGame, [player], mockGame.tiles);
     });
 
     it('should be created', () => {
@@ -50,23 +51,19 @@ describe('NavigationServiceService', () => {
     */
 
     it('should initialize gameMap and playsers ', () => {
-        service.initialize(mockGame, [player], mockGame.tiles);
         expect(service.gameMap).toEqual(mockGame);
         expect(service.players).toEqual([player]);
     });
 
     it('should return true if the position contains an spwan point ', () => {
-        service.initialize(mockGame, [player], mockGame.tiles);
         expect(service.isInInitialPosition({ x: 0, y: 0 })).toBeTruthy();
     });
 
     it('should return true if the position contains an object ', () => {
-        service.initialize(mockGame, [player], mockGame.tiles);
         expect(service.isObject({ x: 0, y: 0 })).toBeTrue();
     });
 
     it('should return the object at the position ', () => {
-        service.initialize(mockGame, [player], mockGame.tiles);
         expect(service.getObject({ x: 0, y: 0 })).toEqual(1);
     });
 

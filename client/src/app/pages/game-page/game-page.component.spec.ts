@@ -109,10 +109,18 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should toggle isActionSelected correctly', () => {
-        const initialActionSelected = component.isActionSelected;
-        component.toggleActionSelected();
-        expect(component.isActionSelected).toBe(!initialActionSelected);
+    it('should toggle isActionDoorSelected correctly', () => {
+        const initialActionSelected = component.isActionDoorSelected;
+        component.toggleActionDoorSelected();
+        expect(component.isActionDoorSelected).toBe(!initialActionSelected);
+        expect(component.isActionCombatSelected).toBe(false);
+    });
+
+    it('should toggle isActionCombatSelected correctly', () => {
+        const initialActionSelected = component.isActionCombatSelected;
+        component.toggleActionCombatSelected();
+        expect(component.isActionCombatSelected).toBe(!initialActionSelected);
+        expect(component.isActionDoorSelected).toBe(false);
     });
 
     it('should set the id of the first pageDiv element to "enabled"', () => {

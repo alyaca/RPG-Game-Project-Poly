@@ -157,7 +157,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     openCombatModal() {
         const player1 = this.navigationService.getActivePlayer();
         const player2 = this.navigationService.checkAttack();
-        console.log(player1, player2);
+        // console.log(player1, player2);
         this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
     }
 

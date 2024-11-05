@@ -112,7 +112,6 @@ export class GameService {
     }
 
     onTurnEnded(client: Socket, server: Server) {
-        console.log('ISMovin ', this.isMoving);
         const room = this.roomService.getRoom(client);
         if (!this.isMoving) {
             this.updateActivePlayer(client);
@@ -132,7 +131,7 @@ export class GameService {
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
-            server.to(room.roomId).emit('playerNavigation', { player, tile });
+            server.to(room.roomId).emit('playerNavigation', tile);
             if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
                 server.to(room.roomId).emit('playerFell');
                 this.onTurnEnded(client, server);
