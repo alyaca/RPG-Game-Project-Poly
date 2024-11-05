@@ -1,43 +1,38 @@
 import { Injectable } from '@angular/core';
 import { Player } from '@common/player';
 import { COMBAT_TURN_LENGTH, SHORT_COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE, DISPLAY_TEXT_DELAY } from '@app/constants';
-import { Roles } from '@common/roles'
+import { CombatInfo } from '@common/combat-info'
 
 @Injectable({
     providedIn: 'root',
 })
 export class CombatLogicService {
-    isPlayer1Damaged: boolean = false;
-    isPlayer2Damaged: boolean = false;
-    statValue1: number = 0;
-    statValue2: number = 0;
-
-    displayText: string = '';
-    isGameOngoing: boolean = true;
-
-    currPlayerNum: string;
-
-    evasionsArray1: number[];
-    evasionsArray2: number[];
-    playerStat1: string;
-    playerStat2: string;
-    roles: Roles;
-    isDraw: boolean;
-
-    attackInProgress: boolean = false;
+    combatInfo: CombatInfo = {
+        isPlayer1Damaged: false,
+        isPlayer2Damaged: false,
+        statValue1: 0,
+        statValue2: 0,
+        displayText: '',
+        isGameOngoing: true,
+        currPlayerNum: '',
+        evasionsArray1: new Array(2).fill(1),
+        evasionsArray2: new Array(2).fill(1),
+        playerStat1: '',
+        playerStat2: '',
+        roles: {},
+        isDraw: false,
+    
+        attackInProgress: false,
+    }
+    
+    // combatInfo: CombatInfo;
 
     initCombat(player1: Player, player2: Player) {
-        this.isGameOngoing = true;
-        this.isDraw = false;
-        this.resetPlayerHp(player1, player2);
-        this.evasionsArray1 = new Array(2).fill(1);
-        this.evasionsArray2 = new Array(2).fill(1);
-        this.currPlayerNum = this.determineStartingPlayer(player1, player2);
-
-        this.playerStat1 =
-            this.currPlayerNum === 'player1turn' ? 'Attaque D' + player1.attributes.atkDiceMax : 'Défense D' + player1.attributes.defDiceMax;
-        this.playerStat2 =
-            this.currPlayerNum === 'player1turn' ? 'Défense D' + player2.attributes.defDiceMax : 'Attaque D' + player2.attributes.atkDiceMax;
+        this.combatInfo.currPlayerNum = this.determineStartingPlayer(player1, player2);
+        this.combatInfo.playerStat1 =
+            this.combatInfo.currPlayerNum === 'player1turn' ? 'Attaque D' + player1.attributes.atkDiceMax : 'Défense D' + player1.attributes.defDiceMax;
+        this.combatInfo.playerStat2 =
+            this.combatInfo.currPlayerNum === 'player1turn' ? 'Défense D' + player2.attributes.defDiceMax : 'Attaque D' + player2.attributes.atkDiceMax;
     }
 
     resetPlayerHp(player1: Player, player2: Player) {
@@ -52,20 +47,20 @@ export class CombatLogicService {
     dealDamage(defender: Player, isDefenderPlayer1: boolean) {
         defender.attributes.currentHp = Math.max(0, defender.attributes.currentHp - 1);
 
-        this.isPlayer1Damaged = isDefenderPlayer1;
-        this.isPlayer2Damaged = !isDefenderPlayer1;
+        this.combatInfo.isPlayer1Damaged = isDefenderPlayer1;
+        this.combatInfo.isPlayer2Damaged = !isDefenderPlayer1;
     }
 
     processAttack(activeDiceValue: number, inactiveDiceValue: number, player1: Player, player2: Player) {
-        this.attackInProgress = true;
+        this.combatInfo.attackInProgress = true;
 
-        const { attacker, defender } = this.roles[this.currPlayerNum];
-        const isDefenderPlayer1 = this.currPlayerNum === 'player1turn';
+        const { attacker, defender } = this.combatInfo.roles[this.combatInfo.currPlayerNum];
+        const isDefenderPlayer1 = this.combatInfo.currPlayerNum === 'player1turn';
 
-        this.statValue2 =
-            this.currPlayerNum === 'player1turn' ? activeDiceValue + player1.attributes.attack : inactiveDiceValue + player1.attributes.defense;
-        this.statValue1 =
-            this.currPlayerNum === 'player2turn' ? activeDiceValue + player2.attributes.attack : inactiveDiceValue + player2.attributes.defense;
+        this.combatInfo.statValue2 =
+            this.combatInfo.currPlayerNum === 'player1turn' ? activeDiceValue + player1.attributes.attack : inactiveDiceValue + player1.attributes.defense;
+        this.combatInfo.statValue1 =
+            this.combatInfo.currPlayerNum === 'player2turn' ? activeDiceValue + player2.attributes.attack : inactiveDiceValue + player2.attributes.defense;
 
         if (activeDiceValue + attacker.attributes.attack > inactiveDiceValue + defender.attributes.defense) {
             this.dealDamage(defender, isDefenderPlayer1);
@@ -74,7 +69,7 @@ export class CombatLogicService {
             this.setDisplayText('attaque échouée de ' + attacker.name);
         }
 
-        this.attackInProgress = false;
+        this.combatInfo.attackInProgress = false;
     }
 
     determineTimerLength(evasions: number[], currPlayerNum: string): number {
@@ -82,24 +77,24 @@ export class CombatLogicService {
     }
 
     setDisplayText(text: string) {
-        this.displayText = '';
+        this.combatInfo.displayText = '';
         setTimeout(() => {
-            this.displayText = text;
+            this.combatInfo.displayText = text;
         }, DISPLAY_TEXT_DELAY);
     }
 
     switchTurn() {
-        this.currPlayerNum = this.currPlayerNum === 'player1turn' ? 'player2turn' : 'player1turn';
+        this.combatInfo.currPlayerNum = this.combatInfo.currPlayerNum === 'player1turn' ? 'player2turn' : 'player1turn';
     }
 
     attemptEvade() {
-        if (this.evasionsArray1.length === 0) {
+        if (this.combatInfo.evasionsArray1.length === 0) {
             this.setDisplayText("Évasion pas possible, vous n'avez plus d'évasions restantes");
             return;
         }
-        this.evasionsArray1.pop();
+        this.combatInfo.evasionsArray1.pop();
         if (Math.random() < EVADE_SUCCES_RATE) {
-            this.isDraw = true;
+            this.combatInfo.isDraw = true;
             this.setDisplayText('Évasion réussie');
         } else {
             this.setDisplayText('Évasion échouée');
@@ -113,7 +108,7 @@ export class CombatLogicService {
         } else if (player1.attributes.currentHp === 0) {
             this.setDisplayText('Vous avez perdu le duel');
             return 'Défaite';
-        } else if (this.isDraw) {
+        } else if (this.combatInfo.isDraw) {
             this.setDisplayText('Évasion réussie');
             return 'Partie nulle';
         }
@@ -121,13 +116,13 @@ export class CombatLogicService {
     }
 
     processTurnDialog(player1: Player, player2: Player) {
-        this.isPlayer1Damaged = false;
-        this.isPlayer2Damaged = false;
+        this.combatInfo.isPlayer1Damaged = false;
+        this.combatInfo.isPlayer2Damaged = false;
 
-        this.playerStat1 = this.playerStat1.includes('Attaque')
+        this.combatInfo.playerStat1 = this.combatInfo.playerStat1.includes('Attaque')
             ? 'Défense D' + player1.attributes.defDiceMax
             : 'Attaque D' + player1.attributes.atkDiceMax;
-        this.playerStat2 = this.playerStat2.includes('Attaque')
+        this.combatInfo.playerStat2 = this.combatInfo.playerStat2.includes('Attaque')
             ? 'Défense D' + player2.attributes.defDiceMax
             : 'Attaque D' + player2.attributes.atkDiceMax;
     }

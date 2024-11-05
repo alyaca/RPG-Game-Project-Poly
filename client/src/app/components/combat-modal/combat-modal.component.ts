@@ -63,23 +63,25 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         // //         this.player1 = foundPlayer;
         // //     }
         // // });
-
         this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
     }
 
     initializeDisplay() {
         setTimeout(() => {
-            const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
+            const message = this.combatService.combatInfo.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message, TEMP_DIALOG_DURATION);
         }, INIT_DISPLAY_DELAY);
     }
 
     ngAfterViewInit() {
-        this.combatService.roles = {
+        
+        
+        this.combatService.combatInfo.roles = {
             player1turn: { attacker: this.player2, defender: this.player1 },
             player2turn: { attacker: this.player1, defender: this.player2 },
         };
+        
         this.timerEvents();
     }
 
@@ -108,7 +110,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         const finalResult: string = this.combatService.checkIfDuelOver(this.player1, this.player2);
         if (finalResult) {
             this.triggerTempDialog(finalResult, LONG_TEMP_DIALOG_DURATION);
-            this.combatService.isGameOngoing = false;
+            this.combatService.combatInfo.isGameOngoing = false;
             this.timerComponent.totalTime = 3;
             this.timerComponent.resetTimer();
             setTimeout(() => {
@@ -120,14 +122,14 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     triggerTurnDialog() {
         setTimeout(() => {
             this.combatService.processTurnDialog(this.player1, this.player2);
-            const message = this.combatService.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
+            const message = this.combatService.combatInfo.currPlayerNum === 'player1turn' ? 'Votre tour' : "Tour de l'adversaire";
             this.triggerTempDialog(message, TEMP_DIALOG_DURATION);
         }, TURN_DIALOG_DELAY);
     }
 
     attack() {
-        const activeDiceValue = this.combatService.currPlayerNum === 'player1turn' ? this.dice1.value : this.dice2.value;
-        const inactiveDiceValue = this.combatService.currPlayerNum === 'player1turn' ? this.dice2.value : this.dice1.value;
+        const activeDiceValue = this.combatService.combatInfo.currPlayerNum === 'player1turn' ? this.dice1.value : this.dice2.value;
+        const inactiveDiceValue = this.combatService.combatInfo.currPlayerNum === 'player1turn' ? this.dice2.value : this.dice1.value;
         this.combatService.processAttack(activeDiceValue, inactiveDiceValue, this.player1, this.player2);
         this.socketCommunicationService.send('combatTime', this.combatTimeRemaining);
         this.timerComponent.resetTimer();
@@ -136,17 +138,17 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     triggerAttack() {
-        this.totalTime = this.combatService.determineTimerLength(this.combatService.evasionsArray1, this.combatService.currPlayerNum);
+        this.totalTime = this.combatService.determineTimerLength(this.combatService.combatInfo.evasionsArray1, this.combatService.combatInfo.currPlayerNum);
         this.combatTimeRemaining = this.totalTime;
-        if (!this.combatService.isGameOngoing || this.combatService.attackInProgress) {
+        if (!this.combatService.combatInfo.isGameOngoing || this.combatService.combatInfo.attackInProgress) {
             return;
         }
-        this.combatService.attackInProgress = true;
+        this.combatService.combatInfo.attackInProgress = true;
 
         this.combatService.switchTurn();
-        const { attacker, defender } = this.combatService.roles[this.combatService.currPlayerNum];
-        const activeDice = this.combatService.currPlayerNum === 'player1turn' ? this.dice1 : this.dice2;
-        const inactiveDice = this.combatService.currPlayerNum === 'player1turn' ? this.dice2 : this.dice1;
+        const { attacker, defender } = this.combatService.combatInfo.roles[this.combatService.combatInfo.currPlayerNum];
+        const activeDice = this.combatService.combatInfo.currPlayerNum === 'player1turn' ? this.dice1 : this.dice2;
+        const inactiveDice = this.combatService.combatInfo.currPlayerNum === 'player1turn' ? this.dice2 : this.dice1;
 
         activeDice.rollDice(attacker.attributes.atkDiceMax);
 
@@ -156,7 +158,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         setTimeout(() => {
             this.attack();
-            this.combatService.attackInProgress = false;
+            this.combatService.combatInfo.attackInProgress = false;
         }, ATTACK_DELAY);
     }
 
@@ -166,13 +168,13 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     triggerTempDialog(message: string, duration: number) {
-        if (this.combatService.isGameOngoing) {
+        if (this.combatService.combatInfo.isGameOngoing) {
             this.temporaryDialogComponent.show(message, duration);
         }
     }
 
     onTimerFinished() {
-        if (!this.combatService.attackInProgress) {
+        if (!this.combatService.combatInfo.attackInProgress) {
             this.triggerAttack();
         }
     }
