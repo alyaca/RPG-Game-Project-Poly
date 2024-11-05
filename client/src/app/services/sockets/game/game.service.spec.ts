@@ -56,4 +56,20 @@ describe('GameService', () => {
             expect(() => service.getPlayerNumber(invalidHeight)).toThrowError('Nombre de joueur invalide');
         });
     });
+
+    // it('should called onPlayerQuit in handleExit', () => {
+    //     component.handleExit(accessCode);
+
+    //     expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+    //         disableClose: true,
+    //         data: {
+    //             title: 'Abandonner la partie?',
+    //             messages: ["- Vous quitteriez la page d'attente"],
+    //             options: ['Quitter', 'Rester'],
+    //             confirm: true,
+    //         },
+    //     });
+
+    //     expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    // });
 });

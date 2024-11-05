@@ -86,7 +86,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
             this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
-            //Pas sure de ce que ça fait
+            // Pas sure de ce que ça fait
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
             }
@@ -110,7 +110,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on('playerFell', () => {
-            //TODO : afficher un message pour dire que le joueur est tombé
+            // TODO : afficher un message pour dire que le joueur est tombé
             console.log('Player fell');
         });
     }
@@ -304,7 +304,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position, player: Player) {
-        //if (this.activePlayer?.name !== player.name) return;
+        // if (this.activePlayer?.name !== player.name) return;
 
         if (this.activePlayer) {
             this.navigationService.updateTuile(this.activePlayer);
@@ -313,8 +313,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.displayPortraitOnSpawnPoints();
         this.findReachableTiles();
-        //console.log('attack ' + this.navigationService.checkAttack());
-        //console.log('DOOR ' + this.navigationService.checkDoor());
+        // console.log('attack ' + this.navigationService.checkAttack());
+        // console.log('DOOR ' + this.navigationService.checkDoor());
     }
 
     async delay(ms: number) {

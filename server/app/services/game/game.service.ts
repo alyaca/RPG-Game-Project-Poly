@@ -145,9 +145,7 @@ export class GameService {
         server.to(room.roomId).emit('endMovement');
         this.isMoving = false;
         if (this.isTurnSkipped) {
-            console.log('processNavigation');
             this.onTurnEnded(client, server);
-            //this.onStartTurn(client, server);
             this.isTurnSkipped = false;
         }
     }
@@ -240,7 +238,6 @@ export class GameService {
         const room = this.roomService.getRoom(client);
         this.roomService.getTurnTimer(room.roomId).resetTimer(5 /*TURN_TIME*/, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-            console.log('timeRemaining 1 ', timeRemaining);
             if (timeRemaining <= 0) {
                 this.onTurnEnded(client, server);
             }
@@ -279,13 +276,10 @@ export class GameService {
     }
 
     private updateActivePlayer(socket: Socket) {
-        console.log('updateActivePlayer');
         const room = this.roomService.getRoom(socket);
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        console.log('index', index);
         const nextIndex = (index + 1) % listPlayers.length;
-        console.log('nextIndex', nextIndex);
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;
     }

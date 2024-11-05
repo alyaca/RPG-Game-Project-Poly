@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { DialogMessages, DialogOptions, DialogTitle } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -47,6 +47,7 @@ describe('WaitingPageComponent', () => {
             'onLeftRoom',
             'onKickPlayer',
             'openDialog',
+            'onPlayerQuit',
         ]);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send', 'off']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -124,14 +125,31 @@ describe('WaitingPageComponent', () => {
             expect(component.chosenGame).toEqual(mockGame);
         });
 
+        it('should call initSocketListeners', () => {
+            spyOn(component, 'initSocketListeners');
+            component.ngOnInit();
+            expect(component.initSocketListeners).toHaveBeenCalled();
+        });
+    });
+
+    describe('initSocketListeners', () => {
+        it('should call onRoomDeleted, onLeftRoom, onKickPlayer when receive corresponding event', () => {
+            component.initSocketListeners();
+            expect(gameServiceSpy.onRoomDeleted).toHaveBeenCalled();
+            expect(gameServiceSpy.onLeftRoom).toHaveBeenCalled();
+            expect(gameServiceSpy.onKickPlayer).toHaveBeenCalled();
+        });
+
         it('should set player list when it is updated', () => {
+            spyOn(component, 'onMaxPlayers');
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'updatedPlayer') {
                     callback(mockRoom as T);
                 }
             });
-            component.ngOnInit();
+            component.initSocketListeners();
             expect(component.players).toBe(mockRoom.listPlayers);
+            expect(component.onMaxPlayers).toHaveBeenCalled();
         });
 
         it('should set isAdmin to true is player admin', () => {
@@ -140,92 +158,29 @@ describe('WaitingPageComponent', () => {
                     callback(true as T);
                 }
             });
-            component.ngOnInit();
+            component.initSocketListeners();
             expect(component.isAdmin).toBe(true);
         });
 
-        it('should call onPlayerKickedOut when receive kickPlayer event', () => {
+        it('should call loadMap and set the chosenGame when startGame is received', () => {
             component.accessCode = accessCode;
-            component.chosenGame = mockGames[0];
-            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            dialogRefSpy.afterClosed.and.returnValue(of('close'));
-            dialogSpy.open.and.returnValue(dialogRefSpy);
-
+            gameListServiceSpy.chosenGameSubject.next(mockGames[0]);
+            spyOn(component, 'loadMap');
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'kickPlayer') {
-                    callback(event as T);
+                if (event === 'startGame') {
+                    callback(mockRoom as T);
                 }
             });
-            component.ngOnInit();
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                disableClose: true,
-                data: { title: 'Vous avez été retiré du jeu' },
-            });
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/join-game']);
-        });
-
-        it('should navigate to game-creation if player admin', () => {
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'leftRoom') {
-                    callback(true as T);
-                }
-            });
-            component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
-        });
-
-        it('should navigate to home if player not admin', () => {
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'leftRoom') {
-                    callback(false as T);
-                }
-            });
-            component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            component.initSocketListeners();
+            expect(component.chosenGame).toEqual(mockRoom.gameMap);
+            expect(component.loadMap).toHaveBeenCalled();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-page'], { queryParams: { roomCode: mockRoom.roomId } });
         });
     });
 
-    it('should handle roomDeleted event and navigate to /home', () => {
-        const message = 'Room has been deleted.';
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('close'));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
-
-        component.accessCode = accessCode;
-        component.chosenGame = mockGames[0];
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'roomDeleted') {
-                callback('Room has been deleted.' as unknown as T);
-            }
-        });
-        component.ngOnInit();
-
-        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-            disableClose: true,
-            data: { title: 'Partie annulée', messages: [message] },
-        });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-    });
-
-    describe('handleExit', () => {
-        it('should open the dialog and navigate to /home if confirmed', () => {
-            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-            dialogRefSpy.afterClosed.and.returnValue(of('leave'));
-            dialogSpy.open.and.returnValue(dialogRefSpy);
-            component.handleExit(accessCode);
-
-            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-                disableClose: true,
-                data: {
-                    title: 'Abandonner la partie?',
-                    messages: ["- Vous quitteriez la page d'attente"],
-                    options: ['Quitter', 'Rester'],
-                    confirm: true,
-                },
-            });
-
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-        });
+    it('should called onPlayerQuit in handleExit', () => {
+        component.handleExit(accessCode);
+        expect(gameServiceSpy.onPlayerQuit).toHaveBeenCalledWith(accessCode);
     });
 
     it('should update gameService isRoomLocked and send event', () => {
@@ -234,47 +189,6 @@ describe('WaitingPageComponent', () => {
 
         expect(gameServiceSpy.isRoomLocked).toBe(true);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('changeLockRoom', true);
-    });
-
-    it('should navigate to /game-page when dialog result is "Confirmer"', () => {
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('right'));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
-        component.isLocked = true;
-        component.handleStartGame();
-
-        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Débuter la partie',
-                messages: ['Êtes-vous certains de vouloir débuter la partie?'],
-                options: ['Annuler', 'Confirmer'],
-                confirm: true,
-            },
-        });
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startGame');
-    });
-
-    it('should not navigate when the dialog is cancelled', () => {
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('left'));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
-
-        component.handleStartGame();
-
-        expect(dialogSpy.open).toHaveBeenCalled();
-    });
-
-    it('should call loadMap and set the chosenGame when startGame is received', () => {
-        spyOn(component, 'loadMap');
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'startGame') {
-                callback(mockRoom as unknown as T);
-            }
-        });
-        component.ngOnInit();
-        expect(component.chosenGame).toEqual(mockRoom.gameMap);
-        expect(component.loadMap).toHaveBeenCalled();
     });
 
     it('should do everything in loadMap correctly', () => {
@@ -293,51 +207,36 @@ describe('WaitingPageComponent', () => {
         expect(gameCreationServiceSpy.loadedMapName).toEqual(component.chosenGame.name);
     });
 
-    it('should open the dialog and not navigate when only 1 player', () => {
-        component.players = [];
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('close'));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
-
-        component.handleStartGame();
-        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Débuter la partie',
-                messages: ['Il faut au moins 2 joueurs pour commencer la partie'],
-                options: ['Fermer'],
+    describe('handleStartGame', () => {
+        it('should open the dialog and not navigate when only 1 player', () => {
+            component.players = [];
+            component.handleStartGame();
+            expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+                title: DialogTitle.StartGame,
+                messages: [DialogMessages.NotEnoughPlayers],
+                options: [DialogOptions.Close],
                 confirm: false,
-            },
+            });
         });
-    });
 
-    it('should open the dialog when the room is not locked', () => {
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('right'));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
-        component.handleStartGame();
-
-        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Débuter la partie',
-                messages: ['Il faut verrouiller la salle afin de commencer la partie'],
-                options: ['Fermer'],
+        it('should open the dialog when the room is not locked', () => {
+            component.handleStartGame();
+            expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+                title: DialogTitle.StartGame,
+                messages: [DialogMessages.RoomLocked],
+                options: [DialogOptions.Close],
                 confirm: false,
-            },
+            });
         });
-    });
 
-    it('should call loadMap and set the chosenGame when startGame is received', () => {
-        spyOn(component, 'loadMap');
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'startGame') {
-                callback(mockRoom as unknown as T);
-            }
+        it('should navigate to /game-page when dialog result is "Confirmer"', () => {
+            // eslint-disable-next-line -- confirmStartGame is private and we want to spyOn
+            spyOn<any>(component, 'confirmStartGame');
+            component.isLocked = true;
+            component.handleStartGame();
+
+            expect(component['confirmStartGame']).toHaveBeenCalled();
         });
-        component.ngOnInit();
-        expect(component.chosenGame).toEqual(mockRoom.gameMap);
-        expect(component.loadMap).toHaveBeenCalled();
     });
 
     it('should do everything in loadMap correctly', () => {
