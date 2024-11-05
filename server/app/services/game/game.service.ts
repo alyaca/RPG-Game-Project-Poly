@@ -107,7 +107,7 @@ export class GameService {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
-        this.gameLogsService.sendTurnLog(activePlayer.name, room.roomId, server);
+        this.gameLogsService.sendTurnLog(activePlayer, room.roomId, server);
 
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);

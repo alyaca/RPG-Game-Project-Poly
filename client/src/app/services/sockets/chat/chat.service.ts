@@ -49,7 +49,7 @@ export class ChatService {
                 id: this.generateUniqueId(),
                 message: backendMessage.message,
                 timestamp: backendMessage.timestamp,
-                playersNames: backendMessage.playersNames,
+                players: backendMessage.players,
             };
             callback(formattedMessage);
         });

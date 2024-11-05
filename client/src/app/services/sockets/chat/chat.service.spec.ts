@@ -4,7 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { LogMessage } from '@app/interfaces/log-message';
+import { playerNavigation } from '@app/mocks/mock-player';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Player } from '@common/player';
 import { environment } from 'src/environments/environment';
 import { ChatService } from './chat.service';
 
@@ -13,9 +15,12 @@ describe('ChatService', () => {
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let httpMock: HttpTestingController;
     const chatsUrl = `${environment.serverUrl}/chat`;
+    let mockPlayer: Player[];
 
     beforeEach(() => {
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on']);
+
+        mockPlayer = new Array(playerNavigation);
 
         TestBed.configureTestingModule({
             imports: [],
@@ -69,7 +74,7 @@ describe('ChatService', () => {
             id: 1,
             message: 'Log message',
             timestamp: new Date(),
-            playersNames: ['Player1', 'Player2'],
+            players: mockPlayer,
         };
         const callback = jasmine.createSpy();
         service.onLogReceived(callback);

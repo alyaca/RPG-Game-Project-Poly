@@ -3,6 +3,7 @@ import { TileCost, TileType } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
@@ -17,6 +18,7 @@ describe('GameService', () => {
     let mockSocket: Socket;
     let roomId: string;
     let roomService: RoomService;
+    let gameLogsService: GameLogsService;
     let room: Room;
     let mockPlayer: Player;
     let listPlayers: Player[];
@@ -37,6 +39,14 @@ describe('GameService', () => {
             { id: 'player4', attributes: { speed: 5 }, status: Status.Disconnected, isActive: false },
         ] as unknown as Player[];
 
+        const gameLogsServiceMock = {
+            createLog: jest.fn(),
+            getGameLog: jest.fn(),
+            sendTurnLog: jest.fn(),
+            generateTurnMessage: jest.fn(),
+            generateGiveUpGame: jest.fn(),
+        };
+
         const roomServiceMock = {
             isRoomActive: jest.fn(),
             isPlayerAdmin: jest.fn(),
@@ -53,11 +63,16 @@ describe('GameService', () => {
         };
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [GameService, { provide: RoomService, useValue: roomServiceMock }],
+            providers: [
+                GameService,
+                { provide: RoomService, useValue: roomServiceMock },
+                { provide: GameLogsService, useValue: gameLogsServiceMock },
+            ],
         }).compile();
 
         service = module.get<GameService>(GameService);
         roomService = module.get<RoomService>(RoomService);
+        gameLogsService = module.get<GameLogsService>(GameLogsService);
         room = mockRooms[0];
         roomId = '1234';
         mockPlayer = { id: 'currentplayer', name: 'player1', avatar: avatars[0] } as Player;

@@ -1,4 +1,5 @@
 import { ILogMessage } from '@app/interfaces/log.interface';
+import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
@@ -7,9 +8,9 @@ export class GameLogsService {
     logs = new Map<string, ILogMessage[]>();
     private lastLog = new Map<string, string>();
 
-    createLog(playersNames: string[], message: string, roomId: string) {
+    createLog(players: Player[], message: string, roomId: string) {
         const date = new Date();
-        const newLog = { message: message, timestamp: date, playersNames: playersNames };
+        const newLog = { message: message, timestamp: date, players: players };
         if (!this.logs.has(roomId)) {
             this.logs.set(roomId, []);
         }
@@ -21,23 +22,23 @@ export class GameLogsService {
         return this.logs.get(roomId);
     }
 
-    getFilterLogs(roomId: string, playerName: string) {
-        return this.getGameLog(roomId).filter((log) => log.playersNames.includes(playerName));
-    }
+    // getFilterLogs(roomId: string, playerName: string) {
+    //     return this.getGameLog(roomId).filter((log) => log.playersNames.includes(playerName));
+    // }
 
-    sendTurnLog(playerName: string, roomId: string, server: Server) {
+    sendTurnLog(player: Player, roomId: string, server: Server) {
         const currentLog = this.lastLog.get(roomId);
 
-        const message = this.generateTurnMessage(playerName);
+        const message = this.generateTurnMessage(player);
         if (currentLog !== message) {
             this.lastLog.set(roomId, message);
-            const log = this.createLog([playerName], message, roomId);
+            const log = this.createLog([player], message, roomId);
             server.to(roomId).emit('logReceived', log);
         }
     }
 
-    generateTurnMessage(playerName: string) {
-        return `Début du tour du joueur ${playerName}.`;
+    generateTurnMessage(player: Player): string {
+        return `Début du tour du joueur ${player.name}.`;
     }
 
     generateGiveUpGame(playerName: string): string {

@@ -6,6 +6,7 @@ import { ChatMessageComponent } from '@app/components/chat-message/chat-message.
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { LogMessage } from '@app/interfaces/log-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -33,6 +34,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     constructor(
         private chatService: ChatService,
         private route: ActivatedRoute,
+        private socketCommunicationService: SocketCommunicationService,
     ) {}
 
     get toggleIconClass() {
@@ -55,7 +57,11 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         });
 
         this.chatService.onLogReceived((message: LogMessage) => {
-            this.logs.push(message);
+            if (this.areLogsFiltered) {
+                this.tempLogs.push(message);
+            } else {
+                this.logs.push(message);
+            }
         });
     }
 
@@ -95,7 +101,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.areLogsFiltered = !this.areLogsFiltered;
         if (this.areLogsFiltered) {
             this.tempLogs = [...this.logs];
-            this.logs = this.logs.filter((log) => log.playersNames.includes('Player'));
+            this.logs = this.logs.filter((log) => log.players.some((player) => player.id === this.socketCommunicationService.socket.id));
         } else {
             this.logs = [...this.tempLogs];
         }
