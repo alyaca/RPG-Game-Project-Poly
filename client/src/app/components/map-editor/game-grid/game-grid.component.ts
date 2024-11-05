@@ -11,6 +11,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
+import { GameTileInfoService } from '@app/services/game-tile-info.service';
 
 @Component({
     selector: 'app-game-grid',
@@ -68,6 +69,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public tileService: TileService,
         public gameObjectService: GameObjectService,
         public gameCreationService: GameCreationService,
+        public gameTileInfoService: GameTileInfoService
     ) {}
 
     getSelectedTile(): string {
@@ -229,13 +231,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.gameCreationService.isModifiable){
             event.preventDefault();
             this.isPopupVisible = true;
-            this.popupX = row;
-            this.popupY = col;  
+            this.gameTileInfoService.tileId = this.tilesGrid[row][col];
+            this.gameTileInfoService.itemId = this.objectsArray[row][col];
         }
-        // const description = this.navigationService.showDetails(row, col);
-        // if (description) {
-        //     // console.log(description);
-        // }
     }
 
     closeTileDescription(){

@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-
+import { Component, Output, EventEmitter } from '@angular/core';
+import { GameTileInfoService } from '@app/services/game-tile-info.service';
+// import { GameObject } from '@common/game-object';
 @Component({
   selector: 'app-tile-player-info',
   standalone: true,
@@ -8,9 +9,11 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   styleUrl: './tile-player-info.component.scss'
 })
 export class TilePlayerInfoComponent {
-  @Input() positionX: number = 0;
-  @Input() positionY: number = 0;
   @Output() closePopup = new EventEmitter<void>();
+
+
+  constructor(public gameTileInfoService: GameTileInfoService){}
+
   close() {
     this.closePopup.emit();
   }
