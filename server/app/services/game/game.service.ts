@@ -118,7 +118,6 @@ export class GameService {
     }
 
     onTurnEnded(client: Socket, server: Server) {
-        console.log('ISMovin ', this.isMoving);
         const room = this.roomService.getRoom(client);
         if (!this.isMoving) {
             this.updateActivePlayer(client);

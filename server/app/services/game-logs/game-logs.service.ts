@@ -7,9 +7,9 @@ export class GameLogsService {
     logs = new Map<string, ILogMessage[]>();
     private lastLog = new Map<string, string>();
 
-    createLog(playerNames: string[], message: string, roomId: string) {
+    createLog(playersNames: string[], message: string, roomId: string) {
         const date = new Date();
-        const newLog = { message: message, timestamp: date, playerNames: playerNames };
+        const newLog = { message: message, timestamp: date, playersNames: playersNames };
         if (!this.logs.has(roomId)) {
             this.logs.set(roomId, []);
         }
@@ -22,7 +22,7 @@ export class GameLogsService {
     }
 
     getFilterLogs(roomId: string, playerName: string) {
-        return this.getGameLog(roomId).filter((log) => log.playerNames.includes(playerName));
+        return this.getGameLog(roomId).filter((log) => log.playersNames.includes(playerName));
     }
 
     sendTurnLog(playerName: string, roomId: string, server: Server) {

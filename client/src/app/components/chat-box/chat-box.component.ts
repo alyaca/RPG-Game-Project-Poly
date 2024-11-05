@@ -20,6 +20,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @Input() isToggleable: boolean;
     messages: ChatMessage[] = [];
     logs: LogMessage[] = [];
+    tempLogs: LogMessage[] = [];
     newMessage: string = '';
     newLog: string = '';
     areLogsVisible: boolean = false;
@@ -92,6 +93,12 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
 
     toggleLogsFilter() {
         this.areLogsFiltered = !this.areLogsFiltered;
+        if (this.areLogsFiltered) {
+            this.tempLogs = [...this.logs];
+            this.logs = this.logs.filter((log) => log.playersNames.includes('Player'));
+        } else {
+            this.logs = [...this.tempLogs];
+        }
         this.chatType = this.areLogsFiltered ? 'Journal de jeu filtré' : 'Journal de jeu non filtré';
     }
 }
