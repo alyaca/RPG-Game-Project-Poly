@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
 import { ChatMessage } from '@app/interfaces/chat-message';
+import { LogMessage } from '@app/interfaces/log-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
 import { Subscription } from 'rxjs';
 
@@ -18,14 +19,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
     @Input() isToggleable: boolean;
     messages: ChatMessage[] = [];
-    logs: ChatMessage[] = [
-        {
-            id: 0,
-            timestamp: new Date(),
-            username: '',
-            message: 'Voici le journal de jeu',
-        },
-    ];
+    logs: LogMessage[] = [];
     newMessage: string = '';
     newLog: string = '';
     areLogsVisible: boolean = false;
@@ -57,6 +51,10 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         });
         this.chatService.onMessageReceived((message: ChatMessage) => {
             this.messages.push(message);
+        });
+
+        this.chatService.onLogReceived((message: LogMessage) => {
+            this.logs.push(message);
         });
     }
 

@@ -1,17 +1,16 @@
 <div class="chat-box">
     @if(!areLogsVisible){
-        <div class="past-messages" #messageContainer>
-            @for(message of messages; track message.id;){
-            <app-chat-message [timestamp]="message.timestamp" [username]="message.username" [message]="message.message"> </app-chat-message>
-            }
-        </div>
-    }
-    @else {
-        <div class="past-messages">
-            @for(log of logs; track log.id;){
-            <app-chat-message [timestamp]="log.timestamp" [username]="log.username" [message]="log.message"> </app-chat-message>
-            }
-        </div>
+    <div class="past-messages" #messageContainer>
+        @for(message of messages; track message.id;){
+        <app-chat-message [timestamp]="message.timestamp" [username]="message.username" [message]="message.message"> </app-chat-message>
+        }
+    </div>
+    } @else {
+    <div class="past-messages">
+        @for(log of logs; track log.id;){
+        <app-chat-message [timestamp]="log.timestamp" [message]="log.message"> </app-chat-message>
+        }
+    </div>
     }
     <div class="input-container" [ngClass]="{ 'logs-active': areLogsVisible, 'chat-active': !areLogsVisible }">
         <span class="toggle-icon" id="toggleIcon" [ngClass]="toggleIconClass" (click)="toggleChatLogs()"></span>
@@ -24,12 +23,12 @@
             name="chatInput"
             placeholder="{{ chatType }}"
             maxlength="200"
+            [disabled]="areLogsVisible"
         />
         @if(areLogsVisible && areLogsFiltered){
-            <img class="filter-icon" src="/assets/images/icones/filter.png" alt="filter" (click)="toggleLogsFilter()">
-        }
-        @else if(areLogsVisible && !areLogsFiltered){
-            <img class="filter-icon" src="/assets/images/icones/unfiltered.png" alt="filter" (click)="toggleLogsFilter()">
+        <img class="filter-icon" src="/assets/images/icones/filter.png" alt="filter" (click)="toggleLogsFilter()" />
+        } @else if(areLogsVisible && !areLogsFiltered){
+        <img class="filter-icon" src="/assets/images/icones/unfiltered.png" alt="filter" (click)="toggleLogsFilter()" />
         }
     </div>
 </div>

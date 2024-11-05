@@ -18,11 +18,11 @@ describe('SocketCommunicationService', () => {
     });
 
     it('should not connect if socket is already connected', () => {
-        service.connect();
         const initialSocket = service.socket;
+        spyOn(service, 'isSocketAlive').and.returnValue(true);
+
         service.connect();
         expect(service.socket).toBe(initialSocket);
-        expect(service);
     });
 
     // Tests from SocketIO exemple LOG2990

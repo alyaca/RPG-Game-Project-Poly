@@ -25,9 +25,7 @@ export class JoinGameService {
     ) {}
 
     connect() {
-        if (!this.socketCommunicationService.isSocketAlive()) {
-            this.socketCommunicationService.connect();
-        }
+        this.socketCommunicationService.connect();
     }
 
     getErrorMessage(errorType?: string) {

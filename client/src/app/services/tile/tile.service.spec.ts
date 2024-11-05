@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { TileType, TileId, NO_OBJECT } from '@app/constants';
+import { NO_OBJECT, TileId, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { TileService } from './tile.service';
 
@@ -8,13 +8,12 @@ describe('TileService', () => {
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
 
     beforeEach(() => {
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', [], {
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame'], {
             loadedTiles: [
                 [TileType.Ground, TileType.Ground, TileType.Ground],
                 [TileType.Ground, TileType.Ground, TileType.Ground],
                 [TileType.Ground, TileType.Ground, TileType.Ground],
             ],
-            isNewGame: true,
         });
         TestBed.configureTestingModule({
             providers: [TileService, { provide: GameCreationService, useValue: gameCreationServiceSpy }],
@@ -104,6 +103,18 @@ describe('TileService', () => {
         ]);
     });
 
+    it('should return loaded grid when existing game', () => {
+        gameCreationServiceSpy.isNewGame = false;
+        const loadedTiles = [
+            [1, 2],
+            [0, 1],
+        ];
+        gameCreationServiceSpy.loadedTiles = loadedTiles;
+        const mapSize = 3;
+        const result = service.resetGrid(mapSize, []);
+        expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
+    });
+
     describe('removeTile', () => {
         it('should not change tiles if it is already a Ground tile and no object', () => {
             const mockEvent = new MouseEvent('click', { button: 2 });
@@ -151,19 +162,8 @@ describe('TileService', () => {
     describe('resetGrid', () => {
         it('should return loadedTiles when isNewGame is false', () => {
             gameCreationServiceSpy.isNewGame = false;
-            gameCreationServiceSpy.loadedTiles = [
-                [TileType.Wall, TileType.Ground, TileType.Water],
-                [TileType.Ground, TileType.Ice, TileType.Ground],
-                [TileType.Ground, TileType.Ground, TileType.Ground],
-            ];
             const mapSize = 3;
-
-            const map = [
-                [TileType.Ground, TileType.Ground, TileType.Water],
-                [TileType.Ground, TileType.Ice, TileType.Ground],
-                [TileType.Ground, TileType.Ground, TileType.Ground],
-            ];
-            const result = service.resetGrid(mapSize, map);
+            const result = service.resetGrid(mapSize, []);
 
             expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
         });
