@@ -131,6 +131,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.processNavigation(room, this.server, path, client);
     }
 
+    @SubscribeMessage(SocketEvents.DoorClicked)
+    handleDoorClicked(client: Socket, tiles: number[][]) {
+        const room = this.roomService.getRoom(client);
+        room.gameMap.tiles = tiles;
+        this.server.to(room.roomId).emit('toggleDoor', tiles);
+    }
+
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
         try {
             const savedMessage = await this.chatService.saveMessage(message);

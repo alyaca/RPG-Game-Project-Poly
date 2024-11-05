@@ -85,6 +85,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints();
         });
+        this.socketCommunicationService.on('toggleDoor', (gameTiles: number[][]) => {
+            this.navigationService.gameMap.tiles = gameTiles;
+            this.tilesGrid = gameTiles;
+        });
 
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
@@ -296,7 +300,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleDoorAction(row, col);
             return;
-        } else {
+        } else if (this.tilesGrid[row][col] !== TileType.ClosedDoor) {
             this.sendNavigation(row, col);
         }
     }
@@ -309,6 +313,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.tilesGrid = tiles;
             this.activePlayer.attributes.actionPoints--;
             this.gameService.isActionDoorSelected = false;
+            this.socketCommunicationService.send('doorClicked', tiles);
             this.findReachableTiles();
         }
     }
