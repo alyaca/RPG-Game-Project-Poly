@@ -70,9 +70,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
-        this.gameService.activePlayer$.subscribe((player) => {
-            this.activePlayer = player;
-        });
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         if (this.gameCreationService.isNewGame) {
@@ -93,7 +90,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
             this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
-            this.gameService.setActivePlayer(this.activePlayer);
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
             }
