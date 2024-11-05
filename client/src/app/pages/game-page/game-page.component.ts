@@ -82,6 +82,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
             this.activePlayerName = name;
         });
+
+        this.socketCommunicationService.on('playerFell', () => {
+            this.onPlayerFell();
+        });
     }
 
     ngAfterViewInit() {
@@ -110,6 +114,16 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isActionCombatSelected = false;
         this.isActionDoorSelected = false;
         this.socketCommunicationService.send('startTurn');
+    }
+
+    onPlayerFell() {
+        this.gameService
+            .openDialog({ title: DialogTitle.EndTurn, messages: [DialogMessages.Fell], confirm: false, options: [DialogOptions.Close] })
+            .subscribe((result) => {
+                if (result === DialogResult.Close) {
+                    this.onEndTurn();
+                }
+            });
     }
 
     getPlayerCount() {
@@ -157,7 +171,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     openCombatModal() {
         const player1 = this.navigationService.getActivePlayer();
         const player2 = this.navigationService.checkAttack();
-        // console.log(player1, player2);
         this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
     }
 

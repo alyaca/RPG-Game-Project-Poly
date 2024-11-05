@@ -207,6 +207,7 @@ export enum DialogTitle {
     QuitGame = 'Abandonner la partie',
     KickedOut = 'Vous avez été exclu de la partie',
     DrawGame = 'Partie nulle',
+    EndTurn = 'Fin de votre tour',
 }
 export enum DialogMessages {
     NotEnoughPlayers = `Il faut au moins ${MIN_NUMBER_PLAYER} joueurs pour commencer la partie`,
@@ -215,6 +216,7 @@ export enum DialogMessages {
     QuitGame = 'Voulez-vous quitter la partie ?',
     KickedOut = "L'administrateur a décidé de vous retirer de la partie. Vous allez être redirigé vers l'accueil.",
     DrawGame = "Tous les joueurs ont abandonné. Vous aller être redirigé vers l'accueil.",
+    Fell = 'Vous avez glissé sur la glace. Votre tour est terminé.',
 }
 export enum DialogResult {
     Right = 'right',

@@ -42,7 +42,7 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
-    updateTuile(activePlayer: Player): void {
+    updateTile(activePlayer: Player): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
@@ -57,10 +57,11 @@ export class NavigationService {
         this.positions[player.position.x][player.position.y] = 0;
     }
 
-    showDetails(row: number, col: number): string {
-        const player = this.players.find((player) => player.position.x === row && player.position.y === col);
-        if (player) {
-            return `${player.name}, ${player.avatar}`;
+    showDetails(row: number, col: number) {
+        const clickedPlayer = this.players.find((player) => player.position.x === row && player.position.y === col);
+        if (clickedPlayer) {
+            // return { name: clickedPlayer.name, avatarSrc: clickedPlayer.avatar?.src };
+            return `${clickedPlayer.name}, ${clickedPlayer.avatar}`;
         } else {
             // TODO: completer les details
             return `${this.positions[row][col].valueOf()}`;
