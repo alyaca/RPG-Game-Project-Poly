@@ -1,13 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Player } from '@common/player';
 import { COMBAT_TURN_LENGTH, SHORT_COMBAT_TURN_LENGTH, EVADE_SUCCES_RATE, DISPLAY_TEXT_DELAY } from '@app/constants';
-
-export type Roles = {
-    [key: string]: {
-        attacker: Player;
-        defender: Player;
-    };
-};
+import { Roles } from '@common/roles'
 
 @Injectable({
     providedIn: 'root',
