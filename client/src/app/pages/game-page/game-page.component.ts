@@ -8,6 +8,8 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+//import { CombatService } from '@app/services/combat/combat.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -50,13 +52,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
+    combatTurnTime: number;
 
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         private gameService: GameService,
-        private navigationService: NavigationService,
+        private navigationService: NavigationService, //private combatService: CombatService,
+        public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -81,6 +85,59 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
             this.activePlayerName = name;
         });
+
+        this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player }) => {
+            this.isInCombat = true;
+            this.combatService.initializeCombat(data.player1, data.player2);
+        });
+
+        this.socketCommunicationService.on('combatEnd', () => {
+            this.closeCombatModal();
+        });
+
+        /*
+        this.socketCommunicationService.on('combatTime', (timeRemaining: number) => {
+            //this.combatService.updateTimeRemaining(timeRemaining);
+            this.combatTurnTime = timeRemaining;
+            console.log(timeRemaining);
+        });
+        
+
+        this.socketCommunicationService.on('CombatTurnEnded', (activePlayer: Player) => {
+            console.log('turn ended, turn of player: ', activePlayer.name);
+        });
+
+        this.socketCommunicationService.on(
+            'attackValues',
+            (data: { activePlayer: { player: Player; attackValue: number }; defensePlayer: { player: Player; defenseValue: number } }) => {
+                console.log('att : ' + data.activePlayer.attackValue, 'def : ' + data.defensePlayer.defenseValue);
+            },
+        );
+
+        this.socketCommunicationService.on('attackSuccess', (data: { player: Player; damage: number }) => {
+            //On recois le defensePlayer ou cas ou il gagne le tour (pas le combat)
+            console.log('gagnat de tours : ' + data.player.name);
+        });
+
+        this.socketCommunicationService.on('attackFail', (data: { player: Player; damage: number }) => {
+            //On recois le activePlayer (attaquant) ou cas ou il gagne le tour (pas le combat
+            console.log('gagnat de tour : ' + data.player.name);
+        });
+
+        this.socketCommunicationService.on('playerDead', (player: Player) => {
+            //on recois le perdant du combat (pas le tour)
+            console.log('combat ended, ', player, ' is dead');
+        });
+
+        this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
+            console.log('evasion success for ', player.name);
+        });
+        */
+    }
+
+    // A appeler quand on click sur attaquer
+    attackPlayer() {
+        this.socketCommunicationService.send('attackPlayer');
     }
 
     ngAfterViewInit() {
@@ -149,7 +206,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         const player1 = this.navigationService.getActivePlayer();
         const player2 = this.navigationService.checkAttack();
         console.log(player1, player2);
-        this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
+        this.socketCommunicationService.send('startFight', { player1, player2 });
     }
 
     closeCombatModal() {

@@ -1,5 +1,6 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -22,6 +23,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private logger: Logger,
         private gameService: GameService,
         private chatService: ChatService,
+        private combatService: CombatService,
     ) {}
 
     @SubscribeMessage(SocketEvents.CreateRoom)
@@ -100,9 +102,20 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('isActive', activePlayer.id);
     }
 
+    @SubscribeMessage(SocketEvents.StartFight)
+    handleStartFight(client: Socket, { player1, player2 }: { player1: Player; player2: Player }) {
+        //const room = this.roomService.getRoom(client);
+        this.combatService.startFight(client, player1, player2, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.AttackPlayer)
+    handleAttackPlayer(client: Socket) {
+        //const room = this.roomService.getRoom(client);
+        this.combatService.attackPlayer(client, this.server);
+    }
+
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
-        console.log('end turn getWay');
         this.gameService.onTurnEnded(client, this.server);
         this.logger.debug(`client ${client.id} turn is over`);
     }

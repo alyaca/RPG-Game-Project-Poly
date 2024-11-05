@@ -13,16 +13,22 @@ export class Timer {
         onTickCallback(this.timeRemaining);
 
         if (this.isTimerRunning && !this.isPaused) {
+            console.log('1.startTimer');
             this.intervalId = setInterval(() => {
                 this.timeRemaining--;
                 onTickCallback(this.timeRemaining);
 
                 if (this.timeRemaining <= -1 && this.intervalId !== null) {
+                    console.log('2.startTimer');
                     clearInterval(this.intervalId);
                     this.timerFinished();
                 }
             }, MILLISECONDS_IN_SECOND);
         }
+    }
+
+    getTimeRemaining() {
+        return this.timeRemaining;
     }
 
     resetTimer(duration: number, onTickCallback: (timeRemaining: number) => void) {
@@ -45,12 +51,22 @@ export class Timer {
     }
 
     resumeTimer(onTickCallback: (timeRemaining: number) => void) {
+        console.log('resumeTimer');
         if (this.isPaused) {
+            console.log('isPaused', this.timeRemaining);
             this.isPaused = false;
+            this.isTimerRunning = true;
             this.startTimer(this.timeRemaining, onTickCallback);
         }
     }
-
+    /*
+    resumeTimer() {
+        if (this.isPaused) {
+            this.isPaused = false;
+            this.startTimer(this.timeRemaining, (timeRemaining) => {});
+        }
+    }
+*/
     timerFinished() {
         this.timeRemaining = 0;
         this.isTimerRunning = false;
