@@ -20,6 +20,7 @@ describe('SocketGateway', () => {
     let roomService: RoomService;
     let gameService: GameService;
     let chatService: ChatService;
+    let matchService: MatchService;
     let logger: SinonStubbedInstance<Logger>;
     let roomId: string;
     let mockClient: Socket;
@@ -53,6 +54,13 @@ describe('SocketGateway', () => {
             createPlayer: jest.fn(),
             selectedAvatar: jest.fn(),
             removePlayerFromRoom: jest.fn(),
+            stopGameTimers: jest.fn(),
+            onStartGame: jest.fn(),
+            getActivePlayer: jest.fn(),
+            onTurnEnded: jest.fn(),
+            onStartTurn: jest.fn(),
+            // onStartFight: jest.fn(),
+            // onEndFight: jest.fn(),
         };
 
         socket = {
@@ -102,6 +110,7 @@ describe('SocketGateway', () => {
         roomService = module.get<RoomService>(RoomService);
         gameService = module.get<GameService>(GameService);
         chatService = module.get<ChatService>(ChatService);
+        matchService = module.get<MatchService>(MatchService);
 
         gateway['server'] = server;
     });
@@ -125,13 +134,21 @@ describe('SocketGateway', () => {
         expect(logger.log).toHaveBeenCalled();
     });
 
-    it('should log when a client disconnects', () => {
-        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
-        jest.spyOn(gameService, 'leavePlayerFromGame');
-        jest.spyOn(logger, 'log');
-        gateway.handleDisconnect(socket);
-        expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
-        expect(logger.log).toHaveBeenCalled();
+    describe('disconnect', () => {
+        it('should log when a client disconnects', () => {
+            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+            jest.spyOn(gameService, 'leavePlayerFromGame');
+            jest.spyOn(logger, 'log');
+            gateway.handleDisconnect(socket);
+            expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
+            expect(logger.log).toHaveBeenCalled();
+        });
+
+        it('should log when a client disconnects and is not in a room', () => {
+            jest.spyOn(logger, 'log');
+            gateway.handleDisconnect(socket);
+            expect(logger.log).toHaveBeenCalledWith(`Client disconnected when no room: ${socket.id}`);
+        });
     });
 
     describe('joinRoom', () => {
@@ -244,6 +261,50 @@ describe('SocketGateway', () => {
         });
     });
 
+    describe('handleStartGame', () => {
+        it('should call processMapObjects and onStartGame startGame event', () => {
+            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+            jest.spyOn(matchService, 'processMapObjects');
+            jest.spyOn(gameService, 'onStartGame');
+            (gameService.getActivePlayer as jest.Mock).mockReturnValue(mockPlayer);
+
+            gateway.handleStartGame(socket);
+            expect(server.to(roomId).emit).toHaveBeenCalledWith('startGame', mockRooms[0]);
+            expect(server.to(roomId).emit).toHaveBeenCalledWith('mapInformation', mockRooms[0]);
+            expect(server.to(roomId).emit).toHaveBeenCalledWith('isActive', mockPlayer.id);
+        });
+    });
+
+    it('should call onTurnEnded endTurn event', () => {
+        jest.spyOn(gameService, 'onTurnEnded');
+        jest.spyOn(logger, 'debug');
+
+        gateway.handleEndTurn(socket);
+        expect(gameService.onTurnEnded).toHaveBeenCalled();
+        expect(logger.debug).toHaveBeenCalledWith(`client ${socket.id} turn is over`);
+    });
+
+    it('should call onStartTurn startTurn event', () => {
+        jest.spyOn(gameService, 'onStartTurn');
+        gateway.handleBeforeStartTurn(socket);
+        expect(gameService.onStartTurn).toHaveBeenCalled();
+    });
+
+    // To change with fight implementation
+    // it('should call onStartFight startFight event', () => {
+    //     jest.spyOn(gameService, 'onStartFight');
+    //     gateway.handleStartFight(socket, mockPlayer);
+    //     expect(gameService.onStartFight).toHaveBeenCalled();
+    // });
+
+    // To change with fight implementation
+    // it('should call onEndFight endFight event', () => {
+    //     (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+    //     jest.spyOn(gameService, 'onEndFight');
+    //     gateway.handleEndFight(socket);
+    //     expect(gameService.onEndFight).toHaveBeenCalled();
+    // });
+
     describe('handleMessage', () => {
         it('should handle sending and saving a message successfully', async () => {
             const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
@@ -265,13 +326,9 @@ describe('SocketGateway', () => {
             await gateway.handleMessage(socket, mockMessageData);
 
             expect(logger.log).toHaveBeenCalled();
-
             expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
-
             expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
-
             expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
-
             expect(server.to).toHaveBeenCalledWith(roomId);
 
             const broadcastOperator = server.to(roomId);
@@ -298,13 +355,9 @@ describe('SocketGateway', () => {
             await gateway.handleMessage(socket, mockMessageData);
 
             expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
-
             expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
-
             expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
-
             expect(logger.error).toHaveBeenCalled();
-
             expect(socket.emit).toHaveBeenCalledWith('errorMessage', 'Failed to send message.');
         });
     });

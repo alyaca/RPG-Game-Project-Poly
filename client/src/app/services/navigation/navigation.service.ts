@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FELLING_PROBABILITY, ObjectType, TileType } from '@app/constants';
+import { ObjectType, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -28,16 +28,43 @@ export class NavigationService {
     gameMap: Game;
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
+    positions: number[][];
     private objects: number[][];
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
+        this.objects = JSON.parse(JSON.stringify(objects));
         this.gameMap = game;
         this.players = players;
-        this.objects = JSON.parse(JSON.stringify(objects));
+        this.positions = objects;
         this.initializeObjects(objects);
+    }
+
+    updateTuile(activePlayer: Player): void {
+        if (this.isInInitialPosition(activePlayer.position)) {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
+        } else if (this.isObject(activePlayer.position)) {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+        } else {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
+        }
+    }
+
+    removePlayer(player: Player): void {
+        this.players = this.players.filter((p) => p.id !== player.id);
+        this.positions[player.position.x][player.position.y] = 0;
+    }
+
+    showDetails(row: number, col: number): string {
+        const player = this.players.find((player) => player.position.x === row && player.position.y === col);
+        if (player) {
+            return `${player.name}, ${player.avatar}`;
+        } else {
+            // TODO: completer les details
+            return `${this.positions[row][col].valueOf()}`;
+        }
     }
 
     isInInitialPosition(position: Position): boolean {
@@ -76,6 +103,10 @@ export class NavigationService {
 
     isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
+    }
+
+    getActivePlayer(): Player {
+        return this.players.find((player) => player.isActive) || this.players[0];
     }
 
     getPortraitId(godName: string | undefined): ObjectType {
@@ -122,6 +153,7 @@ export class NavigationService {
             const neighbors = this.getNeighbors(nextNode, game);
             this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
         }
+        reachableTiles.shift();
         this.reachableTiles = reachableTiles;
         return reachableTiles;
     }
@@ -137,9 +169,49 @@ export class NavigationService {
         return [];
     }
 
-    checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
+    checkAttack(): Player | undefined {
+        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
+                return this.players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
+            }
+        }
+        return undefined;
+    }
+
+    haveActions(): boolean {
+        if (this.checkAttack() || this.checkDoor()) {
+            return true;
+        }
+        return false;
+    }
+
+    checkDoor(): Position | undefined {
+        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
+            ) {
+                return neighbor;
+            }
+        }
+        return undefined;
+    }
+
+    getTileCost(tileType: number): number {
+        switch (tileType) {
+            case TileType.Ground:
+                return 1;
+            case TileType.Water:
+                return 2;
+            case TileType.Ice:
+                return 0;
+            case TileType.OpenDoor:
+                return 1;
+            default:
+                return Infinity;
+        }
     }
 
     private exploreNeighborsForReachableTiles(
@@ -153,7 +225,7 @@ export class NavigationService {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-
+            if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -174,7 +246,7 @@ export class NavigationService {
         return position.x === destination.x && position.y === destination.y;
     }
 
-    private getNeighbors(position: PointWithDistance, game: Game): Position[] {
+    private getNeighbors(position: Position, game: Game): Position[] {
         const directions = [
             { dx: 0, dy: 1 },
             { dx: 0, dy: -1 },
@@ -191,7 +263,7 @@ export class NavigationService {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-
+            if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -216,20 +288,5 @@ export class NavigationService {
 
     private isValidTile(x: number, y: number, dimension: number): boolean {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
-    }
-
-    private getTileCost(tileType: number): number {
-        switch (tileType) {
-            case TileType.Ground:
-                return 1;
-            case TileType.Water:
-                return 2;
-            case TileType.Ice:
-                return 0;
-            case TileType.OpenDoor:
-                return 1;
-            default:
-                return Infinity;
-        }
     }
 }

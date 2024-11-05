@@ -1,17 +1,39 @@
 import { TestBed } from '@angular/core/testing';
-import { MAX_PLAYER_LARGE_MAP, MAX_PLAYER_MEDIUM_MAP, MAX_PLAYER_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import {
+    DialogResult,
+    MAX_PLAYER_LARGE_MAP,
+    MAX_PLAYER_MEDIUM_MAP,
+    MAX_PLAYER_SMALL_MAP,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+} from '@app/constants';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { of } from 'rxjs';
 import { GameService } from './game.service';
 
 describe('GameService', () => {
     let service: GameService;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let routerSpy: jasmine.SpyObj<Router>;
 
     beforeEach(() => {
-        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on', 'once']);
+        dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+        routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
-        TestBed.configureTestingModule({ providers: [{ provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy }] });
+        TestBed.configureTestingModule({
+            providers: [
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+                { provide: MatDialog, useValue: dialogSpy },
+                { provide: Router, useValue: routerSpy },
+            ],
+        });
         service = TestBed.inject(GameService);
     });
 
@@ -55,5 +77,107 @@ describe('GameService', () => {
             const invalidHeight = 5;
             expect(() => service.getPlayerNumber(invalidHeight)).toThrowError('Nombre de joueur invalide');
         });
+    });
+
+    it('should open a dialog and not send leave if result is not leave', () => {
+        const dialogData = {
+            title: 'Partie verrouillée',
+            messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
+            options: ['Quitter', 'Rester'],
+            confirm: true,
+        };
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('stay'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.openDialog(dialogData);
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: dialogData,
+        });
+    });
+
+    it('should navigate when result is Close onAdminQuit', (done) => {
+        const message = 'Game has been canceled';
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.onAdminQuit(message);
+        setTimeout(() => {
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            done();
+        });
+    });
+
+    it('should send leaveRoom when result is left onPlayerQuit', (done) => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Left));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.onPlayerQuit(mockRoom.roomId);
+        setTimeout(() => {
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', mockRoom.roomId);
+            done();
+        });
+    });
+
+    it('should navigate to join-game when result is close onPlayerKickedOut', (done) => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.onPlayerKickedOut();
+        setTimeout(() => {
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/join-game']);
+            done();
+        });
+    });
+
+    it('should call onAdminQuit on roomDeleted event', () => {
+        const message = 'Game has been canceled';
+        socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'roomDeleted') {
+                callback(message as T);
+            }
+        });
+        spyOn(service, 'onAdminQuit');
+        service.onRoomDeleted();
+        expect(socketCommunicationServiceSpy.once).toHaveBeenCalled();
+        expect(service.onAdminQuit).toHaveBeenCalledWith(message);
+    });
+
+    it('should call onPlayerKickedOut on kickPlayer event', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'kickPlayer') {
+                callback({} as T);
+            }
+        });
+        spyOn(service, 'onPlayerKickedOut');
+        service.onKickPlayer();
+        expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
+        expect(service.onPlayerKickedOut).toHaveBeenCalledWith();
+    });
+
+    it('should navigate to game-creation when admin on leftRoom event', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'leftRoom') {
+                callback(true as T);
+            }
+        });
+        service.onLeftRoom();
+        expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+    });
+
+    it('should navigate to home when not admin on leftRoom event', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'leftRoom') {
+                callback(false as T);
+            }
+        });
+        service.onLeftRoom();
+        expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 });

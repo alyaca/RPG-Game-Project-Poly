@@ -44,8 +44,8 @@ export const playerNavigation: Player = {
     attributes: {
         totalHp: 100,
         currentHp: 100,
-        speed: 1,
-        movementPointsLeft: 1,
+        speed: 4,
+        movementPointsLeft: 3,
         maxActionPoints: 1,
         actionPoints: 1,
         attack: 1,

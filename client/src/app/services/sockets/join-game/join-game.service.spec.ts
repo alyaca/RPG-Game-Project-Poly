@@ -23,7 +23,14 @@ describe('JoinGameService', () => {
     beforeEach(async () => {
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on', 'once', 'isSocketAlive', 'connect']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', [
+            'send',
+            'on',
+            'once',
+            'isSocketAlive',
+            'connect',
+            'disconnect',
+        ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['setRoomId']);
         code = '1234';
         mockPlayer = mockLobbyPlayers[0];
@@ -43,18 +50,9 @@ describe('JoinGameService', () => {
         expect(service).toBeTruthy();
     });
 
-    describe('connect', () => {
-        it('should call connect when socket is not alive', () => {
-            socketCommunicationServiceSpy.isSocketAlive.and.returnValue(false);
-            service.connect();
-            expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
-        });
-
-        it('should not call connect when socket is alive', () => {
-            socketCommunicationServiceSpy.isSocketAlive.and.returnValue(true);
-            service.connect();
-            expect(socketCommunicationServiceSpy.connect).not.toHaveBeenCalled();
-        });
+    it('should call connect when socket is not alive', () => {
+        service.connect();
+        expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
     });
 
     it('should setRoomId onJoinGame', () => {

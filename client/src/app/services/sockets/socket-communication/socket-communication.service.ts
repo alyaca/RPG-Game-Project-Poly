@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Socket, io } from 'socket.io-client';
-// import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -13,15 +13,10 @@ export class SocketCommunicationService {
     }
 
     connect() {
-        if (this.socket) {
+        if (this.isSocketAlive()) {
             return;
         }
-        //  First link is for production (deployment)
-        //  Second is to test locally (npm start and all that)
-        //  this.socket = io('http://ec2-3-96-205-250.ca-central-1.compute.amazonaws.com:3000/');
-        this.socket = io('http://localhost:3000/');
-
-        // this.socket = io(environment.socketUrl);
+        this.socket = io(environment.socketUrl);
     }
 
     disconnect() {

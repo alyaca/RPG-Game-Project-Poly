@@ -1,5 +1,5 @@
 import { avatars } from '@common/avatars-info';
-import { Room } from '@common/room';
+import { GameStatus, Room } from '@common/room';
 import { mockGame } from './mock-game';
 
 export const mockRooms: Room[] = [
@@ -10,6 +10,7 @@ export const mockRooms: Room[] = [
         availableAvatars: avatars,
         adminId: 'admin1234',
         isLocked: false,
+        gameStatus: GameStatus.Lobby,
     },
     {
         gameMap: mockGame,
@@ -18,5 +19,6 @@ export const mockRooms: Room[] = [
         availableAvatars: avatars,
         adminId: 'admin2345',
         isLocked: false,
+        gameStatus: GameStatus.Lobby,
     },
 ];
