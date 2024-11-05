@@ -131,9 +131,6 @@ export class GameService {
     }
 
     hasActionPoints(player: Player) {
-        if (player) {
-            return player.attributes.actionPoints > 0;
-        }
-        return false;
+        return player?.attributes.actionPoints > 0;
     }
 }
