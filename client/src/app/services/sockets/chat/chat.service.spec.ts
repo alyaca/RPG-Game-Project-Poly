@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
+import { LogMessage } from '@app/interfaces/log-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { environment } from 'src/environments/environment';
 import { ChatService } from './chat.service';
@@ -42,7 +43,7 @@ describe('ChatService', () => {
 
     it('should send message', () => {
         const username = 'Player';
-        const content = "Hey it's me Goku !";
+        const content = 'I am the prince of all Saiyans !';
         service.sendMessage(content);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('sendMessages', {
             username,
@@ -60,6 +61,19 @@ describe('ChatService', () => {
         const callback = jasmine.createSpy();
         service.onMessageReceived(callback);
         socketCommunicationServiceSpy.on.calls.mostRecent().args[1](message);
+        expect(callback).toHaveBeenCalled();
+    });
+
+    it('should receive log', () => {
+        const logMessage: LogMessage = {
+            id: 1,
+            message: 'Log message',
+            timestamp: new Date(),
+            playersNames: ['Player1', 'Player2'],
+        };
+        const callback = jasmine.createSpy();
+        service.onLogReceived(callback);
+        socketCommunicationServiceSpy.on.calls.mostRecent().args[1](logMessage);
         expect(callback).toHaveBeenCalled();
     });
 
