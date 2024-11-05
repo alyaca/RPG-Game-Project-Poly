@@ -4,7 +4,7 @@
     background: linear-gradient(to bottom, rgb(15, 33, 71), rgba(36, 90, 152, 0.9) 33%, rgba(63, 106, 155, 0.6) 67%, rgba(75, 85, 116, 0));
     position: relative;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
     gap: 1%;
@@ -63,11 +63,11 @@
 img {
     width: 90%;
     border-radius: 2rem;
-    border: 2px solid black;
     background-color: none;
 }
 
 .motif {
+    margin-top: 10%;
     width: 100%;
     height: 8%;
     border: none;
@@ -91,8 +91,11 @@ img {
     margin: 0;
 }
 
-:not(.admin) > * > .kick {
-    background-image: url('../../../../assets/images/icones/kick.png');
+.admin .kick {
+    display: none;
+}
+
+.kick img {
     background-size: cover;
     border-radius: 50%;
     transition: ease 0.1s;
@@ -110,4 +113,9 @@ img {
 
 .player-img {
     margin-bottom: 10%;
+    border: 2px solid black;
+}
+
+.player-img img {
+    border: 2px solid black;
 }

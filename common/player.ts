@@ -22,6 +22,7 @@ export interface Player {
     status: Status;
     victories: number;
     inventory?: GameObject[];
+    position: { x: number; y: number };
 }
 
 export interface PlayerStats {
@@ -35,4 +36,9 @@ export interface PlayerStats {
     atkDiceMax: number;
     defense: number;
     defDiceMax: number;
+}
+
+export interface Position {
+    x: number;
+    y: number;
 }

@@ -1,20 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ElementRef } from '@angular/core';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { mockPlayer } from '@app/mocks/mock-player';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
+// import { mockRoom } from '@app/mocks/mock-room';
+// import { Room } from '@common/room';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
     let fixture: ComponentFixture<PlayerInfoInventoryComponent>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
 
     beforeEach(async () => {
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on']);
         await TestBed.configureTestingModule({
             imports: [PlayerInfoInventoryComponent],
+            providers: [{ provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(PlayerInfoInventoryComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        component.player = mockLobbyPlayers[0];
+        component.healthBar = new ElementRef(document.createElement('progress'));
+        component.playerId = mockPlayer.id.toString();
     });
 
     it('should create', () => {
@@ -42,12 +53,15 @@ describe('PlayerInfoInventoryComponent', () => {
     });
 
     it('should update the action points', () => {
-        component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.actionPoints;
+        const initialActionPoints = 2;
+        component.player = mockLobbyPlayers[0];
+        component.player.attributes.actionPoints = initialActionPoints;
+        // component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.actionPoints;
         component.increaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(mockLobbyPlayers[0].attributes.actionPoints + 1);
+        expect(component.player.attributes.actionPoints).toBe(initialActionPoints + 1);
 
         component.decreaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(mockLobbyPlayers[0].attributes.actionPoints);
+        expect(component.player.attributes.actionPoints).toBe(initialActionPoints);
     });
 
     it('should not update the action points value if it is already at the max or min', () => {
@@ -62,12 +76,13 @@ describe('PlayerInfoInventoryComponent', () => {
     });
 
     it('should update the totalHp value', () => {
-        component.player.attributes.currentHp = mockLobbyPlayers[0].attributes.currentHp - 1;
+        component.player = mockLobbyPlayers[0];
+        component.player.attributes.currentHp = 1;
         component.increaseHP();
-        expect(component.player.attributes.currentHp).toBe(mockLobbyPlayers[0].attributes.currentHp);
+        expect(component.player.attributes.currentHp).toBe(2);
 
         component.decreaseHP();
-        expect(component.player.attributes.currentHp).toBe(mockLobbyPlayers[0].attributes.currentHp - 1);
+        expect(component.player.attributes.currentHp).toBe(1);
     });
 
     it('should not update the totalHp value if already at max or min', () => {
@@ -80,4 +95,19 @@ describe('PlayerInfoInventoryComponent', () => {
         component.decreaseHP();
         expect(component.player.attributes.currentHp).toBe(0);
     });
+
+    // it('should subscribe to mapInformation and update player data', () => {
+    //     component.playerId = mockLobbyPlayers[0].id;
+    //     socketCommunicationServiceSpy.on.and.callFake((event: string, callback: (data: Room) => void) => {
+    //         if (event === 'mapInformation') {
+    //             callback(mockRoom);
+    //         }
+    //     });
+
+    //     component.ngOnInit();
+
+    //     expect(component.player).toEqual(mockLobbyPlayers[0]);
+    //     expect(component.actionPointsArray).toEqual([1]);
+    //     expect(component.movementPointsArray).toEqual(Array(mockLobbyPlayers[0].attributes.speed));
+    // });
 });

@@ -17,6 +17,7 @@ export const NB_ITEMS_LARGE_MAP = 6;
 export const SIZE_SMALL_MAP = 10;
 export const SIZE_MEDIUM_MAP = 15;
 export const SIZE_LARGE_MAP = 20;
+export const TEST_INVALID_SIZE = 12;
 
 // Constants for edition page input min/max lengths
 export const MIN_LEN_MAP_TITLE = 3;
@@ -59,6 +60,18 @@ export enum ObjectType {
     Kunee = 6,
     Random = 7,
     Spawn = 8,
+    Hestia = 9,
+    Zeus = 10,
+    Hera = 11,
+    Poseidon = 12,
+    Artemis = 13,
+    Demeter = 14,
+    Hermes = 15,
+    Athena = 16,
+    Hephaestus = 17,
+    Apollo = 18,
+    Ares = 19,
+    Aphrodite = 20,
 }
 
 // For no object in grid
@@ -109,6 +122,7 @@ export const MILLISECONDS_IN_SECOND = 1000;
 export const TIMER_CENTER_POSITION = 50;
 
 export const TEMP_DIALOG_DURATION = 1500;
+export const LONG_TEMP_DIALOG_DURATION = 4500;
 export const EVADE_SUCCES_RATE = 0.4;
 export const COMBAT_TURN_LENGTH = 5;
 export const SHORT_COMBAT_TURN_LENGTH = 3;
@@ -116,7 +130,7 @@ export const SHORT_COMBAT_TURN_LENGTH = 3;
 export const ROLL_DURATION = 800;
 
 export const INIT_DISPLAY_DELAY = 50;
-export const EXIT_COMBAT_DELAY = 3000;
+export const EXIT_COMBAT_DELAY = 4000;
 export const INACTIVE_DICE_DELAY = 200;
 export const DISPLAY_TEXT_DELAY = 300;
 export const ATTACK_DELAY = 1200;
@@ -129,6 +143,10 @@ export const TIMER_ARC_WIDTH = 5;
 
 // Constants for random generation
 export const MAX_GENERATION_VALUE = 1000000000;
+
+// Constants for timer
+export const STARTING_TIME = 3;
+export const TURN_TIME = 30;
 
 // Constants for main page test
 export const NUMBER_OF_TEAM_MEMBERS = 6;
@@ -153,3 +171,21 @@ export enum TileClass {
     Door = 'door',
     Wall = 'wall',
 }
+
+export const FELLING_PROBABILITY = 0.1;
+export const NAVIGATION_DELAY = 150;
+
+// Maximum number of players in a room
+export const MAX_PLAYER_SMALL_MAP = 2;
+export const MAX_PLAYER_MEDIUM_MAP = 4;
+export const MAX_PLAYER_LARGE_MAP = 6;
+
+// Constants for the maximum number of players for each type of map
+export const MAX_NUMBER_PLAYER: { [key: string]: number } = {
+    small: MAX_PLAYER_SMALL_MAP,
+    medium: MAX_PLAYER_MEDIUM_MAP,
+    large: MAX_PLAYER_LARGE_MAP,
+};
+
+// Constant for the minimum number of players for each type of map
+export const MIN_NUMBER_PLAYER = 2;

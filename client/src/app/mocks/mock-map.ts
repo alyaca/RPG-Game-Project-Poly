@@ -25,3 +25,26 @@ export const dummyMap: Game = {
     isSelected: false,
     lastModification: new Date(),
 };
+
+export const mockGameNavigation: Game = {
+    _id: '1',
+    name: 'Mock Game',
+    description: 'This is a mock game for testing purposes.',
+    visible: true,
+    mode: 'single-player',
+    nbPlayers: 1,
+    image: 'mock-image.png',
+    tiles: [
+        [TileType.Ground, TileType.Water, TileType.Wall],
+        [TileType.Ice, TileType.OpenDoor, TileType.Wall],
+        [TileType.Ice, TileType.Ice, TileType.Ice],
+    ],
+    dimension: 3,
+    itemPlacement: [
+        [1, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+    ],
+    isSelected: false,
+    lastModification: new Date(),
+};
