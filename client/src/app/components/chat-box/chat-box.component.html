@@ -7,9 +7,11 @@
     </div>
     } @else {
     <div class="past-messages">
-        @for(log of logs; track log.id;){
+        @if(!areLogsFiltered){ @for(log of logs; track log.id;){
         <app-chat-message [timestamp]="log.timestamp" [message]="log.message"> </app-chat-message>
-        }
+        } } @else { @for(log of filteredLogs; track log.id;){
+        <app-chat-message [timestamp]="log.timestamp" [message]="log.message"> </app-chat-message>
+        } }
     </div>
     }
     <div class="input-container" [ngClass]="{ 'logs-active': areLogsVisible, 'chat-active': !areLogsVisible }">

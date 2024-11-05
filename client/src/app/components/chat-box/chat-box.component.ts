@@ -21,7 +21,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @Input() isToggleable: boolean;
     messages: ChatMessage[] = [];
     logs: LogMessage[] = [];
-    tempLogs: LogMessage[] = [];
+    filteredLogs: LogMessage[] = [];
     newMessage: string = '';
     newLog: string = '';
     areLogsVisible: boolean = false;
@@ -57,12 +57,17 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         });
 
         this.chatService.onLogReceived((message: LogMessage) => {
-            if (this.areLogsFiltered) {
-                this.tempLogs.push(message);
+            if (this.isPlayerInLog(message)) {
+                this.filteredLogs.push(message);
+                this.logs.push(message);
             } else {
                 this.logs.push(message);
             }
         });
+    }
+
+    isPlayerInLog(message: LogMessage): boolean {
+        return message.players.some((player) => player.id === this.socketCommunicationService.socket.id);
     }
 
     loadMessages(): void {
@@ -99,12 +104,6 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
 
     toggleLogsFilter() {
         this.areLogsFiltered = !this.areLogsFiltered;
-        if (this.areLogsFiltered) {
-            this.tempLogs = [...this.logs];
-            this.logs = this.logs.filter((log) => log.players.some((player) => player.id === this.socketCommunicationService.socket.id));
-        } else {
-            this.logs = [...this.tempLogs];
-        }
         this.chatType = this.areLogsFiltered ? 'Journal de jeu filtré' : 'Journal de jeu non filtré';
     }
 }

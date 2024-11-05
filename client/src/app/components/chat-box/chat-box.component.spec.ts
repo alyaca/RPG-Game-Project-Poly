@@ -26,7 +26,6 @@ describe('ChatBoxComponent', () => {
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', [], {
             socket: { id: '123' } as Socket,
         });
-        socketCommunicationServiceSpy.socket = { id: '123' } as Socket;
         queryParamsSubject = new BehaviorSubject({ roomCode: '1234' });
         mockMessages = [
             { id: 1, username: 'User1', message: 'Hello', timestamp: new Date() },
@@ -43,6 +42,7 @@ describe('ChatBoxComponent', () => {
                 provideHttpClientTesting(),
                 { provide: ChatService, useValue: chatServiceSpy },
                 { provide: ActivatedRoute, useValue: { queryParams: queryParamsSubject.asObservable() } },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
             ],
         }).compileComponents();
 
@@ -94,7 +94,7 @@ describe('ChatBoxComponent', () => {
         expect(component.messages).toContain(message);
     });
 
-    it('should receive log and push it to one of the two arrays if filtered', () => {
+    it('should receive log and push it to the two arrays if player is concerned', () => {
         const logMessage = {
             id: 1,
             message: 'Goku has joined the room',
@@ -104,6 +104,43 @@ describe('ChatBoxComponent', () => {
         chatServiceSpy.onLogReceived.calls.mostRecent().args[0](logMessage);
         component.ngOnInit();
         expect(component.logs).toContain(logMessage);
+        expect(component.filteredLogs).toContain(logMessage);
+    });
+
+    it('should receive log and push it to the non filtered if player is NOT concerned', () => {
+        socketCommunicationServiceSpy.socket.id = '213';
+        const logMessage = {
+            id: 1,
+            message: 'Goku has joined the room',
+            players: mockPlayer,
+            timestamp: new Date(),
+        };
+        chatServiceSpy.onLogReceived.calls.mostRecent().args[0](logMessage);
+        component.ngOnInit();
+        expect(component.logs).toContain(logMessage);
+        expect(component.filteredLogs).not.toContain(logMessage);
+    });
+
+    it('should return true if player is in log', () => {
+        const logMessage = {
+            id: 1,
+            message: 'Goku has joined the room',
+            players: [{ id: '123', username: 'Goku' } as unknown as Player],
+            timestamp: new Date(),
+        };
+        const result = component.isPlayerInLog(logMessage);
+        expect(result).toBe(true);
+    });
+
+    it('should return false if player is not in log', () => {
+        const logMessage = {
+            id: 1,
+            message: 'Vegeta has joined the room',
+            players: [{ id: '456', username: 'Vegeta' } as unknown as Player],
+            timestamp: new Date(),
+        };
+        const result = component.isPlayerInLog(logMessage);
+        expect(result).toBe(false);
     });
 
     it('should scroll to bottom', () => {
@@ -151,29 +188,18 @@ describe('ChatBoxComponent', () => {
         expect(component.toggleIconClass).toBe('icon-chat');
     });
 
-    // it('should toggle areLogsFiltered and update chatType correctly', () => {
-    //     component.logs = [
-    //         { players: [{ id: '213' } as Player, { id: 'other-id' } as Player] } as LogMessage,
-    //         { players: [{ id: 'other-id' } as Player] } as LogMessage,
-    //     ];
-    //     component.tempLogs = [];
+    it('should toggle areLogsFiltered and update chatType to "Journal de jeu filtré" when areLogsFiltered is false', () => {
+        component.scrollToBottom();
+        component.areLogsFiltered = false;
+        component.toggleLogsFilter();
+        expect(component.areLogsFiltered).toBe(true);
+        expect(component.chatType).toBe('Journal de jeu filtré');
+    });
 
-    //     component.areLogsFiltered = false;
-    //     component.chatType = 'Journal de jeu non filtré';
-    //     component.toggleLogsFilter();
-
-    //     expect(component.areLogsFiltered).toBeTrue();
-    //     expect(component.chatType).toBe('Journal de jeu filtré');
-    //     expect(component.tempLogs.length).toBe(2);
-    //     expect(component.logs.length).toBe(1);
-    //     expect(component.logs[0].players[0].id).toBe('213');
-
-    //     component.toggleLogsFilter();
-
-    //     expect(component.areLogsFiltered).toBeFalse();
-    //     expect(component.chatType).toBe('Journal de jeu non filtré');
-    //     expect(component.logs.length).toBe(2);
-    //     expect(component.logs[0].players[0].id).toBe('213');
-    //     expect(component.logs[1].players[0].id).toBe('other-id');
-    // });
+    it('should toggle areLogsFiltered and update chatType to "Journal de jeu non filtré" when areLogsFiltered is true', () => {
+        component.areLogsFiltered = true;
+        component.toggleLogsFilter();
+        expect(component.areLogsFiltered).toBe(false);
+        expect(component.chatType).toBe('Journal de jeu non filtré');
+    });
 });
