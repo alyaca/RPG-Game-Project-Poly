@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { NO_OBJECT, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -10,15 +10,17 @@ import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 
 @Component({
     selector: 'app-game-grid',
     standalone: true,
-    imports: [GameObjectComponent],
+    imports: [GameObjectComponent, TilePlayerInfoComponent],
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
 export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
+    @ViewChild('entireMap') entireMap!: ElementRef;
     @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
@@ -51,6 +53,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
 
+    /////
+
+    isPopupVisible: boolean = false;
+    popupX: number = 0;
+    popupY: number = 0;
+
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
     private navigationService = inject(NavigationService);
@@ -67,6 +75,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
+        document.addEventListener('click', this.onMapClick.bind(this)); ////
+
         this.socketCommunicationService.connect();
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
@@ -214,10 +224,27 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.sendInfoToMapCreationPage();
         }
     }
-    showDetails(row: number, col: number) {
-        const description = this.navigationService.showDetails(row, col);
-        if (description) {
-            // console.log(description);
+
+    showDetails(event: MouseEvent, row: number, col: number) {
+        if (!this.gameCreationService.isModifiable){
+            event.preventDefault();
+            this.isPopupVisible = true;
+            this.popupX = row;
+            this.popupY = col;  
+        }
+        // const description = this.navigationService.showDetails(row, col);
+        // if (description) {
+        //     // console.log(description);
+        // }
+    }
+
+    closeTileDescription(){
+        this.isPopupVisible = false;
+    }
+
+    onMapClick(event: MouseEvent) {
+        if (!this.entireMap.nativeElement.contains(event.target)) {
+          this.isPopupVisible = false;
         }
     }
 

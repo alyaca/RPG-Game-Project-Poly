@@ -1,4 +1,4 @@
-<div #entireMap id="map-grid" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" (mouseleave)="onMouseUp()">
+<div #entireMap id="map-grid" [style.grid-template-columns]="'repeat(' + gridSize + ', 1fr)'" (mouseleave)="onMouseUp()">    
     @for (row of tilesGrid; let rowIndex = $index; track $index) { @for (col of row; let colIndex = $index; track $index) {
     <div
         class="tile"
@@ -10,7 +10,7 @@
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
         (click)="sendNavigation(rowIndex, colIndex)"
-        (contextmenu)="showDetails(rowIndex, colIndex)"
+        (contextmenu)="showDetails($event,rowIndex, colIndex)"
     >
         <img
             class="tile-image"
@@ -39,5 +39,14 @@
         <div class="fastest-path-tile" (click)="sendNavigation(rowIndex, colIndex)"></div>
         } }
     </div>
-    } }
+    } }  
 </div>
+@if(isPopupVisible){
+    <app-tile-player-info>
+        [tileData]="selectedTileData"
+        [positionX]="popupX"
+        [positionY]="popupY"
+        [isVisible]="isPopupVisible"
+        (closePopup)="closeTileDescription($event)"
+    </app-tile-player-info>  
+}
