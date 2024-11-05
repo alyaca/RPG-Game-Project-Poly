@@ -104,13 +104,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.StartFight)
     handleStartFight(client: Socket, { player1, player2 }: { player1: Player; player2: Player }) {
-        //const room = this.roomService.getRoom(client);
         this.combatService.startFight(client, player1, player2, this.server);
     }
 
     @SubscribeMessage(SocketEvents.AttackPlayer)
     handleAttackPlayer(client: Socket) {
-        //const room = this.roomService.getRoom(client);
         this.combatService.attackPlayer(client, this.server);
     }
 
@@ -143,6 +141,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
         this.gameService.processNavigation(room, this.server, path, client);
+    }
+
+    @SubscribeMessage(SocketEvents.DoorClicked)
+    handleDoorClicked(client: Socket, tiles: number[][]) {
+        const room = this.roomService.getRoom(client);
+        room.gameMap.tiles = tiles;
+        this.server.to(room.roomId).emit('toggleDoor', tiles);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

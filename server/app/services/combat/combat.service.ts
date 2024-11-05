@@ -20,7 +20,6 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         this.activePlayer = player1;
         this.defensePlayer = player2;
-        //const combatInfo = this.createCombatInfo(room.roomId, player1, player2);
         this.gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         server.emit('startFight', { player1, player2 });
@@ -59,12 +58,10 @@ export class CombatService {
             server.emit('attackFail', this.activePlayer);
             this.checkIfPlayerIsDead(client, this.activePlayer, this.defensePlayer, server);
         } else {
-            //TODO : implementer dans le front
             server.emit('drawCombat');
         }
     }
 
-    //Pas sure de la logique
     evadingPlayer(client: Socket, player: Player, server: Server) {
         if (this.isEvasionSuccessful) {
             server.emit('evasionSuccess', player);
@@ -84,7 +81,7 @@ export class CombatService {
                 server.emit('combatEnd', player2);
             }, 2000);
 
-            server.emit('combatEnd', player2);
+            //server.emit('combatEnd', player2);
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
                 if (timeRemaining <= 0) {
                     server.emit('turnEnded', room.listPlayers);

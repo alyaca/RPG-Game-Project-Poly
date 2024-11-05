@@ -59,8 +59,6 @@ describe('SocketGateway', () => {
             getActivePlayer: jest.fn(),
             onTurnEnded: jest.fn(),
             onStartTurn: jest.fn(),
-            // onStartFight: jest.fn(),
-            // onEndFight: jest.fn(),
         };
 
         socket = {
@@ -292,21 +290,6 @@ describe('SocketGateway', () => {
         gateway.handleBeforeStartTurn(socket);
         expect(gameService.onStartTurn).toHaveBeenCalled();
     });
-
-    // To change with fight implementation
-    // it('should call onStartFight startFight event', () => {
-    //     jest.spyOn(gameService, 'onStartFight');
-    //     gateway.handleStartFight(socket, mockPlayer);
-    //     expect(gameService.onStartFight).toHaveBeenCalled();
-    // });
-
-    // To change with fight implementation
-    // it('should call onEndFight endFight event', () => {
-    //     (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
-    //     jest.spyOn(gameService, 'onEndFight');
-    //     gateway.handleEndFight(socket);
-    //     expect(gameService.onEndFight).toHaveBeenCalled();
-    // });
 
     describe('handleMessage', () => {
         it('should handle sending and saving a message successfully', async () => {

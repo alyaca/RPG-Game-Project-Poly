@@ -26,7 +26,7 @@ import { Player } from '@common/player';
     styleUrl: './combat-modal.component.scss',
 })
 export class CombatModalComponent implements OnInit, AfterViewInit {
-    @Input() isInCombat = false; // isInCombat = is combat popup open ; isGameOngoing = has no winner been decided yet
+    @Input() isInCombat = false;
     @Output() closeModalEvent = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;

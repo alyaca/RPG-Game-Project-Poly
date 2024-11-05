@@ -7,7 +7,7 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 //import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -42,11 +42,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
     activePlayerName: string | null;
-    activePlayer: Player | undefined;
+    activePlayer: Player;
 
     isActivePlayer: boolean = false;
-    isActionDoorSelected: boolean = false;
-    isActionCombatSelected: boolean = false;
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
@@ -60,7 +58,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        private gameService: GameService,
+        public gameService: GameService,
         private navigationService: NavigationService, //private combatService: CombatService,
         public combatService: CombatService,
     ) {
@@ -94,57 +92,18 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('combatEnd', () => {
+            this.activePlayer.attributes.actionPoints = 0;
             this.updatePlayerList();
             this.closeCombatModal();
         });
 
-        /*
-        this.socketCommunicationService.on('combatTime', (timeRemaining: number) => {
-            //this.combatService.updateTimeRemaining(timeRemaining);
-            this.combatTurnTime = timeRemaining;
-            console.log(timeRemaining);
-        });
-        
-
-        this.socketCommunicationService.on('CombatTurnEnded', (activePlayer: Player) => {
-            console.log('turn ended, turn of player: ', activePlayer.name);
-        });
-
-        this.socketCommunicationService.on(
-            'attackValues',
-            (data: { activePlayer: { player: Player; attackValue: number }; defensePlayer: { player: Player; defenseValue: number } }) => {
-                console.log('att : ' + data.activePlayer.attackValue, 'def : ' + data.defensePlayer.defenseValue);
-            },
-        );
-
-        this.socketCommunicationService.on('attackSuccess', (data: { player: Player; damage: number }) => {
-            //On recois le defensePlayer ou cas ou il gagne le tour (pas le combat)
-            console.log('gagnat de tours : ' + data.player.name);
-        });
-
-        this.socketCommunicationService.on('attackFail', (data: { player: Player; damage: number }) => {
-            //On recois le activePlayer (attaquant) ou cas ou il gagne le tour (pas le combat
-            console.log('gagnat de tour : ' + data.player.name);
-        });
-
-        this.socketCommunicationService.on('playerDead', (player: Player) => {
-            //on recois le perdant du combat (pas le tour)
-            console.log('combat ended, ', player, ' is dead');
-        });
-
-        this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
-            console.log('evasion success for ', player.name);
-        });
-        */
-    }
-
-    // A appeler quand on click sur attaquer
-    attackPlayer() {
-        this.socketCommunicationService.send('attackPlayer');
-
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
         });
+    }
+
+    attackPlayer() {
+        this.socketCommunicationService.send('attackPlayer');
     }
 
     updatePlayerList() {
@@ -159,7 +118,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+            const player = this.navigationService.players.find((player) => player.id === playerId);
+            if (player) {
+                this.activePlayer = player;
+            }
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -180,8 +142,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onBeforeStartTurn() {
-        this.isActionCombatSelected = false;
-        this.isActionDoorSelected = false;
+        this.gameService.isActionCombatSelected = false;
+        this.gameService.isActionDoorSelected = false;
+        this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -228,13 +191,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     toggleActionDoorSelected() {
-        this.isActionDoorSelected = !this.isActionDoorSelected;
-        this.isActionCombatSelected = false;
+        this.gameService.isActionDoorSelected = !this.gameService.isActionDoorSelected;
+        this.gameService.isActionCombatSelected = false;
     }
 
     toggleActionCombatSelected() {
-        this.isActionCombatSelected = !this.isActionCombatSelected;
-        this.isActionDoorSelected = false;
+        this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
+        this.gameService.isActionDoorSelected = false;
     }
 
     openCombatModal() {
@@ -246,7 +209,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     closeCombatModal() {
         this.isInCombat = false;
-        // this.socketCommunicationService.send('endFight');
     }
 
     handleExit() {
@@ -295,15 +257,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 return true;
             }
         }
+
         return false;
     }
 
     checkAttack() {
         if (this.activePlayer) {
-            if (this.navigationService.checkAttack()) {
+            if (this.navigationService.checkAttack() && this.hasActionPoints()) {
                 return true;
             }
         }
         return false;
+    }
+
+    hasActionPoints() {
+        return this.gameService.hasActionPoints(this.activePlayer);
     }
 }
