@@ -102,7 +102,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
-        console.log('end turn getWay');
         this.gameService.onTurnEnded(client, this.server);
         this.logger.debug(`client ${client.id} turn is over`);
     }

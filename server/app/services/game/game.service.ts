@@ -4,12 +4,16 @@ import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { GameLogsService } from '../game-logs/game-logs.service';
 
 @Injectable()
 export class GameService {
     isMoving: boolean = false;
     isTurnSkipped: boolean = false;
-    constructor(private roomService: RoomService) {}
+    constructor(
+        private roomService: RoomService,
+        private gameLogsService: GameLogsService,
+    ) {}
 
     connectPlayerToGame(roomId: string) {
         const game = this.getGame(roomId);
@@ -103,6 +107,8 @@ export class GameService {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
+        this.gameLogsService.sendTurnLog(activePlayer.name, room.roomId, server);
+
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining <= 0) {
