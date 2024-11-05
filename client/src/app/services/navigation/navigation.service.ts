@@ -166,8 +166,8 @@ export class NavigationService {
         return [];
     }
 
-    checkAttack(activePlayer: Player): Player | undefined {
-        const neighbors = this.getNeighbors(activePlayer.position, this.gameMap);
+    checkAttack(): Player | undefined {
+        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
         for (const neighbor of neighbors) {
             if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
                 return this.players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
@@ -176,20 +176,28 @@ export class NavigationService {
         return undefined;
     }
 
+    getActivePlayer(): Player {
+        return this.players.find((player) => player.isActive) || this.players[0];
+    }
+
     haveActions(activePlayer: Player): boolean {
-        if (this.checkAttack(activePlayer) || this.checkDoor(activePlayer)) {
+        if (this.checkAttack() || this.checkDoor()) {
             return true;
         }
         return false;
     }
 
-    checkDoor(activePlayer: Player): Position | undefined {
-        const neighbors = this.getNeighbors(activePlayer.position, this.gameMap);
-        return neighbors.find(
-            (neighbor) =>
+    checkDoor(): Position | undefined {
+        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (
                 this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor,
-        );
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
+            ) {
+                return neighbor;
+            }
+        }
+        return undefined;
     }
 
     getTileCost(tileType: number): number {

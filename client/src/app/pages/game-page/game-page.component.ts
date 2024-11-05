@@ -94,6 +94,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('combatEnd', () => {
+            this.updatePlayerList();
             this.closeCombatModal();
         });
 
@@ -144,6 +145,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
         });
+    }
+
+    updatePlayerList() {
+        if (this.activePlayer) {
+            const index = this.allPlayers.findIndex((player) => player.id === this.activePlayer!.id);
+            if (index !== -1) {
+                this.allPlayers[index] = this.activePlayer;
+            }
+        }
     }
 
     ngAfterViewInit() {
@@ -230,7 +240,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     openCombatModal() {
         const player1 = this.navigationService.getActivePlayer();
         const player2 = this.navigationService.checkAttack();
-        console.log(player1, player2);
+        this.navigationService.getActivePlayer().attributes.actionPoints = 0;
         this.socketCommunicationService.send('startFight', { player1, player2 });
     }
 
@@ -281,7 +291,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     checkDoors() {
         if (this.activePlayer) {
-            if (this.navigationService.checkDoor(this.activePlayer)) {
+            if (this.navigationService.checkDoor()) {
                 return true;
             }
         }
@@ -290,7 +300,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     checkAttack() {
         if (this.activePlayer) {
-            if (this.navigationService.checkAttack(this.activePlayer)) {
+            if (this.navigationService.checkAttack()) {
                 return true;
             }
         }

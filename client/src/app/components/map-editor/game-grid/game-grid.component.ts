@@ -106,6 +106,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
+
+        this.socketCommunicationService.on('combatEnd', () => {
+            if (this.activePlayer) {
+                this.activePlayer.attributes.actionPoints = 0;
+            }
+            this.checkEndTurn();
+        });
     }
 
     loadNewGame() {
@@ -319,17 +326,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         // Player has movement point left, no action left.
         // Player is blocked by closed door or players.
         if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
+            console.log('111');
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point left. Player has action point left but
         // no valid target on adjacent tiles.
         else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
+            console.log('222');
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point or action left.
         else if (this.activePlayer.attributes.movementPointsLeft === 0 && this.activePlayer.attributes.actionPoints === 0) {
+            console.log('333');
             this.socketCommunicationService.send('endTurn');
         }
     }
