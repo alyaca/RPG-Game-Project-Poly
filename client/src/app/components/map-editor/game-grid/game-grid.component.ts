@@ -279,7 +279,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.reachableTiles = this.navigationService.findReachableTiles(
             this.activePlayer,
             this.navigationService.gameMap,
-            this.activePlayer.attributes.movementPointsLeft,
+            this.activePlayer.attributes.movementPointsLeft + 10,
         );
     }
 
@@ -304,7 +304,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position, player: Player) {
-        if (this.activePlayer?.name !== player.name) return;
+        //if (this.activePlayer?.name !== player.name) return;
+
         if (this.activePlayer) {
             this.navigationService.updateTuile(this.activePlayer);
             this.activePlayer.attributes.movementPointsLeft -= this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);

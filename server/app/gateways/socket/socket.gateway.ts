@@ -108,6 +108,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.StartTurn)
     handleBeforeStartTurn(client: Socket) {
+        console.log('handle start turn');
         this.gameService.onStartTurn(client, this.server);
     }
 

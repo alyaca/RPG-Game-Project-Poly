@@ -1,4 +1,4 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileType, TURN_TIME } from '@app/constants';
+import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileType } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -7,6 +7,8 @@ import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class GameService {
+    isMoving: boolean = false;
+    isTurnSkipped: boolean = false;
     constructor(private roomService: RoomService) {}
 
     connectPlayerToGame(roomId: string) {
@@ -103,7 +105,7 @@ export class GameService {
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
+            if (timeRemaining <= 0) {
                 this.playerTurnTimer(client, server);
             }
         });
@@ -111,17 +113,24 @@ export class GameService {
 
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.updateActivePlayer(client);
-        const activePlayer = this.getActivePlayer(room);
-        server.to(room.roomId).emit('isActive', activePlayer.id);
-        server.to(room.roomId).emit('turnEnded', room.listPlayers);
+        if (!this.isMoving) {
+            this.updateActivePlayer(client);
+            const activePlayer = this.getActivePlayer(room);
+            server.to(room.roomId).emit('isActive', activePlayer.id);
+            server.to(room.roomId).emit('turnEnded', room.listPlayers);
+        } else {
+            this.isTurnSkipped = true;
+        }
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         const player = this.getActivePlayer(room);
         for (const tile of path) {
+            this.isMoving = true;
             player.position = tile;
-            await this.delay(MOVEMENT_TIME);
+            if (this.isMoving) {
+                await this.delay(MOVEMENT_TIME);
+            }
             server.to(room.roomId).emit('playerNavigation', { player, tile });
             if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
                 server.to(room.roomId).emit('playerFell');
@@ -134,6 +143,13 @@ export class GameService {
         }
         this.getActivePlayer(room).attributes.movementPointsLeft = this.getActivePlayer(room).attributes.speed;
         server.to(room.roomId).emit('endMovement');
+        this.isMoving = false;
+        if (this.isTurnSkipped) {
+            console.log('processNavigation');
+            this.onTurnEnded(client, server);
+            //this.onStartTurn(client, server);
+            this.isTurnSkipped = false;
+        }
     }
 
     async delay(ms: number) {
@@ -222,9 +238,10 @@ export class GameService {
 
     private playerTurnTimer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
+        this.roomService.getTurnTimer(room.roomId).resetTimer(5 /*TURN_TIME*/, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-            if (timeRemaining === 0) {
+            console.log('timeRemaining 1 ', timeRemaining);
+            if (timeRemaining <= 0) {
                 this.onTurnEnded(client, server);
             }
         });
@@ -262,10 +279,13 @@ export class GameService {
     }
 
     private updateActivePlayer(socket: Socket) {
+        console.log('updateActivePlayer');
         const room = this.roomService.getRoom(socket);
         const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === socket.id);
+        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        console.log('index', index);
         const nextIndex = (index + 1) % listPlayers.length;
+        console.log('nextIndex', nextIndex);
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;
     }

@@ -7,6 +7,7 @@ export class Timer {
     private isTimerRunning: boolean = true;
 
     startTimer(duration: number, onTickCallback: (timeRemaining: number) => void) {
+        this.isTimerRunning = true;
         clearInterval(this.intervalId);
         this.timeRemaining = duration;
         onTickCallback(this.timeRemaining);
