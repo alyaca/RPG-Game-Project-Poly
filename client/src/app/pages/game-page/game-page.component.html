@@ -1,4 +1,4 @@
-<div class="page-element" [class.disabled]="isTurnStartShowed" #pageElement>
+<div class="page-element" #pageElement>
     @if (isInCombat){
     <app-combat-modal [isInCombat]="isInCombat" (closeModalEvent)="closeCombatModal()"></app-combat-modal>
     }
@@ -20,7 +20,7 @@
             <p id="player-count">{{ getPlayerCount() }} joueurs</p>
         </div>
         @if (isTurnStartShowed) {
-        <div id="turn-start-timer">
+        <div id="turn-start-timer" class="turn-start">
             <p>Votre tour commence dans</p>
             <app-timer
                 [totalTime]="beforeTurnTotalTime"
@@ -29,17 +29,22 @@
                 (closeTimer)="closeTurnStartPopUp()"
             ></app-timer>
         </div>
+        } @if(activePlayerName && !isTurnStartShowed){
+        <div class="turn-start">
+            <p>Le tour de</p>
+            <p class="player-name-modal">{{ activePlayerName }}</p>
+            <p>va commencer</p>
+        </div>
         }
         <div id="game-grid-background-gradient">
             <div class="grid-element" id="game-grid-container" #gameGrid>
-                <app-game-grid></app-game-grid>
+                <app-game-grid [hasStarted]="!isTurnStartShowed"></app-game-grid>
             </div>
         </div>
     </div>
     <div class="right-container">
         <div class="timer">
-            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" (startTimer)="onStartTurn()" (closeTimer)="onEndTurn()">
-            </app-timer>
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn"> </app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id ;){
@@ -52,9 +57,9 @@
                     <p class="action-text">Porte</p>
                     <div
                         class="button-outer action-outer"
-                        [class.selected]="isActionSelected"
-                        [class.disabled]="!isActivePlayer"
-                        (click)="toggleActionSelected()"
+                        [class.selected]="isActionDoorSelected"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkDoors()"
+                        (click)="toggleActionDoorSelected()"
                     >
                         <div class="action-button door-button"></div>
                     </div>
@@ -64,16 +69,16 @@
                     <p class="action-text">Attaquer</p>
                     <div
                         class="button-outer action-outer"
-                        [class.selected]="isActionSelected"
-                        [class.disabled]="!isActivePlayer"
-                        (click)="toggleActionSelected()"
+                        [class.selected]="isActionCombatSelected"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack()"
+                        (click)="toggleActionCombatSelected()"
                     >
                         <div class="action-button attack-button" (click)="openCombatModal()"></div>
                     </div>
                 </div>
                 <div class="center-button">
                     <p class="action-text">Fin de tour</p>
-                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer">
+                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer || isTurnStartShowed">
                         <div class="end-turn-button-inner" (click)="onEndTurn()"></div>
                     </div>
                 </div>

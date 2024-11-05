@@ -7,10 +7,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { TURN_TIME, WARNING_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, TURN_TIME, WARNING_TIME } from '@app/constants';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
+import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
@@ -28,18 +29,21 @@ describe('GamePageComponent', () => {
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let httpMock: HttpTestingController;
     let mockSocket: Socket;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
+
     const accessCode = '1234';
 
     beforeEach(async () => {
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
-        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['on', 'send', 'isSocketAlive', 'connect']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['on', 'send', 'isSocketAlive', 'connect', 'disconnect']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
         dialogRefSpy.afterClosed.and.returnValue(of('left'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog']);
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
@@ -52,6 +56,7 @@ describe('GamePageComponent', () => {
                 { provide: Router, useValue: routerSpy },
                 { provide: ActivatedRoute, useValue: { queryParams: of({ roomCode: '1234' }) } },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+                { provide: GameService, useValue: gameServiceSpy },
             ],
         }).compileComponents();
 
@@ -89,7 +94,6 @@ describe('GamePageComponent', () => {
         httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
-        component['dialog'] = dialogSpy;
         component.allPlayers = mockPlayers;
         fixture.detectChanges();
 
@@ -105,10 +109,18 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should toggle isActionSelected correctly', () => {
-        const initialActionSelected = component.isActionSelected;
-        component.toggleActionSelected();
-        expect(component.isActionSelected).toBe(!initialActionSelected);
+    it('should toggle isActionDoorSelected correctly', () => {
+        const initialActionSelected = component.isActionDoorSelected;
+        component.toggleActionDoorSelected();
+        expect(component.isActionDoorSelected).toBe(!initialActionSelected);
+        expect(component.isActionCombatSelected).toBe(false);
+    });
+
+    it('should toggle isActionCombatSelected correctly', () => {
+        const initialActionSelected = component.isActionCombatSelected;
+        component.toggleActionCombatSelected();
+        expect(component.isActionCombatSelected).toBe(!initialActionSelected);
+        expect(component.isActionDoorSelected).toBe(false);
     });
 
     it('should set the id of the first pageDiv element to "enabled"', () => {
@@ -120,37 +132,21 @@ describe('GamePageComponent', () => {
         expect(component.pageDiv.first.nativeElement.id).toBe('enabled');
     });
 
-    // it('should open the combat modal and pause the timer', () => {
-    //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['pauseTimer']);
-    //     component.openCombatModal();
-    //     expect(component.isInCombat).toBeTrue();
-    //     expect(component.turnTimerComponent.pauseTimer).toHaveBeenCalled();
-    // });
+    it('should not navigate to home if the dialog is right', () => {
+        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Right));
 
-    // it('should close the combat modal and resume the timer', () => {
-    //     component.turnTimerComponent = jasmine.createSpyObj('TimerComponent', ['resumeTimer']);
-    //     component.closeCombatModal();
-    //     expect(component.isInCombat).toBeFalse();
-    //     expect(component.turnTimerComponent.resumeTimer).toHaveBeenCalled();
-    // });
-
-    it('should open a confirmation dialog and navigate when quitting the game', () => {
         component.handleExit();
-        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Abandonner la partie?',
-                messages: ['- Êtes-vous certains de vouloir quitter?'],
-                options: ['Quitter', 'Rester'],
-                confirm: true,
-            },
+        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+            title: DialogTitle.QuitGame,
+            messages: [DialogMessages.QuitGame],
+            options: [DialogOptions.Quit, DialogOptions.Stay],
+            confirm: true,
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should not navigate if the dialog result is not "left"', () => {
-        dialogRefSpy.afterClosed.and.returnValue(of('stay'));
+    it('should navigate to /home if the dialog result is Left', () => {
+        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Left));
         component.handleExit();
-        expect(routerSpy.navigate).not.toHaveBeenCalled();
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 });

@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
+import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -30,20 +30,21 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements OnInit, AfterViewInit {
+export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
-    @ViewChild('turnTimer') turnTimerComponent!: TimerComponent;
 
     allPlayers: Player[];
-    mapName: string = 'Exemple';
-    mapDescription: string = 'Ma tres courte description';
-    mapDimensions: string = '';
+    mapName: string;
+    mapDimensions: string;
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
+    activePlayerName: string | null;
+    activePlayer: Player | undefined;
 
     isActivePlayer: boolean = false;
-    isActionSelected: boolean = true;
+    isActionDoorSelected: boolean = false;
+    isActionCombatSelected: boolean = false;
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
@@ -54,24 +55,44 @@ export class GamePageComponent implements OnInit, AfterViewInit {
 
     constructor(
         private router: Router,
-        private dialog: MatDialog,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
+        private gameService: GameService,
+        private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
     }
 
     ngOnInit() {
+        if (!this.mapDimensions || !this.mapName) {
+            this.router.navigate(['/home']);
+        }
+
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
             this.replenishHealth();
+        });
+        this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
+        });
+        this.socketCommunicationService.on('draw', () => {
+            this.socketCommunicationService.disconnect();
+            this.handleDraw();
+        });
+        this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
+            this.activePlayerName = name;
+        });
+
+        this.socketCommunicationService.on('playerFell', () => {
+            this.onPlayerFell();
         });
     }
 
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
+            this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -81,24 +102,30 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.socketCommunicationService.on('beforeStartTurnTimer', (timeRemaining: number) => {
             this.timeRemainingBeforeStartTurn = timeRemaining;
         });
-        this.socketCommunicationService.on('beforeStartTurnTimerEnd', () => {
-            this.closeTurnStartPopUp();
-        });
-        this.socketCommunicationService.on('turnEnded', (listPlayers: []) => {
+        this.socketCommunicationService.on('turnEnded', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
             this.onBeforeStartTurn();
         });
         this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
+            this.closeTurnStartPopUp();
             this.timeRemainingStartTurn = timeRemaining;
         });
     }
 
     onBeforeStartTurn() {
-        this.socketCommunicationService.send('beforeStartTurn');
+        this.isActionCombatSelected = false;
+        this.isActionDoorSelected = false;
+        this.socketCommunicationService.send('startTurn');
     }
 
-    onStartTurn() {
-        this.socketCommunicationService.send('startTurn', TURN_TIME);
+    onPlayerFell() {
+        this.gameService
+            .openDialog({ title: DialogTitle.EndTurn, messages: [DialogMessages.Fell], confirm: false, options: [DialogOptions.Close] })
+            .subscribe((result) => {
+                if (result === DialogResult.Close) {
+                    this.onEndTurn();
+                }
+            });
     }
 
     getPlayerCount() {
@@ -129,44 +156,88 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.isTurnStartShowed = false;
         this.isFirstTimerDone = true;
         this.beforeTurnTotalTime = STARTING_TIME;
+        this.activePlayerName = null;
         this.enableClicks();
-        this.onStartTurn();
     }
 
-    toggleActionSelected() {
-        this.isActionSelected = !this.isActionSelected;
+    toggleActionDoorSelected() {
+        this.isActionDoorSelected = !this.isActionDoorSelected;
+        this.isActionCombatSelected = false;
+    }
+
+    toggleActionCombatSelected() {
+        this.isActionCombatSelected = !this.isActionCombatSelected;
+        this.isActionDoorSelected = false;
     }
 
     openCombatModal() {
-        this.isInCombat = true;
-        this.socketCommunicationService.send('startFight');
+        if (this.activePlayer) {
+            const player1 = this.activePlayer;
+            const player2 = this.navigationService.checkAttack(this.activePlayer);
+            this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
+        }
     }
 
     closeCombatModal() {
         this.isInCombat = false;
-        this.socketCommunicationService.send('endFight');
-        // this.turnTimerComponent.resumeTimer();
+        // this.socketCommunicationService.send('endFight');
     }
 
     handleExit() {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Abandonner la partie?',
-                messages: ['- Êtes-vous certains de vouloir quitter?'],
-                options: ['Quitter', 'Rester'],
+        this.gameService
+            .openDialog({
+                title: DialogTitle.QuitGame,
+                messages: [DialogMessages.QuitGame],
+                options: [DialogOptions.Quit, DialogOptions.Stay],
                 confirm: true,
-            },
-        });
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Left) {
+                    this.socketCommunicationService.disconnect();
+                    this.router.navigate(['/home']);
+                }
+            });
+    }
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'left') {
-                this.router.navigate(['/home']);
-            }
-        });
+    handleDraw() {
+        this.gameService
+            .openDialog({
+                title: DialogTitle.DrawGame,
+                messages: [DialogMessages.DrawGame],
+                options: [DialogOptions.Close],
+                confirm: false,
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Close) {
+                    this.socketCommunicationService.disconnect();
+                    this.router.navigate(['/home']);
+                }
+            });
     }
 
     onEndTurn() {
         this.socketCommunicationService.send('endTurn');
+    }
+
+    ngOnDestroy() {
+        this.socketCommunicationService.disconnect();
+    }
+
+    checkDoors() {
+        if (this.activePlayer) {
+            if (this.navigationService.checkDoor(this.activePlayer)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    checkAttack() {
+        if (this.activePlayer) {
+            if (this.navigationService.checkAttack(this.activePlayer)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

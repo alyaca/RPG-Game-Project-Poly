@@ -27,9 +27,22 @@ $indigo-pink-theme: mat.m2-define-light-theme(
 
 html,
 body {
-    height: 100%;
-}
-body {
     margin: 0;
-    font-family: Roboto, 'Helvetica Neue', sans-serif;
+    height: 100%;
+    font-family: papyrus;
+}
+
+.text {
+    font-family: papyrus;
+}
+
+.background-image {
+    min-height: 100vh;
+    min-width: 100vh;
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: left;
+    background-repeat: no-repeat;
+    background-image: url('./assets/images/backgrounds/title_page_bgd11.jpg');
 }

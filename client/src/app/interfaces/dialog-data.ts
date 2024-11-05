@@ -1,6 +1,6 @@
 export interface DialogData {
-    messages: string[];
     title: string;
-    confirm: boolean;
+    messages: string[];
     options: string[];
+    confirm: boolean;
 }

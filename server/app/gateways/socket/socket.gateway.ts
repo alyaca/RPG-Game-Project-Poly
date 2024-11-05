@@ -4,7 +4,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, Player } from '@common/player';
+import { Avatar, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -69,7 +69,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const isAdmin = this.roomService.isPlayerAdmin(client);
         this.gameService.createPlayer(room, player, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
-        client.emit('isPlayerAdmin', isAdmin); //
+        client.emit('isPlayerAdmin', isAdmin);
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)
@@ -94,7 +94,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         this.matchService.processMapObjects(client);
         this.gameService.onStartGame(room);
-        const activePlayer = room.listPlayers.find((player) => player.isActive === true);
+        const activePlayer = this.gameService.getActivePlayer(room);
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
         this.server.to(room.roomId).emit('isActive', activePlayer.id);
@@ -102,32 +102,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.gameService.updateActivePlayer(client);
-        this.logger.debug(`client ${client.id} turn is over`); // for debug
-        this.server.to(room.roomId).emit('turnEnded', room.listPlayers);
-    }
-
-    @SubscribeMessage(SocketEvents.BeforeStartTurn)
-    handleBeforeStartTurn(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.gameService.onStartTurn(room, this.server);
+        this.gameService.onTurnEnded(client, this.server);
+        this.logger.debug(`client ${client.id} turn is over`);
     }
 
     @SubscribeMessage(SocketEvents.StartTurn)
-    handleStartTurn(client: Socket, duration: number) {
-        this.gameService.onPlayerTurnStarted(duration, client, this.server);
-    }
-
-    @SubscribeMessage(SocketEvents.StartFight)
-    handleStartFight(client: Socket, opponent: Player) {
-        this.gameService.onStartFight(client, opponent, this.server);
-    }
-
-    @SubscribeMessage(SocketEvents.EndFight)
-    handleEndFight(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.gameService.onEndFight(this.server, room);
+    handleBeforeStartTurn(client: Socket) {
+        this.gameService.onStartTurn(client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.SendMessage)
@@ -142,6 +123,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             timestamp: message.timestamp,
         };
         await this.saveMessage(client, messageWithRoomId);
+    }
+
+    @SubscribeMessage(SocketEvents.PlayerNavigation)
+    handlePlayerNavigation(client: Socket, path: Position[]) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.processNavigation(room, this.server, path, client);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
@@ -167,7 +154,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         if (room) {
             this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
+            if (!this.server.sockets.adapter.rooms.get(room.roomId)) {
+                this.gameService.stopGameTimers(room);
+            }
             this.logger.log(`Client disconnected: ${client.id}`);
+        } else {
+            this.logger.log(`Client disconnected when no room: ${client.id}`);
         }
     }
 }

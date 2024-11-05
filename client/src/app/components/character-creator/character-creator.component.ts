@@ -122,14 +122,18 @@ export class CharacterCreatorComponent implements OnDestroy {
         };
     }
 
-    preventSpace(event: KeyboardEvent): void {
+    preventSpace(event: KeyboardEvent) {
         if (event.key === ' ') {
             this.showSaveErroMessage(ErrorMessages.NameWithSpace);
             event.preventDefault();
         }
     }
 
-    private showSaveErroMessage(message: string): void {
+    removeSpaces() {
+        this.characterName = this.characterName.replace(/\s+/g, '');
+    }
+
+    private showSaveErroMessage(message: string) {
         this.snackBar.open(message, 'Fermer', {
             duration: MESSAGE_DURATION_VALIDATION_ERROR,
         });
