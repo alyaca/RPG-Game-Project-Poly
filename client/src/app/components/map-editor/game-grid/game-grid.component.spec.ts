@@ -2,18 +2,22 @@ import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockObjects } from '@app/mocks/mock-object';
 import { playerNavigation } from '@app/mocks/mock-player';
+import { mockRoom } from '@app/mocks/mock-room';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { NavigationService } from '@app/services/navigation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
+import { Socket } from 'socket.io-client';
 import { GameGridComponent } from './game-grid.component';
 
+/* eslint-disable max-lines */
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
     let fixture: ComponentFixture<GameGridComponent>;
@@ -26,8 +30,10 @@ describe('GameGridComponent', () => {
     let gameObjectsContainerSpy: jasmine.SpyObj<GameObjectsContainerComponent>;
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
+    let mockSocket: Socket;
 
     beforeEach(async () => {
+        mockSocket = { data: { roomCode: '1234' }, id: 'admin' } as unknown as Socket;
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'resetGrid', 'removeTile']);
         gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['getSelectedTile', 'setSelectedTile', 'deactivateTileApplicator']);
@@ -67,6 +73,7 @@ describe('GameGridComponent', () => {
         tileServiceSpy.resetGrid.and.callFake((gridSize: number) => {
             return Array.from({ length: gridSize }, () => Array.from({ length: SIZE_SMALL_MAP }, () => TileType.Ground));
         });
+        socketCommunicationServiceSpy.socket = mockSocket;
 
         const gameObjectServiceMock = {
             initObjectsArray: jasmine.createSpy('initObjectsArray').and.callFake(() => {
@@ -145,30 +152,49 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
         });
-        /*
-        it('should connect the socket and initialize dimensions', () => {
-            socketCommunicationServiceSpy.isSocketAlive.and.returnValue(true);
-            socketCommunicationServiceSpy.connect.and.stub();
-            gameCreationServiceSpy.updateDimensions.and.returnValue(10);
+    });
+
+    describe('socket listener', () => {
+        it('should listen to mapInformation event onInit', () => {
+            spyOn(component, 'displayPortraitOnSpawnPoints');
+            socketCommunicationServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
+                if (event === 'mapInformation') {
+                    callback(mockRoom as Room);
+                }
+            });
 
             component.ngOnInit();
-
-            expect(socketCommunicationServiceSpy.isSocketAlive).toHaveBeenCalled();
-            expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
-            expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
-            expect(component.gridSize).toBe(10);
+            expect(component.displayPortraitOnSpawnPoints).toHaveBeenCalled();
+            expect(navigationServiceSpy.initialize).toHaveBeenCalled();
         });
 
-        it('should load new game or existing game based on creation state', () => {
-            gameCreationServiceSpy.isNewGame = true;
-            component.ngOnInit();
-            expect(component.objectsArray).toBeDefined();
+        // To continue for 100% coverage
+        it('should listen to isActive event onInit', () => {
+            const mockPlayer = mockLobbyPlayers[0];
+            socketCommunicationServiceSpy.socket.id = mockPlayer.id;
+            navigationServiceSpy.players = mockLobbyPlayers;
+            spyOn(component, 'findReachableTiles');
 
-            gameCreationServiceSpy.isNewGame = false;
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'isActive') {
+                    callback(mockPlayer as T);
+                }
+            });
+
             component.ngOnInit();
-            expect(component.oldMapName).toEqual(gameCreationServiceSpy.loadedMapName);
+            expect(component.findReachableTiles).toHaveBeenCalled();
         });
-        */
+
+        it('should listen to endMovement event onInit', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'endMovement') {
+                    callback({} as T);
+                }
+            });
+
+            component.ngOnInit();
+            expect(component.isMoving).toBe(false);
+        });
     });
 
     describe('deepCopyMatrix', () => {

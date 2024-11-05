@@ -42,7 +42,7 @@ describe('CreateGamePageComponent', () => {
 
         gameListServiceSpy.getAllVisibleGames.and.returnValue(of(mockGames));
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['connect', 'send', 'on', 'isSocketAlive']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['connect', 'send', 'on', 'isSocketAlive', 'disconnect']);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['setRoomId', 'joinRoom']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -103,6 +103,7 @@ describe('CreateGamePageComponent', () => {
     it('should set isCharacterFormVisible to false when hideCharacterForm is called', () => {
         component.hideCharacterForm();
         expect(component.isCharacterFormVisible).toBeFalse();
+        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
     });
 
     it('should show snack bar if selected game does not exist', () => {

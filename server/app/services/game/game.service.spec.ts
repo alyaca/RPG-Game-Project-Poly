@@ -1,4 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
+import { TileCost, TileType } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
@@ -397,6 +398,13 @@ describe('GameService', () => {
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('turnEnded', room.listPlayers);
     });
 
+    it('should not update active player if moving', () => {
+        service.isMoving = true;
+        jest.spyOn(service, 'getActivePlayer').mockReturnValue(listPlayers[0]);
+        service.onTurnEnded(mockSocket, mockServer);
+        expect(service.isTurnSkipped).toBe(true);
+    });
+
     it('should sort players by speed descending and move disconnected players to the end', () => {
         const player1 = { attributes: { speed: 10 }, status: Status.Disconnected } as unknown as Player;
         const player2 = { attributes: { speed: 15 }, status: Status.Player } as unknown as Player;
@@ -522,5 +530,13 @@ describe('GameService', () => {
         const elapsedTime = Date.now() - startTime;
 
         expect(elapsedTime).toBeGreaterThanOrEqual(ms);
+    });
+
+    it('should return the corresponding cost for tile', () => {
+        expect(service['getCost'](TileType.Ground)).toBe(TileCost.Ground);
+        expect(service['getCost'](TileType.Water)).toBe(TileCost.Water);
+        expect(service['getCost'](TileType.Ice)).toBe(TileCost.Ice);
+        expect(service['getCost'](TileType.OpenDoor)).toBe(TileCost.OpenDoor);
+        expect(service['getCost'](0)).toBe(Infinity);
     });
 });

@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ElementRef } from '@angular/core';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
+import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
 // import { mockRoom } from '@app/mocks/mock-room';
@@ -96,18 +97,20 @@ describe('PlayerInfoInventoryComponent', () => {
         expect(component.player.attributes.currentHp).toBe(0);
     });
 
-    // it('should subscribe to mapInformation and update player data', () => {
-    //     component.playerId = mockLobbyPlayers[0].id;
-    //     socketCommunicationServiceSpy.on.and.callFake((event: string, callback: (data: Room) => void) => {
-    //         if (event === 'mapInformation') {
-    //             callback(mockRoom);
-    //         }
-    //     });
+    it('should subscribe to mapInformation and update player data', () => {
+        component.playerId = mockLobbyPlayers[0].id;
+        const room = mockRoom;
+        room.listPlayers = mockLobbyPlayers;
 
-    //     component.ngOnInit();
+        socketCommunicationServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
+            if (event === 'mapInformation') {
+                callback(mockRoom as Room);
+            }
+        });
 
-    //     expect(component.player).toEqual(mockLobbyPlayers[0]);
-    //     expect(component.actionPointsArray).toEqual([1]);
-    //     expect(component.movementPointsArray).toEqual(Array(mockLobbyPlayers[0].attributes.speed));
-    // });
+        component.ngOnInit();
+
+        expect(component.player).toEqual(mockLobbyPlayers[0]);
+        expect(component.movementPointsArray).toEqual(Array(mockLobbyPlayers[0].attributes.speed));
+    });
 });

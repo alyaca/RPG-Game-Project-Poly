@@ -4,7 +4,7 @@ import { NO_OBJECT, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { NavigationService } from '@app/services/navigation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
@@ -67,9 +67,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-        if (!this.socketCommunicationService.isSocketAlive()) {
-            this.socketCommunicationService.connect();
-        }
+        this.socketCommunicationService.connect();
+
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         if (this.gameCreationService.isNewGame) {
             this.loadNewGame();
@@ -109,7 +108,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on('playerFell', () => {
-            //TODO : afficher un message pour dire que le joueur est tombé
+            // TODO : afficher un message pour dire que le joueur est tombé
             console.log('Player fell');
         });
     }
