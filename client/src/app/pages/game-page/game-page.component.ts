@@ -42,7 +42,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     activePlayerName: string | null;
 
     isActivePlayer: boolean = false;
-    isActionSelected: boolean = true;
+    isActionDoorSelected: boolean = false;
+    isActionCombatSelected: boolean = false;
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
@@ -106,6 +107,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onBeforeStartTurn() {
+        this.isActionCombatSelected = false;
+        this.isActionDoorSelected = false;
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -141,8 +144,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.enableClicks();
     }
 
-    toggleActionSelected() {
-        this.isActionSelected = !this.isActionSelected;
+    toggleActionDoorSelected() {
+        this.isActionDoorSelected = !this.isActionDoorSelected;
+        this.isActionCombatSelected = false;
+    }
+
+    toggleActionCombatSelected() {
+        this.isActionCombatSelected = !this.isActionCombatSelected;
+        this.isActionDoorSelected = false;
     }
 
     openCombatModal() {
