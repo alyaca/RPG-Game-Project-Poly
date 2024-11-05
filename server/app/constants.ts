@@ -49,3 +49,11 @@ export const SINGLE_PLAYER = 1;
 
 // constant for tests
 export const FOWARD_TIME = 1000;
+
+// constants for tile cost
+export enum TileCost {
+    Ground = 1,
+    Water = 2,
+    Ice = 0,
+    OpenDoor = 1,
+}

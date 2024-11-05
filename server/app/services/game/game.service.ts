@@ -1,4 +1,4 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileType } from '@app/constants';
+import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
@@ -157,13 +157,13 @@ export class GameService {
     private getCost(tileType: number): number {
         switch (tileType) {
             case TileType.Ground:
-                return 1;
+                return TileCost.Ground;
             case TileType.Water:
-                return 2;
+                return TileCost.Water;
             case TileType.Ice:
-                return 0;
+                return TileCost.Ice;
             case TileType.OpenDoor:
-                return 1;
+                return TileCost.OpenDoor;
             default:
                 return Infinity;
         }
