@@ -17,7 +17,7 @@ describe('ChatBoxComponent', () => {
     let mockMessages: ChatMessage[];
 
     beforeEach(async () => {
-        chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage', 'getMessagesByRoom']);
+        chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage', 'getMessagesByRoom', 'onLogReceived']);
         queryParamsSubject = new BehaviorSubject({ roomCode: '1234' });
         mockMessages = [
             { id: 1, username: 'User1', message: 'Hello', timestamp: new Date() },
@@ -81,6 +81,18 @@ describe('ChatBoxComponent', () => {
         component.ngOnInit();
         chatServiceSpy.onMessageReceived.calls.mostRecent().args[0](message);
         expect(component.messages).toContain(message);
+    });
+
+    it('should receive log', () => {
+        const logMessage = {
+            id: 1,
+            message: 'Goku has joined the room',
+            playersNames: ['Goku'],
+            timestamp: new Date(),
+        };
+        chatServiceSpy.onLogReceived.calls.mostRecent().args[0](logMessage);
+        component.ngOnInit();
+        expect(component.logs).toContain(logMessage);
     });
 
     it('should scroll to bottom', () => {
