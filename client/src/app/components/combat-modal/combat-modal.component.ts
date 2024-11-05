@@ -68,7 +68,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             this.combatTimeRemaining = combatTimeRemaining;
         });
 
-        this.combatService.initCombat(this.player1, this.player2);
+        // this.combatService.initCombat(this.player1, this.player2);
         this.initializeDisplay();
     }
 
@@ -130,6 +130,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
     }
 
     triggerAttack() {
+        this.socketCommunicationService.send('combatAttack', this.combatTimeRemaining);
         this.totalTime = this.combatService.determineTimerLength(
             this.combatService.combatInfo.evasionsArray1,
             this.combatService.combatInfo.currPlayerNum,
