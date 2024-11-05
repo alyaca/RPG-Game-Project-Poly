@@ -378,7 +378,7 @@ describe('GameService', () => {
         jest.spyOn(roomService, 'getFightTimer');
         jest.spyOn(roomService, 'getTurnTimer');
 
-        service.stopGameTimers(mockServer, room);
+        service.stopGameTimers(room);
 
         expect(roomService.getFightTimer).toHaveBeenCalledWith(roomId);
         expect(roomService.getTurnTimer).toHaveBeenCalledWith(roomId);

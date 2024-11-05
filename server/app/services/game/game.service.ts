@@ -77,11 +77,9 @@ export class GameService {
         }
     }
 
-    stopGameTimers(server: Server, room: Room) {
-        if (!server.sockets.adapter.rooms.get(room.roomId)) {
-            this.roomService.getFightTimer(room.roomId).stopTimer();
-            this.roomService.getTurnTimer(room.roomId).stopTimer();
-        }
+    stopGameTimers(room: Room) {
+        this.roomService.getFightTimer(room.roomId).stopTimer();
+        this.roomService.getTurnTimer(room.roomId).stopTimer();
     }
 
     removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
@@ -137,10 +135,10 @@ export class GameService {
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
-            server.to(room.roomId).emit('playerNavigation', { player, tile });
+            server.to(room.roomId).emit('playerNavigation', tile);
             if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
-                server.to(room.roomId).emit('playerFell');
-                this.onTurnEnded(client, server);
+                this.stopGameTimers(room);
+                client.emit('playerFell');
                 break;
             }
             if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {

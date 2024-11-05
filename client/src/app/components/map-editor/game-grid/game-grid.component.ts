@@ -94,7 +94,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.findReachableTiles();
         });
 
-        this.socketCommunicationService.on<{ tile: Position; player: Player }>('playerNavigation', ({ tile, player }) => {
+        this.socketCommunicationService.on<Position>('playerNavigation', (tile) => {
             this.navigateToTile(tile);
         });
 
@@ -105,11 +105,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
-        });
-
-        this.socketCommunicationService.on('playerFell', () => {
-            // TODO : afficher un message pour dire que le joueur est tombé
-            console.log('Player fell');
         });
     }
 
@@ -222,7 +217,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     showDetails(row: number, col: number) {
         const description = this.navigationService.showDetails(row, col);
         if (description) {
-            console.log(description);
+            // console.log(description);
         }
     }
 
@@ -302,14 +297,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position) {
+        this.findReachableTiles();
         if (this.activePlayer) {
-            this.navigationService.updateTuile(this.activePlayer);
+            this.navigationService.updateTile(this.activePlayer);
             const cost = this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
             this.activePlayer.attributes.movementPointsLeft -= cost;
             this.activePlayer.position = position;
         }
         this.displayPortraitOnSpawnPoints();
-        this.findReachableTiles();
     }
 
     checkEndTurn() {
@@ -321,19 +316,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activePlayer.attributes.movementPointsLeft,
         ).length;
 
-        //Le joueur n’a plus d’action à faire. Il lui reste des points de mouvement, mais il
-        //ne peut pas se déplacer (bloqué par des portes fermées ou joueurs).
-        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
+        // Player has movement point left, no action left.
+        // Player is blocked by closed door or players.
+        if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
             this.socketCommunicationService.send('endTurn');
         }
 
-        //Le joueur n’a plus de points de mouvement. Il lui reste une action à faire, mais il
-        //n’y a aucune cible valide sur les tuiles adjacentes.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
+        // Player has no movement point left. Player has action point left but
+        // no valid target on adjacent tiles.
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
             this.socketCommunicationService.send('endTurn');
         }
 
-        //Le joueur n’a plus de points de mouvement ni d’action à faire.
+        // Player has no movement point or action left.
         else if (this.activePlayer.attributes.movementPointsLeft === 0 && this.activePlayer.attributes.actionPoints === 0) {
             this.socketCommunicationService.send('endTurn');
         }

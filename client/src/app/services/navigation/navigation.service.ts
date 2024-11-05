@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ObjectType, TileType } from '@app/constants';
+import { ObjectType, TileCost, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -42,7 +42,7 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
-    updateTuile(activePlayer: Player): void {
+    updateTile(activePlayer: Player): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
@@ -57,10 +57,11 @@ export class NavigationService {
         this.positions[player.position.x][player.position.y] = 0;
     }
 
-    showDetails(row: number, col: number): string {
-        const player = this.players.find((player) => player.position.x === row && player.position.y === col);
-        if (player) {
-            return `${player.name}, ${player.avatar}`;
+    showDetails(row: number, col: number) {
+        const clickedPlayer = this.players.find((player) => player.position.x === row && player.position.y === col);
+        if (clickedPlayer) {
+            // return { name: clickedPlayer.name, avatarSrc: clickedPlayer.avatar?.src };
+            return `${clickedPlayer.name}, ${clickedPlayer.avatar}`;
         } else {
             // TODO: completer les details
             return `${this.positions[row][col].valueOf()}`;
@@ -103,10 +104,6 @@ export class NavigationService {
 
     isPositionWithinBounds(x: number, y: number, array: number[][]): boolean {
         return x >= 0 && y >= 0 && x < array.length && y < array[0].length;
-    }
-
-    getActivePlayer(): Player {
-        return this.players.find((player) => player.isActive) || this.players[0];
     }
 
     getPortraitId(godName: string | undefined): ObjectType {
@@ -169,8 +166,8 @@ export class NavigationService {
         return [];
     }
 
-    checkAttack(): Player | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
+    checkAttack(activePlayer: Player): Player | undefined {
+        const neighbors = this.getNeighbors(activePlayer.position, this.gameMap);
         for (const neighbor of neighbors) {
             if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
                 return this.players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
@@ -179,36 +176,32 @@ export class NavigationService {
         return undefined;
     }
 
-    haveActions(): boolean {
-        if (this.checkAttack() || this.checkDoor()) {
+    haveActions(activePlayer: Player): boolean {
+        if (this.checkAttack(activePlayer) || this.checkDoor(activePlayer)) {
             return true;
         }
         return false;
     }
 
-    checkDoor(): Position | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (
+    checkDoor(activePlayer: Player): Position | undefined {
+        const neighbors = this.getNeighbors(activePlayer.position, this.gameMap);
+        return neighbors.find(
+            (neighbor) =>
                 this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
-            ) {
-                return neighbor;
-            }
-        }
-        return undefined;
+                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor,
+        );
     }
 
     getTileCost(tileType: number): number {
         switch (tileType) {
             case TileType.Ground:
-                return 1;
+                return TileCost.Ground;
             case TileType.Water:
-                return 2;
+                return TileCost.Water;
             case TileType.Ice:
-                return 0;
+                return TileCost.Ice;
             case TileType.OpenDoor:
-                return 1;
+                return TileCost.OpenDoor;
             default:
                 return Infinity;
         }
