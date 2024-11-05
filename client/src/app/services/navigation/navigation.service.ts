@@ -62,7 +62,7 @@ export class NavigationService {
         if (player) {
             return `${player.name}, ${player.avatar}`;
         } else {
-            //TODO: completer les details
+            // TODO: completer les details
             return `${this.positions[row][col].valueOf()}`;
         }
     }
@@ -192,6 +192,21 @@ export class NavigationService {
         return undefined;
     }
 
+    getTileCost(tileType: number): number {
+        switch (tileType) {
+            case TileType.Ground:
+                return 1;
+            case TileType.Water:
+                return 2;
+            case TileType.Ice:
+                return 0;
+            case TileType.OpenDoor:
+                return 1;
+            default:
+                return Infinity;
+        }
+    }
+
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
         current: PointWithDistance,
@@ -266,20 +281,5 @@ export class NavigationService {
 
     private isValidTile(x: number, y: number, dimension: number): boolean {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
-    }
-
-    getTileCost(tileType: number): number {
-        switch (tileType) {
-            case TileType.Ground:
-                return 1;
-            case TileType.Water:
-                return 2;
-            case TileType.Ice:
-                return 0;
-            case TileType.OpenDoor:
-                return 1;
-            default:
-                return Infinity;
-        }
     }
 }

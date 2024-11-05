@@ -9,7 +9,7 @@ import { mockRoom } from '@app/mocks/mock-room';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { NavigationService } from '@app/services/navigation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
@@ -17,6 +17,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { Socket } from 'socket.io-client';
 import { GameGridComponent } from './game-grid.component';
 
+/* eslint-disable max-lines */
 describe('GameGridComponent', () => {
     let component: GameGridComponent;
     let fixture: ComponentFixture<GameGridComponent>;

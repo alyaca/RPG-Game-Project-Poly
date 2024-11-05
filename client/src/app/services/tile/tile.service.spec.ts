@@ -107,7 +107,7 @@ describe('TileService', () => {
         gameCreationServiceSpy.isNewGame = false;
         const loadedTiles = [
             [1, 2],
-            [3, 4],
+            [0, 1],
         ];
         gameCreationServiceSpy.loadedTiles = loadedTiles;
         const mapSize = 3;
