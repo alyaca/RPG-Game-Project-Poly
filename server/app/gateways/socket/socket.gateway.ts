@@ -1,5 +1,6 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -20,8 +21,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private matchService: MatchService,
         private roomService: RoomService,
         private logger: Logger,
-        private gameService: GameService,
         private chatService: ChatService,
+        private combatService: CombatService,
+        private gameService: GameService,
     ) {}
 
     @SubscribeMessage(SocketEvents.CreateRoom)
@@ -98,6 +100,16 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
         this.server.to(room.roomId).emit('isActive', activePlayer.id);
+    }
+
+    @SubscribeMessage(SocketEvents.StartFight)
+    handleStartFight(client: Socket, { player1, player2 }: { player1: Player; player2: Player }) {
+        this.combatService.startFight(client, player1, player2, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.AttackPlayer)
+    handleAttackPlayer(client: Socket) {
+        this.combatService.attackPlayer(client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.EndTurn)

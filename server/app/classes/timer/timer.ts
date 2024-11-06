@@ -25,6 +25,10 @@ export class Timer {
         }
     }
 
+    getTimeRemaining() {
+        return this.timeRemaining;
+    }
+
     resetTimer(duration: number, onTickCallback: (timeRemaining: number) => void) {
         this.stopTimer();
         this.timeRemaining = duration;
@@ -47,10 +51,18 @@ export class Timer {
     resumeTimer(onTickCallback: (timeRemaining: number) => void) {
         if (this.isPaused) {
             this.isPaused = false;
+            this.isTimerRunning = true;
             this.startTimer(this.timeRemaining, onTickCallback);
         }
     }
-
+    /*
+    resumeTimer() {
+        if (this.isPaused) {
+            this.isPaused = false;
+            this.startTimer(this.timeRemaining, (timeRemaining) => {});
+        }
+    }
+*/
     timerFinished() {
         this.timeRemaining = 0;
         this.isTimerRunning = false;

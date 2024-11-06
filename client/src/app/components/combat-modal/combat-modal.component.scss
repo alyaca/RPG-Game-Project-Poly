@@ -234,7 +234,7 @@ app-timer {
 
 .disabled {
     pointer-events: none;
-    opacity: 0.5;
+    filter: grayscale(70%) brightness(50%);
 }
 
 .dice-container {
@@ -270,4 +270,8 @@ app-timer {
     padding: 0;
     margin: 0.4rem;
     font-size: 0.8rem;
+}
+
+.active-player-border {
+    border: 3px solid blue;
 }

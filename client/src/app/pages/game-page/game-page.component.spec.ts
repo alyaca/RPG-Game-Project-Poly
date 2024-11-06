@@ -258,6 +258,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should return true if checkDoor returns true', () => {
+        component.activePlayer = mockPlayers[0];
         navigationServiceSpy.checkDoor.and.returnValue(mockPlayers[0].position);
         const result = component.checkDoors();
         expect(result).toBeTrue();
@@ -270,7 +271,9 @@ describe('GamePageComponent', () => {
     });
 
     it('should return true if checkAttack returns true', () => {
+        component.activePlayer = mockPlayers[0];
         navigationServiceSpy.checkAttack.and.returnValue(mockPlayers[0]);
+        spyOn(component, 'hasActionPoints').and.returnValue(true);
         const result = component.checkAttack();
         expect(result).toBeTrue();
     });

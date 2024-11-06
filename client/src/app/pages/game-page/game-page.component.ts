@@ -8,6 +8,8 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+//import { CombatService } from '@app/services/combat/combat.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -50,13 +52,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
+    combatTurnTime: number;
 
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public gameService: GameService,
-        private navigationService: NavigationService,
+        private navigationService: NavigationService, //private combatService: CombatService,
+        public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -84,8 +88,35 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.activePlayerName = name;
         });
 
+        this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player }) => {
+            this.isInCombat = true;
+            this.combatService.initializeCombat(data.player1, data.player2);
+        });
+
+        this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
+            this.activePlayer.attributes.actionPoints = 0;
+            this.closeCombatModal();
+        });
+
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
+        });
+
+        this.socketCommunicationService.on('endGame', (winner: Player) => {
+            this.socketCommunicationService.off('draw');
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.EndGame,
+                    messages: ['Le gagnant de la partie est : ' + winner.name],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                })
+                .subscribe((result) => {
+                    if (result === DialogResult.Close) {
+                        this.router.navigate(['/home']);
+                    }
+                });
         });
     }
 
@@ -172,9 +203,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     openCombatModal() {
-        const player1 = this.activePlayer;
-        const player2 = this.navigationService.checkAttack(this.activePlayer);
-        this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
+        const player1 = this.navigationService.getActivePlayer();
+        const player2 = this.navigationService.checkAttack();
+        this.navigationService.getActivePlayer().attributes.actionPoints = 0;
+        this.socketCommunicationService.send('startFight', { player1, player2 });
     }
 
     closeCombatModal() {
@@ -222,16 +254,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     checkDoors() {
-        if (this.navigationService.checkDoor(this.activePlayer)) {
-            return true;
+        if (this.activePlayer) {
+            if (this.navigationService.checkDoor()) {
+                return true;
+            }
         }
 
         return false;
     }
 
     checkAttack() {
-        if (this.navigationService.checkAttack(this.activePlayer)) {
-            return true;
+        if (this.activePlayer) {
+            if (this.navigationService.checkAttack() && this.hasActionPoints()) {
+                return true;
+            }
         }
         return false;
     }

@@ -208,6 +208,7 @@ export enum DialogTitle {
     KickedOut = 'Vous avez été exclu de la partie',
     DrawGame = 'Partie nulle',
     EndTurn = 'Fin de votre tour',
+    EndGame = 'Fin de la partie',
 }
 export enum DialogMessages {
     NotEnoughPlayers = `Il faut au moins ${MIN_NUMBER_PLAYER} joueurs pour commencer la partie`,
