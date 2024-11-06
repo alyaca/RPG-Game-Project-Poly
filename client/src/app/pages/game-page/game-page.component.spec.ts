@@ -284,7 +284,7 @@ describe('GamePageComponent', () => {
     it('should return the correct player count when allPlayers is defined and has players', () => {
         component.allPlayers = mockPlayers;
         const result = component.getPlayerCount();
-        expect(result).toBe(1);
+        expect(result).toBe(mockPlayers.length);
     });
 
     it('should return 0 when there are no players', () => {
