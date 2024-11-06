@@ -1,28 +1,50 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ITEM_COUNT, ObjectType } from '@app/constants';
+import { mockPlayers } from '@app/mocks/mock-players';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TilePlayerInfoComponent } from './tile-player-info.component';
 
 describe('TilePlayerInfoComponent', () => {
-  let component: TilePlayerInfoComponent;
-  let fixture: ComponentFixture<TilePlayerInfoComponent>;
-  beforeEach(async () => {
+    let component: TilePlayerInfoComponent;
+    let fixture: ComponentFixture<TilePlayerInfoComponent>;
+    let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
+    let gameTileInfoServiceSpy: jasmine.SpyObj<GameTileInfoService>;
+    beforeEach(async () => {
+        gameTileInfoServiceSpy = jasmine.createSpyObj('GameTileInfoService', ['getItem', 'getPlayer', 'getTile']);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['players']);
+        await TestBed.configureTestingModule({
+            imports: [],
+            providers: [
+                TilePlayerInfoComponent,
+                { provide: GameTileInfoService, useValue: gameTileInfoServiceSpy },
+                { provide: NavigationService, useValue: navigationServiceSpy },
+            ],
+        }).compileComponents();
 
-    await TestBed.configureTestingModule({
-      imports: [],
-      providers: [],
-    }).compileComponents();
+        fixture = TestBed.createComponent(TilePlayerInfoComponent);
+        component = fixture.componentInstance;
+        gameTileInfoServiceSpy.getPlayer.and.returnValue(mockPlayers[0]);
+        gameTileInfoServiceSpy.getItem.and.returnValue({
+            id: ObjectType.Trident,
+            name: 'Trident de Poséidon',
+            image: './assets/images/objects/poseidon-trident.jpg',
+            description: 'Modifie le dé du joueur qui équipe cet objet : les valeurs équiprobables possibles sont 1, 2, 3, 5, 6, 6',
+            count: ITEM_COUNT,
+        });
+        gameTileInfoServiceSpy.getTile.and.returnValue({ id: 1, name: 'Ice', image: 'image', description: 'it makes you fall' });
+        fixture.detectChanges();
+    });
 
-    fixture = TestBed.createComponent(TilePlayerInfoComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    it('should create', () => {
+        navigationServiceSpy.players = mockPlayers;
+        fixture.detectChanges();
+        expect(component).toBeTruthy();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should emit closePopup event when close is called', () => {
-    spyOn(component.closePopup, 'emit');
-    component.close();
-    expect(component.closePopup.emit).toHaveBeenCalled();
-  });
+    it('should emit closePopup event when close is called', () => {
+        spyOn(component.closePopup, 'emit');
+        component.close();
+        expect(component.closePopup.emit).toHaveBeenCalled();
+    });
 });
