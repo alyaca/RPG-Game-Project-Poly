@@ -1,8 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MAX_GENERATION_VALUE } from '@app/constants';
+import { ILogMessage } from '@app/interfaces/backend-interfaces/log.interface';
 import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
+import { LogMessage } from '@app/interfaces/log-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -36,6 +38,18 @@ export class ChatService {
                 username: backendMessage.username,
                 message: backendMessage.message,
                 timestamp: backendMessage.timestamp,
+            };
+            callback(formattedMessage);
+        });
+    }
+
+    onLogReceived(callback: (message: LogMessage) => void) {
+        this.socketCommunication.on<ILogMessage>('logReceived', (backendMessage) => {
+            const formattedMessage: LogMessage = {
+                id: this.generateUniqueId(),
+                message: backendMessage.message,
+                timestamp: backendMessage.timestamp,
+                players: backendMessage.players,
             };
             callback(formattedMessage);
         });
