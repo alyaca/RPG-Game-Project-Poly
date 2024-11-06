@@ -103,7 +103,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.StartFight)
-    handleStartFight(client: Socket, { player1, player2 }: { player1: Player; player2: Player }) {
+    handleStartFight(client: Socket, { player1, player2 }) {
         this.combatService.startFight(client, player1, player2, this.server);
     }
 

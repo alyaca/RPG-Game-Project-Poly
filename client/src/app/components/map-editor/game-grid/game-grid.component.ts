@@ -357,6 +357,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.socketCommunicationService.send('startFight', { player1, player2 });
         }
     }
+
     handleDoorAction(row: number, col: number) {
         const tiles = this.navigationService.gameMap.tiles;
         const playersObject = this.navigationService.gameMap.itemPlacement;

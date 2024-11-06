@@ -68,16 +68,16 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
         this.socketCommunicationService.on('attackSuccess', (player: Player) => {
             this.defensePlayer.attributes.currentHp -= 1;
-            this.combatStatus = this.activePlayer.name + ' a réussi son attaque';
+            this.combatStatus = player.name + ' a réussi son attaque.';
         });
 
         this.socketCommunicationService.on('attackFail', (player: Player) => {
-            this.activePlayer.attributes.currentHp -= 1;
-            this.combatStatus = this.activePlayer.name + ' a raté son attaque';
+            // this.activePlayer.attributes.currentHp -= 1;
+            this.combatStatus = player.name + ' a échoué son attaque.';
         });
 
         this.socketCommunicationService.on('playerDead', (player: Player) => {
-            this.combatStatus = player.name + ' est mort';
+            this.combatStatus = player.name + ' a perdu le combat.';
         });
 
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {

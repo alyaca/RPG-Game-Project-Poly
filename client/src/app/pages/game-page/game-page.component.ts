@@ -95,7 +95,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            this.activePlayer.attributes.actionPoints = 0;
+            // this.activePlayer.attributes.actionPoints = 0;
             this.closeCombatModal();
         });
 

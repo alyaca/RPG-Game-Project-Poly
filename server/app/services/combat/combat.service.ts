@@ -81,13 +81,13 @@ export class CombatService {
         return EVASION_LUCK < this.getRandom(EVASION_RANDOM);
     }
 
-    checkIfPlayerIsDead(client: Socket, player1: Player, player2: Player, server: Server) {
-        if (player1.attributes.currentHp <= 0) {
+    checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
+        if (defender.attributes.currentHp <= 0) {
             const room = this.roomService.getRoom(client);
-            const playerWinner = room.listPlayers.find((p) => p.id === player2.id);
+            const playerWinner = room.listPlayers.find((p) => p.id === attacker.id);
             playerWinner.victories++;
             this.checkEndGame(room.listPlayers, room, server);
-            this.emitToCombatPlayers(server, 'playerDead', player1);
+            this.emitToCombatPlayers(server, 'playerDead', defender);
             this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
 
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
@@ -97,8 +97,8 @@ export class CombatService {
                 }
                 this.emitToCombatPlayers(server, 'startedTurnTimer', timeRemaining);
             });
-            player1.attributes.currentHp = player1.attributes.totalHp;
-            player2.attributes.currentHp = player2.attributes.totalHp;
+            defender.attributes.currentHp = defender.attributes.totalHp;
+            attacker.attributes.currentHp = attacker.attributes.totalHp;
             return true;
         }
         return false;
