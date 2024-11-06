@@ -3,11 +3,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { mockGameNavigation } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -31,8 +33,10 @@ describe('GameGridComponent', () => {
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
     let mockSocket: Socket;
+    let gameTileInfoServiceSpy: jasmine.SpyObj<GameTileInfoService>;
 
     beforeEach(async () => {
+        gameTileInfoServiceSpy = jasmine.createSpyObj('GameTileInfoService', ['tileId', 'itemId', 'selectedRow', 'selectedCol']);
         mockSocket = { data: { roomCode: '1234' }, id: 'admin' } as unknown as Socket;
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'resetGrid', 'removeTile']);
         gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
@@ -93,6 +97,7 @@ describe('GameGridComponent', () => {
                 { provide: GameObjectsContainerComponent, useValue: gameObjectsContainerSpy },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: NavigationService, useValue: navigationServiceSpy },
+                { provide: GameTileInfoService, useValue: gameTileInfoServiceSpy },
             ],
         }).compileComponents();
 
@@ -152,6 +157,25 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
         });
+    });
+
+    it('showDetails should set attributes', () => {
+        component.tilesGrid = mockGameNavigation.tiles;
+        component.objectsArray = mockGameNavigation.itemPlacement;
+        gameCreationServiceSpy.isModifiable = false;
+        component.isActivePlayer = true;
+        const event = new MouseEvent('click', { button: 2 });
+        component.showDetails(event, 0, 0);
+        expect(component.isPopupVisible).toBeTrue();
+        expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
+        expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
+        expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
+        expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
+    });
+
+    it('closeTileDescription should set isPopUpVisible to false', () => {
+        component.closeTileDescription();
+        expect(component.isPopupVisible).toBeFalse();
     });
 
     describe('socket listener', () => {

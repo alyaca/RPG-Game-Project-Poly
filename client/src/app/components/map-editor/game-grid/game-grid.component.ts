@@ -1,8 +1,10 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -10,8 +12,6 @@ import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
-import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 
 @Component({
     selector: 'app-game-grid',
@@ -55,8 +55,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
 
-    /////
-
     isPopupVisible: boolean = false;
     popupX: number = 0;
     popupY: number = 0;
@@ -70,7 +68,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public tileService: TileService,
         public gameObjectService: GameObjectService,
         public gameCreationService: GameCreationService,
-        public gameTileInfoService: GameTileInfoService
+        public gameTileInfoService: GameTileInfoService,
     ) {}
 
     getSelectedTile(): string {
@@ -230,22 +228,22 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     showDetails(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        if (!this.gameCreationService.isModifiable && this.isActivePlayer){
+        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
             this.isPopupVisible = true;
             this.gameTileInfoService.tileId = this.tilesGrid[row][col];
             this.gameTileInfoService.itemId = this.objectsArray[row][col];
             this.gameTileInfoService.selectedRow = row;
-            this.gameTileInfoService.selectedCol = col;   
+            this.gameTileInfoService.selectedCol = col;
         }
     }
 
-    closeTileDescription(){
+    closeTileDescription() {
         this.isPopupVisible = false;
     }
 
     onMapClick(event: MouseEvent) {
         if (!this.entireMap.nativeElement.contains(event.target)) {
-          this.isPopupVisible = false;
+            this.isPopupVisible = false;
         }
     }
 
