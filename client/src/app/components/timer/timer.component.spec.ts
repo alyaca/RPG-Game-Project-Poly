@@ -1,7 +1,5 @@
 // import { ComponentFixture, TestBed } from '@angular/core/testing';
 // import { TimerComponent } from './timer.component';
-// import { START_TURN_TIMER_DELAY } from '@app/constants';
-// import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 // describe('TimerComponent', () => {
 //     let component: TimerComponent;
@@ -10,7 +8,6 @@
 //     beforeEach(async () => {
 //         await TestBed.configureTestingModule({
 //             imports: [TimerComponent],
-//             schemas: [NO_ERRORS_SCHEMA],
 //         }).compileComponents();
 
 //         fixture = TestBed.createComponent(TimerComponent);
@@ -24,55 +21,19 @@
 //         expect(component).toBeTruthy();
 //     });
 
-//     it('should start the timer and count down', (done) => {
-//         component.startTimer();
-
-//         setTimeout(() => {
-//             expect(component.timeRemaining).toBeLessThan(component.totalTime);
-//             done();
-//         }, START_TURN_TIMER_DELAY);
+//     it('should start the timer and count down', () => {
+//         spyOn(component, 'updateProgress');
+//         component.start();
+//         expect(component.startTimer.emit).toHaveBeenCalled();
+//         expect(component.updateProgress).toHaveBeenCalled();
 //     });
 
 //     it('should stop the timer when time runs out', (done) => {
 //         spyOn(component.closeTimer, 'emit');
-//         component.totalTime = 1;
-//         component.timeRemaining = component.totalTime;
-//         component.startTimer();
 
-//         setTimeout(() => {
-//             expect(component.timeRemaining).toBe(0);
-//             expect(component.closeTimer.emit).toHaveBeenCalled();
-//             done();
-//         }, START_TURN_TIMER_DELAY);
-//     });
+//         component.timerFinished();
 
-//     it('should pause the timer', () => {
-//         component.startTimer();
-//         component.pauseTimer();
-
-//         expect(component.isPaused).toBe(true);
-//         expect(component.isTimerRunning).toBe(true);
-//     });
-
-//     it('should resume the timer', (done) => {
-//         component.startTimer();
-//         component.pauseTimer();
-//         component.resumeTimer();
-
-//         setTimeout(() => {
-//             expect(component.isPaused).toBe(false);
-//             expect(component.isTimerRunning).toBe(true);
-//             expect(component.timeRemaining).toBeLessThan(component.totalTime);
-//             done();
-//         }, START_TURN_TIMER_DELAY);
-//     });
-
-//     it('should reset the timer', () => {
-//         component.totalTime = 10;
-//         component.timeRemaining = 5;
-//         component.resetTimer();
-
-//         expect(component.timeRemaining).toBe(component.totalTime);
-//         expect(component.isPaused).toBe(false);
+//         expect(component.timeRemaining).toBe(0);
+//         expect(component.closeTimer.emit).toHaveBeenCalled();
 //     });
 // });

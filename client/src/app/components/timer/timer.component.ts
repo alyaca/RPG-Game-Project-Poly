@@ -56,20 +56,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.start();
     }
 
-    pauseTimer() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.isPaused = true;
-        }
-    }
-
-    resumeTimer() {
-        if (this.isPaused) {
-            this.isPaused = false;
-            this.start();
-        }
-    }
-
     updateProgress() {
         const progress = (this.timeRemaining / this.totalTime) * this.circumference;
         this.strokeDashoffset = this.circumference - progress;
