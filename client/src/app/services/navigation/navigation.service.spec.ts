@@ -173,13 +173,15 @@ describe('NavigationServiceService', () => {
     });
 
     it('should return undefined if the player is not adjacent to anyone else', () => {
+        service.players = [playerNavigation];
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 1 }]);
-        expect(service.checkAttack(playerNavigation)).toBeUndefined();
+        expect(service.checkAttack()).toBeUndefined();
     });
 
     it('should return the player adjacent to the active one', () => {
+        service.players = [playerNavigation];
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 0, y: 0 }]);
-        expect(service.checkAttack(playerNavigation)).toEqual(playerNavigation);
+        expect(service.checkAttack()).toEqual(playerNavigation);
     });
 
     it('should return true if checkAttack or checkDoor return an array', () => {
@@ -201,12 +203,13 @@ describe('NavigationServiceService', () => {
     });
 
     it('checkDOor should return the neighbors', () => {
+        service.players = [playerNavigation];
         service.gameMap.tiles = [
             [TileType.Ground, TileType.OpenDoor],
             [TileType.OpenDoor, TileType.Ground],
         ];
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 0 }]);
-        const result = service.checkDoor(playerNavigation);
+        const result = service.checkDoor();
         expect(result).toBeDefined();
     });
 
