@@ -211,19 +211,17 @@ describe('GameGridComponent', () => {
             expect(component.findReachableTiles).toHaveBeenCalled();
         });
 
-        // Line 95
         it('should set isActivePlayer and currentPlayer when playerId matches socket ID', () => {
-            const mockPlayer = mockLobbyPlayers[0];
-            socketCommunicationServiceSpy.socket.id = mockPlayer.id;
+            socketCommunicationServiceSpy.socket.id = mockLobbyPlayers[0].id;
             navigationServiceSpy.players = mockLobbyPlayers;
             const findReachablesTileSpy = spyOn(component, 'findReachableTiles');
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'isActive') {
-                    callback(mockPlayer.id as T);
+                    callback(mockLobbyPlayers[0].id as T);
                 }
             });
             component.ngOnInit();
-            expect(component.currentPlayer).toEqual(mockPlayer);
+            expect(component.currentPlayer).toEqual(mockLobbyPlayers[0]);
             expect(findReachablesTileSpy).toHaveBeenCalled();
         });
 
@@ -627,7 +625,7 @@ describe('GameGridComponent', () => {
         expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
     });
 
-    /*it('should call navigationService.findReachableTiles with the correct arguments', () => {
+    /* it('should call navigationService.findReachableTiles with the correct arguments', () => {
         const mockReachableTiles = [
             { x: 0, y: 1 },
             { x: 1, y: 2 },
@@ -641,7 +639,7 @@ describe('GameGridComponent', () => {
         expect(component.reachableTiles).toEqual(mockReachableTiles);
     });*/
 
-    //fonctionne pas
+    // fonctionne pas
     //     it('should call navigationService.findReachableTiles with correct arguments when findReachableTiles is called', () => {
     //         const player = playerNavigation;
     //         const map = mockGameNavigation;

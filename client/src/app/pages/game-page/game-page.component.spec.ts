@@ -121,6 +121,7 @@ describe('GamePageComponent', () => {
                     callback(mockRoom as T);
                 }
             });
+            component.activePlayer = mockLobbyPlayers[0];
             spyOn(component, 'replenishHealth');
             component.ngOnInit();
             expect(component.allPlayers).toEqual(mockRoom.listPlayers);
@@ -226,8 +227,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should replenish health for all players', () => {
-        const player = mockPlayer;
-        expect(player.attributes.currentHp).not.toEqual(player.attributes.totalHp);
+        expect(mockPlayer.attributes.currentHp).not.toEqual(mockPlayer.attributes.totalHp);
         component.replenishHealth();
         component.allPlayers.forEach((player) => {
             expect(player.attributes.currentHp).toEqual(player.attributes.totalHp);

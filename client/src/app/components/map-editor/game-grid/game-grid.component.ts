@@ -274,7 +274,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     findReachableTiles() {
         this.reachableTiles = [];
-        console.log(this.reachableTiles);
         if (!this.activePlayer) return;
         this.reachableTiles = this.navigationService.findReachableTiles(
             this.activePlayer,
@@ -303,7 +302,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleDoorAction(row: number, col: number) {
-        let tiles = this.navigationService.gameMap.tiles;
+        const tiles = this.navigationService.gameMap.tiles;
         const playersObject = this.navigationService.gameMap.itemPlacement;
         if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && playersObject[row][col] < ObjectType.Spawn) {
             tiles[row][col] = this.tileService.toggleDoorState(tiles[row][col]);
