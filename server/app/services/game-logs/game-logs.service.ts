@@ -14,7 +14,7 @@ export class GameLogsService {
         if (!this.logs.has(roomId)) {
             this.logs.set(roomId, []);
         }
-        this.logs.get(roomId)?.push(newLog);
+        this.logs.get(roomId).push(newLog);
         return newLog;
     }
 

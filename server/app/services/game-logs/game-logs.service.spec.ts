@@ -5,8 +5,11 @@ import { GameLogsService } from './game-logs.service';
 
 describe('GameLogsService', () => {
     let service: GameLogsService;
+    let mockPlayer: Player;
 
     beforeEach(async () => {
+        mockPlayer = { id: '1', name: 'Player1' } as Player;
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [GameLogsService],
         }).compile();
@@ -19,7 +22,7 @@ describe('GameLogsService', () => {
     });
 
     it('should create a log', () => {
-        const players: Player[] = [{ id: '1', name: 'Player1' } as Player];
+        const players: Player[] = [mockPlayer];
         const message = 'Test message';
         const roomId = 'room1';
 
@@ -35,7 +38,7 @@ describe('GameLogsService', () => {
 
     it('should get game log', () => {
         const roomId = 'room1';
-        const players: Player[] = [{ id: '1', name: 'Player1' } as Player];
+        const players: Player[] = [mockPlayer];
         const message = 'Test message';
 
         service.createLog(players, message, roomId);
@@ -46,32 +49,18 @@ describe('GameLogsService', () => {
     });
 
     it('should send turn log if message is different', () => {
-        const player: Player = { id: '1', name: 'Player1' } as Player;
         const roomId = 'room1';
         const spyEmit = jest.spyOn(mockServer.to(roomId), 'emit');
 
-        service.sendTurnLog(player, roomId, mockServer);
+        service.sendTurnLog(mockPlayer, roomId, mockServer);
 
         expect(spyEmit).toHaveBeenCalledWith('logReceived', expect.any(Object));
     });
 
-    // it('should not send turn log if message is the same', () => {
-    //     const player: Player = { id: '1', name: 'Player1' } as Player;
-    //     const roomId = 'room1';
-    // 	const turnMessage = `Début du tour du joueur ${player.name}.`
-    //     const spyEmit = jest.spyOn(mockServer.to(roomId), 'emit');
-    //     service.lastLog.set(roomId, turnMessage);
-
-    //     service.sendTurnLog(player, roomId, mockServer);
-
-    //     expect(spyEmit).toHaveBeenCalledTimes(0);
-    // });
-
     it('should generate turn message', () => {
-        const player: Player = { id: '1', name: 'Player1' } as Player;
-        const message = service.generateTurnMessage(player);
+        const message = service.generateTurnMessage(mockPlayer);
 
-        expect(message).toBe(`Début du tour du joueur ${player.name}.`);
+        expect(message).toBe(`Début du tour du joueur ${mockPlayer.name}.`);
     });
 
     it('should generate give up game message', () => {
