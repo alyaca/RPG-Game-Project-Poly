@@ -17,6 +17,7 @@ import {
 import { DialogData } from '@app/interfaces/dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
+import { Player } from '@common/player';
 import { Room } from '@common/room';
 
 @Injectable({
@@ -27,6 +28,8 @@ export class GameService {
     isRoomLocked: boolean;
     isJoined: boolean = false;
     selectedGame: Game;
+    isActionDoorSelected: boolean = false;
+    isActionCombatSelected: boolean = false;
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
@@ -125,5 +128,9 @@ export class GameService {
                 this.router.navigate(['/home']);
             }
         });
+    }
+
+    hasActionPoints(player: Player) {
+        return player?.attributes.actionPoints > 0;
     }
 }

@@ -30,7 +30,6 @@ export class ChatService {
         this.socketCommunication.send('sendMessages', message);
     }
 
-    // Listen to messages received from the server
     onMessageReceived(callback: (message: ChatMessage) => void) {
         this.socketCommunication.on<IMessage>('messageReceived', (backendMessage) => {
             const formattedMessage: ChatMessage = {

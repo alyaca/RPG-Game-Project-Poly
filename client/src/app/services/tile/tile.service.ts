@@ -61,4 +61,19 @@ export class TileService {
         }
         return tiles;
     }
+
+    isDoorTile(row: number, col: number, array: number[][]) {
+        return array[row][col] === TileType.OpenDoor || array[row][col] === TileType.ClosedDoor;
+    }
+
+    toggleDoorState(clickedDoor: TileType) {
+        switch (clickedDoor) {
+            case TileType.ClosedDoor:
+                return TileType.OpenDoor;
+            case TileType.OpenDoor:
+                return TileType.ClosedDoor;
+            default:
+                return clickedDoor;
+        }
+    }
 }

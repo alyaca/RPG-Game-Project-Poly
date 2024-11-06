@@ -59,8 +59,7 @@ describe('SocketGateway', () => {
             getActivePlayer: jest.fn(),
             onTurnEnded: jest.fn(),
             onStartTurn: jest.fn(),
-            // onStartFight: jest.fn(),
-            // onEndFight: jest.fn(),
+            processNavigation: jest.fn(),
         };
 
         socket = {
@@ -293,21 +292,6 @@ describe('SocketGateway', () => {
         expect(gameService.onStartTurn).toHaveBeenCalled();
     });
 
-    // To change with fight implementation
-    // it('should call onStartFight startFight event', () => {
-    //     jest.spyOn(gameService, 'onStartFight');
-    //     gateway.handleStartFight(socket, mockPlayer);
-    //     expect(gameService.onStartFight).toHaveBeenCalled();
-    // });
-
-    // To change with fight implementation
-    // it('should call onEndFight endFight event', () => {
-    //     (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
-    //     jest.spyOn(gameService, 'onEndFight');
-    //     gateway.handleEndFight(socket);
-    //     expect(gameService.onEndFight).toHaveBeenCalled();
-    // });
-
     describe('handleMessage', () => {
         it('should handle sending and saving a message successfully', async () => {
             const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
@@ -363,5 +347,19 @@ describe('SocketGateway', () => {
             expect(logger.error).toHaveBeenCalled();
             expect(socket.emit).toHaveBeenCalledWith('errorMessage', 'Failed to send message.');
         });
+    });
+
+    it('should call processNavigation playerNavigation event', () => {
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        jest.spyOn(gameService, 'processNavigation');
+        const path = [{ x: 1, y: 2 }];
+        gateway.handlePlayerNavigation(mockClient, path);
+        expect(gameService.processNavigation).toHaveBeenCalled();
+    });
+
+    it('should call set tiles doorClicked event', () => {
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        gateway.handleDoorClicked(mockClient, mockGame.tiles);
+        expect(server.to(roomId).emit).toHaveBeenCalledWith('toggleDoor', mockGame.tiles);
     });
 });

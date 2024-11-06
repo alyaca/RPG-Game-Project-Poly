@@ -57,8 +57,8 @@
                     <p class="action-text">Porte</p>
                     <div
                         class="button-outer action-outer"
-                        [class.selected]="isActionDoorSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkDoors()"
+                        [class.selected]="gameService.isActionDoorSelected"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkDoors() || !hasActionPoints()"
                         (click)="toggleActionDoorSelected()"
                     >
                         <div class="action-button door-button"></div>
@@ -69,7 +69,7 @@
                     <p class="action-text">Attaquer</p>
                     <div
                         class="button-outer action-outer"
-                        [class.selected]="isActionCombatSelected"
+                        [class.selected]="gameService.isActionCombatSelected"
                         [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack()"
                         (click)="toggleActionCombatSelected()"
                     >

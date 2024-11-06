@@ -65,8 +65,8 @@ describe('GameTileInfoService', () => {
     describe('getPlayer', () => {
         it('should return null if no player is on the selected tile', () => {
             navigationServiceSpy.players = mockPlayers;
-            service.selectedRow = 1;
-            service.selectedCol = 1;
+            service.selectedRow = 2;
+            service.selectedCol = 2;
             expect(service.getPlayer()).toBeNull();
         });
 
@@ -85,8 +85,8 @@ describe('GameTileInfoService', () => {
         it('should return null if player positions do not match selectedRow and selectedCol', () => {
             navigationServiceSpy.players = mockPlayers;
 
-            service.selectedRow = 1;
-            service.selectedCol = 1;
+            service.selectedRow = 2;
+            service.selectedCol = 2;
             expect(service.getPlayer()).toBeNull();
         });
     });

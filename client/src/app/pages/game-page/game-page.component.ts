@@ -7,7 +7,7 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -40,11 +40,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     resetTrigger: boolean = false;
     saveTrigger: boolean = false;
     activePlayerName: string | null;
-    activePlayer: Player | undefined;
+    activePlayer: Player;
 
     isActivePlayer: boolean = false;
-    isActionDoorSelected: boolean = false;
-    isActionCombatSelected: boolean = false;
     isInCombat: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
@@ -57,7 +55,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        private gameService: GameService,
+        public gameService: GameService,
         private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
@@ -71,6 +69,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
+            this.activePlayer = this.allPlayers[0];
             this.replenishHealth();
             this.onBeforeStartTurn();
         });
@@ -93,7 +92,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+            const playerToAssign = this.navigationService.players.find((player) => player.id === playerId);
+            if (playerToAssign) {
+                this.activePlayer = playerToAssign;
+            }
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -114,8 +116,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onBeforeStartTurn() {
-        this.isActionCombatSelected = false;
-        this.isActionDoorSelected = false;
+        this.gameService.isActionCombatSelected = false;
+        this.gameService.isActionDoorSelected = false;
+        this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -130,10 +133,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getPlayerCount() {
-        if (this.allPlayers) {
-            return this.allPlayers.length;
-        }
-        return -1;
+        return this.allPlayers ? this.allPlayers.length : -1;
     }
 
     findMapDimensions(): string {
@@ -162,26 +162,23 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     toggleActionDoorSelected() {
-        this.isActionDoorSelected = !this.isActionDoorSelected;
-        this.isActionCombatSelected = false;
+        this.gameService.isActionDoorSelected = !this.gameService.isActionDoorSelected;
+        this.gameService.isActionCombatSelected = false;
     }
 
     toggleActionCombatSelected() {
-        this.isActionCombatSelected = !this.isActionCombatSelected;
-        this.isActionDoorSelected = false;
+        this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
+        this.gameService.isActionDoorSelected = false;
     }
 
     openCombatModal() {
-        if (this.activePlayer) {
-            const player1 = this.activePlayer;
-            const player2 = this.navigationService.checkAttack(this.activePlayer);
-            this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
-        }
+        const player1 = this.activePlayer;
+        const player2 = this.navigationService.checkAttack(this.activePlayer);
+        this.socketCommunicationService.send('startFight', () => ({ player1, player2 }));
     }
 
     closeCombatModal() {
         this.isInCombat = false;
-        // this.socketCommunicationService.send('endFight');
     }
 
     handleExit() {
@@ -225,20 +222,21 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     checkDoors() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkDoor(this.activePlayer)) {
-                return true;
-            }
+        if (this.navigationService.checkDoor(this.activePlayer)) {
+            return true;
         }
+
         return false;
     }
 
     checkAttack() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkAttack(this.activePlayer)) {
-                return true;
-            }
+        if (this.navigationService.checkAttack(this.activePlayer)) {
+            return true;
         }
         return false;
+    }
+
+    hasActionPoints() {
+        return this.gameService.hasActionPoints(this.activePlayer);
     }
 }
