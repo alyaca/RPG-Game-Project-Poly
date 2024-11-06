@@ -59,6 +59,7 @@ describe('SocketGateway', () => {
             getActivePlayer: jest.fn(),
             onTurnEnded: jest.fn(),
             onStartTurn: jest.fn(),
+            processNavigation: jest.fn(),
         };
 
         socket = {
@@ -346,5 +347,19 @@ describe('SocketGateway', () => {
             expect(logger.error).toHaveBeenCalled();
             expect(socket.emit).toHaveBeenCalledWith('errorMessage', 'Failed to send message.');
         });
+    });
+
+    it('should call processNavigation playerNavigation event', () => {
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        jest.spyOn(gameService, 'processNavigation');
+        const path = [{ x: 1, y: 2 }];
+        gateway.handlePlayerNavigation(mockClient, path);
+        expect(gameService.processNavigation).toHaveBeenCalled();
+    });
+
+    it('should call set tiles doorClicked event', () => {
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        gateway.handleDoorClicked(mockClient, mockGame.tiles);
+        expect(server.to(roomId).emit).toHaveBeenCalledWith('toggleDoor', mockGame.tiles);
     });
 });

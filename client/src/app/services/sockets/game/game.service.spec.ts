@@ -11,6 +11,7 @@ import {
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
 } from '@app/constants';
+import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
@@ -179,5 +180,15 @@ describe('GameService', () => {
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
+
+    it('should return true if player has action points', () => {
+        expect(service.hasActionPoints(mockPlayers[0])).toBeTrue();
+    });
+
+    it('should return false if player has no action points', () => {
+        const player = JSON.parse(JSON.stringify(mockPlayers[0]));
+        player.attributes.actionPoints = 0;
+        expect(service.hasActionPoints(player)).toBeFalse();
     });
 });

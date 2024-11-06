@@ -168,4 +168,29 @@ describe('TileService', () => {
             expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
         });
     });
+
+    it('should return true if the tile is ClosedDoor or OpenDoor', () => {
+        let row = 1;
+        const col = 1;
+        const array = [
+            [TileType.Ground, TileType.OpenDoor],
+            [TileType.Ground, TileType.ClosedDoor],
+        ];
+        const resultClose = service.isDoorTile(row, col, array);
+        expect(resultClose).toBeTrue();
+        row = 0;
+        const resultOpen = service.isDoorTile(row, col, array);
+        expect(resultOpen).toBeTrue();
+    });
+
+    it('should toggle door state', () => {
+        let result = service.toggleDoorState(TileType.ClosedDoor);
+        expect(result).toEqual(TileType.OpenDoor);
+
+        result = service.toggleDoorState(TileType.OpenDoor);
+        expect(result).toEqual(TileType.ClosedDoor);
+
+        result = service.toggleDoorState(TileType.Ground);
+        expect(result).toEqual(TileType.Ground);
+    });
 });

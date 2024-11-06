@@ -73,6 +73,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
+            this.activePlayer = this.allPlayers[0];
             this.replenishHealth();
             this.onBeforeStartTurn();
         });
@@ -122,9 +123,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            const player = this.navigationService.players.find((player) => player.id === playerId);
-            if (player) {
-                this.activePlayer = player;
+            const playerToAssign = this.navigationService.players.find((player) => player.id === playerId);
+            if (playerToAssign) {
+                this.activePlayer = playerToAssign;
             }
             this.isTurnStartShowed = this.isActivePlayer;
         });
@@ -163,10 +164,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     getPlayerCount() {
-        if (this.allPlayers) {
-            return this.allPlayers.length;
-        }
-        return -1;
+        return this.allPlayers ? this.allPlayers.length : -1;
     }
 
     findMapDimensions(): string {

@@ -1,8 +1,23 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    inject,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewChild,
+} from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -15,11 +30,12 @@ import { Room } from '@common/room';
 @Component({
     selector: 'app-game-grid',
     standalone: true,
-    imports: [GameObjectComponent],
+    imports: [GameObjectComponent, TilePlayerInfoComponent],
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
 export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
+    @ViewChild('entireMap') entireMap!: ElementRef;
     @Input() selectedSize: string | null = null;
     @Input() resetTrigger: boolean = false;
     @Input() saveTrigger: boolean = false;
@@ -27,6 +43,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() mapName: string;
     @Input() mapDescription: string;
     @Input() hasStarted: boolean;
+
     @Output() gridChange = new EventEmitter<number[][]>();
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
@@ -51,6 +68,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     fastestPath: Position[] = [];
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
+    isPopupVisible: boolean = false;
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
@@ -62,7 +80,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public tileService: TileService,
         public gameObjectService: GameObjectService,
         public gameCreationService: GameCreationService,
+        public gameTileInfoService: GameTileInfoService,
     ) {}
+
+    @HostListener('document:click', ['$event'])
+    onMapClick(event: MouseEvent) {
+        if (!this.entireMap.nativeElement.contains(event.target)) {
+            this.isPopupVisible = false;
+        }
+    }
 
     getSelectedTile(): string {
         return this.toolService.getSelectedTile();
@@ -82,6 +108,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints();
         });
+
         this.socketCommunicationService.on('toggleDoor', (gameTiles: number[][]) => {
             this.navigationService.gameMap.tiles = gameTiles;
             this.tilesGrid = gameTiles;
@@ -227,11 +254,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.sendInfoToMapCreationPage();
         }
     }
-    showDetails(row: number, col: number) {
-        const description = this.navigationService.showDetails(row, col);
-        if (description) {
-            // console.log(description);
+
+    showDetails(event: MouseEvent, row: number, col: number) {
+        event.preventDefault();
+        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
+            this.isPopupVisible = true;
+            this.gameTileInfoService.tileId = this.tilesGrid[row][col];
+            this.gameTileInfoService.itemId = this.objectsArray[row][col];
+            this.gameTileInfoService.selectedRow = row;
+            this.gameTileInfoService.selectedCol = col;
         }
+    }
+
+    closeTileDescription() {
+        this.isPopupVisible = false;
     }
 
     onTileClick(row: number, col: number) {
@@ -309,7 +345,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleDoorAction(row: number, col: number) {
-        let tiles = this.navigationService.gameMap.tiles;
+        const tiles = this.navigationService.gameMap.tiles;
         const playersObject = this.navigationService.gameMap.itemPlacement;
         if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && playersObject[row][col] < ObjectType.Spawn) {
             tiles[row][col] = this.tileService.toggleDoorState(tiles[row][col]);

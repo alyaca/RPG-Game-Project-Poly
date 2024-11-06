@@ -35,14 +35,37 @@ export const mockGameNavigation: Game = {
     nbPlayers: 1,
     image: 'mock-image.png',
     tiles: [
-        [TileType.Ground, TileType.Water, TileType.Wall],
-        [TileType.Ice, TileType.OpenDoor, TileType.Wall],
-        [TileType.Ice, TileType.Ice, TileType.Ice],
+        [TileType.Water, TileType.Water, TileType.Wall],
+        [TileType.Water, TileType.OpenDoor, TileType.Wall],
+        [TileType.Water, TileType.Water, TileType.Water],
     ],
     dimension: 3,
     itemPlacement: [
         [1, 0, 0],
         [0, 0, 0],
+        [0, 0, 0],
+    ],
+    isSelected: false,
+    lastModification: new Date(),
+};
+
+export const mockNeighborGame: Game = {
+    _id: '1',
+    name: 'map name',
+    description: 'description for map',
+    visible: true,
+    mode: 'normal',
+    nbPlayers: 1,
+    image: 'image for map',
+    tiles: [
+        [TileType.Ground, TileType.Ground, TileType.Wall],
+        [TileType.Ground, TileType.Ground, TileType.Ground],
+        [TileType.Wall, TileType.Ground, TileType.Ground],
+    ],
+    dimension: 3,
+    itemPlacement: [
+        [1, 0, 0],
+        [0, 0, 1],
         [0, 0, 0],
     ],
     isSelected: false,

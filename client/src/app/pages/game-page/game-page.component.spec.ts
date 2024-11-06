@@ -7,7 +7,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, TURN_TIME, WARNING_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME, WARNING_TIME } from '@app/constants';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -45,7 +46,7 @@ describe('GamePageComponent', () => {
         dialogRefSpy.afterClosed.and.returnValue(of('left'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints']);
         navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack']);
 
         await TestBed.configureTestingModule({
@@ -113,6 +114,77 @@ describe('GamePageComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    describe('ngOnInit', () => {
+        it('should set players and health on mapInformation event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'mapInformation') {
+                    callback(mockRoom as T);
+                }
+            });
+            component.activePlayer = mockLobbyPlayers[0];
+            spyOn(component, 'replenishHealth');
+            component.ngOnInit();
+            expect(component.allPlayers).toEqual(mockRoom.listPlayers);
+            expect(component.replenishHealth).toHaveBeenCalled();
+        });
+
+        it('should set players on mapInformation event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'disconnectedPlayer') {
+                    callback(mockLobbyPlayers as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.allPlayers).toEqual(mockLobbyPlayers);
+        });
+
+        it('should disconnect on draw event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'draw') {
+                    callback({} as T);
+                }
+            });
+            spyOn(component, 'handleDraw');
+            component.ngOnInit();
+            expect(component.handleDraw).toHaveBeenCalled();
+        });
+        it('should set active player name on otherPlayerTurn event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'otherPlayerTurn') {
+                    callback(mockPlayer.name as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.activePlayerName).toEqual(mockPlayer.name);
+        });
+        it('should disconnect on draw event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'playerFell') {
+                    callback({} as T);
+                }
+            });
+            spyOn(component, 'onPlayerFell');
+            component.ngOnInit();
+            expect(component.onPlayerFell).toHaveBeenCalled();
+        });
+    });
+
+    it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
+        mockSocket.id = '0';
+        navigationServiceSpy.players = JSON.parse(JSON.stringify(mockPlayers));
+        socketCommunicationServiceSpy.socket.id = mockPlayers[0].id;
+        spyOn(component, 'timerEvents');
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'isActive') {
+                callback(mockPlayers[0].id as T);
+            }
+        });
+        component.ngAfterViewInit();
+        expect(component.isActivePlayer).toBeTrue();
+        expect(component.isTurnStartShowed).toBeTrue();
+        expect(component.timerEvents).toHaveBeenCalled();
+    });
+
     it('should toggle isActionDoorSelected correctly', () => {
         const initialActionSelected = gameServiceSpy.isActionDoorSelected;
         component.toggleActionDoorSelected();
@@ -155,8 +227,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should replenish health for all players', () => {
-        const player = mockPlayer;
-        expect(player.attributes.currentHp).not.toEqual(player.attributes.totalHp);
+        expect(mockPlayer.attributes.currentHp).not.toEqual(mockPlayer.attributes.totalHp);
         component.replenishHealth();
         component.allPlayers.forEach((player) => {
             expect(player.attributes.currentHp).toEqual(player.attributes.totalHp);
@@ -186,20 +257,19 @@ describe('GamePageComponent', () => {
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
     });
 
-    /*it('should return true if checkDoor returns true', () => {
+    it('should return true if checkDoor returns true', () => {
         navigationServiceSpy.checkDoor.and.returnValue(mockPlayers[0].position);
         const result = component.checkDoors();
         expect(result).toBeTrue();
-    });*/
+    });
 
-    // it('should return false when checkDoor returns an invalid Position', () => {
-    //     navigationServiceSpy.checkDoor.and.returnValue(undefined);
-    //     const result = component.checkDoors();
-    //     expect(result).toBeFalse();
-    // });
+    it('should return false when checkDoor returns an invalid Position', () => {
+        navigationServiceSpy.checkDoor.and.returnValue(undefined);
+        const result = component.checkDoors();
+        expect(result).toBeFalse();
+    });
 
-    //supposed to work, a revoir
-    /*it('should return true if checkAttack returns true', () => {
+    it('should return true if checkAttack returns true', () => {
         navigationServiceSpy.checkAttack.and.returnValue(mockPlayers[0]);
         const result = component.checkAttack();
         expect(result).toBeTrue();
@@ -209,98 +279,68 @@ describe('GamePageComponent', () => {
         navigationServiceSpy.checkAttack.and.returnValue(undefined);
         const result = component.checkAttack();
         expect(result).toBeFalse();
-    });*/
+    });
 
-    // it('should return the correct player count when allPlayers is defined and has players', () => {
-    //     component.allPlayers = mockPlayers;
-    //     const result = component.getPlayerCount();
-    //     expect(result).toBe(1);
-    // });
-
-    // it('should return 0 when there are no players', () => {
-    //     component.allPlayers = [];
-    //     const result = component.getPlayerCount();
-    //     expect(result).toBe(0);
-    // });
-
-    /* it('should return -1 when when the number of players is undefined ', () => {
-        component.allPlayers;
+    it('should return the correct player count when allPlayers is defined and has players', () => {
+        component.allPlayers = mockPlayers;
         const result = component.getPlayerCount();
-        expect(result).toBe(-1);
-    });*/
+        expect(result).toBe(mockPlayers.length);
+    });
 
-    // it('should reset action selections before start of turn and send startTurn', () => {
-    //     gameServiceSpy.isActionCombatSelected = true;
-    //     gameServiceSpy.isActionDoorSelected = true;
-    //     component.onBeforeStartTurn();
-    //     expect(gameServiceSpy.isActionCombatSelected).toBeFalse();
-    //     expect(gameServiceSpy.isActionDoorSelected).toBeFalse();
-    //     expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startTurn');
-    // });
+    it('should return 0 when there are no players', () => {
+        component.allPlayers = [];
+        const result = component.getPlayerCount();
+        expect(result).toBe(0);
+    });
 
-    // it('should call gameService.openDialog with the correct parameters for onPlayerFell', () => {
-    //     gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Close));
-    //     component.onPlayerFell();
-    //     expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
-    //         title: DialogTitle.EndTurn,
-    //         messages: [DialogMessages.Fell],
-    //         confirm: false,
-    //         options: [DialogOptions.Close],
-    //     });
-    // });
+    it('should reset action selections before start of turn and send startTurn', () => {
+        component.activePlayer = mockPlayers[0];
+        gameServiceSpy.isActionCombatSelected = true;
+        gameServiceSpy.isActionDoorSelected = true;
+        component.onBeforeStartTurn();
+        expect(gameServiceSpy.isActionCombatSelected).toBeFalse();
+        expect(gameServiceSpy.isActionDoorSelected).toBeFalse();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startTurn');
+    });
 
-    // it('should call onEndTurn when the dialog result is DialogResult.Close', () => {
-    //     const endTurnSpy = spyOn(component, 'onEndTurn');
-    //     gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Close));
-    //     component.onPlayerFell();
-    //     expect(endTurnSpy).toHaveBeenCalled();
-    // });
+    it('should call gameService.openDialog with the correct parameters for onPlayerFell', () => {
+        const endTurnSpy = spyOn(component, 'onEndTurn');
+        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Close));
+        component.onPlayerFell();
+        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+            title: DialogTitle.EndTurn,
+            messages: [DialogMessages.Fell],
+            confirm: false,
+            options: [DialogOptions.Close],
+        });
+        expect(endTurnSpy).toHaveBeenCalled();
+    });
 
-    // //ne couvre pas la ligne 101...
-    // it('should update timeRemainingBeforeStartTurn when beforeStartTurnTimer event is emitted', () => {
-    //     socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-    //         if (event === 'startedTurnTimer') {
-    //             callback(TURN_TIME as T);
-    //         }
-    //     });
-    //     component.timerEvents();
-    //     expect(component.timeRemainingStartTurn).toBe(TURN_TIME);
-    // });
-
-    // //fonctionne
-    // it('should update allPlayers and call onBeforeStartTurn when turnEnded event is emitted', () => {
-    //     spyOn(component, 'onBeforeStartTurn');
-    //     socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-    //         if (event === 'turnEnded') {
-    //             callback(mockPlayers as T);
-    //         }
-    //     });
-    //     component.timerEvents();
-    //     expect(component.allPlayers).toBe(mockPlayers);
-    //     expect(component.onBeforeStartTurn).toHaveBeenCalled();
-    // });
-
-    //focntionne pas 93-94
-    /*it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
-        mockSocket.id ='0';
+    it('should update timeRemainingBeforeStartTurn when beforeStartTurnTimer event is emitted', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'isActive') {
-                callback(mockPlayer.id as T);
+            if (event === 'beforeStartTurnTimer') {
+                callback(STARTING_TIME as T);
             }
         });
-        component.ngAfterViewInit();
-        expect(component.isActivePlayer).toBeTrue();
-        expect(component.isTurnStartShowed).toBeTrue();
-    });*/
+        component.timerEvents();
+        expect(component.timeRemainingBeforeStartTurn).toBe(STARTING_TIME);
+    });
 
-    //for draw...
-    /*it('should call cketCommunicationService.disconnect and handleDraw when draw event is emitted', () => {
-        spyOn(component, 'handleDraw');
-        socketCommunicationServiceSpy.on.and.callFake((event: string, callback: () => void) => {
-            if (event === 'draw') {
-                callback(); }
-        component.ngAfterViewInit();
-        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
-        expect(component.handleDraw).toHaveBeenCalled();
-    });*/
+    it('should update allPlayers and call onBeforeStartTurn when turnEnded event is emitted', () => {
+        spyOn(component, 'onBeforeStartTurn');
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'turnEnded') {
+                callback(mockPlayers as T);
+            }
+        });
+        component.timerEvents();
+        expect(component.allPlayers).toBe(mockPlayers);
+        expect(component.onBeforeStartTurn).toHaveBeenCalled();
+    });
+
+    it('should call hasActionsPoint of gameService', () => {
+        gameServiceSpy.hasActionPoints.and.returnValue(true);
+        const result = component.hasActionPoints();
+        expect(result).toBe(true);
+    });
 });

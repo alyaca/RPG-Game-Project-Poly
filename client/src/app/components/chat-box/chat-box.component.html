@@ -28,9 +28,9 @@
             [disabled]="areLogsVisible"
         />
         @if(areLogsVisible && areLogsFiltered){
-        <img class="filter-icon" src="/assets/images/icones/filter.png" alt="filter" (click)="toggleLogsFilter()" />
+        <img class="filter-icon" src="./assets/images/icones/filter.png" alt="filter" (click)="toggleLogsFilter()" />
         } @else if(areLogsVisible && !areLogsFiltered){
-        <img class="filter-icon" src="/assets/images/icones/unfiltered.png" alt="filter" (click)="toggleLogsFilter()" />
+        <img class="filter-icon" src="./assets/images/icones/unfiltered.png" alt="filter" (click)="toggleLogsFilter()" />
         }
     </div>
 </div>
