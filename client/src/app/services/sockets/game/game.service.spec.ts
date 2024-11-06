@@ -187,7 +187,8 @@ describe('GameService', () => {
     });
 
     it('should return false if player has no action points', () => {
-        mockPlayers[0].attributes.actionPoints = 0;
-        expect(service.hasActionPoints(mockPlayers[0])).toBeFalse();
+        const player = JSON.parse(JSON.stringify(mockPlayers[0]));
+        player.attributes.actionPoints = 0;
+        expect(service.hasActionPoints(player)).toBeFalse();
     });
 });
