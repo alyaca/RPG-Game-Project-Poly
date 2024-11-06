@@ -10,7 +10,7 @@
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
         (click)="handleTileClick(rowIndex, colIndex)"
-        (contextmenu)="showDetails(rowIndex, colIndex)"
+        (contextmenu)="showDetails($event, rowIndex, colIndex)"
     >
         <img
             class="tile-image"
@@ -41,3 +41,6 @@
     </div>
     } }
 </div>
+@if(isPopupVisible){
+<app-tile-player-info> (closePopup)="closeTileDescription($event)" </app-tile-player-info>
+}

@@ -9,6 +9,7 @@ import { mockPlayer, playerNavigation } from '@app/mocks/mock-player';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -35,8 +36,10 @@ describe('GameGridComponent', () => {
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let gameTileInfoServiceSpy: jasmine.SpyObj<GameTileInfoService>;
 
     beforeEach(async () => {
+        gameTileInfoServiceSpy = jasmine.createSpyObj('GameTileInfoService', ['tileId', 'itemId', 'selectedRow', 'selectedCol']);
         mockSocket = { data: { roomCode: '1234' }, id: 'admin' } as unknown as Socket;
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'resetGrid', 'removeTile', 'toggleDoorState']);
         gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
@@ -107,6 +110,7 @@ describe('GameGridComponent', () => {
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: NavigationService, useValue: navigationServiceSpy },
                 { provide: GameService, useValue: gameServiceSpy },
+                { provide: GameTileInfoService, useValue: gameTileInfoServiceSpy },
             ],
         }).compileComponents();
 
@@ -168,6 +172,25 @@ describe('GameGridComponent', () => {
         });
     });
 
+    it('showDetails should set attributes', () => {
+        component.tilesGrid = mockGameNavigation.tiles;
+        component.objectsArray = mockGameNavigation.itemPlacement;
+        gameCreationServiceSpy.isModifiable = false;
+        component.isActivePlayer = true;
+        const event = new MouseEvent('click', { button: 2 });
+        component.showDetails(event, 0, 0);
+        expect(component.isPopupVisible).toBeTrue();
+        expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
+        expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
+        expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
+        expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
+    });
+
+    it('closeTileDescription should set isPopUpVisible to false', () => {
+        component.closeTileDescription();
+        expect(component.isPopupVisible).toBeFalse();
+    });
+
     describe('socket listener', () => {
         it('should listen to mapInformation event onInit', () => {
             spyOn(component, 'displayPortraitOnSpawnPoints');
@@ -224,10 +247,23 @@ describe('GameGridComponent', () => {
             expect(findReachablesTileSpy).toHaveBeenCalled();
         });
 
-        // Will need to change based on the real show details function
-        it('should return the description', () => {
-            navigationServiceSpy.showDetails.and.returnValue('tile description');
-            expect(component.showDetails(1, 1)).toEqual('tile description');
+        it('showDetails should set attributes', () => {
+            component.tilesGrid = mockGameNavigation.tiles;
+            component.objectsArray = mockGameNavigation.itemPlacement;
+            gameCreationServiceSpy.isModifiable = false;
+            component.isActivePlayer = true;
+            const event = new MouseEvent('click', { button: 2 });
+            component.showDetails(event, 0, 0);
+            expect(component.isPopupVisible).toBeTrue();
+            expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
+            expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
+            expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
+            expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
+        });
+
+        it('closeTileDescription should set isPopUpVisible to false', () => {
+            component.closeTileDescription();
+            expect(component.isPopupVisible).toBeFalse();
         });
 
         it('should listen to endMovement event onInit', () => {
