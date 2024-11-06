@@ -95,16 +95,13 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         });
 
         this.socketCommunicationService.on('playerDead', (player: Player) => {
-            //on recois le perdant du combat (pas le tour)
             this.activePlayer.victories++;
             this.combatStatus = player.name + ' est mort';
-            console.log('combat ended, ', player, ' is dead');
         });
 
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
             //TODO : implementer dans le front
             this.combatStatus = player.name + " a réussi à s'évader";
-            console.log('evasion success for ', player.name);
         });
     }
     //a placer dans une service:
