@@ -202,13 +202,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.gameService.isActionDoorSelected = false;
     }
 
-    openCombatModal() {
-        const player1 = this.navigationService.getActivePlayer();
-        const player2 = this.navigationService.checkAttack();
-        this.navigationService.getActivePlayer().attributes.actionPoints = 0;
-        this.socketCommunicationService.send('startFight', { player1, player2 });
-    }
-
     closeCombatModal() {
         this.isInCombat = false;
     }

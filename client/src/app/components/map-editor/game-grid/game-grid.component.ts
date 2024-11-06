@@ -15,6 +15,7 @@ import {
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -339,11 +340,23 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleDoorAction(row, col);
             return;
+        } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
+            this.handleFightAction(row, col);
+            return;
         } else if (this.tilesGrid[row][col] !== TileType.ClosedDoor) {
             this.sendNavigation(row, col);
         }
     }
 
+    handleFightAction(row: number, col: number) {
+        if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && this.objectsArray[row][col] > ObjectType.Spawn) {
+            this.activePlayer.attributes.actionPoints--;
+            this.gameService.isActionCombatSelected = false;
+            const player1 = this.activePlayer;
+            const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
+            this.socketCommunicationService.send('startFight', { player1, player2 });
+        }
+    }
     handleDoorAction(row: number, col: number) {
         const tiles = this.navigationService.gameMap.tiles;
         const playersObject = this.navigationService.gameMap.itemPlacement;
@@ -355,6 +368,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.socketCommunicationService.send('doorClicked', tiles);
             this.findReachableTiles();
         }
+    }
+
+    getPlayerByAvatarName(players: Player[], id: ObjectType) {
+        const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
+        const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
+        return clickedPlayer;
     }
 
     async sendNavigation(row: number, col: number) {
