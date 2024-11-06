@@ -33,7 +33,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.radius = TIMER_RADIUS;
         this.circumference = 2 * Math.PI * this.radius;
-        this.start();
     }
 
     ngOnDestroy() {
