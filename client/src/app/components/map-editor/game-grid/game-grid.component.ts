@@ -67,10 +67,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     fastestPath: Position[] = [];
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
-
     isPopupVisible: boolean = false;
-    popupX: number = 0;
-    popupY: number = 0;
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
