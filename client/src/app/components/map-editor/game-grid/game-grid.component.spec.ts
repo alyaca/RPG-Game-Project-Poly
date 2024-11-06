@@ -2,9 +2,11 @@ import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { mockGames } from '@app/mocks/mock-game';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { mockGameNavigation } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
-import { playerNavigation } from '@app/mocks/mock-player';
+import { mockPlayer, playerNavigation } from '@app/mocks/mock-player';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -14,6 +16,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
+import { Position, Status } from '@common/player';
 import { Socket } from 'socket.io-client';
 import { GameGridComponent } from './game-grid.component';
 
@@ -68,6 +71,11 @@ describe('GameGridComponent', () => {
             'checkFell',
             'getPortraitId',
             'isPositionWithinBounds',
+            'isReachableTile',
+            'removePlayer',
+            'showDetails',
+            'haveActions',     
+            'gameMap',       
         ]);
 
         tileServiceSpy.resetGrid.and.callFake((gridSize: number) => {
@@ -185,6 +193,24 @@ describe('GameGridComponent', () => {
             expect(component.findReachableTiles).toHaveBeenCalled();
         });
 
+        it('should set isActivePlayer and currentPlayer when playerId matches socket ID', () => {
+            const mockPlayer = mockLobbyPlayers[0];
+            socketCommunicationServiceSpy.socket.id = mockPlayer.id;
+            navigationServiceSpy.players = mockLobbyPlayers;
+            spyOn(component, 'findReachableTiles');
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'isActive') {
+                    callback(mockPlayer as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.isActivePlayer).toBeTrue();
+            expect(component.currentPlayer).toEqual(mockPlayer);
+            expect(component.findReachableTiles).toHaveBeenCalled();
+            
+        });
+
+
         it('should listen to endMovement event onInit', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'endMovement') {
@@ -195,6 +221,29 @@ describe('GameGridComponent', () => {
             component.ngOnInit();
             expect(component.isMoving).toBe(false);
         });
+
+        it('should listen to playerNavigation event onInit', () => {
+            const mockPosition: Position = { x: 3, y: 4 };
+            spyOn(component, 'navigateToTile');
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'playerNavigation') {
+                    callback(mockPosition as T)
+                }
+            });
+            component.ngOnInit();
+            expect(component.navigateToTile).toHaveBeenCalledWith(mockPosition);
+        });
+
+        it('should listen to playerDisconnected event onInit', () => {
+            const mockDisconnectedPlayer = { ...mockPlayer, status: Status.Disconnected };
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'playerDisconnected') {
+                    callback(mockDisconnectedPlayer as T)
+                }
+            });
+            component.ngOnInit();
+            expect(navigationServiceSpy.removePlayer).toHaveBeenCalled();
+        })
     });
 
     describe('deepCopyMatrix', () => {
@@ -271,7 +320,26 @@ describe('GameGridComponent', () => {
             component.onMouseUp();
             expect(component.isMouseDown).toBeFalse();
         });
+        
     });
+    
+    //teste ligne 272
+    it('should call navigationService.isReachableTile with the correct row and column', () => {
+        const row = 2;
+        const col = 3;
+        component.isReachableTile(row, col);
+        expect(navigationServiceSpy.isReachableTile).toHaveBeenCalledWith(row, col);
+        
+    });
+
+    
+    //224-225 a voir avec will
+    /*it('should call navigationService.showDetails with the correct row and column', () => {
+        const row = 2;
+        const col = 3;
+        component.showDetails(row, col);
+        expect(navigationServiceSpy.showDetails).toHaveBeenCalledWith(row, col);
+    });*/
 
     describe('drag event', () => {
         it('should prevent default behaviour on drag over ', () => {
@@ -410,8 +478,8 @@ describe('GameGridComponent', () => {
 
         expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
     });
-    /*
-    it('should call navigationService.findReachableTiles with the correct arguments', () => {
+    
+    /*it('should call navigationService.findReachableTiles with the correct arguments', () => {
         const mockReachableTiles = [
             { x: 0, y: 1 },
             { x: 1, y: 2 },
@@ -423,6 +491,95 @@ describe('GameGridComponent', () => {
         component.findReachableTiles();
 
         expect(component.reachableTiles).toEqual(mockReachableTiles);
-    });
-    */
+    });*/
+
+        //fonctionne pas 
+        it('should call navigationService.findReachableTiles with correct arguments when findReachableTiles is called', () => {
+            const player= playerNavigation;
+            const map = mockGameNavigation;
+            const movement = playerNavigation.attributes.movementPointsLeft;
+            component.findReachableTiles();
+            expect(navigationServiceSpy.findReachableTiles).toHaveBeenCalledWith(player, map, movement);
+                
+        });
+
+        describe('findReachableTiles', () => {
+            it('should reset reachableTiles to an empty array', () => {
+                const component = fixture.componentInstance;
+                component.reachableTiles = [{ x: 1, y: 2 }, { x: 3, y: 4 }];
+                component.findReachableTiles();
+
+                expect(component.reachableTiles).toEqual([]);
+            });
+
+            it('should do nothing if activePlayer is not set ', () => {
+                const component = fixture.componentInstance;
+                component.activePlayer = undefined;
+                component.findReachableTiles();
+
+                expect(navigationServiceSpy.findReachableTiles).not.toHaveBeenCalled();
+                expect(component.reachableTiles).toEqual([]);
+            });
+            
+            it('should call navigationService.findReachableTiles with correct arguments when findReachableTiles is called', () => {
+                const mockPlayer = mockLobbyPlayers[0];
+                component.currentPlayer = mockPlayer;
+                const row = 2;
+                const col = 3;
+
+                component.findPath(row, col);
+                expect(component['navigationService'].findFastestPath).toHaveBeenCalledWith(mockPlayer, { x: row, y: col }, navigationServiceSpy.gameMap);
+            }); 
+        });
+
+
+
+        it('should call navigationService.findFastestPath with correct arguments when findPath is called and the tile is reachable', () => {
+            const row = 2;  
+            const col = 3; 
+            const player = playerNavigation; 
+            const destination = { x: row, y: col };  
+            const map = mockGames[0];  
+            component.findPath(row, col);
+            expect(navigationServiceSpy.findFastestPath).toHaveBeenCalledWith(
+                player,
+                destination,
+                map
+            );
+        });
+    
+        it('should not call navigationService.findFastestPath if the tile is not reachable', () => {
+            navigationServiceSpy.isReachableTile.and.returnValue(false);
+            const row = 2;  
+            const col = 3;  
+            component.findPath(row, col);
+            expect(navigationServiceSpy.findFastestPath).not.toHaveBeenCalled();
+        });
+
+
+        describe('CheckEndTurn', () => {
+            it('should send endTurn when the player has no actions and no reachable tiles', () => {
+                component.activePlayer = playerNavigation;  
+                component.currentPlayer = playerNavigation;
+                navigationServiceSpy.haveActions.and.returnValue(false);
+        
+                component.checkEndTurn();
+        
+                expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
+            });
+        });
+
+
+        it('should send endTurn when the player has movement points left but no actions', () => {
+            component.activePlayer = playerNavigation; 
+            component.currentPlayer = playerNavigation;
+            component.activePlayer.attributes.movementPointsLeft = 1;  
+            navigationServiceSpy.findReachableTiles.and.returnValue([]);  
+            navigationServiceSpy.haveActions.and.returnValue(false);  
+            
+            component.checkEndTurn();
+            
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
+        });
+
 });
