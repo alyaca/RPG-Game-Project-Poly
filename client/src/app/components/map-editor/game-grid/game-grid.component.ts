@@ -82,6 +82,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints();
         });
+
         this.socketCommunicationService.on('toggleDoor', (gameTiles: number[][]) => {
             this.navigationService.gameMap.tiles = gameTiles;
             this.tilesGrid = gameTiles;
@@ -220,11 +221,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.sendInfoToMapCreationPage();
         }
     }
+
+    // idk, just for tests
     showDetails(row: number, col: number) {
-        const description = this.navigationService.showDetails(row, col);
-        if (description) {
-            // console.log(description);
-        }
+        return this.navigationService.showDetails(row, col);
     }
 
     onTileClick(row: number, col: number) {
@@ -274,6 +274,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     findReachableTiles() {
         this.reachableTiles = [];
+        console.log(this.reachableTiles);
         if (!this.activePlayer) return;
         this.reachableTiles = this.navigationService.findReachableTiles(
             this.activePlayer,
