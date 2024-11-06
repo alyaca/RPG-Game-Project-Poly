@@ -102,10 +102,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('endGame', (winner: Player) => {
+            this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
                     title: DialogTitle.EndGame,
-                    messages: [winner.name],
+                    messages: ['Le gagnant de la partie est : ' + winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
                 })

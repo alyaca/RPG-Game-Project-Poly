@@ -57,3 +57,7 @@ export enum TileCost {
     Ice = 0,
     OpenDoor = 1,
 }
+
+export const VICTORIES = 3;
+export const EVASION_LUCK = 40;
+export const EVASION_RANDOM = 100;

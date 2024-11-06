@@ -1,3 +1,4 @@
+import { EVASION_LUCK, EVASION_RANDOM, VICTORIES } from '@app/constants';
 import { CombatInfo } from '@common/combat-info';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -31,7 +32,7 @@ export class CombatService {
         }
     }
 
-    emitToCombatPlayers(server: Server, event: string, data?: T) {
+    emitToCombatPlayers(server: Server, event: string, data?) {
         server.to(this.activePlayer.id).emit(event, data);
         server.to(this.defensePlayer.id).emit(event, data);
     }
@@ -90,18 +91,15 @@ export class CombatService {
     }
 
     isEvasionSuccessful() {
-        return 40 < this.getRandom(100);
+        return EVASION_LUCK < this.getRandom(EVASION_RANDOM);
     }
 
     checkIfPlayerIsDead(client: Socket, player1: Player, player2: Player, server: Server) {
         if (player1.attributes.currentHp <= 0) {
             const room = this.roomService.getRoom(client);
-            player2.victories++;
-            const playerIndex = room.listPlayers.findIndex((p) => p.id === player2.id);
-            if (playerIndex !== -1) {
-                room.listPlayers[playerIndex] = player2;
-            }
-            this.checkEndGame(room.listPlayers, server);
+            const playerWinner = room.listPlayers.find((p) => p.id === player2.id);
+            playerWinner.victories++;
+            this.checkEndGame(room.listPlayers, room, server);
             this.emitToCombatPlayers(server, 'playerDead', player1);
             this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
 
@@ -119,10 +117,11 @@ export class CombatService {
         return false;
     }
 
-    checkEndGame(listPlayers: Player[], server: Server) {
+    checkEndGame(listPlayers: Player[], room: Room, server: Server) {
         listPlayers.forEach((player) => {
-            if (player.victories >= 3) {
+            if (player.victories >= VICTORIES) {
                 this.emitToCombatPlayers(server, 'endGame', player);
+                this.gameService.stopGameTimers(room);
             }
         });
     }

@@ -95,7 +95,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
         });
 
         this.socketCommunicationService.on('playerDead', (player: Player) => {
-            this.activePlayer.victories++;
+            // this.activePlayer.victories++;
             this.combatStatus = player.name + ' est mort';
         });
 
