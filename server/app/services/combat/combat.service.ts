@@ -118,7 +118,7 @@ export class CombatService {
     checkEndGame(listPlayers: Player[], room: Room, server: Server) {
         listPlayers.forEach((player) => {
             if (player.victories >= VICTORIES) {
-                this.emitToCombatPlayers(server, 'endGame', player);
+                server.to(room.roomId).emit('endGame', player);
                 this.gameService.stopGameTimers(room);
             }
         });
