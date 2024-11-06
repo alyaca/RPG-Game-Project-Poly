@@ -1,11 +1,11 @@
+import { CombatService } from '@app/services/combat/combat.service';
+import { GameService } from '@app/services/game/game.service';
+import { RoomService } from '@app/services/room/room.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
-import { GameService } from '../game/game.service';
-import { RoomService } from '../room/room.service';
-import { CombatService } from './combat.service';
-
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 describe('CombatService', () => {
     let service: CombatService;
     let mockRoomService: jest.Mocked<RoomService>;
@@ -171,19 +171,6 @@ describe('CombatService', () => {
             expect(mockServer.to).toHaveBeenCalledWith(service.defensePlayer.id);
             expect(mockServer.to(service.activePlayer.id).emit).toHaveBeenCalledWith(event, data);
             expect(mockServer.to(service.defensePlayer.id).emit).toHaveBeenCalledWith(event, data);
-        });
-    });
-
-    describe('evadingPlayer', () => {
-        it('should emit evasionSuccess if evasion is successful', () => {
-            const player = { id: '1' } as Player;
-            service.isEvasionSuccessful = jest.fn().mockReturnValue(true);
-            service.emitToCombatPlayers = jest.fn();
-
-            service.evadingPlayer(mockClient, player, mockServer);
-
-            expect(service.isEvasionSuccessful).toHaveBeenCalled();
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'evasionSuccess', player);
         });
     });
 

@@ -2,6 +2,7 @@ import { IMessage } from '@app/interfaces/message.interface';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { ChatService } from '@app/services/chat/chat.service';
+import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -25,6 +26,7 @@ describe('SocketGateway', () => {
     let roomId: string;
     let mockClient: Socket;
     let mockPlayer: Player;
+    let combatService: CombatService;
 
     beforeEach(async () => {
         const chatServiceMock = {
@@ -32,6 +34,10 @@ describe('SocketGateway', () => {
             getMessagesByRoom: jest.fn(),
         };
 
+        const combatServiceMock = {
+            startFight: jest.fn(),
+            attackPlayer: jest.fn(),
+        };
         const matchServiceMock = {
             processMapObjects: jest.fn(),
         };
@@ -105,6 +111,7 @@ describe('SocketGateway', () => {
                 { provide: GameService, useValue: gameServiceMock },
                 { provide: ChatService, useValue: chatServiceMock },
                 { provide: MatchService, useValue: matchServiceMock },
+                { provide: CombatService, useValue: combatServiceMock },
             ],
         }).compile();
 
@@ -113,7 +120,7 @@ describe('SocketGateway', () => {
         gameService = module.get<GameService>(GameService);
         chatService = module.get<ChatService>(ChatService);
         matchService = module.get<MatchService>(MatchService);
-
+        combatService = module.get<CombatService>(CombatService);
         gateway['server'] = server;
     });
 

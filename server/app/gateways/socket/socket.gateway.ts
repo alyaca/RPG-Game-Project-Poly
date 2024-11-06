@@ -21,9 +21,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private matchService: MatchService,
         private roomService: RoomService,
         private logger: Logger,
-        private gameService: GameService,
         private chatService: ChatService,
         private combatService: CombatService,
+        private gameService: GameService,
     ) {}
 
     @SubscribeMessage(SocketEvents.CreateRoom)

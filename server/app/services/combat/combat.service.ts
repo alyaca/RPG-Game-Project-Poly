@@ -1,18 +1,13 @@
 import { EVASION_LUCK, EVASION_RANDOM, VICTORIES } from '@app/constants';
+import { GameService } from '@app/services/game/game.service';
+import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { GameService } from '../game/game.service';
-import { RoomService } from '../room/room.service';
-
 @Injectable()
 export class CombatService {
-    constructor(
-        private roomService: RoomService,
-        private gameService: GameService,
-    ) {}
     combatInfos = new Map<string, CombatInfo>();
     activePlayer: Player;
     defensePlayer: Player;
@@ -20,7 +15,10 @@ export class CombatService {
     player2Socket: Socket;
 
     private gameTime: number;
-
+    constructor(
+        private roomService: RoomService,
+        private gameService: GameService,
+    ) {}
     getRoomSockets(roomId: string, server: Server) {
         return server.sockets.adapter.rooms.get(roomId);
     }
