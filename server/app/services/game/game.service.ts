@@ -1,10 +1,10 @@
 import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { GameLogsService } from '../game-logs/game-logs.service';
 
 @Injectable()
 export class GameService {

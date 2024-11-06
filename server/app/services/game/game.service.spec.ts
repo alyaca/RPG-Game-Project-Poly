@@ -514,6 +514,7 @@ describe('GameService', () => {
             service.onStartTurn(mockSocket, mockServer);
             turnTimerCallback(remainingTime);
             expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('otherPlayerTurn', listPlayers[0].name);
+            expect(gameLogsService.sendTurnLog).toHaveBeenCalled();
             expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('beforeStartTurnTimer', remainingTime);
 
             turnTimerCallback(0);

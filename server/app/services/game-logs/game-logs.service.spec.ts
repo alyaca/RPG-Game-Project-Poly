@@ -29,9 +29,9 @@ describe('GameLogsService', () => {
         const log = service.createLog(players, message, roomId);
 
         expect(log).toEqual({
-            message: message,
+            message,
             timestamp: expect.any(Date),
-            players: players,
+            players,
         });
         expect(service.logs.get(roomId)).toContain(log);
     });

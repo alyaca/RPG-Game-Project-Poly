@@ -125,6 +125,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         await this.saveMessage(client, messageWithRoomId);
     }
 
+    @SubscribeMessage(SocketEvents.SendGameLog)
+    handleGameLog(client: Socket, log: string) {
+        const roomId = this.roomService.getRoomId(client);
+        this.logger.log(`Game log received: ${log} from ${client.id} with roomCode: ${roomId}`);
+        client.to(roomId).emit('gameLogReceived', log);
+    }
+
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
@@ -140,13 +147,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             this.logger.error(`Failed to save message: ${error.message}`);
             client.emit('errorMessage', 'Failed to send message.');
         }
-    }
-
-    @SubscribeMessage(SocketEvents.SendGameLog)
-    handleGameLog(client: Socket, log: string) {
-        const roomId = this.roomService.getRoomId(client);
-        this.logger.log(`Game log received: ${log} from ${client.id} with roomCode: ${roomId}`);
-        client.to(roomId).emit('gameLogReceived', log);
     }
 
     onModuleInit() {

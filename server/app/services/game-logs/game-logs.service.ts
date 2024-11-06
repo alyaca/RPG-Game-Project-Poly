@@ -6,11 +6,11 @@ import { Server } from 'socket.io';
 @Injectable()
 export class GameLogsService {
     logs = new Map<string, ILogMessage[]>();
-    public lastLog = new Map<string, string>();
+    lastLog = new Map<string, string>();
 
     createLog(players: Player[], message: string, roomId: string) {
         const date = new Date();
-        const newLog = { message: message, timestamp: date, players: players };
+        const newLog = { message, timestamp: date, players };
         if (!this.logs.has(roomId)) {
             this.logs.set(roomId, []);
         }
@@ -28,10 +28,7 @@ export class GameLogsService {
 
     sendTurnLog(player: Player, roomId: string, server: Server) {
         const currentLog = this.lastLog.get(roomId);
-        console.log('currentLog', currentLog);
-
         const message = this.generateTurnMessage(player);
-        console.log('message', message);
         if (currentLog !== message) {
             this.lastLog.set(roomId, message);
             const log = this.createLog([player], message, roomId);
