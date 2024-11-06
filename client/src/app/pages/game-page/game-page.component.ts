@@ -91,28 +91,34 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.combatService.initializeCombat(data.player1, data.player2);
         });
 
-        this.socketCommunicationService.on('combatEnd', () => {
+        this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
             this.activePlayer.attributes.actionPoints = 0;
-            this.updatePlayerList();
             this.closeCombatModal();
         });
 
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
         });
+
+        this.socketCommunicationService.on('endGame', (winner: Player) => {
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.EndGame,
+                    messages: [winner.name],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                })
+                .subscribe((result) => {
+                    if (result === DialogResult.Close) {
+                        this.router.navigate(['/home']);
+                    }
+                });
+        });
     }
 
     attackPlayer() {
         this.socketCommunicationService.send('attackPlayer');
-    }
-
-    updatePlayerList() {
-        if (this.activePlayer) {
-            const index = this.allPlayers.findIndex((player) => player.id === this.activePlayer!.id);
-            if (index !== -1) {
-                this.allPlayers[index] = this.activePlayer;
-            }
-        }
     }
 
     ngAfterViewInit() {

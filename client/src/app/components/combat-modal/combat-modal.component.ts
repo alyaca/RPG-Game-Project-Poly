@@ -78,7 +78,6 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
                 this.activePlayer.attributes.attack = data.activePlayer.attackValue;
                 this.defensePlayer.attributes.defense = data.defensePlayer.defenseValue;
                 //<button class="temp-attack" (click)="attackPlayer()">Attack</button>
-                console.log('att : ' + data.activePlayer.attackValue, 'def : ' + data.defensePlayer.defenseValue);
             },
         );
 

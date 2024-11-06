@@ -15,8 +15,10 @@ export class CombatService {
     activePlayer: Player;
     defensePlayer: Player;
     private gameTime: number;
+    private isAttackDone: boolean = false;
 
     startFight(client: Socket, player1: Player, player2: Player, server: Server) {
+        this.isAttackDone = false;
         const room = this.roomService.getRoom(client);
         this.activePlayer = player1;
         this.defensePlayer = player2;
@@ -27,6 +29,10 @@ export class CombatService {
         const callback = (timeRemaining: number) => {
             server.emit('combatTime', timeRemaining);
             if (timeRemaining <= 0) {
+                if (!this.isAttackDone) {
+                    this.attackPlayer(client, server);
+                }
+                this.isAttackDone = false;
                 if (this.activePlayer === player1) {
                     this.activePlayer = player2;
                     this.defensePlayer = player1;
@@ -38,13 +44,14 @@ export class CombatService {
                 this.roomService.getFightTimer(room.roomId).resetTimer(5, callback);
             }
         };
+
         this.roomService.getFightTimer(room.roomId).resetTimer(5, callback);
     }
 
     attackPlayer(client: Socket, server: Server) {
+        if (this.isAttackDone) return;
         const attackValue = this.activePlayer.attributes.attack + this.getRandom(this.activePlayer.attributes.atkDiceMax);
         const defenseValue = this.defensePlayer.attributes.defense + this.getRandom(this.defensePlayer.attributes.defDiceMax);
-        console.log('att : ' + attackValue, 'def : ' + defenseValue);
         server.emit('attackValues', {
             activePlayer: { player: this.activePlayer, attackValue },
             defensePlayer: { player: this.defensePlayer, defenseValue },
@@ -60,6 +67,8 @@ export class CombatService {
         } else {
             server.emit('drawCombat');
         }
+        server.emit('CombatTurnEnded', this.activePlayer);
+        this.isAttackDone = true;
     }
 
     evadingPlayer(client: Socket, player: Player, server: Server) {
@@ -69,19 +78,24 @@ export class CombatService {
     }
 
     isEvasionSuccessful() {
-        return 40 < this.getRandom(100); //Constant
+        return 40 < this.getRandom(100);
     }
 
     checkIfPlayerIsDead(client: Socket, player1: Player, player2: Player, server: Server) {
         if (player1.attributes.currentHp <= 0) {
             const room = this.roomService.getRoom(client);
             player2.victories++;
+            console.log('player2 victories: ', player2.victories);
+            const playerIndex = room.listPlayers.findIndex((p) => p.id === player2.id);
+            if (playerIndex !== -1) {
+                room.listPlayers[playerIndex] = player2;
+            }
+            this.checkEndGame(room.listPlayers, server);
             server.emit('playerDead', player1);
             setTimeout(() => {
-                server.emit('combatEnd', player2);
-            }, 2000);
+                server.emit('combatEnd', room.listPlayers);
+            }, 3000);
 
-            //server.emit('combatEnd', player2);
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
                 if (timeRemaining <= 0) {
                     server.emit('turnEnded', room.listPlayers);
@@ -96,28 +110,15 @@ export class CombatService {
         return false;
     }
 
-    getRandom(max: number) {
-        return Math.floor(Math.random() * max + 1); //Pas sur de +1
+    checkEndGame(listPlayers: Player[], server: Server) {
+        listPlayers.forEach((player) => {
+            if (player.victories >= 3) {
+                server.emit('endGame', player);
+            }
+        });
     }
 
-    createCombatInfo(roomId: string, player1: Player, player2: Player) {
-        const combatInfo: CombatInfo = {
-            isPlayer1Damaged: false,
-            isPlayer2Damaged: false,
-            statValue1: 0,
-            statValue2: 0,
-            displayText: '',
-            isGameOngoing: true,
-            currPlayerNum: '',
-            evasionsArray1: new Array(2).fill(1),
-            evasionsArray2: new Array(2).fill(1),
-            playerStat1: '',
-            playerStat2: '',
-            roles: {},
-            isDraw: false,
-            attackInProgress: false,
-            player1: player1,
-            player2: player2,
-        };
+    getRandom(max: number) {
+        return Math.floor(Math.random() * max + 1);
     }
 }
