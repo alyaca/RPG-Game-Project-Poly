@@ -117,10 +117,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-    attackPlayer() {
-        this.socketCommunicationService.send('attackPlayer');
-    }
-
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (playerId: string) => {
             this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;

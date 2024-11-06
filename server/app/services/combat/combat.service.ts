@@ -1,5 +1,6 @@
 import { CombatInfo } from '@common/combat-info';
 import { Player } from '@common/player';
+import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { GameService } from '../game/game.service';
@@ -15,41 +16,34 @@ export class CombatService {
     activePlayer: Player;
     defensePlayer: Player;
     private gameTime: number;
-    private isAttackDone: boolean = false;
 
     startFight(client: Socket, player1: Player, player2: Player, server: Server) {
-        this.isAttackDone = false;
         const room = this.roomService.getRoom(client);
         this.activePlayer = player1;
         this.defensePlayer = player2;
         this.gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        server.emit('startFight', { player1, player2 });
+        server.to(room.roomId).emit('startFight', { player1, player2 });
+        this.onStartTurn(client, server, room);
+    }
 
-        const callback = (timeRemaining: number) => {
-            server.emit('combatTime', timeRemaining);
+    onStartTurn(client: Socket, server: Server, room: Room) {
+        this.roomService.getFightTimer(room.roomId).resetTimer(5, (timeRemaining: number) => {
+            server.to(room.roomId).emit('combatTime', timeRemaining);
             if (timeRemaining <= 0) {
-                if (!this.isAttackDone) {
-                    this.attackPlayer(client, server);
-                }
-                this.isAttackDone = false;
-                if (this.activePlayer === player1) {
-                    this.activePlayer = player2;
-                    this.defensePlayer = player1;
-                } else {
-                    this.activePlayer = player1;
-                    this.defensePlayer = player2;
-                }
-                server.emit('CombatTurnEnded', this.activePlayer);
-                this.roomService.getFightTimer(room.roomId).resetTimer(5, callback);
+                this.attackPlayer(client, server);
             }
-        };
+        });
+    }
 
-        this.roomService.getFightTimer(room.roomId).resetTimer(5, callback);
+    onEndTurn(client: Socket, server: Server, room: Room) {
+        [this.activePlayer, this.defensePlayer] = [this.defensePlayer, this.activePlayer];
+        server.to(room.roomId).emit('combatTurnEnded', this.activePlayer);
+        this.onStartTurn(client, server, room);
     }
 
     attackPlayer(client: Socket, server: Server) {
-        if (this.isAttackDone) return;
+        const room = this.roomService.getRoom(client);
         const attackValue = this.activePlayer.attributes.attack + this.getRandom(this.activePlayer.attributes.atkDiceMax);
         const defenseValue = this.defensePlayer.attributes.defense + this.getRandom(this.defensePlayer.attributes.defDiceMax);
         server.emit('attackValues', {
@@ -67,8 +61,7 @@ export class CombatService {
         } else {
             server.emit('drawCombat');
         }
-        server.emit('CombatTurnEnded', this.activePlayer);
-        this.isAttackDone = true;
+        this.onEndTurn(client, server, room);
     }
 
     evadingPlayer(client: Socket, player: Player, server: Server) {

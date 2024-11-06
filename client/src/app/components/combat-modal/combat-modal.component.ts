@@ -61,7 +61,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             this.combatTurnTime = timeRemaining;
         });
 
-        this.socketCommunicationService.on('CombatTurnEnded', (activePlayer: Player) => {
+        this.socketCommunicationService.on('combatTurnEnded', (activePlayer: Player) => {
             if (activePlayer.id === this.player1.id) {
                 this.activePlayer = this.player1;
                 this.defensePlayer = this.player2;
@@ -69,7 +69,6 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
                 this.activePlayer = this.player2;
                 this.defensePlayer = this.player1;
             }
-            //console.log('turn ended, turn of player: ', activePlayer.name);
         });
 
         this.socketCommunicationService.on(
@@ -169,6 +168,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
 
     triggerAttack() {
         this.socketCommunicationService.send('attackPlayer');
+
         /*
         this.totalTime = this.combatService2.determineTimerLength(this.combatService2.evasionsArray1, this.combatService2.currPlayerNum);
         this.timeRemaining = this.totalTime;

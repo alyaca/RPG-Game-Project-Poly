@@ -68,11 +68,7 @@
         </div>
         <div>
             <p class="action-text">Attaquer</p>
-            <div
-                [ngClass]="{ disabled: this.socketCommunicationService.socket.id !== activePlayer.id }"
-                class="button-outer end-outer"
-                (click)="triggerAttack()"
-            >
+            <div [class.disabled]="socketCommunicationService.socket.id !== activePlayer.id" class="button-outer end-outer" (click)="triggerAttack()">
                 <div class="attack-button"></div>
             </div>
         </div>
