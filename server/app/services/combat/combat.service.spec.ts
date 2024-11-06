@@ -65,8 +65,8 @@ describe('CombatService', () => {
 
             service.startFight(mockClient, player1, player2, mockServer);
 
-            expect(service.activePlayer).toBe(player1);
-            expect(service.defensePlayer).toBe(player2);
+            expect(service.attacker).toBe(player1);
+            expect(service.defender).toBe(player2);
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'startFight', { player1, player2 });
             expect(service.onStartTurn).toHaveBeenCalledWith(mockClient, mockServer, mockRoom);
         });
@@ -76,8 +76,8 @@ describe('CombatService', () => {
         it('should decrease defensePlayer HP when attack is successful', () => {
             const player1 = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
             const player2 = { id: '2', attributes: { defense: 5, defDiceMax: 6, currentHp: 5 } } as Player;
-            service.activePlayer = player1;
-            service.defensePlayer = player2;
+            service.attacker = player1;
+            service.defender = player2;
             service.emitToCombatPlayers = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
             service.onEndTurn = jest.fn();
@@ -91,8 +91,8 @@ describe('CombatService', () => {
         it('should decrease activePlayer HP when defense is successful', () => {
             const player1 = { id: '1', attributes: { attack: 5, atkDiceMax: 6, currentHp: 10 } } as Player;
             const player2 = { id: '2', attributes: { defense: 10, defDiceMax: 6, currentHp: 10 } } as Player;
-            service.activePlayer = player1;
-            service.defensePlayer = player2;
+            service.attacker = player1;
+            service.defender = player2;
             service.emitToCombatPlayers = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
             service.onEndTurn = jest.fn();
@@ -133,44 +133,20 @@ describe('CombatService', () => {
             expect(randomValue).toBeLessThanOrEqual(max);
         });
     });
-    describe('getRoomSockets', () => {
-        it('should return the set of socket IDs in the specified room', () => {
-            const roomId = 'room1';
-            const socketsSet = new Set<string>(['socket1', 'socket2']);
-            mockServer.sockets.adapter.rooms.set(roomId, socketsSet);
-
-            const result = service.getRoomSockets(roomId, mockServer);
-            expect(result).toEqual(socketsSet);
-        });
-    });
-
-    describe('getSpecificSocket', () => {
-        it('should return the specified socket if it exists in the room', () => {
-            const roomId = 'room1';
-            const socketId = 'socket1';
-            const mockSocket = { id: socketId } as Socket;
-
-            mockServer.sockets.adapter.rooms.set(roomId, new Set<string>([socketId]));
-            mockServer.sockets.sockets.set(socketId, mockSocket);
-
-            const result = service.getSpecificSocket(socketId, roomId, mockServer);
-            expect(result).toBe(mockSocket);
-        });
-    });
 
     describe('emitToCombatPlayers', () => {
         it('should emit the event to both activePlayer and defensePlayer', () => {
             const event = 'testEvent';
             const data = { key: 'value' };
-            service.activePlayer = { id: 'activePlayerId' } as Player;
-            service.defensePlayer = { id: 'defensePlayerId' } as Player;
+            service.attacker = { id: 'activePlayerId' } as Player;
+            service.defender = { id: 'defensePlayerId' } as Player;
 
             service.emitToCombatPlayers(mockServer, event, data);
 
-            expect(mockServer.to).toHaveBeenCalledWith(service.activePlayer.id);
-            expect(mockServer.to).toHaveBeenCalledWith(service.defensePlayer.id);
-            expect(mockServer.to(service.activePlayer.id).emit).toHaveBeenCalledWith(event, data);
-            expect(mockServer.to(service.defensePlayer.id).emit).toHaveBeenCalledWith(event, data);
+            expect(mockServer.to).toHaveBeenCalledWith(service.attacker.id);
+            expect(mockServer.to).toHaveBeenCalledWith(service.defender.id);
+            expect(mockServer.to(service.attacker.id).emit).toHaveBeenCalledWith(event, data);
+            expect(mockServer.to(service.defender.id).emit).toHaveBeenCalledWith(event, data);
         });
     });
 

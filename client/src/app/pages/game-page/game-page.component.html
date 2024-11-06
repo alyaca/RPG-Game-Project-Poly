@@ -70,7 +70,7 @@
                     <div
                         class="button-outer action-outer"
                         [class.selected]="gameService.isActionCombatSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack()"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack() || !hasActionPoints()"
                         (click)="toggleActionCombatSelected()"
                     >
                         <div class="action-button attack-button"></div>

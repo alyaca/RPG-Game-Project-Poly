@@ -103,7 +103,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onPlayerFell();
         });
 
-        this.socketCommunicationService.on('endGame', (winner: Player) => {
+        this.socketCommunicationService.once('endGame', (winner: Player) => {
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({

@@ -9,36 +9,25 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfo>();
-    activePlayer: Player;
-    defensePlayer: Player;
-    player1Socket: Socket;
-    player2Socket: Socket;
+    attacker: Player;
+    defender: Player;
 
     private gameTime: number;
     constructor(
         private roomService: RoomService,
         private gameService: GameService,
     ) {}
-    getRoomSockets(roomId: string, server: Server) {
-        return server.sockets.adapter.rooms.get(roomId);
-    }
-
-    getSpecificSocket(socketId: string, roomId: string, server: Server) {
-        const sockets = server.sockets.adapter.rooms.get(roomId);
-        if (sockets.has(socketId)) {
-            return server.sockets.sockets.get(socketId);
-        }
-    }
 
     emitToCombatPlayers(server: Server, event: string, data?) {
-        server.to(this.activePlayer.id).emit(event, data);
-        server.to(this.defensePlayer.id).emit(event, data);
+        server.to(this.attacker.id).emit(event, data);
+        server.to(this.defender.id).emit(event, data);
     }
 
     startFight(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.activePlayer = player1;
-        this.defensePlayer = player2;
+        this.attacker = player1;
+        this.defender = player2;
+
         this.gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, 'startFight', { player1, player2 });
@@ -55,27 +44,27 @@ export class CombatService {
     }
 
     onEndTurn(client: Socket, server: Server, room: Room) {
-        [this.activePlayer, this.defensePlayer] = [this.defensePlayer, this.activePlayer];
-        this.emitToCombatPlayers(server, 'combatTurnEnded', this.activePlayer);
+        [this.attacker, this.defender] = [this.defender, this.attacker];
+        this.emitToCombatPlayers(server, 'combatTurnEnded', this.attacker);
         this.onStartTurn(client, server, room);
     }
 
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const attackValue = this.activePlayer.attributes.attack + this.getRandom(this.activePlayer.attributes.atkDiceMax);
-        const defenseValue = this.defensePlayer.attributes.defense + this.getRandom(this.defensePlayer.attributes.defDiceMax);
+        const attackValue = this.attacker.attributes.attack + this.getRandom(this.attacker.attributes.atkDiceMax);
+        const defenseValue = this.defender.attributes.defense + this.getRandom(this.defender.attributes.defDiceMax);
         this.emitToCombatPlayers(server, 'attackValues', {
-            activePlayer: { player: this.activePlayer, attackValue },
-            defensePlayer: { player: this.defensePlayer, defenseValue },
+            activePlayer: { player: this.attacker, attackValue },
+            defensePlayer: { player: this.defender, defenseValue },
         });
         if (attackValue > defenseValue) {
-            this.defensePlayer.attributes.currentHp--;
-            this.emitToCombatPlayers(server, 'attackSuccess', this.defensePlayer);
-            this.checkIfPlayerIsDead(client, this.defensePlayer, this.activePlayer, server);
+            this.defender.attributes.currentHp--;
+            this.emitToCombatPlayers(server, 'attackSuccess', this.defender);
+            this.checkIfPlayerIsDead(client, this.defender, this.attacker, server);
         } else if (attackValue < defenseValue) {
-            this.activePlayer.attributes.currentHp--;
-            this.emitToCombatPlayers(server, 'attackFail', this.activePlayer);
-            this.checkIfPlayerIsDead(client, this.activePlayer, this.defensePlayer, server);
+            // this.attacker.attributes.currentHp--;
+            this.emitToCombatPlayers(server, 'attackFail', this.attacker);
+            // this.checkIfPlayerIsDead(client, this.attacker, this.defender, server);
         } else {
             this.emitToCombatPlayers(server, 'drawCombat');
         }
