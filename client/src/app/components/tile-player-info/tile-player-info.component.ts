@@ -1,10 +1,11 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { GameTileInfoService } from '@app/services/game-tile-info.service';
-// import { GameObject } from '@common/game-object';
+import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-tile-player-info',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './tile-player-info.component.html',
   styleUrl: './tile-player-info.component.scss'
 })

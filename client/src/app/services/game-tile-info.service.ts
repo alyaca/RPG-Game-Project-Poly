@@ -27,8 +27,7 @@ export class GameTileInfoService {
     Les joueurs et les objects peuvent y être posés dessus`, 
 
       `La glace à un coût de 0, cependant un joueur qui y marche dessus à 10% de chance de perdre pied et
-    tomber. Lorsque cela se produit, le tour du joueur se termine, peu importe s’il lui restait
-    des points de mouvement ou une action à faire. De plus, tant que le joueur se trouve sur
+    tomber, terminant instantanément le tour du joueur. De plus, tant que le joueur se trouve sur
     de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.`, 
 
       `L'eau est une tuile de terrain ayant un coût de 2.`, 
