@@ -15,5 +15,6 @@ export enum SocketEvents {
     BeforeStartTurn = 'beforeStartTurn',
     PlayerNavigation = 'playerNavigation',
     KickPlayer = 'kickPlayer',
+    SendGameLog = 'sendGameLog',
     DoorClicked = 'doorClicked',
 }

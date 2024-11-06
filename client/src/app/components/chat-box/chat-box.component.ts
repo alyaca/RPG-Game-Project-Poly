@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
 import { ChatMessage } from '@app/interfaces/chat-message';
+import { LogMessage } from '@app/interfaces/log-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -18,14 +20,8 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
     @Input() isToggleable: boolean;
     messages: ChatMessage[] = [];
-    logs: ChatMessage[] = [
-        {
-            id: 0,
-            timestamp: new Date(),
-            username: '',
-            message: 'Voici le journal de jeu',
-        },
-    ];
+    logs: LogMessage[] = [];
+    filteredLogs: LogMessage[] = [];
     newMessage: string = '';
     newLog: string = '';
     areLogsVisible: boolean = false;
@@ -38,6 +34,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     constructor(
         private chatService: ChatService,
         private route: ActivatedRoute,
+        private socketCommunicationService: SocketCommunicationService,
     ) {}
 
     get toggleIconClass() {
@@ -58,6 +55,19 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.chatService.onMessageReceived((message: ChatMessage) => {
             this.messages.push(message);
         });
+
+        this.chatService.onLogReceived((message: LogMessage) => {
+            if (this.isPlayerInLog(message)) {
+                this.filteredLogs.push(message);
+                this.logs.push(message);
+            } else {
+                this.logs.push(message);
+            }
+        });
+    }
+
+    isPlayerInLog(message: LogMessage): boolean {
+        return message.players.some((player) => player.id === this.socketCommunicationService.socket.id);
     }
 
     loadMessages(): void {
