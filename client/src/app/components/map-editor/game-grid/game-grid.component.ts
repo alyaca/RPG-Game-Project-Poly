@@ -11,7 +11,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
-import { GameTileInfoService } from '@app/services/game-tile-info.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 
 @Component({
     selector: 'app-game-grid',
@@ -29,6 +29,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Input() mapName: string;
     @Input() mapDescription: string;
     @Input() hasStarted: boolean;
+
     @Output() gridChange = new EventEmitter<number[][]>();
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
@@ -228,8 +229,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     showDetails(event: MouseEvent, row: number, col: number) {
-        if (!this.gameCreationService.isModifiable){
-            event.preventDefault();
+        event.preventDefault();
+        if (!this.gameCreationService.isModifiable && this.isActivePlayer){
             this.isPopupVisible = true;
             this.gameTileInfoService.tileId = this.tilesGrid[row][col];
             this.gameTileInfoService.itemId = this.objectsArray[row][col];

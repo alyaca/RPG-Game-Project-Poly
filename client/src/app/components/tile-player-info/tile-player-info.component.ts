@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
-import { GameTileInfoService } from '@app/services/game-tile-info.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { CommonModule } from '@angular/common';
 
 @Component({

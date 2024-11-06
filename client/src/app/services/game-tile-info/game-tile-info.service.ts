@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 import { gameObjects } from '@app/objects-info';
 
 import { TileService } from '@app/services/tile/tile.service';
-import { NavigationService } from './navigation/navigation.service';
+import { NavigationService } from '../navigation/navigation.service';
 import { GameTile } from '@common/game-tile';
-// import { ObjectType } from '@app/constants';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameTileInfoService {
-  // isPlayerOnTile: boolean = false;
   tileId: number = 0;
   itemId: number = 0;
   selectedRow: number = -1;
@@ -70,4 +69,4 @@ export class GameTileInfoService {
     }
     return null;
   }
-}
+} 
