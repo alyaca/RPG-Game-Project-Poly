@@ -1,4 +1,17 @@
-import { Component, HostListener, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import {
+    Component,
+    HostListener,
+    EventEmitter,
+    inject,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewChild,
+    ElementRef,
+} from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
@@ -55,7 +68,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
 
-
     isPopupVisible: boolean = false;
     popupX: number = 0;
     popupY: number = 0;
@@ -71,6 +83,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         public gameCreationService: GameCreationService,
         public gameTileInfoService: GameTileInfoService,
     ) {}
+
+    @HostListener('document:click', ['$event'])
+    onMapClick(event: MouseEvent) {
+        if (!this.entireMap.nativeElement.contains(event.target)) {
+            this.isPopupVisible = false;
+        }
+    }
 
     getSelectedTile(): string {
         return this.toolService.getSelectedTile();
@@ -238,13 +257,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     closeTileDescription() {
         this.isPopupVisible = false;
-    }
-
-    @HostListener('document:click', ['$event'])
-    onMapClick(event: MouseEvent) {
-        if (!this.entireMap.nativeElement.contains(event.target)) {
-            this.isPopupVisible = false;
-        }
     }
 
     onTileClick(row: number, col: number) {

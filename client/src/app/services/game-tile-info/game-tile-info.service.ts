@@ -27,14 +27,14 @@ export class GameTileInfoService {
     tomber, terminant instantanément le tour du joueur. De plus, tant que le joueur se trouve sur
     de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.`,
 
-        `L'eau est une tuile de terrain ayant un coût de 2.',
+        "L'eau est une tuile de terrain ayant un coût de 2.",
 
         'Les murs sont des obstacles infranchissables par les joueurs. Aussi, aucun objet y est placé dessus',
 
-        'Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire
-    y passer à travers. Sinon il agit comme un obstacle infranchissable comme une tuile de mur.',
+        `Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire
+    y passer à travers. Sinon il agit comme un obstacle infranchissable comme une tuile de mur.`,
 
-        'Une porte ouverte agit comme une tuile de gazon, ayant aussi un coût de 1. Elle peut être fermée par 
+        `Une porte ouverte agit comme une tuile de gazon, ayant aussi un coût de 1. Elle peut être fermée par 
     le joueur en interagissant avec le bouton 'Porte'.`,
     ];
 

@@ -43,10 +43,6 @@
 </div>
 @if(isPopupVisible){
     <app-tile-player-info>
-        [tileData]="selectedTileData"
-        [positionX]="popupX"
-        [positionY]="popupY"
-        [isVisible]="isPopupVisible"
         (closePopup)="closeTileDescription($event)"
     </app-tile-player-info>  
 }
