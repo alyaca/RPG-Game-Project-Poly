@@ -69,6 +69,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
+            this.activePlayer = this.allPlayers[0];
             this.replenishHealth();
             this.onBeforeStartTurn();
         });
