@@ -22,10 +22,6 @@ export class GameLogsService {
         return this.logs.get(roomId);
     }
 
-    // getFilterLogs(roomId: string, playerName: string) {
-    //     return this.getGameLog(roomId).filter((log) => log.playersNames.includes(playerName));
-    // }
-
     sendTurnLog(player: Player, roomId: string, server: Server) {
         const currentLog = this.lastLog.get(roomId);
         const message = this.generateTurnMessage(player);
