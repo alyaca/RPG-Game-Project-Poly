@@ -5,25 +5,35 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Player } from '@common/player';
 import { BehaviorSubject, of } from 'rxjs';
+import { Socket } from 'socket.io-client';
 import { ChatBoxComponent } from './chat-box.component';
 
 describe('ChatBoxComponent', () => {
     let component: ChatBoxComponent;
     let fixture: ComponentFixture<ChatBoxComponent>;
     let chatServiceSpy: jasmine.SpyObj<ChatService>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let queryParamsSubject: BehaviorSubject<{ roomCode: string }>;
     let httpMock: HttpTestingController;
     let mockMessages: ChatMessage[];
+    let mockPlayer: Player[];
 
     beforeEach(async () => {
-        chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage', 'getMessagesByRoom']);
+        chatServiceSpy = jasmine.createSpyObj('ChatService', ['onMessageReceived', 'sendMessage', 'getMessagesByRoom', 'onLogReceived']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', [], {
+            socket: { id: '123' } as Socket,
+        });
         queryParamsSubject = new BehaviorSubject({ roomCode: '1234' });
         mockMessages = [
             { id: 1, username: 'User1', message: 'Hello', timestamp: new Date() },
             { id: 2, username: 'User2', message: 'Hi', timestamp: new Date() },
         ];
         chatServiceSpy.getMessagesByRoom.and.returnValue(of(mockMessages));
+
+        mockPlayer = [{ id: '123', username: 'Goku' } as unknown as Player];
 
         await TestBed.configureTestingModule({
             imports: [ChatBoxComponent],
@@ -32,6 +42,7 @@ describe('ChatBoxComponent', () => {
                 provideHttpClientTesting(),
                 { provide: ChatService, useValue: chatServiceSpy },
                 { provide: ActivatedRoute, useValue: { queryParams: queryParamsSubject.asObservable() } },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
             ],
         }).compileComponents();
 
@@ -83,6 +94,55 @@ describe('ChatBoxComponent', () => {
         expect(component.messages).toContain(message);
     });
 
+    it('should receive log and push it to the two arrays if player is concerned', () => {
+        const logMessage = {
+            id: 1,
+            message: 'Goku has joined the room',
+            players: mockPlayer,
+            timestamp: new Date(),
+        };
+        chatServiceSpy.onLogReceived.calls.mostRecent().args[0](logMessage);
+        component.ngOnInit();
+        expect(component.logs).toContain(logMessage);
+        expect(component.filteredLogs).toContain(logMessage);
+    });
+
+    it('should receive log and push it to the non filtered if player is NOT concerned', () => {
+        socketCommunicationServiceSpy.socket.id = '213';
+        const logMessage = {
+            id: 1,
+            message: 'Goku has joined the room',
+            players: mockPlayer,
+            timestamp: new Date(),
+        };
+        chatServiceSpy.onLogReceived.calls.mostRecent().args[0](logMessage);
+        component.ngOnInit();
+        expect(component.logs).toContain(logMessage);
+        expect(component.filteredLogs).not.toContain(logMessage);
+    });
+
+    it('should return true if player is in log', () => {
+        const logMessage = {
+            id: 1,
+            message: 'Goku has joined the room',
+            players: [{ id: '123', username: 'Goku' } as unknown as Player],
+            timestamp: new Date(),
+        };
+        const result = component.isPlayerInLog(logMessage);
+        expect(result).toBe(true);
+    });
+
+    it('should return false if player is not in log', () => {
+        const logMessage = {
+            id: 1,
+            message: 'Vegeta has joined the room',
+            players: [{ id: '456', username: 'Vegeta' } as unknown as Player],
+            timestamp: new Date(),
+        };
+        const result = component.isPlayerInLog(logMessage);
+        expect(result).toBe(false);
+    });
+
     it('should scroll to bottom', () => {
         const messageContainer = document.createElement('div');
         const scrollHeight = 100;
@@ -128,15 +188,18 @@ describe('ChatBoxComponent', () => {
         expect(component.toggleIconClass).toBe('icon-chat');
     });
 
-    it('should toggle areLogsFiltered and update chatType correctly', () => {
+    it('should toggle areLogsFiltered and update chatType to "Journal de jeu filtré" when areLogsFiltered is false', () => {
+        component.scrollToBottom();
         component.areLogsFiltered = false;
-        component.chatType = 'Journal de jeu non filtré';
         component.toggleLogsFilter();
-        expect(component.areLogsFiltered).toBeTrue();
+        expect(component.areLogsFiltered).toBe(true);
         expect(component.chatType).toBe('Journal de jeu filtré');
+    });
 
+    it('should toggle areLogsFiltered and update chatType to "Journal de jeu non filtré" when areLogsFiltered is true', () => {
+        component.areLogsFiltered = true;
         component.toggleLogsFilter();
-        expect(component.areLogsFiltered).toBeFalse();
+        expect(component.areLogsFiltered).toBe(false);
         expect(component.chatType).toBe('Journal de jeu non filtré');
     });
 });
