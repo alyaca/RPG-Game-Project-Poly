@@ -76,7 +76,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-        document.addEventListener('click', this.onMapClick.bind(this)); ////
+        document.addEventListener('click', this.onMapClick.bind(this));
 
         this.socketCommunicationService.connect();
 
