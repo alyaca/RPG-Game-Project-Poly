@@ -6,6 +6,8 @@ import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-pl
 import { mockPlayers } from '@app/mocks/mock-players';
 import { Position } from '@common/player';
 import { NavigationService } from './navigation.service';
+/* eslint max-lines: ["off"] */
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 
 describe('NavigationServiceService', () => {
     let service: NavigationService;
