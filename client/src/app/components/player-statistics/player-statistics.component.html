@@ -1,4 +1,4 @@
-<div class="player-stats">
+<div class="player-stats" [ngClass]="{'active': player.isActive === true}">
     <div class="player">
         <img class="player-img" [src]="player.avatar" alt="player-avatar">
         <p> {{ player.name }} </p>

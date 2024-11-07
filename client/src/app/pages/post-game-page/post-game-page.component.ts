@@ -16,6 +16,7 @@ export interface LigmaPlayer {
   dmgTaken: number,
   itemsObtained: number,
   tilesVisited: number,
+  isActive: boolean
 }
 
 @Component({
@@ -51,6 +52,7 @@ export class PostGamePageComponent {
     dmgTaken: 12,
     itemsObtained: 2,
     tilesVisited: 0.78,
+    isActive: true
   },{
     id: '0',
     name: 'Donald Trump',
@@ -63,6 +65,7 @@ export class PostGamePageComponent {
     dmgTaken: 17,
     itemsObtained: 3,
     tilesVisited: 0.82,
+    isActive: false
   },
   {
     id: '0',
@@ -76,6 +79,7 @@ export class PostGamePageComponent {
     dmgTaken: 11,
     itemsObtained: 2,
     tilesVisited: 0.55,
+    isActive: false
   },{
     id: '0',
     name: 'George W. Bush',
@@ -88,6 +92,7 @@ export class PostGamePageComponent {
     dmgTaken: 15,
     itemsObtained: 1,
     tilesVisited: 0.67,
+    isActive: false
   },{
     id: '0',
     name: 'Bill Clinton',
@@ -100,6 +105,7 @@ export class PostGamePageComponent {
     dmgTaken: 12,
     itemsObtained: 1,
     tilesVisited: 0.52,
+    isActive: false
   },{
     id: '0',
     name: 'George H. W. Bush',
@@ -112,6 +118,7 @@ export class PostGamePageComponent {
     dmgTaken: 8,
     itemsObtained: 0,
     tilesVisited: 0.42,
+    isActive: false
   }
 ]
 
