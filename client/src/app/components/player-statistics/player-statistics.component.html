@@ -4,9 +4,7 @@
         <p> {{ player.name }} </p>
     </div>
     <p class="stat"> {{ player.combats }} </p>
-    <p class="stat"> {{ player.victories }} </p>
-    <p class="stat"> {{ player.evasions}} </p>
-    <p class="stat"> {{ player.defeats }} </p>
+    <p class="stat"> {{ getCombatRecord() }} </p>
     <p class="stat"> {{ player.dmgDealt }} </p>
     <p class="stat"> {{ player.dmgTaken }} </p>
     <p class="stat"> {{ player.itemsObtained }} </p>

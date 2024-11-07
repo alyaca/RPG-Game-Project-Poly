@@ -7,9 +7,33 @@
     color: white;
 }
 
+.left-container {
+    width: 25vw;
+    display: flex;
+    flex-direction: column;
+    //background-color: darkslategrey;
+}
+
+.right-container {
+    width: 75vw;
+    //display: flex;
+    flex-direction: column;
+    //background-color: rgb(47, 48, 79);
+}
+
 .title {
     text-align: center;
     font-size: 1.2rem;
+    //flex: 1 1 2%;
+}
+
+.middle-container {
+    display: flex;
+    flex-direction: row;
+    //flex: 1 1 50%;
+    //background-color: blue;
+    padding: 0;
+    margin: 0;
 }
 
 .attributes {
@@ -19,13 +43,78 @@
     //background-color: darkblue;
 }
 
+.attr-txt  {
+    margin: 0;
+}
+
 .attribute {
     display: flex;
     flex-direction: column;
     font-size: 0.9rem;
     width: 8vw;
-    height: 5vh;
+    height: 10vh;
     text-align: center;
-    margin: 1vw;
+    margin: 0 1vw;
+    justify-content: center;
+    align-items: center;
     //background-color: darkmagenta;
+}
+
+.chat {
+    //display: flex;
+    // align-items: center;
+    // justify-content: center;
+    width: 50%; 
+    margin-top: 80%;
+    margin-left: 1.5vw;
+}
+
+.global-stats {
+    text-align: center;
+    margin-top: 5%;
+}
+
+.sort-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 3%;
+}
+
+.sort-button {
+    z-index: 999;
+    background-image: url('../../../assets/images/icones/unsorted.png');
+    background-size: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2rem;
+    width: 1.2rem;
+    background-repeat: no-repeat;
+    // background-color: red;
+    margin-bottom: 10%;
+}
+
+.bottom-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    //background-color: red;
+}
+.quit {
+    padding: 0.3% 2%;
+    border-radius: 3rem;
+    border: 1px solid gray;
+    color: black;
+    background: linear-gradient(to right, rgb(110, 105, 45), rgba(163, 147, 71, 1) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+    font-family: papyrus;
+    font-size: 1.2rem;
+    font-weight: 900;
+    display: flex;
+}
+
+.quit:hover {
+    color: white;
+    border: 1px solid gray;
+    background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
 }

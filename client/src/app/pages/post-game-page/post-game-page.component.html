@@ -1,44 +1,59 @@
 <div class="post-game-lobby">
     <p class="title">Statistiques de fin de partie</p>
-    <div class="attributes">
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Combats</p>
+    <div class="middle-container">
+        <div class="left-container">
+            <div class="global-stats">
+                <p>Durée de la partie: {{ duration }}</p>
+                <p>Nombre de tours: {{ turns }}</p>
+                <p>% de tuiles visitées: {{ visitedTiles }}</p>
+                <p>% de portes intéragis: {{ doorsInteracted }}</p>
+                <p>Détenteurs du drapeau: {{ flagBearers }}</p>
+            </div>
+            <div class="chat">
+                <app-chat-box [isToggleable]="true"></app-chat-box>
+            </div>
         </div>
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Victoires</p>
-        </div>
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Évasions</p>
-        </div >
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Défaites</p>
-        </div>
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Dégats infligés</p>
-        </div>
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Dégats subis</p>
-        </div>
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>Objets ramassés</p>
-        </div>
-        <div class="attribute">
-            <div class="sort-button"></div>
-            <p>% tuiles visités</p>
+        <div class="right-container">
+            <div class="attributes">
+                <div class="attribute">
+                    <div class="sort-button"> </div>
+                    <p class="attr-txt">Combats</p>
+                </div>
+                <div class="attribute">
+                    <div class="sort-buttons">
+                        <div class="sort-button"></div>
+                        <div class="sort-button"></div>
+                        <div class="sort-button"></div>
+                    </div>
+                    <p class="attr-txt">W/D/L</p>
+                </div>
+                <div class="attribute">
+                    <div class="sort-button"></div>
+                    <p class="attr-txt">Dégats infligés</p>
+                </div>
+                <div class="attribute">
+                    <div class="sort-button"></div>
+                    <p class="attr-txt">Dégats subis</p>
+                </div>
+                <div class="attribute">
+                    <div class="sort-button"></div>
+                    <p class="attr-txt">Obj. ramassés</p>
+                </div>
+                <div class="attribute">
+                    <div class="sort-button"></div>
+                    <p class="attr-txt">% tuiles visités</p>
+                </div>
+            </div>
+            @for(player of players; track player.id){
+                <app-player-statistics
+                    [player]="player"
+                ></app-player-statistics>
+            }
         </div>
     </div>
-    @for(player of players; track player.id){
-        <app-player-statistics
-            [player]="player"
-        ></app-player-statistics>
-    }
+    <div class="bottom-container">
+        <button class="quit" routerLink="/home">Quitter</button>
+    </div>
 </div>
 
 

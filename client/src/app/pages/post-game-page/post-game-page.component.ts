@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { PlayerStatisticsComponent } from '@app/components/player-statistics/player-statistics.component';
-
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { RouterLink } from '@angular/router';
 export interface LigmaPlayer {
   id: string,
   name: string,
@@ -18,7 +19,7 @@ export interface LigmaPlayer {
 @Component({
   selector: 'app-post-game-page',
   standalone: true,
-  imports: [PlayerStatisticsComponent],
+  imports: [PlayerStatisticsComponent, ChatBoxComponent, RouterLink],
   templateUrl: './post-game-page.component.html',
   styleUrl: './post-game-page.component.scss'
 })
@@ -99,4 +100,10 @@ export class PostGamePageComponent {
     tilesVisited: 0.42,
   }
 ]
+
+  duration: string = '00:00:00';
+  turns: number = 0;
+  visitedTiles: number = 0;
+  doorsInteracted: number = 0;
+  flagBearers: number = 0;
 }

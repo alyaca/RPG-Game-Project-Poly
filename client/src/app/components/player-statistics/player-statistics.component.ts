@@ -11,4 +11,7 @@ import { LigmaPlayer } from '@app/pages/post-game-page/post-game-page.component'
 })
 export class PlayerStatisticsComponent {
   @Input() player: LigmaPlayer;
+  getCombatRecord(){
+    return this.player.victories.toString() + '/' + this.player.evasions.toString() + '/' + this.player.defeats.toString()
+  }
 }
