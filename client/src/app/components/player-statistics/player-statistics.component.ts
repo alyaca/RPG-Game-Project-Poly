@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { LigmaPlayer } from '@app/pages/post-game-page/post-game-page.component';
+import { LigmaPlayer } from '@app/services/post-game/post-game.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
