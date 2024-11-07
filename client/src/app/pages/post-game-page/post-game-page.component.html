@@ -1,5 +1,8 @@
 <div class="post-game-lobby">
-    <p class="title">Statistiques de fin de partie</p>
+    <div class="top-container">
+        <p class="title">Statistiques de fin de partie</p>
+        <!-- <p> {{ explanations }}</p> -->
+    </div>
     <div class="middle-container">
         <div class="left-container">
             <div class="global-stats">
@@ -16,31 +19,31 @@
         <div class="right-container">
             <div class="attributes">
                 <div class="attribute">
-                    <div class="sort-button"> </div>
+                    <div class="sort-button" (click)="sortPlayers('combats')"></div>
                     <p class="attr-txt">Combats</p>
                 </div>
                 <div class="attribute">
                     <div class="sort-buttons">
-                        <div class="sort-button"></div>
-                        <div class="sort-button"></div>
-                        <div class="sort-button"></div>
+                        <div class="sort-button" (click)="sortPlayers('victories')"></div>
+                        <div class="sort-button" (click)="sortPlayers('evasions')"></div>
+                        <div class="sort-button" (click)="sortPlayers('defeats')"></div>
                     </div>
                     <p class="attr-txt">W/D/L</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button"></div>
+                    <div class="sort-button" (click)="sortPlayers('dmgDealt')"></div>
                     <p class="attr-txt">Dégats infligés</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button"></div>
+                    <div class="sort-button" (click)="sortPlayers('dmgTaken')"></div>
                     <p class="attr-txt">Dégats subis</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button"></div>
+                    <div class="sort-button" (click)="sortPlayers('itemsObtained')"></div>
                     <p class="attr-txt">Obj. ramassés</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button"></div>
+                    <div class="sort-button" (click)="sortPlayers('tilesVisited')"></div>
                     <p class="attr-txt">% tuiles visités</p>
                 </div>
             </div>
@@ -49,11 +52,9 @@
                     [player]="player"
                 ></app-player-statistics>
             }
-        </div>
-    </div>
-    <div class="bottom-container">
-        <button class="quit" routerLink="/home">Quitter</button>
     </div>
 </div>
-
+<div class="bottom-container">
+    <button class="quit" routerLink="/home">Quitter</button>
+</div>
 
