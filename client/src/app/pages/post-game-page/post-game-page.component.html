@@ -8,26 +8,26 @@
             <div class="global-stats">
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanations('gameDuration')"
+                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.GameDuration)"
                 (mouseleave)="postGameService.updateExplanations('')">
                 Durée de la partie: {{ postGameService.duration }}</p>
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanations('turns')"
+                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.Turns)"
                 (mouseleave)="postGameService.updateExplanations('')">
                 Nombre de tours: {{ postGameService.turns }}</p>
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanations('globalTilesVisited')"
+                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.GlobalTilesVisited)"
                 (mouseleave)="postGameService.updateExplanations('')">
                 % de tuiles visitées: {{ postGameService.visitedTiles }}</p>
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanations('doorsInteracted')"
+                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.DoorsInteracted)"
                 (mouseleave)="postGameService.updateExplanations('')">
                 % de portes intéragis: {{ postGameService.doorsInteracted }}</p>
                 <p class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanations('flagBearers')"
+                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.FlagBearers)"
                 (mouseleave)="postGameService.updateExplanations('')">
                 Détenteurs du drapeau: {{ postGameService.flagBearers }}</p>
             </div>
@@ -37,96 +37,12 @@
         </div>
         <div class="right-container">
             <div class="attributes">
-                <div 
-                class="attribute" 
-                (mouseenter)="postGameService.updateExplanations('combats')"
-                (mouseleave)="postGameService.updateExplanations('')"
-                (click)="postGameService.sortPlayers('combats')" >
-                    <div 
-                        class="sort-button" 
-                        [ngClass]="{
-                            'ascending': postGameService.sortOrder['combats'] === 'ascending',
-                            'descending': postGameService.sortOrder['combats'] === 'descending',
-                            'unsorted': postGameService.sortOrder['combats'] === 'unsorted'
-                        }"
-                    ></div>
-                    <p class="attr-txt">Combats</p>
-                </div>
-                <div 
-                class="attribute" 
-                (mouseenter)="postGameService.updateExplanations('records')"
-                (mouseleave)="postGameService.updateExplanations('')">
-                    <div class="sort-buttons">
-                        <div class="sort-button" (click)="postGameService.sortPlayers('victories')"                         [ngClass]="{
-                            'ascending': postGameService.sortOrder['victories'] === 'ascending',
-                            'descending': postGameService.sortOrder['victories'] === 'descending',
-                            'unsorted': postGameService.sortOrder['victories'] === 'unsorted'
-                        }"></div>
-                        <div class="sort-button" (click)="postGameService.sortPlayers('evasions')"                        [ngClass]="{
-                            'ascending': postGameService.sortOrder['evasions'] === 'ascending',
-                            'descending': postGameService.sortOrder['evasions'] === 'descending',
-                            'unsorted': postGameService.sortOrder['evasions'] === 'unsorted'
-                        }"></div>
-                        <div class="sort-button" (click)="postGameService.sortPlayers('defeats')"                        [ngClass]="{
-                            'ascending': postGameService.sortOrder['defeats'] === 'ascending',
-                            'descending': postGameService.sortOrder['defeats'] === 'descending',
-                            'unsorted': postGameService.sortOrder['defeats'] === 'unsorted'
-                        }"></div>
-                    </div>
-                    <p class="attr-txt">W/D/L</p>
-                </div>
-                <div 
-                class="attribute" 
-                (mouseenter)="postGameService.updateExplanations('dmgDealt')"
-                (mouseleave)="postGameService.updateExplanations('')"
-                (click)="postGameService.sortPlayers('dmgDealt')">
-                    <div class="sort-button" 
-                    [ngClass]="{
-                        'ascending': postGameService.sortOrder['dmgDealt'] === 'ascending',
-                        'descending': postGameService.sortOrder['dmgDealt'] === 'descending',
-                        'unsorted': postGameService.sortOrder['dmgDealt'] === 'unsorted'
-                    }"></div>
-                    <p class="attr-txt">Dég. infligés</p>
-                </div>
-                <div 
-                class="attribute" 
-                (mouseenter)="postGameService.updateExplanations('dmgTaken')"
-                (mouseleave)="postGameService.updateExplanations('')"
-                (click)="postGameService.sortPlayers('dmgTaken')">
-                    <div class="sort-button" 
-                    [ngClass]="{
-                        'ascending': postGameService.sortOrder['dmgTaken'] === 'ascending',
-                        'descending': postGameService.sortOrder['dmgTaken'] === 'descending',
-                        'unsorted': postGameService.sortOrder['dmgTaken'] === 'unsorted'
-                    }"></div>
-                    <p class="attr-txt">Dégats subis</p>
-                </div>
-                <div 
-                class="attribute" 
-                (mouseenter)="postGameService.updateExplanations('itemsObtained')"
-                (mouseleave)="postGameService.updateExplanations('')"
-                (click)="postGameService.sortPlayers('itemsObtained')">
-                    <div class="sort-button" 
-                        [ngClass]="{
-                            'ascending': postGameService.sortOrder['itemsObtained'] === 'ascending',
-                            'descending': postGameService.sortOrder['itemsObtained'] === 'descending',
-                            'unsorted': postGameService.sortOrder['itemsObtained'] === 'unsorted'
-                        }"></div>
-                    <p class="attr-txt">Obj. ramassés</p>
-                </div>
-                <div 
-                class="attribute" 
-                (mouseenter)="postGameService.updateExplanations('tilesVisited')"
-                (mouseleave)="postGameService.updateExplanations('')"
-                (click)="postGameService.sortPlayers('tilesVisited')">
-                    <div class="sort-button" 
-                    [ngClass]="{
-                        'ascending': postGameService.sortOrder['tilesVisited'] === 'ascending',
-                        'descending': postGameService.sortOrder['tilesVisited'] === 'descending',
-                        'unsorted': postGameService.sortOrder['tilesVisited'] === 'unsorted'
-                    }"></div>
-                    <p class="attr-txt">% tuiles visités</p>
-                </div>
+                @for(attribute of postGameService.attributes; track attribute.id){
+                    <app-post-game-attribute
+                    [attribute]="postGameService.attributes[$index].key"
+                    [displayTxt]="postGameService.attributes[$index].displayTxt"
+                ></app-post-game-attribute>
+                }
             </div>
             @for(player of postGameService.players; track player.id){
                 <app-player-statistics

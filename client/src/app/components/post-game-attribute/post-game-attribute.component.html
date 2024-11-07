@@ -1,0 +1,44 @@
+@if(isAttrRecord()){
+    <div 
+    class="attribute" 
+    (mouseenter)="postGameService.updateExplanations('victories')"
+    (mouseleave)="postGameService.updateExplanations('')">
+        <div class="sort-buttons">
+            <div class="sort-button" (click)="postGameService.sortPlayers('victories')"                         [ngClass]="{
+                'ascending': postGameService.sortOrder['victories'] === 'ascending',
+                'descending': postGameService.sortOrder['victories'] === 'descending',
+                'unsorted': postGameService.sortOrder['victories'] === 'unsorted'
+            }"></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('evasions')"                        [ngClass]="{
+                'ascending': postGameService.sortOrder['evasions'] === 'ascending',
+                'descending': postGameService.sortOrder['evasions'] === 'descending',
+                'unsorted': postGameService.sortOrder['evasions'] === 'unsorted'
+            }"></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('defeats')"                        [ngClass]="{
+                'ascending': postGameService.sortOrder['defeats'] === 'ascending',
+                'descending': postGameService.sortOrder['defeats'] === 'descending',
+                'unsorted': postGameService.sortOrder['defeats'] === 'unsorted'
+            }"></div>
+        </div>
+        <p class="attr-txt">W/D/L</p>
+    </div>
+}
+@else {
+    <div 
+        class="attribute" 
+        (mouseenter)="postGameService.updateExplanations(attribute)"
+        (mouseleave)="postGameService.updateExplanations('')"
+        (click)="postGameService.sortPlayers(attribute)" >
+    <div 
+        class="sort-button" 
+        [ngClass]="{
+            'ascending': postGameService.sortOrder[attribute] === 'ascending',
+            'descending': postGameService.sortOrder[attribute] === 'descending',
+            'unsorted': postGameService.sortOrder[attribute] === 'unsorted'
+        }"
+    ></div>
+    <p class="attr-txt"> {{ displayTxt }}</p>
+</div>
+}
+
+

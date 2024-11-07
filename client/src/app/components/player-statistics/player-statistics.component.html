@@ -1,7 +1,14 @@
 <div class="player-stats" [ngClass]="{'active': player.isActive === true}">
     <div class="player">
-        <img class="player-img" [src]="player.avatar" alt="player-avatar">
-        <p> {{ player.name }} </p>
+        <img class="player-img" [ngClass]="getStatusClass()" [src]="player.avatar" alt="player-avatar">
+        @if (isWinner()){
+            <img class="decoration" [src]="'./assets/images/leaves/leafL.webp'" alt="left-leaf">
+            <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
+            <img class="decoration" [src]="'./assets/images/leaves/leafR.webp'" alt="right-leaf">
+        }
+        @else {
+            <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
+        }
     </div>
     <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'combats'}"> {{ player.combats }} </p>
     <div class="stat record"> 

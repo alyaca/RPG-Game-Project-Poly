@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Status } from '@common/player';
 
 export interface LigmaPlayer {
   id: string,
@@ -12,7 +13,23 @@ export interface LigmaPlayer {
   dmgTaken: number,
   itemsObtained: number,
   tilesVisited: number,
-  isActive: boolean
+  isActive: boolean,
+  status: Status
+}
+
+export interface Attribute {
+  id: number;
+  key: keyof LigmaPlayer;
+  displayTxt: string;
+  explanations: string;
+}
+
+export enum GlobalStat {
+  GameDuration = 'gameDuration',
+  Turns = 'turn',
+  GlobalTilesVisited = 'globalTilesVisited',
+  DoorsInteracted = 'doorsInterated',
+  FlagBearers = 'flagBearers'
 }
 
 @Injectable({
@@ -44,9 +61,10 @@ export class PostGameService {
     dmgTaken: 12,
     itemsObtained: 2,
     tilesVisited: 0.78,
-    isActive: true
+    isActive: false,
+    status: Status.Player
   },{
-    id: '0',
+    id: '1',
     name: 'Donald Trump',
     avatar: './assets/images/characters/Athena.webp',
     combats: 5,
@@ -57,10 +75,11 @@ export class PostGameService {
     dmgTaken: 17,
     itemsObtained: 3,
     tilesVisited: 0.82,
-    isActive: false
+    isActive: true,
+    status: Status.Player
   },
   {
-    id: '0',
+    id: '2',
     name: 'Barack Obama',
     avatar: './assets/images/characters/Apollo.webp',
     combats: 4,
@@ -71,9 +90,10 @@ export class PostGameService {
     dmgTaken: 11,
     itemsObtained: 2,
     tilesVisited: 0.55,
-    isActive: false
+    isActive: false,
+    status: Status.Admin
   },{
-    id: '0',
+    id: '3',
     name: 'George W. Bush',
     avatar: './assets/images/characters/Poseidon.webp',
     combats: 3,
@@ -84,9 +104,10 @@ export class PostGameService {
     dmgTaken: 15,
     itemsObtained: 1,
     tilesVisited: 0.67,
-    isActive: false
+    isActive: false,
+    status: Status.Player
   },{
-    id: '0',
+    id: '4',
     name: 'Bill Clinton',
     avatar: './assets/images/characters/Hephaestus.webp',
     combats: 3,
@@ -97,9 +118,10 @@ export class PostGameService {
     dmgTaken: 12,
     itemsObtained: 1,
     tilesVisited: 0.52,
-    isActive: false
+    isActive: false,
+    status: Status.Bot
   },{
-    id: '0',
+    id: '5',
     name: 'George H. W. Bush',
     avatar: './assets/images/characters/Artemis.webp',
     combats: 2,
@@ -110,8 +132,48 @@ export class PostGameService {
     dmgTaken: 8,
     itemsObtained: 0,
     tilesVisited: 0.42,
-    isActive: false
+    isActive: false,
+    status: Status.Disconnected
   }
+]
+
+attributes: Attribute[] = [
+  {
+    id: 0,
+    key: 'combats',
+    displayTxt: 'Combats',
+    explanations: 'Nombre de combats participés par le joueur',
+  },
+  {
+    id: 1,
+    key: 'victories',
+    displayTxt: 'W/D/L',
+    explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
+  },
+  {
+    id: 2,
+    key: 'dmgDealt',
+    displayTxt: 'Dég. infligés',
+    explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
+  },
+  {
+    id: 3,
+    key: 'dmgTaken',
+    displayTxt: 'Dégats subis',
+    explanations: 'Nombre de points de dégats subis pas le joueur',
+  },
+  {
+    id: 4,
+    key: 'itemsObtained',
+    displayTxt: 'Obj. récup.',
+    explanations: "Nombre d'objets ramassés par le joueur au cours de la partie",
+  },
+  {
+    id: 5,
+    key: 'tilesVisited',
+    displayTxt: '%tuiles visités',
+    explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
+  },
 ]
 
   duration: string = '00:00';
@@ -158,44 +220,35 @@ export class PostGameService {
     this.performSorting(attribute);
   }
 
-  updateExplanations(attribute: string){
-    switch(attribute){
-      case 'combats':
-        this.explanations = 'Nombre de combats participés par le joueur';
+  updateExplanations(attr: keyof LigmaPlayer | ""){
+      for(const attribute of this.attributes){
+        if(attribute.key === attr){
+          this.explanations = attribute.explanations;
+          return;
+        }
+      }
+      this.explanations = "";    
+  }
+
+  updateExplanationsGlobal(stat: GlobalStat){
+    switch (stat){
+      case GlobalStat.GameDuration: 
+        this.explanations =  "Temps écoulé depuis le début de la partie jusqu'à la finde la partie";
         break;
-      case 'records':
-        this.explanations = 'Résultats des combats du joueur sous la forme victoires/évasions/défaites';
-        break;
-      case 'dmgDealt':
-        this.explanations = 'Nombre de points de dégats infligés sur les joueurs adverses';
-        break;
-      case 'dmgTaken':
-        this.explanations = 'Nombre de points de dégats subis pas le joueur';
-        break;
-      case 'itemsObtained':
-        this.explanations = "Nombre d'objets ramassés par le joueur au cours de la partie";
-        break;
-      case 'tilesVisited':
-        this.explanations = 'Pourcentage des tuiles de terrain visités par le joueur';
-        break;
-      case 'gameDuration':
-        this.explanations = "Temps écoulé depuis le début de la partie jusqu'à la finde la partie";
-        break;
-      case 'turns':
+      case GlobalStat.Turns:
         this.explanations = "Somme des tours de tous les joueurs de cette partie";
         break;
-      case 'globalTilesVisited':
+      case GlobalStat.GlobalTilesVisited:
         this.explanations = "Pourcentage des tuiles de terrain visitées par au moins un joueur";
         break;
-      case 'doorsInteracted':
+      case GlobalStat.DoorsInteracted:
         this.explanations = "Pourcentage des portes ayant été manipulées au moins une fois";
         break;
-      case 'flagBearers':
+      case GlobalStat.FlagBearers:
         this.explanations = "Nombre de joueurs différents ayant détenu le drapeau (si applicable)";
-        break;      
+        break;  
       default:
         this.explanations = '';
-        break;
     }
   }
 }

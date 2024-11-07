@@ -1,8 +1,7 @@
 .player-stats {
     display: flex;
     align-items: center;
-    // background-color: rgb(53, 24, 79);
-    width: 75vw;
+    width: 73vw;
     border-top: 0.08rem solid gray;
 }
 
@@ -24,7 +23,6 @@
 .stat {
     text-align: center;
     flex: 1 1 5%;
-    // background-color: rgb(82, 82, 82);
     
     align-items: center;
     flex-direction: center;
@@ -43,6 +41,28 @@
 }
 
 .active {
-    //background-color: rgba(255, 240, 152, 0.1);
-    background-image: linear-gradient(to left, rgba(0,0,0,0), rgba(255, 240, 152, 0.15), rgba(255, 240, 152, 0.2))
+    background-image: linear-gradient(to left, rgba(0,0,0,0), rgba(255, 240, 152, 0.1), rgba(255, 240, 152, 0.12))
+}
+
+.decoration {
+    width: 2rem;
+    height: 3rem;
+}
+
+.name {
+    text-align: center;
+}
+
+.status-disconnected {
+    color: rgb(171, 171, 171);
+    text-decoration: line-through;
+    filter: grayscale(100%);
+}
+
+.status-admin {
+    color: #f95e4d;
+}
+
+.status-bot {
+    color: cyan;
 }
