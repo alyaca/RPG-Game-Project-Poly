@@ -82,16 +82,27 @@
 
 .sort-button {
     z-index: 999;
-    background-image: url('../../../assets/images/icones/unsorted.png');
     background-size: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 2rem;
-    width: 1.2rem;
     background-repeat: no-repeat;
     // background-color: red;
     margin-bottom: 10%;
+    height: 2rem;
+    width: 1.2rem;
+}
+
+.unsorted {
+    background-image: url('../../../assets/images/icones/unsorted.png');
+}
+
+.descending {
+    background-image: url('../../../assets/images/icones/descending.png');
+}
+
+.ascending {
+    background-image: url('../../../assets/images/icones/ascending.png');
 }
 
 .bottom-container {

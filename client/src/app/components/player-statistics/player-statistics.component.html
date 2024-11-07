@@ -3,10 +3,16 @@
         <img class="player-img" [src]="player.avatar" alt="player-avatar">
         <p> {{ player.name }} </p>
     </div>
-    <p class="stat"> {{ player.combats }} </p>
-    <p class="stat"> {{ getCombatRecord() }} </p>
-    <p class="stat"> {{ player.dmgDealt }} </p>
-    <p class="stat"> {{ player.dmgTaken }} </p>
-    <p class="stat"> {{ player.itemsObtained }} </p>
-    <p class="stat"> {{ player.tilesVisited }} </p>
+    <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'combats'}"> {{ player.combats }} </p>
+    <div class="stat record"> 
+        <p class="txt" [ngClass]="{'highlight': selectedAttribute === 'victories'}"> {{player.victories}} </p>
+        <p class="txt">/</p>
+        <p class="txt" [ngClass]="{'highlight': selectedAttribute === 'evasions'}"> {{player.evasions}} </p>
+        <p class="txt" >/</p>
+        <p class="txt" [ngClass]="{'highlight': selectedAttribute === 'defeats'}"> {{player.defeats}} </p>
+    </div>
+    <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'dmgDealt'}"> {{ player.dmgDealt }} </p>
+    <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'dmgTaken'}"> {{ player.dmgTaken }} </p>
+    <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'itemsObtained'}"> {{ player.itemsObtained }} </p>
+    <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}"> {{ player.tilesVisited }} </p>
 </div>

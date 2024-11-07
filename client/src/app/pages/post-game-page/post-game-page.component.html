@@ -1,7 +1,7 @@
 <div class="post-game-lobby">
     <div class="top-container">
         <p class="title">Statistiques de fin de partie</p>
-        <!-- <p> {{ explanations }}</p> -->
+        <p> {{ explanations }}</p>
     </div>
     <div class="middle-container">
         <div class="left-container">
@@ -19,37 +19,78 @@
         <div class="right-container">
             <div class="attributes">
                 <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('combats')"></div>
+                    <div 
+                        class="sort-button" 
+                        (click)="sortPlayers('combats')" 
+                        [ngClass]="{
+                            'ascending': sortOrder['combats'] === 'ascending',
+                            'descending': sortOrder['combats'] === 'descending',
+                            'unsorted': sortOrder['combats'] === 'unsorted'
+                        }"
+                    ></div>
                     <p class="attr-txt">Combats</p>
                 </div>
                 <div class="attribute">
                     <div class="sort-buttons">
-                        <div class="sort-button" (click)="sortPlayers('victories')"></div>
-                        <div class="sort-button" (click)="sortPlayers('evasions')"></div>
-                        <div class="sort-button" (click)="sortPlayers('defeats')"></div>
+                        <div class="sort-button" (click)="sortPlayers('victories')"                         [ngClass]="{
+                            'ascending': sortOrder['victories'] === 'ascending',
+                            'descending': sortOrder['victories'] === 'descending',
+                            'unsorted': sortOrder['victories'] === 'unsorted'
+                        }"></div>
+                        <div class="sort-button" (click)="sortPlayers('evasions')"                        [ngClass]="{
+                            'ascending': sortOrder['evasions'] === 'ascending',
+                            'descending': sortOrder['evasions'] === 'descending',
+                            'unsorted': sortOrder['evasions'] === 'unsorted'
+                        }"></div>
+                        <div class="sort-button" (click)="sortPlayers('defeats')"                        [ngClass]="{
+                            'ascending': sortOrder['defeats'] === 'ascending',
+                            'descending': sortOrder['defeats'] === 'descending',
+                            'unsorted': sortOrder['defeats'] === 'unsorted'
+                        }"></div>
                     </div>
                     <p class="attr-txt">W/D/L</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('dmgDealt')"></div>
+                    <div class="sort-button" (click)="sortPlayers('dmgDealt')"
+                    [ngClass]="{
+                        'ascending': sortOrder['dmgDealt'] === 'ascending',
+                        'descending': sortOrder['dmgDealt'] === 'descending',
+                        'unsorted': sortOrder['dmgDealt'] === 'unsorted'
+                    }"></div>
                     <p class="attr-txt">Dégats infligés</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('dmgTaken')"></div>
+                    <div class="sort-button" (click)="sortPlayers('dmgTaken')"
+                    [ngClass]="{
+                        'ascending': sortOrder['dmgTaken'] === 'ascending',
+                        'descending': sortOrder['dmgTaken'] === 'descending',
+                        'unsorted': sortOrder['dmgTaken'] === 'unsorted'
+                    }"></div>
                     <p class="attr-txt">Dégats subis</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('itemsObtained')"></div>
+                    <div class="sort-button" (click)="sortPlayers('itemsObtained')"
+                        [ngClass]="{
+                            'ascending': sortOrder['itemsObtained'] === 'ascending',
+                            'descending': sortOrder['itemsObtained'] === 'descending',
+                            'unsorted': sortOrder['itemsObtained'] === 'unsorted'
+                        }"></div>
                     <p class="attr-txt">Obj. ramassés</p>
                 </div>
                 <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('tilesVisited')"></div>
+                    <div class="sort-button" (click)="sortPlayers('tilesVisited')"
+                    [ngClass]="{
+                        'ascending': sortOrder['tilesVisited'] === 'ascending',
+                        'descending': sortOrder['tilesVisited'] === 'descending',
+                        'unsorted': sortOrder['tilesVisited'] === 'unsorted'
+                    }"></div>
                     <p class="attr-txt">% tuiles visités</p>
                 </div>
             </div>
             @for(player of players; track player.id){
                 <app-player-statistics
                     [player]="player"
+                    [selectedAttribute]="selectedAttribute"
                 ></app-player-statistics>
             }
     </div>

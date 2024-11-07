@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { PlayerStatisticsComponent } from '@app/components/player-statistics/player-statistics.component';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+
 export interface LigmaPlayer {
   id: string,
   name: string,
@@ -19,13 +21,23 @@ export interface LigmaPlayer {
 @Component({
   selector: 'app-post-game-page',
   standalone: true,
-  imports: [PlayerStatisticsComponent, ChatBoxComponent, RouterLink],
+  imports: [PlayerStatisticsComponent, ChatBoxComponent, RouterLink, CommonModule],
   templateUrl: './post-game-page.component.html',
   styleUrl: './post-game-page.component.scss'
 })
 export class PostGamePageComponent {
   explanations: string = '';
-  sortOrder: { [key: string]: boolean } = {}; 
+  selectedAttribute: string = '';
+  sortOrder: { [key: string]: 'ascending' | 'descending' | 'unsorted' } = {
+    combats: 'unsorted',
+    victories: 'unsorted',
+    evasions: 'unsorted',
+    defeats: 'unsorted',
+    dmgDealt: 'unsorted',
+    dmgTaken: 'unsorted',
+    itemsObtained: 'unsorted',
+    tilesVisited: 'unsorted'
+  };
   // temporary
   players: LigmaPlayer[] = [{
     id: '0',
@@ -109,9 +121,25 @@ export class PostGamePageComponent {
   doorsInteracted: number = 0;
   flagBearers: number = 0;
 
-  sortPlayers(attribute: keyof LigmaPlayer) {
-    this.sortOrder[attribute] = !this.sortOrder[attribute];
-    const isAscending = this.sortOrder[attribute];
+
+  resetOtherAttributes(attribute: keyof LigmaPlayer){
+    Object.keys(this.sortOrder).forEach(key => {
+      if (key !== attribute) {
+        this.sortOrder[key] = 'unsorted';
+      }
+    });
+  }
+
+  toggleSortOrder(attribute: keyof LigmaPlayer){
+    if (this.sortOrder[attribute] === 'unsorted' || this.sortOrder[attribute] === 'ascending') {
+      this.sortOrder[attribute] = 'descending';
+    } else {
+      this.sortOrder[attribute] = 'ascending';
+    }
+  }
+
+  performSorting(attribute: keyof LigmaPlayer){
+    const isAscending = this.sortOrder[attribute] === 'ascending';
 
     this.players.sort((a, b) => {
       const valA = a[attribute];
@@ -121,5 +149,12 @@ export class PostGamePageComponent {
       if (valA < valB) return isAscending ? -1 : 1;
       return 0;
     });
+  }
+
+  sortPlayers(attribute: keyof LigmaPlayer) {
+    this.selectedAttribute = attribute;
+    this.resetOtherAttributes(attribute);
+    this.toggleSortOrder(attribute);
+    this.performSorting(attribute);
   }
 }
