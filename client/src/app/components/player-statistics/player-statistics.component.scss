@@ -1,0 +1,25 @@
+.player-stats {
+    display: flex;
+    align-items: center;
+    // background-color: rgb(53, 24, 79);
+}
+
+.player {
+    flex: 1 1 17%;
+    display: flex;
+    margin-left: 3%;
+    align-items: center;
+}
+
+.player-img {
+    height: 4rem;
+    width: 4rem;
+    margin: 3%;
+    margin-right: 10%;
+}
+
+.stat {
+    text-align: center;
+    flex: 1 1 10%;
+    // background-color: rgb(82, 82, 82);
+}

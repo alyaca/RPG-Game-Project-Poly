@@ -1,0 +1,44 @@
+<div class="post-game-lobby">
+    <p class="title">Statistiques de fin de partie</p>
+    <div class="attributes">
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Combats</p>
+        </div>
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Victoires</p>
+        </div>
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Évasions</p>
+        </div >
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Défaites</p>
+        </div>
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Dégats infligés</p>
+        </div>
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Dégats subis</p>
+        </div>
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>Objets ramassés</p>
+        </div>
+        <div class="attribute">
+            <div class="sort-button"></div>
+            <p>% tuiles visités</p>
+        </div>
+    </div>
+    @for(player of players; track player.id){
+        <app-player-statistics
+            [player]="player"
+        ></app-player-statistics>
+    }
+</div>
+
+
