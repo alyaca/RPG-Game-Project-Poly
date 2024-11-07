@@ -60,11 +60,11 @@ export class CombatService {
         if (attackValue > defenseValue) {
             this.defender.attributes.currentHp--;
             this.emitToCombatPlayers(server, 'attackSuccess', this.defender);
-            this.checkIfPlayerIsDead(client, this.defender, this.attacker, server);
+            if (this.checkIfPlayerIsDead(client, this.defender, this.attacker, server)) {
+                return;
+            }
         } else if (attackValue < defenseValue) {
-            // this.attacker.attributes.currentHp--;
             this.emitToCombatPlayers(server, 'attackFail', this.attacker);
-            // this.checkIfPlayerIsDead(client, this.attacker, this.defender, server);
         } else {
             this.emitToCombatPlayers(server, 'drawCombat');
         }
@@ -81,36 +81,42 @@ export class CombatService {
         return EVASION_LUCK < this.getRandom(EVASION_RANDOM);
     }
 
+    isCombatFinish(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
+        const playerWinner = room.listPlayers.find((p) => p.id === attacker.id);
+        playerWinner.victories++;
+        this.emitToCombatPlayers(server, 'playerDead', defender);
+        this.checkEndGame(playerWinner, room, server);
+        this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
+    }
+
+    continueTurn(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
+            if (timeRemaining <= 0) {
+                this.emitToCombatPlayers(server, 'turnEnded', room.listPlayers);
+                this.gameService.onTurnEnded(client, server);
+            }
+            this.emitToCombatPlayers(server, 'startedTurnTimer', timeRemaining);
+        });
+        defender.attributes.currentHp = defender.attributes.totalHp;
+        attacker.attributes.currentHp = attacker.attributes.totalHp;
+    }
+
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         if (defender.attributes.currentHp <= 0) {
-            const room = this.roomService.getRoom(client);
-            const playerWinner = room.listPlayers.find((p) => p.id === attacker.id);
-            playerWinner.victories++;
-            this.checkEndGame(room.listPlayers, room, server);
-            this.emitToCombatPlayers(server, 'playerDead', defender);
-            this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
-
-            this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
-                if (timeRemaining <= 0) {
-                    this.emitToCombatPlayers(server, 'turnEnded', room.listPlayers);
-                    this.gameService.onTurnEnded(client, server);
-                }
-                this.emitToCombatPlayers(server, 'startedTurnTimer', timeRemaining);
-            });
-            defender.attributes.currentHp = defender.attributes.totalHp;
-            attacker.attributes.currentHp = attacker.attributes.totalHp;
+            this.isCombatFinish(client, defender, attacker, server);
+            this.continueTurn(client, defender, attacker, server);
             return true;
         }
         return false;
     }
 
-    checkEndGame(listPlayers: Player[], room: Room, server: Server) {
-        listPlayers.forEach((player) => {
-            if (player.victories >= VICTORIES) {
-                server.to(room.roomId).emit('endGame', player);
-                this.gameService.stopGameTimers(room);
-            }
-        });
+    checkEndGame(player: Player, room: Room, server: Server) {
+        if (player.victories >= VICTORIES) {
+            server.to(room.roomId).emit('endGame', player);
+            this.gameService.stopGameTimers(room);
+        }
     }
 
     getRandom(max: number) {

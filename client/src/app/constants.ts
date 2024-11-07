@@ -120,6 +120,7 @@ export const WARNING_TIME = 3;
 export const TIMER_RADIUS = 45;
 export const MILLISECONDS_IN_SECOND = 1000;
 export const TIMER_CENTER_POSITION = 50;
+export const ATTACK_TIME = 5;
 
 export const TEMP_DIALOG_DURATION = 1500;
 export const LONG_TEMP_DIALOG_DURATION = 4500;
