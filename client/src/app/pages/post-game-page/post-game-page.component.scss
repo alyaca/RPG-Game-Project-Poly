@@ -7,31 +7,47 @@
     color: white;
 }
 
+.title {
+    margin-left: 20%;
+    font-size: 1.2rem;
+    flex: 1 1 30%;
+}
+
+.explanations {
+    margin-left: 10%;
+    margin-right: 10%;
+    flex: 1 1 70%;
+    background-color: rgb(40, 36, 36);
+    height: 3vh;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    color: rgb(255, 240, 152);
+}
+
+.top-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+}
+
 .left-container {
     width: 25vw;
     display: flex;
     flex-direction: column;
-    //background-color: darkslategrey;
+    flex: 1 1 50%;
 }
 
 .right-container {
     width: 75vw;
-    //display: flex;
     flex-direction: column;
-    //background-color: rgb(47, 48, 79);
-}
-
-.title {
-    text-align: center;
-    font-size: 1.2rem;
-    //flex: 1 1 2%;
 }
 
 .middle-container {
     display: flex;
     flex-direction: row;
-    //flex: 1 1 50%;
-    //background-color: blue;
     padding: 0;
     margin: 0;
 }
@@ -40,25 +56,44 @@
     margin-left: 20vw;
     display: flex;
     flex-direction: row;
-    //background-color: darkblue;
 }
 
 .attr-txt  {
     margin: 0;
+    transition: color 0.3s ease, font-size 0.3s ease;
+}
+
+.global-attribute {
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.global-attribute:hover {
+    transform: scale(1.1);
+    color: rgb(255, 240, 152);
 }
 
 .attribute {
     display: flex;
     flex-direction: column;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     width: 8vw;
     height: 10vh;
     text-align: center;
     margin: 0 1vw;
     justify-content: center;
     align-items: center;
-    //background-color: darkmagenta;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
+
+.attribute:hover {
+    transform: scale(1.05);
+}
+
+.attribute:hover .attr-txt {
+    color: rgb(255, 240, 152);
+    font-size: 0.95rem;
+}
+
 
 .chat {
     //display: flex;
@@ -87,7 +122,6 @@
     justify-content: center;
     align-items: center;
     background-repeat: no-repeat;
-    // background-color: red;
     margin-bottom: 10%;
     height: 2rem;
     width: 1.2rem;
@@ -110,7 +144,6 @@
     justify-content: center;
     align-items: center;
     height: 10vh;
-    //background-color: red;
 }
 .quit {
     padding: 0.3% 2%;

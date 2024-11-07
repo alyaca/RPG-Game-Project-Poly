@@ -115,7 +115,7 @@ export class PostGamePageComponent {
   }
 ]
 
-  duration: string = '00:00:00';
+  duration: string = '00:00';
   turns: number = 0;
   visitedTiles: number = 0;
   doorsInteracted: number = 0;
@@ -156,5 +156,46 @@ export class PostGamePageComponent {
     this.resetOtherAttributes(attribute);
     this.toggleSortOrder(attribute);
     this.performSorting(attribute);
+  }
+
+  updateExplanations(attribute: string){
+    switch(attribute){
+      case 'combats':
+        this.explanations = 'Nombre de combats participés par le joueur';
+        break;
+      case 'records':
+        this.explanations = 'Résultats des combats du joueur sous la forme victoires/évasions/défaites';
+        break;
+      case 'dmgDealt':
+        this.explanations = 'Nombre de points de dégats infligés sur les joueurs adverses';
+        break;
+      case 'dmgTaken':
+        this.explanations = 'Nombre de points de dégats subis pas le joueur';
+        break;
+      case 'itemsObtained':
+        this.explanations = "Nombre d'objets ramassés par le joueur au cours de la partie";
+        break;
+      case 'tilesVisited':
+        this.explanations = 'Pourcentage des tuiles de terrain visités par le joueur';
+        break;
+      case 'gameDuration':
+        this.explanations = "Temps écoulé depuis le début de la partie jusqu'à la finde la partie";
+        break;
+      case 'turns':
+        this.explanations = "Somme des tours de tous les joueurs de cette partie";
+        break;
+      case 'globalTilesVisited':
+        this.explanations = "Pourcentage des tuiles de terrain visitées par au moins un joueur";
+        break;
+      case 'doorsInteracted':
+        this.explanations = "Pourcentage des portes ayant été manipulées au moins une fois";
+        break;
+      case 'flagBearers':
+        this.explanations = "Nombre de joueurs différents ayant détenu le drapeau (si applicable)";
+        break;      
+      default:
+        this.explanations = '';
+        break;
+    }
   }
 }

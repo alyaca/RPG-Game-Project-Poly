@@ -1,16 +1,35 @@
 <div class="post-game-lobby">
     <div class="top-container">
         <p class="title">Statistiques de fin de partie</p>
-        <p> {{ explanations }}</p>
+        <p class="explanations"> {{ explanations }}</p>
     </div>
     <div class="middle-container">
         <div class="left-container">
             <div class="global-stats">
-                <p>Durée de la partie: {{ duration }}</p>
-                <p>Nombre de tours: {{ turns }}</p>
-                <p>% de tuiles visitées: {{ visitedTiles }}</p>
-                <p>% de portes intéragis: {{ doorsInteracted }}</p>
-                <p>Détenteurs du drapeau: {{ flagBearers }}</p>
+                <p
+                class="global-attribute"                 
+                (mouseenter)="updateExplanations('gameDuration')"
+                (mouseleave)="updateExplanations('')">
+                Durée de la partie: {{ duration }}</p>
+                <p
+                class="global-attribute"                 
+                (mouseenter)="updateExplanations('turns')"
+                (mouseleave)="updateExplanations('')">
+                Nombre de tours: {{ turns }}</p>
+                <p
+                class="global-attribute"                 
+                (mouseenter)="updateExplanations('globalTilesVisited')"
+                (mouseleave)="updateExplanations('')">
+                % de tuiles visitées: {{ visitedTiles }}</p>
+                <p
+                class="global-attribute"                 
+                (mouseenter)="updateExplanations('doorsInteracted')"
+                (mouseleave)="updateExplanations('')">
+                % de portes intéragis: {{ doorsInteracted }}</p>
+                <p class="global-attribute"                 
+                (mouseenter)="updateExplanations('flagBearers')"
+                (mouseleave)="updateExplanations('')">
+                Détenteurs du drapeau: {{ flagBearers }}</p>
             </div>
             <div class="chat">
                 <app-chat-box [isToggleable]="true"></app-chat-box>
@@ -18,10 +37,13 @@
         </div>
         <div class="right-container">
             <div class="attributes">
-                <div class="attribute">
+                <div 
+                class="attribute" 
+                (mouseenter)="updateExplanations('combats')"
+                (mouseleave)="updateExplanations('')"
+                (click)="sortPlayers('combats')" >
                     <div 
                         class="sort-button" 
-                        (click)="sortPlayers('combats')" 
                         [ngClass]="{
                             'ascending': sortOrder['combats'] === 'ascending',
                             'descending': sortOrder['combats'] === 'descending',
@@ -30,7 +52,10 @@
                     ></div>
                     <p class="attr-txt">Combats</p>
                 </div>
-                <div class="attribute">
+                <div 
+                class="attribute" 
+                (mouseenter)="updateExplanations('records')"
+                (mouseleave)="updateExplanations('')">
                     <div class="sort-buttons">
                         <div class="sort-button" (click)="sortPlayers('victories')"                         [ngClass]="{
                             'ascending': sortOrder['victories'] === 'ascending',
@@ -50,17 +75,25 @@
                     </div>
                     <p class="attr-txt">W/D/L</p>
                 </div>
-                <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('dmgDealt')"
+                <div 
+                class="attribute" 
+                (mouseenter)="updateExplanations('dmgDealt')"
+                (mouseleave)="updateExplanations('')"
+                (click)="sortPlayers('dmgDealt')">
+                    <div class="sort-button" 
                     [ngClass]="{
                         'ascending': sortOrder['dmgDealt'] === 'ascending',
                         'descending': sortOrder['dmgDealt'] === 'descending',
                         'unsorted': sortOrder['dmgDealt'] === 'unsorted'
                     }"></div>
-                    <p class="attr-txt">Dégats infligés</p>
+                    <p class="attr-txt">Dég. infligés</p>
                 </div>
-                <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('dmgTaken')"
+                <div 
+                class="attribute" 
+                (mouseenter)="updateExplanations('dmgTaken')"
+                (mouseleave)="updateExplanations('')"
+                (click)="sortPlayers('dmgTaken')">
+                    <div class="sort-button" 
                     [ngClass]="{
                         'ascending': sortOrder['dmgTaken'] === 'ascending',
                         'descending': sortOrder['dmgTaken'] === 'descending',
@@ -68,8 +101,12 @@
                     }"></div>
                     <p class="attr-txt">Dégats subis</p>
                 </div>
-                <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('itemsObtained')"
+                <div 
+                class="attribute" 
+                (mouseenter)="updateExplanations('itemsObtained')"
+                (mouseleave)="updateExplanations('')"
+                (click)="sortPlayers('itemsObtained')">
+                    <div class="sort-button" 
                         [ngClass]="{
                             'ascending': sortOrder['itemsObtained'] === 'ascending',
                             'descending': sortOrder['itemsObtained'] === 'descending',
@@ -77,8 +114,12 @@
                         }"></div>
                     <p class="attr-txt">Obj. ramassés</p>
                 </div>
-                <div class="attribute">
-                    <div class="sort-button" (click)="sortPlayers('tilesVisited')"
+                <div 
+                class="attribute" 
+                (mouseenter)="updateExplanations('tilesVisited')"
+                (mouseleave)="updateExplanations('')"
+                (click)="sortPlayers('tilesVisited')">
+                    <div class="sort-button" 
                     [ngClass]="{
                         'ascending': sortOrder['tilesVisited'] === 'ascending',
                         'descending': sortOrder['tilesVisited'] === 'descending',
