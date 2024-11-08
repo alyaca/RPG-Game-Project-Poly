@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, MIN_NUMBER_PLAYER } from '@app/constants';
+import { baseBot } from '@app/mocks/mock-player';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
@@ -136,5 +137,11 @@ export class WaitingPageComponent implements OnInit {
                     this.socketCommunicationService.send('startGame');
                 }
             });
+    }
+
+    addBot(){
+        if(!this.isMaxPlayersReached()){
+            this.players.push(baseBot);
+        }
     }
 }
