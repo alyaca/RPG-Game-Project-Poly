@@ -3,6 +3,7 @@ import { ObjectType, TileCost, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
+import { PlayerInventoryService } from '../player-inventory/player-inventory.service';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -23,9 +24,11 @@ const godNameToObjectType = new Map<string, ObjectType>([
     providedIn: 'root',
 })
 export class NavigationService {
+    constructor(private playerInventory: PlayerInventoryService) {}
     path: Position[];
     players: Player[];
     gameMap: Game;
+    activePlayer: Player;
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
     positions: number[][];
@@ -46,7 +49,10 @@ export class NavigationService {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
-            this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+            const object = this.getObject(activePlayer.position);
+            const itemToPlace = this.playerInventory.updateInventory(activePlayer, object, this.objects);
+            // this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+            this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }
@@ -113,6 +119,8 @@ export class NavigationService {
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.initializeDistances(player, game);
 
+        this.activePlayer = player;
+
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
 
         while (priorityQueue.length > 0) {
@@ -156,6 +164,7 @@ export class NavigationService {
     }
 
     navigateToTile(player: Player, destination: Position, game: Game): Position[] {
+        this.activePlayer = player;
         if (this.isReachableTile(destination.x, destination.y)) {
             this.path = this.findFastestPath(player, destination, game);
             if (this.path.length > 0) {
@@ -200,7 +209,7 @@ export class NavigationService {
         return undefined;
     }
 
-    getTileCost(tileType: number): number {
+    getTileCost(player: Player, tileType: number): number {
         switch (tileType) {
             case TileType.Ground:
                 return TileCost.Ground;
@@ -210,6 +219,13 @@ export class NavigationService {
                 return TileCost.Ice;
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
+            case TileType.Wall:
+                if (player) {
+                    if (player.inventory.find((object) => object.id === ObjectType.Kunee)) {
+                        return TileCost.Ground;
+                    }
+                }
+                return Infinity;
             default:
                 return Infinity;
         }
@@ -242,9 +258,9 @@ export class NavigationService {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
+            //if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
-            const tileCost = this.getTileCost(game.tiles[newX][newY]);
+            const tileCost = this.getTileCost(this.activePlayer, game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
             if (newDistance < this.distances[newX][newY] && newDistance <= maxMovementPoints) {
@@ -268,9 +284,9 @@ export class NavigationService {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
+            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
-            const tileCost = this.getTileCost(game.tiles[newX][newY]);
+            const tileCost = this.getTileCost(this.activePlayer, game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
             if (newDistance < this.distances[newX][newY]) {

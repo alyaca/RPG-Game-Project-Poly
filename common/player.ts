@@ -21,7 +21,7 @@ export interface Player {
     name: string;
     status: Status;
     victories: number;
-    inventory?: GameObject[];
+    inventory: GameObject[];
     position: { x: number; y: number };
 }
 

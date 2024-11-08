@@ -371,7 +371,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.findReachableTiles();
         if (this.activePlayer) {
             this.navigationService.updateTile(this.activePlayer);
-            const cost = this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
+            const cost = this.navigationService.getTileCost(this.activePlayer, this.tilesGrid[position.x][position.y]);
             this.activePlayer.attributes.movementPointsLeft -= cost;
             this.activePlayer.position = position;
         }

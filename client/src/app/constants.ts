@@ -8,6 +8,9 @@ export enum GameMode {
     Classic = 'classic',
     Ctf = 'ctf',
 }
+
+export const MAX_INVENTORY_ITEMS = 2;
+
 // Constants for the number of items and spawn points for each type of map
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
