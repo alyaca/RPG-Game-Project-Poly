@@ -53,6 +53,7 @@ export class NavigationService {
             const itemToPlace = this.playerInventory.updateInventory(activePlayer, object, this.objects);
             // this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
             this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
+            this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }
@@ -117,9 +118,9 @@ export class NavigationService {
     }
 
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
-        this.initializeDistances(player, game);
-
         this.activePlayer = player;
+
+        this.initializeDistances(player, game);
 
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
 

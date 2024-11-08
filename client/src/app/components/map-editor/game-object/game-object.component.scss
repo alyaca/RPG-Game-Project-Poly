@@ -27,6 +27,7 @@
 .image-container:hover + .object-description-container {
     opacity: 1;
     display: inline-block;
+    z-index: 100;
 }
 
 .object-count {
@@ -46,21 +47,20 @@
     z-index: 2;
 }
 
-.left-description { 
+.left-description {
     top: 3%;
     right: 110%;
     width: 12rem;
     height: 7rem;
 }
 
-.bottom-description { 
+.bottom-description {
     top: 110%;
     left: 15%;
     width: 12rem;
     height: 7rem;
     background: yellow;
 }
-
 
 .object-description {
     font-size: 0.8rem;
@@ -80,7 +80,6 @@
     background: linear-gradient(to left, rgb(138, 135, 93), rgb(194, 185, 134) 25%, rgb(224, 216, 173) 75%, rgb(124, 121, 83) 100%);
     z-index: 10;
 }
-
 
 .object-name {
     font-size: 1rem;

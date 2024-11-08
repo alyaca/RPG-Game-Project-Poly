@@ -44,7 +44,7 @@ export class GameService {
         return room.listPlayers.find((player) => player.isActive === true);
     }
 
-    getGame(roomId) {
+    getGame(roomId: string) {
         return this.roomService.rooms.get(roomId);
     }
 
@@ -282,7 +282,6 @@ export class GameService {
     private updateActivePlayer(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const listPlayers = this.getPlayerConnectedInRoom(room);
-        console.log(listPlayers);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
