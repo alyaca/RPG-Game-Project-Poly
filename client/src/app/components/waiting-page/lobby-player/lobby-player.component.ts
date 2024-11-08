@@ -15,14 +15,22 @@ import { Player } from '@common/player';
 export class LobbyPlayerComponent {
     @Input() lobbyPlayer: Player;
     @Input() isPlayerAdmin: boolean;
-
+    public Status = Status;
     constructor(
         private dialog: MatDialog,
         private socketCommunicationService: SocketCommunicationService,
     ) {}
 
-    isAdmin() {
-        return this.lobbyPlayer.status === Status.Admin;
+    getPlayerClass(): string {
+        if(this.lobbyPlayer.status === Status.Admin){
+            return 'admin';
+        }
+        else if(this.lobbyPlayer.status === Status.Bot){
+            return 'bot';
+        }
+        else{
+            return 'player';
+        }
     }
 
     kickOutPlayer() {

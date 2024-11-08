@@ -5,14 +5,15 @@ import { Router, RouterLink } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, MIN_NUMBER_PLAYER } from '@app/constants';
-import { baseBot } from '@app/mocks/mock-player';
+
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -28,7 +29,7 @@ export class WaitingPageComponent implements OnInit {
     isLocked: boolean = false;
     isAdmin: boolean = false;
     players: Player[];
-
+    public Status: Status;
     private router = inject(Router);
     private gameService = inject(GameService);
 
@@ -139,9 +140,31 @@ export class WaitingPageComponent implements OnInit {
             });
     }
 
-    addBot(){
-        if(!this.isMaxPlayersReached()){
-            this.players.push(baseBot);
+    addBot() {
+        if (!this.isMaxPlayersReached()) {
+            // const foundAvatar = this.assignNameImgToBot();
+            // let newBot = JSON.parse(JSON.stringify(baseBot));
+            // newBot.name = foundAvatar?.name + '-bot';
+            // if (newBot.avatar && foundAvatar) {
+            //     newBot.avatar.src = foundAvatar?.src;
+            // }
+            // newBot.status = Status.Bot;
+            // const newBot = baseBot;
+
+            this.socketCommunicationService.send('createBot');
+            // this.socketCommunicationService.send('createPlayer', newBot);
+            // this.socketCommunicationService.send('selectCharacter', foundAvatar);
+            // this.players.push(newBot);
         }
+    }
+
+    assignNameImgToBot() {
+        for (const avatar of avatars) {
+            if (!avatar.isTaken) {
+                avatar.isTaken = true;
+                return avatar;
+            }
+        }
+        return;
     }
 }

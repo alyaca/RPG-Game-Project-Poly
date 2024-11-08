@@ -5,7 +5,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, Player, Position } from '@common/player';
+import { Avatar, baseBot, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -72,6 +72,26 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.createPlayer(room, player, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
         client.emit('isPlayerAdmin', isAdmin);
+    }
+
+    @SubscribeMessage(SocketEvents.CreateBot)
+    handleCreateBot(client : Socket)
+    {
+        baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
+        console.log(baseBot.id);
+        const room = this.roomService.getRoom(client);
+        const newBot = JSON.parse(JSON.stringify(baseBot));
+
+        for(let newAvatar of room.availableAvatars.reverse()){
+            if(!newAvatar.isTaken){
+                newBot.avatar = newAvatar;
+                newBot.name = newAvatar.name + '-bot';
+            }
+        }
+
+        this.gameService.createPlayer(room, newBot, client);
+        this.server.to(room.roomId).emit('updatedPlayer', room);
+        newBot.avatar.isTaken = true;
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)

@@ -1,7 +1,8 @@
 .player {
     height: 110%;
     color: white;
-    background: linear-gradient(to bottom, rgb(15, 33, 71), rgba(36, 90, 152, 0.9) 33%, rgba(63, 106, 155, 0.6) 67%, rgba(75, 85, 116, 0));
+    background: linear-gradient(to bottom, rgb(16, 15, 14), rgba(26, 26, 23, 0.9) 10%, rgba(103, 99, 90, 0.6) 90%, rgba(117, 108, 66, 0));
+    //background: linear-gradient(to bottom, rgb(24, 27, 26), rgba(29, 33, 31, 0.9) 10%, rgba(60, 68, 69, 0.6) 90%, rgba(117, 108, 66, 0));
     position: relative;
     display: flex;
     justify-content: flex-start;
@@ -41,7 +42,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2%;
+    gap: 5%;
 }
 
 .admin .player-name {
@@ -119,3 +120,20 @@ img {
 .player-img img {
     border: 2px solid black;
 }
+
+
+.bot {
+    background: linear-gradient(to bottom, rgb(15, 49, 71), rgba(36, 115, 152, 0.9) 33%, rgba(75, 152, 185, 0.6) 67%, rgba(75, 85, 116, 0));
+    // background: linear-gradient(to bottom, rgb(15, 33, 71), rgba(36, 90, 152, 0.9) 33%, rgba(63, 106, 155, 0.6) 67%, rgba(75, 85, 116, 0));
+    color: white;
+}
+
+.bot-logo {
+    background-image: url('../../../../assets/images/icones/dark-bot.png');
+    height: 1.6rem;
+    width: 1.6rem;
+    margin: 0;
+    border-radius: 0;
+    margin-top: -0.4rem;
+}
+

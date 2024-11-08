@@ -1,3 +1,4 @@
+import { defaultAttributes } from './default-attributes';
 import { GameObject } from '@common/game-object';
 export interface Avatar {
     name: string;
@@ -42,3 +43,15 @@ export interface Position {
     x: number;
     y: number;
 }
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src:'', isSelected: true, isTaken: true},
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: defaultAttributes,
+    inventory: [],
+    position: { x: 0, y: 0 },
+};

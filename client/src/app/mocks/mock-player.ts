@@ -1,5 +1,4 @@
 import { ObjectType } from '@app/constants';
-import { defaultAttributes } from '@app/default-attributes';
 import { PlayerObjects, Status } from '@app/interfaces/player-object';
 import { Player } from '@common/player';
 
@@ -59,18 +58,6 @@ export const playerNavigation: Player = {
     name: 'Hestia',
     status: Status.Player,
     victories: 1,
-    inventory: [],
-    position: { x: 0, y: 0 },
-};
-
-export const baseBot: Player = {
-    id: '0',
-    avatar: { name: 'a', src:'', isSelected: true, isTaken: true},
-    status: Status.Bot,
-    name: 'Joueur virtuel',
-    victories: 0,
-    isActive: false,
-    attributes: defaultAttributes,
     inventory: [],
     position: { x: 0, y: 0 },
 };

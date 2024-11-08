@@ -1,6 +1,7 @@
 import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
+import { avatars } from '@common/avatars-info';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
@@ -30,12 +31,16 @@ export class GameService {
     }
 
     createPlayer(room: Room, player: Player, socket: Socket) {
-        player.id = socket.id;
-        this.setUniquePlayerName(player, socket);
-        if (this.roomService.isPlayerAdmin(socket)) {
-            player.status = Status.Admin;
+        if (player.status !== Status.Bot) {
+            player.id = socket.id;
+            if (this.roomService.isPlayerAdmin(socket)) {
+                player.status = Status.Admin;
+            }
         }
+        this.setUniquePlayerName(player, socket);
         room.listPlayers.push(player);
+        // console.log(player.avatar);
+        // console.log(room.listPlayers);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
         takenAvatar.isTaken = true;
     }
@@ -294,5 +299,23 @@ export class GameService {
                 this.sendAvatarListToClient(clientSocket);
             }
         });
+    }
+
+    availableAvatars: Avatar[] = avatars.map((avatar) => ({ ...avatar }));
+
+    getAvailableAvatar(socket: Socket) {
+        const availableAvatar = this.availableAvatars.find((avatar) => !avatar.isTaken);
+        if (availableAvatar) {
+            socket.emit('availableAvatar', availableAvatar);
+        } else {
+            socket.emit('availableAvatar', null);
+        }
+    }
+
+    markAvatarTaken(avatarName: string) {
+        const avatar = this.availableAvatars.find((av) => av.name === avatarName);
+        if (avatar) {
+            avatar.isTaken = true;
+        }
     }
 }

@@ -19,8 +19,6 @@ header {
     font-size: 1.5rem;
     font-family: papyrus;
     font-weight: 900;
-
-    border: 1px solid white;
 }
 
 header > * {
@@ -240,12 +238,9 @@ app-lobby-player {
 //////
 
 .add-bot {
-    // display: flex;
-    // align-items: center;
-    // justify-content: center;
+
     background: linear-gradient(to right, rgb(110, 105, 45), rgb(232, 211, 109) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
-    font-size: 0.75rem;
-    color: black;
+    font-size: 1.2rem;
     border-radius: 2rem;
     width: 20rem;
     height: 3rem;
@@ -253,6 +248,7 @@ app-lobby-player {
     // box-sizing: border-box; 
     margin-top: -50rem;
     align-self: center;
+    border: 1px solid gray;
 }
 
 .add-bot:hover {
