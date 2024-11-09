@@ -3,11 +3,16 @@
     <div class="player-name">
         @if(isPlayerAdmin) {
         <div class="kick" (click)="kickOutPlayer()">
-            <img src="./assets/images/icones/kick.png" />
+            @if(lobbyPlayer.status === Status.Bot){
+                <img src="./assets/images/icones/kick.png" />
+            }
+            @else {
+                <img src="./assets/images/icones/white-kick.png" />
+            }
         </div>
         }
         {{ lobbyPlayer.name }}
-        @if(this.lobbyPlayer.status === Status.Bot){
+        @if(lobbyPlayer.status === Status.Bot){
             <img class="bot-logo" src="./assets/images/icones/dark-bot.png" />
         }
     </div>

@@ -239,8 +239,10 @@ app-lobby-player {
 
 .add-bot {
 
-    background: linear-gradient(to right, rgb(110, 105, 45), rgb(232, 211, 109) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
-    font-size: 1.2rem;
+    //background: linear-gradient(to right, rgb(110, 105, 45), rgb(232, 211, 109) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
+    color: white;
+    background: linear-gradient(to right, rgb(15, 49, 71), rgb(36, 115, 152) 33%, rgb(75, 152, 185) 67%, rgb(15, 49, 71));
+    font-size: 1rem;
     border-radius: 2rem;
     width: 20rem;
     height: 3rem;
