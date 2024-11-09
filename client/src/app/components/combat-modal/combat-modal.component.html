@@ -1,5 +1,5 @@
 <div class="combat-modal">
-    <div class="turn-message">{{ turnMessage }}</div>
+    <div class="turn-message">{{ combatService.turnMessage }}</div>
     <div class="top-section">
         <div class="player-info">
             <app-combat-stats-bar
@@ -17,7 +17,7 @@
     </div>
     <div class="middle-section">
         <div>
-            <div class="player-avatar-container" [ngClass]="{ 'active-player-border': isAttacker(activePlayer) }">
+            <div class="player-avatar-container" [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.activePlayer) }">
                 <img class="player-img left-player" src="{{ activePlayer.avatar?.src }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
@@ -30,18 +30,18 @@
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ determineStats(activePlayer) }}</div>
+                <div>{{ combatService.activePlayerResult }}</div>
             </div>
             <app-dice #dice2></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ determineStats(opponent) }}</div>
+                <div>{{ combatService.opponentResult }}</div>
             </div>
             <app-dice #dice1></app-dice>
         </div>
         <div>
-            <div class="player-avatar-container" [ngClass]="{ 'active-player-border': isAttacker(opponent) }">
+            <div class="player-avatar-container" [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.opponent) }">
                 <img class="player-img right-player" src="{{ opponent.avatar?.src }}" alt="right player portrait" />
                 <div class="damaged-overlay"></div>
             </div>
@@ -57,17 +57,17 @@
         <div class="evasion-container">
             <div>
                 <p class="action-text">Évader</p>
-                <div [class.disabled]="!isCurrentTurn()" class="button-outer end-outer" (click)="triggerEvade()">
+                <div [class.disabled]="!combatService.isCurrentTurn()" class="button-outer end-outer" (click)="triggerEvade()">
                     <div class="evade-button"></div>
                 </div>
             </div>
         </div>
         <div class="display">
-            <div class="display-text">{{ combatStatus }}</div>
+            <div class="display-text">{{ combatService.combatStatus }}</div>
         </div>
         <div>
             <p class="action-text">Attaquer</p>
-            <div [class.disabled]="!isCurrentTurn()" class="button-outer end-outer" (click)="triggerAttack()">
+            <div [class.disabled]="!combatService.isCurrentTurn()" class="button-outer end-outer" (click)="triggerAttack()">
                 <div class="attack-button"></div>
             </div>
         </div>

@@ -354,7 +354,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.gameService.isActionCombatSelected = false;
             const player1 = this.activePlayer;
             const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
-            this.socketCommunicationService.send('startFight', { player1, player2 });
+            const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
+            const isActivePlayerAttacker = player1.id === attacker.id;
+            this.socketCommunicationService.send('startFight', { player1: attacker, player2: defender, isPlayer1Active: isActivePlayerAttacker });
         }
     }
 

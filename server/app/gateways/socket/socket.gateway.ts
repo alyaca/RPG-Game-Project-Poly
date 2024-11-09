@@ -103,13 +103,18 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.StartFight)
-    handleStartFight(client: Socket, { player1, player2 }) {
-        this.combatService.startFight(client, player1, player2, this.server);
+    handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
+        this.combatService.startFight(client, player1, player2, isPlayer1Active, this.server);
     }
 
     @SubscribeMessage(SocketEvents.AttackPlayer)
     handleAttackPlayer(client: Socket) {
         this.combatService.attackPlayer(client, this.server);
+    }
+
+    @SubscribeMessage(SocketEvents.EvadeCombat)
+    handleEvadeCombat(client: Socket, player: Player) {
+        this.combatService.evadingPlayer(client, player, this.server);
     }
 
     @SubscribeMessage(SocketEvents.EndTurn)

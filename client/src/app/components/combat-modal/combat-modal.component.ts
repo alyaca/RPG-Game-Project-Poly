@@ -23,7 +23,6 @@ export class CombatModalComponent implements OnInit {
     @Input() isInCombat = false;
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;
-    turnMessage: string;
     activePlayer: Player;
     opponent: Player;
     attacker: Player;
@@ -31,7 +30,6 @@ export class CombatModalComponent implements OnInit {
 
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
-
     combatTurnTime: number;
     combatStatus: string = '';
     private subscription: Subscription = new Subscription();
@@ -45,19 +43,8 @@ export class CombatModalComponent implements OnInit {
     ngOnInit() {
         this.activePlayer = this.combatService.activePlayer;
         this.opponent = this.combatService.opponent;
-
-        this.subscription.add(
-            this.combatService.attacker$.subscribe((attacker) => {
-                this.attacker = attacker;
-                this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
-            }),
-        );
-
-        this.subscription.add(
-            this.combatService.defender$.subscribe((defender) => {
-                this.defender = defender;
-            }),
-        );
+        this.attacker = this.combatService.attacker;
+        this.defender = this.combatService.defender;
 
         this.subscription.add(
             this.combatService.combatTurnTime$.subscribe((timeRemaining) => {
@@ -66,10 +53,6 @@ export class CombatModalComponent implements OnInit {
         );
 
         this.combatService.initSocketListeners();
-    }
-
-    determineStats(player: Player) {
-        return this.isAttacker(player) ? this.attacker.attributes.attack : this.defender.attributes.defense;
     }
 
     // ngAfterViewInit() {
@@ -81,7 +64,7 @@ export class CombatModalComponent implements OnInit {
 
     closeModal() {
         this.combatService2.setDisplayText('');
-        this.combatService2.resetPlayerHp(this.activePlayer, this.opponent);
+        this.combatService.resetPlayerHp(this.activePlayer, this.opponent);
         this.isInCombat = false;
     }
 
@@ -90,15 +73,7 @@ export class CombatModalComponent implements OnInit {
     }
 
     triggerEvade() {
-        this.socketCommunicationService.send('evadeCombat');
+        this.socketCommunicationService.send('evadeCombat', this.attacker);
         // this.combatService2.attemptEvade();
-    }
-
-    isAttacker(player: Player) {
-        return this.attacker && player.id === this.attacker.id;
-    }
-
-    isCurrentTurn() {
-        return this.socketCommunicationService.socket.id === this.attacker.id;
     }
 }
