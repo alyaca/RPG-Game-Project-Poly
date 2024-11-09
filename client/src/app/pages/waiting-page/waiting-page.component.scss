@@ -352,7 +352,7 @@ app-lobby-player {
 }
 
 .bot-profile-img {
-    height: 70%;
+    height: auto;
     width: 70%;
     margin-left: 15%;
     display: flex;
@@ -362,7 +362,7 @@ app-lobby-player {
 
 .profile-description {
     color: white;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     width: 80%;
     margin-left: 10%;
     text-align: center;
@@ -381,4 +381,10 @@ app-lobby-player {
     border: none;
     padding: 0;
     z-index: 1010;
+    transition: ease 0.2s;
+}
+
+.close-button:hover {
+    color: rgb(255, 60, 60);
+    transform: scale(1.1);
 }
