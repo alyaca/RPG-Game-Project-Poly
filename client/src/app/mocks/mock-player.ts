@@ -1,6 +1,6 @@
 import { ObjectType } from '@app/constants';
 import { PlayerObjects, Status } from '@app/interfaces/player-object';
-import { Player } from '@common/player';
+import { Behavior, Player } from '@common/player';
 
 export const mockPlayer: PlayerObjects = {
     id: 0,
@@ -60,4 +60,5 @@ export const playerNavigation: Player = {
     victories: 1,
     inventory: [],
     position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient
 };

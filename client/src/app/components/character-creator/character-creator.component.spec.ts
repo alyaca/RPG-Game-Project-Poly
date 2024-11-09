@@ -4,7 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, ErrorMessages, HIGH_ATTRIBUTE, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
-import { Status } from '@common/player';
+import { Status, Behavior } from '@common/player';
 import { CharacterCreatorComponent } from './character-creator.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -182,6 +182,7 @@ describe('CharacterCreatorComponent', () => {
             status: Status.Player,
             victories: 0,
             position: { x: -1, y: -1 },
+            behavior: Behavior.Sentient
         });
     });
 

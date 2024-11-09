@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorMessages, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Player, PlayerStats, Status } from '@common/player';
+import { Avatar, Behavior, Player, PlayerStats, Status } from '@common/player';
 
 @Component({
     selector: 'app-character-creator',
@@ -119,6 +119,7 @@ export class CharacterCreatorComponent implements OnDestroy {
             status: Status.Player,
             victories: 0,
             position: { x: -1, y: -1 },
+            behavior: Behavior.Sentient
         };
     }
 

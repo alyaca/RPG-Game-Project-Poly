@@ -1,6 +1,6 @@
-import { defaultAttributes } from '@app/default-attributes';
+import { defaultAttributes } from '@common/default-attributes';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Player, Status } from '@common/player';
+import { Avatar, Player, Status, Behavior } from '@common/player';
 
 export const mockAvatar: Avatar = avatars[0];
 export const mockLobbyPlayers: Player[] = [
@@ -13,6 +13,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: true,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient
     },
     {
         id: 'mefe',
@@ -23,6 +24,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient
     },
     {
         id: 'ur32n',
@@ -33,6 +35,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient
     },
     {
         id: 'luke0324',
@@ -43,6 +46,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient
     },
     {
         id: 'leia1214',
@@ -53,6 +57,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient
     },
     {
         id: 'chew0242',
@@ -63,5 +68,6 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient
     },
 ];

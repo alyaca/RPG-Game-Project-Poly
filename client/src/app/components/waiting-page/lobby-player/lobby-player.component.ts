@@ -33,6 +33,10 @@ export class LobbyPlayerComponent {
         }
     }
 
+    isAdmin(){
+        return this.lobbyPlayer.status === Status.Admin;
+    }
+
     kickOutPlayer() {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,

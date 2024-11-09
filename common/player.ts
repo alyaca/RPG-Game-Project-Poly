@@ -14,6 +14,12 @@ export enum Status {
     Disconnected = 'disconnected',
 }
 
+export enum Behavior {
+    Sentient = 'sentient',
+    Aggressive = 'agressive',
+    Defensive = 'defensive'
+}
+
 export interface Player {
     id: string;
     attributes: PlayerStats;
@@ -24,6 +30,7 @@ export interface Player {
     victories: number;
     inventory?: GameObject[];
     position: { x: number; y: number };
+    behavior: Behavior;
 }
 
 export interface PlayerStats {
@@ -54,4 +61,5 @@ export const baseBot: Player = {
     attributes: defaultAttributes,
     inventory: [],
     position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient
 };

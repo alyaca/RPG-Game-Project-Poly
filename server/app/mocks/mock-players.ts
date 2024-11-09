@@ -1,4 +1,4 @@
-import { Player, PlayerStats, Status } from '@common/player';
+import { Behavior, Player, PlayerStats, Status } from '@common/player';
 
 const mockPlayerStats: PlayerStats = {
     totalHp: 4,
@@ -24,6 +24,7 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient
     },
     {
         id: 'id',
@@ -35,5 +36,7 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient
     },
+    
 ];
