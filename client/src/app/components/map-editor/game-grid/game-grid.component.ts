@@ -402,7 +402,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     checkEndTurn() {
         if (!this.activePlayer) return;
-        if (this.activePlayer.id !== this.currentPlayer.id) return;
+        if (!this.isActivePlayer) return;
+
+        // if (this.activePlayer.id !== this.currentPlayer.id) return;
         const reachableTileCount = this.navigationService.findReachableTiles(
             this.activePlayer,
             this.navigationService.gameMap,

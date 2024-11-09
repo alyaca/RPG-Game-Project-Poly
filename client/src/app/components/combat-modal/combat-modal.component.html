@@ -3,7 +3,7 @@
     <div class="top-section">
         <div class="player-info">
             <app-combat-stats-bar
-                [player]="activePlayer"
+                [player]="combatService.activePlayer"
                 [isOnRightSide]="false"
                 [isDamaged]="combatService2.isPlayer1Damaged"
             ></app-combat-stats-bar>
@@ -12,7 +12,11 @@
             <app-timer [totalTime]="combatTurnTime" [timeRemaining]="combatTurnTime"></app-timer>
         </div>
         <div class="player-info">
-            <app-combat-stats-bar [player]="opponent" [isOnRightSide]="true" [isDamaged]="combatService2.isPlayer2Damaged"></app-combat-stats-bar>
+            <app-combat-stats-bar
+                [player]="combatService.opponent"
+                [isOnRightSide]="true"
+                [isDamaged]="combatService2.isPlayer2Damaged"
+            ></app-combat-stats-bar>
         </div>
     </div>
     <div class="middle-section">

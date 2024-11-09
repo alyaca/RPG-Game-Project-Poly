@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
 import { DiceComponent } from '@app/components/dice/dice.component';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
@@ -15,12 +14,13 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-combat-modal',
     standalone: true,
-    imports: [TimerComponent, DiceComponent, CommonModule, SimpleDialogComponent, TemporaryDialogComponent, CombatStatsBarComponent],
+    imports: [TimerComponent, DiceComponent, CommonModule, TemporaryDialogComponent, CombatStatsBarComponent],
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
-export class CombatModalComponent implements OnInit {
+export class CombatModalComponent implements OnInit, OnDestroy {
     @Input() isInCombat = false;
+    @Output() closeModalEvent = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;
     activePlayer: Player;
@@ -55,6 +55,9 @@ export class CombatModalComponent implements OnInit {
         this.combatService.initSocketListeners();
     }
 
+    ngOnDestroy() {
+        this.combatService.removeListeners();
+    }
     // ngAfterViewInit() {
     //     this.combatService2.roles = {
     //         player1turn: { attacker: this.player2, defender: this.player1, activeDice: this.dice1, inactiveDice: this.dice2 },
@@ -64,8 +67,9 @@ export class CombatModalComponent implements OnInit {
 
     closeModal() {
         this.combatService2.setDisplayText('');
-        this.combatService.resetPlayerHp(this.activePlayer, this.opponent);
-        this.isInCombat = false;
+        this.combatService.resetPlayerHp(this.combatService.activePlayer, this.combatService.opponent);
+        this.isInCombat = this.combatService.isInCombat;
+        this.closeModalEvent.emit();
     }
 
     triggerAttack() {

@@ -184,7 +184,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleDisconnect(client: Socket) {
         const room = this.roomService.getRoom(client);
         if (room) {
+            if (this.combatService.isInCombat(client)) {
+                this.combatService.disconnectedPlayer(client, this.server);
+            }
             this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
+
             if (!this.server.sockets.adapter.rooms.get(room.roomId)) {
                 this.gameService.stopGameTimers(room);
             }
