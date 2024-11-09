@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
@@ -14,7 +13,7 @@ import { ToolButtonService } from '@app/services/tool-button/tool-button.service
     standalone: true,
     templateUrl: './game-objects-container.component.html',
     styleUrls: ['./game-objects-container.component.scss'],
-    imports: [FormsModule, RouterLink, GameObjectComponent, CommonModule],
+    imports: [FormsModule, GameObjectComponent, CommonModule],
 })
 export class GameObjectsContainerComponent implements OnInit {
     gameObjects: GameObject[];
