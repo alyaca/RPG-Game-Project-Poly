@@ -209,6 +209,7 @@ export enum DialogTitle {
     DrawGame = 'Partie nulle',
     EndTurn = 'Fin de votre tour',
     EndGame = 'Fin de la partie',
+    MaxPlayers = 'Nombre de joueurs maximal atteint'
 }
 export enum DialogMessages {
     NotEnoughPlayers = `Il faut au moins ${MIN_NUMBER_PLAYER} joueurs pour commencer la partie`,
@@ -218,6 +219,7 @@ export enum DialogMessages {
     KickedOut = "L'administrateur a décidé de vous retirer de la partie. Vous allez être redirigé vers l'accueil.",
     DrawGame = "Tous les joueurs ont abandonné. Vous aller être redirigé vers l'accueil.",
     Fell = 'Vous avez glissé sur la glace. Votre tour est terminé.',
+    MaxPlayers = "Vous ne pouvez plus d'ajouter de joueurs virtuels"
 }
 export enum DialogResult {
     Right = 'right',

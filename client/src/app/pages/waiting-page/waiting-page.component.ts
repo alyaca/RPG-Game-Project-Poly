@@ -11,7 +11,6 @@ import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
@@ -144,16 +143,13 @@ export class WaitingPageComponent implements OnInit {
         if (!this.isMaxPlayersReached()) {
             this.socketCommunicationService.send('createBot');
         }
-        // else popup showing that maximum amount of players has been reached
-    }
-
-    assignNameImgToBot() {
-        for (const avatar of avatars) {
-            if (!avatar.isTaken) {
-                avatar.isTaken = true;
-                return avatar;
-            }
+        else {
+            this.gameService.openDialog({
+                title: DialogTitle.MaxPlayers,
+                messages: [DialogMessages.MaxPlayers],
+                options: [DialogOptions.Close],
+                confirm: false,
+            });
         }
-        return;
     }
 }
