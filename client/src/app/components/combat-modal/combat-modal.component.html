@@ -26,11 +26,11 @@
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
-                @for (evasion of combatService2.evasionsArray1; track $index) {
+                @for (evasion of combatService.evasionsActivePlayer; track $index) {
                 <div class="evasion-point"></div>
                 }
             </div>
-            <p class="evasion-text">Points d'évasion restantes : 2</p>
+            <p class="evasion-text">Points d'évasion restantes : {{ combatService.evasionsActivePlayer.length }}</p>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
@@ -50,11 +50,11 @@
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
-                @for (evasion of combatService2.evasionsArray2; track $index) {
+                @for (evasion of combatService.evasionsOpponent; track $index) {
                 <div class="evasion-point"></div>
                 }
             </div>
-            <p class="evasion-text">Points d'évasion restantes : 2</p>
+            <p class="evasion-text">Points d'évasion restantes : {{ combatService.evasionsOpponent.length }}</p>
         </div>
     </div>
     <div class="bottom-section">

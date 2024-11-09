@@ -19,9 +19,11 @@ export class CombatService {
     defender: Player;
     combatStatus: string;
     turnMessage: string;
-    activePlayerResult: number = 0;
-    opponentResult: number = 0;
+    activePlayerResult: number;
+    opponentResult: number;
     isInCombat: boolean = false;
+    evasionsActivePlayer: number[];
+    evasionsOpponent: number[];
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
@@ -34,6 +36,8 @@ export class CombatService {
         this.attacker = player1;
         this.defender = player2;
         this.combatStatus = '';
+        this.evasionsActivePlayer = new Array(2).fill(1);
+        this.evasionsOpponent = new Array(2).fill(1);
         this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
     }
 
@@ -61,7 +65,13 @@ export class CombatService {
         });
 
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
-            this.combatStatus = player.name + " a réussi à s'évader";
+            this.onEvasion(player);
+        });
+
+        this.socketCommunicationService.on('evasionFail', (player: Player) => {
+            this.combatStatus = player.name + " n'a pas réussi à s'évader.";
+            const evasionsLeft = this.isAttacker(this.activePlayer) ? this.evasionsActivePlayer : this.evasionsOpponent;
+            evasionsLeft.pop();
         });
 
         this.socketCommunicationService.on('combatTurnEnded', (data: { attacker: Player; defender: Player }) => {
@@ -74,12 +84,10 @@ export class CombatService {
 
         this.socketCommunicationService.on('playerDead', (player: Player) => {
             this.combatStatus = player.name + ' a perdu le combat.';
-            this.resetPlayerHp(this.activePlayer, this.opponent);
         });
 
         this.socketCommunicationService.on('defaultWin', () => {
             this.onPlayerDisconnected();
-            this.resetPlayerHp(this.activePlayer, this.opponent);
             this.isInCombat = false;
         });
     }
@@ -90,6 +98,7 @@ export class CombatService {
         this.socketCommunicationService.off('attackSuccess');
         this.socketCommunicationService.off('attackFail');
         this.socketCommunicationService.off('evasionSuccess');
+        this.socketCommunicationService.off('evasionFail');
         this.socketCommunicationService.off('combatTurnEnded');
         this.socketCommunicationService.off('playerDead');
         this.socketCommunicationService.off('defaultWin');
@@ -108,6 +117,21 @@ export class CombatService {
             dialogRef.close();
         }, 2000); // change for constant
     }
+
+    onEvasion(player: Player) {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Evasion',
+                messages: [`${player.name} a réussi à s'évader !`],
+            },
+        });
+
+        setTimeout(() => {
+            dialogRef.close();
+        }, 2000); // change for constant
+    }
+
     resetPlayerHp(player1: Player, player2: Player) {
         player1.attributes.currentHp = player1.attributes.totalHp;
         player2.attributes.currentHp = player2.attributes.totalHp;

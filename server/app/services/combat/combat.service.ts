@@ -1,4 +1,4 @@
-import { EVASION_LUCK, EVASION_RANDOM, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -50,8 +50,8 @@ export class CombatService {
 
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const attackValue = this.attacker.attributes.attack + this.getDiceValue(this.attacker.attributes.atkDiceMax);
-        const defenseValue = this.defender.attributes.defense + this.getDiceValue(this.defender.attributes.defDiceMax);
+        const attackValue = this.attacker.attributes.attack + this.getRandomValue(this.attacker.attributes.atkDiceMax);
+        const defenseValue = this.defender.attributes.defense + this.getRandomValue(this.defender.attributes.defDiceMax);
         this.emitToCombatPlayers(server, 'attackValues', { attackValue, defenseValue });
         if (attackValue > defenseValue) {
             this.defender.attributes.currentHp--;
@@ -67,16 +67,18 @@ export class CombatService {
 
     evadingPlayer(client: Socket, player: Player, server: Server) {
         const room = this.roomService.getRoom(client);
-        if (this.isEvasionSuccessful) {
+        if (this.isEvasionSuccessful()) {
             this.emitToCombatPlayers(server, 'evasionSuccess', player);
+            this.continueTurn(client, server);
             this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
         } else {
-            this.emitToCombatPlayers(server, 'evasionFail');
+            this.emitToCombatPlayers(server, 'evasionFail', player);
+            this.onEndTurn(client, server, room);
         }
     }
 
     isEvasionSuccessful() {
-        return EVASION_LUCK < this.getDiceValue(EVASION_RANDOM);
+        return Math.random() < EVASION_SUCCESS_RATE;
     }
 
     isCombatFinish(client: Socket, defender: Player, attacker: Player, server: Server) {
@@ -92,7 +94,7 @@ export class CombatService {
             if (timeRemaining <= 0) {
                 this.gameService.onTurnEnded(client, server);
             }
-            this.emitToCombatPlayers(server, 'startedTurnTimer', timeRemaining);
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
         });
     }
 
@@ -119,7 +121,7 @@ export class CombatService {
         }
     }
 
-    getDiceValue(max: number) {
+    getRandomValue(max: number) {
         return Math.floor(Math.random() * max + 1);
     }
 

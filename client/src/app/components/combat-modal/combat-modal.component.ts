@@ -66,7 +66,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     // }
 
     closeModal() {
-        this.combatService2.setDisplayText('');
         this.combatService.resetPlayerHp(this.combatService.activePlayer, this.combatService.opponent);
         this.isInCombat = this.combatService.isInCombat;
         this.closeModalEvent.emit();
@@ -78,6 +77,5 @@ export class CombatModalComponent implements OnInit, OnDestroy {
 
     triggerEvade() {
         this.socketCommunicationService.send('evadeCombat', this.attacker);
-        // this.combatService2.attemptEvade();
     }
 }
