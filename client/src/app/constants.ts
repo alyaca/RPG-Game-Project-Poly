@@ -233,3 +233,5 @@ export enum TileCost {
     Ice = 0,
     OpenDoor = 1,
 }
+
+export const INFO_DIALOG_TIME = 2000;

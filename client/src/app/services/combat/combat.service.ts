@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ATTACK_TIME } from '@app/constants';
+import { ATTACK_TIME, INFO_DIALOG_TIME } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
@@ -115,7 +115,7 @@ export class CombatService {
 
         setTimeout(() => {
             dialogRef.close();
-        }, 2000); // change for constant
+        }, INFO_DIALOG_TIME);
     }
 
     onEvasion(player: Player) {
@@ -129,7 +129,7 @@ export class CombatService {
 
         setTimeout(() => {
             dialogRef.close();
-        }, 2000); // change for constant
+        }, INFO_DIALOG_TIME);
     }
 
     resetPlayerHp(player1: Player, player2: Player) {
