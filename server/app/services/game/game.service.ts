@@ -132,6 +132,16 @@ export class GameService {
         }
     }
 
+    assignStatsToBot(bot: Player): Player {
+        bot.attributes.attack = Math.random() > 0.5 ? 6 : 4;
+        bot.attributes.defense = bot.attributes.attack === 6 ? 4 : 6;
+    
+        bot.attributes.atkDiceMax = Math.random() > 0.5 ? 6 : 4;
+        bot.attributes.defDiceMax = bot.attributes.atkDiceMax === 6 ? 4 : 6;
+    
+        return bot;
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         const player = this.getActivePlayer(room);
         for (const tile of path) {

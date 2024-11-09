@@ -80,7 +80,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         console.log(baseBot.id);
         const room = this.roomService.getRoom(client);
-        const newBot = JSON.parse(JSON.stringify(baseBot));
+        let newBot = JSON.parse(JSON.stringify(baseBot));
 
         for(let newAvatar of room.availableAvatars.reverse()){
             if(!newAvatar.isTaken){
@@ -88,7 +88,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
                 newBot.name = newAvatar.name + '-bot';
             }
         }
-
+        newBot = this.gameService.assignStatsToBot(newBot);
         this.gameService.createPlayer(room, newBot, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
         newBot.avatar.isTaken = true;

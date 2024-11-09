@@ -12,5 +12,9 @@
         }
     </div>
     <img class="player-img" [src]="lobbyPlayer.avatar?.src" alt="{{ lobbyPlayer.name }}-avatar" />
+    <!-- @if(lobbyPlayer.status === Status.Bot){
+        <p>Att: {{ lobbyPlayer.attributes.attack }} Def: {{ lobbyPlayer.attributes.defense }}</p>
+        <p>AttDice: {{ lobbyPlayer.attributes.atkDiceMax }} DefDice: {{ lobbyPlayer.attributes.defDiceMax }}</p>
+    } -->
     <div class="motif"></div>
 </div>
