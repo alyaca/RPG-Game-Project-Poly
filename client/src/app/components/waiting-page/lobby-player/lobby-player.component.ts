@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { Status } from '@app/interfaces/player-object';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Behavior, Player } from '@common/player';
 @Component({
     selector: 'app-lobby-player',
     standalone: true,
@@ -33,6 +33,19 @@ export class LobbyPlayerComponent {
         }
     }
 
+    getBehaviorClass(): string {
+        if(this.lobbyPlayer.behavior === Behavior.Aggressive){
+            return 'aggressive';
+        }
+        else if(this.lobbyPlayer.behavior === Behavior.Defensive){
+            return 'defensive';
+        }
+        else{
+            return '';
+        }
+    }
+
+    // temporary
     getBehavior(){
         return this.lobbyPlayer.behavior;
     }
@@ -40,6 +53,7 @@ export class LobbyPlayerComponent {
     isAdmin(){
         return this.lobbyPlayer.status === Status.Admin;
     }
+    //
 
     kickOutPlayer() {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {

@@ -3,10 +3,10 @@
     color: white;
     
     // gold
-    background: linear-gradient(to bottom, rgb(97, 89, 53), rgba(255, 235, 137, 0.9) 33%, rgba(255, 234, 130, 0.6) 67%, rgb(117, 108, 66, 0));
+    //background: linear-gradient(to bottom, rgb(97, 89, 53), rgba(255, 235, 137, 0.9) 33%, rgba(255, 234, 130, 0.6) 67%, rgb(117, 108, 66, 0));
     
-    // orange gold
-    // background: linear-gradient(to bottom, rgb(112, 97, 37), rgba(242, 210, 103, 0.9) 33%, rgba(246, 214, 70, 0.6) 67%, rgb(117, 108, 66, 0));
+    // white
+    background: linear-gradient(to bottom, rgb(104, 104, 104), rgba(224, 224, 224, 0.9) 33%, rgba(226, 226, 226, 0.6) 67%, rgb(117, 108, 66, 0));
 
     // black
     //background: linear-gradient(to bottom, rgb(16, 15, 14), rgba(26, 26, 23, 0.9) 10%, rgba(103, 99, 90, 0.6) 90%, rgba(117, 108, 66, 0));
@@ -167,4 +167,12 @@ img {
 .behavior {
     margin: 0;
     text-align: center;
+}
+
+.aggressive {
+    border: 3px solid rgb(159, 0, 0);
+}
+
+.defensive {
+    border: 3px solid rgb(0, 17, 169);
 }
