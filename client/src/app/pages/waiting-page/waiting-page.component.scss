@@ -238,7 +238,6 @@ app-lobby-player {
 //////
 
 .add-bot {
-
     //background: linear-gradient(to right, rgb(110, 105, 45), rgb(232, 211, 109) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
     color: white;
     background: linear-gradient(to right, rgb(15, 49, 71), rgb(36, 115, 152) 33%, rgb(75, 152, 185) 67%, rgb(15, 49, 71));
@@ -247,7 +246,6 @@ app-lobby-player {
     width: 20rem;
     height: 3rem;
     line-height: 2rem; 
-    // box-sizing: border-box; 
     margin-top: -50rem;
     align-self: center;
     border: 1px solid gray;
@@ -257,4 +255,130 @@ app-lobby-player {
     color: white;
     border: 1px solid gray;
     background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
+}
+
+/////
+.disabled-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75); 
+    z-index: 999; 
+    pointer-events: none; 
+    display: none; 
+}
+
+#waiting-page.disabled .disabled-overlay {
+    display: block;
+}
+
+.disabled {
+    cursor: not-allowed;
+}
+
+.add-virtual-player-container {
+    position: fixed;
+    width: 60%;
+    height: 80%;
+    color: white;
+    //background-image: linear-gradient(to top, rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10rem;
+    font-family: papyrus;
+}
+
+.bot-title{
+    flex: 0 0 7%;
+    width: 100%;
+    color: rgb(255, 239, 160);
+    font-size: 1.8rem;
+    font-family: 'Franklin Gothic Medium';
+    font-weight: bold;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+
+}
+
+.bot-options {
+    flex: 0 0 75%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10%;
+}
+
+.bot-options > * {
+    flex: 1;
+    height: 100%;
+    width: 50%;
+    background-image: linear-gradient(to top, rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
+    border-radius: 3rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.bot-options > *:hover {
+    background-image: linear-gradient(to top, rgb(107, 95, 95), rgb(84, 78, 78) 33%, rgb(69, 61, 61) 67%, rgb(57, 53, 53));
+    box-shadow: 0 0 15px rgba(255, 249, 144, 0.8);
+}
+
+.profile-title {
+    color: white;
+    margin-top: 2rem;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.bot-cancel {
+    background-color: darkred;
+    width: 10%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.bot-profile-img {
+    height: 70%;
+    width: 70%;
+    margin-left: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-description {
+    color: white;
+    font-size: 0.8rem;
+    width: 80%;
+    margin-left: 10%;
+    text-align: center;
+}
+
+
+.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 5rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    z-index: 1010;
 }

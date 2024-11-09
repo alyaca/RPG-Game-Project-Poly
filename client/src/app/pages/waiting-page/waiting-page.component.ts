@@ -28,6 +28,7 @@ export class WaitingPageComponent implements OnInit {
     isLocked: boolean = false;
     isAdmin: boolean = false;
     players: Player[];
+    isBotProfileVisible: boolean = false;
     public Status: Status;
     private router = inject(Router);
     private gameService = inject(GameService);
@@ -139,7 +140,12 @@ export class WaitingPageComponent implements OnInit {
             });
     }
 
+    toggleBotProfileVisibility(){
+        this.isBotProfileVisible = !this.isBotProfileVisible;
+    }
+
     addBot() {
+        this.isBotProfileVisible = false;
         if(this.isLocked){   
             if(this.isMaxPlayersReached()){
                 this.gameService.openDialog({
