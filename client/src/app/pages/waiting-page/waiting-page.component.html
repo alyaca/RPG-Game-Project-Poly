@@ -7,21 +7,21 @@
             <p>Choisissez le profil du joueur virtuel</p>
         </div>
         <div class="bot-options">
-            <div class="passive" (click)="addBot()"> 
+            <div class="passive" (click)="addBot(false)"> 
                 <p class="profile-title">Défensif</p>
                 <img class="bot-profile-img" draggable="false" src="./assets/images/icones/passive.png" alt="passive-img">
-                <div class="profile-description">
-                    <p>- Tendance à chercher la bataille et ne tentera jamais de se fuir</p>
-                    <p>- Favorise les items qui donne un avantage en attaque et rapidité après les combats</p>
-                </div>
-            </div>
-            <div class="aggressive" (click)="addBot()">
-                <p class="profile-title">Agressif</p>
-                <img class="bot-profile-img" draggable="false" src="./assets/images/icones/aggressive.png" alt="passive-img">
                 <div class="profile-description">
                     <p>- Tendance à fuir d'un combat s'il est blessé</p>
                     <p>- S'engage moins dans les combats et favorise les items donnant un avantage en défense et PV maximal</p>
                 </div>
+            </div>
+            <div class="aggressive" (click)="addBot(true)">
+                <p class="profile-title">Agressif</p>
+                <img class="bot-profile-img" draggable="false" src="./assets/images/icones/aggressive.png" alt="passive-img">
+                <div class="profile-description">
+                    <p>- Tendance à chercher la bataille et ne tentera jamais de se fuir</p>
+                    <p>- Favorise les items qui donne un avantage en attaque et rapidité après les combats</p>
+                </div>     
             </div>
         </div>
     </div>

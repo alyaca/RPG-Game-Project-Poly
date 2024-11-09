@@ -12,7 +12,7 @@ import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
-import { Player, Status } from '@common/player';
+import { Behavior, Player, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -30,6 +30,7 @@ export class WaitingPageComponent implements OnInit {
     players: Player[];
     isBotProfileVisible: boolean = false;
     public Status: Status;
+    public Behavior: Behavior;
     private router = inject(Router);
     private gameService = inject(GameService);
 
@@ -144,7 +145,7 @@ export class WaitingPageComponent implements OnInit {
         this.isBotProfileVisible = !this.isBotProfileVisible;
     }
 
-    addBot() {
+    addBot(isAgressive: boolean) {
         this.isBotProfileVisible = false;
         if(this.isLocked){   
             if(this.isMaxPlayersReached()){
@@ -165,6 +166,7 @@ export class WaitingPageComponent implements OnInit {
             }
             return;
         }
-        this.socketCommunicationService.send('createBot');
+        const behavior = isAgressive ? Behavior.Aggressive : Behavior.Defensive;
+        this.socketCommunicationService.send('createBot', behavior);
     }
 }

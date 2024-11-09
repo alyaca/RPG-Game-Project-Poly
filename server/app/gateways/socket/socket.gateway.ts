@@ -5,7 +5,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, baseBot, Player, Position } from '@common/player';
+import { Avatar, baseBot, Behavior, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -75,20 +75,22 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.CreateBot)
-    handleCreateBot(client: Socket) {
+    handleCreateBot(client: Socket, behavior: Behavior) {
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         console.log(baseBot.id);
     
         const room = this.roomService.getRoom(client);
         let newBot = JSON.parse(JSON.stringify(baseBot));
-    
+        newBot.behavior = behavior;
+        const behaviorSuffix = behavior === Behavior.Aggressive ? "-A" : "-D";
         const availableAvatars = room.availableAvatars.filter(avatar => !avatar.isTaken);
         if (availableAvatars.length > 0) {
             const randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
             newBot.avatar = randomAvatar;
-            newBot.name = `${randomAvatar.name}-bot`;
+            newBot.name = `${randomAvatar.name}${behaviorSuffix}-bot`;
             randomAvatar.isTaken = true;
         }
+        
         newBot = this.gameService.assignStatsToBot(newBot);
         this.gameService.createPlayer(room, newBot, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);

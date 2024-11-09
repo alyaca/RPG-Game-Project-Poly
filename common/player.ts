@@ -16,7 +16,7 @@ export enum Status {
 
 export enum Behavior {
     Sentient = 'sentient',
-    Aggressive = 'agressive',
+    Aggressive = 'aggressive',
     Defensive = 'defensive'
 }
 

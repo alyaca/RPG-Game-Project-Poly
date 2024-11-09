@@ -18,6 +18,10 @@
     </div>
     <img class="player-img" [src]="lobbyPlayer.avatar?.src" alt="{{ lobbyPlayer.name }}-avatar" />
     <!-- @if(lobbyPlayer.status === Status.Bot){
+        <p class="behavior"> {{ getBehavior() }}</p>
+    } -->
+
+    <!-- @if(lobbyPlayer.status === Status.Bot){
         <p>Att: {{ lobbyPlayer.attributes.attack }} Def: {{ lobbyPlayer.attributes.defense }}</p>
         <p>AttDice: {{ lobbyPlayer.attributes.atkDiceMax }} DefDice: {{ lobbyPlayer.attributes.defDiceMax }}</p>
     } -->

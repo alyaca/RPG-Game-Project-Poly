@@ -33,6 +33,10 @@ export class LobbyPlayerComponent {
         }
     }
 
+    getBehavior(){
+        return this.lobbyPlayer.behavior;
+    }
+
     isAdmin(){
         return this.lobbyPlayer.status === Status.Admin;
     }
