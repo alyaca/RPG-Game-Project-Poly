@@ -45,7 +45,12 @@ export class LobbyPlayerComponent {
         });
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'right') {
-                this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
+                if(this.lobbyPlayer.status === Status.Bot){
+                    this.socketCommunicationService.send('kickBot', this.lobbyPlayer.id);
+                }
+                else{
+                    this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
+                }
             }
         });
     }

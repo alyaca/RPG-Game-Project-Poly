@@ -183,7 +183,7 @@ export class GameService {
         return randomValue > FELLING_PROBABILITY;
     }
 
-    private freeUpAvatar(room: Room, socket: Socket) {
+    public freeUpAvatar(room: Room, socket: Socket) {
         if (socket.data.clickedAvatar) {
             const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
             if (previousAvatar) {
@@ -253,7 +253,7 @@ export class GameService {
         });
     }
 
-    private sendAvatarListToClient(socket: Socket) {
+    public sendAvatarListToClient(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const customizedAvatarsList = room.availableAvatars.map((avatar) => {
             const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
@@ -299,23 +299,5 @@ export class GameService {
                 this.sendAvatarListToClient(clientSocket);
             }
         });
-    }
-
-    availableAvatars: Avatar[] = avatars.map((avatar) => ({ ...avatar }));
-
-    getAvailableAvatar(socket: Socket) {
-        const availableAvatar = this.availableAvatars.find((avatar) => !avatar.isTaken);
-        if (availableAvatar) {
-            socket.emit('availableAvatar', availableAvatar);
-        } else {
-            socket.emit('availableAvatar', null);
-        }
-    }
-
-    markAvatarTaken(avatarName: string) {
-        const avatar = this.availableAvatars.find((av) => av.name === avatarName);
-        if (avatar) {
-            avatar.isTaken = true;
-        }
     }
 }

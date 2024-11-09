@@ -142,20 +142,9 @@ export class WaitingPageComponent implements OnInit {
 
     addBot() {
         if (!this.isMaxPlayersReached()) {
-            // const foundAvatar = this.assignNameImgToBot();
-            // let newBot = JSON.parse(JSON.stringify(baseBot));
-            // newBot.name = foundAvatar?.name + '-bot';
-            // if (newBot.avatar && foundAvatar) {
-            //     newBot.avatar.src = foundAvatar?.src;
-            // }
-            // newBot.status = Status.Bot;
-            // const newBot = baseBot;
-
             this.socketCommunicationService.send('createBot');
-            // this.socketCommunicationService.send('createPlayer', newBot);
-            // this.socketCommunicationService.send('selectCharacter', foundAvatar);
-            // this.players.push(newBot);
         }
+        // else popup showing that maximum amount of players has been reached
     }
 
     assignNameImgToBot() {
