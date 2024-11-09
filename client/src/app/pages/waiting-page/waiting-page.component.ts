@@ -140,16 +140,25 @@ export class WaitingPageComponent implements OnInit {
     }
 
     addBot() {
-        if (!this.isMaxPlayersReached()) {
-            this.socketCommunicationService.send('createBot');
+        if(this.isLocked){   
+            if(this.isMaxPlayersReached()){
+                this.gameService.openDialog({
+                    title: DialogTitle.MaxPlayers,
+                    messages: [DialogMessages.MaxPlayers],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                });
+            }    
+            else {
+                this.gameService.openDialog({
+                    title: DialogTitle.AddBotWhenLocked,
+                    messages: [DialogMessages.AddBotWhenLocked],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                });
+            }
+            return;
         }
-        else {
-            this.gameService.openDialog({
-                title: DialogTitle.MaxPlayers,
-                messages: [DialogMessages.MaxPlayers],
-                options: [DialogOptions.Close],
-                confirm: false,
-            });
-        }
+        this.socketCommunicationService.send('createBot');
     }
 }

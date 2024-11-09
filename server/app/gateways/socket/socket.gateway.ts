@@ -75,23 +75,23 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.CreateBot)
-    handleCreateBot(client: Socket)
-    {
+    handleCreateBot(client: Socket) {
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         console.log(baseBot.id);
+    
         const room = this.roomService.getRoom(client);
         let newBot = JSON.parse(JSON.stringify(baseBot));
-
-        for(let newAvatar of room.availableAvatars.reverse()){
-            if(!newAvatar.isTaken){
-                newBot.avatar = newAvatar;
-                newBot.name = newAvatar.name + '-bot';
-            }
+    
+        const availableAvatars = room.availableAvatars.filter(avatar => !avatar.isTaken);
+        if (availableAvatars.length > 0) {
+            const randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
+            newBot.avatar = randomAvatar;
+            newBot.name = `${randomAvatar.name}-bot`;
+            randomAvatar.isTaken = true;
         }
         newBot = this.gameService.assignStatsToBot(newBot);
         this.gameService.createPlayer(room, newBot, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
-        newBot.avatar.isTaken = true;
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)
