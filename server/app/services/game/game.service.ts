@@ -36,8 +36,10 @@ export class GameService {
             if (this.roomService.isPlayerAdmin(socket)) {
                 player.status = Status.Admin;
             }
+            this.setUniquePlayerName(player, socket, true);
+        } else {
+            this.setUniquePlayerName(player, socket, false);
         }
-        this.setUniquePlayerName(player, socket);
         room.listPlayers.push(player);
         // console.log(player.avatar);
         // console.log(room.listPlayers);
@@ -276,10 +278,12 @@ export class GameService {
         socket.emit('characterSelected', customizedAvatarsList);
     }
 
-    private setUniquePlayerName(player: Player, socket: Socket) {
+    private setUniquePlayerName(player: Player, socket: Socket, updateSocketData: boolean) {
         const playerName = this.generateUniquePlayerName(player.name, socket);
         player.name = playerName;
-        socket.data.username = player.name;
+        if (updateSocketData) {
+            socket.data.username = player.name;
+        }
     }
 
     private sortPlayersBySpeed(room: Room) {
