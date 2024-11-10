@@ -30,8 +30,6 @@ export class GameService {
     selectedGame: Game;
     isActionDoorSelected: boolean = false;
     isActionCombatSelected: boolean = false;
-    attacker: Player;
-    defender: Player;
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,

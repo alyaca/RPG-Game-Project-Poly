@@ -35,7 +35,8 @@ export class MatchService {
             const randomIndex = this.getRandomIndex(spawnPoints.length);
             const selectedSpawnPoint = spawnPoints[randomIndex];
             player.position = { x: selectedSpawnPoint.x, y: selectedSpawnPoint.y };
-            spawnPoints.splice(randomIndex, 1); // To check
+            player.spawnPosition = player.position;
+            spawnPoints.splice(randomIndex, 1);
         });
     }
 

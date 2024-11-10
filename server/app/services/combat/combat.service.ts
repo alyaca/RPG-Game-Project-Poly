@@ -1,8 +1,9 @@
-import { EVASION_SUCCESS_RATE, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, TileType, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
-import { Player } from '@common/player';
+import { Game } from '@common/game';
+import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -106,7 +107,9 @@ export class CombatService {
     }
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
         if (defender.attributes.currentHp <= 0) {
+            this.movePlayerToSpwanPoint(defender, room.gameMap.itemPlacement);
             this.isCombatFinish(client, defender, attacker, server);
             this.continueTurn(client, server);
             return true;
@@ -137,7 +140,7 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
-        return client.id === this.attacker.id || client.id === this.defender.id;
+        if (client) return client.id === this.attacker.id || client.id === this.defender.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
@@ -145,6 +148,44 @@ export class CombatService {
         playerWinner.victories++;
         this.checkEndGame(playerWinner, room, server);
         server.to(room.roomId).emit('combatEnd', room.listPlayers);
+    }
+
+    movePlayerToSpwanPoint(player: Player, gameObjects: number[][]) {
+        if (this.isPlayerAtSpawnPoint(player, gameObjects)) return;
+        const { x, y } = player.spawnPosition;
+        if (!this.isTileOccupiedByPlayerOrObject({ x, y }, gameObjects)) {
+            // remove from the previous place, change posiiton of player (find it in room first)
+            gameObjects[x][y] = player.avatar?.id;
+        }
+        // TODO: else on neighbor tile !
+    }
+
+    getNeighbors(position: Position, game: Game): Position[] {
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+        ];
+        return directions
+            .map(({ dx, dy }) => ({ x: position.x + dx, y: position.y + dy }))
+            .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
+    }
+
+    isTileOccupiedByPlayerOrObject(position: Position, gameObjects: number[][]) {
+        return gameObjects[position.x][position.y] > 0;
+    }
+    isPlayerAtSpawnPoint(player: Player, gameObjects: number[][]) {
+        const { x, y } = player.spawnPosition;
+        return gameObjects[x][y] === player.avatar?.id;
+    }
+
+    private isValidTile(x: number, y: number, dimension: number): boolean {
+        return x >= 0 && y >= 0 && x < dimension && y < dimension;
+    }
+
+    private isTerrainTile(tile: TileType) {
+        return tile === TileType.Ground || tile === TileType.Ice || tile === TileType.Water;
     }
 
     private defaultCombatWin(room: Room, player: Player, server: Server) {
