@@ -307,7 +307,7 @@ export class GameService {
         listPlayers[nextIndex].isActive = true;
     }
 
-    private updateAvatarsForAllClients(server: Server, roomId: string) {
+    public updateAvatarsForAllClients(server: Server, roomId: string) {
         server.sockets.sockets.forEach((clientSocket: Socket) => {
             if (clientSocket.rooms.has(roomId)) {
                 this.sendAvatarListToClient(clientSocket);
