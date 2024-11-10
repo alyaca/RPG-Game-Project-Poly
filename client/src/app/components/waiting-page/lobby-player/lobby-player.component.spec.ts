@@ -76,7 +76,6 @@ describe('LobbyPlayerComponent', () => {
         dialogSpy.open.and.returnValue(dialogRefSpy);
         component.lobbyPlayer.status = Status.Bot;
         component.kickOutPlayer();
-        
 
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
             disableClose: true,
@@ -116,7 +115,7 @@ describe('LobbyPlayerComponent', () => {
     });
 
     it('should return an empty string when player behavior is neither Aggressive nor Defensive', () => {
-        component.lobbyPlayer.behavior = Behavior.Sentient; 
+        component.lobbyPlayer.behavior = Behavior.Sentient;
         expect(component.getBehaviorClass()).toBe('');
     });
 });

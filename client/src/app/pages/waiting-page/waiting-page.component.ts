@@ -29,8 +29,8 @@ export class WaitingPageComponent implements OnInit {
     isAdmin: boolean = false;
     players: Player[];
     isBotProfileVisible: boolean = false;
-    public Status: Status;
-    public Behavior: Behavior;
+    status: Status;
+    behavior: Behavior;
     private router = inject(Router);
     private gameService = inject(GameService);
 
@@ -125,33 +125,16 @@ export class WaitingPageComponent implements OnInit {
         }
     }
 
-    private confirmStartGame() {
-        this.gameService
-            .openDialog({
-                title: DialogTitle.StartGame,
-                messages: [DialogMessages.ConfirmStartGame],
-                options: [DialogOptions.Cancel, DialogOptions.Confirm],
-                confirm: true,
-            })
-            .subscribe((result) => {
-                if (result === DialogResult.Right) {
-                    this.isLocked = true;
-                    this.socketCommunicationService.send('startGame');
-                }
-            });
-    }
-
-    toggleBotProfileVisibility(){
-        if(this.isLocked){   
-            if(this.isMaxPlayersReached()){
+    toggleBotProfileVisibility() {
+        if (this.isLocked) {
+            if (this.isMaxPlayersReached()) {
                 this.gameService.openDialog({
                     title: DialogTitle.MaxPlayers,
                     messages: [DialogMessages.MaxPlayers],
                     options: [DialogOptions.Close],
                     confirm: false,
                 });
-            }    
-            else {
+            } else {
                 this.gameService.openDialog({
                     title: DialogTitle.AddBotWhenLocked,
                     messages: [DialogMessages.AddBotWhenLocked],
@@ -168,5 +151,21 @@ export class WaitingPageComponent implements OnInit {
 
         const behavior = isAgressive ? Behavior.Aggressive : Behavior.Defensive;
         this.socketCommunicationService.send('createBot', behavior);
+    }
+
+    private confirmStartGame() {
+        this.gameService
+            .openDialog({
+                title: DialogTitle.StartGame,
+                messages: [DialogMessages.ConfirmStartGame],
+                options: [DialogOptions.Cancel, DialogOptions.Confirm],
+                confirm: true,
+            })
+            .subscribe((result) => {
+                if (result === DialogResult.Right) {
+                    this.isLocked = true;
+                    this.socketCommunicationService.send('startGame');
+                }
+            });
     }
 }

@@ -12,8 +12,6 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -26,11 +24,12 @@ import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 
 @Component({
     selector: 'app-game-grid',
     standalone: true,
-    imports: [GameObjectComponent, TilePlayerInfoComponent],
+    imports: [TilePlayerInfoComponent],
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
@@ -389,13 +388,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         // Player has movement point left, no action left.
         // Player is blocked by closed door or players.
-        if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
+        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point left. Player has action point left but
         // no valid target on adjacent tiles.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
             this.socketCommunicationService.send('endTurn');
         }
 

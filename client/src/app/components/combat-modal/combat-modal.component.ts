@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
 import { DiceComponent } from '@app/components/dice/dice.component';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
@@ -14,7 +13,7 @@ import { Player } from '@common/player';
 @Component({
     selector: 'app-combat-modal',
     standalone: true,
-    imports: [TimerComponent, DiceComponent, CommonModule, SimpleDialogComponent, TemporaryDialogComponent, CombatStatsBarComponent],
+    imports: [TimerComponent, DiceComponent, CommonModule, TemporaryDialogComponent, CombatStatsBarComponent],
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
@@ -54,7 +53,7 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             this.combatTurnTime = timeRemaining;
         });
 
-        this.socketCommunicationService.on('combatTurnEnded', (activePlayer: Player) => {
+        this.socketCommunicationService.on('combatTurnEnded', () => {
             [this.activePlayer, this.defensePlayer] = [this.defensePlayer, this.activePlayer];
         });
 
@@ -66,12 +65,12 @@ export class CombatModalComponent implements OnInit, AfterViewInit {
             },
         );
 
-        this.socketCommunicationService.on('attackSuccess', (player: Player) => {
+        this.socketCommunicationService.on('attackSuccess', () => {
             this.defensePlayer.attributes.currentHp -= 1;
             this.combatStatus = this.activePlayer.name + ' a réussi son attaque';
         });
 
-        this.socketCommunicationService.on('attackFail', (player: Player) => {
+        this.socketCommunicationService.on('attackFail', () => {
             this.activePlayer.attributes.currentHp -= 1;
             this.combatStatus = this.activePlayer.name + ' a raté son attaque';
         });

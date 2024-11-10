@@ -180,7 +180,7 @@ export class NavigationService {
         return this.players.find((player) => player.isActive) || this.players[0];
     }
 
-    haveActions(activePlayer: Player): boolean {
+    haveActions(): boolean {
         if (this.checkAttack() || this.checkDoor()) {
             return true;
         }

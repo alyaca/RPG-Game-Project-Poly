@@ -60,5 +60,5 @@ export const playerNavigation: Player = {
     victories: 1,
     inventory: [],
     position: { x: 0, y: 0 },
-    behavior: Behavior.Sentient
+    behavior: Behavior.Sentient,
 };

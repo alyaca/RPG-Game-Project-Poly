@@ -15,39 +15,34 @@ import { Behavior, Player } from '@common/player';
 export class LobbyPlayerComponent {
     @Input() lobbyPlayer: Player;
     @Input() isPlayerAdmin: boolean;
-    public Status = Status;
-    public Behavior = Behavior;
+    status = Status;
+    behavior = Behavior;
     constructor(
         private dialog: MatDialog,
         private socketCommunicationService: SocketCommunicationService,
     ) {}
 
     getPlayerClass(): string {
-        if(this.lobbyPlayer.status === Status.Admin){
+        if (this.lobbyPlayer.status === Status.Admin) {
             return 'admin';
-        }
-        else if(this.lobbyPlayer.status === Status.Bot){
+        } else if (this.lobbyPlayer.status === Status.Bot) {
             return 'bot';
-        }
-        else{
+        } else {
             return 'player';
         }
     }
 
     getBehaviorClass(): string {
-        if(this.lobbyPlayer.behavior === Behavior.Aggressive){
+        if (this.lobbyPlayer.behavior === Behavior.Aggressive) {
             return 'aggressive';
-        }
-        else if(this.lobbyPlayer.behavior === Behavior.Defensive){
+        } else if (this.lobbyPlayer.behavior === Behavior.Defensive) {
             return 'defensive';
-        }
-        else{
+        } else {
             return '';
         }
     }
 
-
-    isAdmin(){
+    isAdmin() {
         return this.lobbyPlayer.status === Status.Admin;
     }
     //
@@ -64,10 +59,9 @@ export class LobbyPlayerComponent {
         });
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'right') {
-                if(this.lobbyPlayer.status === Status.Bot){
+                if (this.lobbyPlayer.status === Status.Bot) {
                     this.socketCommunicationService.send('kickBot', this.lobbyPlayer.id);
-                }
-                else{
+                } else {
                     this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
                 }
             }

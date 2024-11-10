@@ -24,7 +24,7 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
-        behavior: Behavior.Sentient
+        behavior: Behavior.Sentient,
     },
     {
         id: '123',
@@ -36,7 +36,7 @@ export const mockPlayers: Player[] = [
         victories: 2,
         inventory: [],
         position: { x: 1, y: 1 },
-        behavior: Behavior.Sentient
+        behavior: Behavior.Sentient,
     },
     {
         id: 'id',
@@ -48,6 +48,6 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
-        behavior: Behavior.Sentient
+        behavior: Behavior.Sentient,
     },
 ];

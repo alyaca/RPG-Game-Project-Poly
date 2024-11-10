@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -8,7 +8,7 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
-//import { CombatService } from '@app/services/combat/combat.service';
+// import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -54,12 +54,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
 
+    gameService = inject(GameService);
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        public gameService: GameService,
-        private navigationService: NavigationService, //private combatService: CombatService,
+        private navigationService: NavigationService, // private combatService: CombatService,
         public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;

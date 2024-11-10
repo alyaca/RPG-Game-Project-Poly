@@ -3,7 +3,7 @@
     <div class="player-name">
         @if(isPlayerAdmin) {
         <div class="kick" (click)="kickOutPlayer()">
-            @if(lobbyPlayer.status === Status.Bot){
+            @if(lobbyPlayer.status === status.Bot){
                 <img src="./assets/images/icones/kick.png" />
             }
             @else {
@@ -12,10 +12,10 @@
         </div>
         }
         {{ lobbyPlayer.name }}
-        @if(this.lobbyPlayer.behavior === Behavior.Defensive){
+        @if(this.lobbyPlayer.behavior === behavior.Defensive){
             <img class="bot-logo" src="./assets/images/icones/dark-bot.png" />
         }
-        @else if (this.lobbyPlayer.behavior === Behavior.Aggressive) {
+        @else if (this.lobbyPlayer.behavior === behavior.Aggressive) {
             <img class="bot-logo" src="./assets/images/icones/red-bot.png" />
         }
     </div>
