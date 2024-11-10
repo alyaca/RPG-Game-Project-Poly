@@ -149,14 +149,14 @@ describe('GameService', () => {
     });
 
     it('should call onPlayerKickedOut on kickPlayer event', () => {
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+        socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'kickPlayer') {
                 callback({} as T);
             }
         });
         spyOn(service, 'onPlayerKickedOut');
         service.onKickPlayer();
-        expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
+        expect(socketCommunicationServiceSpy.once).toHaveBeenCalled();
         expect(service.onPlayerKickedOut).toHaveBeenCalledWith();
     });
 

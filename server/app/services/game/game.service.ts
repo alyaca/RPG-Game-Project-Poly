@@ -146,6 +146,7 @@ export class GameService {
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         const player = this.getActivePlayer(room);
+
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
@@ -298,7 +299,7 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateActivePlayer(socket: Socket) {
+    public updateActivePlayer(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
