@@ -86,6 +86,14 @@ app-lobby-player {
 
 .disabled {
     display: none;
+    cursor: not-allowed;
+}
+
+.invisible {
+    display: none;
+    visibility: hidden; 
+    pointer-events: none; 
+    opacity: 0; 
 }
 
 #lock {
@@ -105,6 +113,10 @@ app-lobby-player {
     text-align: center;
     font-family: papyrus;
     font-weight: 900;
+}
+
+.add-bot-text {
+    font-size: 1.25rem;
 }
 
 .add-bot-button {
@@ -210,6 +222,10 @@ input[type='checkbox']:disabled + .slider {
     margin-right: 1rem;
 }
 
+.chat {
+    transform: scale(0.9);
+}
+
 app-lobby-player {
     height: 27.5rem;
     flex: 0 0 15.5%;
@@ -243,10 +259,9 @@ app-lobby-player {
     background: linear-gradient(to right, rgb(15, 49, 71), rgb(36, 115, 152) 33%, rgb(75, 152, 185) 67%, rgb(15, 49, 71));
     font-size: 1rem;
     border-radius: 2rem;
-    width: 20rem;
+    width: 15rem;
     height: 3rem;
     line-height: 2rem; 
-    margin-top: -50rem;
     align-self: center;
     border: 1px solid gray;
 }
@@ -274,9 +289,6 @@ app-lobby-player {
     display: block;
 }
 
-.disabled {
-    cursor: not-allowed;
-}
 
 .add-virtual-player-container {
     position: fixed;
@@ -323,15 +335,31 @@ app-lobby-player {
     flex: 1;
     height: 100%;
     width: 50%;
-    background-image: linear-gradient(to top, rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
+    //background-image: linear-gradient(to top, rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
     border-radius: 3rem;
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease;
 }
 
+.aggressive {
+    background-image: linear-gradient(to top, rgb(83, 42, 42), rgb(57, 30, 30) 33%, rgb(45, 19, 19) 67%, rgb(33, 18, 18));
+}
+
+.defensive {
+    background-image: linear-gradient(to top, rgb(42, 51, 83), rgb(30, 34, 57) 33%, rgb(19, 22, 45) 67%, rgb(18, 23, 33));
+}
+
+.aggressive:hover {
+    background-image: linear-gradient(to top, rgb(80, 18, 18), rgb(91, 18, 18) 33%, rgb(107, 21, 21) 67%, rgb(54, 7, 7));
+}
+
+.defensive:hover {
+    background-image: linear-gradient(to top, rgb(21, 35, 83), rgb(20, 29, 80) 33%, rgb(30, 40, 120) 67%, rgb(10, 26, 57));
+}
+
 .bot-options > *:hover {
-    background-image: linear-gradient(to top, rgb(107, 95, 95), rgb(84, 78, 78) 33%, rgb(69, 61, 61) 67%, rgb(57, 53, 53));
+    //background-image: linear-gradient(to top, rgb(107, 95, 95), rgb(84, 78, 78) 33%, rgb(69, 61, 61) 67%, rgb(57, 53, 53));
     box-shadow: 0 0 15px rgba(255, 249, 144, 0.8);
 }
 
@@ -387,4 +415,37 @@ app-lobby-player {
 .close-button:hover {
     color: rgb(255, 60, 60);
     transform: scale(1.1);
+}
+
+.elem-content {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    font-family: 'Franklin Gothic Medium';
+    font-size: 2.7rem;
+    letter-spacing: 0.2rem;
+    text-align: center; 
+    justify-content: center;
+    align-self: center;
+    align-items: center;
+}
+
+.elem-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center; 
+    margin-top: 0.5rem;
+    width: 15rem;
+}
+
+.elem-title {
+    font-size: 1rem;
+    font-family: Papyrus;
+    text-align: center; 
+    margin: 0;
+}
+
+.condensed-txt {
+    font-size: 2rem;
+    letter-spacing: 0rem;
 }

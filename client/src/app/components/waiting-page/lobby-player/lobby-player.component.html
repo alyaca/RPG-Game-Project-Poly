@@ -12,8 +12,11 @@
         </div>
         }
         {{ lobbyPlayer.name }}
-        @if(lobbyPlayer.status === Status.Bot){
+        @if(this.lobbyPlayer.behavior === Behavior.Defensive){
             <img class="bot-logo" src="./assets/images/icones/dark-bot.png" />
+        }
+        @else if (this.lobbyPlayer.behavior === Behavior.Aggressive) {
+            <img class="bot-logo" src="./assets/images/icones/red-bot.png" />
         }
     </div>
     <img [ngClass]="['player-img', getBehaviorClass()]" [src]="lobbyPlayer.avatar?.src" alt="{{ lobbyPlayer.name }}-avatar" />

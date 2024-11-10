@@ -16,6 +16,7 @@ export class LobbyPlayerComponent {
     @Input() lobbyPlayer: Player;
     @Input() isPlayerAdmin: boolean;
     public Status = Status;
+    public Behavior = Behavior;
     constructor(
         private dialog: MatDialog,
         private socketCommunicationService: SocketCommunicationService,
@@ -45,10 +46,6 @@ export class LobbyPlayerComponent {
         }
     }
 
-    // temporary
-    getBehavior(){
-        return this.lobbyPlayer.behavior;
-    }
 
     isAdmin(){
         return this.lobbyPlayer.status === Status.Admin;

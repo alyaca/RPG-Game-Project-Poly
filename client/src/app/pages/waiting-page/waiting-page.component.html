@@ -7,7 +7,7 @@
             <p>Choisissez le profil du joueur virtuel</p>
         </div>
         <div class="bot-options">
-            <div class="passive" (click)="addBot(false)"> 
+            <div class="defensive" (click)="addBot(false)"> 
                 <p class="profile-title">Défensif</p>
                 <img class="bot-profile-img" draggable="false" src="./assets/images/icones/defensive.png" alt="passive-img">
                 <div class="profile-description">
@@ -31,14 +31,18 @@
     <div class="disabled-overlay"></div>
     <header>
         @if(chosenGame){
-        <h3>Nom de la partie: {{ chosenGame.name }}</h3>
-        }
-        <h3>Code d'accès: {{ accessCode }}</h3>
-        @if(isAdmin){
-            <div class="add-bot" (click)="toggleBotProfileVisibility()">
-                <p>Ajouter un joueur virtuel</p>
+            <div class="elem-container">
+                <p class="elem-title">Nom de la carte:</p>
+                <h3 class="elem-content condensed-txt"> {{ chosenGame.name }}</h3>
             </div>
         }
+        <div class="elem-container">
+            <p class="elem-title">Code d'accès:</p>
+            <h3 class="elem-content"> {{ accessCode }}</h3>
+        </div>
+        <div class="add-bot" (click)="toggleBotProfileVisibility()" [ngClass]="{ invisible: !isAdmin }">
+            <p class="add-bot-text">Ajouter un joueur virtuel</p>
+        </div>
     </header>
     <main>
         <div id="players-container">
@@ -50,7 +54,9 @@
     <footer>
         @if(!isBotProfileVisible){
         <div id="footer-container">
-            <app-chat-box [isToggleable]="false"></app-chat-box>
+            <div class="chat">
+                <app-chat-box [isToggleable]="false"></app-chat-box>
+            </div>
             <div id="start-container">
                 <button
                     id="start"
