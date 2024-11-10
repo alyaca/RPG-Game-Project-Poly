@@ -142,11 +142,6 @@ export class WaitingPageComponent implements OnInit {
     }
 
     toggleBotProfileVisibility(){
-        this.isBotProfileVisible = !this.isBotProfileVisible;
-    }
-
-    addBot(isAgressive: boolean) {
-        this.isBotProfileVisible = false;
         if(this.isLocked){   
             if(this.isMaxPlayersReached()){
                 this.gameService.openDialog({
@@ -166,6 +161,11 @@ export class WaitingPageComponent implements OnInit {
             }
             return;
         }
+        this.isBotProfileVisible = !this.isBotProfileVisible;
+    }
+    addBot(isAgressive: boolean) {
+        this.isBotProfileVisible = false;
+
         const behavior = isAgressive ? Behavior.Aggressive : Behavior.Defensive;
         this.socketCommunicationService.send('createBot', behavior);
     }
