@@ -126,6 +126,12 @@ export class GameService {
             this.isTurnSkipped = true;
         }
     }
+    
+    
+    updateLogsDebugMode(isDebugMode:boolean, server: Server, client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameLogsService.sendDebugMessage(isDebugMode, room.roomId, server);
+    }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         const player = this.getActivePlayer(room);
