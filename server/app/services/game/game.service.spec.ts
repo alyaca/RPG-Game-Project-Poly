@@ -1,6 +1,6 @@
 import { Timer } from '@app/classes/timer/timer';
 import { MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
-import { mockPlayers } from '@app/mocks/mock-players';
+import { mockPlayers, mockPlayerStats } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
@@ -603,5 +603,38 @@ describe('GameService', () => {
             expect(mockSocket.emit).toHaveBeenCalledWith('playerFell');
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
         });
+    });
+
+    it('should handle the else branch when player status is Bot', () => {
+        const setUniquePlayerNameSpy = jest.spyOn(service as any, 'setUniquePlayerName');
+        const mockPlayerBot = mockPlayers[3];
+        mockPlayerBot.status = Status.Bot;
+        service.createPlayer(room, mockPlayerBot, mockSocket);
+        expect(room.listPlayers).toContain(mockPlayerBot);
+        expect(setUniquePlayerNameSpy).toHaveBeenCalledWith(mockPlayerBot, mockSocket, false);
+    });
+
+    it('should assign attack and defense stats based on random values', () => {
+        const mockPlayerBot = mockPlayers[3];
+        mockPlayerBot.attributes = mockPlayerStats;
+        jest.spyOn(Math, 'random').mockReturnValueOnce(0.6).mockReturnValueOnce(0.4);
+
+        const result = service.assignStatsToBot(mockPlayerBot);
+        expect(result.attributes.attack).toBe(6);
+        expect(result.attributes.defense).toBe(4);
+        expect(result.attributes.atkDiceMax).toBe(4);
+        expect(result.attributes.defDiceMax).toBe(6);
+    });
+
+    it('should assign the opposite set of stats if random values are different', () => {
+        const mockPlayerBot = mockPlayers[3];
+        mockPlayerBot.attributes = mockPlayerStats;
+        jest.spyOn(Math, 'random').mockReturnValueOnce(0.4).mockReturnValueOnce(0.6); 
+
+        const result = service.assignStatsToBot(mockPlayerBot);
+        expect(result.attributes.attack).toBe(4);
+        expect(result.attributes.defense).toBe(6);
+        expect(result.attributes.atkDiceMax).toBe(6);
+        expect(result.attributes.defDiceMax).toBe(4);
     });
 });

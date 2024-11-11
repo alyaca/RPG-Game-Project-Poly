@@ -77,7 +77,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.CreateBot)
     handleCreateBot(client: Socket, behavior: Behavior) {
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
-        console.log(baseBot.id);
     
         const room = this.roomService.getRoom(client);
         let newBot = JSON.parse(JSON.stringify(baseBot));
@@ -118,6 +117,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.KickBot)
     handleKickBot(client: Socket, botId: string){
         const room = this.roomService.getRoom(client);
+        this.logger.debug(`bot ${botId} was kicked out of room`);
         this.server.to(botId).emit('kickPlayer', botId);
         const botPlayer = room.listPlayers.find((player) => player.id === botId);
         botPlayer.avatar.isTaken = false;
