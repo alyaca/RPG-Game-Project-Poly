@@ -10,6 +10,8 @@ import { Server, Socket } from 'socket.io';
 export class GameService {
     isMoving: boolean = false;
     isTurnSkipped: boolean = false;
+    isDebugMode: boolean = false;
+
     constructor(
         private roomService: RoomService,
         private gameLogsService: GameLogsService,
@@ -180,6 +182,9 @@ export class GameService {
     }
 
     private checkFell(): boolean {
+        if(this.isDebugMode){
+            return true;
+        }
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
     }

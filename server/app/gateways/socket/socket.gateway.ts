@@ -148,6 +148,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.DebugMode, )
     handleDebugMode(client: Socket, debugMode: boolean) {
         this.logger.debug(`Debug mode changed: ${debugMode}`);
+        this.gameService.isDebugMode = debugMode;
         this.gameService.updateLogsDebugMode(debugMode, this.server, client);
     }
 
