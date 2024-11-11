@@ -34,6 +34,7 @@ describe('PlayerInfoInventoryComponent', () => {
 
     it('should update the movement value', () => {
         component.player = mockLobbyPlayers[0];
+        component.player.attributes.movementPointsLeft = 1;
         component.increaseMovement();
         expect(component.player.attributes.movementPointsLeft).toBe(mockLobbyPlayers[0].attributes.movementPointsLeft);
 
