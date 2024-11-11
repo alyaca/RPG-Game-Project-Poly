@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
 import { mockPlayers, mockPlayerStats } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
@@ -606,39 +606,40 @@ describe('GameService', () => {
     });
 
     it('should handle the else branch when player status is Bot', () => {
-        const setUniquePlayerNameSpy = jest.spyOn(service as any, 'setUniquePlayerName');
+        const mockSetUniquePlayerName = jest.fn();
+        service.setUniquePlayerName = mockSetUniquePlayerName;
         const mockPlayerBot = mockPlayers[3];
         mockPlayerBot.status = Status.Bot;
         service.createPlayer(room, mockPlayerBot, mockSocket);
         expect(room.listPlayers).toContain(mockPlayerBot);
-        expect(setUniquePlayerNameSpy).toHaveBeenCalledWith(mockPlayerBot, mockSocket, false);
+        expect(mockSetUniquePlayerName).toHaveBeenCalledWith(mockPlayerBot, mockSocket, false);
     });
 
     it('should assign attack and defense stats based on random values', () => {
         const mockPlayerBot = mockPlayers[3];
         mockPlayerBot.attributes = mockPlayerStats;
-        jest.spyOn(Math, 'random').mockReturnValueOnce(0.6).mockReturnValueOnce(0.4);
+        jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_SUCCESS).mockReturnValueOnce(EQUAL_ODDS_FAIL);
 
         const result = service.assignStatsToBot(mockPlayerBot);
-        expect(result.attributes.attack).toBe(6);
-        expect(result.attributes.defense).toBe(4);
-        expect(result.attributes.atkDiceMax).toBe(4);
-        expect(result.attributes.defDiceMax).toBe(6);
+        expect(result.attributes.attack).toBe(HIGH_ATTRIBUTE);
+        expect(result.attributes.defense).toBe(DEFAULT_ATTRIBUTE);
+        expect(result.attributes.atkDiceMax).toBe(DEFAULT_ATTRIBUTE);
+        expect(result.attributes.defDiceMax).toBe(HIGH_ATTRIBUTE);
     });
 
     it('should assign the opposite set of stats if random values are different', () => {
         const mockPlayerBot = mockPlayers[3];
         mockPlayerBot.attributes = mockPlayerStats;
-        jest.spyOn(Math, 'random').mockReturnValueOnce(0.4).mockReturnValueOnce(0.6); 
+        jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_FAIL).mockReturnValueOnce(EQUAL_ODDS_SUCCESS);
 
         const result = service.assignStatsToBot(mockPlayerBot);
-        expect(result.attributes.attack).toBe(4);
-        expect(result.attributes.defense).toBe(6);
-        expect(result.attributes.atkDiceMax).toBe(6);
-        expect(result.attributes.defDiceMax).toBe(4);
+        expect(result.attributes.attack).toBe(DEFAULT_ATTRIBUTE);
+        expect(result.attributes.defense).toBe(HIGH_ATTRIBUTE);
+        expect(result.attributes.atkDiceMax).toBe(HIGH_ATTRIBUTE);
+        expect(result.attributes.defDiceMax).toBe(DEFAULT_ATTRIBUTE);
     });
 
-    ////
+    /// /
 
     it('should assign an available avatar to an aggressive bot and mark it as taken', () => {
         const behavior = Behavior.Aggressive;
@@ -650,7 +651,7 @@ describe('GameService', () => {
         expect(result.name).toContain('-A-bot'); // Aggressive suffix
 
         // Check that the avatar in the room is now marked as taken
-        const assignedAvatar = room.availableAvatars.find(avatar => avatar.name === result.avatar.name);
+        const assignedAvatar = room.availableAvatars.find((avatar) => avatar.name === result.avatar.name);
         expect(assignedAvatar?.isTaken).toBe(true);
     });
 
@@ -664,17 +665,17 @@ describe('GameService', () => {
         expect(result.name).toContain('-D-bot'); // Defensive suffix
 
         // Check that the avatar in the room is now marked as taken
-        const assignedAvatar = room.availableAvatars.find(avatar => avatar.name === result.avatar.name);
+        const assignedAvatar = room.availableAvatars.find((avatar) => avatar.name === result.avatar.name);
         expect(assignedAvatar?.isTaken).toBe(true);
     });
 
     it('should not assign an avatar if all are taken', () => {
-        room.availableAvatars.forEach(avatar => (avatar.isTaken = true));
+        room.availableAvatars.forEach((avatar) => (avatar.isTaken = true));
 
         const behavior = Behavior.Defensive;
         const result = service.assignAvatarToBot(room, behavior);
 
-        expect(result.avatar).toEqual({"isSelected": true, "isTaken": true, "name": "a", "src": ""});
-        expect(room.availableAvatars.every(avatar => avatar.isTaken)).toBe(true);
+        expect(result.avatar).toEqual({ isSelected: true, isTaken: true, name: 'a', src: '' });
+        expect(room.availableAvatars.every((avatar) => avatar.isTaken)).toBe(true);
     });
 });

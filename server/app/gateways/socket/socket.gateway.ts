@@ -77,7 +77,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.CreateBot)
     handleCreateBot(client: Socket, behavior: Behavior) {
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
-    
+
         const room = this.roomService.getRoom(client);
 
         let newBot = this.gameService.assignAvatarToBot(room, behavior);
@@ -102,18 +102,17 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const playerSocket = this.server.sockets.sockets.get(playerId);
         this.gameService.removePlayerFromRoom(room.roomId, playerSocket, this.server);
         this.server.to(room.roomId).emit('updatedPlayer', room);
-        
     }
 
     @SubscribeMessage(SocketEvents.KickBot)
-    handleKickBot(client: Socket, botId: string){
+    handleKickBot(client: Socket, botId: string) {
         const room = this.roomService.getRoom(client);
         this.logger.debug(`bot ${botId} was kicked out of room`);
         this.server.to(botId).emit('kickPlayer', botId);
         const botPlayer = room.listPlayers.find((player) => player.id === botId);
         botPlayer.avatar.isTaken = false;
         room.listPlayers = room.listPlayers.filter((player) => player.id !== botId);
-        
+
         this.server.to(room.roomId).emit('updatedPlayer', room);
         this.gameService.updateAvatarsForAllClients(this.server, room.roomId);
     }

@@ -1,7 +1,17 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
+import {
+    DEFAULT_ATTRIBUTE,
+    EQUAL_ODDS_PROBABILITY,
+    FELLING_PROBABILITY,
+    HIGH_ATTRIBUTE,
+    MOVEMENT_TIME,
+    SINGLE_PLAYER,
+    STARTING_TIME,
+    TileCost,
+    TileType,
+    TURN_TIME,
+} from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
-import { avatars } from '@common/avatars-info';
 import { Avatar, baseBot, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
@@ -135,20 +145,20 @@ export class GameService {
     }
 
     assignStatsToBot(bot: Player): Player {
-        bot.attributes.attack = Math.random() > 0.5 ? 6 : 4;
-        bot.attributes.defense = bot.attributes.attack === 6 ? 4 : 6;
-    
-        bot.attributes.atkDiceMax = Math.random() > 0.5 ? 6 : 4;
-        bot.attributes.defDiceMax = bot.attributes.atkDiceMax === 6 ? 4 : 6;
-    
+        bot.attributes.attack = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
+        bot.attributes.defense = bot.attributes.attack === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
+
+        bot.attributes.atkDiceMax = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
+        bot.attributes.defDiceMax = bot.attributes.atkDiceMax === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
+
         return bot;
     }
 
-    assignAvatarToBot(room: Room, behavior: Behavior): Player{
-        let newBot = JSON.parse(JSON.stringify(baseBot));
+    assignAvatarToBot(room: Room, behavior: Behavior): Player {
+        const newBot = JSON.parse(JSON.stringify(baseBot));
         newBot.behavior = behavior;
-        const behaviorSuffix = behavior === Behavior.Aggressive ? "-A" : "-D";
-        const availableAvatars = room.availableAvatars.filter(avatar => !avatar.isTaken);
+        const behaviorSuffix = behavior === Behavior.Aggressive ? '-A' : '-D';
+        const availableAvatars = room.availableAvatars.filter((avatar) => !avatar.isTaken);
         if (availableAvatars.length > 0) {
             const randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
             newBot.avatar = randomAvatar;
@@ -156,6 +166,53 @@ export class GameService {
             randomAvatar.isTaken = true;
         }
         return newBot;
+    }
+
+    updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
+    }
+
+    updateAvatarsForAllClients(server: Server, roomId: string) {
+        server.sockets.sockets.forEach((clientSocket: Socket) => {
+            if (clientSocket.rooms.has(roomId)) {
+                this.sendAvatarListToClient(clientSocket);
+            }
+        });
+    }
+
+    sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
+    freeUpAvatar(room: Room, socket: Socket) {
+        if (socket.data.clickedAvatar) {
+            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
+            if (previousAvatar) {
+                previousAvatar.isTaken = false;
+            }
+        }
+    }
+
+    setUniquePlayerName(player: Player, socket: Socket, updateSocketData: boolean) {
+        const playerName = this.generateUniquePlayerName(player.name, socket);
+        player.name = playerName;
+        if (updateSocketData) {
+            socket.data.username = player.name;
+        }
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
@@ -208,15 +265,6 @@ export class GameService {
     private checkFell(): boolean {
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
-    }
-
-    public freeUpAvatar(room: Room, socket: Socket) {
-        if (socket.data.clickedAvatar) {
-            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
-            if (previousAvatar) {
-                previousAvatar.isTaken = false;
-            }
-        }
     }
 
     private generateUniquePlayerName(playerName: string, socket: Socket): string {
@@ -280,27 +328,6 @@ export class GameService {
         });
     }
 
-    public sendAvatarListToClient(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
-            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
-            return {
-                ...avatar,
-                isTaken: !isSelectedByClient && avatar.isTaken,
-                isSelected: isSelectedByClient,
-            };
-        });
-        socket.emit('characterSelected', customizedAvatarsList);
-    }
-
-    private setUniquePlayerName(player: Player, socket: Socket, updateSocketData: boolean) {
-        const playerName = this.generateUniquePlayerName(player.name, socket);
-        player.name = playerName;
-        if (updateSocketData) {
-            socket.data.username = player.name;
-        }
-    }
-
     private sortPlayersBySpeed(room: Room) {
         let listPlayers = room.listPlayers;
         if (listPlayers.length > 1) {
@@ -311,22 +338,5 @@ export class GameService {
             ];
         }
         room.listPlayers = listPlayers;
-    }
-
-    public updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
-    public updateAvatarsForAllClients(server: Server, roomId: string) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
-            if (clientSocket.rooms.has(roomId)) {
-                this.sendAvatarListToClient(clientSocket);
-            }
-        });
     }
 }

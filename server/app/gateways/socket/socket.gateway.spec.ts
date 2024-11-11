@@ -13,7 +13,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from './socket.gateway';
-import { mockPlayers } from '@app/mocks/mock-players';
 
 describe('SocketGateway', () => {
     let gateway: SocketGateway;
@@ -27,7 +26,7 @@ describe('SocketGateway', () => {
     let roomId: string;
     let mockClient: Socket;
     let mockPlayer: Player;
-    let combatService: CombatService;
+    // let combatService: CombatService;
 
     beforeEach(async () => {
         const chatServiceMock = {
@@ -68,8 +67,8 @@ describe('SocketGateway', () => {
             onStartTurn: jest.fn(),
             processNavigation: jest.fn(),
             assignAvatarToBot: jest.fn(),
-            assignStatsToBot: jest.fn(),  
-            updateAvatarsForAllClients: jest.fn(), 
+            assignStatsToBot: jest.fn(),
+            updateAvatarsForAllClients: jest.fn(),
         };
 
         socket = {
@@ -124,7 +123,7 @@ describe('SocketGateway', () => {
         gameService = module.get<GameService>(GameService);
         chatService = module.get<ChatService>(ChatService);
         matchService = module.get<MatchService>(MatchService);
-        combatService = module.get<CombatService>(CombatService);
+        // combatService = module.get<CombatService>(CombatService);
         gateway['server'] = server;
     });
 
@@ -377,11 +376,11 @@ describe('SocketGateway', () => {
     it('should create and assign a bot with an avatar and stats, then notify clients', () => {
         const behavior = Behavior.Aggressive;
 
-        const mockRoom = mockRooms[0]
+        const mockRoom = mockRooms[0];
         jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
-    
+
         gateway.handleCreateBot(mockClient, behavior);
-    
+
         expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
         expect(gameService.assignAvatarToBot).toHaveBeenCalledWith(mockRoom, behavior);
         expect(server.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
@@ -389,12 +388,12 @@ describe('SocketGateway', () => {
     });
 
     it('should kick a bot, update avatars, and notify clients', () => {
-        const mockRoom = mockRooms[2]; 
-        const botId = 'bot'; 
-        const botPlayer = mockRoom.listPlayers.find(player => player.id === botId);
+        const mockRoom = mockRooms[2];
+        const botId = 'bot';
+        const botPlayer = mockRoom.listPlayers.find((player) => player.id === botId);
 
         if (botPlayer) {
-            botPlayer.avatar = avatars[0]; 
+            botPlayer.avatar = avatars[0];
             botPlayer.avatar.isTaken = true;
         }
 
@@ -404,7 +403,7 @@ describe('SocketGateway', () => {
         expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
 
         expect(mockRoom.listPlayers).not.toContainEqual(expect.objectContaining({ id: botId }));
-        expect(mockRoom.listPlayers.find(player => player.id === botId)).toBeUndefined();
+        expect(mockRoom.listPlayers.find((player) => player.id === botId)).toBeUndefined();
 
         expect(server.to).toHaveBeenCalledWith(botId);
         expect(server.to(botId).emit).toHaveBeenCalledWith('kickPlayer', botId);
