@@ -274,7 +274,7 @@ describe('GameService', () => {
 
     it('should set an unique player name', () => {
         service['generateUniquePlayerName'] = jest.fn().mockReturnValue('uniqueName');
-        service['setUniquePlayerName'](mockPlayer, mockSocket);
+        service['setUniquePlayerName'](mockPlayer, mockSocket, true);
         expect(mockPlayer.name).toBe('uniqueName');
     });
 
