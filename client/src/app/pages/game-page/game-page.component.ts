@@ -53,6 +53,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
+    isDebugMode: boolean = false;
 
     constructor(
         private router: Router,
@@ -117,6 +118,18 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.router.navigate(['/home']);
                     }
                 });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'd' || event.key === 'D') {
+                const admin = this.allPlayers.find((player) => player.status === 'admin');
+                const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id)
+                if (currentPlayer && admin && currentPlayer.id === admin.id) {
+                    //ca faity undefined la deuxime fois a la place de false 
+                    this.isDebugMode = !this.isDebugMode;
+                    this.socketCommunicationService.send('debugMode', this.isDebugMode);
+                }
+            }
         });
     }
 
