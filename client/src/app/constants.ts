@@ -106,6 +106,7 @@ export const HIGH_ATTRIBUTE = 6;
 export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
+export const DEFAULT_EVASION_POINT = 2;
 
 export enum ErrorMessages {
     MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',

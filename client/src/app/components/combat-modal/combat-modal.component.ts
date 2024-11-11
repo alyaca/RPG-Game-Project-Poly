@@ -76,6 +76,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     }
 
     triggerEvade() {
-        this.socketCommunicationService.send('evadeCombat', this.attacker);
+        this.socketCommunicationService.send('evadeCombat', this.combatService.attacker);
     }
 }

@@ -38,6 +38,7 @@ export interface PlayerStats {
     atkDiceMax: number;
     defense: number;
     defDiceMax: number;
+    evasion: number;
 }
 
 export interface Position {

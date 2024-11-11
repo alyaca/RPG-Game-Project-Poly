@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, TileType, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, TileType, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -12,8 +12,8 @@ export class CombatService {
     combatInfos = new Map<string, CombatInfo>();
     attacker: Player;
     defender: Player;
-
     private gameTime: number;
+
     constructor(
         private roomService: RoomService,
         private gameService: GameService,
@@ -35,7 +35,8 @@ export class CombatService {
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {
-        this.roomService.getFightTimer(room.roomId).resetTimer(FIGHT_TIME, (timeRemaining: number) => {
+        const turnTime = this.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
+        this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
             this.emitToCombatPlayers(server, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
@@ -68,6 +69,7 @@ export class CombatService {
 
     evadingPlayer(client: Socket, player: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        this.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
             this.emitToCombatPlayers(server, 'evasionSuccess', player);
             this.continueTurn(client, server);

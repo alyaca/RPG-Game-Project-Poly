@@ -11,6 +11,7 @@ const mockPlayerStats: PlayerStats = {
     atkDiceMax: 4,
     defense: 4,
     defDiceMax: 4,
+    evasion: 2,
 };
 
 export const mockPlayers: Player[] = [
