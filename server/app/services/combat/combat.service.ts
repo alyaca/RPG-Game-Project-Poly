@@ -82,7 +82,7 @@ export class CombatService {
         return Math.random() < EVASION_SUCCESS_RATE;
     }
 
-    isCombatFinish(client: Socket, defender: Player, attacker: Player, server: Server) {
+    combatFinish(client: Socket, defender: Player, attacker: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.addVictory(room, attacker, server);
         this.emitToCombatPlayers(server, 'playerDead', defender);
@@ -110,7 +110,7 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         if (defender.attributes.currentHp <= 0) {
             this.movePlayerToSpwanPoint(defender, room.gameMap.itemPlacement);
-            this.isCombatFinish(client, defender, attacker, server);
+            this.combatFinish(client, defender, attacker, server);
             this.continueTurn(client, server);
             return true;
         }

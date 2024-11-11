@@ -37,6 +37,8 @@ describe('SocketGateway', () => {
         const combatServiceMock = {
             startFight: jest.fn(),
             attackPlayer: jest.fn(),
+            isInCombat: jest.fn(),
+            disconnectedPlayer: jest.fn(),
         };
         const matchServiceMock = {
             processMapObjects: jest.fn(),
