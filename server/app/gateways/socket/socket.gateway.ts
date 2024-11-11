@@ -79,17 +79,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
     
         const room = this.roomService.getRoom(client);
-        let newBot = JSON.parse(JSON.stringify(baseBot));
-        newBot.behavior = behavior;
-        const behaviorSuffix = behavior === Behavior.Aggressive ? "-A" : "-D";
-        const availableAvatars = room.availableAvatars.filter(avatar => !avatar.isTaken);
-        if (availableAvatars.length > 0) {
-            const randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
-            newBot.avatar = randomAvatar;
-            newBot.name = `${randomAvatar.name}${behaviorSuffix}-bot`;
-            randomAvatar.isTaken = true;
-        }
-        
+
+        let newBot = this.gameService.assignAvatarToBot(room, behavior);
         newBot = this.gameService.assignStatsToBot(newBot);
         this.gameService.createPlayer(room, newBot, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);

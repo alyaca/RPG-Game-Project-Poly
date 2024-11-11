@@ -6,7 +6,7 @@ import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
-import { Player, Status } from '@common/player';
+import { Behavior, Player, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
@@ -636,5 +636,45 @@ describe('GameService', () => {
         expect(result.attributes.defense).toBe(6);
         expect(result.attributes.atkDiceMax).toBe(6);
         expect(result.attributes.defDiceMax).toBe(4);
+    });
+
+    ////
+
+    it('should assign an available avatar to an aggressive bot and mark it as taken', () => {
+        const behavior = Behavior.Aggressive;
+        const result = service.assignAvatarToBot(room, behavior);
+
+        // Verify that an available avatar is assigned
+        expect(result.avatar).toBeDefined();
+        expect(result.avatar.isTaken).toBe(true);
+        expect(result.name).toContain('-A-bot'); // Aggressive suffix
+
+        // Check that the avatar in the room is now marked as taken
+        const assignedAvatar = room.availableAvatars.find(avatar => avatar.name === result.avatar.name);
+        expect(assignedAvatar?.isTaken).toBe(true);
+    });
+
+    it('should assign an available avatar to a defensive bot and mark it as taken', () => {
+        const behavior = Behavior.Defensive;
+        const result = service.assignAvatarToBot(room, behavior);
+
+        // Verify that an available avatar is assigned
+        expect(result.avatar).toBeDefined();
+        expect(result.avatar.isTaken).toBe(true);
+        expect(result.name).toContain('-D-bot'); // Defensive suffix
+
+        // Check that the avatar in the room is now marked as taken
+        const assignedAvatar = room.availableAvatars.find(avatar => avatar.name === result.avatar.name);
+        expect(assignedAvatar?.isTaken).toBe(true);
+    });
+
+    it('should not assign an avatar if all are taken', () => {
+        room.availableAvatars.forEach(avatar => (avatar.isTaken = true));
+
+        const behavior = Behavior.Defensive;
+        const result = service.assignAvatarToBot(room, behavior);
+
+        expect(result.avatar).toEqual({"isSelected": true, "isTaken": true, "name": "a", "src": ""});
+        expect(room.availableAvatars.every(avatar => avatar.isTaken)).toBe(true);
     });
 });

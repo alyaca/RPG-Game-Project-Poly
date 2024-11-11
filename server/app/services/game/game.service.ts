@@ -2,7 +2,7 @@ import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileC
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Player, Position, Status } from '@common/player';
+import { Avatar, baseBot, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -142,6 +142,20 @@ export class GameService {
         bot.attributes.defDiceMax = bot.attributes.atkDiceMax === 6 ? 4 : 6;
     
         return bot;
+    }
+
+    assignAvatarToBot(room: Room, behavior: Behavior): Player{
+        let newBot = JSON.parse(JSON.stringify(baseBot));
+        newBot.behavior = behavior;
+        const behaviorSuffix = behavior === Behavior.Aggressive ? "-A" : "-D";
+        const availableAvatars = room.availableAvatars.filter(avatar => !avatar.isTaken);
+        if (availableAvatars.length > 0) {
+            const randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
+            newBot.avatar = randomAvatar;
+            newBot.name = `${randomAvatar.name}${behaviorSuffix}-bot`;
+            randomAvatar.isTaken = true;
+        }
+        return newBot;
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
