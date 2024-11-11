@@ -2,7 +2,6 @@ import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
-import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Avatar, Player, Position } from '@common/player';
@@ -10,7 +9,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
-
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
@@ -18,7 +16,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     private server: Server;
 
     constructor(
-        private matchService: MatchService,
         private roomService: RoomService,
         private logger: Logger,
         private chatService: ChatService,
@@ -94,8 +91,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.StartGame)
     handleStartGame(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.matchService.processMapObjects(client);
-        this.gameService.onStartGame(room);
+        this.gameService.onStartGame(room, client);
         const activePlayer = this.gameService.getActivePlayer(room);
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);

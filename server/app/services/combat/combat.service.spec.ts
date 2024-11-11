@@ -91,7 +91,7 @@ describe('CombatService', () => {
     });
 
     it('should reset timer and emit to players onStartTurn', () => {
-        let remainingTime = 2;
+        const remainingTime = 2;
         const mockRoom = mockRooms[0];
         const fightTimerCallback = jest.fn();
         const resetTimerMock = jest.fn((time, callback) => {

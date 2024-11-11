@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, TileType, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, TileType, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -35,7 +35,7 @@ export class CombatService {
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {
-        this.roomService.getFightTimer(room.roomId).resetTimer(5, (timeRemaining: number) => {
+        this.roomService.getFightTimer(room.roomId).resetTimer(FIGHT_TIME, (timeRemaining: number) => {
             this.emitToCombatPlayers(server, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
