@@ -122,9 +122,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'd' || event.key === 'D') {
-                const admin = this.allPlayers.find((player) => player.status === 'admin');
-                const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id)
-                if (currentPlayer && admin && currentPlayer.id === admin.id) {
+                if (this.isPlayerAdmin()) {
                     //ca fait undefined la deuxime fois a la place de false 
                     this.isDebugMode = !this.isDebugMode;
                     this.socketCommunicationService.send('debugMode', this.isDebugMode);
@@ -240,6 +238,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.router.navigate(['/home']);
                 }
             });
+            
+            if(this.isPlayerAdmin()){
+                this.isDebugMode = false;
+                this.socketCommunicationService.send('debugMode', this.isDebugMode);
+            }
     }
 
     handleDraw() {
@@ -288,4 +291,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     hasActionPoints() {
         return this.gameService.hasActionPoints(this.activePlayer);
     }
+
+    isPlayerAdmin(){
+        const admin = this.allPlayers.find((player) => player.status === 'admin');
+        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id)
+        return currentPlayer && admin && currentPlayer.id === admin.id;
+    }
+    
 }
