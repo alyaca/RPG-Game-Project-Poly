@@ -9,7 +9,6 @@ import { BehaviorSubject } from 'rxjs';
 export class CombatService {
     player1: Player;
     player2: Player;
-    // timeRemaining: number;
     timeRemainingSubject = new BehaviorSubject<number>(COMBAT_TURN_LENGTH);
     timeRemaining$ = this.timeRemainingSubject.asObservable();
 

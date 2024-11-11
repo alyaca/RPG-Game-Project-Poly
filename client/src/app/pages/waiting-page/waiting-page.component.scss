@@ -15,7 +15,6 @@ header {
     gap: 10%;
     margin: 0;
     padding: 0;
-    //letter-spacing: 0.1rem;
     font-size: 1.5rem;
     font-family: papyrus;
     font-weight: 900;
@@ -23,7 +22,6 @@ header {
 
 header > * {
     margin: 0;
-    //margin-top: 1.5%;
 }
 
 main {
@@ -236,14 +234,9 @@ app-lobby-player {
     opacity: 1;
 }
 
-//////
-
 .add-bot {
-    //background: linear-gradient(to right, rgb(110, 105, 45), rgb(232, 211, 109) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
     color: white;
-    
     background: linear-gradient(to right, rgb(15, 49, 71), rgb(36, 115, 152) 50%, rgb(75, 152, 185));
-    //background: linear-gradient(to right, rgb(15, 49, 71), rgb(36, 115, 152) 33%, rgb(75, 152, 185) 67%, rgb(15, 49, 71));
     font-size: 1rem;
     border-radius: 2rem;
     width: 15rem;
@@ -269,7 +262,6 @@ app-lobby-player {
     background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 50%, rgb(96, 96, 96));
 }
 
-/////
 .disabled-overlay {
     position: absolute;
     top: 0;
@@ -292,7 +284,6 @@ app-lobby-player {
     width: 60%;
     height: 80%;
     color: white;
-    //background-image: linear-gradient(to top, rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -332,7 +323,6 @@ app-lobby-player {
     flex: 1;
     height: 100%;
     width: 50%;
-    //background-image: linear-gradient(to top, rgb(76, 67, 67), rgb(54, 50, 50) 33%, rgb(39, 34, 34) 67%, rgb(30, 28, 28));
     border-radius: 3rem;
     display: flex;
     flex-direction: column;
@@ -356,7 +346,6 @@ app-lobby-player {
 }
 
 .bot-options > *:hover {
-    //background-image: linear-gradient(to top, rgb(107, 95, 95), rgb(84, 78, 78) 33%, rgb(69, 61, 61) 67%, rgb(57, 53, 53));
     box-shadow: 0 0 15px rgba(255, 249, 144, 0.8);
 }
 
