@@ -1,6 +1,6 @@
 import { GameObject } from '@common/game-object';
 export interface Avatar {
-    id: number;
+    id?: number;
     name: string;
     src: string;
     isSelected?: boolean;

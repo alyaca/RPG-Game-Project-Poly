@@ -1,7 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DICE_6, ErrorMessages, HIGH_ATTRIBUTE, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
+import {
+    DEFAULT_ACTION_POINT,
+    DEFAULT_ATTRIBUTE,
+    DEFAULT_EVASION_POINT,
+    DICE_6,
+    ErrorMessages,
+    HIGH_ATTRIBUTE,
+    MESSAGE_DURATION_VALIDATION_ERROR,
+} from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { Status } from '@common/player';
@@ -158,6 +166,7 @@ describe('CharacterCreatorComponent', () => {
             atkDiceMax: HIGH_ATTRIBUTE,
             defense: DEFAULT_ATTRIBUTE,
             defDiceMax: DEFAULT_ATTRIBUTE,
+            evasion: DEFAULT_EVASION_POINT,
         };
         attributesServiceSpy.getAttributes.and.returnValue(mockAttributes);
         component.setAttributes();
@@ -181,7 +190,9 @@ describe('CharacterCreatorComponent', () => {
             name: component.characterName,
             status: Status.Player,
             victories: 0,
+            inventory: [],
             position: { x: -1, y: -1 },
+            spawnPosition: { x: -1, y: -1 },
         });
     });
 
