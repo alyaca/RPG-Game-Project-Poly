@@ -52,10 +52,9 @@ export class CombatService {
 
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const attackValue = this.attacker.attributes.attack + this.getRandomValue(this.attacker.attributes.atkDiceMax);
-        const defenseValue = this.defender.attributes.defense + this.getRandomValue(this.defender.attributes.defDiceMax);
+        const { attackValue, defenseValue } = this.getCombatValues();
         this.emitToCombatPlayers(server, 'attackValues', { attackValue, defenseValue });
-        if (attackValue > defenseValue) {
+        if (attackValue.total > defenseValue.total) {
             this.defender.attributes.currentHp--;
             this.emitToCombatPlayers(server, 'attackSuccess', this.attacker);
         } else {
@@ -65,6 +64,20 @@ export class CombatService {
         if (!isPlayerDead) {
             this.onEndTurn(client, server, room);
         }
+    }
+
+    getCombatValues() {
+        const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
+        const attackValue = {
+            total: this.attacker.attributes.attack + attackDiceValue,
+            diceValue: attackDiceValue,
+        };
+        const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
+        const defenseValue = {
+            total: this.defender.attributes.defense + defenseDiceValue,
+            diceValue: defenseDiceValue,
+        };
+        return { attackValue, defenseValue };
     }
 
     evadingPlayer(client: Socket, player: Player, server: Server) {

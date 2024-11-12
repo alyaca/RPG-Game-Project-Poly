@@ -51,19 +51,14 @@ export class CombatModalComponent implements OnInit, OnDestroy {
                 this.combatTurnTime = timeRemaining;
             }),
         );
-
         this.combatService.initSocketListeners();
+        this.dice1.rollDice();
+        this.dice2.rollDice();
     }
 
     ngOnDestroy() {
         this.combatService.removeListeners();
     }
-    // ngAfterViewInit() {
-    //     this.combatService2.roles = {
-    //         player1turn: { attacker: this.player2, defender: this.player1, activeDice: this.dice1, inactiveDice: this.dice2 },
-    //         player2turn: { attacker: this.player1, defender: this.player2, activeDice: this.dice2, inactiveDice: this.dice1 },
-    //     };
-    // }
 
     closeModal() {
         this.combatService.resetPlayerHp(this.combatService.activePlayer, this.combatService.opponent);

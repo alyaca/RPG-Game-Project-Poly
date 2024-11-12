@@ -34,15 +34,15 @@
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ combatService.activePlayerResult }}</div>
+                <div>{{ combatService.activePlayerResult.total }}</div>
             </div>
-            <app-dice #dice2></app-dice>
+            <app-dice #dice2 [value]="combatService.activePlayerResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
-                <div>{{ combatService.opponentResult }}</div>
+                <div>{{ combatService.opponentResult.total }}</div>
             </div>
-            <app-dice #dice1></app-dice>
+            <app-dice #dice1 [value]="combatService.opponentResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
         </div>
         <div>
             <div class="player-avatar-container" [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.opponent) }">

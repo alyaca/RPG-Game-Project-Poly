@@ -138,6 +138,8 @@ export const DISPLAY_TEXT_DELAY = 300;
 export const ATTACK_DELAY = 1200;
 export const TURN_DIALOG_DELAY = 1000;
 export const START_TURN_TIMER_DELAY = 2000;
+export const DISPLAY_DICE_DELAY = 1300;
+export const ROLL_DICE_DELAY = 4000;
 
 export const FAIL_EVASION_RANDOM_NUM = 0.5;
 export const SUCCES_EVASION_RANDOM_NUM = 0.1;

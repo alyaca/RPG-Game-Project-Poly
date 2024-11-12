@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ATTACK_TIME, INFO_DIALOG_TIME } from '@app/constants';
+import { ATTACK_TIME, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
 //import { NavigationService } from '../navigation/navigation.service';
-
+import { CombatResult } from '@common/combat-result';
 @Injectable({
     providedIn: 'root',
 })
@@ -20,17 +20,19 @@ export class CombatService {
     defender: Player;
     combatStatus: string;
     turnMessage: string;
-    activePlayerResult: number;
-    opponentResult: number;
+    activePlayerResult: CombatResult = { total: 0, diceValue: 1 };
+    opponentResult: CombatResult = { total: 0, diceValue: 1 };
+    attackResult: CombatResult;
+    defenseResult: CombatResult;
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
+    isRolling: boolean = true;
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
-        private dialog: MatDialog,
-    ) //        private navigationService: NavigationService,
-    {}
+        private dialog: MatDialog, //        private navigationService: NavigationService,
+    ) {}
 
     initializeCombat(player1: Player, player2: Player, isPlayer1Active: boolean) {
         this.activePlayer = isPlayer1Active ? player1 : player2;
@@ -48,9 +50,16 @@ export class CombatService {
             this.combatTurnTimeSource.next(timeRemaining);
         });
 
-        this.socketCommunicationService.on('attackValues', (data: { attackValue: number; defenseValue: number }) => {
-            this.attacker.attributes.attack = data.attackValue;
-            this.defender.attributes.defense = data.defenseValue;
+        this.socketCommunicationService.on('attackValues', (data: { attackValue: CombatResult; defenseValue: CombatResult }) => {
+            this.attacker.attributes.attack = data.attackValue.total;
+            this.defender.attributes.defense = data.defenseValue.total;
+            this.attackResult = data.attackValue;
+            this.defenseResult = data.defenseValue;
+            this.isRolling = false;
+
+            setTimeout(() => {
+                this.isRolling = true;
+            }, DISPLAY_DICE_DELAY);
         });
 
         this.socketCommunicationService.on('attackSuccess', (player: Player) => {
@@ -141,7 +150,7 @@ export class CombatService {
     }
 
     determineStats(player: Player) {
-        return this.isAttacker(player) ? this.attacker.attributes.attack : this.defender.attributes.defense;
+        return this.isAttacker(player) ? this.attackResult : this.defenseResult;
     }
 
     isAttacker(player: Player) {
