@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, TileType, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -84,10 +84,11 @@ export class CombatService {
         return Math.random() < EVASION_SUCCESS_RATE;
     }
 
-    combatFinish(client: Socket, defender: Player, attacker: Player, server: Server) {
+    combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.addVictory(room, attacker, server);
-        this.emitToCombatPlayers(server, 'playerDead', defender);
+        this.addVictory(room, player2, server);
+        //this.emitToCombatPlayers(server, 'playerDead', defender);
+        client.to(room.roomId).emit('playerDead', player1);
     }
 
     continueTurn(client: Socket, server: Server) {
@@ -109,10 +110,14 @@ export class CombatService {
     }
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
         if (defender.attributes.currentHp <= 0) {
-            this.movePlayerToSpwanPoint(defender, room.gameMap.itemPlacement);
+            this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
+            this.continueTurn(client, server);
+            return true;
+        } else if (attacker.attributes.currentHp <= 0) {
+            this.replacePlayerOnSpawnPoint(attacker, client, server);
+            this.combatFinish(client, attacker, defender, server);
             this.continueTurn(client, server);
             return true;
         }
@@ -152,14 +157,33 @@ export class CombatService {
         server.to(room.roomId).emit('combatEnd', room.listPlayers);
     }
 
-    movePlayerToSpwanPoint(player: Player, gameObjects: number[][]) {
-        if (this.isPlayerAtSpawnPoint(player, gameObjects)) return;
-        const { x, y } = player.spawnPosition;
-        if (!this.isTileOccupiedByPlayerOrObject({ x, y }, gameObjects)) {
-            // remove from the previous place, change posiiton of player (find it in room first)
-            gameObjects[x][y] = player.avatar?.id;
+    replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server): void {
+        const room = this.roomService.getRoom(socket);
+        const playerToReplace = room.listPlayers.find((p) => p.id === player.id);
+        if (!playerToReplace) return;
+        room.gameMap.itemPlacement[playerToReplace.position.x][playerToReplace.position.y] = 0;
+        if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
+            playerToReplace.position = playerToReplace.spawnPosition;
+            const newPosition = playerToReplace.spawnPosition;
+            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+        } else {
+            const newPosition = this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
+            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
         }
-        // TODO: else on neighbor tile !
+    }
+
+    checkSpawnPointAvailability(player: Player, gameObjects: number[][]): boolean {
+        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === 8;
+    }
+
+    replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {
+        const neighbors = this.getNeighbors(player.spawnPosition, gameMap);
+        for (const neighbor of neighbors) {
+            if (gameMap.itemPlacement[neighbor.x][neighbor.y] === 0) {
+                player.position = neighbor;
+                return neighbor;
+            }
+        }
     }
 
     getNeighbors(position: Position, game: Game): Position[] {
@@ -174,6 +198,10 @@ export class CombatService {
             .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
     }
 
+    private isValidTile(x: number, y: number, dimension: number): boolean {
+        return x >= 0 && y >= 0 && x < dimension && y < dimension;
+    }
+    /*
     isTileOccupiedByPlayerOrObject(position: Position, gameObjects: number[][]) {
         return gameObjects[position.x][position.y] > 0;
     }
@@ -182,13 +210,11 @@ export class CombatService {
         return gameObjects[x][y] === player.avatar?.id;
     }
 
-    private isValidTile(x: number, y: number, dimension: number): boolean {
-        return x >= 0 && y >= 0 && x < dimension && y < dimension;
-    }
 
     private isTerrainTile(tile: TileType) {
         return tile === TileType.Ground || tile === TileType.Ice || tile === TileType.Water;
     }
+        */
 
     private defaultCombatWin(room: Room, player: Player, server: Server) {
         this.addVictory(room, player, server);

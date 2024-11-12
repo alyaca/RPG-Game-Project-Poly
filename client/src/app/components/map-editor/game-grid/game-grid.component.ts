@@ -132,6 +132,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigateToTile(tile);
         });
 
+        this.socketCommunicationService.on('respawnPlayer', (data: { newPosition: Position; playerToReplace: Player }) => {
+            const { newPosition, playerToReplace } = data;
+            this.respawnPlayer(newPosition, playerToReplace);
+        });
+
         this.socketCommunicationService.on('endMovement', () => {
             this.isMoving = false;
             this.checkEndTurn();
@@ -387,6 +392,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.socketCommunicationService.send('playerNavigation', path);
             }
         }
+    }
+
+    respawnPlayer(position: Position, player: Player) {
+        let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
+        if (!playerToReplace) return;
+        this.navigationService.updateTile(playerToReplace);
+        playerToReplace.position = position;
+        this.displayPortraitOnSpawnPoints();
     }
 
     navigateToTile(position: Position) {

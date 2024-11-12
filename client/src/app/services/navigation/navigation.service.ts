@@ -67,7 +67,7 @@ export class NavigationService {
     }
 
     isInInitialPosition(position: Position): boolean {
-        return this.initialPositions.some((initialPosition) => initialPosition.x === position.x && initialPosition.y === position.y);
+        return this.players.some((player) => player.spawnPosition.x === position.x && player.spawnPosition.y === position.y);
     }
 
     isObject(position: Position): boolean {

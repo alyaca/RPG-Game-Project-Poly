@@ -5,6 +5,7 @@ import { ATTACK_TIME, INFO_DIALOG_TIME } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
+//import { NavigationService } from '../navigation/navigation.service';
 
 @Injectable({
     providedIn: 'root',
@@ -28,7 +29,8 @@ export class CombatService {
     constructor(
         private socketCommunicationService: SocketCommunicationService,
         private dialog: MatDialog,
-    ) {}
+    ) //        private navigationService: NavigationService,
+    {}
 
     initializeCombat(player1: Player, player2: Player, isPlayer1Active: boolean) {
         this.activePlayer = isPlayer1Active ? player1 : player2;
@@ -84,6 +86,7 @@ export class CombatService {
 
         this.socketCommunicationService.on('playerDead', (player: Player) => {
             this.combatStatus = player.name + ' a perdu le combat.';
+            // this.navigationService.replacePlayerOnSpawnPoint(player);
         });
 
         this.socketCommunicationService.on('defaultWin', () => {
@@ -100,7 +103,7 @@ export class CombatService {
         this.socketCommunicationService.off('evasionSuccess');
         this.socketCommunicationService.off('evasionFail');
         this.socketCommunicationService.off('combatTurnEnded');
-        this.socketCommunicationService.off('playerDead');
+        //this.socketCommunicationService.off('playerDead');
         this.socketCommunicationService.off('defaultWin');
     }
 
