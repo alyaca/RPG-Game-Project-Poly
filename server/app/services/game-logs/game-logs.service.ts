@@ -53,9 +53,9 @@ export class GameLogsService {
     
     generateDebugMessage(isDebugMode: boolean): string {
         if (isDebugMode) {
-            return "Début du mode débogage par l'administrateur";
+            return "Début du mode débogage.";
         }
-        return "Fin du mode débogage par l'administrateur";
+        return "Fin du mode débogage.";
 
     }
 }

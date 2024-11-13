@@ -69,4 +69,27 @@ describe('GameLogsService', () => {
 
         expect(message).toBe(`${playerName} a abandonné la partie.`);
     });
+
+    it('should generate debug message if debug mode has changed', () => {
+        const isDebugMode = true;
+        const roomId = 'room1';
+        const spyEmit = jest.spyOn(mockServer.to(roomId), 'emit');
+        service.sendDebugMessage(isDebugMode, roomId, mockServer);
+        expect(spyEmit).toHaveBeenCalledWith('logReceived', expect.any(Object));
+    });
+
+    it('should generate debug message if it is the beginning of debug mode ', () => {
+        const isDebugMode = true;
+        const message = service.generateDebugMessage(isDebugMode);
+        expect(message).toBe("Début du mode débogage.");
+
+    });
+
+    it('should generate debug message if it is the end of debug mode ', () => {
+        const isDebugMode = false;
+        const message = service.generateDebugMessage(isDebugMode);
+        expect(message).toBe("Fin du mode débogage.");
+    });
+
+
 });
