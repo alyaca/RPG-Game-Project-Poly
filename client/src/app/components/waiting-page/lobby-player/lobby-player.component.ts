@@ -22,30 +22,6 @@ export class LobbyPlayerComponent {
         private socketCommunicationService: SocketCommunicationService,
     ) {}
 
-    getPlayerClass(): string {
-        if (this.lobbyPlayer.status === Status.Admin) {
-            return 'admin';
-        } else if (this.lobbyPlayer.status === Status.Bot) {
-            return 'bot';
-        } else {
-            return 'player';
-        }
-    }
-
-    getBehaviorClass(): string {
-        if (this.lobbyPlayer.behavior === Behavior.Aggressive) {
-            return 'aggressive';
-        } else if (this.lobbyPlayer.behavior === Behavior.Defensive) {
-            return 'defensive';
-        } else {
-            return '';
-        }
-    }
-
-    isAdmin() {
-        return this.lobbyPlayer.status === Status.Admin;
-    }
-
     kickOutPlayer() {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
