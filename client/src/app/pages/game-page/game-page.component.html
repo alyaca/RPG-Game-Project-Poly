@@ -44,7 +44,7 @@
     </div>
     <div class="right-container">
         <div class="timer">
-            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn"> </app-timer>
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" #turnTimer> </app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id ;){

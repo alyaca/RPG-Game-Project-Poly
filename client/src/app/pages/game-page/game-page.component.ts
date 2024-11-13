@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -34,6 +34,7 @@ import { Room } from '@common/room';
 export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
+    @ViewChild('turnTimer') turnTimer!: TimerComponent;
 
     allPlayers: Player[];
     mapName: string;
@@ -142,6 +143,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
             this.closeTurnStartPopUp();
             this.timeRemainingStartTurn = timeRemaining;
+            this.turnTimer.updateProgress();
         });
     }
 

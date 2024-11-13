@@ -29,4 +29,10 @@ describe('DiceComponent', () => {
 
         expect(component.isRolling).toBeFalse();
     }));
+
+    it('should not roll again if already rolling', fakeAsync(() => {
+        component.isRolling = true;
+        component.rollDice();
+        expect(component.isRolling).toBeTrue();
+    }));
 });
