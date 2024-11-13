@@ -45,6 +45,7 @@ describe('GameService', () => {
             sendTurnLog: jest.fn(),
             generateTurnMessage: jest.fn(),
             generateGiveUpGame: jest.fn(),
+            sendDebugMessage: jest.fn(),
         };
 
         const roomServiceMock = {
@@ -524,13 +525,23 @@ describe('GameService', () => {
     });
 
     describe('checkFell', () => {
-        it('should return true if random value is greater than FELLING_PROBABILITY', () => {
+
+        it('should return true if debugMode is true', () => {
+            service['isDebugMode'] = true;
+            const result = service['checkFell']();
+            expect(result).toBe(true);
+        });
+
+
+        it('should return true if random value is greater than FELLING_PROBABILITY and debugMode is false', () => {
+            service['isDebugMode'] = false;
             const value = 0.4;
             jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });
-        it('should return false if random value is less than or equal to FELLING_PROBABILITY', () => {
+        it('should return false if random value is less than or equal to FELLING_PROBABILITY and debugMode is false', () => {
+            service['isDebugMode'] = false;
             jest.spyOn(Math, 'random').mockReturnValue(0);
             const result = service['checkFell']();
             expect(result).toBe(false);
@@ -603,5 +614,11 @@ describe('GameService', () => {
             expect(mockSocket.emit).toHaveBeenCalledWith('playerFell');
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
         });
+    });
+
+    it('should send a message to the room when debugMode is changed', () => {
+        const debugMode = true;
+        service['updateLogsDebugMode'](debugMode, mockServer, mockSocket);
+        expect(gameLogsService.sendDebugMessage).toHaveBeenCalledWith(debugMode, room.roomId, mockServer);
     });
 });
