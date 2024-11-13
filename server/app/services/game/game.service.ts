@@ -215,7 +215,7 @@ export class GameService {
         }
     }
 
-    createBot(room: Room, behavior: Behavior, client: Socket, server: Server){
+    createBot(room: Room, behavior: Behavior, client: Socket, server: Server) {
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         let newBot = this.assignAvatarToBot(room, behavior);
         newBot = this.assignStatsToBot(newBot);

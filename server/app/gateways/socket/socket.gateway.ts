@@ -5,7 +5,7 @@ import { GameService } from '@app/services/game/game.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, baseBot, Behavior, Player, Position } from '@common/player';
+import { Avatar, Behavior, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -78,7 +78,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleCreateBot(client: Socket, behavior: Behavior) {
         const room = this.roomService.getRoom(client);
         this.gameService.createBot(room, behavior, client, this.server);
-        this.server.to(room.roomId).emit('updatedPlayer', room);   
+        this.server.to(room.roomId).emit('updatedPlayer', room);
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)

@@ -1,17 +1,17 @@
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+// import { Player } from '@common/player';
+// import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Server, Socket } from 'socket.io';
+// import { Server, Socket } from 'socket.io';
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 describe('CombatService', () => {
     let service: CombatService;
     let mockRoomService: jest.Mocked<RoomService>;
     let mockGameService: jest.Mocked<GameService>;
-    let mockServer: Server;
-    let mockClient: Socket;
+    // let mockServer: Server;
+    // let mockClient: Socket;
 
     beforeEach(async () => {
         mockRoomService = {
@@ -36,17 +36,17 @@ describe('CombatService', () => {
         }).compile();
 
         service = module.get<CombatService>(CombatService);
-        mockServer = {
-            sockets: {
-                adapter: {
-                    rooms: new Map<string, Set<string>>(),
-                },
-                sockets: new Map<string, Socket>() as any,
-            },
-            to: jest.fn().mockReturnThis(),
-            emit: jest.fn(),
-        } as unknown as jest.Mocked<Server>;
-        mockClient = {} as Socket;
+        // mockServer = {
+        //     sockets: {
+        //         adapter: {
+        //             rooms: new Map<string, Set<string>>(),
+        //         },
+        //         sockets: new Map<string, Socket>() as any,
+        //     },
+        //     to: jest.fn().mockReturnThis(),
+        //     emit: jest.fn(),
+        // } as unknown as jest.Mocked<Server>;
+        // mockClient = {} as Socket;
     });
 
     it('should be defined', () => {
