@@ -69,6 +69,7 @@ describe('SocketGateway', () => {
             assignAvatarToBot: jest.fn(),
             assignStatsToBot: jest.fn(),
             updateAvatarsForAllClients: jest.fn(),
+            createBot: jest.fn(),
         };
 
         socket = {
@@ -382,9 +383,8 @@ describe('SocketGateway', () => {
         gateway.handleCreateBot(mockClient, behavior);
 
         expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
-        expect(gameService.assignAvatarToBot).toHaveBeenCalledWith(mockRoom, behavior);
+        expect(gameService.createBot).toHaveBeenCalledWith(mockRoom, behavior, mockClient, server);
         expect(server.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
-        expect(gameService.updateAvatarsForAllClients).toHaveBeenCalledWith(server, mockRoom.roomId);
     });
 
     it('should kick a bot, update avatars, and notify clients', () => {

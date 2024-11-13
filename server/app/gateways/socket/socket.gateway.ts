@@ -76,15 +76,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.CreateBot)
     handleCreateBot(client: Socket, behavior: Behavior) {
-        baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
-
         const room = this.roomService.getRoom(client);
-
-        let newBot = this.gameService.assignAvatarToBot(room, behavior);
-        newBot = this.gameService.assignStatsToBot(newBot);
-        this.gameService.createPlayer(room, newBot, client);
-        this.server.to(room.roomId).emit('updatedPlayer', room);
-        this.gameService.updateAvatarsForAllClients(this.server, room.roomId);
+        this.gameService.createBot(room, behavior, client, this.server);
+        this.server.to(room.roomId).emit('updatedPlayer', room);   
     }
 
     @SubscribeMessage(SocketEvents.SelectCharacter)

@@ -215,6 +215,14 @@ export class GameService {
         }
     }
 
+    createBot(room: Room, behavior: Behavior, client: Socket, server: Server){
+        baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
+        let newBot = this.assignAvatarToBot(room, behavior);
+        newBot = this.assignStatsToBot(newBot);
+        this.createPlayer(room, newBot, client);
+        this.updateAvatarsForAllClients(server, room.roomId);
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         const player = this.getActivePlayer(room);
 
