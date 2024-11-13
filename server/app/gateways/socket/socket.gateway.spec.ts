@@ -66,6 +66,7 @@ describe('SocketGateway', () => {
             onTurnEnded: jest.fn(),
             onStartTurn: jest.fn(),
             processNavigation: jest.fn(),
+            updateLogsDebugMode: jest.fn(),
         };
 
         socket = {
@@ -369,4 +370,14 @@ describe('SocketGateway', () => {
         gateway.handleDoorClicked(mockClient, mockGame.tiles);
         expect(server.to(roomId).emit).toHaveBeenCalledWith('toggleDoor', mockGame.tiles);
     });
+
+    it('should update debugMode in gameService, update logs and emit debugMode', () => {
+        const debugMode = true;
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        jest.spyOn(gameService, 'updateLogsDebugMode');
+        gateway.handleDebugMode(mockClient, debugMode);
+        expect(gameService.updateLogsDebugMode).toHaveBeenCalledWith(debugMode, server, mockClient);
+        expect(server.to(roomId).emit).toHaveBeenCalledWith('debugMode', debugMode);
+    });
+
 });
