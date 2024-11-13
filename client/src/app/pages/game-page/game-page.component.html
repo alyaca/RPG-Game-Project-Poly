@@ -18,9 +18,6 @@
             <p id="grid-size">{{ mapDimensions }}</p>
             <p id="map-name">{{ mapName }}</p>
             <p id="player-count">{{ getPlayerCount() }} joueurs</p>
-            @if(isDebugMode){
-            <p id="debug-mode">Mode debug</p>
-            }
         </div>
         @if (isTurnStartShowed) {
         <div id="turn-start-timer" class="turn-start">
