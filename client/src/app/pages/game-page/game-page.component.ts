@@ -53,7 +53,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
-    isDebugMode: boolean = false;
 
     constructor(
         private router: Router,
@@ -123,11 +122,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         document.addEventListener('keydown', (event) => {
             if (event.key === 'd' || event.key === 'D') {
                 if (this.isPlayerAdmin()) {
-                    //ca fait undefined la deuxime fois a la place de false 
-                    this.isDebugMode = !this.isDebugMode;
-                    this.socketCommunicationService.send('debugMode', this.isDebugMode);
+                    this.navigationService.isDebugMode = ! this.navigationService.isDebugMode;
+                    this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
                 }
             }
+        });
+        
+        this.socketCommunicationService.on('debugMode', (debugMode: boolean) => {
+            this.navigationService.isDebugMode = debugMode;
         });
     }
 
@@ -240,8 +242,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             });
             
             if(this.isPlayerAdmin()){
-                this.isDebugMode = false;
-                this.socketCommunicationService.send('debugMode', this.isDebugMode);
+                this.navigationService.isDebugMode = false;
+                this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
             }
     }
 
@@ -292,10 +294,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.gameService.hasActionPoints(this.activePlayer);
     }
 
-    isPlayerAdmin(){
+    isPlayerAdmin(): boolean {
         const admin = this.allPlayers.find((player) => player.status === 'admin');
-        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id)
-        return currentPlayer && admin && currentPlayer.id === admin.id;
+        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
+        return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }
     
 }
