@@ -144,12 +144,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         client.to(roomId).emit('gameLogReceived', log);
     }
 
-    //voir ce qu'on écrit d'autre
     @SubscribeMessage(SocketEvents.DebugMode)
     handleDebugMode(client: Socket, debugMode: boolean) {
-        this.logger.debug(`Debug mode changed: ${debugMode}`);
         this.gameService.isDebugMode = debugMode;
-        this.combatService.isDebugMode = debugMode;
         this.gameService.updateLogsDebugMode(debugMode, this.server, client);
         const room = this.roomService.getRoom(client);
         this.server.to(room.roomId).emit('debugMode', debugMode);

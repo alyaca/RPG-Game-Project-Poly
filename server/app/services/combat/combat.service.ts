@@ -13,7 +13,6 @@ export class CombatService {
     defensePlayer: Player;
     player1Socket: Socket;
     player2Socket: Socket;
-    isDebugMode: boolean = false;
 
     private gameTime: number;
     constructor(
@@ -62,7 +61,7 @@ export class CombatService {
     }
 
     getAttackValue() {
-        if(this.isDebugMode){
+        if(this.gameService.isDebugMode){
             return this.activePlayer.attributes.attack + this.activePlayer.attributes.atkDiceMax;
         }
         return this.activePlayer.attributes.attack + this.getRandom(this.activePlayer.attributes.atkDiceMax);
@@ -70,7 +69,7 @@ export class CombatService {
     }
 
     getDefenseValue() {
-        if(this.isDebugMode){
+        if(this.gameService.isDebugMode){
             return  this.defensePlayer.attributes.defense + 1;
         }
         return this.defensePlayer.attributes.defense + this.getRandom(this.defensePlayer.attributes.defDiceMax);
