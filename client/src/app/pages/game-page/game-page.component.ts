@@ -54,7 +54,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
 
-    private gameService = inject(GameService);
+    public gameService = inject(GameService);
 
     constructor(
         private router: Router,

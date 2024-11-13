@@ -5,7 +5,7 @@
             <app-combat-stats-bar
                 [player]="combatService.activePlayer"
                 [isOnRightSide]="false"
-                [isDamaged]="combatService2.isPlayer1Damaged"
+                [isDamaged]="!combatService.isAttacker(combatService.activePlayer)"
             ></app-combat-stats-bar>
         </div>
         <div class="timer-container">
@@ -15,7 +15,7 @@
             <app-combat-stats-bar
                 [player]="combatService.opponent"
                 [isOnRightSide]="true"
-                [isDamaged]="combatService2.isPlayer2Damaged"
+                [isDamaged]="!combatService.isAttacker(combatService.opponent)"
             ></app-combat-stats-bar>
         </div>
     </div>

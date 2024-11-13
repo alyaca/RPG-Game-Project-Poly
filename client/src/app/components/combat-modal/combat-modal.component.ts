@@ -5,7 +5,6 @@ import { DiceComponent } from '@app/components/dice/dice.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
-import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
@@ -35,7 +34,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     private subscription: Subscription = new Subscription();
 
     constructor(
-        public combatService2: CombatLogicService,
         public combatService: CombatService,
         public socketCommunicationService: SocketCommunicationService,
     ) {}
@@ -58,6 +56,9 @@ export class CombatModalComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.combatService.removeListeners();
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
     }
 
     closeModal() {
