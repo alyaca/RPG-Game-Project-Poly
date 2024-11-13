@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -54,11 +54,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
 
+    private gameService = inject(GameService);
+
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        public gameService: GameService,
         private navigationService: NavigationService,
         public combatService: CombatService,
     ) {

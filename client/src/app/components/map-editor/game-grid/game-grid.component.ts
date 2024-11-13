@@ -395,7 +395,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     respawnPlayer(position: Position, player: Player) {
-        let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
+        const playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
         if (!playerToReplace) return;
         this.navigationService.updateTile(playerToReplace);
         playerToReplace.position = position;
@@ -426,13 +426,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         // Player has movement point left, no action left.
         // Player is blocked by closed door or players.
-        if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
+        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point left. Player has action point left but
         // no valid target on adjacent tiles.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
             this.socketCommunicationService.send('endTurn');
         }
 

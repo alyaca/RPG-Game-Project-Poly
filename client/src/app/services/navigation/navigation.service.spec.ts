@@ -189,17 +189,17 @@ describe('NavigationServiceService', () => {
         const checkDoorSpy = spyOn(service, 'checkDoor');
         checkAttackSpy.and.returnValue(playerNavigation);
         checkDoorSpy.and.returnValue(undefined);
-        expect(service.haveActions(playerNavigation)).toBeTrue();
+        expect(service.haveActions()).toBeTrue();
 
         checkAttackSpy.and.returnValue(undefined);
         checkDoorSpy.and.returnValue({ x: 1, y: 0 });
-        expect(service.haveActions(playerNavigation)).toBeTrue();
+        expect(service.haveActions()).toBeTrue();
     });
 
     it('haveActions should return false if checkAttack and checkDoor return undefined', () => {
         spyOn(service, 'checkAttack').and.returnValue(undefined);
         spyOn(service, 'checkDoor').and.returnValue(undefined);
-        expect(service.haveActions(playerNavigation)).toBeFalse();
+        expect(service.haveActions()).toBeFalse();
     });
 
     it('checkDOor should return the neighbors', () => {

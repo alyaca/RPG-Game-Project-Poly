@@ -5,12 +5,13 @@ import { ATTACK_TIME, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constant
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
-//import { NavigationService } from '../navigation/navigation.service';
+// import { NavigationService } from '../navigation/navigation.service';
 import { CombatResult } from '@common/combat-result';
 @Injectable({
     providedIn: 'root',
 })
 export class CombatService {
+    /* eslint-disable @typescript-eslint/member-ordering */
     private combatTurnTimeSource = new BehaviorSubject<number>(ATTACK_TIME);
     combatTurnTime$ = this.combatTurnTimeSource.asObservable();
 
@@ -31,7 +32,7 @@ export class CombatService {
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
-        private dialog: MatDialog, //        private navigationService: NavigationService,
+        private dialog: MatDialog, // private navigationService: NavigationService,
     ) {}
 
     initializeCombat(player1: Player, player2: Player, isPlayer1Active: boolean) {
@@ -112,7 +113,7 @@ export class CombatService {
         this.socketCommunicationService.off('evasionSuccess');
         this.socketCommunicationService.off('evasionFail');
         this.socketCommunicationService.off('combatTurnEnded');
-        //this.socketCommunicationService.off('playerDead');
+        // this.socketCommunicationService.off('playerDead');
         this.socketCommunicationService.off('defaultWin');
     }
 

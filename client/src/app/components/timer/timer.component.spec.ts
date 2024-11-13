@@ -25,7 +25,8 @@ describe('TimerComponent', () => {
     });
 
     it('should clear interval in ngOnDestroy if intervalId is set', () => {
-        component.intervalId = setInterval(() => {}, COMBAT_TURN_LENGTH);
+        const mockFunction = jasmine.createSpy('intervalFunction');
+        component.intervalId = setInterval(mockFunction, COMBAT_TURN_LENGTH) as unknown as ReturnType<typeof setInterval>;
         spyOn(window, 'clearInterval');
         component.ngOnDestroy();
         expect(clearInterval).toHaveBeenCalledWith(component.intervalId);
