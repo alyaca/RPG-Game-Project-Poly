@@ -118,9 +118,9 @@ export class NavigationService {
     }
 
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
-        this.activePlayer = player;
-
         this.initializeDistances(player, game);
+
+        this.activePlayer = player;
 
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
 

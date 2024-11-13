@@ -11,9 +11,9 @@ export const gameObjects: GameObject[] = [
     },
     {
         id: ObjectType.Armor,
-        name: 'Armure de Achilles',
+        name: "Armure d'Achilles",
         image: './assets/images/objects/armor-of-achilles.jpg',
-        description: "Augmente l'attaque de 4, si votre attaque est bloquée, inflige 2 dégats à vous-mêmes.",
+        description: '+4 attaque, si votre attaque est bloquée, prenez 2 dégats.',
         count: ITEM_COUNT,
     },
     {
@@ -39,7 +39,7 @@ export const gameObjects: GameObject[] = [
     },
     {
         id: ObjectType.Kunee,
-        name: 'kunée',
+        name: 'Kunée',
         image: './assets/images/objects/helm-of-darkness.jpg',
         description: 'Permet de traverser les murs, ils sont considérés comme des tuiles avec un coût de 1.',
         count: ITEM_COUNT,

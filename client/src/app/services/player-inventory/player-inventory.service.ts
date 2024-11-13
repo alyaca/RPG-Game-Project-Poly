@@ -1,21 +1,50 @@
 import { Injectable } from '@angular/core';
-import { MAX_INVENTORY_ITEMS, ObjectType } from '@app/constants';
+import { DialogTitle, MAX_INVENTORY_ITEMS, ObjectType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
 import { Player } from '@common/player';
+import { GameService } from '../sockets/game/game.service';
 import { SocketCommunicationService } from '../sockets/socket-communication/socket-communication.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PlayerInventoryService {
-    constructor(private socketCommunicationService: SocketCommunicationService) {}
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+        private gameService: GameService,
+    ) {}
 
     updateInventory(player: Player, item: number, objectsOnMap: number[][]): number {
         if (player.inventory.length === MAX_INVENTORY_ITEMS) {
+            const itemToExchange = gameObjects.find((object) => object.id === item);
+            let itemToDrop = itemToExchange;
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.ItemExchange,
+                    messages: [`Quel objet voulez échangé pour celui-ci: ${itemToExchange?.name}`],
+                    options: [player.inventory[0].name, player.inventory[1].name],
+                    confirm: false,
+                })
+                .subscribe((objectToDrop) => {
+                    if (itemToExchange) {
+                        if (objectToDrop === player.inventory[0].name) {
+                            itemToDrop = player.inventory[0];
+                            player.inventory[0] = itemToExchange;
+                        } else if (objectToDrop === player.inventory[1].name) {
+                            itemToDrop = player.inventory[1];
+                            player.inventory[1] = itemToExchange;
+                        } else {
+                            itemToDrop = itemToExchange;
+                        }
+                    }
+                });
+            if (itemToDrop) {
+                return itemToDrop.id;
+            }
+            return item;
             // openDialog
             //if exchange item, return itemExchanged
             //else, return the item on the ground
-            return item;
         } else {
             const itemToAdd = gameObjects.find((object) => object.id === item);
             if (!itemToAdd) return 0;
@@ -61,13 +90,12 @@ export class PlayerInventoryService {
             // case ObjectType.Trident:
             //     return player;
 
-            // In the combat logic service
+            // In the combat logic service for the rest
             case ObjectType.Armor:
                 player.attributes.attack += 4;
                 return player;
             case ObjectType.Sandal:
                 player.attributes.speed *= 2;
-                player.attributes.movementPointsLeft = player.attributes.speed;
                 player.attributes.totalHp -= 2;
                 player.attributes.currentHp -= 2;
                 return player;

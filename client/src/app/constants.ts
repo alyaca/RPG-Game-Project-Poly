@@ -212,6 +212,7 @@ export enum DialogTitle {
     DrawGame = 'Partie nulle',
     EndTurn = 'Fin de votre tour',
     EndGame = 'Fin de la partie',
+    ItemExchange = 'Échanger un objet',
 }
 export enum DialogMessages {
     NotEnoughPlayers = `Il faut au moins ${MIN_NUMBER_PLAYER} joueurs pour commencer la partie`,
