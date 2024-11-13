@@ -119,6 +119,24 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.attackPlayer(client, this.server);
     }
 
+    @SubscribeMessage(SocketEvents.BeginItemSwitch)
+    handleItemSwitch(client: Socket, { player, item }: { player: Player; item: number }) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).pauseTimer();
+        client.emit('openItemSwitchModal', { player, item });
+    }
+
+    @SubscribeMessage(SocketEvents.EndItemSwitch)
+    handleResumeGame(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+            if (timeLeft <= 0) {
+                this.handleEndTurn(client);
+            }
+            this.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+        });
+    }
+
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
         this.gameService.onTurnEnded(client, this.server);

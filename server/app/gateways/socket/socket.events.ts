@@ -21,4 +21,6 @@ export enum SocketEvents {
     DoorClicked = 'doorClicked',
     EndGame = 'endGame',
     InventoryChange = 'inventoryChange',
+    BeginItemSwitch = 'beginItemSwitch',
+    EndItemSwitch = 'endItemSwitch',
 }
