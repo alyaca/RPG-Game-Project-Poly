@@ -29,6 +29,7 @@ export class NavigationService {
         private playerInventory: PlayerInventoryService,
         private socketCommunicationService: SocketCommunicationService,
     ) {}
+    itemToPlace : number;
     path: Position[];
     players: Player[];
     gameMap: Game;
@@ -53,15 +54,23 @@ export class NavigationService {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
-            const object = this.getObject(activePlayer.position);
+            const item = this.getObject(activePlayer.position);
+            if (activePlayer.inventory.length === 2)
+            {
+                const objects = this.objects;
+                this.socketCommunicationService.send('fullInventory', {activePlayer, item, objects});
+            }
+            else
+            {
+                this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
+            }
             // if the inventory is full, send the event below to server, which will find the correct client
             // that client will call updateFullInventory in playerInventoryService after the modal opens.
             // if the inventory is not full, directly call playerInventory.pickupItem from the service
-            // this.socketCommunicationService.send('fullInventory', {activePlayer, object, this.objects});
-            const itemToPlace = this.playerInventory.updateInventory(activePlayer, object, this.objects);
+            
             // this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
-            this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
-            this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
+            this.positions[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
+            this.objects[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }

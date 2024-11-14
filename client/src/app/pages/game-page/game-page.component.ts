@@ -7,11 +7,13 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, ObjectType, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { gameObjects } from '@app/objects-info';
 //import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
@@ -61,6 +63,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         public gameService: GameService,
         private navigationService: NavigationService, //private combatService: CombatService,
         public combatService: CombatService,
+        private playerInventoryService : PlayerInventoryService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -117,6 +120,45 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.router.navigate(['/home']);
                     }
                 });
+        });
+
+        this.socketCommunicationService.on('openItemSwitchModal', (data : {activePlayer : Player, item : number, objects : number[][]}) => {
+            console.log(data.activePlayer);
+            console.log(data.item); // undefined
+            console.log(data.objects); // undefined for some reason
+            let notRandomItem = data.item;
+            if(notRandomItem === ObjectType.Random)
+            {
+                notRandomItem = this.playerInventoryService.determineRandomItem(data.objects);
+            }
+            const itemToExchange = gameObjects.find((object) => object.id === notRandomItem);
+            let itemToDrop = itemToExchange;
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.ItemExchange,
+                    messages: [`Quel objet voulez échangé pour celui-ci: ${itemToExchange?.name}`],
+                    options: [data.activePlayer.inventory[0].name, data.activePlayer.inventory[1].name],
+                    confirm: false,
+                })
+                .subscribe((objectToDrop) => {
+                    if (itemToExchange) {
+                        if (objectToDrop === data.activePlayer.inventory[0].name) {
+                            itemToDrop = data.activePlayer.inventory[0];
+                            data.activePlayer.inventory[0] = itemToExchange;
+                        } else if (objectToDrop === data.activePlayer.inventory[1].name) {
+                            itemToDrop = data.activePlayer.inventory[1];
+                            data.activePlayer.inventory[1] = itemToExchange;
+                        } else {
+                            itemToDrop = itemToExchange;
+                        }
+                    }
+                });
+            if(itemToDrop)
+            {
+                this.navigationService.itemToPlace = itemToDrop?.id;
+                this.playerInventoryService.updatePlayerWithItem(data.activePlayer, data.item, data.objects);
+            }
+            this.navigationService.itemToPlace = data.item;
         });
     }
 

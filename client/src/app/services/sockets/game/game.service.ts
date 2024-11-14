@@ -65,7 +65,6 @@ export class GameService {
     }
 
     openDialog(dialogData: DialogData) {
-        console.log(dialogData.options[0]);
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
             data: dialogData,
