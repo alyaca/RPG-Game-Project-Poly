@@ -4,6 +4,7 @@ import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { PlayerInventoryService } from '../player-inventory/player-inventory.service';
+import { SocketCommunicationService } from '../sockets/socket-communication/socket-communication.service';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -24,7 +25,10 @@ const godNameToObjectType = new Map<string, ObjectType>([
     providedIn: 'root',
 })
 export class NavigationService {
-    constructor(private playerInventory: PlayerInventoryService) {}
+    constructor(
+        private playerInventory: PlayerInventoryService,
+        private socketCommunicationService: SocketCommunicationService,
+    ) {}
     path: Position[];
     players: Player[];
     gameMap: Game;
@@ -50,6 +54,10 @@ export class NavigationService {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
             const object = this.getObject(activePlayer.position);
+            // if the inventory is full, send the event below to server, which will find the correct client
+            // that client will call updateFullInventory in playerInventoryService after the modal opens.
+            // if the inventory is not full, directly call playerInventory.pickupItem from the service
+            // this.socketCommunicationService.send('fullInventory', {activePlayer, object, this.objects});
             const itemToPlace = this.playerInventory.updateInventory(activePlayer, object, this.objects);
             // this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
             this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
