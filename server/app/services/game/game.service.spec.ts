@@ -4,6 +4,7 @@ import { mockPlayers, mockPlayerStats } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
+import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player, Status } from '@common/player';
@@ -22,6 +23,7 @@ describe('GameService', () => {
     let room: Room;
     let mockPlayer: Player;
     let listPlayers: Player[];
+    let matchService: MatchService;
 
     beforeEach(async () => {
         mockSocket = {
@@ -46,7 +48,9 @@ describe('GameService', () => {
             generateTurnMessage: jest.fn(),
             generateGiveUpGame: jest.fn(),
         };
-
+        const matchServiceMock = {
+            processMapObjects: jest.fn(),
+        };
         const roomServiceMock = {
             isRoomActive: jest.fn(),
             isPlayerAdmin: jest.fn(),
@@ -67,12 +71,14 @@ describe('GameService', () => {
                 GameService,
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: GameLogsService, useValue: gameLogsServiceMock },
+                { provide: MatchService, useValue: matchServiceMock },
             ],
         }).compile();
 
         service = module.get<GameService>(GameService);
         roomService = module.get<RoomService>(RoomService);
         gameLogsService = module.get<GameLogsService>(GameLogsService);
+        matchService = module.get<MatchService>(MatchService);
         room = mockRooms[0];
         roomId = '1234';
         mockPlayer = { id: 'currentplayer', name: 'player1', avatar: avatars[0] } as Player;
@@ -391,9 +397,10 @@ describe('GameService', () => {
             { id: 'player2', attributes: { speed: 20 }, status: Status.Player, isActive: false },
         ] as unknown as Player[];
         room.listPlayers = listPlayersInactive;
+        jest.spyOn(matchService, 'processMapObjects');
 
         service['sortPlayersBySpeed'] = jest.fn();
-        service.onStartGame(room);
+        service.onStartGame(room, mockSocket);
         expect(room.gameStatus).toEqual(GameStatus.Started);
         expect(service['sortPlayersBySpeed']).toHaveBeenCalled();
         expect(room.listPlayers[0].isActive).toBe(true);

@@ -11,6 +11,7 @@ export const mockPlayerStats: PlayerStats = {
     atkDiceMax: 4,
     defense: 4,
     defDiceMax: 4,
+    evasion: 2,
 };
 
 export const mockPlayers: Player[] = [
@@ -25,6 +26,7 @@ export const mockPlayers: Player[] = [
         inventory: [],
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
+        spawnPosition: { x: 0, y: 0 },
     },
     {
         id: '123',
@@ -37,6 +39,7 @@ export const mockPlayers: Player[] = [
         inventory: [],
         position: { x: 1, y: 1 },
         behavior: Behavior.Sentient,
+        spawnPosition: { x: 1, y: 1 },
     },
     {
         id: 'id',
@@ -49,6 +52,7 @@ export const mockPlayers: Player[] = [
         inventory: [],
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
+        spawnPosition: { x: 0, y: 0 },
     },
     {
         id: 'bot',
@@ -61,5 +65,6 @@ export const mockPlayers: Player[] = [
         inventory: [],
         position: { x: 0, y: 0 },
         behavior: Behavior.Aggressive,
+        spawnPosition: { x: 0, y: 0 },
     },
 ];

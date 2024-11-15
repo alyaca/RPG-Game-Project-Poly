@@ -106,6 +106,7 @@ export const HIGH_ATTRIBUTE = 6;
 export const DICE_4 = '4 + (1-4)';
 export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
+export const DEFAULT_EVASION_POINT = 2;
 
 export enum ErrorMessages {
     MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
@@ -120,6 +121,7 @@ export const WARNING_TIME = 3;
 export const TIMER_RADIUS = 45;
 export const MILLISECONDS_IN_SECOND = 1000;
 export const TIMER_CENTER_POSITION = 50;
+export const ATTACK_TIME = 5;
 
 export const TEMP_DIALOG_DURATION = 1500;
 export const LONG_TEMP_DIALOG_DURATION = 4500;
@@ -136,6 +138,8 @@ export const DISPLAY_TEXT_DELAY = 300;
 export const ATTACK_DELAY = 1200;
 export const TURN_DIALOG_DELAY = 1000;
 export const START_TURN_TIMER_DELAY = 2000;
+export const DISPLAY_DICE_DELAY = 1300;
+export const ROLL_DICE_DELAY = 4000;
 
 export const FAIL_EVASION_RANDOM_NUM = 0.5;
 export const SUCCES_EVASION_RANDOM_NUM = 0.1;
@@ -236,3 +240,5 @@ export enum TileCost {
     Ice = 0,
     OpenDoor = 1,
 }
+
+export const INFO_DIALOG_TIME = 2000;

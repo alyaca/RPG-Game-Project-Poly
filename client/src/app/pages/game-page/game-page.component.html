@@ -1,6 +1,6 @@
 <div class="page-element" #pageElement>
-    @if (isInCombat){
-    <app-combat-modal [isInCombat]="isInCombat" (closeModalEvent)="closeCombatModal()"></app-combat-modal>
+    @if (combatService.isInCombat){
+    <app-combat-modal [isInCombat]="combatService.isInCombat"></app-combat-modal>
     }
     <div class="left-container">
         <div class="player-bar">
@@ -44,7 +44,7 @@
     </div>
     <div class="right-container">
         <div class="timer">
-            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn"> </app-timer>
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" #turnTimer> </app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id ;){
@@ -70,10 +70,10 @@
                     <div
                         class="button-outer action-outer"
                         [class.selected]="gameService.isActionCombatSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack()"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack() || !hasActionPoints()"
                         (click)="toggleActionCombatSelected()"
                     >
-                        <div class="action-button attack-button" (click)="openCombatModal()"></div>
+                        <div class="action-button attack-button"></div>
                     </div>
                 </div>
                 <div class="center-button">

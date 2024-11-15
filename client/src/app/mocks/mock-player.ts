@@ -52,8 +52,9 @@ export const playerNavigation: Player = {
         atkDiceMax: 1,
         defense: 1,
         defDiceMax: 1,
+        evasion: 2,
     },
-    avatar: { name: 'a', src: 'a.img', isSelected: true, isTaken: true },
+    avatar: { id: 20, name: 'a', src: 'a.img', isSelected: true, isTaken: true },
     isActive: true,
     name: 'Hestia',
     status: Status.Player,
@@ -61,4 +62,5 @@ export const playerNavigation: Player = {
     inventory: [],
     position: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
+    spawnPosition: { x: 0, y: 0 },
 };

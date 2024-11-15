@@ -11,12 +11,14 @@ import {
     TURN_TIME,
 } from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
+import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, baseBot, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
+/* eslint-disable max-lines */
 @Injectable()
 export class GameService {
     isMoving: boolean = false;
@@ -24,6 +26,7 @@ export class GameService {
     constructor(
         private roomService: RoomService,
         private gameLogsService: GameLogsService,
+        private matchService: MatchService,
     ) {}
 
     connectPlayerToGame(roomId: string) {
@@ -112,7 +115,8 @@ export class GameService {
         game.isLocked = isLocked;
     }
 
-    onStartGame(room: Room) {
+    onStartGame(room: Room, socket: Socket) {
+        this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
         room.listPlayers[0].isActive = true;

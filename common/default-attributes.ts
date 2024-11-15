@@ -1,5 +1,5 @@
-import { PlayerStats } from './player';
-import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE } from '../client/src/app/constants';
+import { PlayerStats } from '@common/player';
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DEFAULT_EVASION_POINT } from './constants';
 
 export const defaultAttributes: PlayerStats = {
     totalHp: DEFAULT_ATTRIBUTE,
@@ -12,4 +12,5 @@ export const defaultAttributes: PlayerStats = {
     atkDiceMax: DEFAULT_ATTRIBUTE,
     defense: DEFAULT_ATTRIBUTE,
     defDiceMax: DEFAULT_ATTRIBUTE,
+    evasion: DEFAULT_EVASION_POINT,
 };

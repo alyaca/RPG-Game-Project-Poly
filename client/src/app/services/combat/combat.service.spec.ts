@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-
 import { CombatService } from './combat.service';
 
 describe('CombatService', () => {

@@ -60,16 +60,14 @@ export class NavigationService {
     showDetails(row: number, col: number) {
         const clickedPlayer = this.players.find((player) => player.position.x === row && player.position.y === col);
         if (clickedPlayer) {
-            // return { name: clickedPlayer.name, avatarSrc: clickedPlayer.avatar?.src };
             return `${clickedPlayer.name}, ${clickedPlayer.avatar}`;
         } else {
-            // TODO: completer les details
             return `${this.positions[row][col].valueOf()}`;
         }
     }
 
     isInInitialPosition(position: Position): boolean {
-        return this.initialPositions.some((initialPosition) => initialPosition.x === position.x && initialPosition.y === position.y);
+        return this.players.some((player) => player.spawnPosition.x === position.x && player.spawnPosition.y === position.y);
     }
 
     isObject(position: Position): boolean {
