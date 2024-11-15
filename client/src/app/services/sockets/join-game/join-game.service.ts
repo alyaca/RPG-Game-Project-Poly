@@ -76,6 +76,7 @@ export class JoinGameService {
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
+                itemSwap: null
             },
         });
 

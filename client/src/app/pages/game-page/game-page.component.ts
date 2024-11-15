@@ -18,6 +18,7 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
+import { ItemSwap } from '@common/item-swap';
 
 @Component({
     selector: 'app-game-page',
@@ -55,6 +56,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
+
+    exampleItemSwap: ItemSwap = {
+        currentItem1: gameObjects[0],
+        currentItem2: gameObjects[1],
+        pickedUpItem: gameObjects[2],
+    }
 
     constructor(
         private router: Router,
@@ -114,6 +121,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: ['Le gagnant de la partie est : ' + winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    itemSwap: null,
                 })
                 .subscribe((result) => {
                     if (result === DialogResult.Close) {
@@ -139,6 +147,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: [`Quel objet voulez échangé pour celui-ci: ${itemToExchange?.name}`],
                     options: [data.activePlayer.inventory[0].name, data.activePlayer.inventory[1].name],
                     confirm: false,
+                    itemSwap: this.exampleItemSwap,
                 })
                 .subscribe((objectToDrop) => {
                     if (itemToExchange) {
@@ -197,7 +206,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onPlayerFell() {
         this.gameService
-            .openDialog({ title: DialogTitle.EndTurn, messages: [DialogMessages.Fell], confirm: false, options: [DialogOptions.Close] })
+            .openDialog({ title: DialogTitle.EndTurn, messages: [DialogMessages.Fell], confirm: false, options: [DialogOptions.Close], itemSwap: null, })
             .subscribe((result) => {
                 if (result === DialogResult.Close) {
                     this.onEndTurn();
@@ -262,6 +271,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 messages: [DialogMessages.QuitGame],
                 options: [DialogOptions.Quit, DialogOptions.Stay],
                 confirm: true,
+                itemSwap: null,
             })
             .subscribe((result) => {
                 if (result === DialogResult.Left) {
@@ -278,6 +288,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 messages: [DialogMessages.DrawGame],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             })
             .subscribe((result) => {
                 if (result === DialogResult.Close) {

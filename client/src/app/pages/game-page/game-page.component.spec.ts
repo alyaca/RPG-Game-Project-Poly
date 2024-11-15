@@ -217,6 +217,7 @@ describe('GamePageComponent', () => {
             messages: [DialogMessages.QuitGame],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
+            itemSwap: null,
         });
     });
 
@@ -242,6 +243,7 @@ describe('GamePageComponent', () => {
             messages: [DialogMessages.DrawGame],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap: null,
         });
     });
 
@@ -315,6 +317,7 @@ describe('GamePageComponent', () => {
             messages: [DialogMessages.Fell],
             confirm: false,
             options: [DialogOptions.Close],
+            itemSwap: null,
         });
         expect(endTurnSpy).toHaveBeenCalled();
     });

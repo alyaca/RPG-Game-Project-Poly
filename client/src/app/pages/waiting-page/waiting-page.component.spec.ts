@@ -215,6 +215,7 @@ describe('WaitingPageComponent', () => {
                 messages: [DialogMessages.NotEnoughPlayers],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             });
         });
 
@@ -225,6 +226,7 @@ describe('WaitingPageComponent', () => {
                 messages: [DialogMessages.RoomLocked],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             });
         });
 
@@ -263,6 +265,7 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.ConfirmStartGame],
             options: [DialogOptions.Cancel, DialogOptions.Confirm],
             confirm: true,
+            itemSwap: null,
         });
 
         setTimeout(() => {

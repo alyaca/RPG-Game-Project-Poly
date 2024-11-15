@@ -73,7 +73,7 @@ export class GameService {
     }
 
     onAdminQuit(message: string) {
-        this.openDialog({ title: DialogTitle.GameCanceled, messages: [message], confirm: false, options: [DialogOptions.Close] }).subscribe(
+        this.openDialog({ title: DialogTitle.GameCanceled, messages: [message], confirm: false, options: [DialogOptions.Close], itemSwap: null }).subscribe(
             (result) => {
                 if (result === DialogResult.Close) {
                     this.router.navigate(['/home']);
@@ -100,6 +100,7 @@ export class GameService {
             messages: [DialogMessages.QuitGame],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
+            itemSwap: null,
         }).subscribe((result) => {
             if (result === DialogResult.Left) {
                 this.socketCommunicationService.send('leaveRoom', roomId);
@@ -113,6 +114,7 @@ export class GameService {
             messages: [DialogMessages.KickedOut],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap: null,
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
                 this.router.navigate(['/join-game']);

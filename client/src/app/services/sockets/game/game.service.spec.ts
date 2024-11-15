@@ -86,6 +86,7 @@ describe('GameService', () => {
             messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
             options: ['Quitter', 'Rester'],
             confirm: true,
+            itemSwap: null,
         };
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('stay'));
