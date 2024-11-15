@@ -240,4 +240,4 @@ export enum TileCost {
     OpenDoor = 1,
 }
 
-export const INFO_DIALOG_TIME = 2000;
+export const INFO_DIALOG_TIME = 2500;

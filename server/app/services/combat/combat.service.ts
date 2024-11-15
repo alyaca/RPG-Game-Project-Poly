@@ -85,7 +85,7 @@ export class CombatService {
         this.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
             this.emitToCombatPlayers(server, 'evasionSuccess', player);
-            this.continueTurn(client, player, server);
+            this.continueTurn(client, server);
             this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
         } else {
             this.emitToCombatPlayers(server, 'evasionFail', player);
@@ -104,20 +104,15 @@ export class CombatService {
         client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
     }
 
-    continueTurn(client: Socket, player: Player, server: Server) {
+    continueTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const activePlayer = this.gameService.getActivePlayer(room);
         this.combatEnded(room);
-        if (player.id === activePlayer.id) {
-            this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
-                if (timeRemaining <= 0) {
-                    this.gameService.onTurnEnded(client, server);
-                }
-                server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-            });
-        } else {
-            this.gameService.onTurnEnded(client, server);
-        }
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
+            if (timeRemaining <= 0) {
+                this.gameService.onTurnEnded(client, server);
+            }
+            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+        });
     }
 
     combatEnded(room: Room) {
@@ -129,10 +124,17 @@ export class CombatService {
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        const activePlayer = this.gameService.getActivePlayer(room);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
-            this.continueTurn(client, defender, server);
+            if (activePlayer.id !== defender.id) {
+                this.continueTurn(client, server);
+            } else {
+                this.combatEnded(room);
+                this.gameService.onTurnEnded(client, server);
+            }
+
             return true;
         }
         return false;
@@ -155,7 +157,7 @@ export class CombatService {
         this.defaultCombatWin(room, winner, server);
         if (winner.isActive) {
             const winnerSocket = server.sockets.sockets.get(winner.id);
-            this.continueTurn(winnerSocket, winner, server); // check that
+            this.continueTurn(winnerSocket, server);
         }
         this.combatEnded(room);
     }

@@ -21,5 +21,4 @@ export enum SocketEvents {
     EvadeCombat = 'evadeCombat',
     DoorClicked = 'doorClicked',
     EndGame = 'endGame',
-    ContinueTurn = 'continueTurn',
 }

@@ -143,7 +143,6 @@ export class CombatService {
         setTimeout(() => {
             dialogRef.close();
             this.isInCombat = false;
-            this.socketCommunicationService.send('continueTurn', winner);
         }, INFO_DIALOG_TIME);
     }
 

@@ -113,17 +113,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.evadingPlayer(client, player, this.server);
     }
 
-    @SubscribeMessage(SocketEvents.ContinueTurn)
-    handleContinueTurn(client: Socket, player: Player) {
-        const room = this.roomService.getRoom(client);
-        const activePlayer = this.gameService.getActivePlayer(room);
-        if (player.id === activePlayer.id) {
-            this.combatService.continueTurn(client, player, this.server);
-        } else {
-            this.gameService.onTurnEnded(client, this.server);
-        }
-    }
-
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
         this.gameService.onTurnEnded(client, this.server);
