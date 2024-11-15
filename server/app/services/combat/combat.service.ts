@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, MIN_DICE_VALUE, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -50,26 +50,8 @@ export class CombatService {
         this.onStartTurn(client, server, room);
     }
 
-    /*getAttackValue() {
-        if(this.gameService.isDebugMode){
-            return this.activePlayer.attributes.attack + this.activePlayer.attributes.atkDiceMax;
-        }
-        return this.activePlayer.attributes.attack + this.getRandom(this.activePlayer.attributes.atkDiceMax);
-    
-    }
-
-    getDefenseValue() {
-        if(this.gameService.isDebugMode){
-            return  this.defensePlayer.attributes.defense + 1;
-        }
-        return this.defensePlayer.attributes.defense + this.getRandom(this.defensePlayer.attributes.defDiceMax);
-     }*/
-
-
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        //const attackValue = this.getAttackValue();
-        //const defenseValue = this.getDefenseValue();
         const { attackValue, defenseValue } = this.getCombatValues();
         this.emitToCombatPlayers(server, 'attackValues', { attackValue, defenseValue });
         if (attackValue.total > defenseValue.total) {
@@ -85,12 +67,12 @@ export class CombatService {
     }
 
     getCombatValues() {
-        const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
+        const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
         const attackValue = {
             total: this.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
-        const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
+        const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
         const defenseValue = {
             total: this.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,
