@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ATTACK_TIME, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
@@ -77,6 +77,7 @@ export class CombatService {
         });
 
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
+            this.isRolling = false;
             this.onEvasion(player);
         });
 
@@ -92,10 +93,6 @@ export class CombatService {
             this.attacker = data.attacker;
             this.defender = data.defender;
             this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
-        });
-
-        this.socketCommunicationService.on('playerDead', (player: Player) => {
-            this.combatStatus = player.name + ' a perdu le combat.';
         });
 
         this.socketCommunicationService.on('defaultWin', () => {
@@ -131,6 +128,22 @@ export class CombatService {
 
         setTimeout(() => {
             dialogRef.close();
+        }, INFO_DIALOG_TIME);
+    }
+
+    onCombatEnd(winner: Player) {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: DialogTitle.EndFight,
+                messages: [DialogMessages.EndFight + winner.name],
+            },
+        });
+
+        setTimeout(() => {
+            dialogRef.close();
+            this.isInCombat = false;
+            this.socketCommunicationService.send('continueTurn', winner);
         }, INFO_DIALOG_TIME);
     }
 
