@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -8,7 +8,6 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
-//import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -35,6 +34,7 @@ import { Room } from '@common/room';
 export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
+    @ViewChild('turnTimer') turnTimer!: TimerComponent;
 
     allPlayers: Player[];
     mapName: string;
@@ -52,14 +52,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
-    combatTurnTime: number;
+
+    private navigationService = inject(NavigationService);
 
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public gameService: GameService,
-        private navigationService: NavigationService, //private combatService: CombatService,
         public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
@@ -88,22 +88,21 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.activePlayerName = name;
         });
 
-        this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player }) => {
-            this.isInCombat = true;
-            this.combatService.initializeCombat(data.player1, data.player2);
+        this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
+            this.combatService.isInCombat = true;
+            this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            this.activePlayer.attributes.actionPoints = 0;
-            this.closeCombatModal();
+            this.combatService.isInCombat = false;
         });
 
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
         });
 
-        this.socketCommunicationService.on('endGame', (winner: Player) => {
+        this.socketCommunicationService.once('endGame', (winner: Player) => {
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
@@ -156,6 +155,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
             this.closeTurnStartPopUp();
             this.timeRemainingStartTurn = timeRemaining;
+            this.turnTimer.updateProgress();
         });
     }
 
@@ -213,17 +213,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleActionCombatSelected() {
         this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
         this.gameService.isActionDoorSelected = false;
-    }
-
-    openCombatModal() {
-        const player1 = this.navigationService.getActivePlayer();
-        const player2 = this.navigationService.checkAttack();
-        this.navigationService.getActivePlayer().attributes.actionPoints = 0;
-        this.socketCommunicationService.send('startFight', { player1, player2 });
-    }
-
-    closeCombatModal() {
-        this.isInCombat = false;
     }
 
     handleExit() {
