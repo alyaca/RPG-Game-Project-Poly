@@ -100,7 +100,6 @@ export class CombatService {
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.addVictory(room, player2, server);
-        //this.emitToCombatPlayers(server, 'playerDead', defender);
         client.to(room.roomId).emit('playerDead', player1);
     }
 
@@ -123,17 +122,25 @@ export class CombatService {
     }
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
+        const activePlayer = this.gameService.getActivePlayer(room);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
-            this.continueTurn(client, server);
-            return true;
-        } else if (attacker.attributes.currentHp <= 0) {
-            this.replacePlayerOnSpawnPoint(attacker, client, server);
-            this.combatFinish(client, attacker, defender, server);
-            this.continueTurn(client, server);
+            if (activePlayer.id !== defender.id) {
+                this.continueTurn(client, server);
+            } else {
+                this.combatEnded(room);
+                this.gameService.onTurnEnded(client, server);
+            }
             return true;
         }
+        // else if (attacker.attributes.currentHp <= 0) {
+        //     this.replacePlayerOnSpawnPoint(attacker, client, server);
+        //     this.combatFinish(client, attacker, defender, server);
+        //     this.continueTurn(client, server);
+        //     return true;
+        // }
         return false;
     }
 

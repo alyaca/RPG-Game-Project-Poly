@@ -52,7 +52,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
-    combatTurnTime: number;
 
     public gameService = inject(GameService);
 
@@ -90,14 +89,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
-            this.isInCombat = true;
+            this.combatService.isInCombat = true;
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            // this.activePlayer.attributes.actionPoints = 0;
-            this.closeCombatModal();
+            this.combatService.isInCombat = false;
         });
 
         this.socketCommunicationService.on('playerFell', () => {
@@ -202,10 +200,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleActionCombatSelected() {
         this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
         this.gameService.isActionDoorSelected = false;
-    }
-
-    closeCombatModal() {
-        this.isInCombat = false;
     }
 
     handleExit() {
