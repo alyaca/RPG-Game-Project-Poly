@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ObjectType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
+import { GameObject } from '@common/game-object';
 import { Player } from '@common/player';
 import { SocketCommunicationService } from '../sockets/socket-communication/socket-communication.service';
 
@@ -136,5 +137,47 @@ export class PlayerInventoryService {
                 break;
         }
         this.socketCommunicationService.send('inventoryChange', player);
+    }
+
+    updatePlayerAfterSwap(playerToModify: Player, itemPickedUp: GameObject, itemDropped: GameObject) {
+        switch (itemDropped.id) {
+            case ObjectType.Armor:
+                playerToModify.attributes.attack -= 2;
+                break;
+            case ObjectType.Sandal:
+                playerToModify.attributes.speed /= 2;
+                playerToModify.attributes.totalHp += 2;
+                playerToModify.attributes.currentHp += 2;
+                break;
+            case ObjectType.Lightning:
+                playerToModify.attributes.attack /= 2;
+                playerToModify.attributes.defense += 2;
+                playerToModify.attributes.totalHp += 2;
+                playerToModify.attributes.currentHp += 2;
+                break;
+            default:
+                break;
+        }
+
+        // itemPickedUp undefined
+        switch (itemPickedUp.id) {
+            case ObjectType.Armor:
+                playerToModify.attributes.attack += 2;
+                break;
+            case ObjectType.Sandal:
+                playerToModify.attributes.speed *= 2;
+                playerToModify.attributes.totalHp -= 2;
+                playerToModify.attributes.currentHp -= 2;
+                break;
+            case ObjectType.Lightning:
+                playerToModify.attributes.attack *= 2;
+                playerToModify.attributes.defense -= 2;
+                playerToModify.attributes.totalHp -= 2;
+                playerToModify.attributes.currentHp -= 2;
+                break;
+            default:
+                break;
+        }
+        this.socketCommunicationService.send('inventoryChange', playerToModify);
     }
 }

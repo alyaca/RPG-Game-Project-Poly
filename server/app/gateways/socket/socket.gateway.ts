@@ -120,31 +120,30 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.FullInventory)
-    handleFullInventory(client : Socket, {activePlayer, item, objects} : {activePlayer : Player, item : number, objects : number[][]})
-    {
-        if (client.id === activePlayer.id)
-        {
-            client.emit('openItemSwitchModal', {activePlayer, item, objects});
+    handleFullInventory(client: Socket, { activePlayer, item, objects }: { activePlayer: Player; item: number; objects: number[][] }) {
+        if (client.id === activePlayer.id) {
+            this.handleItemSwitch(client, { activePlayer, item });
+            client.emit('openItemSwitchModal', { activePlayer, item, objects });
         }
     }
 
-    // @SubscribeMessage(SocketEvents.BeginItemSwitch)
-    // handleItemSwitch(client: Socket, { player, item }: { player: Player; item: number }) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.roomService.getTurnTimer(room.roomId).pauseTimer();
-    //     client.emit('openItemSwitchModal', { player, item });
-    // }
+    @SubscribeMessage(SocketEvents.BeginItemSwitch)
+    handleItemSwitch(client: Socket, { activePlayer, item }: { activePlayer: Player; item: number }) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).pauseTimer();
+        client.emit('openItemSwitchModal', { activePlayer, item });
+    }
 
-    // @SubscribeMessage(SocketEvents.EndItemSwitch)
-    // handleResumeGame(client: Socket) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
-    //         if (timeLeft <= 0) {
-    //             this.handleEndTurn(client);
-    //         }
-    //         this.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
-    //     });
-    // }
+    @SubscribeMessage(SocketEvents.EndItemSwitch)
+    handleResumeGame(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+            if (timeLeft <= 0) {
+                this.handleEndTurn(client);
+            }
+            this.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+        });
+    }
 
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {

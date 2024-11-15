@@ -29,7 +29,7 @@ export class NavigationService {
         private playerInventory: PlayerInventoryService,
         private socketCommunicationService: SocketCommunicationService,
     ) {}
-    itemToPlace : number;
+    itemToPlace: number;
     path: Position[];
     players: Player[];
     gameMap: Game;
@@ -55,25 +55,53 @@ export class NavigationService {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
             const item = this.getObject(activePlayer.position);
-            if (activePlayer.inventory.length === 2)
-            {
+            if (activePlayer.inventory.length === 2) {
                 const objects = this.objects;
-                this.socketCommunicationService.send('fullInventory', {activePlayer, item, objects});
-            }
-            else
-            {
+                this.socketCommunicationService.send('fullInventory', { activePlayer, item, objects });
+            } else {
                 this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
             }
             // if the inventory is full, send the event below to server, which will find the correct client
             // that client will call updateFullInventory in playerInventoryService after the modal opens.
             // if the inventory is not full, directly call playerInventory.pickupItem from the service
-            
+
             // this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
             this.positions[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
             this.objects[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }
+    }
+
+    isOnWall(activePlayer: Player): boolean {
+        return this.gameMap.tiles[activePlayer.position.x][activePlayer.position.y] === TileType.Wall;
+    }
+
+    movePlayerFromWall(activePlayer: Player) {
+        this.updateTile(activePlayer);
+        let currentX = activePlayer.position.x;
+        let loopCounter = 0;
+        let currentY = activePlayer.position.y;
+        let directionsIndex = 0;
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+        ];
+        while (
+            this.gameMap.tiles[currentX][currentY] === TileType.Wall ||
+            (this.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && this.positions[currentX][currentY] === 0)
+        ) {
+            currentX += loopCounter * directions[directionsIndex].dx;
+            currentY += loopCounter * directions[directionsIndex].dy;
+            this.positions[currentX][currentY];
+            directionsIndex = (directionsIndex + 1) % directions.length;
+            loopCounter += 1;
+        }
+        activePlayer.position.x = currentX;
+        activePlayer.position.y = currentY;
+        return this.reconstructPath(activePlayer.position);
     }
 
     removePlayer(player: Player): void {

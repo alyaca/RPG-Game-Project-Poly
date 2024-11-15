@@ -390,17 +390,28 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         // Player has movement point left, no action left.
         // Player is blocked by closed door or players.
         if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
+            if (this.navigationService.isOnWall(this.activePlayer)) {
+                const path = this.navigationService.movePlayerFromWall(this.activePlayer);
+                this.displayPortraitOnSpawnPoints();
+                this.socketCommunicationService.send('playerNavigation', path); // a new turn starts
+            }
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point left. Player has action point left but
         // no valid target on adjacent tiles.
         else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
+            if (this.navigationService.isOnWall(this.activePlayer)) {
+                this.navigationService.movePlayerFromWall(this.activePlayer);
+            }
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point or action left.
         else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.gameService.hasActionPoints(this.activePlayer)) {
+            if (this.navigationService.isOnWall(this.activePlayer)) {
+                this.navigationService.movePlayerFromWall(this.activePlayer);
+            }
             this.socketCommunicationService.send('endTurn');
         }
     }
