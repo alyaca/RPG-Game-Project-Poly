@@ -35,4 +35,8 @@ export class SimpleDialogComponent {
     onCancel() {
         this.dialogRef.close('right');
     }
+
+    close() {
+        this.dialogRef.close();
+    }
 }

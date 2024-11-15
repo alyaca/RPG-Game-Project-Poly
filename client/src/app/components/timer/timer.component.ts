@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { TIMER_ARC_WIDTH, TIMER_CENTER_POSITION, TIMER_RADIUS, WARNING_TIME } from '@app/constants';
+import { STARTING_TIME, TIMER_ARC_WIDTH, TIMER_CENTER_POSITION, TIMER_RADIUS, WARNING_TIME } from '@app/constants';
 
 @Component({
     selector: 'app-timer',
@@ -10,8 +10,8 @@ import { TIMER_ARC_WIDTH, TIMER_CENTER_POSITION, TIMER_RADIUS, WARNING_TIME } fr
     styleUrl: './timer.component.scss',
 })
 export class TimerComponent implements OnInit, OnDestroy {
-    @Input() totalTime: number;
-    @Input() timeRemaining: number;
+    @Input() totalTime: number = STARTING_TIME;
+    @Input() timeRemaining: number = STARTING_TIME;
     @Output() startTimer = new EventEmitter<void>();
     @Output() closeTimer = new EventEmitter<void>();
 
@@ -43,16 +43,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     start() {
         this.startTimer.emit();
-    }
-
-    resetTimer() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-        }
-
-        this.timeRemaining = this.totalTime;
-        this.updateProgress();
-        this.start();
     }
 
     updateProgress() {
