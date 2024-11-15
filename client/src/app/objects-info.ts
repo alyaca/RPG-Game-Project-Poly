@@ -6,14 +6,14 @@ export const gameObjects: GameObject[] = [
         id: ObjectType.Trident,
         name: 'Trident de Poséidon',
         image: './assets/images/objects/poseidon-trident.jpg',
-        description: "Augmente l'attaque de 1 pour chaque tuile d'eau adjacente.",
+        description: "S'il vous reste un point d'action à la fin de votre tour, gagnez-en un à votre prochain tour, jusqu'à un maximum de 2.",
         count: ITEM_COUNT,
     },
     {
         id: ObjectType.Armor,
         name: "Armure d'Achilles",
         image: './assets/images/objects/armor-of-achilles.jpg',
-        description: '+4 attaque, si votre attaque est bloquée, prenez 2 dégats.',
+        description: '+2 attaque, si votre attaque est bloquée, prenez 1 dégat.',
         count: ITEM_COUNT,
     },
     {
