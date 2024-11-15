@@ -144,3 +144,18 @@ progress::-webkit-progress-value {
     border-radius: 50%;
     margin-left: 0.5rem;
 }
+
+.empty-slot {
+    padding: 5%;
+    // width: 2.5rem;
+    // height: 2.5rem;
+    width: 6vh;
+    height: 6vh;
+    overflow: hidden;
+    cursor: pointer;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: none;
+
+    background-color: rgb(40, 37, 37);
+}

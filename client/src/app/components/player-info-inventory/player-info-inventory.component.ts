@@ -18,6 +18,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
     actionPointsArray: number[];
     movementPointsArray: number[];
     descriptionPosition: string = 'bottom';
+
     // check if when the hp changes, the hp bar visual also changes
 
     // Those functions are just for testing purposes to make sure that the page is reactive but,
@@ -34,6 +35,11 @@ export class PlayerInfoInventoryComponent implements OnInit {
                 this.movementPointsArray = Array(this.player.attributes.speed);
             }
         });
+    }
+
+    get emptySlots(): number[] {
+        const emptySlotsCount = 2 - (this.player?.inventory?.length || 0);
+        return Array.from({ length: emptySlotsCount });
     }
 
     increaseMovement() {
