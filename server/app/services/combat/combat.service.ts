@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -193,7 +193,7 @@ export class CombatService {
     }
 
     checkSpawnPointAvailability(player: Player, gameObjects: number[][]): boolean {
-        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === 8;
+        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === SPAWN_POINT_ID;
     }
 
     replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {
@@ -206,7 +206,7 @@ export class CombatService {
         }
     }
 
-    getNeighbors(position: Position, game: Game): Position[] {
+    private getNeighbors(position: Position, game: Game): Position[] {
         const directions = [
             { dx: 0, dy: 1 },
             { dx: 0, dy: -1 },
@@ -221,20 +221,6 @@ export class CombatService {
     private isValidTile(x: number, y: number, dimension: number): boolean {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
-    /*
-    isTileOccupiedByPlayerOrObject(position: Position, gameObjects: number[][]) {
-        return gameObjects[position.x][position.y] > 0;
-    }
-    isPlayerAtSpawnPoint(player: Player, gameObjects: number[][]) {
-        const { x, y } = player.spawnPosition;
-        return gameObjects[x][y] === player.avatar?.id;
-    }
-
-
-    private isTerrainTile(tile: TileType) {
-        return tile === TileType.Ground || tile === TileType.Ice || tile === TileType.Water;
-    }
-        */
 
     private defaultCombatWin(room: Room, player: Player, server: Server) {
         this.addVictory(room, player, server);

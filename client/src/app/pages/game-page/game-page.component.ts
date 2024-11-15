@@ -53,13 +53,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
 
-    public gameService = inject(GameService);
+    private navigationService = inject(NavigationService);
 
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        private navigationService: NavigationService,
+        public gameService: GameService,
         public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;

@@ -716,24 +716,24 @@ describe('GameGridComponent', () => {
 
     it('should call updateTile and update position if the player is found', () => {
         const mockPosition = { x: 1, y: 1 };
-        const mockPlayer = { id: 1, position: { x: 0, y: 0 } } as unknown as Player;
-        navigationServiceSpy.players = [mockPlayer];
+        const player = { id: 1, position: { x: 0, y: 0 } } as unknown as Player;
+        navigationServiceSpy.players = [player];
         spyOn(component, 'displayPortraitOnSpawnPoints');
 
-        component.respawnPlayer(mockPosition, mockPlayer);
+        component.respawnPlayer(mockPosition, player);
 
-        expect(navigationServiceSpy.updateTile).toHaveBeenCalledWith(mockPlayer);
-        expect(mockPlayer.position).toEqual(mockPosition);
+        expect(navigationServiceSpy.updateTile).toHaveBeenCalledWith(player);
+        expect(player.position).toEqual(mockPosition);
         expect(component.displayPortraitOnSpawnPoints).toHaveBeenCalled();
     });
 
     it('should do nothing if the player is not found', () => {
         const mockPosition = { x: 1, y: 1 };
-        const mockPlayer = { id: 1, position: { x: 0, y: 0 } } as unknown as Player;
+        const player = { id: 1, position: { x: 0, y: 0 } } as unknown as Player;
         navigationServiceSpy.players = [];
         spyOn(component, 'displayPortraitOnSpawnPoints');
 
-        component.respawnPlayer(mockPosition, mockPlayer);
+        component.respawnPlayer(mockPosition, player);
         expect(navigationServiceSpy.updateTile).not.toHaveBeenCalled();
         expect(component.displayPortraitOnSpawnPoints).not.toHaveBeenCalled();
     });

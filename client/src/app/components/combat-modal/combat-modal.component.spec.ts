@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
+import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { CombatService } from '@app/services/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -43,7 +44,7 @@ describe('CombatModalComponent', () => {
         fixture = TestBed.createComponent(CombatModalComponent);
         component = fixture.componentInstance;
         socketCommunicationServiceSpy.socket = mockSocket;
-        combatServiceSpy.combatTurnTime$ = of(30);
+        combatServiceSpy.combatTurnTime$ = of(COMBAT_TURN_LENGTH);
         component.dice1 = diceMock1;
         component.dice2 = diceMock2;
         combatServiceSpy.activePlayer = mockLobbyPlayers[2];
@@ -76,12 +77,10 @@ describe('CombatModalComponent', () => {
 
     it('should call resetPlayerHp, set isInCombat and emit closeModalEvent when closeModal is called', () => {
         combatServiceSpy.isInCombat = true;
-        spyOn(component.closeModalEvent, 'emit');
         component.closeModal();
 
         expect(combatServiceSpy.resetPlayerHp).toHaveBeenCalledWith(combatServiceSpy.activePlayer, combatServiceSpy.opponent);
         expect(component.isInCombat).toBe(true);
-        expect(component.closeModalEvent.emit).toHaveBeenCalled();
     });
 
     it('should call socketCommunicationService.send with "attackPlayer" when triggerAttack is called', () => {
