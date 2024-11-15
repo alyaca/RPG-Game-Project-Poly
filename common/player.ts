@@ -1,5 +1,5 @@
-import { defaultAttributes } from './default-attributes';
 import { GameObject } from '@common/game-object';
+
 export interface Avatar {
     id?: number;
     name: string;
@@ -18,7 +18,7 @@ export enum Status {
 export enum Behavior {
     Sentient = 'sentient',
     Aggressive = 'aggressive',
-    Defensive = 'defensive'
+    Defensive = 'defensive',
 }
 
 export interface Player {
@@ -53,16 +53,3 @@ export interface Position {
     x: number;
     y: number;
 }
-
-export const baseBot: Player = {
-    id: '0',
-    avatar: { name: 'a', src:'', isSelected: true, isTaken: true},
-    status: Status.Bot,
-    name: 'Joueur virtuel',
-    victories: 0,
-    isActive: false,
-    attributes: defaultAttributes,
-    inventory: [],
-    position: { x: 0, y: 0 },
-    behavior: Behavior.Sentient
-};

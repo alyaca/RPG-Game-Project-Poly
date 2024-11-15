@@ -13,7 +13,8 @@ import {
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Avatar, baseBot, Behavior, Player, Position, Status } from '@common/player';
+import { Avatar, Behavior, Player, Position, Status } from '@common/player';
+import { baseBot } from '@app/mocks/mock-players';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';

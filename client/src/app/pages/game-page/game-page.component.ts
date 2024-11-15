@@ -55,7 +55,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private navigationService = inject(NavigationService);
 
-    gameService = inject(GameService);
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,

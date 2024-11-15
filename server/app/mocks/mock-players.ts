@@ -55,3 +55,17 @@ export const mockPlayers: Player[] = [
         behavior: Behavior.Aggressive,
     },
 ];
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: mockPlayerStats,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};

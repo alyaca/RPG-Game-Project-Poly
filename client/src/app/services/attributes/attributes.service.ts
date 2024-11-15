@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, ErrorMessages, HIGH_ATTRIBUTE } from '@app/constants';
-import { defaultAttributes } from '@common/default-attributes';
+import { defaultAttributes } from '@app/default-attributes';
 import { PlayerStats } from '@common/player';
 
 @Injectable({

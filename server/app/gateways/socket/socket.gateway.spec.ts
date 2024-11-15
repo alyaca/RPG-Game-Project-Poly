@@ -24,7 +24,7 @@ describe('SocketGateway', () => {
     let roomId: string;
     let mockClient: Socket;
     let mockPlayer: Player;
-    // let combatService: CombatService;
+    let combatService: CombatService;
 
     beforeEach(async () => {
         const chatServiceMock = {

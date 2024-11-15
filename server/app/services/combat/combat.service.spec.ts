@@ -5,10 +5,10 @@ import { mockRooms } from '@app/mocks/mock-room';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-// import { Player } from '@common/player';
-// import { Room } from '@common/room';
+import { Player } from '@common/player';
+import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
-// import { Server, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 describe('CombatService', () => {
     let service: CombatService;
@@ -137,7 +137,7 @@ describe('CombatService', () => {
             service.onEndTurn = jest.fn();
             service.getRandomValue = jest.fn().mockReturnValueOnce(5).mockReturnValueOnce(2);
 
-    //         service.attackPlayer(mockClient, mockServer);
+            service.attackPlayer(mockClient, mockServer);
 
             expect(player2.attributes.currentHp).toBeLessThan(5);
             expect(service.emitToCombatPlayers).toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe('CombatService', () => {
             service.onEndTurn = jest.fn();
             service.getRandomValue = jest.fn().mockReturnValueOnce(2).mockReturnValueOnce(4);
 
-    //         service.attackPlayer(mockClient, mockServer);
+            service.attackPlayer(mockClient, mockServer);
 
             expect(player2.attributes.currentHp).toBe(10);
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'attackFail', player1);
@@ -171,7 +171,7 @@ describe('CombatService', () => {
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
 
-    //         const isDead = service.checkIfPlayerIsDead(mockClient, player1, player2, mockServer);
+            const isDead = service.checkIfPlayerIsDead(mockClient, player1, player2, mockServer);
 
             expect(isDead).toBe(true);
             expect(service.combatFinish).toHaveBeenCalled();
@@ -214,10 +214,10 @@ describe('CombatService', () => {
         it('should return false when Math.random() is equal to or greater than EVASION_SUCCESS_RATE', () => {
             jest.spyOn(Math, 'random').mockReturnValue(EVASION_SUCCESS_RATE + 0.1);
 
-    //         const result = service.isEvasionSuccessful();
-    //         expect(result).toBe(false);
-    //     });
-    // });
+            const result = service.isEvasionSuccessful();
+            expect(result).toBe(false);
+        });
+    });
 
     describe('checkEndGame', () => {
         it('should not emit endGame if no player has reached the victory threshold', () => {

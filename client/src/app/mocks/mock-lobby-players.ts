@@ -1,6 +1,6 @@
-import { defaultAttributes } from '@common/default-attributes';
+import { defaultAttributes } from '@app/default-attributes';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Player, Status, Behavior } from '@common/player';
+import { Avatar, Behavior, Player, Status } from '@common/player';
 
 export const mockAvatar: Avatar = avatars[0];
 export const mockLobbyPlayers: Player[] = [

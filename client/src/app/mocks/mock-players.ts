@@ -1,3 +1,4 @@
+import { defaultAttributes } from '@app/default-attributes';
 import { Player, PlayerStats, Status, Behavior } from '@common/player';
 
 export const mockPlayerStats: PlayerStats = {
@@ -68,3 +69,17 @@ export const mockPlayers: Player[] = [
         spawnPosition: { x: 0, y: 0 },
     },
 ];
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: defaultAttributes,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};
