@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -106,13 +106,17 @@ export class CombatService {
 
     continueTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
+        const activePlayer = this.gameService.getActivePlayer(room);
+        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         this.combatEnded(room);
-        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
-            if (timeRemaining <= 0) {
-                this.gameService.onTurnEnded(client, server);
-            }
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-        });
+        setTimeout(() => {
+            this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
+                if (timeRemaining <= 0) {
+                    this.gameService.onTurnEnded(activePlayerSocket, server);
+                }
+                server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+            });
+        }, END_COMBAT_DELAY);
     }
 
     combatEnded(room: Room) {
@@ -125,6 +129,7 @@ export class CombatService {
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);
+        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
@@ -132,7 +137,9 @@ export class CombatService {
                 this.continueTurn(client, server);
             } else {
                 this.combatEnded(room);
-                this.gameService.onTurnEnded(client, server);
+                setTimeout(() => {
+                    this.gameService.onTurnEnded(activePlayerSocket, server);
+                }, END_COMBAT_DELAY);
             }
 
             return true;
