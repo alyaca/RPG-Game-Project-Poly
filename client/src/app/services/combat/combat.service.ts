@@ -41,6 +41,7 @@ export class CombatService {
         this.attacker = player1;
         this.defender = player2;
         this.isInCombat = true;
+        this.combatStatus = '';
         this.evasionsActivePlayer = new Array(2).fill(1);
         this.evasionsOpponent = new Array(2).fill(1);
         this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";

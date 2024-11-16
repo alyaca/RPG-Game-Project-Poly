@@ -19,12 +19,12 @@ import { Subscription } from 'rxjs';
 export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
     @Input() isToggleable: boolean;
+    @Input() areLogsVisible: boolean = false;
     messages: ChatMessage[] = [];
     logs: LogMessage[] = [];
     filteredLogs: LogMessage[] = [];
     newMessage: string = '';
     newLog: string = '';
-    areLogsVisible: boolean = false;
     areLogsFiltered: boolean = false;
     chatType: string = 'Messagerie';
     toggleIconImage: string = './assets/images/icones/chat-message.png';
