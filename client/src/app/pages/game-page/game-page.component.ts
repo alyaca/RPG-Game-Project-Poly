@@ -7,7 +7,7 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -53,6 +53,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
+
+    doorAround: boolean = false;
+    attackAround: boolean = false;
 
     public gameService = inject(GameService);
 
@@ -104,6 +107,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onPlayerFell();
         });
 
+        this.socketCommunicationService.on('doorAround', (doorAround: boolean) => {
+            this.doorAround = doorAround;
+        });
+
+        this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
+            this.attackAround = attackAround;
+        });
+
         this.socketCommunicationService.once('endGame', (winner: Player) => {
             this.socketCommunicationService.off('draw');
             this.gameService
@@ -122,9 +133,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.socketCommunicationService.on('isActive', (playerId: string) => {
-            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            const playerToAssign = this.navigationService.players.find((player) => player.id === playerId);
+        //GGG this.socketCommunicationService.on('isActive', (playerId: string) => {
+        this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+            this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
+            const playerToAssign = this.navigationService.players.find((player) => player.id === activePlayer.id);
             if (playerToAssign) {
                 this.activePlayer = playerToAssign;
             }
@@ -151,7 +163,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
-        this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
+        //this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -246,25 +258,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
-    }
-
-    checkDoors() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkDoor()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    checkAttack() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkAttack() && this.hasActionPoints()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     hasActionPoints() {

@@ -58,7 +58,7 @@
                     <div
                         class="button-outer action-outer"
                         [class.selected]="gameService.isActionDoorSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkDoors() || !hasActionPoints()"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !doorAround || !hasActionPoints()"
                         (click)="toggleActionDoorSelected()"
                     >
                         <div class="action-button door-button"></div>
@@ -70,7 +70,7 @@
                     <div
                         class="button-outer action-outer"
                         [class.selected]="gameService.isActionCombatSelected"
-                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !checkAttack() || !hasActionPoints()"
+                        [class.disabled]="!isActivePlayer || isTurnStartShowed || !attackAround || !hasActionPoints()"
                         (click)="toggleActionCombatSelected()"
                     >
                         <div class="action-button attack-button"></div>
