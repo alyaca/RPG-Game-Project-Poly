@@ -99,7 +99,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.connect();
         this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
             this.reachableTiles = reachability;
-            this.reachableTiles = reachability;
         });
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
@@ -351,7 +350,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleFightAction(row, col);
             return;
-        } else if (this.tilesGrid[row][col] !== TileType.ClosedDoor && !this.checkIfPlayerIsOnTile(row, col)) {
+        } else if (this.isReachableTile(row, col) && this.tilesGrid[row][col] !== TileType.ClosedDoor && !this.checkIfPlayerIsOnTile(row, col)) {
             this.sendNavigation(row, col);
         }
     }
@@ -416,8 +415,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.fastestPath = [];
         if (this.activePlayer) {
             this.navigationService.updateTile(this.activePlayer);
-            const cost = this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
-            this.activePlayer.attributes.movementPointsLeft -= cost;
             this.activePlayer.position = position;
             this.placeAvatarOnTile(this.activePlayer);
         }
