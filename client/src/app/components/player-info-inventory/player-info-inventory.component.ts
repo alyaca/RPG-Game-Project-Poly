@@ -35,6 +35,10 @@ export class PlayerInfoInventoryComponent implements OnInit {
                 this.movementPointsArray = Array(this.player.attributes.speed);
             }
         });
+
+        this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer : Player) => {
+            this.player = updatedPlayer;
+        })
     }
 
     get emptySlots(): number[] {

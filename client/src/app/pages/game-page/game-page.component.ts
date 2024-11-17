@@ -16,7 +16,6 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { GameObject } from '@common/game-object';
 import { ItemSwap } from '@common/item-swap';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -126,8 +125,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; item: number; objects: number[][] }) => {
-            let oldFirstItem = data.activePlayer.inventory[0];
-            let oldSecondItem = data.activePlayer.inventory[1];
+            const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
             let notRandomItem = data.item;
             if (notRandomItem === ObjectType.Random) {
                 notRandomItem = this.playerInventoryService.determineRandomItem(data.objects);
@@ -141,8 +139,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 currentItem2: data.activePlayer.inventory[1],
                 pickedUpItem: itemToExchange,
             };
-            let itemDropped: GameObject;
-            let itemPickedUp: GameObject;
             this.gameService
                 .openDialog({
                     title: DialogTitle.ItemExchange,
@@ -151,23 +147,28 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     confirm: false,
                     itemSwap: itemSwap,
                 })
-                .subscribe((itemSwapAfterChoice: ItemSwap) => {
-                    if (oldFirstItem === itemSwapAfterChoice.currentItem1 && oldSecondItem === itemSwapAfterChoice.currentItem2) {
-                        this.navigationService.itemToPlace = itemSwapAfterChoice.pickedUpItem.id;
+                .subscribe(() => {
+                    let newItem = itemSwap.pickedUpItem.id;
+                    for (let i = 0; i < data.activePlayer.inventory.length; i++)
+                    {
+                        if (data.activePlayer.inventory[i] !== oldInventory[i])
+                        {
+                            newItem = data.activePlayer.inventory[i].id;
+                            break;              
+                        }
+                    }
+                    if(newItem)
+                    {
+                        this.playerInventoryService.updatePlayerAfterSwap(data.activePlayer, newItem, itemSwap.pickedUpItem);
                         this.socketCommunicationService.send('endItemSwitch');
-                    } else if (oldFirstItem !== itemSwapAfterChoice.currentItem1) {
-                        itemDropped = oldFirstItem;
-                        itemPickedUp = itemSwapAfterChoice.currentItem1;
-                        this.playerInventoryService.updatePlayerAfterSwap(data.activePlayer, itemPickedUp, itemDropped);
-                        this.navigationService.itemToPlace = oldFirstItem.id;
-                    } else if (oldSecondItem !== itemSwapAfterChoice.currentItem2) {
-                        itemDropped = oldSecondItem;
-                        itemPickedUp = itemSwapAfterChoice.currentItem2;
-                        this.playerInventoryService.updatePlayerAfterSwap(data.activePlayer, itemPickedUp, itemDropped);
-                        this.navigationService.itemToPlace = oldSecondItem.id;
+                    }
+                    else
+                    {
+                        this.playerInventoryService.itemToPlace = itemSwap.pickedUpItem.id;
+                        this.socketCommunicationService.send('inventoryChange', data.activePlayer);
+                        this.socketCommunicationService.send('endItemSwitch');
                     }
                 });
-            this.socketCommunicationService.send('endItemSwitch');
         });
     }
 
@@ -306,7 +307,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onEndTurn() {
         if (this.navigationService.isOnWall(this.activePlayer)) {
-            console.log('player is in a wall, moving him away from it');
             this.navigationService.movePlayerFromWall(this.activePlayer);
             // will have to call displaySpawnPoints from game-grid
         }

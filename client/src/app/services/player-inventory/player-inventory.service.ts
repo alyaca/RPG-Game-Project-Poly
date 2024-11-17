@@ -9,6 +9,7 @@ import { SocketCommunicationService } from '../sockets/socket-communication/sock
     providedIn: 'root',
 })
 export class PlayerInventoryService {
+    itemToPlace : number;
     randomItemId: number;
     constructor(private socketCommunicationService: SocketCommunicationService) {}
 
@@ -36,39 +37,6 @@ export class PlayerInventoryService {
         return realItem;
     }
 
-    // updateInventory(player: Player, item: number, objectsOnMap: number[][]): number {
-    //     if (player.inventory.length === MAX_INVENTORY_ITEMS) {
-    //         const itemToExchange = gameObjects.find((object) => object.id === item);
-    // this.gameService
-    //     .openDialog({
-    //         title: DialogTitle.ItemExchange,
-    //         messages: [`Quel objet voulez échangé pour celui-ci: ${itemToExchange?.name}`],
-    //         options: [player.inventory[0].name, player.inventory[1].name],
-    //         confirm: false,
-    //     })
-    //     .subscribe((objectToDrop) => {
-    //         if (itemToExchange) {
-    //             if (objectToDrop === player.inventory[0].name) {
-    //                 itemToDrop = player.inventory[0];
-    //                 player.inventory[0] = itemToExchange;
-    //             } else if (objectToDrop === player.inventory[1].name) {
-    //                 itemToDrop = player.inventory[1];
-    //                 player.inventory[1] = itemToExchange;
-    //             } else {
-    //                 itemToDrop = itemToExchange;
-    //             }
-    //         }
-    //     });
-    // if (itemToDrop) {
-    //     return itemToDrop.id;
-    // }
-    // return item;
-    // openDialog
-    //if exchange item, return itemExchanged
-    //else, return the item on the ground
-    //     }
-    // }
-
     // Only the items that change stats directly are here
     updatePlayerWithItem(player: Player, item: number, allObjects: number[][]) {
         let itemToUse: number;
@@ -77,30 +45,6 @@ export class PlayerInventoryService {
         } else {
             itemToUse = item;
         }
-        // let realItem;
-        // let itemsNotAvailable: number[] = [];
-        // let itemsAvailable: number[] = [];
-        // if (item === ObjectType.Random) {
-        //     for (let i = 0; i < objectsUsed.length; i++) {
-        //         for (let j = 0; j < objectsUsed[i].length; j++) {
-        //             if (objectsUsed[i][j] !== 0) {
-        //                 itemsNotAvailable.push(objectsUsed[i][j]);
-        //             }
-        //         }
-        //     }
-
-        //     for (let o = 0; o < gameObjects.length; o++) {
-        //         if (!itemsNotAvailable.find((object) => object === gameObjects[o].id)) {
-        //             if (gameObjects[o].id < ObjectType.Random) {
-        //                 itemsAvailable.push(gameObjects[o].id);
-        //             }
-        //         }
-        //     }
-        //     const itemToUse = Math.floor(Math.random() * itemsAvailable.length) + 1;
-        //     realItem = itemsAvailable[itemToUse - 1];
-        // } else {
-        //     realItem = item;
-        // }
         const fullItem = gameObjects.find((object) => object.id === itemToUse);
         if (fullItem) {
             player.inventory.push(fullItem);
@@ -139,7 +83,14 @@ export class PlayerInventoryService {
         this.socketCommunicationService.send('inventoryChange', player);
     }
 
-    updatePlayerAfterSwap(playerToModify: Player, itemPickedUp: GameObject, itemDropped: GameObject) {
+    getItemToPlace()
+    {
+        return this.itemToPlace;
+    }
+    
+    // doesn't add the correct item at times
+    updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: GameObject) {
+        this.itemToPlace = itemDropped.id;
         switch (itemDropped.id) {
             case ObjectType.Armor:
                 playerToModify.attributes.attack -= 2;
@@ -159,8 +110,7 @@ export class PlayerInventoryService {
                 break;
         }
 
-        // itemPickedUp undefined
-        switch (itemPickedUp.id) {
+        switch (newItem) {
             case ObjectType.Armor:
                 playerToModify.attributes.attack += 2;
                 break;

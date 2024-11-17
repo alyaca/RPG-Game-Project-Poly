@@ -50,8 +50,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.InventoryChange)
     handleInventoryChange(client: Socket, updatedPlayer: Player) {
         this.logger.debug(`client ${client.id} picked up an item`);
-        this.roomService.updateRoomPlayers(client, updatedPlayer);
-        client.emit('updateInventory', updatedPlayer);
+        if (client.id === updatedPlayer.id) {
+            this.roomService.updateRoomPlayers(client, updatedPlayer);
+            client.emit('updateInventory', updatedPlayer);
+        }
     }
 
     @SubscribeMessage(SocketEvents.LeaveRoom)
@@ -122,16 +124,15 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.FullInventory)
     handleFullInventory(client: Socket, { activePlayer, item, objects }: { activePlayer: Player; item: number; objects: number[][] }) {
         if (client.id === activePlayer.id) {
-            this.handleItemSwitch(client, { activePlayer, item });
+            this.handleItemSwitch(client);
             client.emit('openItemSwitchModal', { activePlayer, item, objects });
         }
     }
 
     @SubscribeMessage(SocketEvents.BeginItemSwitch)
-    handleItemSwitch(client: Socket, { activePlayer, item }: { activePlayer: Player; item: number }) {
+    handleItemSwitch(client: Socket) {
         const room = this.roomService.getRoom(client);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        client.emit('openItemSwitchModal', { activePlayer, item });
     }
 
     @SubscribeMessage(SocketEvents.EndItemSwitch)

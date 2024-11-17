@@ -58,14 +58,12 @@ export class NavigationService {
             if (activePlayer.inventory.length === 2) {
                 const objects = this.objects;
                 this.socketCommunicationService.send('fullInventory', { activePlayer, item, objects });
+                // wait until this.itemToPlace is defined;
+                
+                this.itemToPlace = this.playerInventory.getItemToPlace();
             } else {
                 this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
             }
-            // if the inventory is full, send the event below to server, which will find the correct client
-            // that client will call updateFullInventory in playerInventoryService after the modal opens.
-            // if the inventory is not full, directly call playerInventory.pickupItem from the service
-
-            // this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
             this.positions[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
             this.objects[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
         } else {
@@ -163,9 +161,9 @@ export class NavigationService {
     }
 
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
-        this.initializeDistances(player, game);
-
         this.activePlayer = player;
+        
+        this.initializeDistances(player, game);
 
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
 
