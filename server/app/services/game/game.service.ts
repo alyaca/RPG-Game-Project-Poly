@@ -108,6 +108,9 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
+        //Tobe removed
+        //server.to(room.roomId).emit('a');
+        //
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.gameLogsService.sendTurnLog(activePlayer, room.roomId, server);
 
@@ -124,14 +127,21 @@ export class GameService {
         if (!this.isMoving) {
             this.updateActivePlayer(client);
             const activePlayer = this.getActivePlayer(room);
-            server.to(room.roomId).emit('isActive', activePlayer.id);
+            activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
+            server.to(room.roomId).emit('reachability', activePlayer);
+            server.to(room.roomId).emit('isActive', activePlayer);
             server.to(room.roomId).emit('turnEnded', room.listPlayers);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+            server.to(room.roomId).emit('reachableTiles', reachability);
+            this.checkDoors(room, server);
+            this.checkAttack(room, server);
         } else {
             this.isTurnSkipped = true;
         }
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+        //TODO : refactor this
         const player = this.getActivePlayer(room);
         for (const tile of path) {
             this.isMoving = true;
@@ -149,12 +159,36 @@ export class GameService {
                 player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
             }
         }
-        this.getActivePlayer(room).attributes.movementPointsLeft = this.getActivePlayer(room).attributes.speed;
+        const reachability = room.navigation.findReachableTiles(player, room.gameMap);
+        server.to(room.roomId).emit('reachableTiles', reachability);
         server.to(room.roomId).emit('endMovement');
         this.isMoving = false;
+        if (this.checkEndTurn(client, player)) {
+            this.onTurnEnded(client, server);
+        }
         if (this.isTurnSkipped) {
             this.onTurnEnded(client, server);
             this.isTurnSkipped = false;
+        }
+        this.checkDoors(room, server);
+        this.checkAttack(room, server);
+    }
+
+    checkDoors(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        if (room.navigation.checkDoor(activePlayer) && activePlayer.attributes.actionPoints > 0) {
+            server.to(room.roomId).emit('doorAround', true);
+        } else {
+            server.to(room.roomId).emit('doorAround', false);
+        }
+    }
+
+    checkAttack(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+            server.to(room.roomId).emit('attackAround', true);
+        } else {
+            server.to(room.roomId).emit('attackAround', false);
         }
     }
 
@@ -298,5 +332,36 @@ export class GameService {
                 this.sendAvatarListToClient(clientSocket);
             }
         });
+    }
+
+    checkEndTurn(client: Socket, activePlayer: Player): boolean {
+        if (!activePlayer || !this.isActivePlayer) return;
+        const room = this.roomService.getRoom(client);
+
+        const reachableTileCount = room.navigation.findReachableTiles(activePlayer, room.gameMap).length;
+        const players = room.listPlayers;
+        // Player has movement point left, no action left.
+        // Player is blocked by closed door or players.
+        if (!room.navigation.haveActions(activePlayer, players) && reachableTileCount === 0) {
+            //TODO : FIX
+            //this.socketCommunicationService.send('endTurn');
+            return true;
+        }
+
+        // Player has no movement point left. Player has action point left but
+        // no valid target on adjacent tiles.
+        else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.haveActions(activePlayer, players)) {
+            //TODO : FIX
+            //this.socketCommunicationService.send('endTurn');
+            return true;
+        }
+
+        // Player has no movement point or action left.
+        else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.hasActionPoints(activePlayer)) {
+            //TODO : FIX
+            //this.socketCommunicationService.send('endTurn');
+            return true;
+        }
+        return false;
     }
 }

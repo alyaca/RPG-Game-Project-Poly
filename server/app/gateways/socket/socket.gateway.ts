@@ -1,3 +1,4 @@
+import { Navigation } from '@app/classes/navigation/navigation';
 import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
@@ -14,6 +15,7 @@ import { SocketEvents } from './socket.events';
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
+    private navigation: Navigation;
 
     constructor(
         private roomService: RoomService,
@@ -21,7 +23,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private chatService: ChatService,
         private combatService: CombatService,
         private gameService: GameService,
-    ) {}
+    ) {
+        this.navigation = new Navigation();
+    }
 
     @SubscribeMessage(SocketEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
@@ -91,12 +95,33 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.StartGame)
     handleStartGame(client: Socket) {
         const room = this.roomService.getRoom(client);
+        this.navigation.initializeNavigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
+        room.navigation = this.navigation;
         this.gameService.onStartGame(room, client);
         const activePlayer = this.gameService.getActivePlayer(room);
+
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
-        this.server.to(room.roomId).emit('isActive', activePlayer.id);
+
+        this.server.to(room.roomId).emit('isActive', activePlayer);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+        this.server.to(room.roomId).emit('reachableTiles', reachability);
     }
+
+    @SubscribeMessage('findPath')
+    handleFindPath(client: Socket, destination: Position) {
+        const room = this.roomService.getRoom(client);
+        const activePlayer = this.gameService.getActivePlayer(room);
+        const path = room.navigation.findFastestPath(activePlayer, destination, room.gameMap);
+        this.server.to(room.roomId).emit('pathFound', path);
+    }
+
+    /*
+    @SubscribeMessage('getAccessibleTile')
+    handleGetAccessibleTile(){
+        //this.navigation.findReachableTiles();
+    }
+        */
 
     @SubscribeMessage(SocketEvents.StartFight)
     handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
