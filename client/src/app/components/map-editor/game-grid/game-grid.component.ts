@@ -12,9 +12,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
-import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { NO_OBJECT, TileType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -25,13 +24,14 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
+import { ObjectType } from '@common/avatars-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
     selector: 'app-game-grid',
     standalone: true,
-    imports: [GameObjectComponent, TilePlayerInfoComponent],
+    imports: [TilePlayerInfoComponent],
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
@@ -97,6 +97,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
+        this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
+            this.reachableTiles = reachability;
+            this.reachableTiles = reachability;
+        });
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         if (this.gameCreationService.isNewGame) {
@@ -107,25 +111,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
-            this.displayPortraitOnSpawnPoints();
+            this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
 
         this.socketCommunicationService.on('toggleDoor', (gameTiles: number[][]) => {
-            this.navigationService.gameMap.tiles = gameTiles;
             this.tilesGrid = gameTiles;
         });
 
-        this.socketCommunicationService.on('isActive', (playerId: string) => {
-            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            this.activePlayer = this.navigationService.players.find((player) => player.id === playerId);
+        this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+            this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
+            this.activePlayer = activePlayer;
             if (this.activePlayer && this.isActivePlayer) {
                 this.currentPlayer = this.activePlayer;
             }
-
-            if (this.activePlayer) {
-                this.activePlayer.attributes.movementPointsLeft = this.activePlayer.attributes.speed;
-            }
-            this.findReachableTiles();
         });
 
         this.socketCommunicationService.on<Position>('playerNavigation', (tile) => {
@@ -139,18 +137,24 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('endMovement', () => {
             this.isMoving = false;
-            this.checkEndTurn();
+            // this.checkEndTurn();
         });
 
+        /*GGG : TODO : A revoir
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
+        });
+        */
+
+        this.socketCommunicationService.on('pathFound', (path: Position[]) => {
+            this.fastestPath = path;
         });
 
         this.socketCommunicationService.on('combatEnd', () => {
             if (this.activePlayer) {
                 this.activePlayer.attributes.actionPoints = 0;
             }
-            this.checkEndTurn();
+            //this.checkEndTurn();
         });
     }
 
@@ -189,13 +193,18 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.sendInfoToMapCreationPage();
     }
 
-    displayPortraitOnSpawnPoints() {
-        for (const player of this.navigationService.players) {
+    displayPortraitOnSpawnPoints(players: Player[]) {
+        for (const player of players) {
             const { x, y } = player.position;
             if (this.navigationService.isPositionWithinBounds(x, y, this.objectsArray)) {
                 this.objectsArray[x][y] = this.navigationService.getPortraitId(player.avatar?.name);
             }
         }
+    }
+
+    placeAvatarOnTile(player: Player) {
+        //OK
+        this.objectsArray[player.position.x][player.position.y] = this.navigationService.getPortraitId(player.avatar?.name);
     }
 
     onResetTrigger() {
@@ -318,22 +327,16 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     isReachableTile(row: number, col: number): boolean {
-        return this.navigationService.isReachableTile(row, col);
-    }
-
-    findReachableTiles() {
-        this.reachableTiles = [];
-        if (!this.activePlayer) return;
-        this.reachableTiles = this.navigationService.findReachableTiles(
-            this.activePlayer,
-            this.navigationService.gameMap,
-            this.activePlayer.attributes.movementPointsLeft,
-        );
+        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
 
     findPath(row: number, col: number) {
+        if (this.checkIfPlayerIsOnTile(row, col)) {
+            this.fastestPath = [];
+            return;
+        }
         if (this.isReachableTile(row, col)) {
-            this.fastestPath = this.navigationService.findFastestPath(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+            this.socketCommunicationService.send('findPath', { x: row, y: col });
         }
     }
 
@@ -348,9 +351,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleFightAction(row, col);
             return;
-        } else if (this.tilesGrid[row][col] !== TileType.ClosedDoor) {
+        } else if (this.tilesGrid[row][col] !== TileType.ClosedDoor && !this.checkIfPlayerIsOnTile(row, col)) {
             this.sendNavigation(row, col);
         }
+    }
+
+    checkIfPlayerIsOnTile(row: number, col: number): boolean {
+        return this.activePlayer?.position.x === row && this.activePlayer?.position.y === col;
     }
 
     handleFightAction(row: number, col: number) {
@@ -374,7 +381,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activePlayer.attributes.actionPoints--;
             this.gameService.isActionDoorSelected = false;
             this.socketCommunicationService.send('doorClicked', tiles);
-            this.findReachableTiles();
         }
     }
 
@@ -384,12 +390,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return clickedPlayer;
     }
 
+    //TODO : remove params
     async sendNavigation(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
                 this.isMoving = true;
-                const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+                const path = this.fastestPath;
                 this.socketCommunicationService.send('playerNavigation', path);
+                this.fastestPath = [];
             }
         }
     }
@@ -399,44 +407,17 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (!playerToReplace) return;
         this.navigationService.updateTile(playerToReplace);
         playerToReplace.position = position;
-        this.displayPortraitOnSpawnPoints();
+        //TODO : FIX THIS...
+        //this.displayPortraitOnSpawnPoints();
     }
 
     navigateToTile(position: Position) {
-        this.findReachableTiles();
         if (this.activePlayer) {
             this.navigationService.updateTile(this.activePlayer);
             const cost = this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
             this.activePlayer.attributes.movementPointsLeft -= cost;
             this.activePlayer.position = position;
-        }
-        this.displayPortraitOnSpawnPoints();
-    }
-
-    checkEndTurn() {
-        if (!this.activePlayer || !this.isActivePlayer) return;
-
-        const reachableTileCount = this.navigationService.findReachableTiles(
-            this.activePlayer,
-            this.navigationService.gameMap,
-            this.activePlayer.attributes.movementPointsLeft,
-        ).length;
-
-        // Player has movement point left, no action left.
-        // Player is blocked by closed door or players.
-        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
-            this.socketCommunicationService.send('endTurn');
-        }
-
-        // Player has no movement point left. Player has action point left but
-        // no valid target on adjacent tiles.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
-            this.socketCommunicationService.send('endTurn');
-        }
-
-        // Player has no movement point or action left.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.gameService.hasActionPoints(this.activePlayer)) {
-            this.socketCommunicationService.send('endTurn');
+            this.placeAvatarOnTile(this.activePlayer);
         }
     }
 }
