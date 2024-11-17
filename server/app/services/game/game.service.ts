@@ -160,8 +160,8 @@ export class GameService {
             }
         }
         const reachability = room.navigation.findReachableTiles(player, room.gameMap);
-        server.to(room.roomId).emit('reachableTiles', reachability);
         server.to(room.roomId).emit('endMovement');
+        server.to(room.roomId).emit('reachableTiles', reachability);
         this.isMoving = false;
         if (this.checkEndTurn(client, player)) {
             this.onTurnEnded(client, server);

@@ -137,10 +137,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('endMovement', () => {
             this.isMoving = false;
-            // this.checkEndTurn();
         });
 
-        /*GGG : TODO : A revoir
+        //GGG : TODO : A revoir
+        /*
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
@@ -335,7 +335,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.fastestPath = [];
             return;
         }
-        if (this.isReachableTile(row, col)) {
+        if (this.isReachableTile(row, col) && this.isActivePlayer) {
             this.socketCommunicationService.send('findPath', { x: row, y: col });
         }
     }
@@ -412,6 +412,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position) {
+        this.reachableTiles = [];
+        this.fastestPath = [];
         if (this.activePlayer) {
             this.navigationService.updateTile(this.activePlayer);
             const cost = this.navigationService.getTileCost(this.tilesGrid[position.x][position.y]);
