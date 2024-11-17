@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ObjectType, TileCost, TileType } from '@app/constants';
+import { TileCost, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
+import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 
