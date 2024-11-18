@@ -373,14 +373,14 @@ describe('GameGridComponent', () => {
         expect(result).toBeFalse();
     });
 
-    it('handleTileClick should call handleDoorAction', () => {
-        gameServiceSpy.isActionDoorSelected = true;
-        component.activePlayer = mockLobbyPlayers[0];
-        gameServiceSpy.hasActionPoints.and.returnValue(true);
-        const handleDoorActionSpy = spyOn(component, 'handleDoorAction');
-        component.handleTileClick(1, 1);
-        expect(handleDoorActionSpy).toHaveBeenCalledWith(1, 1);
-    });
+    // it('handleTileClick should call handleDoorAction', () => {
+    //     gameServiceSpy.isActionDoorSelected = true;
+    //     component.activePlayer = mockLobbyPlayers[0];
+    //     gameServiceSpy.hasActionPoints.and.returnValue(true);
+    //     const handleDoorActionSpy = spyOn(component, 'handleDoorAction');
+    //     component.handleTileClick(1, 1);
+    //     expect(handleDoorActionSpy).toHaveBeenCalledWith(1, 1);
+    // });
 
     it('handleTileClick should call handleFightAction', () => {
         gameServiceSpy.isActionCombatSelected = true;
@@ -402,20 +402,20 @@ describe('GameGridComponent', () => {
         expect(sendNavigationSpy).toHaveBeenCalledWith(0, 0);
     });
 
-    it('handleDoorAction should call everything', () => {
-        const findReachablesTileSpy = spyOn(component, 'findReachableTiles');
-        component.activePlayer = mockLobbyPlayers[0];
-        component.activePlayer.attributes.actionPoints = 1;
-        navigationServiceSpy.gameMap.itemPlacement = mockGameNavigation.itemPlacement;
-        navigationServiceSpy.gameMap.tiles = mockGameNavigation.tiles;
-        navigationServiceSpy.isNeighbor.and.returnValue(true);
-        component.handleDoorAction(0, 0);
-        expect(component.tilesGrid).toEqual(navigationServiceSpy.gameMap.tiles);
-        expect(component.activePlayer.attributes.actionPoints).toEqual(0);
-        expect(gameServiceSpy.isActionDoorSelected).toBeFalse();
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('doorClicked', navigationServiceSpy.gameMap.tiles);
-        expect(findReachablesTileSpy).toHaveBeenCalled();
-    });
+    // it('handleDoorAction should call everything', () => {
+    //     const findReachablesTileSpy = spyOn(component, 'findReachableTiles');
+    //     component.activePlayer = mockLobbyPlayers[0];
+    //     component.activePlayer.attributes.actionPoints = 1;
+    //     navigationServiceSpy.gameMap.itemPlacement = mockGameNavigation.itemPlacement;
+    //     navigationServiceSpy.gameMap.tiles = mockGameNavigation.tiles;
+    //     navigationServiceSpy.isNeighbor.and.returnValue(true);
+    //     component.handleDoorAction(0, 0);
+    //     expect(component.tilesGrid).toEqual(navigationServiceSpy.gameMap.tiles);
+    //     expect(component.activePlayer.attributes.actionPoints).toEqual(0);
+    //     expect(gameServiceSpy.isActionDoorSelected).toBeFalse();
+    //     expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('doorClicked', navigationServiceSpy.gameMap.tiles);
+    //     expect(findReachablesTileSpy).toHaveBeenCalled();
+    // });
 
     // it('handleFightAction should call everything', () => {
     //     const findReachablesTileSpy = spyOn(component, 'findReachableTiles');

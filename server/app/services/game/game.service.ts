@@ -176,7 +176,7 @@ export class GameService {
 
     checkDoors(room: Room, server: Server) {
         const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkDoor(activePlayer) && activePlayer.attributes.actionPoints > 0) {
+        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
             server.to(room.roomId).emit('doorAround', true);
         } else {
             server.to(room.roomId).emit('doorAround', false);

@@ -7,7 +7,7 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -111,6 +111,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.doorAround = doorAround;
         });
 
+        this.socketCommunicationService.on('doorClicked', (tiles: number[][]) => {
+            this.activePlayer.attributes.actionPoints = 0;
+        });
+
         this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
             this.attackAround = attackAround;
         });
@@ -163,7 +167,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
-        //this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
+        this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
     }
 

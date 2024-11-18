@@ -1,5 +1,6 @@
 import { Navigation } from '@app/classes/navigation/navigation';
 import { IMessage } from '@app/interfaces/message.interface';
+import { DoorActionData } from '@app/interfaces/socket-data';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
@@ -10,6 +11,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
+
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
@@ -176,11 +178,17 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.processNavigation(room, this.server, path, client);
     }
 
-    @SubscribeMessage(SocketEvents.DoorClicked)
-    handleDoorClicked(client: Socket, tiles: number[][]) {
+    @SubscribeMessage(SocketEvents.DoorAction)
+    handleDoorAction(client: Socket, doorActionData: DoorActionData) {
+        const { position, player } = doorActionData;
         const room = this.roomService.getRoom(client);
-        room.gameMap.tiles = tiles;
-        this.server.to(room.roomId).emit('toggleDoor', tiles);
+        const activePlayer = this.gameService.getActivePlayer(room);
+
+        if (this.navigation.hasHandleDoorAction(position.x, position.y, player)) {
+            this.server.to(client.data.roomCode).emit('doorClicked', this.navigation.gameMap.tiles);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+            this.server.to(room.roomId).emit('reachableTiles', reachability);
+        }
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

@@ -119,6 +119,14 @@ export class Navigation {
             .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
     }
 
+    hasHandleDoorAction(row: number, col: number, player: Player) {
+        if (this.isNeighbor(row, col, player) && this.isTileDoor({ x: row, y: col })) {
+            this.gameMap.tiles[row][col] = this.toggleDoorState(this.gameMap.tiles[row][col]);
+            return true;
+        }
+        return false;
+    }
+
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
         current: PointWithDistance,
@@ -185,7 +193,7 @@ export class Navigation {
     }
 
     haveActions(player: Player, players: Player[]): boolean {
-        if (this.checkAttack(player, players) || this.checkDoor(player)) {
+        if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
             return true;
         }
         return false;
@@ -194,27 +202,43 @@ export class Navigation {
     checkAttack(player: Player, players: Player[]): Player | undefined {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
         for (const neighbor of neighbors) {
-            if (players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
+            if (this.hasPlayerOnTile(neighbor, players)) {
                 return players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
             }
         }
         return undefined;
     }
 
-    checkDoor(player: Player): Position | undefined {
+    checkDoor(player: Player, players: Player[]): Position | undefined {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
         for (const neighbor of neighbors) {
-            if (
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
-            ) {
+            if (this.isTileDoor(neighbor) && !this.hasPlayerOnTile(neighbor, players)) {
                 return neighbor;
             }
         }
         return undefined;
     }
 
+    hasPlayerOnTile(position: Position, players: Player[]) {
+        return players.some((player) => player.position.x === position.x && player.position.y === position.y);
+    }
+
     hasActionPoints(player: Player) {
         return player?.attributes.actionPoints > 0;
+    }
+
+    private isTileDoor(position: Position) {
+        return this.gameMap.tiles[position.x][position.y] === TileType.ClosedDoor || this.gameMap.tiles[position.x][position.y] === TileType.OpenDoor;
+    }
+
+    private toggleDoorState(clickedDoor: TileType) {
+        switch (clickedDoor) {
+            case TileType.ClosedDoor:
+                return TileType.OpenDoor;
+            case TileType.OpenDoor:
+                return TileType.ClosedDoor;
+            default:
+                return clickedDoor;
+        }
     }
 }

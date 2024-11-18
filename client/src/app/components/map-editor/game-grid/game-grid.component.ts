@@ -113,8 +113,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
 
-        this.socketCommunicationService.on('toggleDoor', (gameTiles: number[][]) => {
-            this.tilesGrid = gameTiles;
+        this.socketCommunicationService.on('doorClicked', (tiles: number[][]) => {
+            this.tilesGrid = tiles;
+            this.gameService.isActionDoorSelected = false;
         });
 
         this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
@@ -345,7 +346,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleTileClick(row: number, col: number) {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
-            this.handleDoorAction(row, col);
+            const clickedTile: Position = { x: row, y: col };
+            this.socketCommunicationService.send('doorAction', { position: clickedTile, player: this.activePlayer });
             return;
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleFightAction(row, col);
@@ -368,18 +370,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
             const isActivePlayerAttacker = player1.id === attacker.id;
             this.socketCommunicationService.send('startFight', { player1: attacker, player2: defender, isPlayer1Active: isActivePlayerAttacker });
-        }
-    }
-
-    handleDoorAction(row: number, col: number) {
-        const tiles = this.navigationService.gameMap.tiles;
-        const playersObject = this.navigationService.gameMap.itemPlacement;
-        if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && playersObject[row][col] < ObjectType.Spawn) {
-            tiles[row][col] = this.tileService.toggleDoorState(tiles[row][col]);
-            this.tilesGrid = tiles;
-            this.activePlayer.attributes.actionPoints--;
-            this.gameService.isActionDoorSelected = false;
-            this.socketCommunicationService.send('doorClicked', tiles);
         }
     }
 
