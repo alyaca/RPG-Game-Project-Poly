@@ -15,6 +15,7 @@ import {
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -129,6 +130,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on<Position>('playerNavigation', (tile) => {
             this.navigateToTile(tile);
+        });
+
+        this.socketCommunicationService.on('respawnPlayer', (data: { newPosition: Position; playerToReplace: Player }) => {
+            const { newPosition, playerToReplace } = data;
+            this.respawnPlayer(newPosition, playerToReplace);
         });
 
         this.socketCommunicationService.on('endMovement', () => {
@@ -339,8 +345,23 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleDoorAction(row, col);
             return;
+        } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
+            this.handleFightAction(row, col);
+            return;
         } else if (this.tilesGrid[row][col] !== TileType.ClosedDoor) {
             this.sendNavigation(row, col);
+        }
+    }
+
+    handleFightAction(row: number, col: number) {
+        if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && this.objectsArray[row][col] > ObjectType.Spawn) {
+            this.activePlayer.attributes.actionPoints--;
+            this.gameService.isActionCombatSelected = false;
+            const player1 = this.activePlayer;
+            const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
+            const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
+            const isActivePlayerAttacker = player1.id === attacker.id;
+            this.socketCommunicationService.send('startFight', { player1: attacker, player2: defender, isPlayer1Active: isActivePlayerAttacker });
         }
     }
 
@@ -357,6 +378,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    getPlayerByAvatarName(players: Player[], id: ObjectType) {
+        const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
+        const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
+        return clickedPlayer;
+    }
+
     async sendNavigation(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
@@ -365,6 +392,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.socketCommunicationService.send('playerNavigation', path);
             }
         }
+    }
+
+    respawnPlayer(position: Position, player: Player) {
+        const playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
+        if (!playerToReplace) return;
+        this.navigationService.updateTile(playerToReplace);
+        playerToReplace.position = position;
+        this.displayPortraitOnSpawnPoints();
     }
 
     navigateToTile(position: Position) {
@@ -379,8 +414,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     checkEndTurn() {
-        if (!this.activePlayer) return;
-        if (this.activePlayer.id !== this.currentPlayer.id) return;
+        if (!this.activePlayer || !this.isActivePlayer) return;
+
         const reachableTileCount = this.navigationService.findReachableTiles(
             this.activePlayer,
             this.navigationService.gameMap,
@@ -389,13 +424,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         // Player has movement point left, no action left.
         // Player is blocked by closed door or players.
-        if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
+        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
             this.socketCommunicationService.send('endTurn');
         }
 
         // Player has no movement point left. Player has action point left but
         // no valid target on adjacent tiles.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
             this.socketCommunicationService.send('endTurn');
         }
 

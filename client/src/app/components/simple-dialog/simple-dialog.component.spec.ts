@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { SimpleDialogComponent } from './simple-dialog.component';
-import { Router } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
+import { SimpleDialogComponent } from './simple-dialog.component';
 
 describe('SimpleDialogComponent', () => {
     let component: SimpleDialogComponent;
@@ -64,5 +64,10 @@ describe('SimpleDialogComponent', () => {
         component.onClose();
         expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
         expect(mockRouter.navigate).toHaveBeenCalledWith(['/administration']);
+    });
+
+    it('should close dialog when close is called', () => {
+        component.close();
+        expect(dialogRefSpy.close).toHaveBeenCalled();
     });
 });

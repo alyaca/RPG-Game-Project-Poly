@@ -5,8 +5,9 @@
         <app-game-list [usingPage]="'administration-page'"></app-game-list>
         <div class="button-group">
             <p class="button" routerLink="/">Retour</p>
-            <p class="button">Importer un jeu</p>
+            <p class="button" (click)="importGame()">Importer un jeu</p>
             <p class="button" (click)="openPopUp()">Créer un nouveau jeu</p>
+            <input type="file" #fileInput accept=".json" style="display: none" (change)="handleFileInput($event)" />
         </div>
     </div>
 </body>

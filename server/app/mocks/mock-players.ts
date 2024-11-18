@@ -11,6 +11,7 @@ const mockPlayerStats: PlayerStats = {
     atkDiceMax: 4,
     defense: 4,
     defDiceMax: 4,
+    evasion: 2,
 };
 
 export const mockPlayers: Player[] = [
@@ -24,6 +25,7 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
     },
     {
         id: 'id',
@@ -35,5 +37,6 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
     },
 ];
