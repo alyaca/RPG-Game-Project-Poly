@@ -225,15 +225,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             })
             .subscribe((result) => {
                 if (result === DialogResult.Left) {
+                    if(this.isPlayerAdmin()){
+                        this.navigationService.isDebugMode = false;
+                        this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
+                    }
                     this.socketCommunicationService.disconnect();
                     this.router.navigate(['/home']);
                 }
             });
             
-            if(this.isPlayerAdmin()){
-                this.navigationService.isDebugMode = false;
-                this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
-            }
     }
 
     handleDraw() {
