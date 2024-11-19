@@ -159,16 +159,18 @@ export class GameService {
                 player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
             }
         }
+        this.isMoving = false;
         const reachability = room.navigation.findReachableTiles(player, room.gameMap);
         server.to(room.roomId).emit('endMovement');
         server.to(room.roomId).emit('reachableTiles', reachability);
-        this.isMoving = false;
         if (this.checkEndTurn(client, player)) {
             this.onTurnEnded(client, server);
+            return;
         }
         if (this.isTurnSkipped) {
             this.onTurnEnded(client, server);
             this.isTurnSkipped = false;
+            return;
         }
         this.checkDoors(room, server);
         this.checkAttack(room, server);
