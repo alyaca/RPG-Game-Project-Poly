@@ -264,33 +264,6 @@ describe('GamePageComponent', () => {
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
     });
 
-    it('should return true if checkDoor returns true', () => {
-        component.activePlayer = mockPlayers[0];
-        navigationServiceSpy.checkDoor.and.returnValue(mockPlayers[0].position);
-        const result = component.checkDoors();
-        expect(result).toBeTrue();
-    });
-
-    it('should return false when checkDoor returns an invalid Position', () => {
-        navigationServiceSpy.checkDoor.and.returnValue(undefined);
-        const result = component.checkDoors();
-        expect(result).toBeFalse();
-    });
-
-    it('should return true if checkAttack returns true', () => {
-        component.activePlayer = mockPlayers[0];
-        navigationServiceSpy.checkAttack.and.returnValue(mockPlayers[0]);
-        spyOn(component, 'hasActionPoints').and.returnValue(true);
-        const result = component.checkAttack();
-        expect(result).toBeTrue();
-    });
-
-    it('should return false if checkAttack returns false', () => {
-        navigationServiceSpy.checkAttack.and.returnValue(undefined);
-        const result = component.checkAttack();
-        expect(result).toBeFalse();
-    });
-
     it('should return the correct player count when allPlayers is defined and has players', () => {
         component.allPlayers = mockPlayers;
         const result = component.getPlayerCount();

@@ -1,9 +1,15 @@
 import { TileType } from '@app/constants';
+import { mockGame } from '@app/mocks/mock-game';
 import { Position } from '@common/player';
 import { Navigation } from './navigation';
 
 describe('Navigation', () => {
     let navigation: Navigation;
+
+    beforeEach(() => {
+        navigation = new Navigation();
+        navigation.gameMap = mockGame;
+    });
 
     afterEach(() => {
         jest.clearAllMocks();

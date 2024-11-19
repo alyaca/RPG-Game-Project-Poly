@@ -43,7 +43,7 @@ describe('CombatService', () => {
             emit: jest.fn(),
         } as unknown as jest.Mocked<Server>;
 
-        mockClient = { data: { id: 'admin1234' } } as Socket;
+        mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
         attacker = { id: 'attackerId', attributes: { currentHp: 10, totalHp: 10, evasion: 2 } } as Player;
         defender = { id: 'defenderId', attributes: { currentHp: 10, totalHp: 10 } } as Player;
         room = mockRooms[0];
@@ -168,28 +168,28 @@ describe('CombatService', () => {
             mockRoomService.getRoom.mockReturnValue(room);
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
-            service.movePlayerToSpwanPoint = jest.fn();
+            service.replacePlayerOnSpawnPoint = jest.fn();
 
             const isDead = service.checkIfPlayerIsDead(mockClient, player1, player2, mockServer);
 
             expect(isDead).toBe(true);
-            expect(service.movePlayerToSpwanPoint).toHaveBeenCalled();
+            expect(service.replacePlayerOnSpawnPoint).toHaveBeenCalled();
             expect(service.combatFinish).toHaveBeenCalled();
             expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
         });
         it('should return false when player has hp', () => {
-            const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, victories: 0 } as Player;
+            const player1 = { id: '1', attributes: { currentHp: 6, totalHp: 10 }, victories: 0 } as Player;
             const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
             mockRoomService.getRoom.mockReturnValue(room);
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
-            service.movePlayerToSpwanPoint = jest.fn();
+            service.replacePlayerOnSpawnPoint = jest.fn();
 
             const isDead = service.checkIfPlayerIsDead(mockClient, player2, player1, mockServer);
 
             expect(isDead).toBe(false);
-            expect(service.movePlayerToSpwanPoint).not.toHaveBeenCalled();
+            expect(service.replacePlayerOnSpawnPoint).not.toHaveBeenCalled();
             expect(service.combatFinish).not.toHaveBeenCalled();
             expect(service.continueTurn).not.toHaveBeenCalledWith(mockClient, mockServer);
         });
@@ -276,7 +276,8 @@ describe('CombatService', () => {
 
         service.combatFinish(mockClient, player1, player2, mockServer);
 
-        expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'playerDead', player1);
+        // expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'playerDead', player1);
+        expect(mockClient.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('playerDead', player1);
         expect(service.addVictory).toHaveBeenCalledWith(mockRooms[0], player2, mockServer);
     });
 
