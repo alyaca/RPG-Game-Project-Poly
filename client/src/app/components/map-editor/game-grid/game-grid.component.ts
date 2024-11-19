@@ -70,6 +70,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
     isPopupVisible: boolean = false;
+    isDebugMode: boolean = false; //enlever si on utilise pas dans html
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
@@ -388,8 +389,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
                 this.isMoving = true;
-                const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
-                this.socketCommunicationService.send('playerNavigation', path);
+                if(this.navigationService.isDebugMode){
+                    this.respawnPlayer({ x: row, y: col }, this.currentPlayer);
+                    this.isMoving = false;
+                }
+                else {
+                    const path = this.navigationService.navigateToTile(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+                    this.socketCommunicationService.send('playerNavigation', path);
+                }
             }
         }
     }
