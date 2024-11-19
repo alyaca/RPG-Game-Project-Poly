@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -100,7 +100,7 @@ export class CombatService {
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.addVictory(room, player2, server);
-        //this.emitToCombatPlayers(server, 'playerDead', defender);
+        // this.emitToCombatPlayers(server, 'playerDead', defender);
         client.to(room.roomId).emit('playerDead', player1);
     }
 
@@ -160,9 +160,9 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
-        return false; //REMOVE THIS
-        //TODO: FIX THIS
-        //if (client) return client.id === this.attacker.id || client.id === this.defender.id;
+        return false; // REMOVE THIS
+        // TODO: FIX THIS
+        // if (client) return client.id === this.attacker.id || client.id === this.defender.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
@@ -188,7 +188,7 @@ export class CombatService {
     }
 
     checkSpawnPointAvailability(player: Player, gameObjects: number[][]): boolean {
-        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === 8;
+        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === SPAWN_POINT_ID;
     }
 
     replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {

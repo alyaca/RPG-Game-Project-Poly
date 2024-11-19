@@ -104,6 +104,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
+        this.server.to(room.roomId).emit('isActive', activePlayer.id);
 
         this.server.to(room.roomId).emit('isActive', activePlayer);
         const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
@@ -185,7 +186,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const activePlayer = this.gameService.getActivePlayer(room);
 
         if (this.navigation.hasHandleDoorAction(position.x, position.y, player)) {
-            this.server.to(client.data.roomCode).emit('doorClicked', this.navigation.gameMap.tiles);
+            this.server.to(room.roomId).emit('doorClicked', this.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
             this.server.to(room.roomId).emit('reachableTiles', reachability);
         }

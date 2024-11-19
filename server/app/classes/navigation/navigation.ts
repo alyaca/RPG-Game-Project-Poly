@@ -1,25 +1,16 @@
 import { TileCost, TileType } from '@app/constants';
 import { Game } from '@common/game';
-import { Player, Position, Status } from '@common/player';
-
-//TODO: replacer dans un fichier commun
-export interface PointWithDistance {
-    x: number;
-    y: number;
-    distance: number;
-}
+import { Player, Position } from '@common/player';
+import { PointWithDistance } from '../../interfaces/point-distance';
 
 export class Navigation {
+    gameMap: Game;
+    path: Position[];
+    players: Player[];
+    positions: number[][];
     private reachableTiles: Position[];
     private distances: number[][];
     private previous: Position[][];
-    positions: number[][];
-    path: Position[];
-    players: Player[];
-
-    gameMap: Game;
-
-    constructor() {}
 
     initializeNavigation(gameMap: Game, objects: number[][], players: Player[]): void {
         this.gameMap = gameMap;
@@ -41,7 +32,7 @@ export class Navigation {
         }
         const path = this.reconstructPath(destination);
         path.shift();
-        //return this.reconstructPath(destination);
+        // return this.reconstructPath(destination);
         return path;
     }
 
@@ -127,6 +118,41 @@ export class Navigation {
         return false;
     }
 
+    haveActions(player: Player, players: Player[]): boolean {
+        if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
+            return true;
+        }
+        return false;
+    }
+
+    checkAttack(player: Player, players: Player[]): Player | undefined {
+        const neighbors = this.getNeighbors(player.position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (this.hasPlayerOnTile(neighbor, players)) {
+                return players.find((p) => p.position.x === neighbor.x && p.position.y === neighbor.y);
+            }
+        }
+        return undefined;
+    }
+
+    checkDoor(player: Player, players: Player[]): Position | undefined {
+        const neighbors = this.getNeighbors(player.position, this.gameMap);
+        for (const neighbor of neighbors) {
+            if (this.isTileDoor(neighbor) && !this.hasPlayerOnTile(neighbor, players)) {
+                return neighbor;
+            }
+        }
+        return undefined;
+    }
+
+    hasPlayerOnTile(position: Position, players: Player[]) {
+        return players.some((player) => player.position.x === position.x && player.position.y === position.y);
+    }
+
+    hasActionPoints(player: Player) {
+        return player?.attributes.actionPoints > 0;
+    }
+
     private exploreNeighborsForReachableTiles(
         neighbors: Position[],
         current: PointWithDistance,
@@ -138,8 +164,7 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY && player.status !== Status.Disconnected))
-                continue;
+            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -165,9 +190,8 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY && player.status !== Status.Disconnected))
-                continue;
-            //if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
+            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            // if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -192,43 +216,6 @@ export class Navigation {
 
     private isValidTile(x: number, y: number, dimension: number): boolean {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
-    }
-
-    haveActions(player: Player, players: Player[]): boolean {
-        if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
-            return true;
-        }
-        return false;
-    }
-
-    checkAttack(player: Player, players: Player[]): Player | undefined {
-        const neighbors = this.getNeighbors(player.position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (this.hasPlayerOnTile(neighbor, players)) {
-                return players.find(
-                    (player) => player.position.x === neighbor.x && player.position.y === neighbor.y && player.status != Status.Disconnected,
-                );
-            }
-        }
-        return undefined;
-    }
-
-    checkDoor(player: Player, players: Player[]): Position | undefined {
-        const neighbors = this.getNeighbors(player.position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (this.isTileDoor(neighbor) && !this.hasPlayerOnTile(neighbor, players)) {
-                return neighbor;
-            }
-        }
-        return undefined;
-    }
-
-    hasPlayerOnTile(position: Position, players: Player[]) {
-        return players.some((player) => player.position.x === position.x && player.position.y === position.y);
-    }
-
-    hasActionPoints(player: Player) {
-        return player?.attributes.actionPoints > 0;
     }
 
     private isTileDoor(position: Position) {
