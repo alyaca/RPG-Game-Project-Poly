@@ -140,11 +140,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         //GGG : TODO : A revoir
-        /*
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
-        */
 
         this.socketCommunicationService.on('pathFound', (path: Position[]) => {
             this.fastestPath = path;

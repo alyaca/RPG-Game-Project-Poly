@@ -1,6 +1,6 @@
 import { TileCost, TileType } from '@app/constants';
 import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
+import { Player, Position, Status } from '@common/player';
 
 //TODO: replacer dans un fichier commun
 export interface PointWithDistance {
@@ -138,7 +138,8 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            if (this.players.some((player) => player.position.x === newX && player.position.y === newY && player.status !== Status.Disconnected))
+                continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -164,7 +165,8 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            if (this.players.some((player) => player.position.x === newX && player.position.y === newY && player.status !== Status.Disconnected))
+                continue;
             //if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
@@ -203,7 +205,9 @@ export class Navigation {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
         for (const neighbor of neighbors) {
             if (this.hasPlayerOnTile(neighbor, players)) {
-                return players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
+                return players.find(
+                    (player) => player.position.x === neighbor.x && player.position.y === neighbor.y && player.status != Status.Disconnected,
+                );
             }
         }
         return undefined;

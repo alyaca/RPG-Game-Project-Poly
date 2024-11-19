@@ -64,6 +64,9 @@ export class GameService {
         } else if (room.gameStatus === GameStatus.Started) {
             this.playerDisconnected(room, socket, server);
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
+            const activePlayer = this.getActivePlayer(room);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+            server.to(room.roomId).emit('reachableTiles', reachability);
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
@@ -108,9 +111,6 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
-        //Tobe removed
-        //server.to(room.roomId).emit('a');
-        //
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.gameLogsService.sendTurnLog(activePlayer, room.roomId, server);
 
