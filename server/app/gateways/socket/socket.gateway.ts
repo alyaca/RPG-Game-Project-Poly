@@ -1,6 +1,6 @@
 import { Navigation } from '@app/classes/navigation/navigation';
 import { IMessage } from '@app/interfaces/message.interface';
-import { DoorActionData } from '@app/interfaces/socket-data';
+import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
@@ -213,18 +213,20 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     handleDisconnect(client: Socket) {
         const room = this.roomService.getRoom(client);
-        if (room) {
-            if (this.combatService.isInCombat(client)) {
-                this.combatService.disconnectedPlayer(client, this.server);
-            }
-            this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
 
-            if (!this.server.sockets.adapter.rooms.get(room.roomId)) {
-                this.gameService.stopGameTimers(room);
-            }
-            this.logger.log(`Client disconnected: ${client.id}`);
-        } else {
-            this.logger.log(`Client disconnected when no room: ${client.id}`);
+        if (!room) {
+            this.logger.log(`Client disconnected but was not in a room: ${client.id}`);
+            return;
         }
+
+        if (this.combatService.isInCombat(client)) {
+            this.combatService.disconnectedPlayer(client, this.server);
+        }
+        this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
+
+        if (!this.server.sockets.adapter.rooms.get(room.roomId)) {
+            this.gameService.stopGameTimers(room);
+        }
+        this.logger.log(`Client disconnected: ${client.id}`);
     }
 }

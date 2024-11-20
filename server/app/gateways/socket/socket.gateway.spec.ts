@@ -166,7 +166,7 @@ describe('SocketGateway', () => {
         it('should log when a client disconnects and is not in a room', () => {
             jest.spyOn(logger, 'log');
             gateway.handleDisconnect(socket);
-            expect(logger.log).toHaveBeenCalledWith(`Client disconnected when no room: ${socket.id}`);
+            expect(logger.log).toHaveBeenCalledWith(`Client disconnected but was not in a room: ${socket.id}`);
         });
     });
 
