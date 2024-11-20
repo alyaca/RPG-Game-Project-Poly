@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, MIN_NUMBER_PLAYER } from '@app/constants';
@@ -17,7 +17,7 @@ import { Room } from '@common/room';
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [RouterLink, CommonModule, LobbyPlayerComponent, ChatBoxComponent, FormsModule],
+    imports: [CommonModule, LobbyPlayerComponent, ChatBoxComponent, FormsModule],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
