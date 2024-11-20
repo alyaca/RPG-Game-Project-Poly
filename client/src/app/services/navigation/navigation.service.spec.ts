@@ -55,70 +55,6 @@ describe('NavigationServiceService', () => {
         expect(service.positions[playerNavigation.position.x][playerNavigation.position.y]).toBe(0);
     });
 
-    it("should return the player's name and avatar on showDetails", () => {
-        service.players = mockPlayers;
-        const result = service.showDetails(1, 1);
-        expect(result).toEqual(`${mockPlayers[1].name}, ${mockPlayers[1].avatar}`);
-    });
-
-    it('should return the value of the tile if no one is on the tile', () => {
-        service.positions = [
-            [1, 1, 1],
-            [1, 1, 1],
-            [1, 1, 1],
-        ];
-        service.players = mockPlayers;
-        service.positions[2][2] = 2;
-        const result = service.showDetails(2, 2);
-        const tileValue = service.positions[2][2].valueOf();
-        expect(result).toEqual(`${tileValue}`);
-    });
-
-    it('should call everything', () => {
-        service['previous'] = [
-            [
-                { x: 1, y: 1 },
-                { x: 1, y: 1 },
-            ],
-            [
-                { x: 1, y: 1 },
-                { x: 1, y: 1 },
-            ],
-        ];
-        const getNextNodeSpy = spyOn<any>(service, 'getNextNode');
-        const isDestinationReachedSpy = spyOn<any>(service, 'isDestinationReached');
-        getNextNodeSpy.and.callFake(() => {
-            const callCounter = getNextNodeSpy.calls.count();
-            if (callCounter === 1) {
-                return { x: 1, y: 1, distance: 1 };
-            } else {
-                return undefined;
-            }
-        });
-
-        isDestinationReachedSpy.and.callFake(() => {
-            const callCounter = isDestinationReachedSpy.calls.count();
-            if (callCounter === 1) {
-                return false;
-            } else {
-                return true;
-            }
-        });
-
-        service['previous'][1][1] = { x: 1, y: 1 };
-        const initDistancesSpy = spyOn(service, 'initializeDistances');
-        const getNeighborsSpy = spyOn(service, 'getNeighbors');
-        const exploreNeighborsSpy = spyOn<any>(service, 'exploreNeighbors');
-        const reconstructPathSpy = spyOn<any>(service, 'reconstructPath');
-        service.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockGame);
-        expect(initDistancesSpy).toHaveBeenCalledWith(playerNavigation, mockGame);
-        expect(getNextNodeSpy).toHaveBeenCalled();
-        expect(isDestinationReachedSpy).toHaveBeenCalled();
-        expect(exploreNeighborsSpy).toHaveBeenCalled();
-        expect(getNeighborsSpy).toHaveBeenCalled();
-        expect(reconstructPathSpy).toHaveBeenCalledWith({ x: 1, y: 1 });
-    });
-
     it('should return false if the tile is not reachable', () => {
         service['reachableTiles'] = [{ x: 1, y: 1 }];
         const result = service.isReachableTile(2, 2);
@@ -131,78 +67,7 @@ describe('NavigationServiceService', () => {
         expect(result).toBeTrue();
     });
 
-    it('should initialize all the attributes', () => {
-        service.initializeDistances(playerNavigation, mockGame);
-        expect(service['distances'].length).toEqual(mockGame.dimension);
-        expect(service['previous'].length).toEqual(mockGame.dimension);
-        expect(service['distances'][playerNavigation.position.x][playerNavigation.position.y]).toEqual(0);
-    });
-
-    // it('should call everything with findReachableTiles', () => {
-    //     const getNeighborsSpy = spyOn(service, 'getNeighbors');
-    //     const exploreNeighborsForReachableTilesSpy = spyOn<any>(service, 'exploreNeighborsForReachableTiles');
-    //     const getNextNodeSpy = spyOn<any>(service, 'getNextNode');
-    //     getNextNodeSpy.and.callFake(() => {
-    //         const callCounter = getNextNodeSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return { x: 1, y: 1, distance: 1 };
-    //         } else {
-    //             return undefined;
-    //         }
-    //     });
-
-    //     getNeighborsSpy.and.callFake(() => {
-    //         const callCounter = getNeighborsSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return [{ x: 1, y: 1 }];
-    //         } else {
-    //             return [];
-    //         }
-    //     });
-
-    //     const result = service.findReachableTiles(playerNavigation, mockGame, DEFAULT_ATTRIBUTE);
-    //     expect(result).toBeDefined();
-    //     expect(getNextNodeSpy).toHaveBeenCalled();
-    //     expect(getNeighborsSpy).toHaveBeenCalled();
-    //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
-    // });
-
-    it('should return [] if the tile is not reachable', () => {
-        spyOn(service, 'isReachableTile').and.returnValue(false);
-        expect(service.navigateToTile(playerNavigation, { x: 1, y: 1 }, mockGame)).toEqual([]);
-    });
-
-    it('should return undefined if the player is not adjacent to anyone else', () => {
-        service.players = [playerNavigation];
-        spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 1 }]);
-        expect(service.checkAttack()).toBeUndefined();
-    });
-
-    it('should return the player adjacent to the active one', () => {
-        service.players = [playerNavigation];
-        spyOn(service, 'getNeighbors').and.returnValue([{ x: 0, y: 0 }]);
-        expect(service.checkAttack()).toEqual(playerNavigation);
-    });
-
-    it('should return true if checkAttack or checkDoor return an array', () => {
-        const checkAttackSpy = spyOn(service, 'checkAttack');
-        const checkDoorSpy = spyOn(service, 'checkDoor');
-        checkAttackSpy.and.returnValue(playerNavigation);
-        checkDoorSpy.and.returnValue(undefined);
-        expect(service.haveActions()).toBeTrue();
-
-        checkAttackSpy.and.returnValue(undefined);
-        checkDoorSpy.and.returnValue({ x: 1, y: 0 });
-        expect(service.haveActions()).toBeTrue();
-    });
-
-    it('haveActions should return false if checkAttack and checkDoor return undefined', () => {
-        spyOn(service, 'checkAttack').and.returnValue(undefined);
-        spyOn(service, 'checkDoor').and.returnValue(undefined);
-        expect(service.haveActions()).toBeFalse();
-    });
-
-    it('checkDOor should return the neighbors', () => {
+    it('checkDoor should return the neighbors', () => {
         service.players = [playerNavigation];
         service.gameMap.tiles = [
             [TileType.Ground, TileType.OpenDoor],
@@ -211,14 +76,6 @@ describe('NavigationServiceService', () => {
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 0 }]);
         const result = service.checkDoor();
         expect(result).toBeDefined();
-    });
-
-    it('should return the correct tile cost', () => {
-        expect(service.getTileCost(TileCost.Ground)).toEqual(TileCost.Ground);
-        expect(service.getTileCost(TileType.Water)).toEqual(TileCost.Water);
-        expect(service.getTileCost(TileType.Ice)).toEqual(TileCost.Ice);
-        expect(service.getTileCost(TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
-        expect(service.getTileCost(TileType.Wall)).toEqual(Infinity);
     });
 
     it('should return true if there is neighbor', () => {
@@ -235,33 +92,6 @@ describe('NavigationServiceService', () => {
         spyOn<any>(service, 'isValidTile').and.returnValue(true);
         const result = service.getNeighbors({ x: 0, y: 0 }, mockGame);
         expect(result).toBeDefined();
-    });
-
-    it('should call getTileCost', () => {
-        service['previous'] = [
-            [
-                { x: 1, y: 0 },
-                { x: 1, y: 0 },
-            ],
-            [
-                { x: 1, y: 0 },
-                { x: 1, y: 0 },
-            ],
-        ];
-        service['distances'] = [
-            [1, 1, 1],
-            [1, 1, 1],
-            [1, 1, 1],
-        ];
-        spyOn(service, 'getTileCost');
-        service['exploreNeighborsForReachableTiles'](
-            [{ x: 1, y: 0 }],
-            { x: 0, y: 0, distance: 0 },
-            [{ x: 0, y: 0, distance: 0 }],
-            DEFAULT_ATTRIBUTE,
-            mockGame,
-        );
-        expect(service.getTileCost).toHaveBeenCalled();
     });
 
     describe('exploreNeighborsForReachableTiles', () => {

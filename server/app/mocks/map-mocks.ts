@@ -17,6 +17,7 @@ import {
     TileType,
 } from '@app/constants';
 import { Map } from '@app/model/schema/map.schema';
+import { Game } from '@common/game';
 import mongoose from 'mongoose';
 
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
@@ -253,4 +254,50 @@ export const MAP_TO_PUT = {
     ],
     isSelected: false,
     lastModification: DEFAULT_DATE,
+};
+
+export const mockGameNavigation: Game = {
+    _id: '1',
+    name: 'Mock Game',
+    description: 'This is a mock game for testing purposes.',
+    visible: true,
+    mode: 'single-player',
+    nbPlayers: 1,
+    image: 'mock-image.png',
+    tiles: [
+        [TileType.Water, TileType.Water, TileType.Wall],
+        [TileType.Water, TileType.OpenDoor, TileType.Wall],
+        [TileType.Water, TileType.Water, TileType.Water],
+    ],
+    dimension: 3,
+    itemPlacement: [
+        [1, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+    ],
+    isSelected: false,
+    lastModification: new Date(),
+};
+
+export const mockNeighborGame: Game = {
+    _id: '1',
+    name: 'map name',
+    description: 'description for map',
+    visible: true,
+    mode: 'normal',
+    nbPlayers: 1,
+    image: 'image for map',
+    tiles: [
+        [TileType.Ground, TileType.Ground, TileType.Wall],
+        [TileType.Ground, TileType.Ground, TileType.Ground],
+        [TileType.Wall, TileType.Ground, TileType.Ground],
+    ],
+    dimension: 3,
+    itemPlacement: [
+        [1, 0, 0],
+        [0, 0, 1],
+        [0, 0, 0],
+    ],
+    isSelected: false,
+    lastModification: new Date(),
 };
