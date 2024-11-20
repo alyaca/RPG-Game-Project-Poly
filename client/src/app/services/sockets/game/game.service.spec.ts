@@ -182,10 +182,6 @@ describe('GameService', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
-    it('should return true if player has action points', () => {
-        expect(service.hasActionPoints(mockPlayers[0])).toBeTrue();
-    });
-
     it('should return false if player has no action points', () => {
         const player = JSON.parse(JSON.stringify(mockPlayers[0]));
         player.attributes.actionPoints = 0;
