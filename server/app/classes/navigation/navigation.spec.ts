@@ -1,11 +1,14 @@
-import { DEFAULT_ATTRIBUTE, TileCost, TileType } from '@app/constants';
-import { mockGameNavigation } from '@app/mocks/map-mocks';
+import { DEFAULT_ATTRIBUTE, NO_ITEM, TileCost, TileType } from '@app/constants';
+import { mockGameNavigation, mockNeighborGame } from '@app/mocks/map-mocks';
 import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
+import { ObjectType } from '@common/avatars-info';
 import { Position } from '@common/player';
+import { PointWithDistance } from '@common/point-distance.interface';
 import { Navigation } from './navigation';
 
+/* eslint max-lines: ["off"] */
 describe('Navigation', () => {
     let navigation: Navigation;
 
@@ -121,10 +124,242 @@ describe('Navigation', () => {
         expect(navigation.getTileCost).toHaveBeenCalled();
     });
 
+    describe('exploreNeighborsForReachableTiles', () => {
+        let priorityQueue: PointWithDistance[];
+        let maxMovementPoints: number;
+
+        beforeEach(() => {
+            priorityQueue = [];
+
+            navigation['distances'] = [
+                [Infinity, Infinity, Infinity],
+                [Infinity, Infinity, Infinity],
+                [Infinity, Infinity, Infinity],
+            ];
+
+            navigation['previous'] = [
+                [
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                ],
+                [
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                ],
+                [
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                ],
+            ];
+
+            navigation.positions = [
+                [NO_ITEM, NO_ITEM, NO_ITEM],
+                [NO_ITEM, NO_ITEM, NO_ITEM],
+                [NO_ITEM, NO_ITEM, NO_ITEM],
+            ];
+        });
+
+        it('should skip walls', () => {
+            const neighbors = [
+                { x: 0, y: 2 },
+                { x: 2, y: 0 },
+            ];
+            const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
+
+            navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
+
+            expect(navigation['distances'][0][2]).toBe(Infinity);
+            expect(navigation['distances'][2][0]).toBe(Infinity);
+        });
+
+        it('should skip tiles occupied by player', () => {
+            navigation.positions[2][0] = ObjectType.Hestia;
+
+            const neighbors = [{ x: 2, y: 0 }];
+            const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
+
+            navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
+            expect(navigation['distances'][2][0]).toBe(Infinity);
+        });
+
+        it('should process reachable tiles', () => {
+            const neighbors = [{ x: 1, y: 0 }];
+            const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
+
+            navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
+            const expectedDistance = 1;
+
+            expect(navigation['distances'][1][0]).toBe(expectedDistance);
+            expect(priorityQueue).toEqual([{ x: 1, y: 0, distance: expectedDistance }]);
+        });
+
+        it('should not process tiles if new distance exceeds maxMovementPoints', () => {
+            maxMovementPoints = 0;
+            const neighbors = [{ x: 1, y: 0 }];
+            const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
+
+            navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, maxMovementPoints, mockNeighborGame);
+            expect(navigation['distances'][1][0]).toBe(Infinity);
+            expect(priorityQueue).not.toContain({ x: 1, y: 0, distance: Infinity });
+        });
+
+        it('should update distances and previous correctly for reachable tiles', () => {
+            const neighbors = [{ x: 1, y: 0 }];
+            const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
+
+            navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
+
+            expect(navigation['distances'][1][0]).toBe(1);
+            expect(navigation['distances'][1][0]).toEqual(1);
+        });
+    });
+
+    it('should return the next node if it is not empty', () => {
+        const result = navigation['getNextNode']([
+            { x: 0, y: 0, distance: 0 },
+            { x: 1, y: 1, distance: 1 },
+        ]);
+        expect(result).toEqual({ x: 0, y: 0, distance: 0 });
+    });
+
+    it('should return undefined if the queue is empty', () => {
+        const result = navigation['getNextNode']([]);
+        expect(result).toBeUndefined();
+    });
+
+    it('isDestinationReached should return true if the player is a destination', () => {
+        const result = navigation['isDestinationReached']({ x: 1, y: 1, distance: 1 }, { x: 1, y: 1 });
+        expect(result).toBe(true);
+    });
+
+    it('isDestinationReached should return false if the player hasnt arrived yet', () => {
+        const result = navigation['isDestinationReached']({ x: 1, y: 1, distance: 1 }, { x: 0, y: 0 });
+        expect(result).toBe(false);
+    });
+
+    describe('exploreNeighbors', () => {
+        beforeEach(() => {
+            navigation['distances'] = [
+                [Infinity, Infinity, Infinity],
+                [Infinity, Infinity, Infinity],
+                [Infinity, Infinity, Infinity],
+            ];
+            navigation['previous'] = [
+                [
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                ],
+                [
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                ],
+                [
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                    { x: 0, y: 0 },
+                ],
+            ];
+        });
+        it('should skip walls', () => {
+            const neighbors: Position[] = [
+                { x: 0, y: 2 },
+                { x: 2, y: 0 },
+            ];
+
+            const current = { x: 1, y: 1, distance: 0 };
+            const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
+
+            navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
+
+            expect(navigation['distances'][0][2]).toBe(Infinity);
+            expect(navigation['distances'][2][0]).toBe(Infinity);
+        });
+
+        it('should skip objects that block movement', () => {
+            navigation.positions[2][0] = ObjectType.Hestia;
+
+            const neighbors: Position[] = [
+                { x: 2, y: 0 },
+                { x: 1, y: 0 },
+            ];
+
+            const current = { x: 1, y: 1, distance: 0 };
+            const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
+
+            navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
+
+            expect(navigation['distances'][2][0]).toBe(Infinity);
+            expect(navigation['distances'][1][0]).toBe(TileCost.Ground);
+        });
+
+        it('should correctly update distances and previous matrices for valid tiles', () => {
+            const neighbors: Position[] = [
+                { x: 1, y: 0 },
+                { x: 1, y: 2 },
+            ];
+
+            const current = { x: 1, y: 1, distance: 0 };
+            const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
+
+            navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
+
+            expect(navigation['distances'][1][0]).toBe(TileCost.Ground);
+            expect(navigation['distances'][1][2]).toBe(TileCost.Ground);
+
+            expect(navigation['previous'][1][0]).toEqual({ x: 1, y: 1 });
+            expect(navigation['previous'][1][2]).toEqual({ x: 1, y: 1 });
+
+            // expect(priorityQueue).toContain({ x: 1, y: 0, distance: TileCost.Ground });
+            // expect(priorityQueue).toContain({ x: 1, y: 2, distance: TileCost.Ground });
+        });
+    });
+
+    it('should return the path excluding the first position if the destination is reachable', () => {
+        const destination: Position = { x: 2, y: 2 };
+        navigation.isReachableTile = jest.fn().mockReturnValue(true);
+        navigation.findFastestPath = jest.fn().mockReturnValue([
+            { x: 0, y: 0 },
+            { x: 1, y: 1 },
+            { x: 2, y: 2 },
+        ]);
+        const path = navigation.navigateToTile(playerNavigation, destination, mockGameNavigation);
+
+        expect(navigation.isReachableTile).toHaveBeenCalledWith(destination.x, destination.y);
+        expect(navigation.findFastestPath).toHaveBeenCalledWith(playerNavigation, destination, mockGameNavigation);
+        expect(path).toEqual([
+            { x: 1, y: 1 },
+            { x: 2, y: 2 },
+        ]);
+    });
+
     // Tests from navigation client
 
+    // it('should return the correct path', () => {
+    //     navigation['previous'] = [
+    //         [
+    //             { x: 0, y: 0 },
+    //             { x: 1, y: 0 },
+    //         ],
+    //         [
+    //             { x: 0, y: 0 },
+    //             { x: 1, y: 0 },
+    //         ],
+    //     ];
+    //     const result = navigation['reconstructPath']({ x: 1, y: 0 });
+
+    //     expect(result).toEqual([
+    //         { x: 0, y: 0 },
+    //         { x: 1, y: 0 },
+    //     ]);
+    // });
+
     // it('should call everything', () => {
-    //     service['previous'] = [
+    //     navigation['previous'] = [
     //         [
     //             { x: 1, y: 1 },
     //             { x: 1, y: 1 },
@@ -134,8 +369,8 @@ describe('Navigation', () => {
     //             { x: 1, y: 1 },
     //         ],
     //     ];
-    //     const getNextNodeSpy = spyOn<any>(service, 'getNextNode');
-    //     const isDestinationReachedSpy = spyOn<any>(service, 'isDestinationReached');
+    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
+    //     const isDestinationReachedSpy = spyOn<any>(navigation, 'isDestinationReached');
     //     getNextNodeSpy.and.callFake(() => {
     //         const callCounter = getNextNodeSpy.calls.count();
     //         if (callCounter === 1) {
@@ -154,12 +389,12 @@ describe('Navigation', () => {
     //         }
     //     });
 
-    //     service['previous'][1][1] = { x: 1, y: 1 };
-    //     const initDistancesSpy = spyOn(service, 'initializeDistances');
-    //     const getNeighborsSpy = spyOn(service, 'getNeighbors');
-    //     const exploreNeighborsSpy = spyOn<any>(service, 'exploreNeighbors');
-    //     const reconstructPathSpy = spyOn<any>(service, 'reconstructPath');
-    //     service.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockGame);
+    //     navigation['previous'][1][1] = { x: 1, y: 1 };
+    //     const initDistancesSpy = spyOn(navigation, 'initializeDistances');
+    //     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
+    //     const exploreNeighborsSpy = spyOn<any>(navigation, 'exploreNeighbors');
+    //     const reconstructPathSpy = spyOn<any>(navigation, 'reconstructPath');
+    //     navigation.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockGame);
     //     expect(initDistancesSpy).toHaveBeenCalledWith(playerNavigation, mockGame);
     //     expect(getNextNodeSpy).toHaveBeenCalled();
     //     expect(isDestinationReachedSpy).toHaveBeenCalled();
@@ -169,9 +404,9 @@ describe('Navigation', () => {
     // });
 
     // it('should call everything with findReachableTiles', () => {
-    //     const getNeighborsSpy = spyOn(service, 'getNeighbors');
-    //     const exploreNeighborsForReachableTilesSpy = spyOn<any>(service, 'exploreNeighborsForReachableTiles');
-    //     const getNextNodeSpy = spyOn<any>(service, 'getNextNode');
+    //     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
+    //     const exploreNeighborsForReachableTilesSpy = spyOn<any>(navigation, 'exploreNeighborsForReachableTiles');
+    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
     //     getNextNodeSpy.and.callFake(() => {
     //         const callCounter = getNextNodeSpy.calls.count();
     //         if (callCounter === 1) {
@@ -190,7 +425,7 @@ describe('Navigation', () => {
     //         }
     //     });
 
-    //     const result = service.findReachableTiles(playerNavigation, mockGame, DEFAULT_ATTRIBUTE);
+    //     const result = navigation.findReachableTiles(playerNavigation, mockGame, DEFAULT_ATTRIBUTE);
     //     expect(result).toBeDefined();
     //     expect(getNextNodeSpy).toHaveBeenCalled();
     //     expect(getNeighborsSpy).toHaveBeenCalled();

@@ -65,7 +65,7 @@ export const mockNavigationPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         inventory: [],
-        position: { x: 1, y: 0 },
+        position: { x: 3, y: 0 },
         spawnPosition: { x: 0, y: 0 },
     },
 ];
