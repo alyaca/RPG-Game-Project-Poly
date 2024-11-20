@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { TileType } from '@app/constants';
 import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -102,19 +101,6 @@ export class NavigationService {
 
     getActivePlayer(): Player {
         return this.players.find((player) => player.isActive) || this.players[0];
-    }
-
-    checkDoor(): Position | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
-            ) {
-                return neighbor;
-            }
-        }
-        return undefined;
     }
 
     isNeighbor(row: number, col: number, player: Player): boolean {

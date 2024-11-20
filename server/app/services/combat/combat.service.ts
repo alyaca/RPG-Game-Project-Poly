@@ -100,7 +100,6 @@ export class CombatService {
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.addVictory(room, player2, server);
-        // this.emitToCombatPlayers(server, 'playerDead', defender);
         client.to(room.roomId).emit('playerDead', player1);
     }
 

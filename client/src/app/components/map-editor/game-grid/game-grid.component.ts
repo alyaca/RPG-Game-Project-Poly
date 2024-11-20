@@ -354,7 +354,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.handleFightAction(row, col);
             return;
         } else if (this.isReachableTile(row, col) && this.tilesGrid[row][col] !== TileType.ClosedDoor && !this.checkIfPlayerIsOnTile(row, col)) {
-            this.sendNavigation(row, col);
+            this.sendNavigation();
         }
     }
 
@@ -380,8 +380,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return clickedPlayer;
     }
 
-    //TODO : remove params
-    async sendNavigation(row: number, col: number) {
+    async sendNavigation() {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
                 this.isMoving = true;
