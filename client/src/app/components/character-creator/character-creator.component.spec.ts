@@ -182,6 +182,7 @@ describe('CharacterCreatorComponent', () => {
             status: Status.Player,
             victories: 0,
             position: { x: -1, y: -1 },
+            inventory: [],
         });
     });
 

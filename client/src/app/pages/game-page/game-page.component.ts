@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -7,9 +7,9 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, ObjectType, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, ObjectType, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
-//import { CombatService } from '@app/services/combat/combat.service';
+// import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -57,14 +57,16 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     turnTotalTime: number = TURN_TIME;
     combatTurnTime: number;
 
+    private playerInventoryService = inject(PlayerInventoryService);
+    private gameService = inject(GameService);
+    private navigationService = inject(NavigationService);
+
     constructor(
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        public gameService: GameService,
-        private navigationService: NavigationService, //private combatService: CombatService,
+        // private combatService: CombatService,
         public combatService: CombatService,
-        private playerInventoryService: PlayerInventoryService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -99,7 +101,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            this.activePlayer.attributes.actionPoints = 0;
+            // will have to check this for tests
+            this.activePlayer.attributes.actionPoints -= 1;
             this.closeCombatModal();
         });
 
@@ -145,25 +148,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: [`Quel objet voulez échangé pour celui-ci: ${itemToExchange?.name}`],
                     options: [],
                     confirm: false,
-                    itemSwap: itemSwap,
+                    itemSwap,
                 })
                 .subscribe(() => {
                     let newItem = itemSwap.pickedUpItem.id;
-                    for (let i = 0; i < data.activePlayer.inventory.length; i++)
-                    {
-                        if (data.activePlayer.inventory[i] !== oldInventory[i])
-                        {
+                    for (let i = 0; i < data.activePlayer.inventory.length; i++) {
+                        if (data.activePlayer.inventory[i] !== oldInventory[i]) {
                             newItem = data.activePlayer.inventory[i].id;
-                            break;              
+                            break;
                         }
                     }
-                    if(newItem)
-                    {
+                    if (newItem) {
                         this.playerInventoryService.updatePlayerAfterSwap(data.activePlayer, newItem, itemSwap.pickedUpItem);
                         this.socketCommunicationService.send('endItemSwitch');
-                    }
-                    else
-                    {
+                    } else {
                         this.playerInventoryService.itemToPlace = itemSwap.pickedUpItem.id;
                         this.socketCommunicationService.send('inventoryChange', data.activePlayer);
                         this.socketCommunicationService.send('endItemSwitch');
@@ -201,7 +199,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
-        this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
+        // might impact tests
+        if (this.activePlayer.attributes.actionPoints === 0) {
+            this.activePlayer.attributes.actionPoints = 1;
+        } else {
+            this.activePlayer.attributes.actionPoints = this.activePlayer.attributes.maxActionPoints;
+        }
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -308,7 +311,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onEndTurn() {
         if (this.navigationService.isOnWall(this.activePlayer)) {
             this.navigationService.movePlayerFromWall(this.activePlayer);
-            // will have to call displaySpawnPoints from game-grid
+            // will have to call displaySpawnPoints from game
+        } else if (this.activePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
+            if (this.activePlayer.attributes.actionPoints === 1) {
+                this.activePlayer.attributes.actionPoints += 1;
+                this.activePlayer.attributes.maxActionPoints = 2;
+                this.socketCommunicationService.send('inventoryChange', this.activePlayer);
+            }
         }
         this.socketCommunicationService.send('endTurn');
     }

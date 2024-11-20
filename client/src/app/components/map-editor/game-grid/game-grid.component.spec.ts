@@ -7,6 +7,7 @@ import { mockGameNavigation } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockPlayer, playerNavigation } from '@app/mocks/mock-player';
 import { mockRoom } from '@app/mocks/mock-room';
+import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -83,6 +84,7 @@ describe('GameGridComponent', () => {
             'isNeighbor',
             'updateTile',
             'getTileCost',
+            'isOnWall',
         ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['hasActionPoints']);
 
@@ -458,6 +460,7 @@ describe('GameGridComponent', () => {
 
     describe('ngOnChanges', () => {
         it('should reset the grid when resetTrigger changes to true', () => {
+            component.oldMapName = mockValidationInfo.oldMapName;
             component.tilesGrid[0][0] = TileType.Water;
             const changes: SimpleChanges = {
                 resetTrigger: new SimpleChange(false, true, false),
@@ -468,22 +471,17 @@ describe('GameGridComponent', () => {
         });
 
         it('should validate the map when saveTrigger changes to true', () => {
-            component.mapName = 'Test Map';
-            component.mapDescription = 'Description';
-            component.tilesGrid = [[TileType.Ground]];
-            gameCreationServiceSpy.isNewGame = true;
+            component.oldMapName = mockValidationInfo.oldMapName;
+            component.mapName = mockValidationInfo.title;
+            component.mapDescription = mockValidationInfo.description;
+            component.tilesGrid = mockValidationInfo.tiles;
+            gameCreationServiceSpy.isNewGame = mockValidationInfo.isNewMap;
             const changes: SimpleChanges = {
                 saveTrigger: new SimpleChange(false, true, false),
             };
             component.saveTrigger = true;
             component.ngOnChanges(changes);
-            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(
-                component.tilesGrid,
-                component.mapName,
-                component.mapDescription,
-                true,
-                component.oldMapName,
-            );
+            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(mockValidationInfo);
         });
 
         it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {

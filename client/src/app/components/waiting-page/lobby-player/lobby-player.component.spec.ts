@@ -64,7 +64,7 @@ describe('LobbyPlayerComponent', () => {
                 messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
                 options: ['Annuler', 'Exclure'],
                 confirm: true,
-                itemSwap: null
+                itemSwap: null,
             },
         });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('kickPlayer', component.lobbyPlayer.id);

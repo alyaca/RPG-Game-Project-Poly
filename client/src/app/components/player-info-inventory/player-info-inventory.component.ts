@@ -23,8 +23,12 @@ export class PlayerInfoInventoryComponent implements OnInit {
 
     // Those functions are just for testing purposes to make sure that the page is reactive but,
     // we can use them to display the change in hp and all the other stuff when we do the game's logic.
-
     constructor(private socketCommunicationService: SocketCommunicationService) {}
+
+    get emptySlots(): number[] {
+        const emptySlotsCount = 2 - (this.player?.inventory?.length || 0);
+        return Array.from({ length: emptySlotsCount });
+    }
 
     ngOnInit() {
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
@@ -36,14 +40,9 @@ export class PlayerInfoInventoryComponent implements OnInit {
             }
         });
 
-        this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer : Player) => {
+        this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
             this.player = updatedPlayer;
-        })
-    }
-
-    get emptySlots(): number[] {
-        const emptySlotsCount = 2 - (this.player?.inventory?.length || 0);
-        return Array.from({ length: emptySlotsCount });
+        });
     }
 
     increaseMovement() {

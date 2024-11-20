@@ -38,12 +38,12 @@ export class SimpleDialogComponent {
     }
 
     swapItems(isSwappedItemFirst: boolean, itemSwap: ItemSwap): ItemSwap | null {
-        if(this.data.itemSwap){
+        if (this.data.itemSwap) {
             const swappedItem = isSwappedItemFirst ? itemSwap.currentItem1 : itemSwap.currentItem2;
-            const temp = { ...swappedItem }; 
+            const temp = { ...swappedItem };
             Object.assign(swappedItem, this.data.itemSwap.pickedUpItem);
             Object.assign(this.data.itemSwap.pickedUpItem, temp);
-            return this.data.itemSwap
+            return this.data.itemSwap;
         }
         return null;
     }

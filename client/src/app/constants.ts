@@ -175,7 +175,6 @@ export enum TileClass {
     Wall = 'wall',
 }
 
-export const FELLING_PROBABILITY = 0.1;
 export const NAVIGATION_DELAY = 150;
 
 // Maximum number of players in a room

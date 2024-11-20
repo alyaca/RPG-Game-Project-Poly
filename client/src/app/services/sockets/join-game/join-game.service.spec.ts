@@ -177,7 +177,7 @@ describe('JoinGameService', () => {
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
-                itemSwap: null
+                itemSwap: null,
             },
         });
         expect(routerSpy.navigate).not.toHaveBeenCalledWith(['/home']);
@@ -196,7 +196,7 @@ describe('JoinGameService', () => {
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
-                itemSwap: null
+                itemSwap: null,
             },
         });
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);

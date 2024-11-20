@@ -56,7 +56,7 @@ export class CombatService {
 
     onEndTurn(client: Socket, server: Server, room: Room) {
         [this.activePlayer, this.defensePlayer] = [this.defensePlayer, this.activePlayer];
-        this.emitToCombatPlayers(server, 'combatTurnEnded', this.activePlayer);
+        this.emitToCombatPlayers(server, 'combatTurnEnded');
         this.onStartTurn(client, server, room);
     }
 
@@ -70,11 +70,11 @@ export class CombatService {
         });
         if (attackValue > defenseValue) {
             this.defensePlayer.attributes.currentHp--;
-            this.emitToCombatPlayers(server, 'attackSuccess', this.defensePlayer);
+            this.emitToCombatPlayers(server, 'attackSuccess');
             this.checkIfPlayerIsDead(client, this.defensePlayer, this.activePlayer, server);
         } else if (attackValue < defenseValue) {
             this.activePlayer.attributes.currentHp--;
-            this.emitToCombatPlayers(server, 'attackFail', this.activePlayer);
+            this.emitToCombatPlayers(server, 'attackFail');
             this.checkIfPlayerIsDead(client, this.activePlayer, this.defensePlayer, server);
         } else {
             this.emitToCombatPlayers(server, 'drawCombat');

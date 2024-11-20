@@ -47,7 +47,7 @@ describe('GamePageComponent', () => {
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
         gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints']);
-        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack']);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack', 'isOnWall']);
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
@@ -255,6 +255,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {
+        component.activePlayer = mockPlayers[0];
         component.onEndTurn();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
     });

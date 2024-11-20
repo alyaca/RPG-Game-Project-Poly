@@ -7,10 +7,17 @@ import {
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
     MIN_LEN_MAP_TITLE,
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
     ObjectType,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
     TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
+import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 
@@ -30,19 +37,51 @@ export class MapValidatorService {
         this.gameObjectService.initObjectsArray();
     }
 
-    validateMap(array: number[][], title: string, description: string, isNewMap: boolean, oldMapName: string) {
+    validateMap(validationInfo: ValidatingMapInfo) {
         this.errorMessages = [];
-        if (isNewMap || oldMapName !== title) {
-            this.validateName(title);
+        if (validationInfo.isNewMap || validationInfo.oldMapName !== validationInfo.title) {
+            this.validateName(validationInfo.title);
         }
-        this.validateSufficientTerrainTiles(array);
-        this.validateAllDoors(array);
+        this.validateSufficientTerrainTiles(validationInfo.tiles);
+        this.validateAllDoors(validationInfo.tiles);
         this.validateAllSpawnPointsPlaced();
-        this.validateTileAccessibility(array);
-        this.validateTitle(title);
-        this.validateDescription(description);
+        this.validateTileAccessibility(validationInfo.tiles);
+        this.validateTitle(validationInfo.title);
+        this.validateDescription(validationInfo.description);
+        this.validateNumberItems(validationInfo.objects);
 
         this.showValidationResult();
+    }
+
+    private validateNumberItems(objects: number[][]) {
+        let maxNbItems: number;
+        let currentNumberItems = 0;
+        switch (objects.length) {
+            case SIZE_SMALL_MAP:
+                maxNbItems = NB_ITEMS_SMALL_MAP;
+                break;
+            case SIZE_MEDIUM_MAP:
+                maxNbItems = NB_ITEMS_MEDIUM_MAP;
+                break;
+            case SIZE_LARGE_MAP:
+                maxNbItems = NB_ITEMS_LARGE_MAP;
+                break;
+            default:
+                maxNbItems = NB_ITEMS_MEDIUM_MAP;
+                break;
+        }
+
+        for (const objectsRows of objects) {
+            for (const individualItem of objectsRows) {
+                if (individualItem >= ObjectType.Trident && individualItem <= ObjectType.Random) {
+                    currentNumberItems += 1;
+                }
+            }
+        }
+
+        if (currentNumberItems > maxNbItems) {
+            this.errorMessages.push(`- Il y a trop d'objets sur cette carte. ${currentNumberItems} au lieu de ${maxNbItems}`);
+        }
     }
 
     private showValidationResult() {

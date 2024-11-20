@@ -1,3 +1,4 @@
+/* eslint max-lines: ["off"] */
 import {
     Component,
     ElementRef,
@@ -12,9 +13,9 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
+import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -30,7 +31,7 @@ import { Room } from '@common/room';
 @Component({
     selector: 'app-game-grid',
     standalone: true,
-    imports: [GameObjectComponent, TilePlayerInfoComponent],
+    imports: [TilePlayerInfoComponent],
     templateUrl: './game-grid.component.html',
     styleUrl: './game-grid.component.scss',
 })
@@ -142,18 +143,18 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('combatEnd', () => {
             if (this.activePlayer) {
-                this.activePlayer.attributes.actionPoints = 0;
+                // Will have to check tests for that
+                this.activePlayer.attributes.actionPoints -= 1;
             }
             this.checkEndTurn();
         });
 
         this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer) => {
-            if(this.activePlayer)
-            {
+            if (this.activePlayer) {
                 this.activePlayer.inventory = updatedPlayer.inventory;
                 this.activePlayer.attributes = updatedPlayer.attributes;
             }
-        })
+        });
     }
 
     loadNewGame() {
@@ -180,13 +181,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.onResetTrigger();
         }
         if (changes.saveTrigger && this.saveTrigger) {
-            this.mapValidatorService.validateMap(
-                this.tilesGrid,
-                this.mapName,
-                this.mapDescription,
-                this.gameCreationService.isNewGame,
-                this.oldMapName,
-            );
+            const validationInfo: ValidatingMapInfo = {
+                tiles: this.tilesGrid,
+                objects: this.objectsArray,
+                title: this.mapName,
+                description: this.mapDescription,
+                oldMapName: this.oldMapName,
+                isNewMap: this.gameCreationService.isNewGame,
+            };
+            this.mapValidatorService.validateMap(validationInfo);
         }
         this.sendInfoToMapCreationPage();
     }
@@ -397,7 +400,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         // Player has movement point left, no action left.
         // Player is blocked by closed door or players.
-        if (!this.navigationService.haveActions(this.activePlayer) && reachableTileCount === 0) {
+        if (!this.navigationService.haveActions() && reachableTileCount === 0) {
             if (this.navigationService.isOnWall(this.activePlayer)) {
                 const path = this.navigationService.movePlayerFromWall(this.activePlayer);
                 this.displayPortraitOnSpawnPoints();
@@ -408,7 +411,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         // Player has no movement point left. Player has action point left but
         // no valid target on adjacent tiles.
-        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions(this.activePlayer)) {
+        else if (this.activePlayer.attributes.movementPointsLeft === 0 && !this.navigationService.haveActions()) {
             if (this.navigationService.isOnWall(this.activePlayer)) {
                 this.navigationService.movePlayerFromWall(this.activePlayer);
             }

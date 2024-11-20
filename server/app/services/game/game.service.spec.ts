@@ -524,13 +524,13 @@ describe('GameService', () => {
     });
 
     describe('checkFell', () => {
-        it('should return true if random value is greater than FELLING_PROBABILITY', () => {
+        it('should return true if random value is greater than FALLING_PROBABILITY', () => {
             const value = 0.4;
             jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });
-        it('should return false if random value is less than or equal to FELLING_PROBABILITY', () => {
+        it('should return false if random value is less than or equal to FALLING_PROBABILITY', () => {
             jest.spyOn(Math, 'random').mockReturnValue(0);
             const result = service['checkFell']();
             expect(result).toBe(false);

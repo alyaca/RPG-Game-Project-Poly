@@ -4,6 +4,7 @@ import { PointWithDistance } from '@app/interfaces/map-position';
 import { mockGameNavigation as mockGame, mockGameNavigation, mockNeighborGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Position } from '@common/player';
 import { NavigationService } from './navigation.service';
 /* eslint max-lines: ["off"] */
@@ -11,9 +12,13 @@ import { NavigationService } from './navigation.service';
 
 describe('NavigationServiceService', () => {
     let service: NavigationService;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['send', 'emit']);
+        TestBed.configureTestingModule({
+            providers: [{ provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy }],
+        });
         service = TestBed.inject(NavigationService);
         service.initialize(mockGame, [player], mockGame.tiles);
     });
@@ -189,17 +194,17 @@ describe('NavigationServiceService', () => {
         const checkDoorSpy = spyOn(service, 'checkDoor');
         checkAttackSpy.and.returnValue(playerNavigation);
         checkDoorSpy.and.returnValue(undefined);
-        expect(service.haveActions(playerNavigation)).toBeTrue();
+        expect(service.haveActions()).toBeTrue();
 
         checkAttackSpy.and.returnValue(undefined);
         checkDoorSpy.and.returnValue({ x: 1, y: 0 });
-        expect(service.haveActions(playerNavigation)).toBeTrue();
+        expect(service.haveActions()).toBeTrue();
     });
 
     it('haveActions should return false if checkAttack and checkDoor return undefined', () => {
         spyOn(service, 'checkAttack').and.returnValue(undefined);
         spyOn(service, 'checkDoor').and.returnValue(undefined);
-        expect(service.haveActions(playerNavigation)).toBeFalse();
+        expect(service.haveActions()).toBeFalse();
     });
 
     it('checkDOor should return the neighbors', () => {
@@ -214,11 +219,11 @@ describe('NavigationServiceService', () => {
     });
 
     it('should return the correct tile cost', () => {
-        expect(service.getTileCost(TileCost.Ground)).toEqual(TileCost.Ground);
-        expect(service.getTileCost(TileType.Water)).toEqual(TileCost.Water);
-        expect(service.getTileCost(TileType.Ice)).toEqual(TileCost.Ice);
-        expect(service.getTileCost(TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
-        expect(service.getTileCost(TileType.Wall)).toEqual(Infinity);
+        expect(service.getTileCost(mockPlayers[0], TileCost.Ground)).toEqual(TileCost.Ground);
+        expect(service.getTileCost(mockPlayers[0], TileType.Water)).toEqual(TileCost.Water);
+        expect(service.getTileCost(mockPlayers[0], TileType.Ice)).toEqual(TileCost.Ice);
+        expect(service.getTileCost(mockPlayers[0], TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
+        expect(service.getTileCost(mockPlayers[0], TileType.Wall)).toEqual(Infinity);
     });
 
     it('should return true if there is neighbor', () => {

@@ -1,4 +1,4 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
+import { FALLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Player, Position, Status } from '@common/player';
@@ -175,7 +175,7 @@ export class GameService {
 
     private checkFell(): boolean {
         const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
+        return randomValue > FALLING_PROBABILITY;
     }
 
     private freeUpAvatar(room: Room, socket: Socket) {

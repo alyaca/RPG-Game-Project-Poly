@@ -73,13 +73,17 @@ export class GameService {
     }
 
     onAdminQuit(message: string) {
-        this.openDialog({ title: DialogTitle.GameCanceled, messages: [message], confirm: false, options: [DialogOptions.Close], itemSwap: null }).subscribe(
-            (result) => {
-                if (result === DialogResult.Close) {
-                    this.router.navigate(['/home']);
-                }
-            },
-        );
+        this.openDialog({
+            title: DialogTitle.GameCanceled,
+            messages: [message],
+            confirm: false,
+            options: [DialogOptions.Close],
+            itemSwap: null,
+        }).subscribe((result) => {
+            if (result === DialogResult.Close) {
+                this.router.navigate(['/home']);
+            }
+        });
     }
 
     onRoomDeleted() {

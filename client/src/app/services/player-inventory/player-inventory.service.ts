@@ -1,39 +1,55 @@
 import { Injectable } from '@angular/core';
 import { ObjectType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { GameObject } from '@common/game-object';
 import { Player } from '@common/player';
-import { SocketCommunicationService } from '../sockets/socket-communication/socket-communication.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PlayerInventoryService {
-    itemToPlace : number;
+    itemToPlace: number;
     randomItemId: number;
     constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     determineRandomItem(allObjects: number[][]): number {
-        let realItem;
-        let itemsNotAvailable: number[] = [];
-        let itemsAvailable: number[] = [];
-        for (let i = 0; i < allObjects.length; i++) {
-            for (let j = 0; j < allObjects[i].length; j++) {
-                if (allObjects[i][j] !== 0) {
-                    itemsNotAvailable.push(allObjects[i][j]);
+        const itemsNotAvailable: number[] = [];
+        const itemsAvailable: number[] = [];
+        // for (let i = 0; i < allObjects.length; i++) {
+        //     for (let j = 0; j < allObjects[i].length; j++) {
+        //         if (allObjects[i][j] !== 0) {
+        //             itemsNotAvailable.push(allObjects[i][j]);
+        //         }
+        //     }
+        // }
+
+        for (const objectRows of allObjects) {
+            for (const objects of objectRows) {
+                if (objects !== 0) {
+                    itemsNotAvailable.push(objects);
                 }
             }
         }
 
-        for (let o = 0; o < gameObjects.length; o++) {
-            if (!itemsNotAvailable.find((object) => object === gameObjects[o].id)) {
-                if (gameObjects[o].id < ObjectType.Random) {
-                    itemsAvailable.push(gameObjects[o].id);
+        // for (let o = 0; o < gameObjects.length; o++) {
+        //     if (!itemsNotAvailable.find((object) => object === gameObjects[o].id)) {
+        //         if (gameObjects[o].id < ObjectType.Random) {
+        //             itemsAvailable.push(gameObjects[o].id);
+        //         }
+        //     }
+        // }
+
+        for (const objects of gameObjects) {
+            if (!itemsNotAvailable.find((object) => object === objects.id)) {
+                if (objects.id < ObjectType.Random) {
+                    itemsAvailable.push(objects.id);
                 }
             }
         }
+
         const itemToUse = Math.floor(Math.random() * itemsAvailable.length) + 1;
-        realItem = itemsAvailable[itemToUse - 1];
+        const realItem = itemsAvailable[itemToUse - 1];
         return realItem;
     }
 
@@ -50,11 +66,10 @@ export class PlayerInventoryService {
             player.inventory.push(fullItem);
         }
         switch (fullItem?.id) {
-            // will probably in navigation
-            // case ObjectType.Trident:
-            //     return player;
-
-            // In the combat logic service for the rest
+            // will probably in navigation or end of turn checks
+            case ObjectType.Trident:
+                break;
+            // Something left in combat
             case ObjectType.Armor:
                 player.attributes.attack += 2;
                 break;
@@ -69,13 +84,12 @@ export class PlayerInventoryService {
                 player.attributes.totalHp -= 2;
                 player.attributes.currentHp -= 2;
                 break;
+            // Already done and working in navigation-service
+            case ObjectType.Kunee:
+                break;
 
             // In combat logic
             // case ObjectType.Xiphos:
-            //     return player;
-
-            // In navigation
-            // case ObjectType.Kunee:
             //     return player;
             default:
                 break;
@@ -83,11 +97,10 @@ export class PlayerInventoryService {
         this.socketCommunicationService.send('inventoryChange', player);
     }
 
-    getItemToPlace()
-    {
+    getItemToPlace() {
         return this.itemToPlace;
     }
-    
+
     // doesn't add the correct item at times
     updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: GameObject) {
         this.itemToPlace = itemDropped.id;

@@ -11,6 +11,7 @@ import {
     TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
+import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { Game } from '@common/game';
@@ -59,28 +60,20 @@ describe('MapValidatorService', () => {
     });
 
     it('should not add an error message if the map is valid', () => {
-        const mockMap = [
-            [TileType.Wall, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-        ];
+        mockValidationInfo.isNewMap = false;
         spyOn<any>(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
-        service.validateMap(mockMap, 'Valid Title', 'Valid Description', false, 'Valid Title');
+        service.validateMap(mockValidationInfo);
         expect(service['errorMessages'].length).toBe(0);
     });
 
     it('should not add an error message if the map is valid', () => {
-        const mockMap = [
-            [TileType.Wall, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-        ];
+        mockValidationInfo.isNewMap = true;
         spyOn<any>(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
-        service.validateMap(mockMap, 'Valid Title', 'Valid Description', true, 'Valid Title');
+        service.validateMap(mockValidationInfo);
         expect(service['errorMessages'].length).toBe(0);
     });
 

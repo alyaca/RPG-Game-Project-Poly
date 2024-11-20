@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ObjectType, TileCost, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
-import { PlayerInventoryService } from '../player-inventory/player-inventory.service';
-import { SocketCommunicationService } from '../sockets/socket-communication/socket-communication.service';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -25,10 +25,6 @@ const godNameToObjectType = new Map<string, ObjectType>([
     providedIn: 'root',
 })
 export class NavigationService {
-    constructor(
-        private playerInventory: PlayerInventoryService,
-        private socketCommunicationService: SocketCommunicationService,
-    ) {}
     itemToPlace: number;
     path: Position[];
     players: Player[];
@@ -41,6 +37,11 @@ export class NavigationService {
     private distances: number[][];
     private previous: Position[][];
     private reachableTiles: Position[];
+
+    constructor(
+        private playerInventory: PlayerInventoryService,
+        private socketCommunicationService: SocketCommunicationService,
+    ) {}
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
         this.objects = JSON.parse(JSON.stringify(objects));
@@ -58,8 +59,8 @@ export class NavigationService {
             if (activePlayer.inventory.length === 2) {
                 const objects = this.objects;
                 this.socketCommunicationService.send('fullInventory', { activePlayer, item, objects });
-                // wait until this.itemToPlace is defined;
-                
+                // wait until this.itemToPlace is defined
+
                 this.itemToPlace = this.playerInventory.getItemToPlace();
             } else {
                 this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
@@ -93,7 +94,7 @@ export class NavigationService {
         ) {
             currentX += loopCounter * directions[directionsIndex].dx;
             currentY += loopCounter * directions[directionsIndex].dy;
-            this.positions[currentX][currentY];
+            // this.positions[currentX][currentY];
             directionsIndex = (directionsIndex + 1) % directions.length;
             loopCounter += 1;
         }
@@ -162,7 +163,6 @@ export class NavigationService {
 
     findFastestPath(player: Player, destination: Position, game: Game): Position[] {
         this.activePlayer = player;
-        
         this.initializeDistances(player, game);
 
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
@@ -233,7 +233,7 @@ export class NavigationService {
         return this.players.find((player) => player.isActive) || this.players[0];
     }
 
-    haveActions(activePlayer: Player): boolean {
+    haveActions(): boolean {
         if (this.checkAttack() || this.checkDoor()) {
             return true;
         }
@@ -302,7 +302,6 @@ export class NavigationService {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            //if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(this.activePlayer, game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
