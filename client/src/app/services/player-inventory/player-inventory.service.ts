@@ -38,7 +38,67 @@ export class PlayerInventoryService {
         return realItem;
     }
 
-    // Only the items that change stats directly are here
+    // might be useless, idk yet
+    getItemToPlace() {
+        return this.itemToPlace;
+    }
+
+    addStatsFromItem(playerToBuff: Player, itemId: number) {
+        switch (itemId) {
+            case ObjectType.Armor:
+                playerToBuff.attributes.attack += 2;
+                break;
+            case ObjectType.Sandal:
+                playerToBuff.attributes.speed *= 2;
+                playerToBuff.attributes.currentHp -= 2;
+                playerToBuff.attributes.totalHp -= 2;
+                break;
+            case ObjectType.Lightning:
+                playerToBuff.attributes.attack *= 2;
+                playerToBuff.attributes.defense -= 2;
+                playerToBuff.attributes.currentHp -= 2;
+                playerToBuff.attributes.totalHp -= 2;
+                break;
+            default:
+                break;
+        }
+        return playerToBuff;
+    }
+
+    removeItemsEffects(player: Player, item1: number | undefined, item2: number | undefined) {
+        const inventory = [item1, item2];
+        for (const items of inventory) {
+            if (items) {
+                switch (items) {
+                    case ObjectType.Armor:
+                        player.attributes.attack -= 2;
+                        break;
+                    case ObjectType.Sandal:
+                        player.attributes.speed /= 2;
+                        player.attributes.totalHp += 2;
+                        player.attributes.currentHp += 2;
+                        break;
+                    case ObjectType.Lightning:
+                        player.attributes.attack /= 2;
+                        player.attributes.defense += 2;
+                        player.attributes.totalHp += 2;
+                        player.attributes.currentHp += 2;
+                        break;
+                    case ObjectType.Trident:
+                        player.attributes.actionPoints = 1;
+                        player.attributes.maxActionPoints = 1;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        if (item1 && item2) {
+            player.inventory = [];
+        }
+        return player;
+    }
+
     updatePlayerWithItem(player: Player, item: number, allObjects: number[][]) {
         let itemToUse: number;
         if (item === ObjectType.Random) {
@@ -49,81 +109,17 @@ export class PlayerInventoryService {
         const fullItem = gameObjects.find((object) => object.id === itemToUse);
         if (fullItem) {
             player.inventory.push(fullItem);
+            player = this.addStatsFromItem(player, fullItem?.id);
         }
-        switch (fullItem?.id) {
-            case ObjectType.Trident:
-                break;
-            // Something left in combat
-            case ObjectType.Armor:
-                player.attributes.attack += 2;
-                break;
-            case ObjectType.Sandal:
-                player.attributes.speed *= 2;
-                player.attributes.totalHp -= 2;
-                player.attributes.currentHp -= 2;
-                break;
-            case ObjectType.Lightning:
-                player.attributes.attack *= 2;
-                player.attributes.defense -= 2;
-                player.attributes.totalHp -= 2;
-                player.attributes.currentHp -= 2;
-                break;
-            case ObjectType.Kunee:
-                break;
 
-            // In combat logic
-            // case ObjectType.Xiphos:
-            //     return player;
-            default:
-                break;
-        }
         this.socketCommunicationService.send('inventoryChange', player);
-    }
-
-    getItemToPlace() {
-        return this.itemToPlace;
     }
 
     // doesn't add the correct item at times
     updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: GameObject) {
         this.itemToPlace = itemDropped.id;
-        switch (itemDropped.id) {
-            case ObjectType.Armor:
-                playerToModify.attributes.attack -= 2;
-                break;
-            case ObjectType.Sandal:
-                playerToModify.attributes.speed /= 2;
-                playerToModify.attributes.totalHp += 2;
-                playerToModify.attributes.currentHp += 2;
-                break;
-            case ObjectType.Lightning:
-                playerToModify.attributes.attack /= 2;
-                playerToModify.attributes.defense += 2;
-                playerToModify.attributes.totalHp += 2;
-                playerToModify.attributes.currentHp += 2;
-                break;
-            default:
-                break;
-        }
-
-        switch (newItem) {
-            case ObjectType.Armor:
-                playerToModify.attributes.attack += 2;
-                break;
-            case ObjectType.Sandal:
-                playerToModify.attributes.speed *= 2;
-                playerToModify.attributes.totalHp -= 2;
-                playerToModify.attributes.currentHp -= 2;
-                break;
-            case ObjectType.Lightning:
-                playerToModify.attributes.attack *= 2;
-                playerToModify.attributes.defense -= 2;
-                playerToModify.attributes.totalHp -= 2;
-                playerToModify.attributes.currentHp -= 2;
-                break;
-            default:
-                break;
-        }
+        playerToModify = this.removeItemsEffects(playerToModify, itemDropped.id, undefined);
+        playerToModify = this.addStatsFromItem(playerToModify, newItem);
         this.socketCommunicationService.send('inventoryChange', playerToModify);
     }
 }

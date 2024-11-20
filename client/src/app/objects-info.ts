@@ -20,14 +20,14 @@ export const gameObjects: GameObject[] = [
         id: ObjectType.Sandal,
         name: 'Sandales ailées',
         image: './assets/images/objects/winged-sandals.jpg',
-        description: 'x2 rapidité, réduit les points de vie maximaux de 2.',
+        description: 'x2 rapidité et réduit les points de vie maximaux de 2.',
         count: ITEM_COUNT,
     },
     {
         id: ObjectType.Lightning,
         name: 'Foudre de Zeus',
         image: './assets/images/objects/zeus-lightning.jpg',
-        description: 'x2 attaque, réduit la défense de 2 et la vie de 2.',
+        description: 'x2 attaque et réduit la défense de 2 et la vie de 2.',
         count: ITEM_COUNT,
     },
     {
