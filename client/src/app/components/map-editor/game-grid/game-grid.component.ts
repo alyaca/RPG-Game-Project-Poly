@@ -132,7 +132,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('respawnPlayer', (data: { oldPosition: Position; playerToReplace: Player }) => {
             const { oldPosition, playerToReplace } = data;
-            //this.objectsArray[oldPosition.x][oldPosition.y] = 0;
             if (this.activePlayer?.id === playerToReplace.id) {
                 this.navigateToTile(playerToReplace.position);
             } else {
@@ -156,7 +155,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (this.activePlayer) {
                 this.activePlayer.attributes.actionPoints = 0;
             }
-            //this.checkEndTurn();
         });
     }
 

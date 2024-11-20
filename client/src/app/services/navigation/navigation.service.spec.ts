@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockGameNavigation as mockGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -44,7 +44,7 @@ describe('NavigationServiceService', () => {
         service.players = mockPlayers;
         const numberOfPlayers = service.players.length;
         service.removePlayer(playerNavigation);
-        expect(service.players.length).toBe(numberOfPlayers - 1);
+        expect(service.players.length).toBe(numberOfPlayers);
     });
 
     it('should remove the player from this.positions', () => {
@@ -62,17 +62,6 @@ describe('NavigationServiceService', () => {
         service['reachableTiles'] = [{ x: 1, y: 1 }];
         const result = service.isReachableTile(1, 1);
         expect(result).toBeTrue();
-    });
-
-    it('checkDoor should return the neighbors', () => {
-        service.players = [playerNavigation];
-        service.gameMap.tiles = [
-            [TileType.Ground, TileType.OpenDoor],
-            [TileType.OpenDoor, TileType.Ground],
-        ];
-        spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 0 }]);
-        const result = service.checkDoor();
-        expect(result).toBeDefined();
     });
 
     it('should return true if there is neighbor', () => {

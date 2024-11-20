@@ -57,10 +57,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     doorAround: boolean = false;
     attackAround: boolean = false;
 
-    public gameService = inject(GameService);
+    private router = inject(Router);
 
     constructor(
-        private router: Router,
+        public gameService: GameService,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         private navigationService: NavigationService,
@@ -99,7 +99,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            // this.activePlayer.attributes.actionPoints = 0;
             this.closeCombatModal();
         });
 
@@ -111,7 +110,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.doorAround = doorAround;
         });
 
-        this.socketCommunicationService.on('doorClicked', (tiles: number[][]) => {
+        this.socketCommunicationService.on('doorClicked', () => {
             this.activePlayer.attributes.actionPoints = 0;
         });
 
@@ -137,7 +136,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        //GGG this.socketCommunicationService.on('isActive', (playerId: string) => {
         this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
             const playerToAssign = this.navigationService.players.find((player) => player.id === activePlayer.id);

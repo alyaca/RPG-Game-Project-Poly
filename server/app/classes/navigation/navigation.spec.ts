@@ -313,9 +313,6 @@ describe('Navigation', () => {
 
             expect(navigation['previous'][1][0]).toEqual({ x: 1, y: 1 });
             expect(navigation['previous'][1][2]).toEqual({ x: 1, y: 1 });
-
-            // expect(priorityQueue).toContain({ x: 1, y: 0, distance: TileCost.Ground });
-            // expect(priorityQueue).toContain({ x: 1, y: 2, distance: TileCost.Ground });
         });
     });
 
@@ -337,26 +334,23 @@ describe('Navigation', () => {
         ]);
     });
 
-    // Tests from navigation client
+    it('should return the correct path', () => {
+        navigation['previous'] = [
+            [null, null],
+            [
+                { x: 0, y: 0 },
+                { x: 1, y: 0 },
+            ],
+        ];
+        const result = navigation['reconstructPath']({ x: 1, y: 0 });
 
-    // it('should return the correct path', () => {
-    //     navigation['previous'] = [
-    //         [
-    //             { x: 0, y: 0 },
-    //             { x: 1, y: 0 },
-    //         ],
-    //         [
-    //             { x: 0, y: 0 },
-    //             { x: 1, y: 0 },
-    //         ],
-    //     ];
-    //     const result = navigation['reconstructPath']({ x: 1, y: 0 });
+        expect(result).toEqual([
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+        ]);
+    });
 
-    //     expect(result).toEqual([
-    //         { x: 0, y: 0 },
-    //         { x: 1, y: 0 },
-    //     ]);
-    // });
+    // TODO : Tests from navigation client to fix
 
     // it('should call everything', () => {
     //     navigation['previous'] = [

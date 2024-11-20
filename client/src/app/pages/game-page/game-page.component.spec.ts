@@ -183,7 +183,7 @@ describe('GamePageComponent', () => {
         spyOn(component, 'timerEvents');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'isActive') {
-                callback(mockPlayers[0].id as T);
+                callback(mockPlayers[0] as T);
             }
         });
         component.ngAfterViewInit();

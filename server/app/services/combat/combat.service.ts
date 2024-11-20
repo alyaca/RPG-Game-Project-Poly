@@ -182,11 +182,9 @@ export class CombatService {
         if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
             const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
-            //const newPosition = playerToReplace.spawnPosition;
             server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         } else {
             const oldPosition = playerToReplace.position;
-            //const newPosition = this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
             server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         }
     }
