@@ -160,6 +160,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.processNavigation(room, this.server, path, client);
     }
 
+    @SubscribeMessage(SocketEvents.TeleportPlayer)
+    handlePlayerTeleport(client: Socket, position: Position) {        
+        const room = this.roomService.getRoom(client);
+        this.server.to(room.roomId).emit('teleportPlayer', { position, playerId: client.id });
+    }
+
     @SubscribeMessage(SocketEvents.DoorClicked)
     handleDoorClicked(client: Socket, tiles: number[][]) {
         const room = this.roomService.getRoom(client);

@@ -138,6 +138,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.respawnPlayer(newPosition, playerToReplace);
         });
 
+        this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string }) => {
+            const { position, playerId } = data;
+            
+            const playerToTeleport = this.navigationService.players.find((player) => player.id === playerId);
+            if (playerToTeleport) {
+                this.respawnPlayer(position, playerToTeleport);
+            }
+        });
+
         this.socketCommunicationService.on('endMovement', () => {
             this.isMoving = false;
             this.checkEndTurn();
@@ -385,12 +394,24 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return clickedPlayer;
     }
 
+    isTileValid(row: number, col: number): boolean {
+        if (this.tilesGrid[row][col] === TileType.Wall ) return false;
+        if (this.tilesGrid[row][col] === TileType.ClosedDoor) return false;
+        if (this.objectsArray[row][col] !== NO_OBJECT) return false;
+        return true;
+    }
+
     async sendNavigation(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
                 this.isMoving = true;
                 if(this.navigationService.isDebugMode){
-                    this.respawnPlayer({ x: row, y: col }, this.currentPlayer);
+                    if( this.isTileValid(row, col)){
+                        const position = { x: row, y: col };
+                        console.log('Sending teleportPlayer:', position);
+                        this.socketCommunicationService.send('teleportPlayer', position);
+                        this.isMoving = false; 
+                    }
                     this.isMoving = false;
                 }
                 else {
