@@ -119,7 +119,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'd' || event.key === 'D') {
+            if (event.key === 'd') {
                 if (this.isPlayerAdmin()) {
                     this.navigationService.isDebugMode = ! this.navigationService.isDebugMode;
                     this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
@@ -165,6 +165,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
     }
+
+    isDebugMode(): boolean {
+        return this.navigationService.isDebugMode;
+    }
+
 
     onPlayerFell() {
         this.gameService
