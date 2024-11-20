@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { RouterLink } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
 import { Game } from '@common/game';
@@ -17,6 +18,7 @@ import { Game } from '@common/game';
 })
 export class AdministrationPageComponent {
     @ViewChild('fileInput') fileInput!: ElementRef;
+    @ViewChild(GameListComponent) gameListComponent!: GameListComponent;
 
     constructor(
         private dialog: MatDialog,
@@ -39,13 +41,11 @@ export class AdministrationPageComponent {
         if (input.files && input.files.length > 0) {
             const files: FileList = input.files; // Récupère la liste des fichiers
             this.saveGameService.importGame(files[0]).subscribe({
-                next: (newGame: Game | string[]) => {
-                    if (Array.isArray(newGame)) {
-                        console.error('Erreurs de validation :', newGame);
-                        // Affichez les erreurs de validation dans l'interface utilisateur
+                next: (response: Game | string[]) => {
+                    if (Array.isArray(response)) {
+                        this.errorWhileImportingGame(response as string[]);
                     } else {
-                        console.log('Jeu importé et sauvegardé:', newGame);
-                        // Mettez à jour l'interface utilisateur ou affichez un message de succès
+                        this.gameSuccessfullyImported();
                     }
                 },
                 error: (err: Error) => {
@@ -54,5 +54,32 @@ export class AdministrationPageComponent {
                 },
             });
         }
+        input.value = '';
+    }
+
+    errorWhileImportingGame(errorMessages: string[]): void {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: "Erreur lors de l'importation",
+                messages: errorMessages,
+                options: ['OK'],
+            },
+        });
+        dialogRef.afterClosed();
+    }
+
+    gameSuccessfullyImported(): void {
+        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Importation réussie',
+                messages: ['Le jeu a été importé avec succès!'],
+                options: ['OK'],
+            },
+        });
+        dialogRef.afterClosed().subscribe(() => {
+            this.gameListComponent.refreshGameList();
+        });
     }
 }
