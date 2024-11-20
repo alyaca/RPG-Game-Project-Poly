@@ -167,7 +167,7 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
-        if (client) return client.id === this.attacker.id || client.id === this.defender.id;
+        if (client) return client.id === this.attacker?.id || client.id === this.defender?.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
