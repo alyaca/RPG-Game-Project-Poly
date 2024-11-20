@@ -36,6 +36,7 @@ describe('CombatService', () => {
         mockGameService = {
             onTurnEnded: jest.fn(),
             stopGameTimers: jest.fn(),
+            getActivePlayer: jest.fn(),
         } as unknown as jest.Mocked<GameService>;
 
         mockServer = {
@@ -43,6 +44,7 @@ describe('CombatService', () => {
             emit: jest.fn(),
         } as unknown as jest.Mocked<Server>;
 
+        mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
         mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
         attacker = { id: 'attackerId', attributes: { currentHp: 10, totalHp: 10, evasion: 2 } } as Player;
         defender = { id: 'defenderId', attributes: { currentHp: 10, totalHp: 10 } } as Player;
@@ -166,6 +168,7 @@ describe('CombatService', () => {
             const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
             mockRoomService.getRoom.mockReturnValue(room);
+            mockGameService.getActivePlayer.mockReturnValue(player2);
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
             service.replacePlayerOnSpawnPoint = jest.fn();
@@ -182,6 +185,7 @@ describe('CombatService', () => {
             const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
             mockRoomService.getRoom.mockReturnValue(room);
+            mockGameService.getActivePlayer.mockReturnValue(player2);
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
             service.replacePlayerOnSpawnPoint = jest.fn();

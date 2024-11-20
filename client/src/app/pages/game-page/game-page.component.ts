@@ -52,7 +52,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
-    combatTurnTime: number;
 
     doorAround: boolean = false;
     attackAround: boolean = false;
@@ -60,9 +59,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     private router = inject(Router);
 
     constructor(
-        public gameService: GameService,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
+        public gameService: GameService,
         private navigationService: NavigationService,
         public combatService: CombatService,
     ) {
@@ -93,13 +92,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
-            this.isInCombat = true;
+            this.combatService.isInCombat = true;
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            this.closeCombatModal();
+            this.combatService.isInCombat = false;
+            this.activePlayer.attributes.actionPoints = 0;
         });
 
         this.socketCommunicationService.on('playerFell', () => {
@@ -216,10 +216,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleActionCombatSelected() {
         this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
         this.gameService.isActionDoorSelected = false;
-    }
-
-    closeCombatModal() {
-        this.isInCombat = false;
     }
 
     handleExit() {

@@ -14,6 +14,7 @@ import {
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { Player } from '@common/player';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
 
@@ -180,6 +181,11 @@ describe('GameService', () => {
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
+
+    it('should return true if player has action points', () => {
+        const player = { attributes: { actionPoints: 1 } } as unknown as Player;
+        expect(service.hasActionPoints(player)).toBeTrue();
     });
 
     it('should return false if player has no action points', () => {

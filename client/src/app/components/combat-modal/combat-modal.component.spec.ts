@@ -77,12 +77,10 @@ describe('CombatModalComponent', () => {
 
     it('should call resetPlayerHp, set isInCombat and emit closeModalEvent when closeModal is called', () => {
         combatServiceSpy.isInCombat = true;
-        spyOn(component.closeModalEvent, 'emit');
         component.closeModal();
 
         expect(combatServiceSpy.resetPlayerHp).toHaveBeenCalledWith(combatServiceSpy.activePlayer, combatServiceSpy.opponent);
         expect(component.isInCombat).toBe(true);
-        expect(component.closeModalEvent.emit).toHaveBeenCalled();
     });
 
     it('should call socketCommunicationService.send with "attackPlayer" when triggerAttack is called', () => {

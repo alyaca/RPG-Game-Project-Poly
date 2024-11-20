@@ -32,7 +32,6 @@ export class Navigation {
         }
         const path = this.reconstructPath(destination);
         path.shift();
-        // return this.reconstructPath(destination);
         return path;
     }
 
@@ -191,7 +190,6 @@ export class Navigation {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
-            // if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 

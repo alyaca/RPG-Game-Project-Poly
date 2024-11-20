@@ -61,7 +61,11 @@
         <div class="evasion-container">
             <div>
                 <p class="action-text">Évader</p>
-                <div [class.disabled]="!combatService.isCurrentTurn()" class="button-outer end-outer" (click)="triggerEvade()">
+                <div
+                    [class.disabled]="!combatService.isCurrentTurn() || !combatService.evasionLeft()"
+                    class="button-outer end-outer"
+                    (click)="triggerEvade()"
+                >
                     <div class="evade-button"></div>
                 </div>
             </div>

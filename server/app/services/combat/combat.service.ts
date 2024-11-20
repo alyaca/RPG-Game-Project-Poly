@@ -123,21 +123,28 @@ export class CombatService {
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        const activePlayer = this.gameService.getActivePlayer(room);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
-            this.continueTurn(client, server);
-            const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
-            server.to(room.roomId).emit('reachableTiles', reachability);
-            return true;
-        } else if (attacker.attributes.currentHp <= 0) {
-            this.replacePlayerOnSpawnPoint(attacker, client, server);
-            this.combatFinish(client, attacker, defender, server);
-            this.continueTurn(client, server);
-            const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
-            server.to(room.roomId).emit('reachableTiles', reachability);
+            if (activePlayer.id !== defender.id) {
+                this.continueTurn(client, server);
+                const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+                server.to(room.roomId).emit('reachableTiles', reachability);
+            } else {
+                this.combatEnded(room);
+                this.gameService.onTurnEnded(client, server);
+            }
             return true;
         }
+        // else if (attacker.attributes.currentHp <= 0) {
+        //     this.replacePlayerOnSpawnPoint(attacker, client, server);
+        //     this.combatFinish(client, attacker, defender, server);
+        //     this.continueTurn(client, server);
+        //     return true;
+        // const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+        // server.to(room.roomId).emit('reachableTiles', reachability);
+        // }
         return false;
     }
 
@@ -203,7 +210,7 @@ export class CombatService {
         }
     }
 
-    getNeighbors(position: Position, game: Game): Position[] {
+    private getNeighbors(position: Position, game: Game): Position[] {
         const directions = [
             { dx: 0, dy: 1 },
             { dx: 0, dy: -1 },
@@ -218,20 +225,6 @@ export class CombatService {
     private isValidTile(x: number, y: number, dimension: number): boolean {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
-    /*
-    isTileOccupiedByPlayerOrObject(position: Position, gameObjects: number[][]) {
-        return gameObjects[position.x][position.y] > 0;
-    }
-    isPlayerAtSpawnPoint(player: Player, gameObjects: number[][]) {
-        const { x, y } = player.spawnPosition;
-        return gameObjects[x][y] === player.avatar?.id;
-    }
-
-
-    private isTerrainTile(tile: TileType) {
-        return tile === TileType.Ground || tile === TileType.Ice || tile === TileType.Water;
-    }
-        */
 
     private defaultCombatWin(room: Room, player: Player, server: Server) {
         this.addVictory(room, player, server);

@@ -18,7 +18,7 @@ export class CombatService {
     opponent: Player;
     attacker: Player;
     defender: Player;
-    combatStatus: string;
+    combatStatus: string = '';
     turnMessage: string;
     activePlayerResult: CombatResult = { total: 0, diceValue: 1 };
     opponentResult: CombatResult = { total: 0, diceValue: 1 };
@@ -39,7 +39,7 @@ export class CombatService {
         this.opponent = isPlayer1Active ? player2 : player1;
         this.attacker = player1;
         this.defender = player2;
-        this.combatStatus = '';
+        this.isInCombat = true;
         this.evasionsActivePlayer = new Array(2).fill(1);
         this.evasionsOpponent = new Array(2).fill(1);
         this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
@@ -114,6 +114,11 @@ export class CombatService {
         this.socketCommunicationService.off('defaultWin');
     }
 
+    evasionLeft() {
+        const evasionsLeft = this.isAttacker(this.activePlayer) ? this.evasionsActivePlayer : this.evasionsOpponent;
+        return evasionsLeft.length > 0;
+    }
+
     onPlayerDisconnected() {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
             disableClose: true,
@@ -139,6 +144,7 @@ export class CombatService {
 
         setTimeout(() => {
             dialogRef.close();
+            this.isInCombat = false;
         }, INFO_DIALOG_TIME);
     }
 

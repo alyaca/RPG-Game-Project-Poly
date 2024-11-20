@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
@@ -19,7 +19,6 @@ import { Subscription } from 'rxjs';
 })
 export class CombatModalComponent implements OnInit, OnDestroy {
     @Input() isInCombat = false;
-    @Output() closeModalEvent = new EventEmitter<void>();
     @ViewChild('dice1') dice1!: DiceComponent;
     @ViewChild('dice2') dice2!: DiceComponent;
     activePlayer: Player;
@@ -64,7 +63,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     closeModal() {
         this.combatService.resetPlayerHp(this.combatService.activePlayer, this.combatService.opponent);
         this.isInCombat = this.combatService.isInCombat;
-        this.closeModalEvent.emit();
     }
 
     triggerAttack() {
