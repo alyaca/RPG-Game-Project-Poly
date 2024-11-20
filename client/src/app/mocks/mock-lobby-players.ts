@@ -1,4 +1,4 @@
-import { defaultAttributes } from '@app/default-attributes';
+import { defaultAttributes, defaultPostGameStats } from '@app/default-attributes';
 import { avatars } from '@common/avatars-info';
 import { Avatar, Player, Status } from '@common/player';
 
@@ -10,7 +10,7 @@ export const mockLobbyPlayers: Player[] = [
         avatar: avatars[0],
         attributes: { ...defaultAttributes },
         status: Status.Admin,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         isActive: true,
         position: { x: 1, y: 2 },
     },
@@ -20,7 +20,7 @@ export const mockLobbyPlayers: Player[] = [
         avatar: avatars[1],
         attributes: { ...defaultAttributes },
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
     },
@@ -30,7 +30,7 @@ export const mockLobbyPlayers: Player[] = [
         avatar: avatars[2],
         attributes: { ...defaultAttributes },
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
     },
@@ -40,7 +40,7 @@ export const mockLobbyPlayers: Player[] = [
         avatar: avatars[3],
         attributes: { ...defaultAttributes },
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
     },
@@ -50,7 +50,7 @@ export const mockLobbyPlayers: Player[] = [
         avatar: avatars[4],
         attributes: { ...defaultAttributes },
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
     },
@@ -60,7 +60,7 @@ export const mockLobbyPlayers: Player[] = [
         avatar: avatars[5],
         attributes: { ...defaultAttributes },
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
     },

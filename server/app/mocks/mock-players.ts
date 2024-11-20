@@ -1,6 +1,6 @@
-import { Player, PlayerStats, Status } from '@common/player';
+import { Player, Attributes, Status, PostGameStats } from '@common/player';
 
-const mockPlayerStats: PlayerStats = {
+export const mockAttributes: Attributes = {
     totalHp: 4,
     currentHp: 4,
     speed: 4,
@@ -13,26 +13,37 @@ const mockPlayerStats: PlayerStats = {
     defDiceMax: 4,
 };
 
+export const defaultPostGameStats: PostGameStats = {
+    combats: 0,
+    victories: 0,
+    evasions: 0,
+    defeats: 0,
+    dmgDealt: 0,
+    dmgTaken: 0,
+    itemsObtained: 0,
+    tilesVisited: 0
+}
+
 export const mockPlayers: Player[] = [
     {
         id: 'admin1234',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: true,
         name: 'name',
         status: Status.Player,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
     },
     {
         id: 'id',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: false,
         name: 'name',
         status: Status.Player,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
     },

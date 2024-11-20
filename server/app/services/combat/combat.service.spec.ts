@@ -106,8 +106,8 @@ describe('CombatService', () => {
 
     describe('checkIfPlayerIsDead', () => {
         it('should return true and reset HP if a player dies', () => {
-            const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, victories: 0 } as Player;
-            const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
+            const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, postGameStats: { victories: 0 } } as Player;
+            const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, postGameStats: { victories: 0 } } as Player;
             const mockRoom = { roomId: 'room1', listPlayers: [player1, player2] } as Room;
 
             mockRoomService.getRoom.mockReturnValue(mockRoom);
@@ -192,8 +192,8 @@ describe('CombatService', () => {
 
     describe('checkEndGame', () => {
         it('should not emit endGame if no player has reached the victory threshold', () => {
-            const player1 = { id: '1', victories: 2 - 1 } as Player;
-            const player2 = { id: '2', victories: 2 - 1 } as Player;
+            const player1 = { id: '1', postGameStats: { victories: 2 - 1 } } as Player;
+            const player2 = { id: '2', postGameStats: { victories: 2 - 1 } } as Player;
             const room = { roomId: 'room1', listPlayers: [player1, player2] } as Room;
 
             service.emitToCombatPlayers = jest.fn();

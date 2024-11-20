@@ -15,17 +15,17 @@ export enum Status {
 
 export interface Player {
     id: string;
-    attributes: PlayerStats;
+    attributes: Attributes;
     avatar?: Avatar;
     isActive: boolean;
     name: string;
     status: Status;
-    victories: number;
+    postGameStats: PostGameStats;
     inventory?: GameObject[];
     position: { x: number; y: number };
 }
 
-export interface PlayerStats {
+export interface Attributes {
     totalHp: number;
     currentHp: number;
     speed: number;
@@ -36,6 +36,17 @@ export interface PlayerStats {
     atkDiceMax: number;
     defense: number;
     defDiceMax: number;
+}
+
+export interface PostGameStats {
+    combats: number,
+    victories: number;
+    evasions: number;
+    defeats: number;
+    dmgDealt: number;
+    dmgTaken: number;
+    itemsObtained: number;
+    tilesVisited: number;
 }
 
 export interface Position {

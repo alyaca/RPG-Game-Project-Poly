@@ -1,4 +1,5 @@
 import { ObjectType } from '@app/constants';
+import { defaultPostGameStats } from '@app/default-attributes';
 import { PlayerObjects, Status } from '@app/interfaces/player-object';
 import { Player } from '@common/player';
 
@@ -57,7 +58,7 @@ export const playerNavigation: Player = {
     isActive: true,
     name: 'Hestia',
     status: Status.Player,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
     inventory: [],
     position: { x: 0, y: 0 },
 };

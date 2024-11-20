@@ -96,7 +96,7 @@ export class CombatService {
         if (player1.attributes.currentHp <= 0) {
             const room = this.roomService.getRoom(client);
             const playerWinner = room.listPlayers.find((p) => p.id === player2.id);
-            playerWinner.victories++;
+            playerWinner.postGameStats.victories++;
             this.checkEndGame(room.listPlayers, room, server);
             this.emitToCombatPlayers(server, 'playerDead', player1);
             this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
@@ -117,7 +117,7 @@ export class CombatService {
 
     checkEndGame(listPlayers: Player[], room: Room, server: Server) {
         listPlayers.forEach((player) => {
-            if (player.victories >= VICTORIES) {
+            if (player.postGameStats.victories >= VICTORIES) {
                 this.emitToCombatPlayers(server, 'endGame', player);
                 this.gameService.stopGameTimers(room);
             }

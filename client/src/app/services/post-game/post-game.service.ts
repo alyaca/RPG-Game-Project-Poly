@@ -1,25 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Status } from '@common/player';
-
-export interface LigmaPlayer {
-  id: string,
-  name: string,
-  avatar: string,
-  combats: number,
-  victories: number,
-  evasions: number,
-  defeats: number,
-  dmgDealt: number,
-  dmgTaken: number,
-  itemsObtained: number,
-  tilesVisited: number,
-  isActive: boolean,
-  status: Status
-}
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { Player, PostGameStats } from '@common/player';
 
 export interface Attribute {
   id: number;
-  key: keyof LigmaPlayer;
+  key: keyof Player["postGameStats"];
   displayTxt: string;
   explanations: string;
 }
@@ -48,11 +33,16 @@ export class PostGameService {
     itemsObtained: 'unsorted',
     tilesVisited: 'unsorted'
   };
+
+  players: Player[] = mockLobbyPlayers;
   // temporary
-  players: LigmaPlayer[] = [{
-    id: '0',
-    name: 'Joe Biden',
-    avatar: './assets/images/characters/Hermes.webp',
+  initTempStats(){
+    for(let i = 0; i < this.players.length; i++){
+      this.players[i].postGameStats = this.tempPlayerStats[i];
+    }
+  }
+  // temporary
+  tempPlayerStats: PostGameStats[] = [{
     combats: 5,
     victories: 3,
     evasions: 1,
@@ -60,13 +50,8 @@ export class PostGameService {
     dmgDealt: 20,
     dmgTaken: 12,
     itemsObtained: 2,
-    tilesVisited: 0.78,
-    isActive: false,
-    status: Status.Player
+    tilesVisited: 0.78
   },{
-    id: '1',
-    name: 'Donald Trump',
-    avatar: './assets/images/characters/Athena.webp',
     combats: 5,
     victories: 2,
     evasions: 1,
@@ -74,14 +59,9 @@ export class PostGameService {
     dmgDealt: 15,
     dmgTaken: 17,
     itemsObtained: 3,
-    tilesVisited: 0.82,
-    isActive: true,
-    status: Status.Player
+    tilesVisited: 0.82
   },
   {
-    id: '2',
-    name: 'Barack Obama',
-    avatar: './assets/images/characters/Apollo.webp',
     combats: 4,
     victories: 1,
     evasions: 2,
@@ -90,12 +70,7 @@ export class PostGameService {
     dmgTaken: 11,
     itemsObtained: 2,
     tilesVisited: 0.55,
-    isActive: false,
-    status: Status.Admin
   },{
-    id: '3',
-    name: 'George W. Bush',
-    avatar: './assets/images/characters/Poseidon.webp',
     combats: 3,
     victories: 1,
     evasions: 1,
@@ -104,12 +79,7 @@ export class PostGameService {
     dmgTaken: 15,
     itemsObtained: 1,
     tilesVisited: 0.67,
-    isActive: false,
-    status: Status.Player
   },{
-    id: '4',
-    name: 'Bill Clinton',
-    avatar: './assets/images/characters/Hephaestus.webp',
     combats: 3,
     victories: 0,
     evasions: 1,
@@ -118,12 +88,7 @@ export class PostGameService {
     dmgTaken: 12,
     itemsObtained: 1,
     tilesVisited: 0.52,
-    isActive: false,
-    status: Status.Bot
   },{
-    id: '5',
-    name: 'George H. W. Bush',
-    avatar: './assets/images/characters/Artemis.webp',
     combats: 2,
     victories: 0,
     evasions: 1,
@@ -132,8 +97,6 @@ export class PostGameService {
     dmgTaken: 8,
     itemsObtained: 0,
     tilesVisited: 0.42,
-    isActive: false,
-    status: Status.Disconnected
   }
 ]
 
@@ -184,7 +147,7 @@ attributes: Attribute[] = [
 
   constructor() { }
 
-  resetOtherAttributes(attribute: keyof LigmaPlayer){
+  resetOtherAttributes(attribute: keyof Player["postGameStats"] ){
     Object.keys(this.sortOrder).forEach(key => {
       if (key !== attribute) {
         this.sortOrder[key] = 'unsorted';
@@ -192,7 +155,7 @@ attributes: Attribute[] = [
     });
   }
 
-  toggleSortOrder(attribute: keyof LigmaPlayer){
+  toggleSortOrder(attribute: keyof Player["postGameStats"]){
     if (this.sortOrder[attribute] === 'unsorted' || this.sortOrder[attribute] === 'ascending') {
       this.sortOrder[attribute] = 'descending';
     } else {
@@ -200,12 +163,12 @@ attributes: Attribute[] = [
     }
   }
 
-  performSorting(attribute: keyof LigmaPlayer){
+  performSorting(attribute: keyof Player["postGameStats"]){
     const isAscending = this.sortOrder[attribute] === 'ascending';
 
     this.players.sort((a, b) => {
-      const valA = a[attribute];
-      const valB = b[attribute];
+      const valA = a.postGameStats[attribute];;
+      const valB = b.postGameStats[attribute];;
 
       if (valA > valB) return isAscending ? 1 : -1;
       if (valA < valB) return isAscending ? -1 : 1;
@@ -213,14 +176,14 @@ attributes: Attribute[] = [
     });
   }
 
-  sortPlayers(attribute: keyof LigmaPlayer) {
+  sortPlayers(attribute: keyof Player["postGameStats"]) {
     this.selectedAttribute = attribute;
     this.resetOtherAttributes(attribute);
     this.toggleSortOrder(attribute);
     this.performSorting(attribute);
   }
 
-  updateExplanations(attr: keyof LigmaPlayer | ""){
+  updateExplanations(attr: keyof Player["postGameStats"] | ""){
       for(const attribute of this.attributes){
         if(attribute.key === attr){
           this.explanations = attribute.explanations;

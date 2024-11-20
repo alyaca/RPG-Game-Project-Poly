@@ -17,7 +17,9 @@ import { GlobalStat } from '@app/services/post-game/post-game.service';
 })
 export class PostGamePageComponent {
   public GlobalStat = GlobalStat;
-  constructor(public postGameService: PostGameService){}
+  constructor(public postGameService: PostGameService){
+    this.postGameService.initTempStats(); // Temporary
+  }
 
 
   // case 'combats':

@@ -1,7 +1,7 @@
-import { PlayerStats } from '@common/player';
+import { Attributes, PostGameStats } from '@common/player';
 import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE } from './constants';
 
-export const defaultAttributes: PlayerStats = {
+export const defaultAttributes: Attributes = {
     totalHp: DEFAULT_ATTRIBUTE,
     currentHp: DEFAULT_ATTRIBUTE,
     speed: DEFAULT_ATTRIBUTE,
@@ -13,3 +13,14 @@ export const defaultAttributes: PlayerStats = {
     defense: DEFAULT_ATTRIBUTE,
     defDiceMax: DEFAULT_ATTRIBUTE,
 };
+
+export const defaultPostGameStats: PostGameStats = {
+    combats: 0,
+    victories: 0,
+    evasions: 0,
+    defeats: 0,
+    dmgDealt: 0,
+    dmgTaken: 0,
+    itemsObtained: 0,
+    tilesVisited: 0
+}

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { LigmaPlayer } from '@app/services/post-game/post-game.service';
+// import { LigmaPlayer } from '@app/services/post-game/post-game.service';
 import { CommonModule } from '@angular/common';
-import { Status } from '@common/player';
+import { Player, Status } from '@common/player';
 @Component({
   selector: 'app-player-statistics',
   standalone: true,
@@ -10,11 +10,11 @@ import { Status } from '@common/player';
   styleUrl: './player-statistics.component.scss'
 })
 export class PlayerStatisticsComponent {
-  @Input() player: LigmaPlayer;
+  @Input() player: Player;
   @Input() selectedAttribute: string;
   public Status = Status;
   isWinner() {
-    return this.player.victories === 3;
+    return this.player.postGameStats.victories === 3;
   }
   getStatusClass(): string {
     switch (this.player.status) {
