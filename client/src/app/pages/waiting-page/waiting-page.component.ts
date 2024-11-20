@@ -131,7 +131,7 @@ export class WaitingPageComponent implements OnInit {
                 confirm: true,
             })
             .subscribe((result) => {
-                if (result === DialogResult.Right) {
+                if (result.action === DialogResult.Right) {
                     this.isLocked = true;
                     this.socketCommunicationService.send('startGame');
                 }

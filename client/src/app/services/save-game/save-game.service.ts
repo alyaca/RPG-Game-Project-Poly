@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { Game } from '@common/game';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, concatMap, map, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { GameImportValidatorService } from '../game-import-validator.service';
 
@@ -12,6 +12,7 @@ import { GameImportValidatorService } from '../game-import-validator.service';
 })
 export class SaveGameService {
     apiURL = `${environment.serverUrl}/maps`;
+    gameInfoImported: Info;
 
     constructor(
         private http: HttpClient,
@@ -82,10 +83,11 @@ export class SaveGameService {
             reader.onload = () => {
                 try {
                     const gameData: Game = JSON.parse(reader.result as string);
+                    const gameInfo: Info = this.cleanData(gameData);
+                    this.gameInfoImported = gameInfo;
 
                     this.gameImportValidatorService.validateMap(gameData).then((errorMessages) => {
                         if (errorMessages.length === 0) {
-                            const gameInfo: Info = this.cleanData(gameData);
                             this.saveImportedGame(gameInfo)
                                 .pipe(
                                     tap((createdGame) => {
@@ -130,7 +132,29 @@ export class SaveGameService {
 
     saveImportedGame(informations: Info) {
         const playerNumber = this.getPlayerNumber(informations.height);
-        const mapToStore = this.createMapObject(informations, playerNumber, '');
+        const mapToStore = this.createMapObject(informations, playerNumber, null);
         return this.http.post(this.apiURL, mapToStore);
+    }
+
+    saveImportedGameWithNewName(newName: string): Observable<Object> {
+        return this.isNameAlreadyExists(newName).pipe(
+            concatMap((exists) => {
+                if (exists) {
+                    return throwError(() => new Error('Le nom existe déjà.'));
+                }
+                const playerNumber = this.getPlayerNumber(this.gameInfoImported.height);
+                const mapToStore = this.createMapObject(this.gameInfoImported, playerNumber, null);
+                mapToStore.name = newName;
+                return this.http.post(this.apiURL, mapToStore);
+            }),
+        );
+    }
+
+    private isNameAlreadyExists(name: string): Observable<boolean> {
+        return this.http.get<Game[]>(this.apiURL).pipe(
+            map((games: Game[]) => {
+                return games.some((game) => game.name === name);
+            }),
+        );
     }
 }

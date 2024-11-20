@@ -113,6 +113,7 @@ export enum ErrorMessages {
     MissingName = 'Veuillez entrer un nom de personnage',
     MissingAvatar = 'Veuillez sélectionner un avatar',
     NameWithSpace = 'Le nom ne peut pas contenir des espaces',
+    NameAlreadyExists = '- Une carte avec le même nom existe déjà',
 }
 
 // Constants for timer component

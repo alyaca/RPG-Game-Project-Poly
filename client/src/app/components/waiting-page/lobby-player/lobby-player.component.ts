@@ -36,7 +36,7 @@ export class LobbyPlayerComponent {
             },
         });
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'right') {
+            if (result.action === 'right') {
                 this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
             }
         });

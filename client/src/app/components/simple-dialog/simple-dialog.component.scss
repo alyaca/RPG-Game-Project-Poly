@@ -34,3 +34,41 @@
 .messages-container {
     margin-top: 3%;
 }
+
+.input-container {
+    text-align: center;
+}
+
+#dialog-input {
+    width: 80%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 2px solid rgb(138, 135, 93);
+    border-radius: 5px;
+    background: linear-gradient(to left, rgb(224, 216, 173), rgb(164, 156, 113));
+    color: white;
+    font-size: 16px;
+    font-family: 'Papyrus', sans-serif;
+    font-weight: 700;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+#dialog-input:focus {
+    outline: none;
+    border-color: rgb(224, 216, 173);
+    box-shadow: 0 0 10px rgba(224, 216, 173, 0.8);
+    background: linear-gradient(to left, rgb(164, 156, 113), rgb(138, 135, 93));
+}
+
+#dialog-input::placeholder {
+    color: rgb(93, 89, 64);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}

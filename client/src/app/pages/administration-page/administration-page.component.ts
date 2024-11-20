@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
+import { ErrorMessages, HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
 import { Game } from '@common/game';
 
@@ -58,15 +58,40 @@ export class AdministrationPageComponent {
     }
 
     errorWhileImportingGame(errorMessages: string[]): void {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: "Erreur lors de l'importation",
-                messages: errorMessages,
-                options: ['OK'],
-            },
-        });
-        dialogRef.afterClosed();
+        if (errorMessages.length === 1 && errorMessages[0] === ErrorMessages.NameAlreadyExists) {
+            const dialogRef = this.dialog.open(SimpleDialogComponent, {
+                disableClose: true,
+                data: {
+                    title: "Erreur lors de l'importation",
+                    messages: ['Un jeu portant ce nom existe déjà. Veuillez sélectionner un autre nom.'],
+                    options: ['Annuler', 'Modifier'],
+                    confirm: true,
+                    isInput: true,
+                },
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+                if (result.action === 'right' && result.input.trim() !== '') {
+                    this.saveGameService.saveImportedGameWithNewName(result.input.trim()).subscribe({
+                        next: () => {
+                            this.gameListComponent.refreshGameList();
+                        },
+                        error: () => {
+                            this.errorWhileImportingGame([ErrorMessages.NameAlreadyExists]);
+                        },
+                    });
+                }
+            });
+        } else {
+            const dialogRef = this.dialog.open(SimpleDialogComponent, {
+                disableClose: true,
+                data: {
+                    title: "Erreur lors de l'importation",
+                    messages: errorMessages,
+                    options: ['OK'],
+                },
+            });
+            dialogRef.afterClosed();
+        }
     }
 
     gameSuccessfullyImported(): void {

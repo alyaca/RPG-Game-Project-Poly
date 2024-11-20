@@ -21,7 +21,7 @@ export class GameImportValidatorService {
 
     constructor(private gameListService: GameListService) {}
 
-    validateMap(game: Game): Promise<string[]> {
+    async validateMap(game: Game): Promise<string[]> {
         return new Promise((resolve) => {
             this.errorMessages = [];
 
@@ -38,7 +38,7 @@ export class GameImportValidatorService {
         });
     }
 
-    private validateName(nameToCheck: string): Promise<void> {
+    private async validateName(nameToCheck: string): Promise<void> {
         const trimmedNameToCheck = nameToCheck.trim();
         return new Promise((resolve) => {
             this.gameListService.getAllGames().subscribe((allMaps) => {
@@ -100,7 +100,7 @@ export class GameImportValidatorService {
     }
 
     private getNbSpawnPoints(mapObjects: number[][]): number {
-        let spawnPoints: number = 0;
+        let spawnPoints = 0;
         for (let x = 0; x < mapObjects.length; x++) {
             for (let y = 0; y < mapObjects[x].length; y++) {
                 if (mapObjects[x][y] === ObjectType.Spawn) {
