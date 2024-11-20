@@ -39,7 +39,14 @@ describe('GamePageComponent', () => {
     beforeEach(async () => {
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
-        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, ['on', 'send', 'isSocketAlive', 'connect', 'disconnect']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, [
+            'on',
+            'once',
+            'send',
+            'isSocketAlive',
+            'connect',
+            'disconnect',
+        ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);

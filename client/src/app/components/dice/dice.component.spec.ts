@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ROLL_DICE_DELAY } from '@app/constants';
 import { DiceComponent } from './dice.component';
-import { INACTIVE_DICE_DELAY, ROLL_DURATION } from '@app/constants';
 
 describe('DiceComponent', () => {
     let component: DiceComponent;
@@ -18,49 +18,21 @@ describe('DiceComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('should initialize with default value', () => {
         expect(component.value).toBe(1);
         expect(component.isRolling).toBe(false);
     });
 
-    it('should roll the dice and update the value', fakeAsync(() => {
-        const maxValue = 6;
-        component.rollDice(maxValue);
-        expect(component.isRolling).toBe(true);
+    it('should set isRolling to true and then reset to false after delay', fakeAsync(() => {
+        component.rollDice();
+        expect(component.isRolling).toBeTrue();
+        tick(ROLL_DICE_DELAY);
 
-        tick(ROLL_DURATION); // Simulate the passage of ROLL_DURATION time
-
-        expect(component.value).toBeGreaterThan(0);
-        expect(component.value).toBeLessThanOrEqual(maxValue);
-        expect(component.isRolling).toBe(false);
+        expect(component.isRolling).toBeFalse();
     }));
 
-    it('should not roll if already rolling', fakeAsync(() => {
-        const maxValue = 6;
+    it('should not roll again if already rolling', fakeAsync(() => {
         component.isRolling = true;
-
-        component.rollDice(maxValue);
-
-        const previousValue = component.value;
-        tick(INACTIVE_DICE_DELAY);
-
-        expect(component.value).toBe(previousValue);
-        expect(component.isRolling).toBe(true);
-    }));
-
-    it('should allow rolling again after completing the first roll', fakeAsync(() => {
-        const maxValue = 6;
-        component.rollDice(maxValue);
-
-        tick(ROLL_DURATION);
-        expect(component.isRolling).toBe(false);
-
-        component.rollDice(maxValue);
-        expect(component.isRolling).toBe(true);
-
-        tick(ROLL_DURATION);
-        expect(component.isRolling).toBe(false);
+        component.rollDice();
+        expect(component.isRolling).toBeTrue();
     }));
 });

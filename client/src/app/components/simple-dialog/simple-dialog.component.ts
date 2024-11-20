@@ -47,4 +47,8 @@ export class SimpleDialogComponent {
         }
         return null;
     }
+
+    close() {
+        this.dialogRef.close();
+    }
 }

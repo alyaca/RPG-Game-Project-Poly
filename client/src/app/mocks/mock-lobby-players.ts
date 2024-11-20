@@ -13,6 +13,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: true,
         position: { x: 1, y: 2 },
+        spawnPosition: { x: 1, y: 2 },
         inventory: [],
     },
     {
@@ -24,6 +25,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        spawnPosition: { x: 1, y: 2 },
         inventory: [],
     },
     {
@@ -34,8 +36,9 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
-        position: { x: 1, y: 2 },
         inventory: [],
+        position: { x: 1, y: 2 },
+        spawnPosition: { x: 1, y: 2 },
     },
     {
         id: 'luke0324',
@@ -45,8 +48,9 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
-        position: { x: 1, y: 2 },
         inventory: [],
+        position: { x: 1, y: 2 },
+        spawnPosition: { x: 1, y: 2 },
     },
     {
         id: 'leia1214',
@@ -57,6 +61,7 @@ export const mockLobbyPlayers: Player[] = [
         victories: 0,
         isActive: false,
         position: { x: 1, y: 2 },
+        spawnPosition: { x: 1, y: 2 },
         inventory: [],
     },
     {
@@ -67,7 +72,8 @@ export const mockLobbyPlayers: Player[] = [
         status: Status.Player,
         victories: 0,
         isActive: false,
-        position: { x: 1, y: 2 },
         inventory: [],
+        position: { x: 1, y: 2 },
+        spawnPosition: { x: 1, y: 2 },
     },
 ];

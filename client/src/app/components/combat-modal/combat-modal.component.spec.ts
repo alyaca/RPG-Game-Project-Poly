@@ -1,88 +1,95 @@
-// import { ComponentFixture, TestBed } from '@angular/core/testing';
-// import { DiceComponent } from '@app/components/dice/dice.component';
-// import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-// import { TimerComponent } from '@app/components/timer/timer.component';
-// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-// import { CombatLogicService } from '@app/services/combat-logic/combat-logic.service';
-// import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-// import { Socket } from 'socket.io-client';
-// import { CombatModalComponent } from './combat-modal.component';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DiceComponent } from '@app/components/dice/dice.component';
+import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
+import { TimerComponent } from '@app/components/timer/timer.component';
+import { COMBAT_TURN_LENGTH } from '@app/constants';
+import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { CombatService } from '@app/services/combat/combat.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { of } from 'rxjs';
+import { Socket } from 'socket.io-client';
+import { CombatModalComponent } from './combat-modal.component';
 
-// describe('CombatModalComponent', () => {
-//     let component: CombatModalComponent;
-//     let mockSocket: Socket;
-//     let fixture: ComponentFixture<CombatModalComponent>;
-//     let mockCombatService: jasmine.SpyObj<CombatLogicService>;
-//     let socketCommunicationService: jasmine.SpyObj<SocketCommunicationService>;
+describe('CombatModalComponent', () => {
+    let component: CombatModalComponent;
+    let mockSocket: Socket;
+    let fixture: ComponentFixture<CombatModalComponent>;
+    let combatServiceSpy: jasmine.SpyObj<CombatService>;
+    let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
+    let diceMock1: jasmine.SpyObj<DiceComponent>;
+    let diceMock2: jasmine.SpyObj<DiceComponent>;
 
-//     beforeEach(async () => {
-//         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
+    beforeEach(async () => {
+        mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
+        combatServiceSpy = jasmine.createSpyObj('CombatService', [
+            'initSocketListeners',
+            'combatTurnTime$',
+            'isAttacker',
+            'removeListeners',
+            'isCurrentTurn',
+            'isInCombat',
+            'resetPlayerHp',
+        ]);
+        diceMock1 = jasmine.createSpyObj('DiceComponent', ['rollDice']);
+        diceMock2 = jasmine.createSpyObj('DiceComponent', ['rollDice']);
 
-//         socketCommunicationService = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send']);
-//         mockCombatService = jasmine.createSpyObj('CombatLogicService', [
-//             'initCombat',
-//             'setDisplayText',
-//             'resetPlayerHp',
-//             'checkIfDuelOver',
-//             'processAttack',
-//             'processTurnDialog',
-//             'attemptEvade',
-//             'switchTurn',
-//             'determineTimerLength',
-//         ]);
+        await TestBed.configureTestingModule({
+            imports: [CombatModalComponent, DiceComponent, TimerComponent, TemporaryDialogComponent],
+            providers: [
+                { provide: CombatService, useValue: combatServiceSpy },
+                { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
+            ],
+        }).compileComponents();
+        fixture = TestBed.createComponent(CombatModalComponent);
+        component = fixture.componentInstance;
+        socketCommunicationServiceSpy.socket = mockSocket;
+        combatServiceSpy.combatTurnTime$ = of(COMBAT_TURN_LENGTH);
+        component.dice1 = diceMock1;
+        component.dice2 = diceMock2;
+        combatServiceSpy.activePlayer = mockLobbyPlayers[2];
+        combatServiceSpy.opponent = mockLobbyPlayers[5];
+        combatServiceSpy.attacker = mockLobbyPlayers[2];
+        combatServiceSpy.defender = mockLobbyPlayers[5];
+        combatServiceSpy.evasionsActivePlayer = new Array(2).fill(1);
+        combatServiceSpy.evasionsOpponent = new Array(2).fill(1);
+        combatServiceSpy.activePlayerResult = { total: 0, diceValue: 1 };
+        combatServiceSpy.opponentResult = { total: 0, diceValue: 1 };
 
-//         await TestBed.configureTestingModule({
-//             imports: [CombatModalComponent, DiceComponent, TimerComponent, TemporaryDialogComponent],
-//             providers: [
-//                 { provide: CombatLogicService, useValue: mockCombatService },
-//                 { provide: SocketCommunicationService, useValue: socketCommunicationService },
-//             ],
-//         }).compileComponents();
-//     });
+        fixture.detectChanges();
+    });
 
-//     beforeEach(() => {
-//         fixture = TestBed.createComponent(CombatModalComponent);
-//         component = fixture.componentInstance;
-//         component.player1 = mockLobbyPlayers[2];
-//         component.player2 = mockLobbyPlayers[5];
-//         socketCommunicationService.socket = mockSocket;
-//         fixture.detectChanges();
-//     });
+    it('should clean up on destroy', () => {
+        component.ngOnDestroy();
+        expect(combatServiceSpy.removeListeners).toHaveBeenCalled();
+    });
 
-//     it('should initialize combat on ngOnInit', () => {
-//         component.ngOnInit();
-//         expect(mockCombatService.initCombat).toHaveBeenCalledWith(component.player1, component.player2);
-//     });
+    it('should initialize properties and call required methods in ngOnInit', () => {
+        component.ngOnInit();
+        expect(component.activePlayer).toBe(combatServiceSpy.activePlayer);
+        expect(component.opponent).toBe(combatServiceSpy.opponent);
+        expect(component.attacker).toBe(combatServiceSpy.attacker);
+        expect(component.defender).toBe(combatServiceSpy.defender);
+        expect(combatServiceSpy.initSocketListeners).toHaveBeenCalled();
+        expect(diceMock1.rollDice).toHaveBeenCalled();
+        expect(diceMock2.rollDice).toHaveBeenCalled();
+    });
 
-//     it('should set roles correctly on ngAfterViewInit', () => {
-//         component.ngAfterViewInit();
-//         expect(mockCombatService.roles['player1turn'].attacker).toEqual(component.player2);
-//         expect(mockCombatService.roles['player2turn'].attacker).toEqual(component.player1);
-//     });
+    it('should call resetPlayerHp, set isInCombat and emit closeModalEvent when closeModal is called', () => {
+        combatServiceSpy.isInCombat = true;
+        component.closeModal();
 
-//     it('should close modal and reset combat state on closeModal', () => {
-//         spyOn(component.closeModalEvent, 'emit');
-//         component.closeModal();
-//         expect(mockCombatService.setDisplayText).toHaveBeenCalledWith('');
-//         expect(mockCombatService.resetPlayerHp).toHaveBeenCalledWith(component.player1, component.player2);
-//         expect(component.isInCombat).toBeFalse();
-//         expect(component.closeModalEvent.emit).toHaveBeenCalled();
-//     });
+        expect(combatServiceSpy.resetPlayerHp).toHaveBeenCalledWith(combatServiceSpy.activePlayer, combatServiceSpy.opponent);
+        expect(component.isInCombat).toBe(true);
+    });
 
-//     it('should return early if the game is not ongoing', () => {
-//         mockCombatService.isGameOngoing = false;
+    it('should call socketCommunicationService.send with "attackPlayer" when triggerAttack is called', () => {
+        component.triggerAttack();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('attackPlayer');
+    });
 
-//         spyOn(component.dice1, 'rollDice');
-//         spyOn(component.dice2, 'rollDice');
-
-//         component.triggerAttack();
-//         expect(mockCombatService.switchTurn).not.toHaveBeenCalled();
-//         expect(component.dice1.rollDice).not.toHaveBeenCalled();
-//         expect(component.dice2.rollDice).not.toHaveBeenCalled();
-//     });
-
-//     it('should trigger evasion and check for end of game', () => {
-//         component.triggerEvade();
-//         expect(mockCombatService.attemptEvade).toHaveBeenCalled();
-//     });
-// });
+    it('should call socketCommunicationService.send with "evadeCombat" and attacker when triggerEvade is called', () => {
+        component.triggerEvade();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('evadeCombat', combatServiceSpy.attacker);
+    });
+});

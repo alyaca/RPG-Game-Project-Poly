@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -38,6 +38,7 @@ import { Room } from '@common/room';
 export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
+    @ViewChild('turnTimer') turnTimer!: TimerComponent;
 
     allPlayers: Player[];
     mapName: string;
@@ -65,7 +66,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        // private combatService: CombatService,
+
         public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
@@ -94,23 +95,22 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.activePlayerName = name;
         });
 
-        this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player }) => {
-            this.isInCombat = true;
-            this.combatService.initializeCombat(data.player1, data.player2);
+        this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
+            this.combatService.isInCombat = true;
+            this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
-            // will have to check this for tests
+            this.combatService.isInCombat = false;
             this.activePlayer.attributes.actionPoints -= 1;
-            this.closeCombatModal();
         });
 
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
         });
 
-        this.socketCommunicationService.on('endGame', (winner: Player) => {
+        this.socketCommunicationService.once('endGame', (winner: Player) => {
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
@@ -193,6 +193,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('startedTurnTimer', (timeRemaining: number) => {
             this.closeTurnStartPopUp();
             this.timeRemainingStartTurn = timeRemaining;
+            this.turnTimer.updateProgress();
         });
     }
 
@@ -261,17 +262,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleActionCombatSelected() {
         this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
         this.gameService.isActionDoorSelected = false;
-    }
-
-    openCombatModal() {
-        const player1 = this.navigationService.getActivePlayer();
-        const player2 = this.navigationService.checkAttack();
-        this.navigationService.getActivePlayer().attributes.actionPoints = 0;
-        this.socketCommunicationService.send('startFight', { player1, player2 });
-    }
-
-    closeCombatModal() {
-        this.isInCombat = false;
     }
 
     handleExit() {
