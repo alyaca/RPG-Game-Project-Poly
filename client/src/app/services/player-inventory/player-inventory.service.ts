@@ -16,13 +16,6 @@ export class PlayerInventoryService {
     determineRandomItem(allObjects: number[][]): number {
         const itemsNotAvailable: number[] = [];
         const itemsAvailable: number[] = [];
-        // for (let i = 0; i < allObjects.length; i++) {
-        //     for (let j = 0; j < allObjects[i].length; j++) {
-        //         if (allObjects[i][j] !== 0) {
-        //             itemsNotAvailable.push(allObjects[i][j]);
-        //         }
-        //     }
-        // }
 
         for (const objectRows of allObjects) {
             for (const objects of objectRows) {
@@ -31,14 +24,6 @@ export class PlayerInventoryService {
                 }
             }
         }
-
-        // for (let o = 0; o < gameObjects.length; o++) {
-        //     if (!itemsNotAvailable.find((object) => object === gameObjects[o].id)) {
-        //         if (gameObjects[o].id < ObjectType.Random) {
-        //             itemsAvailable.push(gameObjects[o].id);
-        //         }
-        //     }
-        // }
 
         for (const objects of gameObjects) {
             if (!itemsNotAvailable.find((object) => object === objects.id)) {
@@ -66,7 +51,6 @@ export class PlayerInventoryService {
             player.inventory.push(fullItem);
         }
         switch (fullItem?.id) {
-            // will probably in navigation or end of turn checks
             case ObjectType.Trident:
                 break;
             // Something left in combat
@@ -84,7 +68,6 @@ export class PlayerInventoryService {
                 player.attributes.totalHp -= 2;
                 player.attributes.currentHp -= 2;
                 break;
-            // Already done and working in navigation-service
             case ObjectType.Kunee:
                 break;
 
