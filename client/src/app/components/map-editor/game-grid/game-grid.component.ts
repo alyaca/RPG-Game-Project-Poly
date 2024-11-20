@@ -130,16 +130,20 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigateToTile(tile);
         });
 
-        this.socketCommunicationService.on('respawnPlayer', (data: { newPosition: Position; playerToReplace: Player }) => {
-            const { newPosition, playerToReplace } = data;
-            this.respawnPlayer(newPosition, playerToReplace);
+        this.socketCommunicationService.on('respawnPlayer', (data: { oldPosition: Position; playerToReplace: Player }) => {
+            const { oldPosition, playerToReplace } = data;
+            //this.objectsArray[oldPosition.x][oldPosition.y] = 0;
+            if (this.activePlayer?.id === playerToReplace.id) {
+                this.navigateToTile(playerToReplace.position);
+            } else {
+                this.respawnPlayer(oldPosition, playerToReplace);
+            }
         });
 
         this.socketCommunicationService.on('endMovement', () => {
             this.isMoving = false;
         });
 
-        //GGG : TODO : A revoir
         this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
@@ -201,7 +205,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     placeAvatarOnTile(player: Player) {
-        //OK
         this.objectsArray[player.position.x][player.position.y] = this.navigationService.getPortraitId(player.avatar?.name);
     }
 
@@ -390,12 +393,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     respawnPlayer(position: Position, player: Player) {
-        const playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
+        let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
         if (!playerToReplace) return;
-        this.navigationService.updateTile(playerToReplace);
         playerToReplace.position = position;
-        //TODO : FIX THIS...
-        //this.displayPortraitOnSpawnPoints();
+        this.navigationService.updateTile(playerToReplace);
+        playerToReplace = player;
+        this.placeAvatarOnTile(playerToReplace);
     }
 
     navigateToTile(position: Position) {

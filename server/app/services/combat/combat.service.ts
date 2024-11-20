@@ -123,15 +123,20 @@ export class CombatService {
     }
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
             this.continueTurn(client, server);
+            const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+            server.to(room.roomId).emit('reachableTiles', reachability);
             return true;
         } else if (attacker.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(attacker, client, server);
             this.combatFinish(client, attacker, defender, server);
             this.continueTurn(client, server);
+            const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+            server.to(room.roomId).emit('reachableTiles', reachability);
             return true;
         }
         return false;
@@ -178,12 +183,14 @@ export class CombatService {
         if (!playerToReplace) return;
         room.gameMap.itemPlacement[playerToReplace.position.x][playerToReplace.position.y] = 0;
         if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
+            const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
-            const newPosition = playerToReplace.spawnPosition;
-            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+            //const newPosition = playerToReplace.spawnPosition;
+            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         } else {
-            const newPosition = this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
-            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+            const oldPosition = playerToReplace.position;
+            //const newPosition = this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
+            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         }
     }
 
