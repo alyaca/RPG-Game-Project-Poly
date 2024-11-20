@@ -70,7 +70,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
     isPopupVisible: boolean = false;
-    isDebugMode: boolean = false; //enlever si on utilise pas dans html
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
@@ -145,6 +144,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (playerToTeleport) {
                 this.respawnPlayer(position, playerToTeleport);
             }
+        });
+
+        this.socketCommunicationService.on('debugMode', () => {
+            this.findReachableTiles();
         });
 
         this.socketCommunicationService.on('endMovement', () => {
@@ -334,16 +337,28 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     findReachableTiles() {
         this.reachableTiles = [];
         if (!this.activePlayer) return;
-        this.reachableTiles = this.navigationService.findReachableTiles(
+        if(this.navigationService.isDebugMode){
+            this.reachableTiles =  this.navigationService.findAllTilesDebug();
+        }
+         else{
+            this.reachableTiles = this.navigationService.findReachableTiles(
             this.activePlayer,
             this.navigationService.gameMap,
             this.activePlayer.attributes.movementPointsLeft,
-        );
+            );
+        }
     }
 
     findPath(row: number, col: number) {
-        if (this.isReachableTile(row, col)) {
-            this.fastestPath = this.navigationService.findFastestPath(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+        if(this.navigationService.isDebugMode){
+            if( this.navigationService.isTileValid(row, col)){
+                this.fastestPath = [{ x: row, y: col }];
+        }
+    }
+        else{
+            if (this.isReachableTile(row, col)) {
+                this.fastestPath = this.navigationService.findFastestPath(this.currentPlayer, { x: row, y: col }, this.navigationService.gameMap);
+            }
         }
     }
 
@@ -394,11 +409,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return clickedPlayer;
     }
 
-    isTileValid(row: number, col: number): boolean {
-        if (this.tilesGrid[row][col] === TileType.Wall ) return false;
-        if (this.tilesGrid[row][col] === TileType.ClosedDoor) return false;
-        if (this.objectsArray[row][col] !== NO_OBJECT) return false;
-        return true;
+    isDebugMode() {
+        return this.navigationService.isDebugMode;
     }
 
     async sendNavigation(row: number, col: number) {
@@ -406,9 +418,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (!this.isMoving) {
                 this.isMoving = true;
                 if(this.navigationService.isDebugMode){
-                    if( this.isTileValid(row, col)){
+                    if( this.navigationService.isTileValid(row, col)){
                         const position = { x: row, y: col };
-                        console.log('Sending teleportPlayer:', position);
                         this.socketCommunicationService.send('teleportPlayer', position);
                         this.isMoving = false; 
                     }

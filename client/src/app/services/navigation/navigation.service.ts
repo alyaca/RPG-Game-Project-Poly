@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ObjectType, TileCost, TileType } from '@app/constants';
+import { NO_OBJECT, ObjectType, TileCost, TileType } from '@app/constants';
 import { PointWithDistance } from '@app/interfaces/map-position';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -133,6 +133,28 @@ export class NavigationService {
         this.distances = Array.from({ length: dimension }, () => Array(dimension).fill(Infinity));
         this.previous = Array.from({ length: dimension }, () => Array(dimension).fill(null));
         this.distances[player.position.x][player.position.y] = 0;
+    }
+
+    findAllTilesDebug(){
+        const reachableTiles: Position[] = [];
+        for (let i = 0; i < this.gameMap.dimension; i++) {
+            for (let j = 0; j < this.gameMap.dimension; j++) {
+                if(this.isTileValid(i, j)){
+                    reachableTiles.push({ x: i, y: j });
+                }
+            }
+        }
+        reachableTiles.shift();
+        this.reachableTiles = reachableTiles;
+        return reachableTiles;
+    }
+
+    isTileValid(row: number, col: number): boolean {
+        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
+        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
+        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
+        if (this.positions[row][col] !== NO_OBJECT) return false;
+        return true;
     }
 
     findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
