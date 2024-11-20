@@ -1,7 +1,7 @@
 import { TileCost, TileType } from '@app/constants';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
-import { PointWithDistance } from '../../interfaces/point-distance';
+import { PointWithDistance } from '@common/point-distance.interface';
 
 export class Navigation {
     gameMap: Game;

@@ -181,7 +181,7 @@ describe('RoomService', () => {
         const room = service.createRoom(mockSocket, mockGame);
         const expectedRoom = {
             gameMap: mockGame,
-            roomId: roomId,
+            roomId,
             listPlayers: [],
             availableAvatars: avatars.map((avatar) => ({ ...avatar, isTaken: false })),
             adminId: mockSocket.id,
