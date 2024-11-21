@@ -4,6 +4,7 @@ import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Avatar, Player, Position } from '@common/player';
@@ -25,6 +26,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private chatService: ChatService,
         private combatService: CombatService,
         private gameService: GameService,
+        private playerInventoryService : PlayerInventoryService,
     ) {
         this.navigation = new Navigation();
     }
@@ -145,12 +147,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.attackPlayer(client, this.server);
     }
 
-    @SubscribeMessage(SocketEvents.FullInventory)
-    handleFullInventory(client: Socket, { activePlayer, item, objects }: { activePlayer: Player; item: number; objects: number[][] }) {
-        if (client.id === activePlayer.id) {
-            this.handleItemSwitch(client);
-            client.emit('openItemSwitchModal', { activePlayer, item, objects });
-        }
+    @SubscribeMessage(SocketEvents.ItemSwapped)
+    handleItemSwapped(client: Socket, { activePlayer, item, droppedItem }: { activePlayer: Player; item: number; droppedItem: number }) {
+        const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(activePlayer, item, droppedItem);
+        this.roomService.updateRoomPlayers(client, updatedPlayer);
+        this.server.emit('updateTile', droppedItem);
+        client.emit('updateInventory', updatedPlayer);
     }
 
     @SubscribeMessage(SocketEvents.BeginItemSwitch)

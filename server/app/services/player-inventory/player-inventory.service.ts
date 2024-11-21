@@ -1,17 +1,33 @@
-import { Injectable } from '@angular/core';
-import { ObjectType } from '@app/constants';
-import { gameObjects } from '@app/objects-info';
-import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { GameObject } from '@common/game-object';
+import { ObjectType } from '@common/avatars-info';
+import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
+import { Injectable } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
+import { RoomService } from '../room/room.service';
 
-@Injectable({
-    providedIn: 'root',
-})
-export class PlayerInventoryService {
+@Injectable()
+export class PlayerInventoryService{
     itemToPlace: number;
-    randomItemId: number;
-    constructor(private socketCommunicationService: SocketCommunicationService) {}
+    constructor(private roomService : RoomService){}
+
+    updateInventory(server : Server, client : Socket, allItems : number[][], activePlayer : Player, itemPickedUp : number)
+    {
+        if(itemPickedUp === ObjectType.Random)
+        {
+            itemPickedUp = this.determineRandomItem(allItems);
+        }
+        if(activePlayer.inventory.length === 2)
+        {
+            client.emit('openItemSwitchModal', { activePlayer, itemPickedUp });
+        }
+        else
+        {
+            activePlayer = this.updatePlayerWithItem(activePlayer, itemPickedUp);
+            client.emit('inventoryChange', activePlayer);
+            server.emit('updateTile', 0);
+        }
+        this.roomService.updateRoomPlayers(client, activePlayer);
+    }
 
     determineRandomItem(allObjects: number[][]): number {
         const itemsNotAvailable: number[] = [];
@@ -36,11 +52,6 @@ export class PlayerInventoryService {
         const itemToUse = Math.floor(Math.random() * itemsAvailable.length) + 1;
         const realItem = itemsAvailable[itemToUse - 1];
         return realItem;
-    }
-
-    // might be useless, idk yet
-    getItemToPlace() {
-        return this.itemToPlace;
     }
 
     addStatsFromItem(playerToBuff: Player, itemId: number) {
@@ -99,27 +110,21 @@ export class PlayerInventoryService {
         return player;
     }
 
-    updatePlayerWithItem(player: Player, item: number, allObjects: number[][]) {
-        let itemToUse: number;
-        if (item === ObjectType.Random) {
-            itemToUse = this.determineRandomItem(allObjects);
-        } else {
-            itemToUse = item;
-        }
-        const fullItem = gameObjects.find((object) => object.id === itemToUse);
+    updatePlayerWithItem(player: Player, item: number) {
+        const fullItem = gameObjects.find((object) => object.id === item);
         if (fullItem) {
             player.inventory.push(fullItem);
             player = this.addStatsFromItem(player, fullItem?.id);
         }
-
-        this.socketCommunicationService.send('inventoryChange', player);
+        return player;
     }
 
-    // doesn't add the correct item at times
-    updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: GameObject) {
-        this.itemToPlace = itemDropped.id;
-        playerToModify = this.removeItemsEffects(playerToModify, itemDropped.id, undefined);
+    updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: number) {
+        // idk at what point we need that
+        this.itemToPlace = itemDropped;
+        playerToModify = this.removeItemsEffects(playerToModify, itemDropped, undefined);
         playerToModify = this.addStatsFromItem(playerToModify, newItem);
-        this.socketCommunicationService.send('inventoryChange', playerToModify);
+        return playerToModify;
+        // this.socketCommunicationService.send('inventoryChange', playerToModify);
     }
 }

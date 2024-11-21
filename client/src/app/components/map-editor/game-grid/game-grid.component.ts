@@ -16,7 +16,6 @@ import {
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
-import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -27,6 +26,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
+import { gameObjects } from '@common/objects-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 
@@ -161,10 +161,16 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer) => {
-            if (this.activePlayer) {
-                this.activePlayer.inventory = updatedPlayer.inventory;
-                this.activePlayer.attributes = updatedPlayer.attributes;
-            }
+            this.activePlayer!.inventory = updatedPlayer.inventory;
+            this.activePlayer!.attributes = updatedPlayer.attributes;
+        });
+
+        this.socketCommunicationService.on<number>('updateTile', (droppedItem) => {
+            this.navigationService.updateTile(this.activePlayer!, droppedItem);
+        })
+
+        this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
+            this.activePlayer = updatedPlayer;
         });
     }
 
@@ -405,7 +411,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
         if (!playerToReplace) return;
         playerToReplace.position = position;
-        this.navigationService.updateTile(playerToReplace);
+        this.navigationService.updateTile(playerToReplace, 0);
         playerToReplace = player;
         this.placeAvatarOnTile(playerToReplace);
     }
@@ -414,7 +420,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.reachableTiles = [];
         this.fastestPath = [];
         if (this.activePlayer) {
-            this.navigationService.updateTile(this.activePlayer);
+            this.navigationService.updateTile(this.activePlayer, 0);
             this.activePlayer.position = position;
             this.placeAvatarOnTile(this.activePlayer);
         }

@@ -23,6 +23,7 @@ export enum SocketEvents {
     InventoryChange = 'inventoryChange',
     BeginItemSwitch = 'beginItemSwitch',
     EndItemSwitch = 'endItemSwitch',
-    FullInventory = 'fullInventory',
+    ItemSwapped = 'itemSwapped',
     DoorAction = 'doorAction',
+    MovePlayerFromWall = 'movePlayerFromWall',
 }

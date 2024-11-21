@@ -1,4 +1,5 @@
 import { TileCost, TileType } from '@app/constants';
+import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
@@ -33,6 +34,32 @@ export class Navigation {
         const path = this.reconstructPath(destination);
         path.shift();
         return path;
+    }
+
+    movePlayerFromWall(activePlayer: Player) {
+        // this.updateTile(activePlayer);
+        let currentX = activePlayer.position.x;
+        let loopCounter = 0;
+        let currentY = activePlayer.position.y;
+        let directionsIndex = 0;
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+        ];
+        while (
+            this.gameMap.tiles[currentX][currentY] === TileType.Wall ||
+            (this.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && this.positions[currentX][currentY] === 0)
+        ) {
+            currentX += loopCounter * directions[directionsIndex].dx;
+            currentY += loopCounter * directions[directionsIndex].dy;
+            directionsIndex = (directionsIndex + 1) % directions.length;
+            loopCounter += 1;
+        }
+        activePlayer.position.x = currentX;
+        activePlayer.position.y = currentY;
+        return this.reconstructPath(activePlayer.position);
     }
 
     isReachableTile(row: number, col: number): boolean {
@@ -78,6 +105,7 @@ export class Navigation {
     }
 
     getTileCost(tileType: number): number {
+        const player = this.players.find((player) => player.isActive);
         switch (tileType) {
             case TileType.Ground:
                 return TileCost.Ground;
@@ -87,6 +115,14 @@ export class Navigation {
                 return TileCost.Ice;
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
+            case TileType.Wall :
+                console.log('getting tile cost');
+                if(player!.inventory.find((object) => object.id === ObjectType.Kunee))
+                {
+                    console.log("player can walk through walls");
+                    return TileCost.Ground;
+                }
+                return Infinity;
             default:
                 return Infinity;
         }

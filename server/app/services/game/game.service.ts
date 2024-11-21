@@ -2,10 +2,12 @@ import { FALLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileC
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
+import { ObjectType } from '@common/avatars-info';
 import { Avatar, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { PlayerInventoryService } from '../player-inventory/player-inventory.service';
 
 /* eslint-disable max-lines */
 @Injectable()
@@ -14,6 +16,7 @@ export class GameService {
     isTurnSkipped: boolean = false;
     constructor(
         private roomService: RoomService,
+        private playerInventoryService : PlayerInventoryService,
         private gameLogsService: GameLogsService,
         private matchService: MatchService,
     ) {}
@@ -145,6 +148,11 @@ export class GameService {
         const player = this.getActivePlayer(room);
         for (const tile of path) {
             this.isMoving = true;
+            if(room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random)
+            {
+                this.playerInventoryService.updateInventory(server, client, room.gameMap.itemPlacement, player, room.gameMap.itemPlacement[tile.x][tile.y]);
+                // server.to(room.roomId).emit('itemPickedUp', player, room.gameMap.itemPlacement[tile.x][tile.y]);
+            }
             player.position = tile;
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
@@ -156,7 +164,7 @@ export class GameService {
                 break;
             }
             if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
-                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
+                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
             }
         }
         this.isMoving = false;
@@ -223,7 +231,7 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    private getCost(tileType: number): number {
+    private getCost(tileType: number, activePlayer : Player): number {
         switch (tileType) {
             case TileType.Ground:
                 return TileCost.Ground;
@@ -233,6 +241,12 @@ export class GameService {
                 return TileCost.Ice;
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
+            case TileType.Wall : 
+                if(activePlayer.inventory.find((objects) => objects.id === ObjectType.Kunee))
+                {
+                    return TileCost.Ground;
+                }
+                return Infinity;
             default:
                 return Infinity;
         }

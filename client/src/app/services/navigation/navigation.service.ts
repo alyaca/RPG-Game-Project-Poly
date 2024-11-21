@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TileType } from '@app/constants';
 import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -22,7 +23,6 @@ const godNameToObjectType = new Map<string, ObjectType>([
     providedIn: 'root',
 })
 export class NavigationService {
-    itemToPlace: number;
     path: Position[];
     players: Player[];
     gameMap: Game;
@@ -33,11 +33,6 @@ export class NavigationService {
     private objects: number[][];
     private reachableTiles: Position[];
 
-    constructor(
-        private playerInventory: PlayerInventoryService,
-        private socketCommunicationService: SocketCommunicationService,
-    ) {}
-
     initialize(game: Game, players: Player[], objects: number[][]): void {
         this.objects = JSON.parse(JSON.stringify(objects));
         this.gameMap = game;
@@ -46,22 +41,26 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
-    updateTile(activePlayer: Player): void {
+    updateTile(activePlayer: Player, itemToPlace : number): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
-            const item = this.getObject(activePlayer.position);
-            if (activePlayer.inventory.length === 2) {
-                const objects = this.objects;
-                this.socketCommunicationService.send('fullInventory', { activePlayer, item, objects });
-                // wait until this.itemToPlace is defined
+            
 
-                this.itemToPlace = this.playerInventory.getItemToPlace();
-            } else {
-                this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
-            }
-            this.positions[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
-            this.objects[activePlayer.position.x][activePlayer.position.y] = this.itemToPlace;
+            // all this should be server side, should call update tile from game-grid when someone picks up an item
+            // const item = this.getObject(activePlayer.position);
+            // if (activePlayer.inventory.length === 2) {
+            //     const objects = this.objects;
+            //     this.socketCommunicationService.send('fullInventory', { activePlayer, item, objects });
+            //     // wait until this.itemToPlace is defined
+
+            //     this.itemToPlace = this.playerInventory.getItemToPlace();
+            // } else {
+            //     this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
+            // }
+            
+            this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
+            this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }
@@ -69,33 +68,6 @@ export class NavigationService {
 
     isOnWall(activePlayer: Player): boolean {
         return this.gameMap.tiles[activePlayer.position.x][activePlayer.position.y] === TileType.Wall;
-    }
-
-    movePlayerFromWall(activePlayer: Player) {
-        this.updateTile(activePlayer);
-        let currentX = activePlayer.position.x;
-        let loopCounter = 0;
-        let currentY = activePlayer.position.y;
-        let directionsIndex = 0;
-        const directions = [
-            { dx: 0, dy: 1 },
-            { dx: 0, dy: -1 },
-            { dx: 1, dy: 0 },
-            { dx: -1, dy: 0 },
-        ];
-        while (
-            this.gameMap.tiles[currentX][currentY] === TileType.Wall ||
-            (this.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && this.positions[currentX][currentY] === 0)
-        ) {
-            currentX += loopCounter * directions[directionsIndex].dx;
-            currentY += loopCounter * directions[directionsIndex].dy;
-            // this.positions[currentX][currentY];
-            directionsIndex = (directionsIndex + 1) % directions.length;
-            loopCounter += 1;
-        }
-        activePlayer.position.x = currentX;
-        activePlayer.position.y = currentY;
-        return this.reconstructPath(activePlayer.position);
     }
 
     removePlayer(player: Player): void {

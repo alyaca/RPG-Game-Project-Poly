@@ -109,6 +109,7 @@ export class RoomService {
         for (let i = 0; i < room.listPlayers.length; i++) {
             if (room.listPlayers[i].id === updatedPlayer.id) {
                 this.rooms.get(room.roomId).listPlayers[i] = updatedPlayer;
+                client.emit('inventoryChange', updatedPlayer);
             }
         }
     }

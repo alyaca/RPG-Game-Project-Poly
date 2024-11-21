@@ -8,14 +8,13 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, ObjectType, STARTING_TIME, TURN_TIME } from '@app/constants';
-import { gameObjects } from '@app/objects-info';
 // import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
-import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { ItemSwap } from '@common/item-swap';
+import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
 
@@ -59,8 +58,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     doorAround: boolean = false;
     attackAround: boolean = false;
 
-    private playerInventoryService = inject(PlayerInventoryService);
-    private gameService = inject(GameService);
+    public gameService = inject(GameService);
     private router = inject(Router);
 
     constructor(
@@ -138,25 +136,19 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 });
         });
 
-        this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; item: number; objects: number[][] }) => {
+        this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; itemPickedUp: number; }) => {
+            this.socketCommunicationService.send('beginItemSwitch');
             const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
-            let notRandomItem = data.item;
-            if (notRandomItem === ObjectType.Random) {
-                notRandomItem = this.playerInventoryService.determineRandomItem(data.objects);
-            }
-            const itemToExchange = gameObjects.find((object) => object.id === notRandomItem);
-            if (!itemToExchange) {
-                return;
-            }
+            const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
             const itemSwap: ItemSwap = {
                 currentItem1: data.activePlayer.inventory[0],
                 currentItem2: data.activePlayer.inventory[1],
-                pickedUpItem: itemToExchange,
+                pickedUpItem: fullItem!,
             };
             this.gameService
                 .openDialog({
                     title: DialogTitle.ItemExchange,
-                    messages: [`Quel objet voulez échangé pour celui-ci: ${itemToExchange?.name}`],
+                    messages: [`Quel objet voulez échangé pour celui-ci: ${fullItem?.name}`],
                     options: [],
                     confirm: false,
                     itemSwap,
@@ -169,25 +161,21 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                             break;
                         }
                     }
-                    if (newItem) {
-                        this.playerInventoryService.updatePlayerAfterSwap(data.activePlayer, newItem, itemSwap.pickedUpItem);
-                        this.socketCommunicationService.send('endItemSwitch');
-                    } else {
-                        this.playerInventoryService.itemToPlace = itemSwap.pickedUpItem.id;
-                        this.socketCommunicationService.send('inventoryChange', data.activePlayer);
-                        this.socketCommunicationService.send('endItemSwitch');
-                    }
+                    this.socketCommunicationService.send('itemSwapped', {activePlayer : data.activePlayer, item : newItem, droppedItem : itemSwap.pickedUpItem});
+                    this.socketCommunicationService.send('endItemSwitch');
                 });
+        });
+
+
+        // idk about this
+        this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
+            this.activePlayer = updatedPlayer;
         });
     }
 
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
-            const playerToAssign = this.navigationService.players.find((player) => player.id === activePlayer.id);
-            if (playerToAssign) {
-                this.activePlayer = playerToAssign;
-            }
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -310,10 +298,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onEndTurn() {
-        if (this.navigationService.isOnWall(this.activePlayer)) {
-            this.navigationService.movePlayerFromWall(this.activePlayer);
-            // will have to call displaySpawnPoints from game
-        } else if (this.activePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
+        // needed
+        // if(this.navigationService.isOnWall(this.activePlayer))
+        // {
+        //     this.socketCommunicationService.send('movePlayerFromWall', this.activePlayer);
+        // }
+
+        // need to check whether the player is on a wall or not
+        if (this.activePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
             if (this.activePlayer.attributes.actionPoints === 1) {
                 this.activePlayer.attributes.actionPoints += 1;
                 this.activePlayer.attributes.maxActionPoints = 2;
