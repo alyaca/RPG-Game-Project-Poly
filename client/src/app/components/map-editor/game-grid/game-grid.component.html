@@ -12,13 +12,7 @@
         (click)="handleTileClick(rowIndex, colIndex)"
         (contextmenu)="showDetails($event, rowIndex, colIndex)"
     >
-        <img
-            class="tile-image"
-            [src]="tileService.getTileImage(col)"
-            (mouseover)="findPath(rowIndex, colIndex)"
-            (click)="sendNavigation(rowIndex, colIndex)"
-            draggable="false"
-        />
+        <img class="tile-image" [src]="tileService.getTileImage(col)" (mouseover)="findPath(rowIndex, colIndex)" draggable="false" />
         @if(objectsArray[rowIndex][colIndex] > 8){
         <img
             class="player-on-spawn-points"
@@ -36,7 +30,7 @@
         } @if( isActivePlayer && hasStarted) { @if (isReachableTile(rowIndex, colIndex)) {
         <div class="reachable-tile" (mouseover)="findPath(rowIndex, colIndex)"></div>
         } @if (isOnFastestPath(rowIndex, colIndex)) {
-        <div class="fastest-path-tile" (click)="sendNavigation(rowIndex, colIndex)"></div>
+        <div class="fastest-path-tile" (click)="handleTileClick(rowIndex, colIndex)"></div>
         } }
     </div>
     } }

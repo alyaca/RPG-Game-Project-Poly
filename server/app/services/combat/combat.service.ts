@@ -129,6 +129,8 @@ export class CombatService {
             this.combatFinish(client, defender, attacker, server);
             if (activePlayer.id !== defender.id) {
                 this.continueTurn(client, server);
+                const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+                server.to(room.roomId).emit('reachableTiles', reachability);
             } else {
                 this.combatEnded(room);
                 this.gameService.onTurnEnded(client, server);
@@ -140,6 +142,8 @@ export class CombatService {
         //     this.combatFinish(client, attacker, defender, server);
         //     this.continueTurn(client, server);
         //     return true;
+        // const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+        // server.to(room.roomId).emit('reachableTiles', reachability);
         // }
         return false;
     }
@@ -167,7 +171,7 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
-        if (client) return client.id === this.attacker.id || client.id === this.defender.id;
+        return client.id === this.attacker?.id || client.id === this.defender?.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
@@ -183,12 +187,12 @@ export class CombatService {
         if (!playerToReplace) return;
         room.gameMap.itemPlacement[playerToReplace.position.x][playerToReplace.position.y] = 0;
         if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
+            const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
-            const newPosition = playerToReplace.spawnPosition;
-            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         } else {
-            const newPosition = this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
-            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+            const oldPosition = playerToReplace.position;
+            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         }
     }
 
