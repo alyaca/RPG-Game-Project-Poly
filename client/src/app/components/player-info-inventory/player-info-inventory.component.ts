@@ -41,7 +41,8 @@ export class PlayerInfoInventoryComponent implements OnInit {
         });
 
         this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
-            this.player = updatedPlayer;
+            this.player.attributes = updatedPlayer.attributes;
+            this.player.inventory = updatedPlayer.inventory;
         });
     }
 

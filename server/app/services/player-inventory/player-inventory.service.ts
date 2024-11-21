@@ -1,17 +1,19 @@
 import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
+import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class PlayerInventoryService{
-    itemToPlace: number;
+    room : Room;
     constructor(private roomService : RoomService){}
 
     updateInventory(server : Server, client : Socket, allItems : number[][], activePlayer : Player, itemPickedUp : number)
     {
+        this.room = this.roomService.getRoom(client);
         if(itemPickedUp === ObjectType.Random)
         {
             itemPickedUp = this.determineRandomItem(allItems);
@@ -19,13 +21,16 @@ export class PlayerInventoryService{
         if(activePlayer.inventory.length === 2)
         {
             client.emit('openItemSwitchModal', { activePlayer, itemPickedUp });
+            server.emit('updateTile', itemPickedUp);
         }
         else
         {
             activePlayer = this.updatePlayerWithItem(activePlayer, itemPickedUp);
-            client.emit('inventoryChange', activePlayer);
             server.emit('updateTile', 0);
+            this.room.gameMap.itemPlacement[activePlayer.position.x][activePlayer.position.y] = 0;
+            this.roomService.updateRoomMap(this.room);
         }
+        client.emit('updateInventory', activePlayer);
         this.roomService.updateRoomPlayers(client, activePlayer);
     }
 
@@ -120,11 +125,10 @@ export class PlayerInventoryService{
     }
 
     updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: number) {
-        // idk at what point we need that
-        this.itemToPlace = itemDropped;
         playerToModify = this.removeItemsEffects(playerToModify, itemDropped, undefined);
         playerToModify = this.addStatsFromItem(playerToModify, newItem);
+        this.room.gameMap[playerToModify.position.x][playerToModify.position.y] = itemDropped;
+        this.roomService.updateRoomMap(this.room);
         return playerToModify;
-        // this.socketCommunicationService.send('inventoryChange', playerToModify);
     }
 }

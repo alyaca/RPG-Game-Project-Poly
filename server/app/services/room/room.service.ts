@@ -114,6 +114,11 @@ export class RoomService {
         }
     }
 
+    updateRoomMap(newRoomVersion : Room)
+    {
+        this.rooms.get(newRoomVersion.roomId).gameMap.itemPlacement = newRoomVersion.gameMap.itemPlacement;
+    }
+
     getRoomMap(roomId: string): Game {
         return this.rooms.get(roomId).gameMap;
     }

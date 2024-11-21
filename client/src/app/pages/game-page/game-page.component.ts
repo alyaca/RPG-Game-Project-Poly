@@ -158,10 +158,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     for (let i = 0; i < data.activePlayer.inventory.length; i++) {
                         if (data.activePlayer.inventory[i] !== oldInventory[i]) {
                             newItem = data.activePlayer.inventory[i].id;
+                            this.socketCommunicationService.send('itemSwapped', {activePlayer : data.activePlayer, item : newItem, droppedItem : itemSwap.pickedUpItem});
                             break;
                         }
                     }
-                    this.socketCommunicationService.send('itemSwapped', {activePlayer : data.activePlayer, item : newItem, droppedItem : itemSwap.pickedUpItem});
+                    // this.socketCommunicationService.send('itemSwapped', {activePlayer : data.activePlayer, item : newItem, droppedItem : itemSwap.pickedUpItem});
                     this.socketCommunicationService.send('endItemSwitch');
                 });
         });
@@ -169,7 +170,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // idk about this
         this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
-            this.activePlayer = updatedPlayer;
+            this.activePlayer.attributes = updatedPlayer.attributes;
+            this.activePlayer.inventory = updatedPlayer.inventory;
         });
     }
 

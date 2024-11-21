@@ -59,8 +59,8 @@ export class NavigationService {
             //     this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
             // }
             
-            this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
-            this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace;
+            this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
+            this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }

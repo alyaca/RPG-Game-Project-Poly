@@ -151,8 +151,9 @@ export class GameService {
             if(room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random)
             {
                 this.playerInventoryService.updateInventory(server, client, room.gameMap.itemPlacement, player, room.gameMap.itemPlacement[tile.x][tile.y]);
-                // server.to(room.roomId).emit('itemPickedUp', player, room.gameMap.itemPlacement[tile.x][tile.y]);
             }
+            // the items are not removing themselves from the itemPlacement matrix 
+
             player.position = tile;
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
@@ -163,9 +164,10 @@ export class GameService {
                 client.emit('playerFell');
                 break;
             }
-            if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
+            // that if is useless ice costs zero already
+            // if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
                 player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
-            }
+            // }
         }
         this.isMoving = false;
         const reachability = room.navigation.findReachableTiles(player, room.gameMap);
