@@ -1,7 +1,8 @@
 import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { CombatInfo } from '@common/combat-info';
+import { CombatInfos } from '@common/combat-info';
+import { CombatPlayers } from '@common/combat-player';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
@@ -9,35 +10,38 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
 export class CombatService {
-    combatInfos = new Map<string, CombatInfo>();
-    attacker: Player;
-    defender: Player;
-    private gameTime: number;
+    combatInfos = new Map<string, CombatInfos>();
 
     constructor(
         private roomService: RoomService,
         private gameService: GameService,
     ) {}
 
-    emitToCombatPlayers(server: Server, event: string, data?) {
-        server.to(this.attacker.id).emit(event, data);
-        server.to(this.defender.id).emit(event, data);
+    private emitToCombatPlayers(server: Server, players: CombatPlayers, event: string, data?) {
+        server.to(players.attacker.id).emit(event, data);
+        server.to(players.defender.id).emit(event, data);
     }
 
     startFight(client: Socket, player1: Player, player2: Player, isPlayer1Active: boolean, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.attacker = player1;
-        this.defender = player2;
-        this.gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
+        const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
+        const combatPlayers = { attacker: player1, defender: player2 };
+        const combatInfos: CombatInfos = {
+            combatPlayers: combatPlayers,
+            gameTime,
+            room,
+        };
+        this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        this.emitToCombatPlayers(server, 'startFight', { player1, player2, isPlayer1Active });
+        this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
         this.onStartTurn(client, server, room);
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {
-        const turnTime = this.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
+        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        const turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
         this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
-            this.emitToCombatPlayers(server, 'combatTime', timeRemaining);
+            this.emitToCombatPlayers(server, combatPlayers, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
             }
@@ -45,36 +49,39 @@ export class CombatService {
     }
 
     onEndTurn(client: Socket, server: Server, room: Room) {
-        [this.attacker, this.defender] = [this.defender, this.attacker];
-        this.emitToCombatPlayers(server, 'combatTurnEnded', { attacker: this.attacker, defender: this.defender });
+        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
+        this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', combatPlayers);
+
         this.onStartTurn(client, server, room);
     }
 
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const { attackValue, defenseValue } = this.getCombatValues();
-        this.emitToCombatPlayers(server, 'attackValues', { attackValue, defenseValue });
+        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        const { attackValue, defenseValue } = this.getCombatValues(combatPlayers);
+        this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValue, defenseValue });
         if (attackValue.total > defenseValue.total) {
-            this.defender.attributes.currentHp--;
-            this.emitToCombatPlayers(server, 'attackSuccess', this.attacker);
+            combatPlayers.defender.attributes.currentHp--;
+            this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
         } else {
-            this.emitToCombatPlayers(server, 'attackFail', this.attacker);
+            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', combatPlayers.attacker);
         }
-        const isPlayerDead = this.checkIfPlayerIsDead(client, this.defender, this.attacker, server);
+        const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
             this.onEndTurn(client, server, room);
         }
     }
 
-    getCombatValues() {
-        const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
+    getCombatValues(combatPlayers: CombatPlayers) {
+        const attackDiceValue = this.getRandomValue(combatPlayers.attacker.attributes.atkDiceMax);
         const attackValue = {
-            total: this.attacker.attributes.attack + attackDiceValue,
+            total: combatPlayers.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
-        const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
+        const defenseDiceValue = this.getRandomValue(combatPlayers.defender.attributes.defDiceMax);
         const defenseValue = {
-            total: this.defender.attributes.defense + defenseDiceValue,
+            total: combatPlayers.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,
         };
         return { attackValue, defenseValue };
@@ -82,13 +89,15 @@ export class CombatService {
 
     evadingPlayer(client: Socket, player: Player, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.attacker.attributes.evasion--;
+        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.emitToCombatPlayers(server, 'evasionSuccess', player);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', player);
             this.continueTurn(client, server);
-            this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
+            this.combatInfos.delete(room.roomId);
+            this.emitToCombatPlayers(server, combatPlayers, 'combatEnd', room.listPlayers);
         } else {
-            this.emitToCombatPlayers(server, 'evasionFail', player);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', player);
             this.onEndTurn(client, server, room);
         }
     }
@@ -121,6 +130,7 @@ export class CombatService {
 
     combatEnded(room: Room) {
         this.roomService.getFightTimer(room.roomId).stopTimer();
+        this.combatInfos.delete(room.roomId);
         room.listPlayers.forEach((player) => {
             player.attributes.currentHp = player.attributes.totalHp;
         });
@@ -143,17 +153,8 @@ export class CombatService {
                     this.gameService.onTurnEnded(activePlayerSocket, server);
                 }, END_COMBAT_DELAY);
             }
-
             return true;
         }
-        // else if (attacker.attributes.currentHp <= 0) {
-        //     this.replacePlayerOnSpawnPoint(attacker, client, server);
-        //     this.combatFinish(client, attacker, defender, server);
-        //     this.continueTurn(client, server);
-        //     return true;
-        // const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
-        // server.to(room.roomId).emit('reachableTiles', reachability);
-        // }
         return false;
     }
 
@@ -180,13 +181,15 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
-        return client.id === this.attacker?.id || client.id === this.defender?.id;
+        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
+        return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
         const playerWinner = room.listPlayers.find((p) => p.id === player.id);
         playerWinner.victories++;
         this.checkEndGame(playerWinner, room, server);
+        this.combatInfos.delete(room.roomId);
         server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
@@ -241,6 +244,7 @@ export class CombatService {
     }
 
     private getOpponent(client: Socket): Player {
-        return client.id === this.attacker.id ? this.defender : this.attacker;
+        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
+        return client.id === combatPlayers.attacker.id ? combatPlayers.defender : combatPlayers.attacker;
     }
 }

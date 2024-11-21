@@ -119,13 +119,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('pathFound', path);
     }
 
-    /*
-    @SubscribeMessage('getAccessibleTile')
-    handleGetAccessibleTile(){
-        //this.navigation.findReachableTiles();
-    }
-        */
-
     @SubscribeMessage(SocketEvents.StartFight)
     handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
         this.combatService.startFight(client, player1, player2, isPlayer1Active, this.server);
