@@ -55,8 +55,6 @@ export class GameService {
             this.setUniquePlayerName(player, socket, false);
         }
         room.listPlayers.push(player);
-        // console.log(player.avatar);
-        // console.log(room.listPlayers);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
         takenAvatar.isTaken = true;
     }
@@ -182,43 +180,12 @@ export class GameService {
         return newBot;
     }
 
-    updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
     updateAvatarsForAllClients(server: Server, roomId: string) {
         server.sockets.sockets.forEach((clientSocket: Socket) => {
             if (clientSocket.rooms.has(roomId)) {
                 this.sendAvatarListToClient(clientSocket);
             }
         });
-    }
-
-    sendAvatarListToClient(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
-            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
-            return {
-                ...avatar,
-                isTaken: !isSelectedByClient && avatar.isTaken,
-                isSelected: isSelectedByClient,
-            };
-        });
-        socket.emit('characterSelected', customizedAvatarsList);
-    }
-
-    freeUpAvatar(room: Room, socket: Socket) {
-        if (socket.data.clickedAvatar) {
-            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
-            if (previousAvatar) {
-                previousAvatar.isTaken = false;
-            }
-        }
     }
 
     setUniquePlayerName(player: Player, socket: Socket, updateSocketData: boolean) {
@@ -319,6 +286,37 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
+    private freeUpAvatar(room: Room, socket: Socket) {
+        if (socket.data.clickedAvatar) {
+            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
+            if (previousAvatar) {
+                previousAvatar.isTaken = false;
+            }
+        }
+    }
+
+    private updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
     }
 
     private getCost(tileType: number): number {
