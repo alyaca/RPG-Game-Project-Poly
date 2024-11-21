@@ -247,7 +247,7 @@ describe('GamePageComponent', () => {
 
     it('should send debugMode event when admin leaves the game', () => {
         spyOn(component, 'isPlayerAdmin').and.returnValue(true);
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Right));
+        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Left));
 
         component.handleExit();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', false);

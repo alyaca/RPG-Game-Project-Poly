@@ -84,6 +84,8 @@ describe('GameGridComponent', () => {
             'isNeighbor',
             'updateTile',
             'getTileCost',
+            'isTileValid',
+            'findAllTilesDebug',
         ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['hasActionPoints']);
 
@@ -343,6 +345,16 @@ describe('GameGridComponent', () => {
         );
     });
 
+    it('findReachableTiles should call findAllTilesDebug in navigation service when in debug Mode', () =>{
+        component.isActivePlayer = true;
+        component.activePlayer = mockLobbyPlayers[0];
+        navigationServiceSpy.gameMap = mockGameNavigation;
+        navigationServiceSpy.isDebugMode = true;
+        component.findReachableTiles();
+        expect(navigationServiceSpy.findAllTilesDebug).toHaveBeenCalled();
+
+    });
+
     it('should not call findReachableTiles if the player is not active', () => {
         component.isActivePlayer = false;
         component.findReachableTiles();
@@ -353,6 +365,18 @@ describe('GameGridComponent', () => {
         navigationServiceSpy.isReachableTile.and.returnValue(true);
         component.findPath(1, 1);
         expect(navigationServiceSpy.findFastestPath).toHaveBeenCalled();
+    });
+
+    /*if( this.navigationService.isTileValid(row, col)){
+                this.fastestPath = [{ x: row, y: col }];
+        }*/
+
+
+    it('findPath should call define fastestPath with the position of the player hover ', () => {
+        navigationServiceSpy.isDebugMode = true;
+        navigationServiceSpy.isTileValid.and.returnValue(true);
+        component.findPath(1, 1);
+        expect(component.fastestPath).toEqual([{ x: 1, y: 1 }]);
     });
 
     it('should not call findFastestPath if tile is not reachable', () => {
@@ -441,6 +465,17 @@ describe('GameGridComponent', () => {
         expect(navigationServiceSpy.navigateToTile).toHaveBeenCalled();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
+
+    it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
+        gameCreationServiceSpy.isModifiable = false;
+        component.isActivePlayer = true;
+        component.hasStarted = true;
+        component.isMoving = false;
+        navigationServiceSpy.isDebugMode = true;
+        navigationServiceSpy.isTileValid.and.returnValue(true);
+        component.sendNavigation(0, 0);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
+        });
 
     it('navigateToTile should call everything', () => {
         const displayPortraitOnSpawnPointsSpy = spyOn(component, 'displayPortraitOnSpawnPoints');
@@ -741,5 +776,10 @@ describe('GameGridComponent', () => {
     it('should return undefined if there is no game object with the specified id', () => {
         const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
         expect(result).toBeUndefined();
+    });
+
+    it('should return true when in debugMode', () =>{
+        navigationServiceSpy.isDebugMode = true;
+        expect(component.isDebugMode()).toBeTrue();
     });
 });

@@ -139,7 +139,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string }) => {
             const { position, playerId } = data;
-            
             const playerToTeleport = this.navigationService.players.find((player) => player.id === playerId);
             if (playerToTeleport) {
                 this.respawnPlayer(position, playerToTeleport);
