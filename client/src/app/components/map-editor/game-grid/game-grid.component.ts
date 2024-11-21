@@ -12,9 +12,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
+
 import { NO_OBJECT, TileType } from '@app/constants';
-import { NO_OBJECT, ObjectType, TileType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
