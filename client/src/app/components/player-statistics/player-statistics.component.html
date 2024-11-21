@@ -21,5 +21,11 @@
     <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'dmgDealt'}"> {{ player.postGameStats.dmgDealt }} </p>
     <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'dmgTaken'}"> {{ player.postGameStats.dmgTaken }} </p>
     <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'itemsObtained'}"> {{ player.postGameStats.itemsObtained }} </p>
-    <p class="stat" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}"> {{ player.postGameStats.tilesVisited }} </p>
+    <div class="stat">
+        <p class="attr-value" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}"> {{ player.postGameStats.tilesVisited }} </p>
+        <div class="bar-container">
+            <div class="full-bar"></div>
+            <div class="bar" [style.width.%]="getBarWidth(player.postGameStats.tilesVisited, 100)"></div>
+        </div>
+    </div>
 </div>

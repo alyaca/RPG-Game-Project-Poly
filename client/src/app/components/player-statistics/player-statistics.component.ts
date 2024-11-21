@@ -28,4 +28,8 @@ export class PlayerStatisticsComponent {
         return '';
     }
   }
+
+  getBarWidth(attribute: number, max: number): number {
+    return Math.min((attribute), max);
+  }
 }

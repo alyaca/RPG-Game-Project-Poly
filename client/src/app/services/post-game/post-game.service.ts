@@ -50,7 +50,7 @@ export class PostGameService {
     dmgDealt: 20,
     dmgTaken: 12,
     itemsObtained: 2,
-    tilesVisited: 0.78
+    tilesVisited: 78.2
   },{
     combats: 5,
     victories: 2,
@@ -59,7 +59,7 @@ export class PostGameService {
     dmgDealt: 15,
     dmgTaken: 17,
     itemsObtained: 3,
-    tilesVisited: 0.82
+    tilesVisited: 82.5
   },
   {
     combats: 4,
@@ -69,7 +69,7 @@ export class PostGameService {
     dmgDealt: 14,
     dmgTaken: 11,
     itemsObtained: 2,
-    tilesVisited: 0.55,
+    tilesVisited: 55.1,
   },{
     combats: 3,
     victories: 1,
@@ -78,7 +78,7 @@ export class PostGameService {
     dmgDealt: 10,
     dmgTaken: 15,
     itemsObtained: 1,
-    tilesVisited: 0.67,
+    tilesVisited: 67.0,
   },{
     combats: 3,
     victories: 0,
@@ -87,7 +87,7 @@ export class PostGameService {
     dmgDealt: 8,
     dmgTaken: 12,
     itemsObtained: 1,
-    tilesVisited: 0.52,
+    tilesVisited: 52.4,
   },{
     combats: 2,
     victories: 0,
@@ -96,7 +96,7 @@ export class PostGameService {
     dmgDealt: 5,
     dmgTaken: 8,
     itemsObtained: 0,
-    tilesVisited: 0.42,
+    tilesVisited: 42.8,
   }
 ]
 
