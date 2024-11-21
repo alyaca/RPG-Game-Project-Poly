@@ -1,6 +1,6 @@
-@if (isVisible){
-    <div class="popup">
-        <p>{{ message }}</p>
-    </div>
-}
-
+<div id="dialog-box">
+    <h2 mat-dialog-title id="title">{{ data.title }}</h2>
+    <mat-dialog-content class="messages-container">
+        <app-simple-dialog-message [message]="data.message"></app-simple-dialog-message>
+    </mat-dialog-content>
+</div>

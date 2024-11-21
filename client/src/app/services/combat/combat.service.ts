@@ -22,12 +22,12 @@ export class CombatService {
     turnMessage: string;
     activePlayerResult: CombatResult = { total: 0, diceValue: 1 };
     opponentResult: CombatResult = { total: 0, diceValue: 1 };
-    attackResult: CombatResult;
-    defenseResult: CombatResult;
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
     isRolling: boolean = true;
+    private attackResult: CombatResult;
+    private defenseResult: CombatResult;
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
