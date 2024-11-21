@@ -149,7 +149,7 @@ export class CombatService {
     }
 
     checkEndGame(player: Player, room: Room, server: Server) {
-        if (player.victories >= VICTORIES) {
+        if (player.postGameStats.victories >= VICTORIES) {
             server.to(room.roomId).emit('endGame', player);
             this.gameService.stopGameTimers(room);
         }
@@ -176,7 +176,7 @@ export class CombatService {
 
     addVictory(room: Room, player: Player, server: Server) {
         const playerWinner = room.listPlayers.find((p) => p.id === player.id);
-        playerWinner.victories++;
+        playerWinner.postGameStats.victories++;
         this.checkEndGame(playerWinner, room, server);
         server.to(room.roomId).emit('combatEnd', room.listPlayers);
     }

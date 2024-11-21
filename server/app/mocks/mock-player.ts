@@ -1,4 +1,5 @@
 import { Player, Status } from '@common/player';
+import { defaultPostGameStats } from './mock-players';
 
 export const playerNavigation: Player = {
     id: '123',
@@ -19,7 +20,7 @@ export const playerNavigation: Player = {
     isActive: true,
     name: 'Hestia',
     status: Status.Player,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },

@@ -118,6 +118,7 @@ export class CharacterCreatorComponent implements OnDestroy {
             isActive: false,
             name: this.characterName,
             status: Status.Player,
+            inventory: [],
             postGameStats: defaultPostGameStats,
             position: { x: -1, y: -1 },
             spawnPosition: { x: -1, y: -1 },

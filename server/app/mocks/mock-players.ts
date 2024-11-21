@@ -74,7 +74,7 @@ export const mockNavigationPlayers: Player[] = [
         isActive: true,
         name: 'Zeus',
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 3, y: 0 },
         spawnPosition: { x: 0, y: 0 },
