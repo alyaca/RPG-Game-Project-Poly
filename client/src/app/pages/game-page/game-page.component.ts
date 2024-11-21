@@ -12,7 +12,6 @@ import { gameObjects } from '@app/objects-info';
 // import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
-import { NavigationService } from '@app/services/navigation/navigation.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -56,17 +55,17 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
-    combatTurnTime: number;
+
+    doorAround: boolean = false;
+    attackAround: boolean = false;
 
     private playerInventoryService = inject(PlayerInventoryService);
     private gameService = inject(GameService);
-    private navigationService = inject(NavigationService);
+    private router = inject(Router);
 
     constructor(
-        private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-
         public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
@@ -108,6 +107,18 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
+        });
+
+        this.socketCommunicationService.on('doorAround', (doorAround: boolean) => {
+            this.doorAround = doorAround;
+        });
+
+        this.socketCommunicationService.on('doorClicked', () => {
+            this.activePlayer.attributes.actionPoints = 0;
+        });
+
+        this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
+            this.attackAround = attackAround;
         });
 
         this.socketCommunicationService.once('endGame', (winner: Player) => {
@@ -171,9 +182,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.socketCommunicationService.on('isActive', (playerId: string) => {
-            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            const playerToAssign = this.navigationService.players.find((player) => player.id === playerId);
+        this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+            this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
+            const playerToAssign = this.navigationService.players.find((player) => player.id === activePlayer.id);
             if (playerToAssign) {
                 this.activePlayer = playerToAssign;
             }
@@ -314,25 +325,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
-    }
-
-    checkDoors() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkDoor()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    checkAttack() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkAttack() && this.hasActionPoints()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     hasActionPoints() {

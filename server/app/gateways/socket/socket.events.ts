@@ -19,10 +19,10 @@ export enum SocketEvents {
     StartFight = 'startFight',
     AttackPlayer = 'attackPlayer',
     EvadeCombat = 'evadeCombat',
-    DoorClicked = 'doorClicked',
     EndGame = 'endGame',
     InventoryChange = 'inventoryChange',
     BeginItemSwitch = 'beginItemSwitch',
     EndItemSwitch = 'endItemSwitch',
     FullInventory = 'fullInventory',
+    DoorAction = 'doorAction',
 }
