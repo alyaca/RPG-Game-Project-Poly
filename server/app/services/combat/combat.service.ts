@@ -244,7 +244,7 @@ export class CombatService {
     }
 
     private getOpponent(client: Socket): Player {
-        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
+        const combatPlayers = this.combatInfos.get(client.data?.roomCode)?.combatPlayers;
         return client.id === combatPlayers.attacker.id ? combatPlayers.defender : combatPlayers.attacker;
     }
 }
