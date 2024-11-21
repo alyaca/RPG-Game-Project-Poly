@@ -12,7 +12,7 @@ export class Timer {
         this.timeRemaining = duration;
         onTickCallback(this.timeRemaining);
 
-        if (this.isTimerRunning && !this.isPaused) {
+        if (this.isTimerRunning) {
             this.intervalId = setInterval(() => {
                 this.timeRemaining--;
                 onTickCallback(this.timeRemaining);
@@ -55,14 +55,7 @@ export class Timer {
             this.startTimer(this.timeRemaining, onTickCallback);
         }
     }
-    /*
-    resumeTimer() {
-        if (this.isPaused) {
-            this.isPaused = false;
-            this.startTimer(this.timeRemaining, (timeRemaining) => {});
-        }
-    }
-*/
+
     timerFinished() {
         this.timeRemaining = 0;
         this.isTimerRunning = false;

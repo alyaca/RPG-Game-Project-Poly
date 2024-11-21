@@ -1,5 +1,5 @@
 import { Attributes, PostGameStats } from '@common/player';
-import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE } from './constants';
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DEFAULT_EVASION_POINT } from './constants';
 
 export const defaultAttributes: Attributes = {
     totalHp: DEFAULT_ATTRIBUTE,
@@ -12,6 +12,7 @@ export const defaultAttributes: Attributes = {
     atkDiceMax: DEFAULT_ATTRIBUTE,
     defense: DEFAULT_ATTRIBUTE,
     defDiceMax: DEFAULT_ATTRIBUTE,
+    evasion: DEFAULT_EVASION_POINT,
 };
 
 export const defaultPostGameStats: PostGameStats = {

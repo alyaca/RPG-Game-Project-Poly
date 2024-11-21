@@ -59,5 +59,6 @@ export enum TileCost {
 }
 
 export const VICTORIES = 3;
-export const EVASION_LUCK = 40;
-export const EVASION_RANDOM = 100;
+export const EVASION_SUCCESS_RATE = 0.4;
+
+export const DEFAULT_ATTRIBUTE = 4;

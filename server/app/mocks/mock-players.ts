@@ -1,4 +1,5 @@
 import { Player, Attributes, Status, PostGameStats } from '@common/player';
+import { playerNavigation } from './mock-player';
 
 export const mockAttributes: Attributes = {
     totalHp: 4,
@@ -11,6 +12,7 @@ export const mockAttributes: Attributes = {
     atkDiceMax: 4,
     defense: 4,
     defDiceMax: 4,
+    evasion: 2,
 };
 
 export const defaultPostGameStats: PostGameStats = {
@@ -35,6 +37,7 @@ export const mockPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
     },
     {
         id: 'id',
@@ -46,5 +49,34 @@ export const mockPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
+    },
+];
+
+export const mockNavigationPlayers: Player[] = [
+    playerNavigation,
+    {
+        id: '456',
+        attributes: {
+            totalHp: 100,
+            currentHp: 100,
+            speed: 4,
+            movementPointsLeft: 3,
+            maxActionPoints: 1,
+            actionPoints: 1,
+            attack: 1,
+            atkDiceMax: 1,
+            defense: 1,
+            defDiceMax: 1,
+            evasion: 2,
+        },
+        avatar: { id: 21, name: 'a', src: 'a.img', isSelected: true, isTaken: true },
+        isActive: true,
+        name: 'Zeus',
+        status: Status.Player,
+        victories: 0,
+        inventory: [],
+        position: { x: 3, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
     },
 ];

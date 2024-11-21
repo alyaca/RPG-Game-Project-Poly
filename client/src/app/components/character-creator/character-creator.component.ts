@@ -120,6 +120,7 @@ export class CharacterCreatorComponent implements OnDestroy {
             status: Status.Player,
             postGameStats: defaultPostGameStats,
             position: { x: -1, y: -1 },
+            spawnPosition: { x: -1, y: -1 },
         };
     }
 

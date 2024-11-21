@@ -98,4 +98,10 @@ describe('Timer', () => {
         expect(timer['timeRemaining']).toBe(0);
         expect(timer['isTimerRunning']).toBe(false);
     });
+
+    it('should return the correct remaining time', () => {
+        timer.startTimer(STARTING_TIME, onTickCallback);
+
+        expect(timer.getTimeRemaining()).toBe(STARTING_TIME);
+    });
 });

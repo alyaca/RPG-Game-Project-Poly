@@ -18,6 +18,7 @@ export enum SocketEvents {
     SendGameLog = 'sendGameLog',
     StartFight = 'startFight',
     AttackPlayer = 'attackPlayer',
-    DoorClicked = 'doorClicked',
+    EvadeCombat = 'evadeCombat',
     EndGame = 'endGame',
+    DoorAction = 'doorAction',
 }

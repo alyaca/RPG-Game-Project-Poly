@@ -1,5 +1,6 @@
 import { GameObject } from '@common/game-object';
 export interface Avatar {
+    id?: number;
     name: string;
     src: string;
     isSelected?: boolean;
@@ -21,8 +22,9 @@ export interface Player {
     name: string;
     status: Status;
     postGameStats: PostGameStats;
-    inventory?: GameObject[];
-    position: { x: number; y: number };
+    inventory: GameObject[];
+    position: Position;
+    spawnPosition: Position;
 }
 
 export interface Attributes {
@@ -36,6 +38,7 @@ export interface Attributes {
     atkDiceMax: number;
     defense: number;
     defDiceMax: number;
+    evasion: number;
 }
 
 export interface PostGameStats {
