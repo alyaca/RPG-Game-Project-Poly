@@ -214,4 +214,8 @@ attributes: Attribute[] = [
         this.explanations = '';
     }
   }
+
+  getMaxStat(statKey: keyof Player["postGameStats"]): number {
+    return Math.max(...this.players.map(player => player.postGameStats[statKey]));
+  }
 }
