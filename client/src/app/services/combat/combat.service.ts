@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { CombatResult } from '@common/combat-result';
 import { Player } from '@common/player';
@@ -79,6 +80,7 @@ export class CombatService {
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
             this.isRolling = false;
             this.onEvasion(player);
+            this.isInCombat = false;
         });
 
         this.socketCommunicationService.on('evasionFail', (player: Player) => {
@@ -118,47 +120,40 @@ export class CombatService {
     }
 
     onPlayerDisconnected() {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+        this.dialog.open(TemporaryDialogComponent, {
             disableClose: true,
             data: {
-                title: 'Abandon de partie',
-                messages: ["L'adversaire a abandonné la partie. Vous gagnez par défaut le combat."],
+                title: DialogTitle.DefaultFightWin,
+                message: DialogMessages.DefaultFightWin,
+                duration: INFO_DIALOG_TIME,
             },
         });
-
-        setTimeout(() => {
-            dialogRef.close();
-        }, INFO_DIALOG_TIME);
     }
 
     onCombatEnd(winner: Player) {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: DialogTitle.EndFight,
-                messages: [DialogMessages.EndFight + winner.name],
-            },
-        });
-
-        setTimeout(() => {
-            dialogRef.close();
+        this.openTempDialog({
+            title: DialogTitle.EndFight,
+            message: DialogMessages.EndFight + winner.name,
+            duration: INFO_DIALOG_TIME,
+        }).subscribe(() => {
             this.isInCombat = false;
-        }, INFO_DIALOG_TIME);
+        });
     }
 
     onEvasion(player: Player) {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Evasion',
-                messages: [`${player.name} a réussi à s'évader !`],
-            },
+        this.openTempDialog({
+            title: DialogTitle.SuccessEvasion,
+            message: player.name + " a réussi à s'évader !",
+            duration: INFO_DIALOG_TIME,
         });
+    }
 
-        setTimeout(() => {
-            dialogRef.close();
-            this.isInCombat = false;
-        }, INFO_DIALOG_TIME);
+    openTempDialog(dialogData: TempDialogData) {
+        const dialogRef = this.dialog.open(TemporaryDialogComponent, {
+            disableClose: true,
+            data: dialogData,
+        });
+        return dialogRef.afterClosed();
     }
 
     resetPlayerHp(player1: Player, player2: Player) {
@@ -176,5 +171,9 @@ export class CombatService {
 
     isCurrentTurn() {
         return this.socketCommunicationService.socket.id === this.attacker.id;
+    }
+
+    isCurrentPlayer(player: Player) {
+        return this.socketCommunicationService.socket.id === player.id;
     }
 }

@@ -1,9 +1,9 @@
-#dialog-box {
+.dialog-box {
     background: linear-gradient(to left, rgb(49, 45, 34), rgb(79, 73, 62));
     color: white;
 }
 
-#title {
+#dialog-title {
     font-family: papyrus;
     font-weight: 900;
     text-align: center;
@@ -14,6 +14,6 @@
     margin-top: -1%;
 }
 
-.messages-container {
+.dialog-message {
     margin-top: 3%;
 }

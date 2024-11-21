@@ -214,6 +214,8 @@ export enum DialogTitle {
     EndTurn = 'Fin de votre tour',
     EndGame = 'Fin de la partie',
     EndFight = 'Fin du combat',
+    DefaultFightWin = 'Abandon de partie',
+    SuccessEvasion = 'Évasion réussie',
 }
 
 export enum DialogMessages {
@@ -225,6 +227,7 @@ export enum DialogMessages {
     DrawGame = "Tous les joueurs ont abandonné. Vous aller être redirigé vers l'accueil.",
     Fell = 'Vous avez glissé sur la glace. Votre tour est terminé.',
     EndFight = 'Le combat est terminé. Le gagnant du combat est ',
+    DefaultFightWin = "L'adversaire a abandonné la partie. Vous gagnez par défaut le combat.",
 }
 export enum DialogResult {
     Right = 'right',
