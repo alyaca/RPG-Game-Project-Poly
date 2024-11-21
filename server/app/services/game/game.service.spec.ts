@@ -617,4 +617,17 @@ describe('GameService', () => {
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
         });
     });
+
+    describe('checkEndTurn', () => {
+        it('should return early if no active player', () => {
+            const path = [
+                { x: 0, y: 0 },
+                { x: 1, y: 0 },
+            ];
+            (roomService.getRoom as jest.Mock).mockReturnValue(room);
+            room.listPlayers = mockPlayers;
+            service.checkEndTurn(mockSocket, undefined);
+            room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
+        });
+    });
 });

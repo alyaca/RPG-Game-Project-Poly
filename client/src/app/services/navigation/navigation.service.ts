@@ -99,10 +99,6 @@ export class NavigationService {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
 
-    getActivePlayer(): Player {
-        return this.players.find((player) => player.isActive) || this.players[0];
-    }
-
     isNeighbor(row: number, col: number, player: Player): boolean {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
         return neighbors.some((neighbor) => neighbor.x === row && neighbor.y === col);

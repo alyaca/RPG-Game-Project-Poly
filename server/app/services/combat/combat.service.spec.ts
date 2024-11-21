@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { EVASION_SUCCESS_RATE } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { CombatService } from '@app/services/combat/combat.service';
@@ -42,9 +42,11 @@ describe('CombatService', () => {
         mockServer = {
             to: jest.fn().mockReturnThis(),
             emit: jest.fn(),
+            sockets: {
+                sockets: new Map(),
+            },
         } as unknown as jest.Mocked<Server>;
 
-        mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
         mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
         attacker = { id: 'attackerId', attributes: { currentHp: 10, totalHp: 10, evasion: 2 } } as Player;
         defender = { id: 'defenderId', attributes: { currentHp: 10, totalHp: 10 } } as Player;
@@ -298,6 +300,11 @@ describe('CombatService', () => {
     });
 
     it('should call onTurnEnded if time remaining is 0 or less', () => {
+        jest.useFakeTimers();
+        const player = mockPlayers[0];
+        mockGameService.getActivePlayer.mockReturnValue(player);
+        const mockSocket = { id: player.id } as Socket;
+        mockServer.sockets.sockets.set(player.id, mockSocket);
         mockRoomService.getTurnTimer.mockReturnValue({
             resumeTimer: jest.fn((callback: (timeRemaining: number) => void) => {
                 callback(0);
@@ -307,7 +314,9 @@ describe('CombatService', () => {
         service.combatEnded = jest.fn();
 
         service.continueTurn(mockClient, mockServer);
+        jest.advanceTimersByTime(END_COMBAT_DELAY);
 
-        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(mockClient, mockServer);
+        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(mockSocket, mockServer);
+        jest.useRealTimers();
     });
 });
