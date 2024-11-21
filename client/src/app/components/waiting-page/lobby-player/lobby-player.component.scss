@@ -1,5 +1,6 @@
 .player {
     height: 110%;
+    max-height: 60vh;
     color: white;
     background: linear-gradient(to bottom, rgb(165, 165, 165), rgba(242, 242, 242, 0.9) 33%, rgba(226, 226, 226, 0.6) 67%, rgb(117, 108, 66, 0));
     position: relative;
