@@ -61,3 +61,5 @@ export enum TileCost {
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
 export const END_COMBAT_DELAY = 2500;
+
+export const DEFAULT_ATTRIBUTE = 4;

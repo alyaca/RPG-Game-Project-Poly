@@ -1,3 +1,4 @@
+import { Navigation } from '../server/app/classes/navigation/navigation';
 import { Game } from './game';
 import { Avatar, Player } from './player';
 
@@ -14,4 +15,5 @@ export interface Room {
     adminId: string;
     isLocked: boolean;
     gameStatus: GameStatus;
+    navigation?: Navigation;
 }

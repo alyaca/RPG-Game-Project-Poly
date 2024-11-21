@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ObjectType, TileCost, TileType } from '@app/constants';
-import { PointWithDistance } from '@app/interfaces/map-position';
+import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 
@@ -30,8 +29,6 @@ export class NavigationService {
     initialPositions: Position[] = [];
     positions: number[][];
     private objects: number[][];
-    private distances: number[][];
-    private previous: Position[][];
     private reachableTiles: Position[];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
@@ -53,17 +50,7 @@ export class NavigationService {
     }
 
     removePlayer(player: Player): void {
-        this.players = this.players.filter((p) => p.id !== player.id);
         this.positions[player.position.x][player.position.y] = 0;
-    }
-
-    showDetails(row: number, col: number) {
-        const clickedPlayer = this.players.find((player) => player.position.x === row && player.position.y === col);
-        if (clickedPlayer) {
-            return `${clickedPlayer.name}, ${clickedPlayer.avatar}`;
-        } else {
-            return `${this.positions[row][col].valueOf()}`;
-        }
     }
 
     isInInitialPosition(position: Position): boolean {
@@ -108,109 +95,12 @@ export class NavigationService {
         return godNameToObjectType.get(godName || '') ?? ObjectType.Spawn;
     }
 
-    findFastestPath(player: Player, destination: Position, game: Game): Position[] {
-        this.initializeDistances(player, game);
-
-        const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
-
-        while (priorityQueue.length > 0) {
-            const nextNode = this.getNextNode(priorityQueue);
-            if (!nextNode || this.isDestinationReached(nextNode, destination)) break;
-
-            const neighbors = this.getNeighbors(nextNode, game);
-            this.exploreNeighbors(neighbors, nextNode, priorityQueue, game);
-        }
-        return this.reconstructPath(destination);
-    }
-
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
 
-    initializeDistances(player: Player, game: Game): void {
-        const dimension = game.dimension;
-        this.distances = Array.from({ length: dimension }, () => Array(dimension).fill(Infinity));
-        this.previous = Array.from({ length: dimension }, () => Array(dimension).fill(null));
-        this.distances[player.position.x][player.position.y] = 0;
-    }
-
-    findReachableTiles(player: Player, game: Game, maxMovementPoints: number): Position[] {
-        this.initializeDistances(player, game);
-
-        const reachableTiles: Position[] = [];
-        const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
-
-        while (priorityQueue.length > 0) {
-            const nextNode = this.getNextNode(priorityQueue);
-            if (!nextNode || nextNode.distance > maxMovementPoints) continue;
-
-            reachableTiles.push({ x: nextNode.x, y: nextNode.y });
-            const neighbors = this.getNeighbors(nextNode, game);
-            this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
-        }
-        reachableTiles.shift();
-        this.reachableTiles = reachableTiles;
-        return reachableTiles;
-    }
-
-    navigateToTile(player: Player, destination: Position, game: Game): Position[] {
-        if (this.isReachableTile(destination.x, destination.y)) {
-            this.path = this.findFastestPath(player, destination, game);
-            if (this.path.length > 0) {
-                this.path.shift();
-                return this.path;
-            }
-        }
-        return [];
-    }
-
-    checkAttack(): Player | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (this.players.some((player) => player.position.x === neighbor.x && player.position.y === neighbor.y)) {
-                return this.players.find((player) => player.position.x === neighbor.x && player.position.y === neighbor.y);
-            }
-        }
-        return undefined;
-    }
-
     getActivePlayer(): Player {
         return this.players.find((player) => player.isActive) || this.players[0];
-    }
-
-    haveActions(): boolean {
-        if (this.checkAttack() || this.checkDoor()) {
-            return true;
-        }
-        return false;
-    }
-
-    checkDoor(): Position | undefined {
-        const neighbors = this.getNeighbors(this.getActivePlayer().position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.ClosedDoor ||
-                this.gameMap.tiles[neighbor.x][neighbor.y] === TileType.OpenDoor
-            ) {
-                return neighbor;
-            }
-        }
-        return undefined;
-    }
-
-    getTileCost(tileType: number): number {
-        switch (tileType) {
-            case TileType.Ground:
-                return TileCost.Ground;
-            case TileType.Water:
-                return TileCost.Water;
-            case TileType.Ice:
-                return TileCost.Ice;
-            case TileType.OpenDoor:
-                return TileCost.OpenDoor;
-            default:
-                return Infinity;
-        }
     }
 
     isNeighbor(row: number, col: number, player: Player): boolean {
@@ -228,66 +118,6 @@ export class NavigationService {
         return directions
             .map(({ dx, dy }) => ({ x: position.x + dx, y: position.y + dy }))
             .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
-    }
-
-    private exploreNeighborsForReachableTiles(
-        neighbors: Position[],
-        current: PointWithDistance,
-        priorityQueue: PointWithDistance[],
-        maxMovementPoints: number,
-        game: Game,
-    ): void {
-        const { x: currentX, y: currentY, distance: currentDistance } = current;
-        for (const neighbor of neighbors) {
-            const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
-            const tileCost = this.getTileCost(game.tiles[newX][newY]);
-            const newDistance = currentDistance + tileCost;
-
-            if (newDistance < this.distances[newX][newY] && newDistance <= maxMovementPoints) {
-                this.distances[newX][newY] = newDistance;
-                this.previous[newX][newY] = { x: currentX, y: currentY };
-                priorityQueue.push({ x: newX, y: newY, distance: newDistance });
-            }
-        }
-    }
-
-    private getNextNode(priorityQueue: PointWithDistance[]): PointWithDistance | undefined {
-        priorityQueue.sort((a, b) => a.distance - b.distance);
-        return priorityQueue.shift();
-    }
-
-    private isDestinationReached(position: PointWithDistance, destination: Position): boolean {
-        return position.x === destination.x && position.y === destination.y;
-    }
-
-    private exploreNeighbors(neighbors: Position[], current: PointWithDistance, priorityQueue: PointWithDistance[], game: Game): void {
-        const { x: currentX, y: currentY, distance: currentDistance } = current;
-        for (const neighbor of neighbors) {
-            const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.positions[newX][newY] >= ObjectType.Hestia) continue;
-            const tileCost = this.getTileCost(game.tiles[newX][newY]);
-            const newDistance = currentDistance + tileCost;
-
-            if (newDistance < this.distances[newX][newY]) {
-                this.distances[newX][newY] = newDistance;
-                this.previous[newX][newY] = { x: currentX, y: currentY };
-                priorityQueue.push({ x: newX, y: newY, distance: newDistance });
-            }
-        }
-    }
-
-    private reconstructPath(destination: Position): Position[] {
-        const path: Position[] = [];
-        let current = destination;
-
-        while (current) {
-            path.push(current);
-            current = this.previous[current.x][current.y];
-        }
-        return path.reverse();
     }
 
     private isValidTile(x: number, y: number, dimension: number): boolean {
