@@ -183,7 +183,7 @@ describe('GamePageComponent', () => {
         spyOn(component, 'timerEvents');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'isActive') {
-                callback(mockPlayers[0].id as T);
+                callback(mockPlayers[0] as T);
             }
         });
         component.ngAfterViewInit();
@@ -262,33 +262,6 @@ describe('GamePageComponent', () => {
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {
         component.onEndTurn();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
-    });
-
-    it('should return true if checkDoor returns true', () => {
-        component.activePlayer = mockPlayers[0];
-        navigationServiceSpy.checkDoor.and.returnValue(mockPlayers[0].position);
-        const result = component.checkDoors();
-        expect(result).toBeTrue();
-    });
-
-    it('should return false when checkDoor returns an invalid Position', () => {
-        navigationServiceSpy.checkDoor.and.returnValue(undefined);
-        const result = component.checkDoors();
-        expect(result).toBeFalse();
-    });
-
-    it('should return true if checkAttack returns true', () => {
-        component.activePlayer = mockPlayers[0];
-        navigationServiceSpy.checkAttack.and.returnValue(mockPlayers[0]);
-        spyOn(component, 'hasActionPoints').and.returnValue(true);
-        const result = component.checkAttack();
-        expect(result).toBeTrue();
-    });
-
-    it('should return false if checkAttack returns false', () => {
-        navigationServiceSpy.checkAttack.and.returnValue(undefined);
-        const result = component.checkAttack();
-        expect(result).toBeFalse();
     });
 
     it('should return the correct player count when allPlayers is defined and has players', () => {

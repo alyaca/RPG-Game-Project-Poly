@@ -53,13 +53,16 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
 
-    private navigationService = inject(NavigationService);
+    doorAround: boolean = false;
+    attackAround: boolean = false;
+
+    private router = inject(Router);
 
     constructor(
-        private router: Router,
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public gameService: GameService,
+        private navigationService: NavigationService,
         public combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
@@ -96,10 +99,23 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
             this.combatService.isInCombat = false;
+            this.activePlayer.attributes.actionPoints = 0;
         });
 
         this.socketCommunicationService.on('playerFell', () => {
             this.onPlayerFell();
+        });
+
+        this.socketCommunicationService.on('doorAround', (doorAround: boolean) => {
+            this.doorAround = doorAround;
+        });
+
+        this.socketCommunicationService.on('doorClicked', () => {
+            this.activePlayer.attributes.actionPoints = 0;
+        });
+
+        this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
+            this.attackAround = attackAround;
         });
 
         this.socketCommunicationService.once('endGame', (winner: Player) => {
@@ -120,9 +136,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.socketCommunicationService.on('isActive', (playerId: string) => {
-            this.isActivePlayer = playerId === this.socketCommunicationService.socket.id;
-            const playerToAssign = this.navigationService.players.find((player) => player.id === playerId);
+        this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+            this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
+            const playerToAssign = this.navigationService.players.find((player) => player.id === activePlayer.id);
             if (playerToAssign) {
                 this.activePlayer = playerToAssign;
             }
@@ -240,25 +256,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
-    }
-
-    checkDoors() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkDoor()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    checkAttack() {
-        if (this.activePlayer) {
-            if (this.navigationService.checkAttack() && this.hasActionPoints()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     hasActionPoints() {

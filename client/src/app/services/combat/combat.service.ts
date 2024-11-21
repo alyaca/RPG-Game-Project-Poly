@@ -3,10 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { ATTACK_TIME, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { CombatResult } from '@common/combat-result';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
-// import { NavigationService } from '../navigation/navigation.service';
-import { CombatResult } from '@common/combat-result';
 @Injectable({
     providedIn: 'root',
 })
