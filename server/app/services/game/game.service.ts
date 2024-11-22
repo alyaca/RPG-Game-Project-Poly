@@ -126,8 +126,9 @@ export class GameService {
 
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        room.globalPostGameStats.turns++;
+        
         if (!this.isMoving) {
+            room.globalPostGameStats.turns++;
             this.updateActivePlayer(client);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
