@@ -61,4 +61,6 @@ export enum TileCost {
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
 
+export const DEFAULT_ATTRIBUTE = 4;
+
 export const MIN_DICE_VALUE = 1;

@@ -12,7 +12,6 @@ import { Server, Socket } from 'socket.io';
 export class GameService {
     isMoving: boolean = false;
     isTurnSkipped: boolean = false;
-    isDebugMode: boolean = false;
 
     constructor(
         private roomService: RoomService,
@@ -61,11 +60,19 @@ export class GameService {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
+
+        if(isAdmin && room.isDebug){
+            room.isDebug = false;
+            server.to(roomId).emit('debugMode', false);
+        }
         if (isAdmin && room.gameStatus === GameStatus.Lobby) {
             this.roomService.deleteRoom(roomId, socket);
         } else if (room.gameStatus === GameStatus.Started) {
             this.playerDisconnected(room, socket, server);
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
+            const activePlayer = this.getActivePlayer(room);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room);
+            server.to(room.roomId).emit('reachableTiles', reachability);
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
@@ -126,8 +133,14 @@ export class GameService {
         if (!this.isMoving) {
             this.updateActivePlayer(client);
             const activePlayer = this.getActivePlayer(room);
-            server.to(room.roomId).emit('isActive', activePlayer.id);
+            activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
+            server.to(room.roomId).emit('reachability', activePlayer);
+            server.to(room.roomId).emit('isActive', activePlayer);
             server.to(room.roomId).emit('turnEnded', room.listPlayers);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room);
+            server.to(room.roomId).emit('reachableTiles', reachability);
+            this.checkDoors(room, server);
+            this.checkAttack(room, server);
         } else {
             this.isTurnSkipped = true;
         }
@@ -139,31 +152,100 @@ export class GameService {
         this.gameLogsService.sendDebugMessage(isDebugMode, room.roomId, server);
     }
 
-    async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+    processTeleportation(room: Room, server: Server, path: Position[], client: Socket){
         const player = this.getActivePlayer(room);
-        for (const tile of path) {
-            this.isMoving = true;
-            player.position = tile;
-            if (this.isMoving) {
-                await this.delay(MOVEMENT_TIME);
-            }
-            server.to(room.roomId).emit('playerNavigation', tile);
-            if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
-                this.stopGameTimers(room);
-                client.emit('playerFell');
-                break;
-            }
-            if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
-                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
-            }
-        }
-        this.getActivePlayer(room).attributes.movementPointsLeft = this.getActivePlayer(room).attributes.speed;
+        const playerId = player.id;
+        const position = path[0];
+        player.position = position;
+        server.to(room.roomId).emit('teleportPlayer', {position, playerId});
+
+    
+        
+        const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');
+        server.to(room.roomId).emit('reachableTiles', reachability);
+        this.checkDoors(room, server);
+        this.checkAttack(room, server);
+    }
+
+    async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+        // TODO : refactor this
+        const player = this.getActivePlayer(room);
+            for (const tile of path) {
+                this.isMoving = true;
+                player.position = tile;
+                if (this.isMoving) {
+                    await this.delay(MOVEMENT_TIME);
+                }
+                server.to(room.roomId).emit('playerNavigation', tile);
+                if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
+                    this.stopGameTimers(room);
+                    client.emit('playerFell');
+                    break;
+                }
+                if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
+                    player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
+                }
+            }
+       
         this.isMoving = false;
+        const reachability = room.navigation.findReachableTiles(player, room);
+        server.to(room.roomId).emit('endMovement');
+        server.to(room.roomId).emit('reachableTiles', reachability);
+        if (this.checkEndTurn(client, player)) {
+            this.onTurnEnded(client, server);
+            return;
+        }
         if (this.isTurnSkipped) {
             this.onTurnEnded(client, server);
             this.isTurnSkipped = false;
+            return;
         }
+        this.checkDoors(room, server);
+        this.checkAttack(room, server);
+    }
+
+    checkDoors(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+            server.to(room.roomId).emit('doorAround', true);
+        } else {
+            server.to(room.roomId).emit('doorAround', false);
+        }
+    }
+
+    checkAttack(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+            server.to(room.roomId).emit('attackAround', true);
+        } else {
+            server.to(room.roomId).emit('attackAround', false);
+        }
+    }
+
+    checkEndTurn(client: Socket, activePlayer: Player): boolean {
+        if (!activePlayer || !this.isActivePlayer) return;
+        const room = this.roomService.getRoom(client);
+        const reachableTileCount = room.navigation.findReachableTiles(activePlayer, room).length;
+        const players = room.listPlayers;
+
+        // Player has movement point left, no action left.
+        // Player is blocked by closed door or players.
+        if (!room.navigation.haveActions(activePlayer, players) && reachableTileCount === 0) {
+            return true;
+        }
+
+        // Player has no movement point left. Player has action point left but
+        // no valid target on adjacent tiles.
+        else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.haveActions(activePlayer, players)) {
+            return true;
+        }
+
+        // Player has no movement point or action left.
+        else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.hasActionPoints(activePlayer)) {
+            return true;
+        }
+        return false;
     }
 
     async delay(ms: number) {
@@ -186,9 +268,6 @@ export class GameService {
     }
 
     private checkFell(): boolean {
-        if(this.isDebugMode){
-            return true;
-        }
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
     }

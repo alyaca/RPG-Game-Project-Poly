@@ -412,14 +412,20 @@ describe('GameService', () => {
             { id: 'player1', attributes: { speed: 10 }, status: Status.Player, isActive: true },
             { id: 'player2', attributes: { speed: 20 }, status: Status.Player, isActive: false },
         ] as unknown as Player[];
+        const mockTiles = [{ x: 0, y: 0 }];
         room.listPlayers = players;
         service['updateActivePlayer'] = jest.fn();
         jest.spyOn(service, 'getActivePlayer').mockReturnValue(players[0]);
+        service.checkDoors = jest.fn();
+        service.checkAttack = jest.fn();
 
+        room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
         service.onTurnEnded(mockSocket, mockServer);
 
-        expect(mockServer.to(roomId).emit).toHaveBeenCalled();
+        expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('reachability', players[0]);
+        expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('isActive', players[0]);
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('turnEnded', room.listPlayers);
+        expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('reachableTiles', mockTiles);
     });
 
     it('should not update active player if moving', () => {
@@ -596,7 +602,7 @@ describe('GameService', () => {
         });
         it('should navigate and emit player navigation', async () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
-
+            room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
             await service.processNavigation(room, server, path, mockSocket);
 
             expect(service.getActivePlayer).toHaveBeenCalledWith(room);

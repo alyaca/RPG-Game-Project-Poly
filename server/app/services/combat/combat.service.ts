@@ -1,4 +1,4 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, MIN_DICE_VALUE, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
@@ -67,12 +67,16 @@ export class CombatService {
     }
 
     getCombatValues() {
-        const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
+        //const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
+        const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
+
         const attackValue = {
             total: this.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
-        const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
+       // const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
+        const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
+
         const defenseValue = {
             total: this.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,
@@ -129,6 +133,8 @@ export class CombatService {
             this.combatFinish(client, defender, attacker, server);
             if (activePlayer.id !== defender.id) {
                 this.continueTurn(client, server);
+                const reachability = room.navigation.findReachableTiles(attacker, room);
+                server.to(room.roomId).emit('reachableTiles', reachability);
             } else {
                 this.combatEnded(room);
                 this.gameService.onTurnEnded(client, server);
@@ -140,6 +146,8 @@ export class CombatService {
         //     this.combatFinish(client, attacker, defender, server);
         //     this.continueTurn(client, server);
         //     return true;
+        // const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+        // server.to(room.roomId).emit('reachableTiles', reachability);
         // }
         return false;
     }
@@ -167,7 +175,7 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
-        if (client) return client.id === this.attacker?.id || client.id === this.defender?.id;
+        return client.id === this.attacker?.id || client.id === this.defender?.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
@@ -183,12 +191,12 @@ export class CombatService {
         if (!playerToReplace) return;
         room.gameMap.itemPlacement[playerToReplace.position.x][playerToReplace.position.y] = 0;
         if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
+            const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
-            const newPosition = playerToReplace.spawnPosition;
-            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         } else {
-            const newPosition = this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
-            server.to(room.roomId).emit('respawnPlayer', { newPosition, playerToReplace });
+            const oldPosition = playerToReplace.position;
+            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         }
     }
 
