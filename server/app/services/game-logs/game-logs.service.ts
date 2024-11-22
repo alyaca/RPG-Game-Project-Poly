@@ -1,4 +1,4 @@
-import { MAX_GENERATION_VALUE } from '@app/constants';
+import { MAX_GENERATION_VALUE, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
 import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
@@ -47,11 +47,29 @@ export class GameLogsService {
         }
     }
 
+    sendDoorMessage(tile: TileType, player: Player, roomId: string, server: Server) {
+        const currentLog = this.lastLog.get(roomId);
+        const message = tile === TileType.OpenDoor ? this.generateOpenDoorMessage(player.name) : this.generateCloseDoorMessage(player.name);
+        if (currentLog !== message) {
+            this.lastLog.set(roomId, message);
+            const log = this.createLog([player], message, roomId);
+            server.to(roomId).emit('logReceived', log);
+        }
+    }
+
     generateTurnMessage(player: Player): string {
         return `Début du tour du joueur ${player.name}.`;
     }
 
     generateGiveUpGame(playerName: string): string {
         return `${playerName} a abandonné la partie.`;
+    }
+
+    generateOpenDoorMessage(playerName: string): string {
+        return `${playerName} a ouvert une porte.`;
+    }
+
+    generateCloseDoorMessage(playerName: string): string {
+        return `${playerName} a fermé une porte.`;
     }
 }

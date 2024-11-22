@@ -1,4 +1,5 @@
 import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
+import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -219,6 +220,19 @@ export class GameService {
             return true;
         }
         return false;
+    }
+
+    handleDoor(client: Socket, server: Server, doorActionData: DoorActionData) {
+        const { position, player } = doorActionData;
+        const room = this.roomService.getRoom(client);
+        const activePlayer = this.getActivePlayer(room);
+
+        if (room.navigation.hasHandleDoorAction(position.x, position.y, player)) {
+            this.gameLogsService.sendDoorMessage(room.gameMap.tiles[position.x][position.y], activePlayer, room.roomId, server);
+            server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+            server.to(room.roomId).emit('reachableTiles', reachability);
+        }
     }
 
     async delay(ms: number) {
