@@ -34,11 +34,18 @@ export class PostGameService {
     // for(let i = 0; i < this.players.length; i++){
     //   this.players[i].postGameStats = this.tempPlayerStats[i];
     // }
+    // this.globalStats = {
+    //   gameDuration: '00:00',
+    //   turns: 16,
+    //   globalTilesVisited: 30,
+    //   doorsInteracted: 50,
+    //   nbFlagBearers: 0,
+    // }
     this.globalStats = {
       gameDuration: '00:00',
-      turns: 16,
-      globalTilesVisited: 30,
-      doorsInteracted: 50,
+      turns: 0,
+      globalTilesVisited: 0,
+      doorsInteracted: 0,
       nbFlagBearers: 0,
     }
   }

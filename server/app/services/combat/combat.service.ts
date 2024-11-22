@@ -56,6 +56,7 @@ export class CombatService {
         this.emitToCombatPlayers(server, 'attackValues', { attackValue, defenseValue });
         if (attackValue.total > defenseValue.total) {
             this.defender.attributes.currentHp--;
+            this.addDmgStats(room);
             this.emitToCombatPlayers(server, 'attackSuccess', this.attacker);
         } else {
             this.emitToCombatPlayers(server, 'attackFail', this.attacker);
@@ -85,6 +86,7 @@ export class CombatService {
         this.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
             this.emitToCombatPlayers(server, 'evasionSuccess', player);
+            this.addDraws(room);
             this.continueTurn(client, server);
             this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
         } else {
@@ -99,6 +101,7 @@ export class CombatService {
 
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        this.addDefeat(room, player1);
         this.addVictory(room, player2, server);
         client.to(room.roomId).emit('playerDead', player1);
     }
@@ -177,8 +180,31 @@ export class CombatService {
     addVictory(room: Room, player: Player, server: Server) {
         const playerWinner = room.listPlayers.find((p) => p.id === player.id);
         playerWinner.postGameStats.victories++;
+        playerWinner.postGameStats.combats++;
         this.checkEndGame(playerWinner, room, server);
         server.to(room.roomId).emit('combatEnd', room.listPlayers);
+    }
+
+    addDefeat(room: Room, player: Player){
+        const playerLoser = room.listPlayers.find((p) => p.id === player.id);
+        playerLoser.postGameStats.defeats++;
+        playerLoser.postGameStats.combats++;
+    }
+
+    addDraws(room: Room){
+        const player1 = room.listPlayers.find((p) => p.id === this.attacker.id);
+        const player2 = room.listPlayers.find((p) => p.id === this.defender.id);
+        player1.postGameStats.evasions++;
+        player1.postGameStats.combats++;
+        player2.postGameStats.evasions++;
+        player2.postGameStats.combats++;
+    }
+
+    addDmgStats(room: Room){
+        const attacker = room.listPlayers.find((p) => p.id === this.attacker.id);
+        const defender = room.listPlayers.find((p) => p.id === this.defender.id);
+        attacker.postGameStats.dmgDealt++;
+        defender.postGameStats.dmgTaken++;
     }
 
     replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server): void {
