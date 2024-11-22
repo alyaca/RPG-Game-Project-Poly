@@ -1,4 +1,4 @@
-import { Player, Status } from '@common/player';
+import { Player, Status, Behavior } from '@common/player';
 import { defaultPostGameStats } from './mock-players';
 
 export const playerNavigation: Player = {
@@ -24,4 +24,5 @@ export const playerNavigation: Player = {
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
 };

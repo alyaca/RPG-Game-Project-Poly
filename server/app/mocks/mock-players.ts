@@ -1,4 +1,4 @@
-import { Player, Attributes, Status, PostGameStats } from '@common/player';
+import { Behavior, Player, Attributes, Status, PostGameStats } from '@common/player';
 import { playerNavigation } from './mock-player';
 
 export const mockAttributes: Attributes = {
@@ -37,6 +37,7 @@ export const mockPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
     },
     {
@@ -45,11 +46,12 @@ export const mockPlayers: Player[] = [
         avatar: undefined,
         isActive: false,
         name: 'name',
-        status: Status.Player,
+        status: Status.Bot,
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
     },
 ];
 
@@ -78,5 +80,20 @@ export const mockNavigationPlayers: Player[] = [
         inventory: [],
         position: { x: 3, y: 0 },
         spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
     },
 ];
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: mockPlayerStats,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};

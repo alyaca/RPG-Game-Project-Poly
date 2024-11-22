@@ -6,7 +6,7 @@ import { ErrorMessages, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants
 import { defaultPostGameStats } from '@app/default-attributes';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Player, Attributes, Status } from '@common/player';
+import { Avatar, Behavior, Player, Attributes, Status } from '@common/player';
 
 @Component({
     selector: 'app-character-creator',
@@ -121,6 +121,7 @@ export class CharacterCreatorComponent implements OnDestroy {
             inventory: [],
             postGameStats: defaultPostGameStats,
             position: { x: -1, y: -1 },
+            behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
         };
     }

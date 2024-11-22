@@ -8,7 +8,7 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
-import { Player, Status } from '@common/player';
+import { Behavior, Player, Status } from '@common/player';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -67,6 +67,10 @@ describe('SocketGateway', () => {
             onTurnEnded: jest.fn(),
             onStartTurn: jest.fn(),
             processNavigation: jest.fn(),
+            assignAvatarToBot: jest.fn(),
+            assignStatsToBot: jest.fn(),
+            updateAvatarsForAllClients: jest.fn(),
+            createBot: jest.fn(),
         };
 
         socket = {
@@ -395,6 +399,46 @@ describe('SocketGateway', () => {
     //     gateway.handleDoorAction(mockClient, doorActionData);
     //     expect(server.to(roomId).emit).toHaveBeenCalledWith('doorClicked', gateway['navigation'].gameMap.tiles);
     // });
+
+    it('should create and assign a bot with an avatar and stats, then notify clients', () => {
+        const behavior = Behavior.Aggressive;
+
+        const mockRoom = mockRooms[0];
+        jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
+
+        gateway.handleCreateBot(mockClient, behavior);
+
+        expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
+        expect(gameService.createBot).toHaveBeenCalledWith(mockRoom, behavior, mockClient, server);
+        expect(server.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
+    });
+
+    it('should kick a bot, update avatars, and notify clients', () => {
+        const mockRoom = mockRooms[2];
+        const botId = 'bot';
+        const botPlayer = mockRoom.listPlayers.find((player) => player.id === botId);
+
+        if (botPlayer) {
+            botPlayer.avatar = avatars[0];
+            botPlayer.avatar.isTaken = true;
+        }
+
+        jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
+
+        gateway.handleKickBot(mockClient, botId);
+        expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
+
+        expect(mockRoom.listPlayers).not.toContainEqual(expect.objectContaining({ id: botId }));
+        expect(mockRoom.listPlayers.find((player) => player.id === botId)).toBeUndefined();
+
+        expect(server.to).toHaveBeenCalledWith(botId);
+        expect(server.to(botId).emit).toHaveBeenCalledWith('kickPlayer', botId);
+
+        expect(server.to).toHaveBeenCalledWith(mockRoom.roomId);
+        expect(server.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
+
+        expect(gameService.updateAvatarsForAllClients).toHaveBeenCalledWith(server, mockRoom.roomId);
+    });
 
     it('should call startFight startFight event', () => {
         const player1 = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;

@@ -1,5 +1,6 @@
 import { defaultPostGameStats } from '@app/default-attributes';
-import { Player, Attributes, Status } from '@common/player';
+import { defaultAttributes } from '@app/default-attributes';
+import { Player, Attributes, Status, Behavior } from '@common/player';
 
 const mockAttributes: Attributes = {
     totalHp: 4,
@@ -26,6 +27,7 @@ export const mockPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
     },
     {
@@ -38,6 +40,7 @@ export const mockPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 1, y: 1 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 1 },
     },
     {
@@ -50,6 +53,21 @@ export const mockPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
     },
 ];
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: defaultAttributes,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};

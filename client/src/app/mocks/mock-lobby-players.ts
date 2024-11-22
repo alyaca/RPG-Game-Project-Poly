@@ -1,6 +1,6 @@
 import { defaultAttributes, defaultPostGameStats } from '@app/default-attributes';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Player, Status } from '@common/player';
+import { Avatar, Behavior, Player, Status } from '@common/player';
 
 export const mockAvatar: Avatar = avatars[0];
 export const mockLobbyPlayers: Player[] = [
@@ -13,6 +13,7 @@ export const mockLobbyPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         isActive: true,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 2 },
         inventory: [],
     },
@@ -25,6 +26,7 @@ export const mockLobbyPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 2 },
         inventory: [],
     },
@@ -38,6 +40,7 @@ export const mockLobbyPlayers: Player[] = [
         isActive: false,
         inventory: [],
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 2 },
     },
     {
@@ -50,6 +53,7 @@ export const mockLobbyPlayers: Player[] = [
         isActive: false,
         inventory: [],
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 2 },
     },
     {
@@ -61,6 +65,7 @@ export const mockLobbyPlayers: Player[] = [
         postGameStats: defaultPostGameStats,
         isActive: false,
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 2 },
         inventory: [],
     },
@@ -74,6 +79,7 @@ export const mockLobbyPlayers: Player[] = [
         isActive: false,
         inventory: [],
         position: { x: 1, y: 2 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 2 },
     },
 ];

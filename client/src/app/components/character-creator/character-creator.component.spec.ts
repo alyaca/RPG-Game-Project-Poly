@@ -12,7 +12,7 @@ import {
 } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
-import { Status } from '@common/player';
+import { Status, Behavior } from '@common/player';
 import { CharacterCreatorComponent } from './character-creator.component';
 import SpyObj = jasmine.SpyObj;
 import { defaultPostGameStats } from '@app/default-attributes';
@@ -193,6 +193,7 @@ describe('CharacterCreatorComponent', () => {
             victories: 0,
             inventory: [],
             position: { x: -1, y: -1 },
+            behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
         });
     });
