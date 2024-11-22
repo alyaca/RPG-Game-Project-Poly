@@ -1,4 +1,5 @@
 import { GameObject } from '@common/game-object';
+
 export interface Avatar {
     id?: number;
     name: string;
@@ -14,6 +15,12 @@ export enum Status {
     Disconnected = 'disconnected',
 }
 
+export enum Behavior {
+    Sentient = 'sentient',
+    Aggressive = 'aggressive',
+    Defensive = 'defensive',
+}
+
 export interface Player {
     id: string;
     attributes: PlayerStats;
@@ -25,6 +32,7 @@ export interface Player {
     inventory: GameObject[];
     position: Position;
     spawnPosition: Position;
+    behavior: Behavior;
 }
 
 export interface PlayerStats {

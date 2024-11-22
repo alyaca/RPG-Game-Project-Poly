@@ -20,5 +20,7 @@ export enum SocketEvents {
     AttackPlayer = 'attackPlayer',
     EvadeCombat = 'evadeCombat',
     EndGame = 'endGame',
+    CreateBot = 'createBot',
+    KickBot = 'kickBot',
     DoorAction = 'doorAction',
 }

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { Status } from '@app/interfaces/player-object';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Behavior, Player } from '@common/player';
 @Component({
     selector: 'app-lobby-player',
     standalone: true,
@@ -15,15 +15,12 @@ import { Player } from '@common/player';
 export class LobbyPlayerComponent {
     @Input() lobbyPlayer: Player;
     @Input() isPlayerAdmin: boolean;
-
+    status = Status;
+    behavior = Behavior;
     constructor(
         private dialog: MatDialog,
         private socketCommunicationService: SocketCommunicationService,
     ) {}
-
-    isAdmin() {
-        return this.lobbyPlayer.status === Status.Admin;
-    }
 
     kickOutPlayer() {
         const dialogRef = this.dialog.open(SimpleDialogComponent, {
@@ -37,7 +34,11 @@ export class LobbyPlayerComponent {
         });
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'right') {
-                this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
+                if (this.lobbyPlayer.status === Status.Bot) {
+                    this.socketCommunicationService.send('kickBot', this.lobbyPlayer.id);
+                } else {
+                    this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
+                }
             }
         });
     }

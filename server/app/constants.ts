@@ -63,5 +63,9 @@ export const EVASION_SUCCESS_RATE = 0.4;
 export const END_COMBAT_DELAY = 2500;
 
 export const DEFAULT_ATTRIBUTE = 4;
+export const HIGH_ATTRIBUTE = 6;
+export const EQUAL_ODDS_SUCCESS = 0.6;
+export const EQUAL_ODDS_PROBABILITY = 0.5;
+export const EQUAL_ODDS_FAIL = 0.4;
 export const MAX_GENERATION_VALUE = 1000000000;
 export const DISCONNECTED_POSITION = { x: 100, y: 100 };

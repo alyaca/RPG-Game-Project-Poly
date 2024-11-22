@@ -216,6 +216,8 @@ export enum DialogTitle {
     EndFight = 'Fin du combat',
     DefaultFightWin = 'Abandon de partie',
     SuccessEvasion = 'Évasion réussie',
+    MaxPlayers = 'Nombre de joueurs maximal atteint',
+    AddBotWhenLocked = 'Partie vérrouillée',
 }
 
 export enum DialogMessages {
@@ -228,6 +230,8 @@ export enum DialogMessages {
     Fell = 'Vous avez glissé sur la glace. Votre tour est terminé.',
     EndFight = 'Le combat est terminé. Le gagnant du combat est ',
     DefaultFightWin = "L'adversaire a abandonné la partie. Vous gagnez par défaut le combat.",
+    MaxPlayers = "Vous ne pouvez plus d'ajouter de joueurs virtuels",
+    AddBotWhenLocked = "Déverrouillez la salle d'attente avant d'ajouter un joueur virtuel",
 }
 export enum DialogResult {
     Right = 'right',

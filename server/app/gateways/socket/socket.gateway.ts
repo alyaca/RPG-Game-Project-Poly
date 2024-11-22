@@ -5,7 +5,7 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { Avatar, Player, Position } from '@common/player';
+import { Avatar, Behavior, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -73,6 +73,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         client.emit('isPlayerAdmin', isAdmin);
     }
 
+    @SubscribeMessage(SocketEvents.CreateBot)
+    handleCreateBot(client: Socket, behavior: Behavior) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.createBot(room, behavior, client, this.server);
+        this.server.to(room.roomId).emit('updatedPlayer', room);
+    }
+
     @SubscribeMessage(SocketEvents.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
@@ -88,6 +95,19 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const playerSocket = this.server.sockets.sockets.get(playerId);
         this.gameService.removePlayerFromRoom(room.roomId, playerSocket, this.server);
         this.server.to(room.roomId).emit('updatedPlayer', room);
+    }
+
+    @SubscribeMessage(SocketEvents.KickBot)
+    handleKickBot(client: Socket, botId: string) {
+        const room = this.roomService.getRoom(client);
+        this.logger.debug(`bot ${botId} was kicked out of room`);
+        this.server.to(botId).emit('kickPlayer', botId);
+        const botPlayer = room.listPlayers.find((player) => player.id === botId);
+        botPlayer.avatar.isTaken = false;
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== botId);
+
+        this.server.to(room.roomId).emit('updatedPlayer', room);
+        this.gameService.updateAvatarsForAllClients(this.server, room.roomId);
     }
 
     @SubscribeMessage(SocketEvents.StartGame)
