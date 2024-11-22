@@ -32,7 +32,7 @@
                 @if(clickedAvatar) {
                 <img class="selected-avatar" [src]="clickedAvatar.src" />
                 } @else {
-                <div class="no-avatar"></div>
+                <img class="no-avatar" [src]="'./assets/images/characters/default-avatar.png'" alt="default-avatar">
                 }
                 <img class="decoration" [src]="'./assets/images/leaves/leafR.webp'" />
             </div>

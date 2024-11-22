@@ -13,8 +13,7 @@ describe('Navigation', () => {
     let navigation: Navigation;
 
     beforeEach(() => {
-        navigation = new Navigation(mockGameNavigation, mockGameNavigation.itemPlacement,mockNavigationPlayers);
-
+        navigation = new Navigation(mockGameNavigation, mockGameNavigation.itemPlacement, mockNavigationPlayers);
     });
 
     afterEach(() => {
@@ -401,8 +400,7 @@ describe('Navigation', () => {
     //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
     // });
 
-
-    /*it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
+    /* it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
         component.hasStarted = true;
