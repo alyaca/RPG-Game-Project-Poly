@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { PostGameAttributeComponent } from '@app/components/post-game-attribute/post-game-attribute.component';
-import { GlobalStat } from '@app/services/post-game/post-game.service';
 import { StopwatchService } from '@app/services/stopwatch/stopwatch.service';
 
 
@@ -17,15 +16,14 @@ import { StopwatchService } from '@app/services/stopwatch/stopwatch.service';
   styleUrl: './post-game-page.component.scss'
 })
 export class PostGamePageComponent {
-  public GlobalStat = GlobalStat;
   constructor(public postGameService: PostGameService, public stopwatchService: StopwatchService){
     this.postGameService.initTempStats(); // Temporary
-    this.postGameService.duration = '0';
+    this.postGameService.globalStats.gameDuration = '0';
     this.stopwatchService.start();
   }
 
   stopStopwatch() {
-    this.postGameService.duration = this.stopwatchService.stop();
+    this.postGameService.globalStats.gameDuration = this.stopwatchService.stop();
   }
 
 

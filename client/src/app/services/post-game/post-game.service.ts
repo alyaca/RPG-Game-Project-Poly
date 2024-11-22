@@ -1,20 +1,13 @@
 import { Injectable } from '@angular/core';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player, PostGameStats } from '@common/player';
+import { GlobalPostGameStats } from '@common/global-post-game-stats';
 
 export interface Attribute {
   id: number;
   key: keyof Player["postGameStats"];
   displayTxt: string;
   explanations: string;
-}
-
-export enum GlobalStat {
-  GameDuration = 'gameDuration',
-  Turns = 'turn',
-  GlobalTilesVisited = 'globalTilesVisited',
-  DoorsInteracted = 'doorsInterated',
-  FlagBearers = 'flagBearers'
 }
 
 @Injectable({
@@ -34,11 +27,19 @@ export class PostGameService {
     tilesVisited: 'unsorted'
   };
 
+  globalStats: GlobalPostGameStats;
   players: Player[] = mockLobbyPlayers;
   // temporary
   initTempStats(){
     for(let i = 0; i < this.players.length; i++){
       this.players[i].postGameStats = this.tempPlayerStats[i];
+    }
+    this.globalStats = {
+      gameDuration: '00:00',
+      turns: 16,
+      globalTilesVisited: 30,
+      doorsInteracted: 50,
+      nbFlagBearers: 0,
     }
   }
   // temporary
@@ -129,7 +130,7 @@ attributes: Attribute[] = [
     id: 4,
     key: 'itemsObtained',
     displayTxt: 'Obj. récup.',
-    explanations: "Nombre d'objets ramassés par le joueur au cours de la partie",
+    explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
   },
   {
     id: 5,
@@ -138,12 +139,6 @@ attributes: Attribute[] = [
     explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
   },
 ]
-
-  duration: string = '00:00';
-  turns: number = 0;
-  visitedTiles: number = 0;
-  doorsInteracted: number = 0;
-  flagBearers: number = 0;
 
   constructor() { }
 
@@ -193,21 +188,21 @@ attributes: Attribute[] = [
       this.explanations = "";    
   }
 
-  updateExplanationsGlobal(stat: GlobalStat){
+  updateExplanationsGlobal(stat: keyof  GlobalPostGameStats){
     switch (stat){
-      case GlobalStat.GameDuration: 
-        this.explanations =  "Temps écoulé depuis le début de la partie jusqu'à la finde la partie";
+      case "gameDuration": 
+        this.explanations =  "Temps écoulé depuis le début de la partie jusqu'à la fin de la partie";
         break;
-      case GlobalStat.Turns:
+      case "turns":
         this.explanations = "Somme des tours de tous les joueurs de cette partie";
         break;
-      case GlobalStat.GlobalTilesVisited:
+      case "globalTilesVisited":
         this.explanations = "Pourcentage des tuiles de terrain visitées par au moins un joueur";
         break;
-      case GlobalStat.DoorsInteracted:
+      case "doorsInteracted":
         this.explanations = "Pourcentage des portes ayant été manipulées au moins une fois";
         break;
-      case GlobalStat.FlagBearers:
+      case "nbFlagBearers":
         this.explanations = "Nombre de joueurs différents ayant détenu le drapeau (si applicable)";
         break;  
       default:

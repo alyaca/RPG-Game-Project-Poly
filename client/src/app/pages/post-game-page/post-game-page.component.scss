@@ -135,3 +135,13 @@
     border: 1px solid gray;
     background: linear-gradient(to right, rgb(36, 36, 36), rgb(67, 67, 67) 35%, rgb(96, 96, 96) 65%, rgb(45, 45, 45));
 }
+
+.global-attribute .label {
+    color: #d2d2d2; 
+  }
+  
+  .global-attribute .value {
+    //font-family: 'Franklin Gothic Medium';
+    font-size: 1.2rem;
+    color: #ffffff;
+  }

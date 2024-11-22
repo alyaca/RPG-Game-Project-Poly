@@ -34,7 +34,7 @@
     </div>
     <p class="stat attr-value" [ngClass]="{'highlight': selectedAttribute === 'itemsObtained'}"> {{ player.postGameStats.itemsObtained }} </p>
     <div class="stat">
-        <p class="attr-value" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}"> {{ player.postGameStats.tilesVisited }} </p>
+        <p class="attr-value" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}"> {{ player.postGameStats.tilesVisited }}% </p>
         <div class="bar-container">
             <div class="full-bar"></div>
             <div class="bar" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}" [style.width.%]="getBarWidth(player.postGameStats.tilesVisited, 'tilesVisited', true)"></div>

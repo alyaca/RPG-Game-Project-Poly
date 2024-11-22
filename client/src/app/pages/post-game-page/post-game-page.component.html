@@ -8,28 +8,32 @@
             <div class="global-stats">
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.GameDuration)"
-                (mouseleave)="postGameService.updateExplanations('')">
-                Durée de la partie: {{ postGameService.duration }}</p>
+                (mouseleave)="postGameService.updateExplanationsGlobal('gameDuration')">
+                <span class="label">Duree de la partie: </span> 
+                <span class="value">{{ postGameService.globalStats.gameDuration }}</span>
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.Turns)"
+                (mouseenter)="postGameService.updateExplanationsGlobal('turns')"
                 (mouseleave)="postGameService.updateExplanations('')">
-                Nombre de tours: {{ postGameService.turns }}</p>
+                <span class="label">Nombre de tours: </span> 
+                <span class="value">{{ postGameService.globalStats.turns }}</span>
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.GlobalTilesVisited)"
+                (mouseenter)="postGameService.updateExplanationsGlobal('globalTilesVisited')"
                 (mouseleave)="postGameService.updateExplanations('')">
-                % de tuiles visitées: {{ postGameService.visitedTiles }}</p>
+                <span class="label">% de tuiles visitées: </span> 
+                <span class="value">{{ postGameService.globalStats.globalTilesVisited }}%</span>
                 <p
                 class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.DoorsInteracted)"
+                (mouseenter)="postGameService.updateExplanationsGlobal('doorsInteracted')"
                 (mouseleave)="postGameService.updateExplanations('')">
-                % de portes intéragis: {{ postGameService.doorsInteracted }}</p>
+                <span class="label">% de portes interagies: </span> 
+                <span class="value">{{ postGameService.globalStats.doorsInteracted }}%</span>
                 <p class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal(GlobalStat.FlagBearers)"
+                (mouseenter)="postGameService.updateExplanationsGlobal('nbFlagBearers')"
                 (mouseleave)="postGameService.updateExplanations('')">
-                Détenteurs du drapeau: {{ postGameService.flagBearers }}</p>
+                <span class="label">Nombre de détenteurs de drapeau: </span> 
+                <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span>
             </div>
             <div class="chat">
                 <app-chat-box [isToggleable]="true"></app-chat-box>
@@ -54,6 +58,6 @@
 </div>
 <div class="bottom-container">
     <button class="quit" routerLink="/home">Quitter</button>
-    <!-- <button (click)="stopStopwatch()"> Arreter timer </button> -->
+    <button (click)="stopStopwatch()"> Arreter timer </button>
 </div>
 
