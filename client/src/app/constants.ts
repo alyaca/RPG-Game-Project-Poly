@@ -113,7 +113,13 @@ export enum ErrorMessages {
     MissingName = 'Veuillez entrer un nom de personnage',
     MissingAvatar = 'Veuillez sélectionner un avatar',
     NameWithSpace = 'Le nom ne peut pas contenir des espaces',
+    TitleInvalidLength = '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
     NameAlreadyExists = '- Une carte avec le même nom existe déjà',
+    InvalidFile = '- Le fichier est invalide',
+    InvalidTilesDimensions = '- Les dimensions des tuiles sont invalides',
+    InvalidDimension = '- Les dimensions de la carte sont invalides',
+    InvalidTileType = '- Un ou plusieurs types de tuiles sont invalides',
+    InvalidObjectType = "- Un ou plusieurs types d'objets sont invalides",
 }
 
 // Constants for timer component

@@ -6,11 +6,17 @@ import {
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
     MIN_LEN_MAP_TITLE,
+    NO_OBJECT,
     ObjectType,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
     TileType,
 } from '@app/constants';
 import { Game } from '@common/game';
+import { firstValueFrom } from 'rxjs';
 import { GameListService } from '../game-list/game-list.service';
+import { MapValidatorService } from '../map-validator/map-validator.service';
 
 @Injectable({
     providedIn: 'root',
@@ -19,35 +25,77 @@ export class GameImportValidatorService {
     errorMessages: string[] = [];
     validMap: boolean;
 
-    constructor(private gameListService: GameListService) {}
+    constructor(
+        private gameListService: GameListService,
+        private mapValidatorService: MapValidatorService,
+    ) {}
 
     async validateMap(game: Game): Promise<string[]> {
-        return new Promise((resolve) => {
-            this.errorMessages = [];
+        this.errorMessages = [];
+        this.validateSufficientTerrainTiles(game.tiles);
+        this.validateAllDoors(game.tiles);
+        this.validateAllSpawnPointsPlaced(game);
+        this.validateTiles(game.tiles);
+        this.validateObjects(game.itemPlacement);
+        this.validateTileAccessibility(game.tiles);
+        this.validateTitle(game.name);
+        this.validateDimensions(game.tiles, game.itemPlacement, game.dimension);
+        this.validateDescription(game.description);
 
-            this.validateName(game.name).then(() => {
-                this.validateSufficientTerrainTiles(game.tiles);
-                this.validateAllDoors(game.tiles);
-                this.validateAllSpawnPointsPlaced(game);
-                this.validateTileAccessibility(game.tiles);
-                this.validateTitle(game.name);
-                this.validateDescription(game.description);
+        await this.validateName(game.name);
 
-                resolve(this.errorMessages);
-            });
-        });
+        return this.errorMessages;
     }
 
     private async validateName(nameToCheck: string): Promise<void> {
         const trimmedNameToCheck = nameToCheck.trim();
-        return new Promise((resolve) => {
-            this.gameListService.getAllGames().subscribe((allMaps) => {
-                allMaps.forEach((map) => {
-                    if (map.name.trim() === trimmedNameToCheck) {
-                        this.errorMessages.push(ErrorMessages.NameAlreadyExists);
-                    }
-                });
-                resolve();
+        const allMaps = await firstValueFrom(this.gameListService.getAllGames());
+        for (const map of allMaps) {
+            if (map.name.trim() === trimmedNameToCheck) {
+                this.errorMessages.push(ErrorMessages.NameAlreadyExists);
+                break;
+            }
+        }
+    }
+
+    private validateDimensions(tiles: number[][], itemPlacement: number[][], dimensions: number) {
+        const mapRowSize = tiles.length;
+        const mapColSize = tiles[0].length;
+        const itemPlacementRowSize = itemPlacement.length;
+        const itemPlacementColSize = itemPlacement[0].length;
+        const isDimensionValid = dimensions === SIZE_SMALL_MAP || dimensions === SIZE_MEDIUM_MAP || dimensions === SIZE_LARGE_MAP;
+        const isMapSizeRowValid = isDimensionValid ? mapRowSize === dimensions : false;
+        const isMapSizeColValid = isDimensionValid ? mapColSize === dimensions : false;
+        const isItemPlacementRowSizeValid = isDimensionValid ? itemPlacementRowSize === dimensions : false;
+        const isItemPlacementColSizeValid = isDimensionValid ? itemPlacementColSize === dimensions : false;
+        const isMapSizeValid = isMapSizeRowValid && isMapSizeColValid;
+        const isItemPlacementValid = isItemPlacementRowSizeValid && isItemPlacementColSizeValid;
+        if (!isMapSizeValid || !isItemPlacementValid) {
+            this.errorMessages.push(ErrorMessages.InvalidTilesDimensions);
+        }
+        if (!isDimensionValid) {
+            this.errorMessages.push(ErrorMessages.InvalidDimension);
+        }
+    }
+
+    private validateTiles(tiles: number[][]) {
+        tiles.forEach((row) => {
+            row.forEach((tile) => {
+                if (tile < TileType.Ground || tile > TileType.OpenDoor) {
+                    this.errorMessages.push(ErrorMessages.InvalidTileType);
+                    return;
+                }
+            });
+        });
+    }
+
+    private validateObjects(itemPlacement: number[][]) {
+        itemPlacement.forEach((row) => {
+            row.forEach((item) => {
+                if (item < NO_OBJECT || item > ObjectType.Spawn) {
+                    this.errorMessages.push(ErrorMessages.InvalidObjectType);
+                    return;
+                }
             });
         });
     }
@@ -69,26 +117,12 @@ export class GameImportValidatorService {
     private validateAllDoors(array: number[][]) {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
-                if (array[row][col] > TileType.Wall && !this.isDoorPlacementValid(array, row, col)) {
+                if (array[row][col] > TileType.Wall && !this.mapValidatorService.isDoorPlacementValid(array, row, col)) {
                     this.errorMessages.push("- Au moins une porte n'est pas valide: ");
                     this.errorMessages.push("Chacune doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
                 }
             }
         }
-    }
-
-    private isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
-        const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
-        const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
-        const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
-        const isWallRight = array[row]?.[col + 1] === TileType.Wall;
-
-        const isTerrainAbove = array[row - 1]?.[col] < TileType.Wall;
-        const isTerrainBelow = array[row + 1]?.[col] < TileType.Wall;
-        const isTerrainLeft = array[row]?.[col - 1] < TileType.Wall;
-        const isTerrainRight = array[row]?.[col + 1] < TileType.Wall;
-
-        return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
     private validateAllSpawnPointsPlaced(game: Game) {
@@ -168,9 +202,7 @@ export class GameImportValidatorService {
 
     private validateTitle(title: string) {
         if (!(this.isTitleValidLength(title) && this.containsAcharacter(title))) {
-            this.errorMessages.push(
-                '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
-            );
+            this.errorMessages.push(ErrorMessages.TitleInvalidLength);
         }
     }
 

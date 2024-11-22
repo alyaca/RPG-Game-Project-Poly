@@ -2,10 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
+import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
 import { Game } from '@common/game';
 import { catchError, concatMap, map, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { GameImportValidatorService } from '../game-import-validator.service';
 
 @Injectable({
     providedIn: 'root',
@@ -80,31 +80,32 @@ export class SaveGameService {
         return new Observable((observer) => {
             const reader = new FileReader();
 
-            reader.onload = () => {
+            reader.onload = async () => {
                 try {
                     const gameData: Game = JSON.parse(reader.result as string);
                     const gameInfo: Info = this.cleanData(gameData);
                     this.gameInfoImported = gameInfo;
 
-                    this.gameImportValidatorService.validateMap(gameData).then((errorMessages) => {
-                        if (errorMessages.length === 0) {
-                            this.saveImportedGame(gameInfo)
-                                .pipe(
-                                    tap((createdGame) => {
-                                        observer.next(createdGame as Game);
-                                        observer.complete();
-                                    }),
-                                    catchError((error) => {
-                                        observer.error(["Erreur lors de l'enregistrement du jeu : " + error.message]);
-                                        return throwError(() => new Error(error));
-                                    }),
-                                )
-                                .subscribe();
-                        } else {
-                            observer.next(errorMessages);
-                            observer.complete();
-                        }
-                    });
+                    const errorMessages = await this.gameImportValidatorService.validateMap(gameData);
+
+                    console.log(errorMessages);
+                    if (errorMessages.length === 0) {
+                        this.saveImportedGame(gameInfo)
+                            .pipe(
+                                tap((createdGame) => {
+                                    observer.next(createdGame as Game);
+                                    observer.complete();
+                                }),
+                                catchError((error) => {
+                                    observer.error(["Erreur lors de l'enregistrement du jeu : " + error.message]);
+                                    return throwError(() => new Error(error));
+                                }),
+                            )
+                            .subscribe();
+                    } else {
+                        observer.next(errorMessages);
+                        observer.complete();
+                    }
                 } catch (error) {
                     observer.error(['Erreur lors de la lecture du fichier JSON.']);
                 }

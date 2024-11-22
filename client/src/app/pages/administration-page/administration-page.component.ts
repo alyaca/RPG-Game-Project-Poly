@@ -49,8 +49,7 @@ export class AdministrationPageComponent {
                     }
                 },
                 error: (err: Error) => {
-                    console.error("Erreur lors de l'importation:", err);
-                    // Affichez un message d'erreur dans l'interface utilisateur
+                    this.errorWhileImportingGame([ErrorMessages.InvalidFile]);
                 },
             });
         }

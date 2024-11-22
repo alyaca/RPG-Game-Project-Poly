@@ -70,7 +70,7 @@ export class MapValidatorService {
         });
     }
 
-    private isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
+    isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
         const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
         const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
         const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
