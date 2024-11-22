@@ -1,4 +1,13 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
+import {
+    DISCONNECTED_POSITION,
+    FELLING_PROBABILITY,
+    MOVEMENT_TIME,
+    SINGLE_PLAYER,
+    STARTING_TIME,
+    TileCost,
+    TileType,
+    TURN_TIME,
+} from '@app/constants';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -68,6 +77,7 @@ export class GameService {
             this.playerDisconnected(room, socket, server);
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
             const activePlayer = this.getActivePlayer(room);
+            player.position = DISCONNECTED_POSITION;
             const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
             server.to(room.roomId).emit('reachableTiles', reachability);
         } else {
