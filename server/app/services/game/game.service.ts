@@ -1,8 +1,20 @@
-import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
+import {
+    DEFAULT_ATTRIBUTE,
+    EQUAL_ODDS_PROBABILITY,
+    FELLING_PROBABILITY,
+    HIGH_ATTRIBUTE,
+    MOVEMENT_TIME,
+    SINGLE_PLAYER,
+    STARTING_TIME,
+    TileCost,
+    TileType,
+    TURN_TIME,
+} from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Avatar, Player, Position, Status } from '@common/player';
+import { Avatar, Behavior, Player, Position, Status } from '@common/player';
+import { baseBot } from '@app/mocks/mock-players';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -33,10 +45,14 @@ export class GameService {
     }
 
     createPlayer(room: Room, player: Player, socket: Socket) {
-        player.id = socket.id;
-        this.setUniquePlayerName(player, socket);
-        if (this.roomService.isPlayerAdmin(socket)) {
-            player.status = Status.Admin;
+        if (player.status !== Status.Bot) {
+            player.id = socket.id;
+            if (this.roomService.isPlayerAdmin(socket)) {
+                player.status = Status.Admin;
+            }
+            this.setUniquePlayerName(player, socket, true);
+        } else {
+            this.setUniquePlayerName(player, socket, false);
         }
         room.listPlayers.push(player);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
@@ -140,9 +156,58 @@ export class GameService {
         }
     }
 
+    assignStatsToBot(bot: Player): Player {
+        bot.attributes.attack = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
+        bot.attributes.defense = bot.attributes.attack === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
+
+        bot.attributes.atkDiceMax = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
+        bot.attributes.defDiceMax = bot.attributes.atkDiceMax === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
+
+        return bot;
+    }
+
+    assignAvatarToBot(room: Room, behavior: Behavior): Player {
+        const newBot = JSON.parse(JSON.stringify(baseBot));
+        newBot.behavior = behavior;
+        const behaviorSuffix = behavior === Behavior.Aggressive ? '-A' : '-D';
+        const availableAvatars = room.availableAvatars.filter((avatar) => !avatar.isTaken);
+        if (availableAvatars.length > 0) {
+            const randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
+            newBot.avatar = randomAvatar;
+            newBot.name = `${randomAvatar.name}${behaviorSuffix}-bot`;
+            randomAvatar.isTaken = true;
+        }
+        return newBot;
+    }
+
+    updateAvatarsForAllClients(server: Server, roomId: string) {
+        server.sockets.sockets.forEach((clientSocket: Socket) => {
+            if (clientSocket.rooms.has(roomId)) {
+                this.sendAvatarListToClient(clientSocket);
+            }
+        });
+    }
+
+    setUniquePlayerName(player: Player, socket: Socket, updateSocketData: boolean) {
+        const playerName = this.generateUniquePlayerName(player.name, socket);
+        player.name = playerName;
+        if (updateSocketData) {
+            socket.data.username = player.name;
+        }
+    }
+
+    createBot(room: Room, behavior: Behavior, client: Socket, server: Server) {
+        baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
+        let newBot = this.assignAvatarToBot(room, behavior);
+        newBot = this.assignStatsToBot(newBot);
+        this.createPlayer(room, newBot, client);
+        this.updateAvatarsForAllClients(server, room.roomId);
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         const player = this.getActivePlayer(room);
+
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
@@ -223,6 +288,37 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    private sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
+    private freeUpAvatar(room: Room, socket: Socket) {
+        if (socket.data.clickedAvatar) {
+            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
+            if (previousAvatar) {
+                previousAvatar.isTaken = false;
+            }
+        }
+    }
+
+    private updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
+    }
+
     private getCost(tileType: number): number {
         switch (tileType) {
             case TileType.Ground:
@@ -241,15 +337,6 @@ export class GameService {
     private checkFell(): boolean {
         const randomValue = Math.random();
         return randomValue > FELLING_PROBABILITY;
-    }
-
-    private freeUpAvatar(room: Room, socket: Socket) {
-        if (socket.data.clickedAvatar) {
-            const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
-            if (previousAvatar) {
-                previousAvatar.isTaken = false;
-            }
-        }
     }
 
     private generateUniquePlayerName(playerName: string, socket: Socket): string {
@@ -313,25 +400,6 @@ export class GameService {
         });
     }
 
-    private sendAvatarListToClient(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
-            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
-            return {
-                ...avatar,
-                isTaken: !isSelectedByClient && avatar.isTaken,
-                isSelected: isSelectedByClient,
-            };
-        });
-        socket.emit('characterSelected', customizedAvatarsList);
-    }
-
-    private setUniquePlayerName(player: Player, socket: Socket) {
-        const playerName = this.generateUniquePlayerName(player.name, socket);
-        player.name = playerName;
-        socket.data.username = player.name;
-    }
-
     private sortPlayersBySpeed(room: Room) {
         let listPlayers = room.listPlayers;
         if (listPlayers.length > 1) {
@@ -342,22 +410,5 @@ export class GameService {
             ];
         }
         room.listPlayers = listPlayers;
-    }
-
-    private updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
-    private updateAvatarsForAllClients(server: Server, roomId: string) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
-            if (clientSocket.rooms.has(roomId)) {
-                this.sendAvatarListToClient(clientSocket);
-            }
-        });
     }
 }

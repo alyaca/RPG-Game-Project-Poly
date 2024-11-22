@@ -6,6 +6,7 @@ import { mockPlayer } from '@app/mocks/mock-player';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
+import { DEFAULT_ATTRIBUTE } from '@app/constants';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
@@ -33,6 +34,7 @@ describe('PlayerInfoInventoryComponent', () => {
 
     it('should update the movement value', () => {
         component.player = mockLobbyPlayers[0];
+        component.player.attributes.movementPointsLeft = 1;
         component.increaseMovement();
         expect(component.player.attributes.movementPointsLeft).toBe(mockLobbyPlayers[0].attributes.movementPointsLeft);
 
@@ -109,5 +111,22 @@ describe('PlayerInfoInventoryComponent', () => {
 
         expect(component.player).toEqual(mockLobbyPlayers[0]);
         expect(component.movementPointsArray).toEqual(Array(mockLobbyPlayers[0].attributes.speed));
+    });
+
+    it('should not increase movement points if they are equal to speed', () => {
+        component.player.attributes.movementPointsLeft = component.player.attributes.speed;
+
+        component.increaseMovement();
+
+        expect(component.player.attributes.movementPointsLeft).toBe(component.player.attributes.speed);
+    });
+
+    it('should increase movement points and update movementPointsArray if movementPointsLeft is less than speed', () => {
+        component.player.attributes.movementPointsLeft = DEFAULT_ATTRIBUTE - 1;
+        const initialMovementPoints = component.player.attributes.movementPointsLeft;
+
+        component.increaseMovement();
+
+        expect(component.player.attributes.movementPointsLeft).toBe(initialMovementPoints + 1);
     });
 });

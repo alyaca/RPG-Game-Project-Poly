@@ -37,24 +37,12 @@ describe('LobbyPlayerComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-    it('should return true if lobbyPlayer status is Admin', () => {
-        mockLobbyPlayer.status = Status.Admin;
-        component.lobbyPlayer = mockLobbyPlayer;
-        const result = component.isAdmin();
-        expect(result).toBeTrue();
-    });
-
-    it('should return false if lobbyPlayer status is not Admin', () => {
-        mockLobbyPlayer.status = Status.Player;
-        component.lobbyPlayer = mockLobbyPlayer;
-        const result = component.isAdmin();
-        expect(result).toBeFalse();
-    });
 
     it('should open dialog on kickPlayer', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('right'));
         dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.lobbyPlayer.status = Status.Player;
         component.kickOutPlayer();
 
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
@@ -67,5 +55,24 @@ describe('LobbyPlayerComponent', () => {
             },
         });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('kickPlayer', component.lobbyPlayer.id);
+    });
+
+    it('should send kickBot is bot is kicked', () => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of('right'));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+        component.lobbyPlayer.status = Status.Bot;
+        component.kickOutPlayer();
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: {
+                title: 'Exclure un joueur',
+                messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
+                options: ['Annuler', 'Exclure'],
+                confirm: true,
+            },
+        });
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('kickBot', component.lobbyPlayer.id);
     });
 });
