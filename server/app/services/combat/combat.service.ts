@@ -8,6 +8,7 @@ import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { GameLogsService } from '../game-logs/game-logs.service';
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
@@ -15,6 +16,7 @@ export class CombatService {
     constructor(
         private roomService: RoomService,
         private gameService: GameService,
+        private logService: GameLogsService,
     ) {}
 
     private emitToCombatPlayers(server: Server, players: CombatPlayers, event: string, data?) {
@@ -31,6 +33,7 @@ export class CombatService {
             gameTime,
             room,
         };
+        this.logService.sendStartCombatLog(combatPlayers, room.roomId, server);
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });

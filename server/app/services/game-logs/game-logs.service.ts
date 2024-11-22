@@ -1,5 +1,6 @@
 import { MAX_GENERATION_VALUE, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
+import { CombatPlayers } from '@common/combat-player';
 import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
@@ -19,6 +20,15 @@ export class GameLogsService {
         return newLog;
     }
 
+    private sendLog(roomId: string, server: Server, players: Player[], message: string) {
+        const currentLog = this.lastLog.get(roomId);
+        if (currentLog !== message) {
+            this.lastLog.set(roomId, message);
+            const log = this.createLog(players, message, roomId);
+            server.to(roomId).emit('logReceived', log);
+        }
+    }
+
     private generateUniqueId(): number {
         return Math.floor(Math.random() * MAX_GENERATION_VALUE);
     }
@@ -28,33 +38,23 @@ export class GameLogsService {
     }
 
     sendTurnLog(player: Player, roomId: string, server: Server) {
-        const currentLog = this.lastLog.get(roomId);
         const message = this.generateTurnMessage(player);
-        if (currentLog !== message) {
-            this.lastLog.set(roomId, message);
-            const log = this.createLog([player], message, roomId);
-            server.to(roomId).emit('logReceived', log);
-        }
+        this.sendLog(roomId, server, [player], message);
     }
 
     sendQuit(player: Player, roomId: string, server: Server) {
-        const currentLog = this.lastLog.get(roomId);
         const message = this.generateGiveUpGame(player.name);
-        if (currentLog !== message) {
-            this.lastLog.set(roomId, message);
-            const log = this.createLog([player], message, roomId);
-            server.to(roomId).emit('logReceived', log);
-        }
+        this.sendLog(roomId, server, [player], message);
     }
 
     sendDoorMessage(tile: TileType, player: Player, roomId: string, server: Server) {
-        const currentLog = this.lastLog.get(roomId);
         const message = tile === TileType.OpenDoor ? this.generateOpenDoorMessage(player.name) : this.generateCloseDoorMessage(player.name);
-        if (currentLog !== message) {
-            this.lastLog.set(roomId, message);
-            const log = this.createLog([player], message, roomId);
-            server.to(roomId).emit('logReceived', log);
-        }
+        this.sendLog(roomId, server, [player], message);
+    }
+
+    sendStartCombatLog(combatPlayers: CombatPlayers, roomId: string, server: Server) {
+        const message = this.generateStartCombat(combatPlayers);
+        this.sendLog(roomId, server, [combatPlayers.attacker, combatPlayers.defender], message);
     }
 
     generateTurnMessage(player: Player): string {
@@ -71,5 +71,13 @@ export class GameLogsService {
 
     generateCloseDoorMessage(playerName: string): string {
         return `${playerName} a fermé une porte.`;
+    }
+
+    generateStartCombat(combatPlayers: CombatPlayers): string {
+        return `${combatPlayers.attacker.name} et ${combatPlayers.defender.name} sont entrés en combat.`;
+    }
+
+    generateEndCombat(playerName: string): string {
+        return `Le combat est terminé ! ${playerName} a gagné le combat.`;
     }
 }

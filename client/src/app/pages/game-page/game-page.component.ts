@@ -217,22 +217,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleActionDoorSelected() {
         this.gameService.isActionDoorSelected = !this.gameService.isActionDoorSelected;
         this.gameService.isActionCombatSelected = false;
-        this.toggleDiplayReachableTile();
     }
 
     toggleActionCombatSelected() {
         this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
         this.gameService.isActionDoorSelected = false;
-        this.toggleDiplayReachableTile();
-    }
-
-    toggleDiplayReachableTile() {
-        if (this.gameService.isActionCombatSelected || this.gameService.isActionCombatSelected) {
-            this.navigationService.tempReachableTiles = this.navigationService.reachableTiles;
-            this.navigationService.reachableTiles = [];
-        } else {
-            this.navigationService.reachableTiles = this.navigationService.tempReachableTiles;
-        }
     }
 
     handleExit() {

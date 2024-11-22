@@ -143,4 +143,8 @@ export class GameService {
     hasActionPoints(player: Player) {
         return player?.attributes.actionPoints > 0;
     }
+
+    isActionSelected() {
+        return this.isActionDoorSelected || this.isActionCombatSelected;
+    }
 }

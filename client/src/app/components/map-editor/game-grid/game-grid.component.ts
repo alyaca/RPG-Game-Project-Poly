@@ -371,6 +371,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    isActionSelected() {
+        return this.gameService.isActionSelected();
+    }
+
     getPlayerByAvatarName(players: Player[], id: ObjectType) {
         const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
         const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);

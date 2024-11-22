@@ -12,7 +12,7 @@ export class Navigation {
     private distances: number[][];
     private previous: Position[][];
 
-    initializeNavigation(gameMap: Game, objects: number[][], players: Player[]): void {
+    constructor(gameMap: Game, objects: number[][], players: Player[]) {
         this.gameMap = gameMap;
         this.positions = objects;
         this.players = players;

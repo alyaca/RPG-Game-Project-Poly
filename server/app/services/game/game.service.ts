@@ -1,3 +1,4 @@
+import { Navigation } from '@app/classes/navigation/navigation';
 import {
     DISCONNECTED_POSITION,
     FELLING_PROBABILITY,
@@ -115,6 +116,7 @@ export class GameService {
     }
 
     onStartGame(room: Room, socket: Socket) {
+        room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
