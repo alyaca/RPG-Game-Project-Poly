@@ -40,7 +40,7 @@ export class GameLogsService {
         return `${playerName} a abandonné la partie.`;
     }
 
-    sendDebugMessage(isDebugMode: boolean, roomId: string, server: Server)  {
+    sendDebugMessage(isDebugMode: boolean, roomId: string, server: Server) {
         const currentLog = this.lastLog.get(roomId);
         const message = this.generateDebugMessage(isDebugMode);
         if (currentLog !== message) {
@@ -50,12 +50,10 @@ export class GameLogsService {
         }
     }
 
-    
     generateDebugMessage(isDebugMode: boolean): string {
         if (isDebugMode) {
-            return "Début du mode débogage.";
+            return 'Début du mode débogage.';
         }
-        return "Fin du mode débogage.";
-
+        return 'Fin du mode débogage.';
     }
 }

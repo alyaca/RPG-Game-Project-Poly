@@ -62,7 +62,7 @@ export class GameService {
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
 
-        if(isAdmin && room.isDebug){
+        if (isAdmin && room.isDebug) {
             room.isDebug = false;
             server.to(roomId).emit('debugMode', false);
         }
@@ -147,22 +147,18 @@ export class GameService {
             this.isTurnSkipped = true;
         }
     }
-    
-    
-    updateLogsDebugMode(isDebugMode:boolean, server: Server, client: Socket) {
+
+    updateLogsDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
         const room = this.roomService.getRoom(client);
         this.gameLogsService.sendDebugMessage(isDebugMode, room.roomId, server);
     }
 
-    processTeleportation(room: Room, server: Server, path: Position[], client: Socket){
+    processTeleportation(room: Room, server: Server, path: Position[]) {
         const player = this.getActivePlayer(room);
         const playerId = player.id;
         const position = path[0];
         player.position = position;
-        server.to(room.roomId).emit('teleportPlayer', {position, playerId});
-
-    
-        
+        server.to(room.roomId).emit('teleportPlayer', { position, playerId });
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');
         server.to(room.roomId).emit('reachableTiles', reachability);
@@ -173,23 +169,23 @@ export class GameService {
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         const player = this.getActivePlayer(room);
-            for (const tile of path) {
-                this.isMoving = true;
-                player.position = tile;
-                if (this.isMoving) {
-                    await this.delay(MOVEMENT_TIME);
-                }
-                server.to(room.roomId).emit('playerNavigation', tile);
-                if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
-                    this.stopGameTimers(room);
-                    client.emit('playerFell');
-                    break;
-                }
-                if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
-                    player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
-                }
+        for (const tile of path) {
+            this.isMoving = true;
+            player.position = tile;
+            if (this.isMoving) {
+                await this.delay(MOVEMENT_TIME);
             }
-       
+            server.to(room.roomId).emit('playerNavigation', tile);
+            if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
+                this.stopGameTimers(room);
+                client.emit('playerFell');
+                break;
+            }
+            if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
+                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
+            }
+        }
+
         this.isMoving = false;
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');

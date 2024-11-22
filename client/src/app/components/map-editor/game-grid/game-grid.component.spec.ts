@@ -78,7 +78,7 @@ describe('GameGridComponent', () => {
             'isNeighbor',
             'updateTile',
             'getTileCost',
-            //voir si on a besoin encore 
+            // voir si on a besoin encore
             'isTileValid',
             'findAllTilesDebug',
         ]);
@@ -323,7 +323,7 @@ describe('GameGridComponent', () => {
         });
     });
 
-    /*it('findReachableTiles should call findReachablesTiles in navigation service', () => {
+    /* it('findReachableTiles should call findReachablesTiles in navigation service', () => {
         component.isActivePlayer = true;
         component.activePlayer = mockLobbyPlayers[0];
         navigationServiceSpy.gameMap = mockGameNavigation;
@@ -393,7 +393,7 @@ describe('GameGridComponent', () => {
         navigationServiceSpy.isTileValid.and.returnValue(true);
         component.sendNavigation(0, 0);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
-        });
+    });
 
     it('navigateToTile should call everything', () => {
         spyOn(component, 'placeAvatarOnTile');
@@ -641,7 +641,7 @@ describe('GameGridComponent', () => {
         expect(result).toBeUndefined();
     });
 
-    it('should return true when in debugMode', () =>{
+    it('should return true when in debugMode', () => {
         navigationServiceSpy.isDebugMode = true;
         expect(component.isDebugMode()).toBeTrue();
     });

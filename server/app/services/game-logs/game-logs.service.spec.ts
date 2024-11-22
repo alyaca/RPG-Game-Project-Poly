@@ -81,15 +81,12 @@ describe('GameLogsService', () => {
     it('should generate debug message if it is the beginning of debug mode ', () => {
         const isDebugMode = true;
         const message = service.generateDebugMessage(isDebugMode);
-        expect(message).toBe("Début du mode débogage.");
-
+        expect(message).toBe('Début du mode débogage.');
     });
 
     it('should generate debug message if it is the end of debug mode ', () => {
         const isDebugMode = false;
         const message = service.generateDebugMessage(isDebugMode);
-        expect(message).toBe("Fin du mode débogage.");
+        expect(message).toBe('Fin du mode débogage.');
     });
-
-
 });

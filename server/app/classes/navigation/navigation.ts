@@ -1,8 +1,8 @@
+import { NO_ITEM, SPAWN_POINT_ID, TileCost, TileType } from '@app/constants';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
 import { Room } from '@common/room';
-import { TileCost, TileType } from '../../constants';
 
 export class Navigation {
     gameMap: Game;
@@ -20,8 +20,8 @@ export class Navigation {
     }
 
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
-        if(room.isDebug){
-            if(this.isTileValid(destination.x, destination.y)){
+        if (room.isDebug) {
+            if (this.isTileValid(destination.x, destination.y)) {
                 return [destination];
             }
         }
@@ -54,30 +54,8 @@ export class Navigation {
         this.distances[player.position.x][player.position.y] = 0;
     }
 
-    private findAllTilesDebug(){
-        const reachableTiles: Position[] = [];
-        for (let i = 0; i < this.gameMap.dimension; i++) {
-            for (let j = 0; j < this.gameMap.dimension; j++) {
-                if(this.isTileValid(i, j)){
-                    reachableTiles.push({ x: i, y: j });
-                }
-            }
-        }
-        this.reachableTiles = reachableTiles;
-        return reachableTiles;
-    }
-
-    private isTileValid(row: number, col: number): boolean {
-        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
-        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
-        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
-        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
-        if (this.gameMap.itemPlacement[row][col] === 0 || this.gameMap.itemPlacement[row][col] ===8) return true;
-        return true;
-    }
-
     findReachableTiles(player: Player, room: Room): Position[] {
-        if(room.isDebug){
+        if (room.isDebug) {
             return this.findAllTilesDebug();
         }
 
@@ -101,8 +79,8 @@ export class Navigation {
         return reachableTiles;
     }
 
-    //remove????
-    /*navigateToTile(player: Player, destination: Position, room: Game): Position[] {
+    // remove????
+    /* navigateToTile(player: Player, destination: Position, room: Game): Position[] {
         if (this.isReachableTile(destination.x, destination.y)) {
             this.path = this.findFastestPath(player, destination, room);
             if (this.path.length > 0) {
@@ -186,6 +164,28 @@ export class Navigation {
 
     hasActionPoints(player: Player) {
         return player?.attributes.actionPoints > 0;
+    }
+
+    private findAllTilesDebug() {
+        const reachableTiles: Position[] = [];
+        for (let i = 0; i < this.gameMap.dimension; i++) {
+            for (let j = 0; j < this.gameMap.dimension; j++) {
+                if (this.isTileValid(i, j)) {
+                    reachableTiles.push({ x: i, y: j });
+                }
+            }
+        }
+        this.reachableTiles = reachableTiles;
+        return reachableTiles;
+    }
+
+    private isTileValid(row: number, col: number): boolean {
+        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
+        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
+        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
+        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
+        if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === SPAWN_POINT_ID) return true;
+        return true;
     }
 
     private exploreNeighborsForReachableTiles(

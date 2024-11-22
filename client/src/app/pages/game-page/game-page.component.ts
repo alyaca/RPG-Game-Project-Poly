@@ -137,12 +137,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         document.addEventListener('keydown', (event) => {
             if (event.key === 'd') {
                 if (this.isPlayerAdmin()) {
-                    this.navigationService.isDebugMode = ! this.navigationService.isDebugMode;
+                    this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
                     this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
                 }
             }
         });
-        
+
         this.socketCommunicationService.on('debugMode', (debugMode: boolean) => {
             this.navigationService.isDebugMode = debugMode;
         });
@@ -185,7 +185,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     isDebugMode(): boolean {
         return this.navigationService.isDebugMode;
     }
-
 
     onPlayerFell() {
         this.gameService
@@ -246,7 +245,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             })
             .subscribe((result) => {
                 if (result === DialogResult.Left) {
-                    if(this.isPlayerAdmin()){
+                    if (this.isPlayerAdmin()) {
                         this.navigationService.isDebugMode = false;
                         this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
                     }
@@ -254,7 +253,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.router.navigate(['/home']);
                 }
             });
-            
     }
 
     handleDraw() {
@@ -290,5 +288,4 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
         return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }
-    
 }

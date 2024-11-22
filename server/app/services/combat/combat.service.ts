@@ -67,14 +67,14 @@ export class CombatService {
     }
 
     getCombatValues() {
-        //const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
+        // const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
         const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
 
         const attackValue = {
             total: this.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
-       // const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
+        // const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
         const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
 
         const defenseValue = {

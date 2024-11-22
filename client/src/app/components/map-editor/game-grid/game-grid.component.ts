@@ -139,13 +139,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string}) => {
-            const { position, playerId} = data;
+        this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string }) => {
+            const { position, playerId } = data;
             const playerToTeleport = this.navigationService.players.find((p) => p.id === playerId);
-            if (playerToTeleport) {       
+            if (playerToTeleport) {
                 this.navigateToTile(position);
             }
-
         });
 
         this.socketCommunicationService.on('endMovement', () => {
@@ -386,14 +385,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
         return clickedPlayer;
     }
-    
+
     async sendNavigation() {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
             if (!this.isMoving) {
                 this.isMoving = true;
-                    const path = this.fastestPath;
-                    this.socketCommunicationService.send('playerNavigation', path);
-                    this.fastestPath = [];
+                const path = this.fastestPath;
+                this.socketCommunicationService.send('playerNavigation', path);
+                this.fastestPath = [];
             }
         }
     }

@@ -406,7 +406,6 @@ describe('SocketGateway', () => {
         expect(server.to(roomId).emit).toHaveBeenCalledWith('debugMode', debugMode);
     });
 
-
     it('should call startFight startFight event', () => {
         const player1 = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
         const player2 = { id: '2', attributes: { defense: 5, defDiceMax: 6, currentHp: 5 } } as Player;

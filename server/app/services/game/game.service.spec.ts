@@ -538,13 +538,11 @@ describe('GameService', () => {
     });
 
     describe('checkFell', () => {
-
         it('should return true if debugMode is true', () => {
             service['isDebugMode'] = true;
             const result = service['checkFell']();
             expect(result).toBe(true);
         });
-
 
         it('should return true if random value is greater than FELLING_PROBABILITY and debugMode is false', () => {
             service['isDebugMode'] = false;
