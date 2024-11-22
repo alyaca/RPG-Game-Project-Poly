@@ -1,4 +1,5 @@
-import { NO_ITEM, SPAWN_POINT_ID, TileCost, TileType } from '@app/constants';
+import { NO_ITEM, TileCost, TileType } from '@app/constants';
+import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
@@ -78,18 +79,6 @@ export class Navigation {
         this.reachableTiles = reachableTiles;
         return reachableTiles;
     }
-
-    // remove????
-    /* navigateToTile(player: Player, destination: Position, room: Game): Position[] {
-        if (this.isReachableTile(destination.x, destination.y)) {
-            this.path = this.findFastestPath(player, destination, room);
-            if (this.path.length > 0) {
-                this.path.shift();
-                return this.path;
-            }
-        }
-        return [];
-    }*/
 
     getTileCost(tileType: number): number {
         switch (tileType) {
@@ -184,7 +173,7 @@ export class Navigation {
         if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
         if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
         if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
-        if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === SPAWN_POINT_ID) return true;
+        if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn) return true;
         return true;
     }
 
