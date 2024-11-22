@@ -78,9 +78,6 @@ describe('GameGridComponent', () => {
             'isNeighbor',
             'updateTile',
             'getTileCost',
-            // voir si on a besoin encore
-            'isTileValid',
-            'findAllTilesDebug',
         ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['hasActionPoints']);
 

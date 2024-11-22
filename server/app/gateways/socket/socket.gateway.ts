@@ -133,13 +133,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('pathFound', path);
     }
 
-    /*
-    @SubscribeMessage('getAccessibleTile')
-    handleGetAccessibleTile(){
-        //this.navigation.findReachableTiles();
-    }
-        */
-
     @SubscribeMessage(SocketEvents.StartFight)
     handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
         this.combatService.startFight(client, player1, player2, isPlayer1Active, this.server);
@@ -206,13 +199,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         } else {
             this.gameService.processNavigation(room, this.server, path, client);
         }
-    }
-
-    // TODO: remove this
-    @SubscribeMessage(SocketEvents.TeleportPlayer)
-    handlePlayerTeleport(client: Socket, position: Position[]) {
-        const room = this.roomService.getRoom(client);
-        this.gameService.processNavigation(room, this.server, position, client);
     }
 
     @SubscribeMessage(SocketEvents.DoorAction)
