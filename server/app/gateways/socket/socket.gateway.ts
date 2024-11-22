@@ -193,10 +193,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.ForceEndGame)
-    handleForceEndGame(client: Socket, player: Player){
+    handleForceEndGame(client: Socket, winner: Player){
         this.logger.log(`end of game has been forced`);
         const room = this.roomService.getRoom(client);
-        this.server.to(room.roomId).emit('endGame', player);
+        console.log(room.globalPostGameStats.turns + ' lalalalala');
+        this.server.to(room.roomId).emit('endGame', {winner, room});
         this.gameService.stopGameTimers(room);
     }
 

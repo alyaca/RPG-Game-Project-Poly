@@ -153,7 +153,8 @@ export class CombatService {
 
     checkEndGame(player: Player, room: Room, server: Server) {
         if (player.postGameStats.victories >= VICTORIES) {
-            server.to(room.roomId).emit('endGame', player);
+            const winner = player;
+            server.to(room.roomId).emit('endGame', {winner, room});
             this.gameService.stopGameTimers(room);
         }
     }
@@ -192,6 +193,9 @@ export class CombatService {
     }
 
     addDraws(room: Room){
+        // branche de Kim: 
+        // const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
+        // const player2     = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
         const player1 = room.listPlayers.find((p) => p.id === this.attacker.id);
         const player2 = room.listPlayers.find((p) => p.id === this.defender.id);
         player1.postGameStats.evasions++;

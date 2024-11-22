@@ -11,6 +11,7 @@ import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, Dial
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { PostGameService } from '@app/services/post-game/post-game.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { StopwatchService } from '@app/services/stopwatch/stopwatch.service';
@@ -59,6 +60,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private router = inject(Router);
     private stopwatchService = inject(StopwatchService);
+    private postGameService = inject(PostGameService);
     constructor(
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
@@ -121,13 +123,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.attackAround = attackAround;
         });
 
-        this.socketCommunicationService.once('endGame', (winner: Player) => {
+        this.socketCommunicationService.once('endGame', (data: {winner: Player, room: Room}) => {
             this.stopwatchService.stop();
+            this.postGameService.globalStats.turns = data.room.globalPostGameStats.turns;
+            console.log(this.postGameService.globalStats.turns + 'turns');
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
                     title: DialogTitle.EndGame,
-                    messages: ['Le gagnant de la partie est : ' + winner.name],
+                    messages: ['Le gagnant de la partie est : ' + data.winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
                 })

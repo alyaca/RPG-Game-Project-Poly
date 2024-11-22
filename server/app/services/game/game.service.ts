@@ -2,7 +2,7 @@ import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileC
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Avatar, Player, Position, Status } from '@common/player';
+import { Avatar, Player, Position, PostGameStats, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -12,6 +12,7 @@ import { Server, Socket } from 'socket.io';
 export class GameService {
     isMoving: boolean = false;
     isTurnSkipped: boolean = false;
+
     constructor(
         private roomService: RoomService,
         private gameLogsService: GameLogsService,
@@ -111,6 +112,7 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
+        
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.gameLogsService.sendTurnLog(activePlayer, room.roomId, server);
 
@@ -124,6 +126,7 @@ export class GameService {
 
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
+        room.globalPostGameStats.turns++;
         if (!this.isMoving) {
             this.updateActivePlayer(client);
             const activePlayer = this.getActivePlayer(room);

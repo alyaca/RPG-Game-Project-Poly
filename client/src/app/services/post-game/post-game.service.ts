@@ -27,7 +27,14 @@ export class PostGameService {
     tilesVisited: 'unsorted'
   };
 
-  globalStats: GlobalPostGameStats;
+  globalStats: GlobalPostGameStats = {
+    gameDuration: '00:00',
+    turns: 0,
+    globalTilesVisited: 0,
+    doorsInteracted: 0,
+    nbFlagBearers: 0,
+  };
+
   players: Player[];
   // temporary
   initTempStats(){
@@ -41,13 +48,13 @@ export class PostGameService {
     //   doorsInteracted: 50,
     //   nbFlagBearers: 0,
     // }
-    this.globalStats = {
-      gameDuration: '00:00',
-      turns: 0,
-      globalTilesVisited: 0,
-      doorsInteracted: 0,
-      nbFlagBearers: 0,
-    }
+    // this.globalStats = {
+    //   gameDuration: '00:00',
+    //   turns: 0,
+    //   globalTilesVisited: 0,
+    //   doorsInteracted: 0,
+    //   nbFlagBearers: 0,
+    // }
   }
 
   // temporary

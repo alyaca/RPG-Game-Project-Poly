@@ -1,5 +1,6 @@
 import { Navigation } from '../server/app/classes/navigation/navigation';
 import { Game } from './game';
+import { GlobalPostGameStats } from './global-post-game-stats';
 import { Avatar, Player } from './player';
 
 export enum GameStatus {
@@ -7,6 +8,9 @@ export enum GameStatus {
     Started = 'started',
     Paused = 'paused',
 }
+
+
+
 export interface Room {
     gameMap: Game;
     roomId: string;
@@ -16,4 +20,5 @@ export interface Room {
     isLocked: boolean;
     gameStatus: GameStatus;
     navigation?: Navigation;
+    globalPostGameStats: GlobalPostGameStats
 }

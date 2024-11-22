@@ -2,6 +2,8 @@ import { avatars } from '@common/avatars-info';
 import { GameStatus, Room } from '@common/room';
 import { mockGame } from './mock-game';
 import { mockNavigation } from './mock-navigation';
+import { defaultGlobalStats } from './default-global-stats';
+
 
 export const mockRooms: Room[] = [
     {
@@ -13,6 +15,7 @@ export const mockRooms: Room[] = [
         isLocked: false,
         gameStatus: GameStatus.Lobby,
         navigation: mockNavigation,
+        globalPostGameStats: defaultGlobalStats,
     },
     {
         gameMap: mockGame,
@@ -23,5 +26,6 @@ export const mockRooms: Room[] = [
         isLocked: false,
         gameStatus: GameStatus.Lobby,
         navigation: mockNavigation,
+        globalPostGameStats: defaultGlobalStats,
     },
 ];
