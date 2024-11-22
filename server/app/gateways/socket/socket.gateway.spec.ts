@@ -1,6 +1,6 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { mockGame } from '@app/mocks/mock-game';
-import { mockRooms } from '@app/mocks/mock-room';
+import { mockRoomDebug, mockRooms } from '@app/mocks/mock-room';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
@@ -13,6 +13,7 @@ import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from './socket.gateway';
 
+/* eslint-disable max-lines */
 describe('SocketGateway', () => {
     let gateway: SocketGateway;
     let socket: jest.Mocked<Socket>;
@@ -69,6 +70,7 @@ describe('SocketGateway', () => {
             updateAvatarsForAllClients: jest.fn(),
             createBot: jest.fn(),
             updateLogsDebugMode: jest.fn(),
+            processTeleportation: jest.fn(),
         };
 
         socket = {
@@ -124,7 +126,6 @@ describe('SocketGateway', () => {
         combatService = module.get<CombatService>(CombatService);
         gateway['server'] = server;
     });
-
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -155,7 +156,6 @@ describe('SocketGateway', () => {
             expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
             expect(logger.log).toHaveBeenCalled();
         });
-
         it('should log when a client disconnects and is not in a room', () => {
             jest.spyOn(logger, 'log');
             gateway.handleDisconnect(socket);
@@ -373,6 +373,14 @@ describe('SocketGateway', () => {
         expect(gameService.processNavigation).toHaveBeenCalled();
     });
 
+    it('should call processTeleportation when debugMode during playerNavigation event', () => {
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRoomDebug[0]);
+        jest.spyOn(gameService, 'processNavigation');
+        const path = [{ x: 1, y: 2 }];
+        gateway.handlePlayerNavigation(mockClient, path);
+        expect(gameService.processTeleportation).toHaveBeenCalled();
+    });
+
     // it('should call set tiles doorAction event', () => {
     //     const mockPlayer = { position: { x: 1, y: 1 } } as Player;
 
@@ -411,7 +419,6 @@ describe('SocketGateway', () => {
             botPlayer.avatar = avatars[0];
             botPlayer.avatar.isTaken = true;
         }
-
         jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
 
         gateway.handleKickBot(mockClient, botId);

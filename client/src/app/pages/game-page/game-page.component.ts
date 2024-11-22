@@ -13,7 +13,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -284,7 +284,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     isPlayerAdmin(): boolean {
-        const admin = this.allPlayers.find((player) => player.status === 'admin');
+        const admin = this.allPlayers.find((player) => player.status === Status.Admin);
         const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
         return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }

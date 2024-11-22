@@ -186,6 +186,15 @@ describe('GameService', () => {
             expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
         });
 
+        it('should emit debugMode false when player is admin and room is in debug mode', () => {
+            room.isDebug = true;
+            (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
+            service.leavePlayerFromGame(roomId, mockSocket, mockServer);
+
+            expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', true);
+            expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('debugMode', false);
+        });
+
         it('should emit disconnectedPlayer when leaving a started game', () => {
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
             room.gameStatus = GameStatus.Started;
@@ -628,6 +637,22 @@ describe('GameService', () => {
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
         });
     });
+    // TODO
+    /* it('should navigate and emit player teleportation when in debugMode', () => {
+            const path = [{ x: 1, y: 1 }];
+            jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[0]);
+            room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
+
+            jest.spyOn(service, 'processTeleportation');
+            service.checkDoors = jest.fn();
+            service.checkAttack = jest.fn();
+
+            expect(service.getActivePlayer).toHaveBeenCalledWith(room);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('playerNavigation', path[0]);
+            room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('reachableTiles', path);
+        });*/
 
     it('should handle the else branch when player status is Bot', () => {
         const mockSetUniquePlayerName = jest.fn();
