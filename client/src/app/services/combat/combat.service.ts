@@ -21,8 +21,8 @@ export class CombatService {
     defender: Player;
     combatStatus: string = '';
     turnMessage: string;
-    activePlayerResult: CombatResult = { total: 0, diceValue: 1 };
-    opponentResult: CombatResult = { total: 0, diceValue: 1 };
+    activePlayerResult: CombatResult;
+    opponentResult: CombatResult;
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
@@ -33,7 +33,10 @@ export class CombatService {
     constructor(
         private socketCommunicationService: SocketCommunicationService,
         private dialog: MatDialog,
-    ) {}
+    ) {
+        this.activePlayerResult = { total: 0, diceValue: 1 };
+        this.opponentResult = { total: 0, diceValue: 1 };
+    }
 
     initializeCombat(player1: Player, player2: Player, isPlayer1Active: boolean) {
         this.activePlayer = isPlayer1Active ? player1 : player2;
@@ -80,7 +83,6 @@ export class CombatService {
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
             this.isRolling = false;
             this.onEvasion(player);
-            this.isInCombat = false;
         });
 
         this.socketCommunicationService.on('evasionFail', (player: Player) => {
@@ -133,7 +135,7 @@ export class CombatService {
     onCombatEnd(winner: Player) {
         this.openTempDialog({
             title: DialogTitle.EndFight,
-            message: DialogMessages.EndFight + winner.name,
+            message: DialogMessages.EndFight + winner?.name,
             duration: INFO_DIALOG_TIME,
         }).subscribe(() => {
             this.isInCombat = false;
@@ -143,8 +145,10 @@ export class CombatService {
     onEvasion(player: Player) {
         this.openTempDialog({
             title: DialogTitle.SuccessEvasion,
-            message: player.name + " a réussi à s'évader !",
+            message: player?.name + " a réussi à s'évader !",
             duration: INFO_DIALOG_TIME,
+        }).subscribe(() => {
+            this.isInCombat = false;
         });
     }
 

@@ -98,7 +98,7 @@ export class CombatService {
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', player);
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
-            this.emitToCombatPlayers(server, combatPlayers, 'combatEnd', room.listPlayers);
+            this.emitToCombatPlayers(server, combatPlayers, 'combatEnd', { listPlayers: room.listPlayers, player: player });
         } else {
             this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', player);
             this.onEndTurn(client, server, room);
