@@ -44,5 +44,6 @@ export const mockRooms: Room[] = [
         adminId: 'admin1234',
         isLocked: false,
         gameStatus: GameStatus.Lobby,
+        globalPostGameStats: defaultGlobalStats,
     },
 ];
