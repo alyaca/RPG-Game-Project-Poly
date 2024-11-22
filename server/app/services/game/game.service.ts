@@ -59,6 +59,8 @@ export class GameService {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
+        const player = this.getPlayerById(room, socket);
+        this.gameLogsService.sendQuit(player, roomId, server);
         if (isAdmin && room.gameStatus === GameStatus.Lobby) {
             this.roomService.deleteRoom(roomId, socket);
         } else if (room.gameStatus === GameStatus.Started) {

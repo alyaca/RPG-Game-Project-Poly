@@ -104,8 +104,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
-        this.server.to(room.roomId).emit('isActive', activePlayer.id);
-
         this.server.to(room.roomId).emit('isActive', activePlayer);
         const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
         this.server.to(room.roomId).emit('reachableTiles', reachability);
@@ -159,7 +157,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         await this.saveMessage(client, messageWithRoomId);
     }
 
-    @SubscribeMessage(SocketEvents.SendGameLog)
+    @SubscribeMessage(SocketEvents.GameLog)
     handleGameLog(client: Socket, log: string) {
         const roomId = this.roomService.getRoomId(client);
         this.logger.log(`Game log received: ${log} from ${client.id} with roomCode: ${roomId}`);

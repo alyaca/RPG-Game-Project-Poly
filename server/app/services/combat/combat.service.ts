@@ -181,6 +181,7 @@ export class CombatService {
     }
 
     isInCombat(client: Socket) {
+        if (!this.combatInfos.has(client.data?.roomCode)) return false;
         const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
         return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
