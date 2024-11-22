@@ -41,24 +41,14 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
-    updateTile(activePlayer: Player, itemToPlace : number): void {
+    updateObjectsPosition(objects: number[][]) {
+        this.objects = objects;
+    }
+
+    updateTile(activePlayer: Player, itemToPlace: number): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
-            
-
-            // all this should be server side, should call update tile from game-grid when someone picks up an item
-            // const item = this.getObject(activePlayer.position);
-            // if (activePlayer.inventory.length === 2) {
-            //     const objects = this.objects;
-            //     this.socketCommunicationService.send('fullInventory', { activePlayer, item, objects });
-            //     // wait until this.itemToPlace is defined
-
-            //     this.itemToPlace = this.playerInventory.getItemToPlace();
-            // } else {
-            //     this.playerInventory.updatePlayerWithItem(activePlayer, item, this.objects);
-            // }
-            
             this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
             this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
         } else {

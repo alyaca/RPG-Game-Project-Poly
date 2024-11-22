@@ -1,34 +1,36 @@
+import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
-import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { GameLogsService } from '../game-logs/game-logs.service';
 import { RoomService } from '../room/room.service';
 
 @Injectable()
-export class PlayerInventoryService{
-    room : Room;
-    constructor(private roomService : RoomService){}
+export class PlayerInventoryService {
+    constructor(
+        private roomService: RoomService,
+        private gameLogService: GameLogsService,
+    ) {}
 
-    updateInventory(server : Server, client : Socket, allItems : number[][], activePlayer : Player, itemPickedUp : number)
-    {
-        this.room = this.roomService.getRoom(client);
-        if(itemPickedUp === ObjectType.Random)
-        {
+    updateInventory(server: Server, client: Socket, allItems: number[][], activePlayer: Player, itemPickedUp: number) {
+        const room = this.roomService.getRoom(client);
+        if (itemPickedUp === ObjectType.Random) {
             itemPickedUp = this.determineRandomItem(allItems);
         }
-        if(activePlayer.inventory.length === 2)
-        {
+        if (activePlayer.inventory.length === 2) {
             client.emit('openItemSwitchModal', { activePlayer, itemPickedUp });
             server.emit('updateTile', itemPickedUp);
-        }
-        else
-        {
+        } else {
+            this.gameLogService.sendItemLog(activePlayer, room.roomId, server, itemPickedUp);
             activePlayer = this.updatePlayerWithItem(activePlayer, itemPickedUp);
-            server.emit('updateTile', 0);
-            this.room.gameMap.itemPlacement[activePlayer.position.x][activePlayer.position.y] = 0;
-            this.roomService.updateRoomMap(this.room);
+
+            // idk
+            // server.emit('updateTile', 0);
+
+            room.gameMap.itemPlacement[activePlayer.position.x][activePlayer.position.y] = 0;
+            this.roomService.updateRoomMap(room);
         }
         client.emit('updateInventory', activePlayer);
         this.roomService.updateRoomPlayers(client, activePlayer);
@@ -81,36 +83,28 @@ export class PlayerInventoryService{
         return playerToBuff;
     }
 
-    removeItemsEffects(player: Player, item1: number | undefined, item2: number | undefined) {
-        const inventory = [item1, item2];
-        for (const items of inventory) {
-            if (items) {
-                switch (items) {
-                    case ObjectType.Armor:
-                        player.attributes.attack -= 2;
-                        break;
-                    case ObjectType.Sandal:
-                        player.attributes.speed /= 2;
-                        player.attributes.totalHp += 2;
-                        player.attributes.currentHp += 2;
-                        break;
-                    case ObjectType.Lightning:
-                        player.attributes.attack /= 2;
-                        player.attributes.defense += 2;
-                        player.attributes.totalHp += 2;
-                        player.attributes.currentHp += 2;
-                        break;
-                    case ObjectType.Trident:
-                        player.attributes.actionPoints = 1;
-                        player.attributes.maxActionPoints = 1;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        if (item1 && item2) {
-            player.inventory = [];
+    removeItemEffects(player: Player, itemToUndo: number) {
+        switch (itemToUndo) {
+            case ObjectType.Armor:
+                player.attributes.attack -= 2;
+                break;
+            case ObjectType.Sandal:
+                player.attributes.speed /= 2;
+                player.attributes.totalHp += 2;
+                player.attributes.currentHp += 2;
+                break;
+            case ObjectType.Lightning:
+                player.attributes.attack /= 2;
+                player.attributes.defense += 2;
+                player.attributes.totalHp += 2;
+                player.attributes.currentHp += 2;
+                break;
+            case ObjectType.Trident:
+                player.attributes.actionPoints -= 1;
+                player.attributes.maxActionPoints = 1;
+                break;
+            default:
+                break;
         }
         return player;
     }
@@ -124,11 +118,19 @@ export class PlayerInventoryService{
         return player;
     }
 
-    updatePlayerAfterSwap(playerToModify: Player, newItem: number, itemDropped: number) {
-        playerToModify = this.removeItemsEffects(playerToModify, itemDropped, undefined);
-        playerToModify = this.addStatsFromItem(playerToModify, newItem);
-        this.room.gameMap[playerToModify.position.x][playerToModify.position.y] = itemDropped;
-        this.roomService.updateRoomMap(this.room);
-        return playerToModify;
+    updatePlayerAfterSwap(infoSwap: InfoSwap) {
+        infoSwap.player = this.removeItemEffects(infoSwap.player, infoSwap.oldInventory[0].id);
+        infoSwap.player = this.removeItemEffects(infoSwap.player, infoSwap.oldInventory[1].id);
+
+        infoSwap.player = this.addStatsFromItem(infoSwap.player, infoSwap.modifiedInventory[0].id);
+        infoSwap.player = this.addStatsFromItem(infoSwap.player, infoSwap.modifiedInventory[1].id);
+
+        const room = this.roomService.getRoom(infoSwap.client);
+        this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[0].id);
+        this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
+
+        room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
+        this.roomService.updateRoomMap(room);
+        return infoSwap.player;
     }
 }

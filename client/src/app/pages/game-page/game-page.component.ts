@@ -7,10 +7,11 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, ObjectType, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
 // import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { ItemSwap } from '@common/item-swap';
@@ -65,6 +66,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public combatService: CombatService,
+        private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -74,6 +76,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.mapDimensions || !this.mapName) {
             this.router.navigate(['/home']);
         }
+
+        // this.socketCommunicationService.on<number[][]>('updateTile', (items) => {
+        //     this.navigationService.updateObjectsPosition(items);
+        // });
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
@@ -112,7 +118,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('doorClicked', () => {
-            this.activePlayer.attributes.actionPoints = 0;
+            this.activePlayer.attributes.actionPoints -= 1;
         });
 
         this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
@@ -136,8 +142,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 });
         });
 
-        this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; itemPickedUp: number; }) => {
-            this.socketCommunicationService.send('beginItemSwitch');
+        this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; itemPickedUp: number }) => {
+            // this.socketCommunicationService.send('beginItemSwitch');
             const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
             const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
             const itemSwap: ItemSwap = {
@@ -154,21 +160,16 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     itemSwap,
                 })
                 .subscribe(() => {
-                    let newItem = itemSwap.pickedUpItem.id;
-                    for (let i = 0; i < data.activePlayer.inventory.length; i++) {
-                        if (data.activePlayer.inventory[i] !== oldInventory[i]) {
-                            newItem = data.activePlayer.inventory[i].id;
-                            this.socketCommunicationService.send('itemSwapped', {activePlayer : data.activePlayer, item : newItem, droppedItem : itemSwap.pickedUpItem});
-                            break;
-                        }
-                    }
-                    // this.socketCommunicationService.send('itemSwapped', {activePlayer : data.activePlayer, item : newItem, droppedItem : itemSwap.pickedUpItem});
-                    this.socketCommunicationService.send('endItemSwitch');
+                    this.socketCommunicationService.send('itemSwapped', {
+                        activePlayer: data.activePlayer,
+                        inventoryToUndo: oldInventory,
+                        newInventory: data.activePlayer.inventory,
+                        droppedItem: itemSwap.pickedUpItem,
+                    });
+                    // this.socketCommunicationService.send('endItemSwitch');
                 });
         });
 
-
-        // idk about this
         this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
             this.activePlayer.attributes = updatedPlayer.attributes;
             this.activePlayer.inventory = updatedPlayer.inventory;
@@ -177,6 +178,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+            this.activePlayer = activePlayer;
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
             this.isTurnStartShowed = this.isActivePlayer;
         });
@@ -201,12 +203,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
-        // might impact tests
-        if (this.activePlayer.attributes.actionPoints === 0) {
-            this.activePlayer.attributes.actionPoints = 1;
-        } else {
-            this.activePlayer.attributes.actionPoints = this.activePlayer.attributes.maxActionPoints;
-        }
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -300,19 +296,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onEndTurn() {
-        // needed
-        // if(this.navigationService.isOnWall(this.activePlayer))
-        // {
-        //     this.socketCommunicationService.send('movePlayerFromWall', this.activePlayer);
-        // }
-
-        // need to check whether the player is on a wall or not
-        if (this.activePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
-            if (this.activePlayer.attributes.actionPoints === 1) {
-                this.activePlayer.attributes.actionPoints += 1;
-                this.activePlayer.attributes.maxActionPoints = 2;
-                this.socketCommunicationService.send('inventoryChange', this.activePlayer);
-            }
+        if (this.navigationService.isOnWall(this.activePlayer)) {
+            this.socketCommunicationService.send('movePlayerFromWall', this.activePlayer);
         }
         this.socketCommunicationService.send('endTurn');
     }

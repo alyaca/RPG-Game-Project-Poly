@@ -16,7 +16,7 @@ export class GameService {
     isTurnSkipped: boolean = false;
     constructor(
         private roomService: RoomService,
-        private playerInventoryService : PlayerInventoryService,
+        private playerInventoryService: PlayerInventoryService,
         private gameLogsService: GameLogsService,
         private matchService: MatchService,
     ) {}
@@ -148,13 +148,18 @@ export class GameService {
         const player = this.getActivePlayer(room);
         for (const tile of path) {
             this.isMoving = true;
-            if(room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random)
-            {
-                this.playerInventoryService.updateInventory(server, client, room.gameMap.itemPlacement, player, room.gameMap.itemPlacement[tile.x][tile.y]);
-            }
-            // the items are not removing themselves from the itemPlacement matrix 
-
             player.position = tile;
+            if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
+                this.playerInventoryService.updateInventory(
+                    server,
+                    client,
+                    room.gameMap.itemPlacement,
+                    player,
+                    room.gameMap.itemPlacement[tile.x][tile.y],
+                );
+            }
+            // the items are not removing themselves from the itemPlacement matrix
+
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
@@ -166,7 +171,7 @@ export class GameService {
             }
             // that if is useless ice costs zero already
             // if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
-                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
+            player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
             // }
         }
         this.isMoving = false;
@@ -187,6 +192,7 @@ export class GameService {
     }
 
     checkDoors(room: Room, server: Server) {
+        // player has two action points, but can't use the second one
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
             server.to(room.roomId).emit('doorAround', true);
@@ -233,7 +239,7 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    private getCost(tileType: number, activePlayer : Player): number {
+    private getCost(tileType: number, activePlayer: Player): number {
         switch (tileType) {
             case TileType.Ground:
                 return TileCost.Ground;
@@ -243,9 +249,8 @@ export class GameService {
                 return TileCost.Ice;
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
-            case TileType.Wall : 
-                if(activePlayer.inventory.find((objects) => objects.id === ObjectType.Kunee))
-                {
+            case TileType.Wall:
+                if (activePlayer.inventory.find((objects) => objects.id === ObjectType.Kunee)) {
                     return TileCost.Ground;
                 }
                 return Infinity;
@@ -364,6 +369,16 @@ export class GameService {
         const room = this.roomService.getRoom(socket);
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        if (listPlayers[index].inventory.find((object) => object.id === ObjectType.Trident)) {
+            if (listPlayers[index].attributes.actionPoints === 1) {
+                // TO FIX (Maybe)
+                listPlayers[index].attributes.maxActionPoints = 2;
+                listPlayers[index].attributes.actionPoints += 1;
+            } else {
+                console.log('no action points left');
+                listPlayers[index].attributes.actionPoints = 1;
+            }
+        }
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;

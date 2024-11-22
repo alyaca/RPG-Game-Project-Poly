@@ -1,4 +1,5 @@
 import { Navigation } from '@app/classes/navigation/navigation';
+import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { IMessage } from '@app/interfaces/message.interface';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { ChatService } from '@app/services/chat/chat.service';
@@ -7,6 +8,7 @@ import { GameService } from '@app/services/game/game.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
+import { GameObject } from '@common/game-object';
 import { Avatar, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -26,7 +28,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private chatService: ChatService,
         private combatService: CombatService,
         private gameService: GameService,
-        private playerInventoryService : PlayerInventoryService,
+        private playerInventoryService: PlayerInventoryService,
     ) {
         this.navigation = new Navigation();
     }
@@ -55,10 +57,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.InventoryChange)
     handleInventoryChange(client: Socket, updatedPlayer: Player) {
         this.logger.debug(`client ${client.id} picked up an item`);
-        if (client.id === updatedPlayer.id) {
-            this.roomService.updateRoomPlayers(client, updatedPlayer);
-            client.emit('updateInventory', updatedPlayer);
-        }
+        this.roomService.updateRoomPlayers(client, updatedPlayer);
+        client.emit('updateInventory', updatedPlayer);
     }
 
     @SubscribeMessage(SocketEvents.LeaveRoom)
@@ -147,30 +147,56 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.attackPlayer(client, this.server);
     }
 
+    @SubscribeMessage(SocketEvents.MovePlayerFromWall)
+    handlePlayerInWall(client: Socket, activePlayer: Player) {
+        const room = this.roomService.getRoom(client);
+        const path = this.navigation.movePlayerFromWall(activePlayer);
+        this.gameService.processNavigation(room, this.server, path, client);
+    }
+
     @SubscribeMessage(SocketEvents.ItemSwapped)
-    handleItemSwapped(client: Socket, { activePlayer, item, droppedItem }: { activePlayer: Player; item: number; droppedItem: number }) {
-        const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(activePlayer, item, droppedItem);
+    handleItemSwapped(
+        client: Socket,
+        {
+            activePlayer,
+            inventoryToUndo,
+            newInventory,
+            droppedItem,
+        }: { activePlayer: Player; inventoryToUndo: GameObject[]; newInventory: GameObject[]; droppedItem: number },
+    ) {
+        // remove activePlayer
+        const infoSwap: InfoSwap = {
+            server: this.server,
+            client: client,
+            player: activePlayer,
+            oldInventory: inventoryToUndo,
+            modifiedInventory: newInventory,
+            droppedItem: droppedItem,
+        };
+
+        const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
         this.roomService.updateRoomPlayers(client, updatedPlayer);
-        this.server.emit('updateTile', droppedItem);
+        const newItemGrid = this.roomService.getRoom(client).gameMap.itemPlacement;
+        this.server.emit('updateTile', newItemGrid); // idk about that
         client.emit('updateInventory', updatedPlayer);
     }
 
-    @SubscribeMessage(SocketEvents.BeginItemSwitch)
-    handleItemSwitch(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.roomService.getTurnTimer(room.roomId).pauseTimer();
-    }
+    // @SubscribeMessage(SocketEvents.BeginItemSwitch)
+    // handleItemSwitch(client: Socket) {
+    //     const room = this.roomService.getRoom(client);
+    //     this.roomService.getTurnTimer(room.roomId).pauseTimer();
+    // }
 
-    @SubscribeMessage(SocketEvents.EndItemSwitch)
-    handleResumeGame(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
-            if (timeLeft <= 0) {
-                this.handleEndTurn(client);
-            }
-            this.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
-        });
-    }
+    // @SubscribeMessage(SocketEvents.EndItemSwitch)
+    // handleResumeGame(client: Socket) {
+    //     const room = this.roomService.getRoom(client);
+    //     this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+    //         if (timeLeft <= 0) {
+    //             this.handleEndTurn(client);
+    //         }
+    //         this.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+    //     });
+    // }
 
     @SubscribeMessage(SocketEvents.EvadeCombat)
     handleEvadeCombat(client: Socket, player: Player) {
@@ -212,8 +238,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        console.log("checking item placement from room");
-        console.log(room.gameMap.itemPlacement);
         this.gameService.processNavigation(room, this.server, path, client);
     }
 

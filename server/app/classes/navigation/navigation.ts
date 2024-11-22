@@ -36,8 +36,8 @@ export class Navigation {
         return path;
     }
 
+    // this might be garbage
     movePlayerFromWall(activePlayer: Player) {
-        // this.updateTile(activePlayer);
         let currentX = activePlayer.position.x;
         let loopCounter = 0;
         let currentY = activePlayer.position.y;
@@ -115,11 +115,8 @@ export class Navigation {
                 return TileCost.Ice;
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
-            case TileType.Wall :
-                console.log('getting tile cost');
-                if(player!.inventory.find((object) => object.id === ObjectType.Kunee))
-                {
-                    console.log("player can walk through walls");
+            case TileType.Wall:
+                if (player!.inventory.find((object) => object.id === ObjectType.Kunee)) {
                     return TileCost.Ground;
                 }
                 return Infinity;
@@ -198,7 +195,7 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
+            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
@@ -224,7 +221,7 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
+            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
