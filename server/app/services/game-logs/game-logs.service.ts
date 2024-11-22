@@ -57,6 +57,21 @@ export class GameLogsService {
         this.sendLog(roomId, server, [combatPlayers.attacker, combatPlayers.defender], message);
     }
 
+    sendWinCombatLog(player: Player, roomId: string, server: Server) {
+        const message = this.generateWinCombat(player.name);
+        this.sendLog(roomId, server, [player], message);
+    }
+
+    sendEvadeCombatLog(player: Player, roomId: string, server: Server) {
+        const message = this.generateEvadeCombat(player.name);
+        this.sendLog(roomId, server, [player], message);
+    }
+
+    sendDefaultWinCombatLog(winner: Player, roomId: string, server: Server) {
+        const message = this.generateDefaultWin(winner.name);
+        this.sendLog(roomId, server, [winner], message);
+    }
+
     generateTurnMessage(player: Player): string {
         return `Début du tour du joueur ${player.name}.`;
     }
@@ -77,7 +92,15 @@ export class GameLogsService {
         return `${combatPlayers.attacker.name} et ${combatPlayers.defender.name} sont entrés en combat.`;
     }
 
-    generateEndCombat(playerName: string): string {
-        return `Le combat est terminé ! ${playerName} a gagné le combat.`;
+    generateWinCombat(playerName: string): string {
+        return `${playerName} a gagné le combat. Le combat est terminé !`;
+    }
+
+    generateEvadeCombat(playerName: string): string {
+        return `${playerName} s'est évadé. Le combat est terminé !`;
+    }
+
+    generateDefaultWin(winnerName: string) {
+        return `${winnerName} a gagné le combat par défaut puisque l'opposant a quitté la partie.`;
     }
 }

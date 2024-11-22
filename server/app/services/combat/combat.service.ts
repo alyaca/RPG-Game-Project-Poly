@@ -55,7 +55,6 @@ export class CombatService {
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
         [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
         this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', combatPlayers);
-
         this.onStartTurn(client, server, room);
     }
 
@@ -95,6 +94,7 @@ export class CombatService {
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
+            this.logService.sendEvadeCombatLog(player, room.roomId, server);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', player);
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
@@ -113,6 +113,7 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         this.combatEnded(room);
         this.addVictory(room, player2, server);
+        this.logService.sendWinCombatLog(player2, room.roomId, server);
         client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
     }
 
@@ -175,6 +176,7 @@ export class CombatService {
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
+        this.logService.sendDefaultWinCombatLog(winner, room.roomId, server);
         this.defaultCombatWin(room, winner, server);
         if (winner.isActive) {
             const winnerSocket = server.sockets.sockets.get(winner.id);
