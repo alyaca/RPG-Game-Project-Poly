@@ -28,8 +28,9 @@ export class NavigationService {
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
     positions: number[][];
+    reachableTiles: Position[];
+    tempReachableTiles: Position[];
     private objects: number[][];
-    private reachableTiles: Position[];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
         this.objects = JSON.parse(JSON.stringify(objects));

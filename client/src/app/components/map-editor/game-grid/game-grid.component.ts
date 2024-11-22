@@ -65,7 +65,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     previousRow: number | null = null;
     previousCol: number | null = null;
 
-    reachableTiles: Position[] = [];
     fastestPath: Position[] = [];
     isMoving: boolean = false;
     isActivePlayer: boolean = false;
@@ -98,7 +97,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     ngOnInit() {
         this.socketCommunicationService.connect();
         this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
-            this.reachableTiles = reachability;
+            this.navigationService.reachableTiles = reachability;
         });
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
@@ -326,7 +325,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+        return this.navigationService.isReachableTile(row, col);
     }
 
     findPath(row: number, col: number) {
@@ -399,7 +398,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position) {
-        this.reachableTiles = [];
+        this.navigationService.reachableTiles = [];
         this.fastestPath = [];
         if (this.activePlayer) {
             this.navigationService.updateTile(this.activePlayer);
