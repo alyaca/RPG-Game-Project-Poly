@@ -16,34 +16,18 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
   templateUrl: './post-game-page.component.html',
   styleUrl: './post-game-page.component.scss'
 })
-export class PostGamePageComponent implements OnInit {
+export class PostGamePageComponent implements OnInit{
   constructor(public socketCommunicationService: SocketCommunicationService, public navigationService: NavigationService, public postGameService: PostGameService, public stopwatchService: StopwatchService){
     this.postGameService.initTempStats(); // Temporary
     this.postGameService.globalStats.gameDuration = '0';
     this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
   }
 
+  totalTerrainTiles: number = -1;
+
   ngOnInit(){
     this.postGameService.players = this.navigationService.players;
+    this.totalTerrainTiles = this.postGameService.findTotalTerrainTiles();
+    
   }
-
-
-  // case 'combats':
-  //   this.explanations = 'Nombre de combats participés par le joueur';
-  //   break;
-  // case 'records':
-  //   this.explanations = 'Résultats des combats du joueur sous la forme victoires/évasions/défaites';
-  //   break;
-  // case 'dmgDealt':
-  //   this.explanations = 'Nombre de points de dégats infligés sur les joueurs adverses';
-  //   break;
-  // case 'dmgTaken':
-  //   this.explanations = 'Nombre de points de dégats subis pas le joueur';
-  //   break;
-  // case 'itemsObtained':
-  //   this.explanations = "Nombre d'objets ramassés par le joueur au cours de la partie";
-  //   break;
-  // case 'tilesVisited':
-  //   this.explanations = 'Pourcentage des tuiles de terrain visités par le joueur';
-  //   break;
 }

@@ -126,7 +126,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.once('endGame', (data: {winner: Player, room: Room}) => {
             this.stopwatchService.stop();
             this.postGameService.globalStats.turns = data.room.globalPostGameStats.turns;
-            console.log(this.postGameService.globalStats.turns + 'turns');
+            this.postGameService.tilesGrid = data.room.gameMap.tiles;
+            console.log(this.postGameService.tilesGrid);
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
@@ -271,12 +272,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     forceEndGame() {
-        if(!this.allPlayers[0]){
-            console.log('player doesnt exist');
-        }
-        else{
-            this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
-        }
+        this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
         // server.to(room.roomId).emit('endGame', player);
     }
 }

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 // import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player, PostGameStats } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
+import { NavigationService } from '../navigation/navigation.service';
+import { TileType } from '@app/constants';
 
 export interface Attribute {
   id: number;
@@ -36,6 +38,7 @@ export class PostGameService {
   };
 
   players: Player[];
+  tilesGrid: number[][];
   // temporary
   initTempStats(){
     // for(let i = 0; i < this.players.length; i++){
@@ -46,13 +49,6 @@ export class PostGameService {
     //   turns: 16,
     //   globalTilesVisited: 30,
     //   doorsInteracted: 50,
-    //   nbFlagBearers: 0,
-    // }
-    // this.globalStats = {
-    //   gameDuration: '00:00',
-    //   turns: 0,
-    //   globalTilesVisited: 0,
-    //   doorsInteracted: 0,
     //   nbFlagBearers: 0,
     // }
   }
@@ -155,7 +151,7 @@ attributes: Attribute[] = [
   },
 ]
 
-  constructor() { }
+  constructor(public navigationService: NavigationService) { }
 
   resetOtherAttributes(attribute: keyof Player["postGameStats"] ){
     Object.keys(this.sortOrder).forEach(key => {
@@ -228,4 +224,16 @@ attributes: Attribute[] = [
   getMaxStat(statKey: keyof Player["postGameStats"]): number {
     return Math.max(...this.players.map(player => player.postGameStats[statKey]));
   }
+
+  public findTotalTerrainTiles(): number {
+    let totalTerrainTiles: number = 0;
+      for(let i = 0; i < this.tilesGrid.length; i++){
+        for(let j = 0; j < this.tilesGrid[0].length; j++){
+            if(this.tilesGrid[i][j] < TileType.Wall){
+                totalTerrainTiles++;
+            }
+        }
+    }
+    return totalTerrainTiles;
+}
 }

@@ -29,11 +29,12 @@
                 (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">% de portes interagies: </span> 
                 <span class="value">{{ postGameService.globalStats.doorsInteracted }}%</span>
-                <p class="global-attribute"                 
+                <!-- <p class="global-attribute"                 
                 (mouseenter)="postGameService.updateExplanationsGlobal('nbFlagBearers')"
                 (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">Nombre de détenteurs de drapeau: </span> 
-                <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span>
+                <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span> -->
+                <p>nb tuiles de terrain:  {{ totalTerrainTiles }}</p>
             </div>
             <div class="chat">
                 <app-chat-box [isToggleable]="true"></app-chat-box>
