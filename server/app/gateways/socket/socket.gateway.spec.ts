@@ -1,7 +1,5 @@
-import { Navigation } from '@app/classes/navigation/navigation';
 import { IMessage } from '@app/interfaces/message.interface';
 import { mockGame } from '@app/mocks/mock-game';
-import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
@@ -27,7 +25,6 @@ describe('SocketGateway', () => {
     let mockClient: Socket;
     let mockPlayer: Player;
     let combatService: CombatService;
-    let mockNavigation: jest.Mocked<Navigation>;
 
     beforeEach(async () => {
         const chatServiceMock = {
@@ -105,13 +102,6 @@ describe('SocketGateway', () => {
             status: Status.Player,
         } as Player;
 
-        mockNavigation = {
-            hasHandleDoorAction: jest.fn(),
-            findReachableTiles: jest.fn(),
-            initializeNavigation: jest.fn(),
-            players: mockPlayers,
-            gameMap: mockGame,
-        } as unknown as jest.Mocked<Navigation>;
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -130,7 +120,6 @@ describe('SocketGateway', () => {
         chatService = module.get<ChatService>(ChatService);
         combatService = module.get<CombatService>(CombatService);
         gateway['server'] = server;
-        gateway['navigation'] = mockNavigation;
     });
 
     afterEach(() => {
@@ -290,7 +279,7 @@ describe('SocketGateway', () => {
             (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
             jest.spyOn(gameService, 'onStartGame');
             (gameService.getActivePlayer as jest.Mock).mockReturnValue(mockPlayer);
-            mockNavigation.findReachableTiles.mockReturnValue(mockTiles);
+            mockRooms[0].navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
 
             gateway.handleStartGame(socket);
 

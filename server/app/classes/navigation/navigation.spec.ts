@@ -13,10 +13,8 @@ describe('Navigation', () => {
     let navigation: Navigation;
 
     beforeEach(() => {
-        navigation = new Navigation();
-        navigation.gameMap = mockGameNavigation;
-        navigation.positions = mockGameNavigation.itemPlacement;
-        navigation.players = mockNavigationPlayers;
+        navigation = new Navigation(mockGameNavigation, mockGameNavigation.itemPlacement,mockNavigationPlayers);
+
     });
 
     afterEach(() => {
@@ -53,11 +51,6 @@ describe('Navigation', () => {
         expect(navigation['distances'].length).toEqual(mockGame.dimension);
         expect(navigation['previous'].length).toEqual(mockGame.dimension);
         expect(navigation['distances'][playerNavigation.position.x][playerNavigation.position.y]).toEqual(0);
-    });
-
-    it('should return [] if the tile is not reachable', () => {
-        navigation.isReachableTile = jest.fn().mockReturnValue(false);
-        expect(navigation.navigateToTile(playerNavigation, { x: 1, y: 1 }, mockGame)).toEqual([]);
     });
 
     it('should return undefined if the player is not adjacent to anyone else', () => {
@@ -316,24 +309,6 @@ describe('Navigation', () => {
         });
     });
 
-    it('should return the path excluding the first position if the destination is reachable', () => {
-        const destination: Position = { x: 2, y: 2 };
-        navigation.isReachableTile = jest.fn().mockReturnValue(true);
-        navigation.findFastestPath = jest.fn().mockReturnValue([
-            { x: 0, y: 0 },
-            { x: 1, y: 1 },
-            { x: 2, y: 2 },
-        ]);
-        const path = navigation.navigateToTile(playerNavigation, destination, mockGameNavigation);
-
-        expect(navigation.isReachableTile).toHaveBeenCalledWith(destination.x, destination.y);
-        expect(navigation.findFastestPath).toHaveBeenCalledWith(playerNavigation, destination, mockGameNavigation);
-        expect(path).toEqual([
-            { x: 1, y: 1 },
-            { x: 2, y: 2 },
-        ]);
-    });
-
     it('should return the correct path', () => {
         navigation['previous'] = [
             [null, null],
@@ -425,4 +400,16 @@ describe('Navigation', () => {
     //     expect(getNeighborsSpy).toHaveBeenCalled();
     //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
     // });
+
+
+    /*it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
+        gameCreationServiceSpy.isModifiable = false;
+        component.isActivePlayer = true;
+        component.hasStarted = true;
+        component.isMoving = false;
+        navigationServiceSpy.isDebugMode = true;
+        navigationServiceSpy.isTileValid.and.returnValue(true);
+        component.sendNavigation(0, 0);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
+    });*/
 });

@@ -601,6 +601,7 @@ describe('GameService', () => {
         it('should navigate and emit player navigation', async () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
+            service.checkEndTurn = jest.fn().mockReturnValue(false);
             await service.processNavigation(room, server, path, mockSocket);
 
             expect(service.getActivePlayer).toHaveBeenCalledWith(room);
@@ -616,6 +617,7 @@ describe('GameService', () => {
                 [TileType.Ice, 0],
             ];
             service['checkFell'] = jest.fn().mockReturnValue(false);
+            service.checkEndTurn = jest.fn().mockReturnValue(false);
 
             await service.processNavigation(room, server, path, mockSocket);
 

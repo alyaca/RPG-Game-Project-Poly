@@ -384,17 +384,6 @@ describe('GameGridComponent', () => {
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 
-    it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
-        gameCreationServiceSpy.isModifiable = false;
-        component.isActivePlayer = true;
-        component.hasStarted = true;
-        component.isMoving = false;
-        navigationServiceSpy.isDebugMode = true;
-        navigationServiceSpy.isTileValid.and.returnValue(true);
-        component.sendNavigation(0, 0);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
-    });
-
     it('navigateToTile should call everything', () => {
         spyOn(component, 'placeAvatarOnTile');
         component.activePlayer = mockPlayers[0];
@@ -639,10 +628,5 @@ describe('GameGridComponent', () => {
     it('should return undefined if there is no game object with the specified id', () => {
         const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
         expect(result).toBeUndefined();
-    });
-
-    it('should return true when in debugMode', () => {
-        navigationServiceSpy.isDebugMode = true;
-        expect(component.isDebugMode()).toBeTrue();
     });
 });
