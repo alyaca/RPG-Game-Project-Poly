@@ -6,6 +6,7 @@
         <div class="player-bar">
             <app-player-info-inventory class="player-bar" [playerId]="socketCommunicationService.socket.id"></app-player-info-inventory>
         </div>
+        <button (click)="forceEndGame()">Terminer la partie</button>
         <div class="chat">
             <app-chat-box [isToggleable]="true"></app-chat-box>
         </div>

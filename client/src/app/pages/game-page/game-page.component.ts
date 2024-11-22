@@ -13,6 +13,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { StopwatchService } from '@app/services/stopwatch/stopwatch.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
 
@@ -57,7 +58,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     attackAround: boolean = false;
 
     private router = inject(Router);
-
+    private stopwatchService = inject(StopwatchService);
     constructor(
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
@@ -70,6 +71,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.stopwatchService.start();
         if (!this.mapDimensions || !this.mapName) {
             this.router.navigate(['/home']);
         }
@@ -119,6 +121,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.once('endGame', (winner: Player) => {
+            this.stopwatchService.stop();
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
@@ -129,7 +132,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 })
                 .subscribe((result) => {
                     if (result === DialogResult.Close) {
-                        this.router.navigate(['/home']);
+                        this.router.navigate(['/post-game-lobby']);
                     }
                 });
         });
@@ -260,5 +263,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     hasActionPoints() {
         return this.gameService.hasActionPoints(this.activePlayer);
+    }
+
+    forceEndGame() {
+        if(!this.allPlayers[0]){
+            console.log('player doesnt exist');
+        }
+        else{
+            this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
+        }
+        // server.to(room.roomId).emit('endGame', player);
     }
 }

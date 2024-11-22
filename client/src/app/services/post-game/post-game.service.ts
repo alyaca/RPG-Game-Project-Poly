@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+// import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { Player, PostGameStats } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
 
@@ -28,12 +28,12 @@ export class PostGameService {
   };
 
   globalStats: GlobalPostGameStats;
-  players: Player[] = mockLobbyPlayers;
+  players: Player[];
   // temporary
   initTempStats(){
-    for(let i = 0; i < this.players.length; i++){
-      this.players[i].postGameStats = this.tempPlayerStats[i];
-    }
+    // for(let i = 0; i < this.players.length; i++){
+    //   this.players[i].postGameStats = this.tempPlayerStats[i];
+    // }
     this.globalStats = {
       gameDuration: '00:00',
       turns: 16,
@@ -42,6 +42,7 @@ export class PostGameService {
       nbFlagBearers: 0,
     }
   }
+
   // temporary
   tempPlayerStats: PostGameStats[] = [{
     combats: 5,

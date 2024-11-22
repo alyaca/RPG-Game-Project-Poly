@@ -13,12 +13,15 @@ export class StopwatchService {
     }
   }
 
-  stop(): string {
+  stop() {
     if (this.startTime !== null) {
       const endTime = Date.now();
       this.elapsedTime = (endTime - this.startTime) / 1000; 
       this.startTime = null; 
     }
+  }
+
+  getTime(): string {
     return this.formatTime(this.elapsedTime);
   }
 

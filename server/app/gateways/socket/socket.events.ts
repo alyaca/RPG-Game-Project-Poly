@@ -21,4 +21,6 @@ export enum SocketEvents {
     EvadeCombat = 'evadeCombat',
     EndGame = 'endGame',
     DoorAction = 'doorAction',
+
+    ForceEndGame = 'forceEndGame', // Temporary
 }
