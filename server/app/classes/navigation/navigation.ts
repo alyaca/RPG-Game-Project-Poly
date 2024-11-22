@@ -13,7 +13,7 @@ export class Navigation {
     private distances: number[][];
     private previous: Position[][];
 
-    initializeNavigation(gameMap: Game, objects: number[][], players: Player[]): void {
+    constructor(gameMap: Game, objects: number[][], players: Player[]) {
         this.gameMap = gameMap;
         this.positions = objects;
         this.players = players;
@@ -71,9 +71,8 @@ export class Navigation {
         if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
         if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
         if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
-        if (this.players.some((player) => player.position.x === row && player.position.y === col)){
-            return false;
-        }
+        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
+        if (this.gameMap.itemPlacement[row][col] === 0 || this.gameMap.itemPlacement[row][col] ===8) return true;
         return true;
     }
 

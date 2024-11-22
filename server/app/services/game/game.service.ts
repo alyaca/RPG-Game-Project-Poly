@@ -1,3 +1,4 @@
+import { Navigation } from '@app/classes/navigation/navigation';
 import { FELLING_PROBABILITY, MOVEMENT_TIME, SINGLE_PLAYER, STARTING_TIME, TileCost, TileType, TURN_TIME } from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -108,6 +109,7 @@ export class GameService {
     }
 
     onStartGame(room: Room, socket: Socket) {
+        room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);

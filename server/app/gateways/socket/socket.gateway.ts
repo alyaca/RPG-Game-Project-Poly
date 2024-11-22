@@ -25,9 +25,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private chatService: ChatService,
         private combatService: CombatService,
         private gameService: GameService,
-    ) {
-        this.navigation = new Navigation();
-    }
+    ) {}
 
     @SubscribeMessage(SocketEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
@@ -97,8 +95,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.StartGame)
     handleStartGame(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.navigation.initializeNavigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
-        room.navigation = this.navigation;
         this.gameService.onStartGame(room, client);
         const activePlayer = this.gameService.getActivePlayer(room);
 
