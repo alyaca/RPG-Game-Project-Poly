@@ -1,3 +1,4 @@
+import { Navigation } from '@app/classes/navigation/navigation';
 import {
     DEFAULT_ATTRIBUTE,
     EQUAL_ODDS_PROBABILITY,
@@ -10,11 +11,12 @@ import {
     TileType,
     TURN_TIME,
 } from '@app/constants';
+import { DoorActionData } from '@app/interfaces/socket-data.interface';
+import { baseBot } from '@app/mocks/mock-players';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Avatar, Behavior, Player, Position, PostGameStats, Status } from '@common/player';
-import { baseBot } from '@app/mocks/mock-players';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -76,13 +78,18 @@ export class GameService {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
+
+        if (isAdmin && room.isDebug) {
+            room.isDebug = false;
+            server.to(roomId).emit('debugMode', false);
+        }
         if (isAdmin && room.gameStatus === GameStatus.Lobby) {
             this.roomService.deleteRoom(roomId, socket);
         } else if (room.gameStatus === GameStatus.Started) {
             this.playerDisconnected(room, socket, server);
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
             const activePlayer = this.getActivePlayer(room);
-            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
@@ -119,6 +126,7 @@ export class GameService {
     }
 
     onStartGame(room: Room, socket: Socket) {
+        room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
@@ -151,7 +159,7 @@ export class GameService {
             server.to(room.roomId).emit('reachability', activePlayer);
             server.to(room.roomId).emit('isActive', activePlayer);
             server.to(room.roomId).emit('turnEnded', room.listPlayers);
-            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
             this.checkDoors(room, server);
             this.checkAttack(room, server);
@@ -208,6 +216,24 @@ export class GameService {
         this.updateAvatarsForAllClients(server, room.roomId);
     }
 
+    updateLogsDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.gameLogsService.sendDebugMessage(isDebugMode, room.roomId, server);
+    }
+
+    processTeleportation(room: Room, server: Server, path: Position[]) {
+        const player = this.getActivePlayer(room);
+        const playerId = player.id;
+        const position = path[0];
+        player.position = position;
+        server.to(room.roomId).emit('teleportPlayer', { position, playerId });
+        const reachability = room.navigation.findReachableTiles(player, room);
+        server.to(room.roomId).emit('endMovement');
+        server.to(room.roomId).emit('reachableTiles', reachability);
+        this.checkDoors(room, server);
+        this.checkAttack(room, server);
+    }
+
     addUniqueTileToHistory(positionList: Position[], tile: Position){
         if (!positionList.some(pos => pos.x === tile.x && pos.y === tile.y)) {
             positionList.push(tile);
@@ -244,8 +270,9 @@ export class GameService {
                 player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
             }
         }
+
         this.isMoving = false;
-        const reachability = room.navigation.findReachableTiles(player, room.gameMap);
+        const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');
         server.to(room.roomId).emit('reachableTiles', reachability);
         if (this.checkEndTurn(client, player)) {
@@ -279,10 +306,23 @@ export class GameService {
         }
     }
 
+    handleDoor(client: Socket, server: Server, doorActionData: DoorActionData) {
+        const { position, player } = doorActionData;
+        const room = this.roomService.getRoom(client);
+        const activePlayer = this.getActivePlayer(room);
+
+        if (room.navigation.hasHandleDoorAction(position.x, position.y, player)) {
+            // this.gameLogsService.sendDoorMessage(room.gameMap.tiles[position.x][position.y], activePlayer, room.roomId, server);
+            server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
+            const reachability = room.navigation.findReachableTiles(activePlayer, room);
+            server.to(room.roomId).emit('reachableTiles', reachability);
+        }
+    }
+
     checkEndTurn(client: Socket, activePlayer: Player): boolean {
         if (!activePlayer || !this.isActivePlayer) return;
         const room = this.roomService.getRoom(client);
-        const reachableTileCount = room.navigation.findReachableTiles(activePlayer, room.gameMap).length;
+        const reachableTileCount = room.navigation.findReachableTiles(activePlayer, room).length;
         const players = room.listPlayers;
 
         // Player has movement point left, no action left.

@@ -15,7 +15,7 @@ import { PostGameService } from '@app/services/post-game/post-game.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { StopwatchService } from '@app/services/stopwatch/stopwatch.service';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -145,6 +145,19 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     }
                 });
         });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'd') {
+                if (this.isPlayerAdmin()) {
+                    this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
+                    this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
+                }
+            }
+        });
+
+        this.socketCommunicationService.on('debugMode', (debugMode: boolean) => {
+            this.navigationService.isDebugMode = debugMode;
+        });
     }
 
     ngAfterViewInit() {
@@ -179,6 +192,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.gameService.isActionDoorSelected = false;
         this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
+    }
+
+    isDebugMode(): boolean {
+        return this.navigationService.isDebugMode;
     }
 
     onPlayerFell() {
@@ -240,6 +257,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             })
             .subscribe((result) => {
                 if (result === DialogResult.Left) {
+                    if (this.isPlayerAdmin()) {
+                        this.navigationService.isDebugMode = false;
+                        this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
+                    }
                     this.socketCommunicationService.disconnect();
                     this.router.navigate(['/home']);
                 }
@@ -277,5 +298,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     forceEndGame() {
         this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
         // server.to(room.roomId).emit('endGame', player);
+    }
+
+    isPlayerAdmin(): boolean {
+        const admin = this.allPlayers.find((player) => player.status === Status.Admin);
+        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
+        return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }
 }

@@ -6,7 +6,6 @@ import { Avatar, Player } from './player';
 export enum GameStatus {
     Lobby = 'lobby',
     Started = 'started',
-    Paused = 'paused',
 }
 
 
@@ -21,4 +20,5 @@ export interface Room {
     gameStatus: GameStatus;
     navigation?: Navigation;
     globalPostGameStats: GlobalPostGameStats
+    isDebug?: boolean ;
 }

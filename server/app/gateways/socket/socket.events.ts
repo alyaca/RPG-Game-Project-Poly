@@ -25,4 +25,6 @@ export enum SocketEvents {
     DoorAction = 'doorAction',
 
     ForceEndGame = 'forceEndGame', // Temporary
+    DebugMode = 'debugMode',
+    TeleportPlayer = 'teleportPlayer',
 }
