@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PlayerStatisticsComponent } from '@app/components/player-statistics/player-statistics.component';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { RouterLink } from '@angular/router';
@@ -16,16 +16,15 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
   templateUrl: './post-game-page.component.html',
   styleUrl: './post-game-page.component.scss'
 })
-export class PostGamePageComponent implements OnInit{
-  constructor(public socketCommunicationService: SocketCommunicationService, public navigationService: NavigationService, public postGameService: PostGameService, public stopwatchService: StopwatchService){
-    this.postGameService.globalStats.gameDuration = '0';
-    this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
-  }
+export class PostGamePageComponent implements OnInit, OnDestroy{
+  constructor(public socketCommunicationService: SocketCommunicationService, public navigationService: NavigationService, public postGameService: PostGameService, public stopwatchService: StopwatchService){}
 
   ngOnInit(){
+    this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
     this.postGameService.computeStats();
   }
 
-
-
+  ngOnDestroy(){
+    this.socketCommunicationService.disconnect();
+  }
 }

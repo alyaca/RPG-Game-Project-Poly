@@ -288,7 +288,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.socketCommunicationService.disconnect();
+        //this.socketCommunicationService.disconnect();
     }
 
     hasActionPoints() {
@@ -297,7 +297,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     forceEndGame() {
         this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
-        // server.to(room.roomId).emit('endGame', player);
     }
 
     isPlayerAdmin(): boolean {

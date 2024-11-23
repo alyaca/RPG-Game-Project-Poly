@@ -190,11 +190,12 @@ describe('CharacterCreatorComponent', () => {
             isActive: false,
             name: component.characterName,
             status: Status.Player,
-            victories: 0,
             inventory: [],
             position: { x: -1, y: -1 },
             behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
+            postGameStats: defaultPostGameStats,
+            positionHistory: [],
         });
     });
 
