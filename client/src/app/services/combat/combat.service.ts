@@ -4,6 +4,7 @@ import { TemporaryDialogComponent } from '@app/components/temporary-dialog/tempo
 import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { CombatPlayers } from '@common/combat-player';
 import { CombatResult } from '@common/combat-result';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
@@ -91,11 +92,13 @@ export class CombatService {
             evasionsLeft.pop();
         });
 
-        this.socketCommunicationService.on('combatTurnEnded', (data: { attacker: Player; defender: Player }) => {
-            this.activePlayerResult = this.determineStats(this.activePlayer);
-            this.opponentResult = this.determineStats(this.opponent);
-            this.attacker = data.attacker;
-            this.defender = data.defender;
+        this.socketCommunicationService.on('combatTurnEnded', (data: { combatPlayers: CombatPlayers; failEvasion: boolean }) => {
+            if (!data.failEvasion) {
+                this.activePlayerResult = this.determineStats(this.activePlayer);
+                this.opponentResult = this.determineStats(this.opponent);
+            }
+            this.attacker = data.combatPlayers.attacker;
+            this.defender = data.combatPlayers.defender;
             this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
         });
 

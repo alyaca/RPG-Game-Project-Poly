@@ -142,8 +142,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.EvadeCombat)
-    handleEvadeCombat(client: Socket, player: Player) {
-        this.combatService.evadingPlayer(client, player, this.server);
+    handleEvadeCombat(client: Socket) {
+        this.combatService.evadingPlayer(client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.EndTurn)

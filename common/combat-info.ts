@@ -5,4 +5,5 @@ export interface CombatInfos {
     combatPlayers: CombatPlayers;
     gameTime: number;
     room: Room;
+    failEvasion: boolean;
 }

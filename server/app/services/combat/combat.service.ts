@@ -32,6 +32,7 @@ export class CombatService {
             combatPlayers: combatPlayers,
             gameTime,
             room,
+            failEvasion: false,
         };
         this.logService.sendStartCombatLog(combatPlayers, room.roomId, server);
         this.combatInfos.set(room.roomId, combatInfos);
@@ -52,9 +53,11 @@ export class CombatService {
     }
 
     onEndTurn(client: Socket, server: Server, room: Room) {
-        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        const combatInfos = this.combatInfos.get(room.roomId);
+        const combatPlayers = combatInfos.combatPlayers;
         [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
-        this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', combatPlayers);
+        this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', { combatPlayers, failEvasion: combatInfos.failEvasion });
+        combatInfos.failEvasion = false;
         this.onStartTurn(client, server, room);
     }
 
@@ -89,18 +92,20 @@ export class CombatService {
         return { attackValue, defenseValue };
     }
 
-    evadingPlayer(client: Socket, player: Player, server: Server) {
+    evadingPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        const combatInfos = this.combatInfos.get(room.roomId);
+        const combatPlayers = combatInfos.combatPlayers;
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.logService.sendEvadeCombatLog(player, room.roomId, server);
-            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', player);
+            this.logService.sendEvadeCombatLog(combatPlayers.attacker, room.roomId, server);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', combatPlayers.attacker);
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
-            this.emitToCombatPlayers(server, combatPlayers, 'combatEnd', { listPlayers: room.listPlayers, player: player });
+            this.emitToCombatPlayers(server, combatPlayers, 'combatEnd', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
         } else {
-            this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', player);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', combatPlayers.attacker);
+            combatInfos.failEvasion = true;
             this.onEndTurn(client, server, room);
         }
     }
