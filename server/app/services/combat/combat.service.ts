@@ -1,4 +1,5 @@
-import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, FIGHT_TIME, LogType, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { CombatInfos } from '@common/combat-info';
@@ -8,7 +9,6 @@ import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { GameLogsService } from '../game-logs/game-logs.service';
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
@@ -29,7 +29,7 @@ export class CombatService {
         const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
         const combatPlayers = { attacker: player1, defender: player2 };
         const combatInfos: CombatInfos = {
-            combatPlayers: combatPlayers,
+            combatPlayers,
             gameTime,
             room,
             failEvasion: false,
@@ -98,7 +98,7 @@ export class CombatService {
         const combatPlayers = combatInfos.combatPlayers;
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.logService.sendEvadeCombatLog(combatPlayers.attacker, room.roomId, server);
+            this.logService.sendPlayerLog(room.roomId, server, combatPlayers.attacker, LogType.EvadeCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', combatPlayers.attacker);
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
@@ -118,7 +118,7 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         this.resetCombatState(room);
         this.addVictory(room, player2, server);
-        this.logService.sendWinCombatLog(player2, room.roomId, server);
+        this.logService.sendPlayerLog(room.roomId, server, player2, LogType.WinCombat);
         client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
     }
 
@@ -146,7 +146,6 @@ export class CombatService {
     }
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
@@ -186,7 +185,7 @@ export class CombatService {
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
-        this.logService.sendDefaultWinCombatLog(winner, room.roomId, server);
+        this.logService.sendPlayerLog(room.roomId, server, winner, LogType.DefaultWinCombat);
         this.defaultCombatWin(room, winner, server);
         if (winner.isActive) {
             const winnerSocket = server.sockets.sockets.get(winner.id);

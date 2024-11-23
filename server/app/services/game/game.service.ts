@@ -5,6 +5,7 @@ import {
     EQUAL_ODDS_PROBABILITY,
     FELLING_PROBABILITY,
     HIGH_ATTRIBUTE,
+    LogType,
     MOVEMENT_TIME,
     SINGLE_PLAYER,
     STARTING_TIME,
@@ -80,7 +81,7 @@ export class GameService {
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
         const player = this.getPlayerById(room, socket);
-        this.gameLogsService.sendQuit(player, roomId, server);
+        this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUP);
 
         if (isAdmin && room.isDebug) {
             room.isDebug = false;
@@ -141,7 +142,7 @@ export class GameService {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
-        this.gameLogsService.sendTurnLog(activePlayer, room.roomId, server);
+        this.gameLogsService.sendPlayerLog(room.roomId, server, activePlayer, LogType.StartTurn);
 
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
@@ -219,7 +220,7 @@ export class GameService {
 
     updateLogsDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.gameLogsService.sendDebugMessage(isDebugMode, room.roomId, server);
+        this.gameLogsService.sendDebugLog(isDebugMode, room.roomId, server);
     }
 
     processTeleportation(room: Room, server: Server, path: Position[]) {

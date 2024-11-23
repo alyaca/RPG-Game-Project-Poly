@@ -1,4 +1,4 @@
-import { MAX_GENERATION_VALUE, TileType } from '@app/constants';
+import { LogType, MAX_GENERATION_VALUE, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
 import { CombatPlayers } from '@common/combat-player';
 import { Player } from '@common/player';
@@ -20,7 +20,15 @@ export class GameLogsService {
         return newLog;
     }
 
-    private sendLog(roomId: string, server: Server, players: Player[], message: string) {
+    sendDoorMessage(tile: TileType, player: Player, roomId: string, server: Server) {
+        const message =
+            tile === TileType.OpenDoor
+                ? this.generatePlayerLogMessage(LogType.OpenDoor, player.name)
+                : this.generatePlayerLogMessage(LogType.CloseDoor, player.name);
+        this.sendLog(roomId, server, [player], message);
+    }
+
+    sendLog(roomId: string, server: Server, players: Player[], message: string) {
         const currentLog = this.lastLog.get(roomId);
         if (currentLog !== message) {
             this.lastLog.set(roomId, message);
@@ -29,87 +37,51 @@ export class GameLogsService {
         }
     }
 
-    private generateUniqueId(): number {
-        return Math.floor(Math.random() * MAX_GENERATION_VALUE);
-    }
-
-    getGameLog(roomId: string) {
-        return this.logs.get(roomId);
-    }
-
-    sendTurnLog(player: Player, roomId: string, server: Server) {
-        const message = this.generateTurnMessage(player);
-        this.sendLog(roomId, server, [player], message);
-    }
-
-    sendQuit(player: Player, roomId: string, server: Server) {
-        const message = this.generateGiveUpGame(player.name);
-        this.sendLog(roomId, server, [player], message);
-    }
-
-    sendDoorMessage(tile: TileType, player: Player, roomId: string, server: Server) {
-        const message = tile === TileType.OpenDoor ? this.generateOpenDoorMessage(player.name) : this.generateCloseDoorMessage(player.name);
-        this.sendLog(roomId, server, [player], message);
-    }
-
-    sendStartCombatLog(combatPlayers: CombatPlayers, roomId: string, server: Server) {
-        const message = this.generateStartCombat(combatPlayers);
-        this.sendLog(roomId, server, [combatPlayers.attacker, combatPlayers.defender], message);
-    }
-
-    sendWinCombatLog(player: Player, roomId: string, server: Server) {
-        const message = this.generateWinCombat(player.name);
-        this.sendLog(roomId, server, [player], message);
-    }
-
-    sendEvadeCombatLog(player: Player, roomId: string, server: Server) {
-        const message = this.generateEvadeCombat(player.name);
-        this.sendLog(roomId, server, [player], message);
-    }
-
-    sendDefaultWinCombatLog(winner: Player, roomId: string, server: Server) {
-        const message = this.generateDefaultWin(winner.name);
-        this.sendLog(roomId, server, [winner], message);
-    }
-
-    sendDebugMessage(isDebugMode: boolean, roomId: string, server: Server) {
+    sendDebugLog(isDebugMode: boolean, roomId: string, server: Server) {
         const message = this.generateDebugMessage(isDebugMode);
         this.sendLog(roomId, server, [], message);
     }
 
-    generateTurnMessage(player: Player): string {
-        return `Début du tour du joueur ${player.name}.`;
+    sendStartCombatLog(combatPlayers: CombatPlayers, roomId: string, server: Server) {
+        const message = this.generateStartCombatMessage(combatPlayers);
+        this.sendLog(roomId, server, [combatPlayers.attacker, combatPlayers.defender], message);
     }
 
-    generateGiveUpGame(playerName: string): string {
-        return `${playerName} a abandonné la partie.`;
+    sendPlayerLog(roomId: string, server: Server, player: Player, logType: LogType): void {
+        const message = this.generatePlayerLogMessage(logType, player.name);
+        this.sendLog(roomId, server, [player], message);
     }
 
-    generateOpenDoorMessage(playerName: string): string {
-        return `${playerName} a ouvert une porte.`;
+    private generateDebugMessage(isDebugMode: boolean): string {
+        return isDebugMode ? 'Début du mode débogage.' : 'Fin du mode débogage.';
     }
 
-    generateCloseDoorMessage(playerName: string): string {
-        return `${playerName} a fermé une porte.`;
+    private generatePlayerLogMessage(logType: LogType, playerName: string): string {
+        switch (logType) {
+            case LogType.StartTurn:
+                return `Début du tour du joueur ${playerName}.`;
+            case LogType.GiveUP:
+                return `${playerName} a abandonné la partie.`;
+            case LogType.OpenDoor:
+                return `${playerName} a ouvert une porte.`;
+            case LogType.CloseDoor:
+                return `${playerName} a fermé une porte.`;
+            case LogType.WinCombat:
+                return `${playerName} a gagné le combat. Le combat est terminé !`;
+            case LogType.EvadeCombat:
+                return `${playerName} s'est évadé. Le combat est terminé !`;
+            case LogType.DefaultWinCombat:
+                return `${playerName} a gagné le combat par défaut puisque l'opposant a quitté la partie.`;
+            default:
+                return 'Message de log inconnu.';
+        }
     }
 
-    generateStartCombat(combatPlayers: CombatPlayers): string {
+    private generateStartCombatMessage(combatPlayers: CombatPlayers): string {
         return `${combatPlayers.attacker.name} et ${combatPlayers.defender.name} sont entrés en combat.`;
     }
 
-    generateWinCombat(playerName: string): string {
-        return `${playerName} a gagné le combat. Le combat est terminé !`;
-    }
-
-    generateEvadeCombat(playerName: string): string {
-        return `${playerName} s'est évadé. Le combat est terminé !`;
-    }
-
-    generateDefaultWin(winnerName: string) {
-        return `${winnerName} a gagné le combat par défaut puisque l'opposant a quitté la partie.`;
-    }
-
-    generateDebugMessage(isDebugMode: boolean): string {
-        return isDebugMode ? 'Début du mode débogage.' : 'Fin du mode débogage.';
+    private generateUniqueId(): number {
+        return Math.floor(Math.random() * MAX_GENERATION_VALUE);
     }
 }

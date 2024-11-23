@@ -71,3 +71,14 @@ export const EQUAL_ODDS_FAIL = 0.4;
 export const MIN_DICE_VALUE = 1;
 export const MAX_GENERATION_VALUE = 1000000000;
 export const DISCONNECTED_POSITION = { x: 100, y: 100 };
+
+export const enum LogType {
+    StartTurn = 'TURN',
+    GiveUP = 'GIVE_UP',
+    OpenDoor = 'OPEN_DOOR',
+    CloseDoor = 'CLOSE_DOOR',
+    StartCombat = 'START_COMBAT',
+    WinCombat = 'WIN_COMBAT',
+    EvadeCombat = 'EVADE_COMBAT',
+    DefaultWinCombat = 'DEFAULT_WIN_COMBAT',
+}
