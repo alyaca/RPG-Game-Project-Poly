@@ -203,15 +203,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.DoorAction)
     handleDoorAction(client: Socket, doorActionData: DoorActionData) {
-        const { position, player } = doorActionData;
-        const room = this.roomService.getRoom(client);
-        const activePlayer = this.gameService.getActivePlayer(room);
-
-        if (this.navigation.hasHandleDoorAction(position.x, position.y, player)) {
-            this.server.to(room.roomId).emit('doorClicked', this.navigation.gameMap.tiles);
-            const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            this.server.to(room.roomId).emit('reachableTiles', reachability);
-        }
+        this.gameService.handleDoor(client, this.server, doorActionData);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
