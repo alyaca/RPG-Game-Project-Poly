@@ -294,4 +294,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
         return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }
+
+    isCombatStarted() {
+        return this.combatService.isInCombat;
+    }
 }

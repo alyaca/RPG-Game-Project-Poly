@@ -1,7 +1,7 @@
 import { LogType, MAX_GENERATION_VALUE, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
 import { CombatPlayers } from '@common/combat-player';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
@@ -10,17 +10,12 @@ export class GameLogsService {
     logs = new Map<string, ILogMessage[]>();
     lastLog = new Map<string, string>();
 
-    createLog(players: Player[], message: string, roomId: string) {
-        const date = new Date();
-        const newLog = { id: this.generateUniqueId(), message, timestamp: date, players };
-        if (!this.logs.has(roomId)) {
-            this.logs.set(roomId, []);
-        }
-        this.logs.get(roomId).push(newLog);
-        return newLog;
+    sendDebugLog(isDebugMode: boolean, roomId: string, server: Server) {
+        const message = this.generateDebugMessage(isDebugMode);
+        this.sendLog(roomId, server, [], message);
     }
 
-    sendDoorMessage(tile: TileType, player: Player, roomId: string, server: Server) {
+    sendDoorLog(tile: TileType, player: Player, roomId: string, server: Server) {
         const message =
             tile === TileType.OpenDoor
                 ? this.generatePlayerLogMessage(LogType.OpenDoor, player.name)
@@ -28,18 +23,9 @@ export class GameLogsService {
         this.sendLog(roomId, server, [player], message);
     }
 
-    sendLog(roomId: string, server: Server, players: Player[], message: string) {
-        const currentLog = this.lastLog.get(roomId);
-        if (currentLog !== message) {
-            this.lastLog.set(roomId, message);
-            const log = this.createLog(players, message, roomId);
-            server.to(roomId).emit('logReceived', log);
-        }
-    }
-
-    sendDebugLog(isDebugMode: boolean, roomId: string, server: Server) {
-        const message = this.generateDebugMessage(isDebugMode);
-        this.sendLog(roomId, server, [], message);
+    sendEndGameLog(players: Player[], roomId: string, server: Server) {
+        const message = this.generateEndGameMessage(players);
+        this.sendLog(roomId, server, players, message);
     }
 
     sendStartCombatLog(combatPlayers: CombatPlayers, roomId: string, server: Server) {
@@ -52,8 +38,23 @@ export class GameLogsService {
         this.sendLog(roomId, server, [player], message);
     }
 
+    private createLog(players: Player[], message: string, roomId: string) {
+        const date = new Date();
+        const newLog = { id: this.generateUniqueId(), message, timestamp: date, players };
+        if (!this.logs.has(roomId)) {
+            this.logs.set(roomId, []);
+        }
+        this.logs.get(roomId).push(newLog);
+        return newLog;
+    }
+
     private generateDebugMessage(isDebugMode: boolean): string {
         return isDebugMode ? 'Début du mode débogage.' : 'Fin du mode débogage.';
+    }
+
+    private generateEndGameMessage(players: Player[]): string {
+        const activePlayerNames = players.filter((player) => player.status !== Status.Disconnected).map((player) => player.name);
+        return `Fin de partie : ${activePlayerNames.join(', ')}`;
     }
 
     private generatePlayerLogMessage(logType: LogType, playerName: string): string {
@@ -83,5 +84,14 @@ export class GameLogsService {
 
     private generateUniqueId(): number {
         return Math.floor(Math.random() * MAX_GENERATION_VALUE);
+    }
+
+    private sendLog(roomId: string, server: Server, players: Player[], message: string) {
+        const currentLog = this.lastLog.get(roomId);
+        if (currentLog !== message) {
+            this.lastLog.set(roomId, message);
+            const log = this.createLog(players, message, roomId);
+            server.to(roomId).emit('logReceived', log);
+        }
     }
 }

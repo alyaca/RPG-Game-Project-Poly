@@ -81,7 +81,7 @@
                 </div>
                 <div class="center-button">
                     <p class="action-text">Fin de tour</p>
-                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer || isTurnStartShowed">
+                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer || isTurnStartShowed || isCombatStarted()">
                         <div class="end-turn-button-inner" (click)="onEndTurn()"></div>
                     </div>
                 </div>

@@ -323,7 +323,7 @@ export class GameService {
         const activePlayer = this.getActivePlayer(room);
 
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
-            this.gameLogsService.sendDoorMessage(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
+            this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);

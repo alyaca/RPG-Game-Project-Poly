@@ -117,8 +117,8 @@ export class CombatService {
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.resetCombatState(room);
-        this.addVictory(room, player2, server);
         this.logService.sendPlayerLog(room.roomId, server, player2, LogType.WinCombat);
+        this.addVictory(room, player2, server);
         client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
     }
 
@@ -175,6 +175,7 @@ export class CombatService {
         if (player.victories >= VICTORIES) {
             server.to(room.roomId).emit('endGame', player);
             this.gameService.stopGameTimers(room);
+            this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         }
     }
 
