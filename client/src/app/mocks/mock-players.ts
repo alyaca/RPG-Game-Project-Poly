@@ -1,6 +1,7 @@
-import { Player, PlayerStats, Status } from '@common/player';
+import { defaultAttributes } from '@app/default-attributes';
+import { Behavior, Player, PlayerStats, Status } from '@common/player';
 
-const mockPlayerStats: PlayerStats = {
+export const mockPlayerStats: PlayerStats = {
     totalHp: 4,
     currentHp: 4,
     speed: 4,
@@ -25,6 +26,7 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
     },
     {
@@ -37,6 +39,7 @@ export const mockPlayers: Player[] = [
         victories: 2,
         inventory: [],
         position: { x: 1, y: 1 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 1 },
     },
     {
@@ -49,6 +52,34 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
+        spawnPosition: { x: 0, y: 0 },
+    },
+    {
+        id: 'bot',
+        attributes: mockPlayerStats,
+        avatar: undefined,
+        isActive: false,
+        name: 'name',
+        status: Status.Bot,
+        victories: 1,
+        inventory: [],
+        position: { x: 0, y: 0 },
+        behavior: Behavior.Aggressive,
         spawnPosition: { x: 0, y: 0 },
     },
 ];
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: defaultAttributes,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};

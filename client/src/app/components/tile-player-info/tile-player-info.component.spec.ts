@@ -2,24 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ITEM_COUNT, ObjectType } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
-import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TilePlayerInfoComponent } from './tile-player-info.component';
 
 describe('TilePlayerInfoComponent', () => {
     let component: TilePlayerInfoComponent;
     let fixture: ComponentFixture<TilePlayerInfoComponent>;
-    let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
     let gameTileInfoServiceSpy: jasmine.SpyObj<GameTileInfoService>;
     beforeEach(async () => {
         gameTileInfoServiceSpy = jasmine.createSpyObj('GameTileInfoService', ['getItem', 'getPlayer', 'getTile']);
-        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['players']);
         await TestBed.configureTestingModule({
             imports: [],
-            providers: [
-                TilePlayerInfoComponent,
-                { provide: GameTileInfoService, useValue: gameTileInfoServiceSpy },
-                { provide: NavigationService, useValue: navigationServiceSpy },
-            ],
+            providers: [TilePlayerInfoComponent, { provide: GameTileInfoService, useValue: gameTileInfoServiceSpy }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(TilePlayerInfoComponent);
@@ -37,7 +30,6 @@ describe('TilePlayerInfoComponent', () => {
     });
 
     it('should create', () => {
-        navigationServiceSpy.players = mockPlayers;
         fixture.detectChanges();
         expect(component).toBeTruthy();
     });

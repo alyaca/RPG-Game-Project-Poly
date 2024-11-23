@@ -1,6 +1,7 @@
-import { Player, PlayerStats, Status } from '@common/player';
+import { Behavior, Player, PlayerStats, Status } from '@common/player';
+import { playerNavigation } from './mock-player';
 
-const mockPlayerStats: PlayerStats = {
+export const mockPlayerStats: PlayerStats = {
     totalHp: 4,
     currentHp: 4,
     speed: 4,
@@ -25,6 +26,7 @@ export const mockPlayers: Player[] = [
         victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
     },
     {
@@ -38,5 +40,62 @@ export const mockPlayers: Player[] = [
         inventory: [],
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
+    },
+    {
+        id: 'bot',
+        attributes: mockPlayerStats,
+        avatar: undefined,
+        isActive: false,
+        name: 'name',
+        status: Status.Bot,
+        victories: 1,
+        inventory: [],
+        position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Aggressive,
     },
 ];
+
+export const mockNavigationPlayers: Player[] = [
+    playerNavigation,
+    {
+        id: '456',
+        attributes: {
+            totalHp: 100,
+            currentHp: 100,
+            speed: 4,
+            movementPointsLeft: 3,
+            maxActionPoints: 1,
+            actionPoints: 1,
+            attack: 1,
+            atkDiceMax: 1,
+            defense: 1,
+            defDiceMax: 1,
+            evasion: 2,
+        },
+        avatar: { id: 21, name: 'a', src: 'a.img', isSelected: true, isTaken: true },
+        isActive: true,
+        name: 'Zeus',
+        status: Status.Player,
+        victories: 0,
+        inventory: [],
+        position: { x: 3, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
+    },
+];
+
+export const baseBot: Player = {
+    id: '0',
+    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    status: Status.Bot,
+    name: 'Joueur virtuel',
+    victories: 0,
+    isActive: false,
+    attributes: mockPlayerStats,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};

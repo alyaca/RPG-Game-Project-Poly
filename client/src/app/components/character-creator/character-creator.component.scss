@@ -174,14 +174,23 @@
 }
 
 .name-container input {
-    background-color: bisque;
-    width: 35%;
-    height: 100%;
-    color: black;
-    font-family: 'papyrus';
-    font-size: 20px;
+    background: none;
+    color: white;
+    border: 0.075rem solid rgb(255, 249, 144);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    margin: 0;
+    font-family: Papyrus;
+    font-weight: bold;
+    font-size: 1.5rem;
+    width: 50%;
     text-align: center;
 }
+
+input::placeholder {
+    color: rgb(255, 249, 144);
+    opacity: 0.5; 
+  }
 
 .image-wrapper {
     width: 100%;

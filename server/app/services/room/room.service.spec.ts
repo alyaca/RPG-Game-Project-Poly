@@ -4,6 +4,8 @@ import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ChatService } from '@app/services/chat/chat.service';
+import { avatars } from '@common/avatars-info';
+import { GameStatus } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { RoomService } from './room.service';
@@ -177,11 +179,19 @@ describe('RoomService', () => {
     it('should create a new room and join the socket to it', () => {
         service['getNewRoomCode'] = jest.fn().mockReturnValue(roomId);
         const room = service.createRoom(mockSocket, mockGame);
-
+        const expectedRoom = {
+            gameMap: mockGame,
+            roomId,
+            listPlayers: [],
+            availableAvatars: avatars.map((avatar) => ({ ...avatar, isTaken: false })),
+            adminId: mockSocket.id,
+            isLocked: false,
+            gameStatus: GameStatus.Lobby,
+        };
         expect(chatService.deleteMessagesByRoom).toHaveBeenCalledWith(roomId);
-        expect(room).toEqual(mockRooms[0]);
+        expect(room).toEqual(expectedRoom);
         expect(mockSocket.join).toHaveBeenCalledWith(roomId);
-        expect(mockSocket.data.roomCode).toEqual(roomId);
+        expect(mockSocket.data.roomCode).toBe(roomId);
         expect(service.adminList).toContain(mockSocket.id);
     });
 

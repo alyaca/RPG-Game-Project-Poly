@@ -12,11 +12,13 @@ export const mockGame: Game = {
     tiles: [
         [0, 1],
         [0, 1],
+        [0, 0],
     ],
     dimension: 20,
     itemPlacement: [
         [0, SPAWN_POINT_ID],
         [0, SPAWN_POINT_ID],
+        [0, 0],
     ],
     isSelected: false,
     lastModification: new Date(),

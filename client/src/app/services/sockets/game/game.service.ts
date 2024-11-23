@@ -89,7 +89,7 @@ export class GameService {
     }
 
     onKickPlayer() {
-        this.socketCommunicationService.on('kickPlayer', () => {
+        this.socketCommunicationService.once('kickPlayer', () => {
             this.onPlayerKickedOut();
         });
     }
