@@ -1,45 +1,48 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
+import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { ErrorMessages } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list/game-list.service';
-import { of } from 'rxjs';
+import { SaveGameService } from '@app/services/save-game/save-game.service';
+import { Game } from '@common/game';
+import { of, throwError } from 'rxjs';
 import { AdministrationPageComponent } from './administration-page.component';
 
 describe('AdministrationPageComponent', () => {
     let component: AdministrationPageComponent;
     let fixture: ComponentFixture<AdministrationPageComponent>;
+    let saveGameServiceSpy: jasmine.SpyObj<SaveGameService>;
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
-    let routerMock: jasmine.SpyObj<Router>;
-    let activatedRouteMock: jasmine.SpyObj<ActivatedRoute>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let routerSpy: jasmine.SpyObj<Router>;
+    let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
 
     beforeEach(async () => {
-        routerMock = jasmine.createSpyObj('Router', ['navigate']);
+        const dialogRefMock: Partial<MatDialogRef<unknown>> = {
+            afterClosed: jasmine.createSpy('afterClosed').and.returnValue(of({ action: 'right', input: 'New Game Name' })),
+            close: jasmine.createSpy('close'),
+        };
+
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-
-        gameListServiceSpy = jasmine.createSpyObj('GameListService', [
-            'isListeEmpty',
-            'getAllVisibleGames',
-            'selectGame',
-            'deselectGame',
-            'getGames',
-            'getAllGames',
-            'setSelectedGame',
-            'changeVisibility',
-        ]);
-
+        dialogSpy.open.and.returnValue(dialogRefMock as MatDialogRef<unknown>);
+        saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['importGame', 'saveImportedGame', 'saveImportedGameWithNewName']);
+        gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getGames', 'refreshGameList', 'getAllGames']);
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
+        gameListServiceSpy.getAllGames.and.returnValue(of(mockGames));
+        routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
         await TestBed.configureTestingModule({
             imports: [AdministrationPageComponent, GameListComponent, MatDialogModule],
             providers: [
                 { provide: MatDialog, useValue: dialogSpy },
+                { provide: SaveGameService, useValue: saveGameServiceSpy },
                 { provide: GameListService, useValue: gameListServiceSpy },
-                { provide: Router, useValue: routerMock },
-                { provide: ActivatedRoute, useValue: activatedRouteMock },
+                { provide: Router, useValue: routerSpy },
+                { provide: ActivatedRoute, useValue: activatedRouteSpy },
             ],
         }).compileComponents();
 
@@ -48,12 +51,139 @@ describe('AdministrationPageComponent', () => {
         fixture.detectChanges();
     });
 
+    beforeEach(() => {
+        saveGameServiceSpy.importGame.and.returnValue(of({ name: 'Mock Game' } as Game));
+        saveGameServiceSpy.saveImportedGameWithNewName.and.returnValue(of({}));
+    });
+
     it('should be created', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should open PopUpComponent when openPopUp() is called', () => {
+    it('should open CreationDialogComponent when openPopUp() is called', () => {
         component.openPopUp();
         expect(dialogSpy.open).toHaveBeenCalledWith(CreationDialogComponent, { width: '40%', height: '50%' });
+    });
+
+    it('should trigger file input click when importGame() is called', () => {
+        spyOn(component.fileInput.nativeElement, 'click');
+        component.importGame();
+        expect(component.fileInput.nativeElement.click).toHaveBeenCalled();
+    });
+
+    it('should handle file input and validate file size', () => {
+        const mockFile = new File(['test'], 'test.txt', { type: 'text/plain' });
+        Object.defineProperty(mockFile, 'size', { value: 1024 }); // Mock file size
+
+        const mockEvent = {
+            target: {
+                files: [mockFile],
+            },
+        } as unknown as Event;
+
+        component.handleFileInput(mockEvent);
+
+        expect(saveGameServiceSpy.importGame).toHaveBeenCalledWith(mockFile);
+    });
+
+    it('should display error dialog if file size exceeds limit', () => {
+        const mockFile = new File(['test'], 'largefile.txt', { type: 'text/plain' });
+        Object.defineProperty(mockFile, 'size', { value: 9999999 }); // Mock large file size
+
+        const mockEvent = {
+            target: {
+                files: [mockFile],
+            },
+        } as unknown as Event;
+
+        component.handleFileInput(mockEvent);
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(
+            SimpleDialogComponent,
+            jasmine.objectContaining({
+                data: {
+                    title: "Erreur lors de l'importation",
+                    messages: [ErrorMessages.FileTooLarge],
+                    options: ['OK'],
+                },
+            }),
+        );
+    });
+
+    it('should handle errors during game import', () => {
+        const mockFile = new File(['test'], 'invalidfile.txt', { type: 'text/plain' });
+        Object.defineProperty(mockFile, 'size', { value: 1024 });
+
+        const mockEvent = {
+            target: {
+                files: [mockFile],
+            },
+        } as unknown as Event;
+
+        saveGameServiceSpy.importGame.and.returnValue(throwError(() => new Error('Invalid file')));
+
+        component.handleFileInput(mockEvent);
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(
+            SimpleDialogComponent,
+            jasmine.objectContaining({
+                data: {
+                    title: "Erreur lors de l'importation",
+                    messages: [ErrorMessages.InvalidFile],
+                    options: ['OK'],
+                },
+            }),
+        );
+    });
+
+    it('should handle game name conflict during import', () => {
+        component.errorWhileImportingGame([ErrorMessages.NameAlreadyExists]);
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(
+            SimpleDialogComponent,
+            jasmine.objectContaining({
+                data: jasmine.objectContaining({
+                    messages: ['Un jeu portant ce nom existe déjà. Veuillez sélectionner un autre nom.'],
+                    options: ['Annuler', 'Modifier'],
+                }),
+            }),
+        );
+    });
+
+    it('should save game with new name if name conflict is resolved', () => {
+        const dialogRefMock = {
+            afterClosed: () => of({ action: 'right', input: 'New Game Name' }),
+        } as any;
+
+        dialogSpy.open.and.returnValue(dialogRefMock);
+        spyOn(component.gameListComponent, 'refreshGameList');
+
+        component.errorWhileImportingGame([ErrorMessages.NameAlreadyExists]);
+
+        expect(saveGameServiceSpy.saveImportedGameWithNewName).toHaveBeenCalledWith('New Game Name');
+        expect(component.gameListComponent.refreshGameList).toHaveBeenCalled();
+    });
+
+    it('should handle successful game import', () => {
+        spyOn(component.gameListComponent, 'refreshGameList');
+
+        component.gameSuccessfullyImported();
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(
+            SimpleDialogComponent,
+            jasmine.objectContaining({
+                data: {
+                    title: 'Importation réussie',
+                    messages: ['Le jeu a été importé avec succès!'],
+                    options: ['OK'],
+                },
+            }),
+        );
+
+        const dialogRefMock = {
+            afterClosed: () => of(null),
+        } as any;
+        dialogSpy.open.and.returnValue(dialogRefMock);
+        expect(component.gameListComponent.refreshGameList).toHaveBeenCalled();
     });
 });
