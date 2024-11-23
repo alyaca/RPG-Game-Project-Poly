@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { CreationDialogComponent } from '@app/components/creation-dialog/creation-dialog.component';
 import { GameListComponent } from '@app/components/game-list/game-list.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ErrorMessages, HEIGHT_DIALOG, WIDTH_DIALOG } from '@app/constants';
+import { ErrorMessages, HEIGHT_DIALOG, MAX_FILE_SIZE_BYTES, WIDTH_DIALOG } from '@app/constants';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
 import { Game } from '@common/game';
 
@@ -39,8 +39,13 @@ export class AdministrationPageComponent {
     handleFileInput(event: Event): void {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
-            const files: FileList = input.files; // Récupère la liste des fichiers
-            this.saveGameService.importGame(files[0]).subscribe({
+            const file: File = input.files[0];
+            if (file.size > MAX_FILE_SIZE_BYTES) {
+                this.errorWhileImportingGame([ErrorMessages.FileTooLarge]);
+                input.value = '';
+                return;
+            }
+            this.saveGameService.importGame(file).subscribe({
                 next: (response: Game | string[]) => {
                     if (Array.isArray(response)) {
                         this.errorWhileImportingGame(response as string[]);

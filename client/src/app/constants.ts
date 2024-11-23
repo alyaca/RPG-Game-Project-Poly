@@ -108,6 +108,11 @@ export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
 export const DEFAULT_EVASION_POINT = 2;
 
+// Constants for the maximum size of a file
+
+export const MAX_FILE_SIZE_MB = 5;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export enum ErrorMessages {
     MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
     MissingName = 'Veuillez entrer un nom de personnage',
@@ -120,6 +125,7 @@ export enum ErrorMessages {
     InvalidDimension = '- Les dimensions de la carte sont invalides',
     InvalidTileType = '- Un ou plusieurs types de tuiles sont invalides',
     InvalidObjectType = "- Un ou plusieurs types d'objets sont invalides",
+    FileTooLarge = '- Le fichier est trop volumineux',
 }
 
 // Constants for timer component
