@@ -4,13 +4,13 @@ import { mockCombatInfos, mockCombatPlayers } from '@app/mocks/mock-combat-infos
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { CombatService } from '@app/services/combat/combat.service';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
-import { GameLogsService } from '../game-logs/game-logs.service';
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 describe('CombatService', () => {
     let service: CombatService;

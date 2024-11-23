@@ -81,7 +81,7 @@ export class GameService {
         const room = this.roomService.getRoom(socket);
         socket.emit('leftRoom', isAdmin);
         const player = this.getPlayerById(room, socket);
-        this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUP);
+        this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUp);
 
         if (isAdmin && room.isDebug) {
             room.isDebug = false;

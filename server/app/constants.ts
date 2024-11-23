@@ -74,7 +74,7 @@ export const DISCONNECTED_POSITION = { x: 100, y: 100 };
 
 export const enum LogType {
     StartTurn = 'TURN',
-    GiveUP = 'GIVE_UP',
+    GiveUp = 'GIVE_UP',
     OpenDoor = 'OPEN_DOOR',
     CloseDoor = 'CLOSE_DOOR',
     StartCombat = 'START_COMBAT',

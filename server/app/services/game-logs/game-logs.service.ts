@@ -1,4 +1,4 @@
-import { LogType, MAX_GENERATION_VALUE, TileType } from '@app/constants';
+import { LogType, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
 import { CombatPlayers } from '@common/combat-player';
 import { Player, Status } from '@common/player';
@@ -40,7 +40,7 @@ export class GameLogsService {
 
     private createLog(players: Player[], message: string, roomId: string) {
         const date = new Date();
-        const newLog = { id: this.generateUniqueId(), message, timestamp: date, players };
+        const newLog = { message, timestamp: date, players };
         if (!this.logs.has(roomId)) {
             this.logs.set(roomId, []);
         }
@@ -61,7 +61,7 @@ export class GameLogsService {
         switch (logType) {
             case LogType.StartTurn:
                 return `Début du tour du joueur ${playerName}.`;
-            case LogType.GiveUP:
+            case LogType.GiveUp:
                 return `${playerName} a abandonné la partie.`;
             case LogType.OpenDoor:
                 return `${playerName} a ouvert une porte.`;
@@ -80,10 +80,6 @@ export class GameLogsService {
 
     private generateStartCombatMessage(combatPlayers: CombatPlayers): string {
         return `${combatPlayers.attacker.name} et ${combatPlayers.defender.name} sont entrés en combat.`;
-    }
-
-    private generateUniqueId(): number {
-        return Math.floor(Math.random() * MAX_GENERATION_VALUE);
     }
 
     private sendLog(roomId: string, server: Server, players: Player[], message: string) {

@@ -1,4 +1,4 @@
-import { Player, Status, Behavior } from '@common/player';
+import { Behavior, Player, Status } from '@common/player';
 
 export const playerNavigation: Player = {
     id: '123',
