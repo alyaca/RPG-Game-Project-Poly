@@ -208,20 +208,28 @@ export class GameService {
         this.updateAvatarsForAllClients(server, room.roomId);
     }
 
-    addUniqueTileToHistory(player: Player, tile: Position){
-        if (!player.positionHistory.some(pos => pos.x === tile.x && pos.y === tile.y)) {
-            player.positionHistory.push(tile);
+    addUniqueTileToHistory(positionList: Position[], tile: Position){
+        if (!positionList.some(pos => pos.x === tile.x && pos.y === tile.y)) {
+            positionList.push(tile);
+        }
+    }
+
+    initTileHistory(room: Room){
+        for(const player of room.listPlayers){
+            this.addUniqueTileToHistory(player.positionHistory, player.spawnPosition);
+            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, player.spawnPosition);
         }
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         const player = this.getActivePlayer(room);
-
+        this.initTileHistory(room); // Should maybe call this function elsewhere
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
-            this.addUniqueTileToHistory(player, tile);
+            this.addUniqueTileToHistory(player.positionHistory, tile);
+            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
 
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);

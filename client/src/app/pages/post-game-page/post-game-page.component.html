@@ -22,7 +22,7 @@
                 (mouseenter)="postGameService.updateExplanationsGlobal('globalTilesVisited')"
                 (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">% de tuiles visitées: </span> 
-                <span class="value">{{ postGameService.globalStats.globalTilesVisited }}%</span>
+                <span class="value">{{ globalTilesVisitedPct }}%</span>
                 <p
                 class="global-attribute"                 
                 (mouseenter)="postGameService.updateExplanationsGlobal('doorsInteracted')"

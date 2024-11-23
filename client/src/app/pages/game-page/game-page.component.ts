@@ -128,7 +128,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.postGameService.globalStats.turns = data.room.globalPostGameStats.turns;
             this.postGameService.tilesGrid = data.room.gameMap.tiles;
             this.postGameService.players = data.room.listPlayers;
-
+            this.postGameService.globalStats.globalTilesVisited = data.room.globalPostGameStats.globalTilesVisited;
 
             for (const player of this.postGameService.players) {
                 const matchingPlayer = data.room.listPlayers.find(p => p.id === player.id);
@@ -137,7 +137,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             }
 
-            // for(const position of data.winner.positionHistory){
+            // for(const position of this.postGameService.globalStats.globalTilesVisited){
             //     console.log('('+position.x+', '+position.y+')');
             // }
             

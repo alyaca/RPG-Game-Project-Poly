@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 // import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { Player, PostGameStats } from '@common/player';
+import { Player, Position, PostGameStats } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
 import { NavigationService } from '../navigation/navigation.service';
 import { TileType } from '@app/constants';
@@ -32,13 +32,16 @@ export class PostGameService {
   globalStats: GlobalPostGameStats = {
     gameDuration: '00:00',
     turns: 0,
-    globalTilesVisited: 0,
+    globalTilesVisited: [],
     doorsInteracted: 0,
     nbFlagBearers: 0,
   };
 
+  // globalStats: GlobalPostGameStats;
+
   players: Player[];
   tilesGrid: number[][];
+  //globalTilesVisited: Position[];
   // temporary
   initTempStats(){
     // for(let i = 0; i < this.players.length; i++){
@@ -237,11 +240,16 @@ attributes: Attribute[] = [
     return totalTerrainTiles;
   }
 
+
+  calculateTilesVisited(positionList: Position[]): number{
+    return Number(((positionList.length / this.findTotalTerrainTiles())*100).toFixed(2));
+  }
+
   calculatePlayerTilesVisited(){
     for(const player of this.players){
   
-      player.postGameStats.tilesVisited = Number(((player.positionHistory.length++ / this.findTotalTerrainTiles())*100).toFixed(2));
-      console.log(player.name + ": " + player.postGameStats.tilesVisited);
+      player.postGameStats.tilesVisited = this.calculateTilesVisited(player.positionHistory);
+      //console.log(player.name + ": " + player.postGameStats.tilesVisited);
     
     }
   }
