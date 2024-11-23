@@ -18,21 +18,14 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
 })
 export class PostGamePageComponent implements OnInit{
   constructor(public socketCommunicationService: SocketCommunicationService, public navigationService: NavigationService, public postGameService: PostGameService, public stopwatchService: StopwatchService){
-    this.postGameService.initTempStats(); // Temporary
     this.postGameService.globalStats.gameDuration = '0';
     this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
   }
 
-  doorsInteractedPct: number;
-  globalTilesVisitedPct: number;
-  totalTerrainTiles: number = -1;
-  totalDoors: number = -1
-
   ngOnInit(){
-    this.totalTerrainTiles = this.postGameService.findTotalTerrainTiles(); 
-    this.totalDoors = this.postGameService.findTotalDoors(); 
-    this.postGameService.calculatePlayerTilesVisited();
-    this.globalTilesVisitedPct = this.postGameService.calculateInteractionPct(this.postGameService.globalStats.globalTilesVisited, this.totalTerrainTiles);
-    this.doorsInteractedPct = this.postGameService.calculateInteractionPct(this.postGameService.globalStats.doorsInteracted, this.totalDoors)
+    this.postGameService.computeStats();
   }
+
+
+
 }

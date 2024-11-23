@@ -7,7 +7,7 @@ export class StopwatchService {
   private startTime: number | null = null;
   private elapsedTime: number = 0;
 
-  start(): void {
+  start() {
     if (this.startTime === null) {
       this.startTime = Date.now();
     }

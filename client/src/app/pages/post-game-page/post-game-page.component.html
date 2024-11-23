@@ -1,6 +1,12 @@
 <div class="post-game-lobby">
     <div class="top-container">
         <p class="title">Statistiques de fin de partie</p>
+        @if(postGameService.isCTFMode){
+            <p class="title">CTF</p>
+        }
+        @else {
+            <p class="title">Partie Classique</p>
+        }
         <p class="explanations"> {{ postGameService.explanations }}</p>
     </div>
     <div class="middle-container">
@@ -22,20 +28,22 @@
                 (mouseenter)="postGameService.updateExplanationsGlobal('globalTilesVisited')"
                 (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">% de tuiles visitées: </span> 
-                <span class="value">{{ globalTilesVisitedPct }}%</span>
+                <span class="value">{{ postGameService.globalTilesVisitedPct }}%</span>
                 <p
                 class="global-attribute"                 
                 (mouseenter)="postGameService.updateExplanationsGlobal('doorsInteracted')"
                 (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">% de portes interagies: </span> 
-                <span class="value">{{ doorsInteractedPct }}%</span>
-                <!-- <p class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal('nbFlagBearers')"
-                (mouseleave)="postGameService.updateExplanations('')">
-                <span class="label">Nombre de détenteurs de drapeau: </span> 
-                <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span> -->
-                <p>nb tuiles de terrain:  {{ totalTerrainTiles }}</p> <!-- temp -->
-                <p>nb portes:  {{ totalDoors }}</p>  <!-- temp -->
+                <span class="value">{{ postGameService.doorsInteractedPct }}</span>
+                @if(postGameService.isCTFMode){
+                    <p class="global-attribute"                 
+                    (mouseenter)="postGameService.updateExplanationsGlobal('nbFlagBearers')"
+                    (mouseleave)="postGameService.updateExplanations('')">
+                    <span class="label">Nombre de détenteurs de drapeau: </span> 
+                    <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span>
+                }
+                <!-- <p>nb tuiles de terrain:  {{ totalTerrainTiles }}</p> 
+                <p>nb portes:  {{ totalDoors }}</p>  temp -->
             </div>
             <div class="chat">
                 <app-chat-box [isToggleable]="true"></app-chat-box>

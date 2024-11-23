@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 // import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { Player, Position, PostGameStats } from '@common/player';
+// import { Player, Position, PostGameStats } from '@common/player';
+import { Player, Position } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
 import { NavigationService } from '../navigation/navigation.service';
-import { TileType } from '@app/constants';
+import { GameMode, TileType } from '@app/constants';
 import { Room } from '@common/room';
 
 export interface Attribute {
@@ -17,6 +18,10 @@ export interface Attribute {
   providedIn: 'root'
 })
 export class PostGameService {
+  doorsInteractedPct: string;
+  globalTilesVisitedPct: number;
+  totalTerrainTiles: number = -1;
+  totalDoors: number = -1
   explanations: string = '';
   selectedAttribute: string = '';
   sortOrder: { [key: string]: 'ascending' | 'descending' | 'unsorted' } = {
@@ -42,79 +47,7 @@ export class PostGameService {
 
   players: Player[];
   tilesGrid: number[][];
-  //globalTilesVisited: Position[];
-  // temporary
-  initTempStats(){
-    // for(let i = 0; i < this.players.length; i++){
-    //   this.players[i].postGameStats = this.tempPlayerStats[i];
-    // }
-    // this.globalStats = {
-    //   gameDuration: '00:00',
-    //   turns: 16,
-    //   globalTilesVisited: 30,
-    //   doorsInteracted: 50,
-    //   nbFlagBearers: 0,
-    // }
-  }
-
-  // temporary
-  tempPlayerStats: PostGameStats[] = [{
-    combats: 5,
-    victories: 3,
-    evasions: 1,
-    defeats: 1,
-    dmgDealt: 20,
-    dmgTaken: 12,
-    itemsObtained: 2,
-    tilesVisited: 78.2
-  },{
-    combats: 5,
-    victories: 2,
-    evasions: 1,
-    defeats: 2,
-    dmgDealt: 15,
-    dmgTaken: 17,
-    itemsObtained: 3,
-    tilesVisited: 82.5
-  },
-  {
-    combats: 4,
-    victories: 1,
-    evasions: 2,
-    defeats: 1,
-    dmgDealt: 14,
-    dmgTaken: 11,
-    itemsObtained: 2,
-    tilesVisited: 55.1,
-  },{
-    combats: 3,
-    victories: 1,
-    evasions: 1,
-    defeats: 1,
-    dmgDealt: 10,
-    dmgTaken: 15,
-    itemsObtained: 1,
-    tilesVisited: 67.0,
-  },{
-    combats: 3,
-    victories: 0,
-    evasions: 1,
-    defeats: 2,
-    dmgDealt: 8,
-    dmgTaken: 12,
-    itemsObtained: 1,
-    tilesVisited: 52.4,
-  },{
-    combats: 2,
-    victories: 0,
-    evasions: 1,
-    defeats: 1,
-    dmgDealt: 5,
-    dmgTaken: 8,
-    itemsObtained: 0,
-    tilesVisited: 42.8,
-  }
-]
+  isCTFMode: boolean;
 
 attributes: Attribute[] = [
   {
@@ -255,6 +188,9 @@ attributes: Attribute[] = [
 
 
   calculateInteractionPct(elemList: Position[], maxElem: number): number{
+    if(maxElem === 0){
+      return -1;
+    }
     return Number(((elemList.length / maxElem)*100).toFixed(2));
   }
 
@@ -274,6 +210,7 @@ attributes: Attribute[] = [
     this.tilesGrid = room.gameMap.tiles;
     this.players = room.listPlayers;
     this.globalStats = room.globalPostGameStats;
+    this.isCTFMode = room.gameMap.mode === GameMode.Ctf;
 
     for (const player of this.players) {
         const matchingPlayer = room.listPlayers.find(p => p.id === player.id);
@@ -282,4 +219,99 @@ attributes: Attribute[] = [
         }
     }
   }
+
+  computeStats(){
+    this.calculatePlayerTilesVisited();
+    this.computeDoorsInteracted();
+    this.computeGlobalTilesVisitedPct();
+  }
+
+  computeGlobalTilesVisitedPct(){
+    this.totalTerrainTiles = this.findTotalTerrainTiles(); 
+    this.globalTilesVisitedPct = this.calculateInteractionPct(this.globalStats.globalTilesVisited, this.totalTerrainTiles);
+  }
+
+  computeDoorsInteracted(){
+    this.totalDoors = this.findTotalDoors(); 
+    this.doorsInteractedPct = this.calculateInteractionPct(this.globalStats.doorsInteracted, this.totalDoors).toString();
+    if(this.doorsInteractedPct === '-1'){
+      this.doorsInteractedPct = 'NA';
+    }
+    else{
+      this.doorsInteractedPct += '%';
+    }
+  }
+
+    // temporary
+  // initTempStats(){
+  //   for(let i = 0; i < this.players.length; i++){
+  //     this.players[i].postGameStats = this.tempPlayerStats[i];
+  //   }
+  //   this.globalStats = {
+  //     gameDuration: '00:00',
+  //     turns: 16,
+  //     globalTilesVisited: 30,
+  //     doorsInteracted: 50,
+  //     nbFlagBearers: 0,
+  //   }
+  // }
+
+  // temporary
+//   tempPlayerStats: PostGameStats[] = [{
+//     combats: 5,
+//     victories: 3,
+//     evasions: 1,
+//     defeats: 1,
+//     dmgDealt: 20,
+//     dmgTaken: 12,
+//     itemsObtained: 2,
+//     tilesVisited: 78.2
+//   },{
+//     combats: 5,
+//     victories: 2,
+//     evasions: 1,
+//     defeats: 2,
+//     dmgDealt: 15,
+//     dmgTaken: 17,
+//     itemsObtained: 3,
+//     tilesVisited: 82.5
+//   },
+//   {
+//     combats: 4,
+//     victories: 1,
+//     evasions: 2,
+//     defeats: 1,
+//     dmgDealt: 14,
+//     dmgTaken: 11,
+//     itemsObtained: 2,
+//     tilesVisited: 55.1,
+//   },{
+//     combats: 3,
+//     victories: 1,
+//     evasions: 1,
+//     defeats: 1,
+//     dmgDealt: 10,
+//     dmgTaken: 15,
+//     itemsObtained: 1,
+//     tilesVisited: 67.0,
+//   },{
+//     combats: 3,
+//     victories: 0,
+//     evasions: 1,
+//     defeats: 2,
+//     dmgDealt: 8,
+//     dmgTaken: 12,
+//     itemsObtained: 1,
+//     tilesVisited: 52.4,
+//   },{
+//     combats: 2,
+//     victories: 0,
+//     evasions: 1,
+//     defeats: 1,
+//     dmgDealt: 5,
+//     dmgTaken: 8,
+//     itemsObtained: 0,
+//     tilesVisited: 42.8,
+//   }
+// ]
 }

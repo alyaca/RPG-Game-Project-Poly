@@ -10,16 +10,18 @@
 }
 
 .title {
-    margin-left: 20%;
+    margin-left: 5%;
     font-size: 1.2rem;
-    flex: 1 1 30%;
+    flex: 1 1 35%;
+
+    // background-color: blue;
 }
 
 .explanations {
-    margin-left: 10%;
-    margin-right: 10%;
-    flex: 1 1 70%;
-    background-color: rgb(40, 36, 36);
+    margin-left: 5%;
+    margin-right: 5%;
+    flex: 1 1 80%;
+    background-color: rgb(27, 24, 24);
     height: 3vh;
     padding: 0.5rem;
     border-radius: 0.5rem;
