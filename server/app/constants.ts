@@ -66,3 +66,5 @@ export const HIGH_ATTRIBUTE = 6;
 export const EQUAL_ODDS_SUCCESS = 0.6;
 export const EQUAL_ODDS_PROBABILITY = 0.5;
 export const EQUAL_ODDS_FAIL = 0.4;
+
+export const MIN_DICE_VALUE = 1;

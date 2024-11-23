@@ -23,4 +23,6 @@ export enum SocketEvents {
     CreateBot = 'createBot',
     KickBot = 'kickBot',
     DoorAction = 'doorAction',
+    DebugMode = 'debugMode',
+    TeleportPlayer = 'teleportPlayer',
 }

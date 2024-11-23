@@ -39,4 +39,18 @@ export class GameLogsService {
     generateGiveUpGame(playerName: string): string {
         return `${playerName} a abandonné la partie.`;
     }
+
+    sendDebugMessage(isDebugMode: boolean, roomId: string, server: Server) {
+        const currentLog = this.lastLog.get(roomId);
+        const message = this.generateDebugMessage(isDebugMode);
+        if (currentLog !== message) {
+            this.lastLog.set(roomId, message);
+            const log = this.createLog([], message, roomId);
+            server.to(roomId).emit('logReceived', log);
+        }
+    }
+
+    generateDebugMessage(isDebugMode: boolean): string {
+        return isDebugMode ? 'Début du mode débogage.' : 'Fin du mode débogage.';
+    }
 }

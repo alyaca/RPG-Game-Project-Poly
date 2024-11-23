@@ -47,6 +47,7 @@ describe('GameService', () => {
             sendTurnLog: jest.fn(),
             generateTurnMessage: jest.fn(),
             generateGiveUpGame: jest.fn(),
+            sendDebugMessage: jest.fn(),
         };
         const matchServiceMock = {
             processMapObjects: jest.fn(),
@@ -183,6 +184,15 @@ describe('GameService', () => {
             expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', false);
             expect(service.removePlayerFromRoom).toHaveBeenCalledWith(roomId, mockSocket, mockServer);
             expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith('updatedPlayer', room);
+        });
+
+        it('should emit debugMode false when player is admin and room is in debug mode', () => {
+            room.isDebug = true;
+            (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
+            service.leavePlayerFromGame(roomId, mockSocket, mockServer);
+
+            expect(mockSocket.emit).toHaveBeenCalledWith('leftRoom', true);
+            expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('debugMode', false);
         });
 
         it('should emit disconnectedPlayer when leaving a started game', () => {
@@ -537,13 +547,21 @@ describe('GameService', () => {
     });
 
     describe('checkFell', () => {
-        it('should return true if random value is greater than FELLING_PROBABILITY', () => {
+        it('should return true if debugMode is true', () => {
+            service['isDebugMode'] = true;
+            const result = service['checkFell']();
+            expect(result).toBe(true);
+        });
+
+        it('should return true if random value is greater than FELLING_PROBABILITY and debugMode is false', () => {
+            service['isDebugMode'] = false;
             const value = 0.4;
             jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });
-        it('should return false if random value is less than or equal to FELLING_PROBABILITY', () => {
+        it('should return false if random value is less than or equal to FELLING_PROBABILITY and debugMode is false', () => {
+            service['isDebugMode'] = false;
             jest.spyOn(Math, 'random').mockReturnValue(0);
             const result = service['checkFell']();
             expect(result).toBe(false);
@@ -592,6 +610,7 @@ describe('GameService', () => {
         it('should navigate and emit player navigation', async () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
+            service.checkEndTurn = jest.fn().mockReturnValue(false);
             await service.processNavigation(room, server, path, mockSocket);
 
             expect(service.getActivePlayer).toHaveBeenCalledWith(room);
@@ -607,6 +626,7 @@ describe('GameService', () => {
                 [TileType.Ice, 0],
             ];
             service['checkFell'] = jest.fn().mockReturnValue(false);
+            service.checkEndTurn = jest.fn().mockReturnValue(false);
 
             await service.processNavigation(room, server, path, mockSocket);
 
@@ -615,6 +635,44 @@ describe('GameService', () => {
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('playerNavigation', path[1]);
             expect(mockSocket.emit).toHaveBeenCalledWith('playerFell');
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
+        });
+    });
+
+    describe('processTeleportation', () => {
+        let path;
+        let server;
+
+        beforeEach(() => {
+            path = [{ x: 1, y: 1 }];
+
+            server = {
+                to: jest.fn().mockReturnThis(),
+                emit: jest.fn(),
+            } as unknown as Server;
+
+            jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[0]);
+            service.checkDoors = jest.fn();
+            service.checkAttack = jest.fn();
+
+            mockRooms[0].navigation.findReachableTiles = jest.fn().mockReturnValue([{ x: 2, y: 2 }]);
+        });
+
+        it('should teleport the player and emit the correct events', () => {
+            service.processTeleportation(mockRooms[0], server, path);
+
+            expect(service.getActivePlayer).toHaveBeenCalledWith(mockRooms[0]);
+            expect(mockPlayers[0].position).toEqual(path[0]);
+
+            expect(server.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('teleportPlayer', {
+                position: path[0],
+                playerId: mockPlayers[0].id,
+            });
+
+            expect(mockRooms[0].navigation.findReachableTiles).toHaveBeenCalledWith(mockPlayers[0], mockRooms[0]);
+            expect(server.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('reachableTiles', [{ x: 2, y: 2 }]);
+            expect(server.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('endMovement');
+            expect(service.checkDoors).toHaveBeenCalledWith(mockRooms[0], server);
+            expect(service.checkAttack).toHaveBeenCalledWith(mockRooms[0], server);
         });
     });
 
@@ -652,8 +710,6 @@ describe('GameService', () => {
         expect(result.attributes.defDiceMax).toBe(DEFAULT_ATTRIBUTE);
     });
 
-    /// /
-
     it('should assign an available avatar to an aggressive bot and mark it as taken', () => {
         const behavior = Behavior.Aggressive;
         const result = service.assignAvatarToBot(room, behavior);
@@ -690,5 +746,11 @@ describe('GameService', () => {
 
         expect(result.avatar).toEqual({ isSelected: true, isTaken: true, name: 'a', src: '' });
         expect(room.availableAvatars.every((avatar) => avatar.isTaken)).toBe(true);
+    });
+
+    it('should send a message to the room when debugMode is changed', () => {
+        const debugMode = true;
+        service['updateLogsDebugMode'](debugMode, mockServer, mockSocket);
+        expect(gameLogsService.sendDebugMessage).toHaveBeenCalledWith(debugMode, room.roomId, mockServer);
     });
 });

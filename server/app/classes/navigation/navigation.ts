@@ -1,7 +1,9 @@
-import { TileCost, TileType } from '@app/constants';
+import { NO_ITEM, TileCost, TileType } from '@app/constants';
+import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
+import { Room } from '@common/room';
 
 export class Navigation {
     gameMap: Game;
@@ -12,13 +14,20 @@ export class Navigation {
     private distances: number[][];
     private previous: Position[][];
 
-    initializeNavigation(gameMap: Game, objects: number[][], players: Player[]): void {
+    constructor(gameMap: Game, objects: number[][], players: Player[]) {
         this.gameMap = gameMap;
         this.positions = objects;
         this.players = players;
     }
 
-    findFastestPath(player: Player, destination: Position, game: Game): Position[] {
+    findFastestPath(player: Player, destination: Position, room: Room): Position[] {
+        if (room.isDebug) {
+            if (this.isTileValid(destination.x, destination.y)) {
+                return [destination];
+            }
+        }
+
+        const game = room.gameMap;
         this.initializeDistances(player, game);
 
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
@@ -46,7 +55,12 @@ export class Navigation {
         this.distances[player.position.x][player.position.y] = 0;
     }
 
-    findReachableTiles(player: Player, game: Game): Position[] {
+    findReachableTiles(player: Player, room: Room): Position[] {
+        if (room.isDebug) {
+            return this.findAllTilesDebug();
+        }
+
+        const game = room.gameMap;
         this.initializeDistances(player, game);
         const maxMovementPoints = player.attributes.movementPointsLeft;
 
@@ -64,17 +78,6 @@ export class Navigation {
         reachableTiles.shift();
         this.reachableTiles = reachableTiles;
         return reachableTiles;
-    }
-
-    navigateToTile(player: Player, destination: Position, game: Game): Position[] {
-        if (this.isReachableTile(destination.x, destination.y)) {
-            this.path = this.findFastestPath(player, destination, game);
-            if (this.path.length > 0) {
-                this.path.shift();
-                return this.path;
-            }
-        }
-        return [];
     }
 
     getTileCost(tileType: number): number {
@@ -150,6 +153,28 @@ export class Navigation {
 
     hasActionPoints(player: Player) {
         return player?.attributes.actionPoints > 0;
+    }
+
+    private findAllTilesDebug() {
+        const reachableTiles: Position[] = [];
+        for (let i = 0; i < this.gameMap.dimension; i++) {
+            for (let j = 0; j < this.gameMap.dimension; j++) {
+                if (this.isTileValid(i, j)) {
+                    reachableTiles.push({ x: i, y: j });
+                }
+            }
+        }
+        this.reachableTiles = reachableTiles;
+        return reachableTiles;
+    }
+
+    private isTileValid(row: number, col: number): boolean {
+        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
+        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
+        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
+        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
+        if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn) return true;
+        return false;
     }
 
     private exploreNeighborsForReachableTiles(
