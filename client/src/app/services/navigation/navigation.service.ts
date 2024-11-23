@@ -28,8 +28,8 @@ export class NavigationService {
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
     positions: number[][];
+    isDebugMode: boolean = false;
     reachableTiles: Position[];
-    tempReachableTiles: Position[];
     private objects: number[][];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {

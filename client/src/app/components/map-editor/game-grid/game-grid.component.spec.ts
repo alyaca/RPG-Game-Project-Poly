@@ -306,6 +306,20 @@ describe('GameGridComponent', () => {
             expect(component.respawnPlayer).toHaveBeenCalled();
         });
 
+        it('should listen to teleport event onInit and call navigateToTile with the correct data', () => {
+            const mockPosition = { x: 1, y: 2 };
+            const player = { id: '1', position: { x: 0, y: 0 } } as unknown as Player;
+            navigationServiceSpy.players = [player];
+            spyOn(component, 'navigateToTile');
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'teleportPlayer') {
+                    callback({ position: mockPosition, playerId: player.id } as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.navigateToTile).toHaveBeenCalledWith(mockPosition);
+        });
+
         it('should listen to combatEnd event and set actionPoints to 0, then call checkEndTurn', () => {
             component.activePlayer = mockPlayers[0];
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {

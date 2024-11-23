@@ -162,7 +162,7 @@ export class CombatService {
         const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         if (activePlayer.id !== defender.id) {
             this.continueTurn(client, server);
-            const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+            const reachability = room.navigation.findReachableTiles(attacker, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
         } else {
             this.resetCombatState(room);

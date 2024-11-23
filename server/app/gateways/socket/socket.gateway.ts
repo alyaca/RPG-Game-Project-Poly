@@ -119,7 +119,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
         this.server.to(room.roomId).emit('isActive', activePlayer);
-        const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
         this.server.to(room.roomId).emit('reachableTiles', reachability);
     }
 
@@ -127,7 +127,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleFindPath(client: Socket, destination: Position) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);
-        const path = room.navigation.findFastestPath(activePlayer, destination, room.gameMap);
+        const path = room.navigation.findFastestPath(activePlayer, destination, room);
         this.server.to(room.roomId).emit('pathFound', path);
     }
 
@@ -178,10 +178,25 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         client.to(roomId).emit('gameLogReceived', log);
     }
 
+    @SubscribeMessage(SocketEvents.DebugMode)
+    handleDebugMode(client: Socket, debugMode: boolean) {
+        const room = this.roomService.getRoom(client);
+        room.isDebug = debugMode;
+        this.gameService.updateLogsDebugMode(debugMode, this.server, client);
+        this.server.to(room.roomId).emit('debugMode', debugMode);
+        const activePlayer = this.gameService.getActivePlayer(room);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        this.server.to(room.roomId).emit('reachableTiles', reachability);
+    }
+
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        this.gameService.processNavigation(room, this.server, path, client);
+        if (room.isDebug) {
+            this.gameService.processTeleportation(room, this.server, path);
+        } else {
+            this.gameService.processNavigation(room, this.server, path, client);
+        }
     }
 
     @SubscribeMessage(SocketEvents.DoorAction)

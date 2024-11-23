@@ -72,6 +72,11 @@ export class GameLogsService {
         this.sendLog(roomId, server, [winner], message);
     }
 
+    sendDebugMessage(isDebugMode: boolean, roomId: string, server: Server) {
+        const message = this.generateDebugMessage(isDebugMode);
+        this.sendLog(roomId, server, [], message);
+    }
+
     generateTurnMessage(player: Player): string {
         return `Début du tour du joueur ${player.name}.`;
     }
@@ -102,5 +107,9 @@ export class GameLogsService {
 
     generateDefaultWin(winnerName: string) {
         return `${winnerName} a gagné le combat par défaut puisque l'opposant a quitté la partie.`;
+    }
+
+    generateDebugMessage(isDebugMode: boolean): string {
+        return isDebugMode ? 'Début du mode débogage.' : 'Fin du mode débogage.';
     }
 }
