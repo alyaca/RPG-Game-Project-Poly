@@ -4,6 +4,7 @@ import { Player, Position, PostGameStats } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
 import { NavigationService } from '../navigation/navigation.service';
 import { TileType } from '@app/constants';
+// import { Room } from '@common/room';
 
 export interface Attribute {
   id: number;
@@ -240,6 +241,18 @@ attributes: Attribute[] = [
     return totalTerrainTiles;
   }
 
+  findTotalDoors(): number {
+    let totalDoors: number = 0;
+    for(let i = 0; i < this.tilesGrid.length; i++){
+      for(let j = 0; j < this.tilesGrid[0].length; j++){
+        if(this.tilesGrid[i][j] > TileType.Wall){
+            totalDoors++;
+        }
+      }
+    }
+    return totalDoors;
+  }
+
 
   calculateTilesVisited(positionList: Position[]): number{
     return Number(((positionList.length / this.findTotalTerrainTiles())*100).toFixed(2));
@@ -254,4 +267,17 @@ attributes: Attribute[] = [
     }
   }
 
+  // transferRoomStats(room: Room){
+  //   this.globalStats.turns = room.globalPostGameStats.turns;
+  //   this.tilesGrid = room.gameMap.tiles;
+  //   this.players = room.listPlayers;
+  //   this.globalStats.globalTilesVisited = room.globalPostGameStats.globalTilesVisited;
+  //   this.globalStats.doorsInteracted = room.globalPostGameStats.doorsInteracted;
+  //   for (const player of this.players) {
+  //       const matchingPlayer = room.listPlayers.find(p => p.id === player.id);
+  //       if (matchingPlayer) {
+  //           player.positionHistory = matchingPlayer.positionHistory;
+  //       }
+  //   }
+  // }
 }

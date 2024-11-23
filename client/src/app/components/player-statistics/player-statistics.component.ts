@@ -20,20 +20,10 @@ export class PlayerStatisticsComponent {
   isWinner() {
     return this.player.postGameStats.victories === 3;
   }
-  getStatusClass(): string {
-    switch (this.player.status) {
-      case Status.Disconnected:
-        return 'status-disconnected';
-      case Status.Admin:
-        return 'status-admin';
-      case Status.Bot:
-        return 'status-bot';
-      default:
-        return '';
-    }
-  }
-
   
+  getStatusClass(): string {
+    return this.player.status;
+  }
 
   getBarWidth(attribute: number, statKey: keyof Player["postGameStats"], isPercent: boolean): number {
     const max = isPercent ? 100 : this.postGameService.getMaxStat(statKey);

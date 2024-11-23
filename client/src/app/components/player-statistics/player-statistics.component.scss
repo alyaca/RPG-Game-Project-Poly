@@ -57,17 +57,17 @@
     text-align: center;
 }
 
-.status-disconnected {
+.disconnected {
     color: rgb(171, 171, 171);
     text-decoration: line-through;
     filter: grayscale(100%);
 }
 
-.status-admin {
+.admin {
     color: #f95e4d;
 }
 
-.status-bot {
+.bot {
     color: cyan;
 }
 

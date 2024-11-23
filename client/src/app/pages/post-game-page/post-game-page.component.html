@@ -34,7 +34,8 @@
                 (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">Nombre de détenteurs de drapeau: </span> 
                 <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span> -->
-                <p>nb tuiles de terrain:  {{ totalTerrainTiles }}</p>
+                <p>nb tuiles de terrain:  {{ totalTerrainTiles }}</p> <!-- temp -->
+                <p>nb portes:  {{ totalDoors }}</p>  <!-- temp -->
             </div>
             <div class="chat">
                 <app-chat-box [isToggleable]="true"></app-chat-box>

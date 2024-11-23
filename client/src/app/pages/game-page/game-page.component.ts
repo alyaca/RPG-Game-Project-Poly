@@ -124,6 +124,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.once('endGame', (data: {winner: Player, room: Room}) => {
+            // place in function (maybe in postGameService make a method that takes into parameter room)
             this.stopwatchService.stop();
             this.postGameService.globalStats.turns = data.room.globalPostGameStats.turns;
             this.postGameService.tilesGrid = data.room.gameMap.tiles;
@@ -136,12 +137,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     player.positionHistory = matchingPlayer.positionHistory;
                 }
             }
-
+            // this.postGameService.transferRoomStats(data.room);
+            
             // for(const position of this.postGameService.globalStats.globalTilesVisited){
             //     console.log('('+position.x+', '+position.y+')');
             // }
             
-            console.log(this.postGameService.tilesGrid);
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({

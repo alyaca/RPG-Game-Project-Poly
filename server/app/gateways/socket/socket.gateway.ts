@@ -206,13 +206,14 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const activePlayer = this.gameService.getActivePlayer(room);
 
         if (this.navigation.hasHandleDoorAction(position.x, position.y, player)) {
+            room.globalPostGameStats.doorsInteracted++; //
             this.server.to(room.roomId).emit('doorClicked', this.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
             this.server.to(room.roomId).emit('reachableTiles', reachability);
         }
     }
 
-    @SubscribeMessage(SocketEvents.ForceEndGame)
+    @SubscribeMessage(SocketEvents.ForceEndGame) // temporary
     handleForceEndGame(client: Socket, winner: Player){
         this.logger.log(`end of game has been forced`);
         const room = this.roomService.getRoom(client);
