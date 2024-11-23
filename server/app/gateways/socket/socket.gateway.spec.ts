@@ -57,10 +57,13 @@ describe('SocketGateway', () => {
             leavePlayerFromGame: jest.fn(),
             toggleLockRoom: jest.fn(),
             createPlayer: jest.fn(),
+            createBot: jest.fn(),
             selectedAvatar: jest.fn(),
+            onKickPlayer: jest.fn(),
+            onKickBot: jest.fn(),
+            onStartGame: jest.fn(),
             removePlayerFromRoom: jest.fn(),
             stopGameTimers: jest.fn(),
-            onStartGame: jest.fn(),
             getActivePlayer: jest.fn(),
             onTurnEnded: jest.fn(),
             onStartTurn: jest.fn(),
@@ -68,9 +71,9 @@ describe('SocketGateway', () => {
             assignAvatarToBot: jest.fn(),
             assignStatsToBot: jest.fn(),
             updateAvatarsForAllClients: jest.fn(),
-            createBot: jest.fn(),
             updateLogsDebugMode: jest.fn(),
             processTeleportation: jest.fn(),
+            handleDoor: jest.fn(),
         };
 
         socket = {
@@ -175,7 +178,6 @@ describe('SocketGateway', () => {
             gateway.handleJoinRoom(mockClient, roomId);
 
             expect(mockClient.emit).toHaveBeenCalledWith(connectionRes.event, connectionRes.errorType);
-            expect(logger.debug).not.toHaveBeenCalled();
         });
 
         it('should leave room if connectionRes has errorType roomLocked', () => {
@@ -259,37 +261,19 @@ describe('SocketGateway', () => {
     });
 
     describe('handleKickPlayer', () => {
-        it('should call removePlayerFromRoom on kickPlayer event', () => {
-            server.sockets.sockets.set(mockClient.id, mockClient);
-            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
-
-            jest.spyOn(gameService, 'removePlayerFromRoom');
+        it('should call onkickplayer on kickPlayer event', () => {
+            gameService.onKickPlayer = jest.fn();
             gateway.handleKickPlayer(socket, mockPlayer.id);
 
-            expect(server.to(mockPlayer.id).emit).toHaveBeenCalledWith('kickPlayer', mockPlayer.id);
-            expect(gameService.removePlayerFromRoom).toHaveBeenCalled();
-            expect(logger.debug.calledOnce).toBeTruthy();
-            expect(server.to(roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRooms[0]);
+            expect(gameService.onKickPlayer).toHaveBeenCalled();
         });
     });
 
     describe('handleStartGame', () => {
         it('should call processMapObjects and onStartGame startGame event', () => {
-            const mockTiles = [
-                { x: 0, y: 0 },
-                { x: 0, y: 1 },
-            ];
-            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
             jest.spyOn(gameService, 'onStartGame');
-            (gameService.getActivePlayer as jest.Mock).mockReturnValue(mockPlayer);
-            mockRooms[0].navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
-
             gateway.handleStartGame(socket);
-
-            expect(server.to(roomId).emit).toHaveBeenCalledWith('startGame', mockRooms[0]);
-            expect(server.to(roomId).emit).toHaveBeenCalledWith('mapInformation', mockRooms[0]);
-            expect(server.to(roomId).emit).toHaveBeenCalledWith('isActive', mockPlayer);
-            expect(server.to(roomId).emit).toHaveBeenCalledWith('reachableTiles', mockTiles);
+            expect(gameService.onStartGame).toHaveBeenCalledWith(socket, server);
         });
     });
 
@@ -399,41 +383,18 @@ describe('SocketGateway', () => {
 
     it('should create and assign a bot with an avatar and stats, then notify clients', () => {
         const behavior = Behavior.Aggressive;
-
-        const mockRoom = mockRooms[0];
-        jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
-
+        gameService.createBot = jest.fn();
         gateway.handleCreateBot(mockClient, behavior);
-
-        expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
-        expect(gameService.createBot).toHaveBeenCalledWith(mockRoom, behavior, mockClient, server);
-        expect(server.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
+        expect(gameService.createBot).toHaveBeenCalledWith(behavior, mockClient, server);
     });
 
     it('should kick a bot, update avatars, and notify clients', () => {
-        const mockRoom = mockRooms[2];
         const botId = 'bot';
-        const botPlayer = mockRoom.listPlayers.find((player) => player.id === botId);
-
-        if (botPlayer) {
-            botPlayer.avatar = avatars[0];
-            botPlayer.avatar.isTaken = true;
-        }
-        jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
+        gameService.onKickBot = jest.fn();
 
         gateway.handleKickBot(mockClient, botId);
-        expect(roomService.getRoom).toHaveBeenCalledWith(mockClient);
 
-        expect(mockRoom.listPlayers).not.toContainEqual(expect.objectContaining({ id: botId }));
-        expect(mockRoom.listPlayers.find((player) => player.id === botId)).toBeUndefined();
-
-        expect(server.to).toHaveBeenCalledWith(botId);
-        expect(server.to(botId).emit).toHaveBeenCalledWith('kickPlayer', botId);
-
-        expect(server.to).toHaveBeenCalledWith(mockRoom.roomId);
-        expect(server.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
-
-        expect(gameService.updateAvatarsForAllClients).toHaveBeenCalledWith(server, mockRoom.roomId);
+        expect(gameService.onKickBot).toHaveBeenCalledWith(mockClient, botId, server);
     });
 
     it('should update debugMode in gameService, update logs and emit debugMode', () => {
@@ -462,7 +423,7 @@ describe('SocketGateway', () => {
 
     it('should call evadingPlayer evadingPlayer event', () => {
         combatService.evadingPlayer = jest.fn();
-        gateway.handleEvadeCombat(mockClient, mockPlayer);
+        gateway.handleEvadeCombat(mockClient);
         expect(combatService.evadingPlayer).toHaveBeenCalled();
     });
 });

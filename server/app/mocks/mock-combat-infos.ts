@@ -62,7 +62,7 @@ export const mockCombatPlayers: CombatPlayers = {
 
 export const mockCombatInfos: CombatInfos = {
     combatPlayers: mockCombatPlayers,
-    gameTime: 20,
+    gameTime: 60,
     room: mockRooms[0],
     failEvasion: false,
 };

@@ -130,12 +130,24 @@ export class GameService {
         game.isLocked = isLocked;
     }
 
-    onStartGame(room: Room, socket: Socket) {
+    onStartGame(socket: Socket, server: Server) {
+        const room = this.roomService.getRoom(socket);
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
         room.listPlayers[0].isActive = true;
+        this.emitStartGameEvents(room, server);
+    }
+
+    emitStartGameEvents(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        server.to(room.roomId).emit('startGame', room);
+        server.to(room.roomId).emit('mapInformation', room);
+        server.to(room.roomId).emit('isActive', activePlayer);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        server.to(room.roomId).emit('reachableTiles', reachability);
+        this.checkActions(room, server);
     }
 
     onStartTurn(client: Socket, server: Server) {
@@ -163,8 +175,7 @@ export class GameService {
             server.to(room.roomId).emit('turnEnded', room.listPlayers);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
-            this.checkDoors(room, server);
-            this.checkAttack(room, server);
+            this.checkActions(room, server);
         } else {
             this.isTurnSkipped = true;
         }
@@ -210,12 +221,33 @@ export class GameService {
         }
     }
 
-    createBot(room: Room, behavior: Behavior, client: Socket, server: Server) {
+    createBot(behavior: Behavior, client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         let newBot = this.assignAvatarToBot(room, behavior);
         newBot = this.assignStatsToBot(newBot);
         this.createPlayer(room, newBot, client);
         this.updateAvatarsForAllClients(server, room.roomId);
+        server.to(room.roomId).emit('updatedPlayer', room);
+    }
+
+    onKickBot(socket: Socket, botId: string, server: Server) {
+        const room = this.roomService.getRoom(socket);
+        server.to(botId).emit('kickPlayer', botId);
+        const botPlayer = room.listPlayers.find((player) => player.id === botId);
+        botPlayer.avatar.isTaken = false;
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== botId);
+        server.to(room.roomId).emit('updatedPlayer', room);
+        this.updateAvatarsForAllClients(server, room.roomId);
+    }
+
+    onKickPlayer(socket: Socket, server: Server, playerId: string) {
+        const room = this.roomService.getRoom(socket);
+        server.to(playerId).emit('kickPlayer', playerId);
+
+        const playerSocket = server.sockets.sockets.get(playerId);
+        this.removePlayerFromRoom(room.roomId, playerSocket, server);
+        server.to(room.roomId).emit('updatedPlayer', room);
     }
 
     updateLogsDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
@@ -232,8 +264,7 @@ export class GameService {
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');
         server.to(room.roomId).emit('reachableTiles', reachability);
-        this.checkDoors(room, server);
-        this.checkAttack(room, server);
+        this.checkActions(room, server);
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
@@ -270,26 +301,12 @@ export class GameService {
             this.isTurnSkipped = false;
             return;
         }
+        this.checkActions(room, server);
+    }
+
+    checkActions(room: Room, server: Server) {
         this.checkDoors(room, server);
         this.checkAttack(room, server);
-    }
-
-    checkDoors(room: Room, server: Server) {
-        const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
-            server.to(room.roomId).emit('doorAround', true);
-        } else {
-            server.to(room.roomId).emit('doorAround', false);
-        }
-    }
-
-    checkAttack(room: Room, server: Server) {
-        const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
-            server.to(room.roomId).emit('attackAround', true);
-        } else {
-            server.to(room.roomId).emit('attackAround', false);
-        }
     }
 
     checkEndTurn(client: Socket, activePlayer: Player): boolean {
@@ -298,20 +315,11 @@ export class GameService {
         const reachableTileCount = room.navigation.findReachableTiles(activePlayer, room).length;
         const players = room.listPlayers;
 
-        // Player has movement point left, no action left.
-        // Player is blocked by closed door or players.
         if (!room.navigation.haveActions(activePlayer, players) && reachableTileCount === 0) {
             return true;
-        }
-
-        // Player has no movement point left. Player has action point left but
-        // no valid target on adjacent tiles.
-        else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.haveActions(activePlayer, players)) {
+        } else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.haveActions(activePlayer, players)) {
             return true;
-        }
-
-        // Player has no movement point or action left.
-        else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.hasActionPoints(activePlayer)) {
+        } else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.hasActionPoints(activePlayer)) {
             return true;
         }
         return false;
@@ -334,17 +342,27 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    private sendAvatarListToClient(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
-            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
-            return {
-                ...avatar,
-                isTaken: !isSelectedByClient && avatar.isTaken,
-                isSelected: isSelectedByClient,
-            };
-        });
-        socket.emit('characterSelected', customizedAvatarsList);
+    private checkAttack(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+            server.to(room.roomId).emit('attackAround', true);
+        } else {
+            server.to(room.roomId).emit('attackAround', false);
+        }
+    }
+
+    private checkDoors(room: Room, server: Server) {
+        const activePlayer = this.getActivePlayer(room);
+        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+            server.to(room.roomId).emit('doorAround', true);
+        } else {
+            server.to(room.roomId).emit('doorAround', false);
+        }
+    }
+
+    private checkFell(): boolean {
+        const randomValue = Math.random();
+        return randomValue > FELLING_PROBABILITY;
     }
 
     private freeUpAvatar(room: Room, socket: Socket) {
@@ -354,35 +372,6 @@ export class GameService {
                 previousAvatar.isTaken = false;
             }
         }
-    }
-
-    private updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
-    private getCost(tileType: number): number {
-        switch (tileType) {
-            case TileType.Ground:
-                return TileCost.Ground;
-            case TileType.Water:
-                return TileCost.Water;
-            case TileType.Ice:
-                return TileCost.Ice;
-            case TileType.OpenDoor:
-                return TileCost.OpenDoor;
-            default:
-                return Infinity;
-        }
-    }
-
-    private checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
     }
 
     private generateUniquePlayerName(playerName: string, socket: Socket): string {
@@ -402,6 +391,21 @@ export class GameService {
 
     private getPlayerConnectedInRoom(room: Room) {
         return room.listPlayers.filter((player) => player.status !== Status.Disconnected);
+    }
+
+    private getCost(tileType: number): number {
+        switch (tileType) {
+            case TileType.Ground:
+                return TileCost.Ground;
+            case TileType.Water:
+                return TileCost.Water;
+            case TileType.Ice:
+                return TileCost.Ice;
+            case TileType.OpenDoor:
+                return TileCost.OpenDoor;
+            default:
+                return Infinity;
+        }
     }
 
     private isActivePlayer(socket: Socket) {
@@ -446,6 +450,19 @@ export class GameService {
         });
     }
 
+    private sendAvatarListToClient(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const customizedAvatarsList = room.availableAvatars.map((avatar) => {
+            const isSelectedByClient = socket.data.clickedAvatar?.name === avatar.name;
+            return {
+                ...avatar,
+                isTaken: !isSelectedByClient && avatar.isTaken,
+                isSelected: isSelectedByClient,
+            };
+        });
+        socket.emit('characterSelected', customizedAvatarsList);
+    }
+
     private sortPlayersBySpeed(room: Room) {
         let listPlayers = room.listPlayers;
         if (listPlayers.length > 1) {
@@ -456,5 +473,14 @@ export class GameService {
             ];
         }
         room.listPlayers = listPlayers;
+    }
+
+    private updateActivePlayer(socket: Socket) {
+        const room = this.roomService.getRoom(socket);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        const nextIndex = (index + 1) % listPlayers.length;
+        listPlayers[index].isActive = false;
+        listPlayers[nextIndex].isActive = true;
     }
 }
