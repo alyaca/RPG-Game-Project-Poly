@@ -124,21 +124,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.once('endGame', (data: {winner: Player, room: Room}) => {
-            // place in function (maybe in postGameService make a method that takes into parameter room)
             this.stopwatchService.stop();
-            this.postGameService.globalStats.turns = data.room.globalPostGameStats.turns;
-            this.postGameService.tilesGrid = data.room.gameMap.tiles;
-            this.postGameService.players = data.room.listPlayers;
-            this.postGameService.globalStats.globalTilesVisited = data.room.globalPostGameStats.globalTilesVisited;
-            this.postGameService.globalStats.doorsInteracted = data.room.globalPostGameStats.doorsInteracted;
-
-            for (const player of this.postGameService.players) {
-                const matchingPlayer = data.room.listPlayers.find(p => p.id === player.id);
-                if (matchingPlayer) {
-                    player.positionHistory = matchingPlayer.positionHistory;
-                }
-            }
-            // this.postGameService.transferRoomStats(data.room);
+            this.postGameService.transferRoomStats(data.room);
             
             // for(const position of this.postGameService.globalStats.globalTilesVisited){
             //     console.log('('+position.x+', '+position.y+')');
