@@ -8,7 +8,7 @@ export class Navigation {
     path: Position[];
     players: Player[];
     positions: number[][];
-    
+
     private reachableTiles: Position[];
     private distances: number[][];
     private previous: Position[][];

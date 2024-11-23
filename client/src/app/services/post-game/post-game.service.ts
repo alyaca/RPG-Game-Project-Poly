@@ -34,7 +34,7 @@ export class PostGameService {
     gameDuration: '00:00',
     turns: 0,
     globalTilesVisited: [],
-    doorsInteracted: 0,
+    doorsInteracted: [],
     nbFlagBearers: 0,
   };
 
@@ -254,14 +254,17 @@ attributes: Attribute[] = [
   }
 
 
-  calculateTilesVisited(positionList: Position[]): number{
-    return Number(((positionList.length / this.findTotalTerrainTiles())*100).toFixed(2));
+  calculateInteractionPct(elemList: Position[], maxElem: number): number{
+    return Number(((elemList.length / maxElem)*100).toFixed(2));
+  }
+
+  calculateDoorsInteracted(): number {
+    return this.calculateInteractionPct(this.globalStats.doorsInteracted, this.findTotalDoors());
   }
 
   calculatePlayerTilesVisited(){
     for(const player of this.players){
-  
-      player.postGameStats.tilesVisited = this.calculateTilesVisited(player.positionHistory);
+      player.postGameStats.tilesVisited = this.calculateInteractionPct(player.positionHistory, this.findTotalTerrainTiles());
       //console.log(player.name + ": " + player.postGameStats.tilesVisited);
     
     }

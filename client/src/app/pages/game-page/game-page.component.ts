@@ -130,6 +130,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.postGameService.tilesGrid = data.room.gameMap.tiles;
             this.postGameService.players = data.room.listPlayers;
             this.postGameService.globalStats.globalTilesVisited = data.room.globalPostGameStats.globalTilesVisited;
+            this.postGameService.globalStats.doorsInteracted = data.room.globalPostGameStats.doorsInteracted;
 
             for (const player of this.postGameService.players) {
                 const matchingPlayer = data.room.listPlayers.find(p => p.id === player.id);

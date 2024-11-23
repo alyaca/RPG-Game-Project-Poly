@@ -23,15 +23,16 @@ export class PostGamePageComponent implements OnInit{
     this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
   }
 
+  doorsInteractedPct: number;
   globalTilesVisitedPct: number;
   totalTerrainTiles: number = -1;
   totalDoors: number = -1
 
   ngOnInit(){
-    this.totalTerrainTiles = this.postGameService.findTotalTerrainTiles();
-    this.totalDoors = this.postGameService.findTotalDoors();
+    this.totalTerrainTiles = this.postGameService.findTotalTerrainTiles(); 
+    this.totalDoors = this.postGameService.findTotalDoors(); 
     this.postGameService.calculatePlayerTilesVisited();
-    this.globalTilesVisitedPct = this.postGameService.calculateTilesVisited(this.postGameService.globalStats.globalTilesVisited);
-  
+    this.globalTilesVisitedPct = this.postGameService.calculateInteractionPct(this.postGameService.globalStats.globalTilesVisited, this.totalTerrainTiles);
+    this.doorsInteractedPct = this.postGameService.calculateInteractionPct(this.postGameService.globalStats.doorsInteracted, this.totalDoors)
   }
 }

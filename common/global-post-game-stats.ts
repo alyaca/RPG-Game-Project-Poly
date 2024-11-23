@@ -4,6 +4,6 @@ export interface GlobalPostGameStats {
     gameDuration: string;
     turns: number;
     globalTilesVisited: Position[];
-    doorsInteracted: number;
+    doorsInteracted: Position[];
     nbFlagBearers: number;
 }
