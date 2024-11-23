@@ -26,8 +26,7 @@ export class PostGamePageComponent implements OnInit{
   totalTerrainTiles: number = -1;
 
   ngOnInit(){
-    this.postGameService.players = this.navigationService.players;
     this.totalTerrainTiles = this.postGameService.findTotalTerrainTiles();
-    
+    this.postGameService.calculatePlayerTilesVisited();
   }
 }

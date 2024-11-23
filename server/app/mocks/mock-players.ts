@@ -39,6 +39,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
+        positionHistory: []
     },
     {
         id: 'id',
@@ -52,6 +53,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
+        positionHistory: []
     },
 ];
 
@@ -81,6 +83,7 @@ export const mockNavigationPlayers: Player[] = [
         position: { x: 3, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
+        positionHistory: []
     },
 ];
 
@@ -96,4 +99,5 @@ export const baseBot: Player = {
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
+    positionHistory: []
 };

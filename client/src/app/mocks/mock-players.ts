@@ -29,6 +29,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
+        positionHistory: []
     },
     {
         id: '123',
@@ -42,6 +43,7 @@ export const mockPlayers: Player[] = [
         position: { x: 1, y: 1 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 1 },
+        positionHistory: []
     },
     {
         id: 'id',
@@ -55,6 +57,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
+        positionHistory: []
     },
 ];
 
@@ -63,11 +66,12 @@ export const baseBot: Player = {
     avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
     status: Status.Bot,
     name: 'Joueur virtuel',
-    victories: 0,
+    postGameStats: defaultPostGameStats,
     isActive: false,
     attributes: defaultAttributes,
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
+    positionHistory: []
 };

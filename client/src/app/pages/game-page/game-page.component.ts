@@ -127,6 +127,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.stopwatchService.stop();
             this.postGameService.globalStats.turns = data.room.globalPostGameStats.turns;
             this.postGameService.tilesGrid = data.room.gameMap.tiles;
+            this.postGameService.players = data.room.listPlayers;
+
+
+            for (const player of this.postGameService.players) {
+                const matchingPlayer = data.room.listPlayers.find(p => p.id === player.id);
+                if (matchingPlayer) {
+                    player.positionHistory = matchingPlayer.positionHistory;
+                }
+            }
+
+            // for(const position of data.winner.positionHistory){
+            //     console.log('('+position.x+', '+position.y+')');
+            // }
+            
             console.log(this.postGameService.tilesGrid);
             this.socketCommunicationService.off('draw');
             this.gameService

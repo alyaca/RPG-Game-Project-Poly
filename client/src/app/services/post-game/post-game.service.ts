@@ -235,5 +235,15 @@ attributes: Attribute[] = [
         }
     }
     return totalTerrainTiles;
-}
+  }
+
+  calculatePlayerTilesVisited(){
+    for(const player of this.players){
+  
+      player.postGameStats.tilesVisited = Number(((player.positionHistory.length++ / this.findTotalTerrainTiles())*100).toFixed(2));
+      console.log(player.name + ": " + player.postGameStats.tilesVisited);
+    
+    }
+  }
+
 }

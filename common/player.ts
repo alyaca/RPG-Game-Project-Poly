@@ -31,6 +31,7 @@ export interface Player {
     postGameStats: PostGameStats;
     inventory: GameObject[];
     position: Position;
+    positionHistory: Position[];
     spawnPosition: Position;
     behavior: Behavior;
 }

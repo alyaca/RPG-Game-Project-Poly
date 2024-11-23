@@ -208,6 +208,12 @@ export class GameService {
         this.updateAvatarsForAllClients(server, room.roomId);
     }
 
+    addUniqueTileToHistory(player: Player, tile: Position){
+        if (!player.positionHistory.some(pos => pos.x === tile.x && pos.y === tile.y)) {
+            player.positionHistory.push(tile);
+        }
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         const player = this.getActivePlayer(room);
@@ -215,6 +221,8 @@ export class GameService {
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
+            this.addUniqueTileToHistory(player, tile);
+
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }

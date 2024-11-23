@@ -123,6 +123,7 @@ export class CharacterCreatorComponent implements OnDestroy {
             position: { x: -1, y: -1 },
             behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
+            positionHistory: [],
         };
     }
 
