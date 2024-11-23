@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { TileType } from '@app/constants';
 import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
@@ -41,23 +40,21 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
-    updateObjectsPosition(objects: number[][]) {
-        this.objects = objects;
+    updateObjects(items : number[][])
+    {
+        this.objects = items;
     }
 
     updateTile(activePlayer: Player, itemToPlace: number): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
+            console.log()
             this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
             this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }
-    }
-
-    isOnWall(activePlayer: Player): boolean {
-        return this.gameMap.tiles[activePlayer.position.x][activePlayer.position.y] === TileType.Wall;
     }
 
     removePlayer(player: Player): void {

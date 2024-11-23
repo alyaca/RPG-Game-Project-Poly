@@ -147,13 +147,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.attackPlayer(client, this.server);
     }
 
-    @SubscribeMessage(SocketEvents.MovePlayerFromWall)
-    handlePlayerInWall(client: Socket, activePlayer: Player) {
-        const room = this.roomService.getRoom(client);
-        const path = this.navigation.movePlayerFromWall(activePlayer);
-        this.gameService.processNavigation(room, this.server, path, client);
-    }
-
     @SubscribeMessage(SocketEvents.ItemSwapped)
     handleItemSwapped(
         client: Socket,
@@ -176,8 +169,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
         const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
         this.roomService.updateRoomPlayers(client, updatedPlayer);
-        const newItemGrid = this.roomService.getRoom(client).gameMap.itemPlacement;
-        this.server.emit('updateTile', newItemGrid); // idk about that
         client.emit('updateInventory', updatedPlayer);
     }
 

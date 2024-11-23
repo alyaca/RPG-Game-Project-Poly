@@ -11,7 +11,6 @@ import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME
 // import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
-import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { ItemSwap } from '@common/item-swap';
@@ -66,7 +65,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public combatService: CombatService,
-        private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -160,6 +158,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     itemSwap,
                 })
                 .subscribe(() => {
+                    console.log('dropped item after swap');
+                    console.log(itemSwap.pickedUpItem.name);
                     this.socketCommunicationService.send('itemSwapped', {
                         activePlayer: data.activePlayer,
                         inventoryToUndo: oldInventory,
@@ -168,11 +168,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     });
                     // this.socketCommunicationService.send('endItemSwitch');
                 });
-        });
-
-        this.socketCommunicationService.on<Player>('updateInventory', (updatedPlayer: Player) => {
-            this.activePlayer.attributes = updatedPlayer.attributes;
-            this.activePlayer.inventory = updatedPlayer.inventory;
         });
     }
 
@@ -296,9 +291,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onEndTurn() {
-        if (this.navigationService.isOnWall(this.activePlayer)) {
-            this.socketCommunicationService.send('movePlayerFromWall', this.activePlayer);
-        }
+        // if (this.navigationService.isOnWall(this.activePlayer)) {
+        //     this.socketCommunicationService.send('movePlayerFromWall', this.activePlayer);
+        // }
         this.socketCommunicationService.send('endTurn');
     }
 

@@ -21,13 +21,11 @@ export class PlayerInventoryService {
         }
         if (activePlayer.inventory.length === 2) {
             client.emit('openItemSwitchModal', { activePlayer, itemPickedUp });
-            server.emit('updateTile', itemPickedUp);
+            return;
+            // server.emit('updateTile', itemPickedUp);
         } else {
             this.gameLogService.sendItemLog(activePlayer, room.roomId, server, itemPickedUp);
             activePlayer = this.updatePlayerWithItem(activePlayer, itemPickedUp);
-
-            // idk
-            // server.emit('updateTile', 0);
 
             room.gameMap.itemPlacement[activePlayer.position.x][activePlayer.position.y] = 0;
             this.roomService.updateRoomMap(room);
@@ -68,14 +66,14 @@ export class PlayerInventoryService {
                 break;
             case ObjectType.Sandal:
                 playerToBuff.attributes.speed *= 2;
-                playerToBuff.attributes.currentHp -= 2;
-                playerToBuff.attributes.totalHp -= 2;
+                playerToBuff.attributes.currentHp -= 1;
+                playerToBuff.attributes.totalHp -= 1;
                 break;
             case ObjectType.Lightning:
                 playerToBuff.attributes.attack *= 2;
                 playerToBuff.attributes.defense -= 2;
-                playerToBuff.attributes.currentHp -= 2;
-                playerToBuff.attributes.totalHp -= 2;
+                playerToBuff.attributes.currentHp -= 1;
+                playerToBuff.attributes.totalHp -= 1;
                 break;
             default:
                 break;
@@ -90,14 +88,14 @@ export class PlayerInventoryService {
                 break;
             case ObjectType.Sandal:
                 player.attributes.speed /= 2;
-                player.attributes.totalHp += 2;
-                player.attributes.currentHp += 2;
+                player.attributes.totalHp += 1;
+                player.attributes.currentHp += 1;
                 break;
             case ObjectType.Lightning:
                 player.attributes.attack /= 2;
                 player.attributes.defense += 2;
-                player.attributes.totalHp += 2;
-                player.attributes.currentHp += 2;
+                player.attributes.totalHp += 1;
+                player.attributes.currentHp += 1;
                 break;
             case ObjectType.Trident:
                 player.attributes.actionPoints -= 1;
@@ -131,6 +129,8 @@ export class PlayerInventoryService {
 
         room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
         this.roomService.updateRoomMap(room);
+        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
+        infoSwap.server.to(room.roomId).emit('updateTile', infoSwap.droppedItem); // should visually update the tile after swapping
         return infoSwap.player;
     }
 }

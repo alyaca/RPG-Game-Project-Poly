@@ -128,7 +128,7 @@ export class GameService {
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         if (!this.isMoving) {
-            this.updateActivePlayer(client);
+            this.updateActivePlayer(client, server, room);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
             server.to(room.roomId).emit('reachability', activePlayer);
@@ -149,6 +149,9 @@ export class GameService {
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
+            console.log("what's on the tile? ");
+            console.log(room.gameMap.itemPlacement[tile.x][tile.y]);
+            // THE FULL OBJECT IS ON THE TILE EXCEPT OF JUST THE NUMBER
             if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
                 this.playerInventoryService.updateInventory(
                     server,
@@ -365,20 +368,71 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        if (listPlayers[index].inventory.find((object) => object.id === ObjectType.Trident)) {
-            if (listPlayers[index].attributes.actionPoints === 1) {
-                // TO FIX (Maybe)
-                listPlayers[index].attributes.maxActionPoints = 2;
-                listPlayers[index].attributes.actionPoints += 1;
-            } else {
-                console.log('no action points left');
-                listPlayers[index].attributes.actionPoints = 1;
-            }
+    addActionPoints(player : Player)
+    {
+        // to fix(maybe)
+        if (player.attributes.actionPoints === 1) {
+            player.attributes.maxActionPoints = 2;
+            player.attributes.actionPoints += 1;
+        } else {
+            player.attributes.actionPoints = 1;
         }
+        return player;
+    }
+
+    playerInWall(room : Room, player : Player)
+    {
+        return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
+    }
+
+    movePlayerFromWall(room : Room, player : Player, client : Socket, server : Server)
+    {
+        // this is fucking hideous
+        // but it sort of works (one player starts having multiple turns, the other either doesn't play or also gets teleported)
+        let currentX = player.position.x;
+        let loopCounter = 0;
+        let currentY = player.position.y;
+        let directionsIndex = 0;
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+        ];
+        const mapSize = room.gameMap.dimension;
+        while (
+            room.gameMap.tiles[currentX][currentY] === TileType.Wall ||
+            (room.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && room.navigation.positions[currentX][currentY] === 0 || room.gameMap.itemPlacement[currentX][currentY] !== 0)
+        ) {
+            currentX += (loopCounter * directions[directionsIndex].dx) % mapSize;
+            currentY += (loopCounter * directions[directionsIndex].dy) % mapSize;
+            directionsIndex = (directionsIndex + 1) % directions.length;
+            loopCounter += 1;
+        }
+        player.position.x = currentX;
+        player.position.y = currentY;
+
+        console.log('new player position ');
+        console.log(player.position.x);
+        console.log(player.position.y);
+        this.processNavigation(room, server, [player.position], client);
+    }
+
+    private updateActivePlayer(socket: Socket, server : Server, room : Room) {
+        let listPlayers = this.getPlayerConnectedInRoom(room);
+        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        let previousActivePlayer = listPlayers[index];
+        if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
+            previousActivePlayer = this.addActionPoints(previousActivePlayer);
+        }
+        // modify position of player stuck in wall if he is
+        if(this.playerInWall(room, previousActivePlayer))
+        {
+            this.movePlayerFromWall(room, previousActivePlayer, socket, server);
+        }
+        // assignment of the new version of the player after the necessary modification
+        listPlayers[index] = previousActivePlayer;
+
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;

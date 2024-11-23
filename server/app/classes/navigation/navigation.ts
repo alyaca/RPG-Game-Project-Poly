@@ -37,30 +37,30 @@ export class Navigation {
     }
 
     // this might be garbage
-    movePlayerFromWall(activePlayer: Player) {
-        let currentX = activePlayer.position.x;
-        let loopCounter = 0;
-        let currentY = activePlayer.position.y;
-        let directionsIndex = 0;
-        const directions = [
-            { dx: 0, dy: 1 },
-            { dx: 0, dy: -1 },
-            { dx: 1, dy: 0 },
-            { dx: -1, dy: 0 },
-        ];
-        while (
-            this.gameMap.tiles[currentX][currentY] === TileType.Wall ||
-            (this.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && this.positions[currentX][currentY] === 0)
-        ) {
-            currentX += loopCounter * directions[directionsIndex].dx;
-            currentY += loopCounter * directions[directionsIndex].dy;
-            directionsIndex = (directionsIndex + 1) % directions.length;
-            loopCounter += 1;
-        }
-        activePlayer.position.x = currentX;
-        activePlayer.position.y = currentY;
-        return this.reconstructPath(activePlayer.position);
-    }
+    // movePlayerFromWall(activePlayer: Player) {
+    //     let currentX = activePlayer.position.x;
+    //     let loopCounter = 0;
+    //     let currentY = activePlayer.position.y;
+    //     let directionsIndex = 0;
+    //     const directions = [
+    //         { dx: 0, dy: 1 },
+    //         { dx: 0, dy: -1 },
+    //         { dx: 1, dy: 0 },
+    //         { dx: -1, dy: 0 },
+    //     ];
+    //     while (
+    //         this.gameMap.tiles[currentX][currentY] === TileType.Wall ||
+    //         (this.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && this.positions[currentX][currentY] === 0)
+    //     ) {
+    //         currentX += loopCounter * directions[directionsIndex].dx;
+    //         currentY += loopCounter * directions[directionsIndex].dy;
+    //         directionsIndex = (directionsIndex + 1) % directions.length;
+    //         loopCounter += 1;
+    //     }
+    //     activePlayer.position.x = currentX;
+    //     activePlayer.position.y = currentY;
+    //     return this.reconstructPath(activePlayer.position);
+    // }
 
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
