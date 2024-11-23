@@ -58,6 +58,7 @@ export const mockRoomDebug: Room[] = [
         isLocked: false,
         gameStatus: GameStatus.Lobby,
         navigation: mockNavigation,
+        globalPostGameStats: defaultGlobalStats,
         isDebug: true,
     },
     {
@@ -68,6 +69,7 @@ export const mockRoomDebug: Room[] = [
         adminId: 'admin1234',
         isLocked: false,
         gameStatus: GameStatus.Lobby,
+        globalPostGameStats: defaultGlobalStats,
         isDebug: false,
     },
 ];

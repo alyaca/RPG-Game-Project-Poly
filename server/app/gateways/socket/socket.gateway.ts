@@ -204,7 +204,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.DoorAction)
     handleDoorAction(client: Socket, doorActionData: DoorActionData) {
         this.gameService.handleDoor(client, this.server, doorActionData);
-        /// this.gameService.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, position);
     }
 
     @SubscribeMessage(SocketEvents.ForceEndGame) // temporary
