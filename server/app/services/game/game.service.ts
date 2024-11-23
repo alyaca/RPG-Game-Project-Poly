@@ -292,12 +292,12 @@ export class GameService {
     }
 
     handleDoor(client: Socket, server: Server, doorActionData: DoorActionData) {
-        const { position, player } = doorActionData;
+        const { clickedPosition, player } = doorActionData;
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
 
-        if (room.navigation.hasHandleDoorAction(position.x, position.y, player)) {
-            this.gameLogsService.sendDoorMessage(room.gameMap.tiles[position.x][position.y], activePlayer, room.roomId, server);
+        if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
+            this.gameLogsService.sendDoorMessage(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
             server.to(room.roomId).emit('reachableTiles', reachability);
