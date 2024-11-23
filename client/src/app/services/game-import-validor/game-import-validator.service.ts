@@ -117,7 +117,11 @@ export class GameImportValidatorService {
     private validateAllDoors(array: number[][]) {
         for (let row = 0; row < array.length; row++) {
             for (let col = 0; col < array[row].length; col++) {
-                if (array[row][col] > TileType.Wall && !this.mapValidatorService.isDoorPlacementValid(array, row, col)) {
+                if (
+                    array[row][col] > TileType.Wall &&
+                    array[row][col] <= TileType.OpenDoor &&
+                    !this.mapValidatorService.isDoorPlacementValid(array, row, col)
+                ) {
                     this.errorMessages.push("- Au moins une porte n'est pas valide: ");
                     this.errorMessages.push("Chacune doit être située entre deux murs sur un axe, et entre deux tuiles de terrain sur l'autre.");
                 }
