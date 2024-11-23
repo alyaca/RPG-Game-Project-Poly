@@ -35,6 +35,7 @@ export interface Player {
     behavior: Behavior;
 }
 
+
 export interface Attributes {
     totalHp: number;
     currentHp: number;

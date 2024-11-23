@@ -225,7 +225,7 @@ attributes: Attribute[] = [
     return Math.max(...this.players.map(player => player.postGameStats[statKey]));
   }
 
-  public findTotalTerrainTiles(): number {
+  findTotalTerrainTiles(): number {
     let totalTerrainTiles: number = 0;
       for(let i = 0; i < this.tilesGrid.length; i++){
         for(let j = 0; j < this.tilesGrid[0].length; j++){
