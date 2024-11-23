@@ -637,22 +637,44 @@ describe('GameService', () => {
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
         });
     });
-    // TODO
-    /* it('should navigate and emit player teleportation when in debugMode', () => {
-            const path = [{ x: 1, y: 1 }];
-            jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[0]);
-            room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
 
-            jest.spyOn(service, 'processTeleportation');
+    describe('processTeleportation', () => {
+        let path;
+        let server;
+
+        beforeEach(() => {
+            path = [{ x: 1, y: 1 }];
+
+            server = {
+                to: jest.fn().mockReturnThis(),
+                emit: jest.fn(),
+            } as unknown as Server;
+
+            jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[0]);
             service.checkDoors = jest.fn();
             service.checkAttack = jest.fn();
 
-            expect(service.getActivePlayer).toHaveBeenCalledWith(room);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('playerNavigation', path[0]);
-            room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endMovement');
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('reachableTiles', path);
-        });*/
+            mockRooms[0].navigation.findReachableTiles = jest.fn().mockReturnValue([{ x: 2, y: 2 }]);
+        });
+
+        it('should teleport the player and emit the correct events', () => {
+            service.processTeleportation(mockRooms[0], server, path);
+
+            expect(service.getActivePlayer).toHaveBeenCalledWith(mockRooms[0]);
+            expect(mockPlayers[0].position).toEqual(path[0]);
+
+            expect(server.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('teleportPlayer', {
+                position: path[0],
+                playerId: mockPlayers[0].id,
+            });
+
+            expect(mockRooms[0].navigation.findReachableTiles).toHaveBeenCalledWith(mockPlayers[0], mockRooms[0]);
+            expect(server.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('reachableTiles', [{ x: 2, y: 2 }]);
+            expect(server.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('endMovement');
+            expect(service.checkDoors).toHaveBeenCalledWith(mockRooms[0], server);
+            expect(service.checkAttack).toHaveBeenCalledWith(mockRooms[0], server);
+        });
+    });
 
     it('should handle the else branch when player status is Bot', () => {
         const mockSetUniquePlayerName = jest.fn();
@@ -687,8 +709,6 @@ describe('GameService', () => {
         expect(result.attributes.atkDiceMax).toBe(HIGH_ATTRIBUTE);
         expect(result.attributes.defDiceMax).toBe(DEFAULT_ATTRIBUTE);
     });
-
-    /// /
 
     it('should assign an available avatar to an aggressive bot and mark it as taken', () => {
         const behavior = Behavior.Aggressive;
