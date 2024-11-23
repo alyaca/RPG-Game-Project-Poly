@@ -174,7 +174,7 @@ export class Navigation {
         if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
         if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
         if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn) return true;
-        return true;
+        return false;
     }
 
     private exploreNeighborsForReachableTiles(
