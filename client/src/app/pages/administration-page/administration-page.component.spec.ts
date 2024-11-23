@@ -73,7 +73,7 @@ describe('AdministrationPageComponent', () => {
 
     it('should handle file input and validate file size', () => {
         const mockFile = new File(['test'], 'test.txt', { type: 'text/plain' });
-        Object.defineProperty(mockFile, 'size', { value: 1024 }); // Mock file size
+        Object.defineProperty(mockFile, 'size', { value: 1024 });
 
         const mockEvent = {
             target: {
@@ -88,7 +88,7 @@ describe('AdministrationPageComponent', () => {
 
     it('should display error dialog if file size exceeds limit', () => {
         const mockFile = new File(['test'], 'largefile.txt', { type: 'text/plain' });
-        Object.defineProperty(mockFile, 'size', { value: 9999999 }); // Mock large file size
+        Object.defineProperty(mockFile, 'size', { value: 9999999 });
 
         const mockEvent = {
             target: {
@@ -185,5 +185,70 @@ describe('AdministrationPageComponent', () => {
         } as any;
         dialogSpy.open.and.returnValue(dialogRefMock);
         expect(component.gameListComponent.refreshGameList).toHaveBeenCalled();
+    });
+
+    it('should handle import game response as an array of errors', () => {
+        const mockFile = new File(['test'], 'test.txt', { type: 'text/plain' });
+        Object.defineProperty(mockFile, 'size', { value: 1024 });
+
+        const mockEvent = {
+            target: {
+                files: [mockFile],
+            },
+        } as unknown as Event;
+
+        const errorResponse = ['Error 1', 'Error 2'];
+        saveGameServiceSpy.importGame.and.returnValue(of(errorResponse));
+
+        component.handleFileInput(mockEvent);
+
+        expect(saveGameServiceSpy.importGame).toHaveBeenCalledWith(mockFile);
+        expect(dialogSpy.open).toHaveBeenCalledWith(
+            SimpleDialogComponent,
+            jasmine.objectContaining({
+                data: {
+                    title: "Erreur lors de l'importation",
+                    messages: errorResponse,
+                    options: ['OK'],
+                },
+            }),
+        );
+    });
+
+    it('should handle error while saving imported game with new name', () => {
+        const dialogRefMock = {
+            afterClosed: () => of({ action: 'right', input: 'New Game Name' }),
+        } as any;
+
+        let recursiveCallCount = 0;
+
+        dialogSpy.open.and.returnValue(dialogRefMock);
+        saveGameServiceSpy.saveImportedGameWithNewName.and.callFake(() => {
+            if (recursiveCallCount === 0) {
+                recursiveCallCount++;
+                return throwError(() => new Error('Name already exists'));
+            } else {
+                return of({});
+            }
+        });
+
+        component.errorWhileImportingGame([ErrorMessages.NameAlreadyExists]);
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(
+            SimpleDialogComponent,
+            jasmine.objectContaining({
+                data: jasmine.objectContaining({
+                    title: "Erreur lors de l'importation",
+                    messages: ['Un jeu portant ce nom existe déjà. Veuillez sélectionner un autre nom.'],
+                    options: ['Annuler', 'Modifier'],
+                    confirm: true,
+                    isInput: true,
+                }),
+            }),
+        );
+
+        expect(saveGameServiceSpy.saveImportedGameWithNewName).toHaveBeenCalledWith('New Game Name');
+
+        expect(dialogSpy.open).toHaveBeenCalledTimes(2);
     });
 });
