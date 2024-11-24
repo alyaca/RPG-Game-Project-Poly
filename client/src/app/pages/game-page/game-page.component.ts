@@ -129,7 +129,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.once('endGame', (winner: Player) => {
-            this.socketCommunicationService.off('draw');
+            this.removeListeners();
             this.gameService
                 .openDialog({
                     title: DialogTitle.EndGame,
@@ -183,6 +183,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.timeRemainingStartTurn = timeRemaining;
             this.turnTimer.updateProgress();
         });
+    }
+
+    removeListeners() {
+        this.socketCommunicationService.off('beforeStartTurnTimer');
+        this.socketCommunicationService.off('turnEnded');
+        this.socketCommunicationService.off('startedTurnTimer');
+        this.socketCommunicationService.off('draw');
     }
 
     onBeforeStartTurn() {
