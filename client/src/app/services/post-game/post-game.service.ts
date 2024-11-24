@@ -16,6 +16,7 @@ export interface Attribute {
     providedIn: 'root',
 })
 export class PostGameService {
+    gameRoom: Room;
     doorsInteractedPct: string;
     globalTilesVisitedPct: number;
     totalTerrainTiles: number = -1;
@@ -199,6 +200,7 @@ export class PostGameService {
     }
 
     transferRoomStats(room: Room) {
+        this.gameRoom = room;
         this.tilesGrid = room.gameMap.tiles;
         this.players = room.listPlayers;
         this.globalStats = room.globalPostGameStats;
@@ -214,7 +216,7 @@ export class PostGameService {
 
     computeStats() {
         this.calculatePlayerTilesVisited();
-        this.computeDoorsInteracted();
+        this.computeDoorsInteractedPct();
         this.computeGlobalTilesVisitedPct();
     }
 
@@ -223,7 +225,7 @@ export class PostGameService {
         this.globalTilesVisitedPct = this.calculateInteractionPct(this.globalStats.globalTilesVisited, this.totalTerrainTiles);
     }
 
-    computeDoorsInteracted() {
+    computeDoorsInteractedPct() {
         this.totalDoors = this.findTotalDoors();
         this.doorsInteractedPct = this.calculateInteractionPct(this.globalStats.doorsInteracted, this.totalDoors).toString();
         if (this.doorsInteractedPct === '-1') {

@@ -4,9 +4,10 @@ import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
-import { Room } from '@common/room';
+import { Room, GameStatus } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfo>();
@@ -158,7 +159,9 @@ export class CombatService {
     checkEndGame(player: Player, room: Room, server: Server) {
         if (player.postGameStats.victories >= VICTORIES) {
             const winner = player;
+            room.gameStatus = GameStatus.Ended;
             server.to(room.roomId).emit('endGame', { winner, room });
+            this.gameService.resetGlobalStats(room);
             this.gameService.stopGameTimers(room);
         }
     }

@@ -215,6 +215,7 @@ export enum DialogTitle {
     EndGame = 'Fin de la partie',
     MaxPlayers = 'Nombre de joueurs maximal atteint',
     AddBotWhenLocked = 'Partie vérrouillée',
+    QuitPostGameLobby = "Retourner à la page d'acceuil",
 }
 export enum DialogMessages {
     NotEnoughPlayers = `Il faut au moins ${MIN_NUMBER_PLAYER} joueurs pour commencer la partie`,
@@ -226,6 +227,7 @@ export enum DialogMessages {
     Fell = 'Vous avez glissé sur la glace. Votre tour est terminé.',
     MaxPlayers = "Vous ne pouvez plus d'ajouter de joueurs virtuels",
     AddBotWhenLocked = "Déverrouillez la salle d'attente avant d'ajouter un joueur virtuel",
+    QuitPostGameLobby = 'Vous quitteriez la page de fin de partie',
 }
 export enum DialogResult {
     Right = 'right',

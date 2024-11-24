@@ -11,6 +11,8 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
+import { GameStatus } from '@common/room';
+import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
@@ -210,7 +212,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleForceEndGame(client: Socket, winner: Player) {
         this.logger.log('end of game has been forced');
         const room = this.roomService.getRoom(client);
+        room.gameStatus = GameStatus.Ended;
         this.server.to(room.roomId).emit('endGame', { winner, room });
+        this.gameService.resetGlobalStats(room);
         this.gameService.stopGameTimers(room);
     }
 

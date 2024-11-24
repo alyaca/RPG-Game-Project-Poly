@@ -6,6 +6,7 @@ import { Avatar, Player } from './player';
 export enum GameStatus {
     Lobby = 'lobby',
     Started = 'started',
+    Ended = 'ended',
 }
 
 

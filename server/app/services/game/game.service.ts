@@ -247,6 +247,14 @@ export class GameService {
         }
     }
 
+    resetGlobalStats(room: Room) {
+        room.globalPostGameStats.globalTilesVisited = [];
+        room.globalPostGameStats.doorsInteracted = [];
+        room.globalPostGameStats.turns = 0;
+        room.globalPostGameStats.nbFlagBearers = 0;
+        room.globalPostGameStats.gameDuration = '';
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         const player = this.getActivePlayer(room);
