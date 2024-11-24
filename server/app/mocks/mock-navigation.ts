@@ -6,6 +6,7 @@ export const mockNavigation = {
     hasHandleDoorAction: jest.fn(),
     findReachableTiles: jest.fn(),
     initializeNavigation: jest.fn(),
+    findFastestPath: jest.fn(),
     haveActions: jest.fn(),
     players: mockPlayers,
     gameMap: mockGame,

@@ -101,7 +101,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.onStartGame(client, this.server);
     }
 
-    @SubscribeMessage('findPath')
+    @SubscribeMessage(SocketEvents.FindPath)
     handleFindPath(client: Socket, destination: Position) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);

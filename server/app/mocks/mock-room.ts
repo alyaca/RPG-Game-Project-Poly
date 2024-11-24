@@ -4,6 +4,17 @@ import { GameStatus, Room } from '@common/room';
 import { mockGame } from './mock-game';
 import { mockNavigation } from './mock-navigation';
 
+export const mockRoom: Room = {
+    gameMap: mockGame,
+    roomId: '1234',
+    listPlayers: [],
+    availableAvatars: avatars,
+    adminId: 'admin1234',
+    isLocked: false,
+    gameStatus: GameStatus.Lobby,
+    navigation: mockNavigation,
+};
+
 export const mockRooms: Room[] = [
     {
         gameMap: mockGame,

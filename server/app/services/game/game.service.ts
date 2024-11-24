@@ -244,7 +244,6 @@ export class GameService {
     onKickPlayer(socket: Socket, server: Server, playerId: string) {
         const room = this.roomService.getRoom(socket);
         server.to(playerId).emit('kickPlayer', playerId);
-
         const playerSocket = server.sockets.sockets.get(playerId);
         this.removePlayerFromRoom(room.roomId, playerSocket, server);
         server.to(room.roomId).emit('updatedPlayer', room);

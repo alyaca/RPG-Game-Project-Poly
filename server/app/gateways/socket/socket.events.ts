@@ -24,4 +24,5 @@ export enum SocketEvents {
     DoorAction = 'doorAction',
     DebugMode = 'debugMode',
     TeleportPlayer = 'teleportPlayer',
+    FindPath = 'findPath',
 }

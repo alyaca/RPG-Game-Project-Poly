@@ -11,5 +11,7 @@ export const mockServer = {
         socketsLeave: jest.fn(),
     }),
     emit: jest.fn(),
-    to: jest.fn().mockReturnThis(),
+    to: jest.fn().mockReturnValue({
+        emit: jest.fn(),
+    }),
 } as unknown as Server;

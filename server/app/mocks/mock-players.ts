@@ -1,3 +1,4 @@
+import { avatars } from '@common/avatars-info';
 import { Behavior, Player, PlayerStats, Status } from '@common/player';
 import { playerNavigation } from './mock-player';
 
@@ -19,7 +20,7 @@ export const mockPlayers: Player[] = [
     {
         id: 'admin1234',
         attributes: mockPlayerStats,
-        avatar: undefined,
+        avatar: avatars[0],
         isActive: true,
         name: 'mobile',
         status: Status.Player,
@@ -88,7 +89,7 @@ export const mockNavigationPlayers: Player[] = [
 
 export const baseBot: Player = {
     id: '0',
-    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    avatar: avatars[0],
     status: Status.Bot,
     name: 'Joueur virtuel',
     victories: 0,
