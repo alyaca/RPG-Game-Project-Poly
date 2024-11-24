@@ -37,6 +37,7 @@ describe('CombatService', () => {
             onTurnEnded: jest.fn(),
             stopGameTimers: jest.fn(),
             getActivePlayer: jest.fn(),
+            resetGlobalStats: jest.fn(),
         } as unknown as jest.Mocked<GameService>;
 
         mockServer = {
