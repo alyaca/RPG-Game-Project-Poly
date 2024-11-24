@@ -40,7 +40,7 @@ describe('LobbyPlayerComponent', () => {
 
     it('should open dialog on kickPlayer', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('right'));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: 'right' }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         component.lobbyPlayer.status = Status.Player;
         component.kickOutPlayer();
@@ -59,7 +59,7 @@ describe('LobbyPlayerComponent', () => {
 
     it('should send kickBot is bot is kicked', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('right'));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: 'right' }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         component.lobbyPlayer.status = Status.Bot;
         component.kickOutPlayer();

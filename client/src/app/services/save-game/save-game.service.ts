@@ -88,7 +88,6 @@ export class SaveGameService {
 
                     const errorMessages = await this.gameImportValidatorService.validateMap(gameData);
 
-                    console.log(errorMessages);
                     if (errorMessages.length === 0) {
                         this.saveImportedGame(gameInfo)
                             .pipe(
@@ -109,10 +108,6 @@ export class SaveGameService {
                 } catch (error) {
                     observer.error(['Erreur lors de la lecture du fichier JSON.']);
                 }
-            };
-
-            reader.onerror = () => {
-                observer.error(['Erreur de lecture du fichier.']);
             };
 
             reader.readAsText(file);
@@ -151,7 +146,7 @@ export class SaveGameService {
         );
     }
 
-    private isNameAlreadyExists(name: string): Observable<boolean> {
+    isNameAlreadyExists(name: string): Observable<boolean> {
         return this.http.get<Game[]>(this.apiURL).pipe(
             map((games: Game[]) => {
                 return games.some((game) => game.name === name);
