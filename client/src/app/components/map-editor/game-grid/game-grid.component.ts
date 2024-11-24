@@ -13,7 +13,7 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
+
 import { NO_OBJECT, TileType } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -29,6 +29,7 @@ import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 
 @Component({
     selector: 'app-game-grid',
@@ -138,6 +139,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.navigateToTile(playerToReplace.position);
             } else {
                 this.respawnPlayer(oldPosition, playerToReplace);
+            }
+        });
+
+        this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string }) => {
+            const { position, playerId } = data;
+            const playerToTeleport = this.navigationService.players.find((p) => p.id === playerId);
+            if (playerToTeleport) {
+                this.navigateToTile(position);
             }
         });
 

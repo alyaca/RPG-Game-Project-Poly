@@ -1,6 +1,5 @@
 import { PlayerStats } from '@common/player';
-import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DEFAULT_EVASION_POINT } from './constants';
-
+import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DEFAULT_EVASION_POINT } from '@app/constants';
 export const defaultAttributes: PlayerStats = {
     totalHp: DEFAULT_ATTRIBUTE,
     currentHp: DEFAULT_ATTRIBUTE,

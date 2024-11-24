@@ -9,7 +9,7 @@ import { PlayerInventoryService } from '@app/services/player-inventory/player-in
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { GameObject } from '@common/game-object';
-import { Avatar, Player, Position } from '@common/player';
+import { Avatar, Behavior, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -29,9 +29,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         private combatService: CombatService,
         private gameService: GameService,
         private playerInventoryService: PlayerInventoryService,
-    ) {
-        this.navigation = new Navigation();
-    }
+    ) {}
 
     @SubscribeMessage(SocketEvents.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
@@ -88,6 +86,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         client.emit('isPlayerAdmin', isAdmin);
     }
 
+    @SubscribeMessage(SocketEvents.CreateBot)
+    handleCreateBot(client: Socket, behavior: Behavior) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.createBot(room, behavior, client, this.server);
+        this.server.to(room.roomId).emit('updatedPlayer', room);
+    }
+
     @SubscribeMessage(SocketEvents.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
@@ -105,20 +110,29 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit('updatedPlayer', room);
     }
 
+    @SubscribeMessage(SocketEvents.KickBot)
+    handleKickBot(client: Socket, botId: string) {
+        const room = this.roomService.getRoom(client);
+        this.logger.debug(`bot ${botId} was kicked out of room`);
+        this.server.to(botId).emit('kickPlayer', botId);
+        const botPlayer = room.listPlayers.find((player) => player.id === botId);
+        botPlayer.avatar.isTaken = false;
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== botId);
+
+        this.server.to(room.roomId).emit('updatedPlayer', room);
+        this.gameService.updateAvatarsForAllClients(this.server, room.roomId);
+    }
+
     @SubscribeMessage(SocketEvents.StartGame)
     handleStartGame(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.navigation.initializeNavigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
-        room.navigation = this.navigation;
         this.gameService.onStartGame(room, client);
         const activePlayer = this.gameService.getActivePlayer(room);
 
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
-        this.server.to(room.roomId).emit('isActive', activePlayer.id);
-
         this.server.to(room.roomId).emit('isActive', activePlayer);
-        const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
         this.server.to(room.roomId).emit('reachableTiles', reachability);
     }
 
@@ -126,16 +140,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleFindPath(client: Socket, destination: Position) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);
-        const path = room.navigation.findFastestPath(activePlayer, destination, room.gameMap);
+        const path = room.navigation.findFastestPath(activePlayer, destination, room);
         this.server.to(room.roomId).emit('pathFound', path);
     }
-
-    /*
-    @SubscribeMessage('getAccessibleTile')
-    handleGetAccessibleTile(){
-        //this.navigation.findReachableTiles();
-    }
-        */
 
     @SubscribeMessage(SocketEvents.StartFight)
     handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
@@ -226,23 +233,30 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         client.to(roomId).emit('gameLogReceived', log);
     }
 
+    @SubscribeMessage(SocketEvents.DebugMode)
+    handleDebugMode(client: Socket, debugMode: boolean) {
+        const room = this.roomService.getRoom(client);
+        room.isDebug = debugMode;
+        this.gameService.updateLogsDebugMode(debugMode, this.server, client);
+        this.server.to(room.roomId).emit('debugMode', debugMode);
+        const activePlayer = this.gameService.getActivePlayer(room);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        this.server.to(room.roomId).emit('reachableTiles', reachability);
+    }
+
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        this.gameService.processNavigation(room, this.server, path, client);
+        if (room.isDebug) {
+            this.gameService.processTeleportation(room, this.server, path);
+        } else {
+            this.gameService.processNavigation(room, this.server, path, client);
+        }
     }
 
     @SubscribeMessage(SocketEvents.DoorAction)
     handleDoorAction(client: Socket, doorActionData: DoorActionData) {
-        const { position, player } = doorActionData;
-        const room = this.roomService.getRoom(client);
-        const activePlayer = this.gameService.getActivePlayer(room);
-
-        if (this.navigation.hasHandleDoorAction(position.x, position.y, player)) {
-            this.server.to(room.roomId).emit('doorClicked', this.navigation.gameMap.tiles);
-            const reachability = room.navigation.findReachableTiles(activePlayer, room.gameMap);
-            this.server.to(room.roomId).emit('reachableTiles', reachability);
-        }
+        this.gameService.handleDoor(client, this.server, doorActionData);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

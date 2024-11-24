@@ -16,6 +16,7 @@ import { Game } from '@common/game';
 import { BehaviorSubject, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WaitingPageComponent } from './waiting-page.component';
+import { Behavior } from '@common/player';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -281,5 +282,58 @@ describe('WaitingPageComponent', () => {
         component.onMaxPlayers();
         expect(component.isLocked).toBeTrue();
         expect(component.onLockChange).toHaveBeenCalled();
+    });
+
+    it('should open max players dialog when locked and max players reached', () => {
+        component.isLocked = true;
+        spyOn(component, 'isMaxPlayersReached').and.returnValue(true);
+
+        component.toggleBotProfileVisibility();
+
+        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+            title: DialogTitle.MaxPlayers,
+            messages: [DialogMessages.MaxPlayers],
+            options: [DialogOptions.Close],
+            confirm: false,
+        });
+        expect(component.isBotProfileVisible).toBeFalse();
+    });
+
+    it('should open add bot when locked dialog when locked and max players not reached', () => {
+        component.isLocked = true;
+        spyOn(component, 'isMaxPlayersReached').and.returnValue(false);
+
+        component.toggleBotProfileVisibility();
+
+        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+            title: DialogTitle.AddBotWhenLocked,
+            messages: [DialogMessages.AddBotWhenLocked],
+            options: [DialogOptions.Close],
+            confirm: false,
+        });
+        expect(component.isBotProfileVisible).toBeFalse();
+    });
+
+    it('should toggle bot profile visibility when not locked', () => {
+        component.isLocked = false;
+        component.isBotProfileVisible = false;
+
+        component.toggleBotProfileVisibility();
+
+        expect(component.isBotProfileVisible).toBeTrue();
+    });
+
+    it('should send createBot with aggressive behavior when addBot is called with true', () => {
+        component.addBot(true);
+
+        expect(component.isBotProfileVisible).toBeFalse();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('createBot', Behavior.Aggressive);
+    });
+
+    it('should send createBot with defensive behavior when addBot is called with false', () => {
+        component.addBot(false);
+
+        expect(component.isBotProfileVisible).toBeFalse();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('createBot', Behavior.Defensive);
     });
 });

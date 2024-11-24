@@ -103,6 +103,12 @@ describe('GamePageComponent', () => {
             }
         });
 
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'debugMode') {
+                callback(true as T);
+            }
+        });
+
         httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
@@ -174,6 +180,16 @@ describe('GamePageComponent', () => {
             component.ngOnInit();
             expect(component.onPlayerFell).toHaveBeenCalled();
         });
+
+        it('should update dubugMode on debugMode event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'debugMode') {
+                    callback(true as T);
+                }
+            });
+            component.ngOnInit();
+            expect(navigationServiceSpy.isDebugMode).toBeTrue();
+        });
     });
 
     it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
@@ -226,6 +242,14 @@ describe('GamePageComponent', () => {
             confirm: true,
             itemSwap: null,
         });
+    });
+
+    it('should send debugMode event when admin leaves the game', () => {
+        spyOn(component, 'isPlayerAdmin').and.returnValue(true);
+        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Left));
+
+        component.handleExit();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', false);
     });
 
     it('should navigate to /home if the dialog result is Left', () => {
@@ -329,5 +353,38 @@ describe('GamePageComponent', () => {
         gameServiceSpy.hasActionPoints.and.returnValue(true);
         const result = component.hasActionPoints();
         expect(result).toBe(true);
+    });
+
+    it('should send event debugMode when admin presses d on keyboard', () => {
+        navigationServiceSpy.isDebugMode = false;
+        spyOn(component, 'isPlayerAdmin').and.returnValue(true);
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        document.dispatchEvent(event);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', true);
+    });
+
+    it('should not send event debugMode when player presses d on keyboard', () => {
+        navigationServiceSpy.isDebugMode = false;
+        spyOn(component, 'isPlayerAdmin').and.returnValue(false);
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        document.dispatchEvent(event);
+        expect(socketCommunicationServiceSpy.send).not.toHaveBeenCalled();
+    });
+
+    it('should call enableClicks when closeTurnStartPopUp is called', () => {
+        spyOn(component, 'enableClicks');
+        component.closeTurnStartPopUp();
+        expect(component.enableClicks).toHaveBeenCalled();
+    });
+
+    it('should call closeTurnStartPopUp and update timeRemainingStartTurn when startedTurnTimer event is emitted', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'startedTurnTimer') {
+                callback(TURN_TIME as T);
+            }
+        });
+        spyOn(component, 'closeTurnStartPopUp');
+        component.timerEvents();
+        expect(component.timeRemainingStartTurn).toBe(TURN_TIME);
     });
 });

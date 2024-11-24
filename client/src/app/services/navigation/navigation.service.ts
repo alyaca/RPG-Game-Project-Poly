@@ -29,6 +29,7 @@ export class NavigationService {
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
     positions: number[][];
+    isDebugMode: boolean = false;
     private objects: number[][];
     private reachableTiles: Position[];
 

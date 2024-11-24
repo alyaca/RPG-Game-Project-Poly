@@ -1,9 +1,48 @@
-<div id="waiting-page">
+@if(isBotProfileVisible){
+    <div class="add-virtual-player-container">
+        <div class="close-button" (click)="toggleBotProfileVisibility()">
+            &times;
+        </div>
+        <div class="bot-title">
+            <p>Choisissez le profil du joueur virtuel</p>
+        </div>
+        <div class="bot-options">
+            <div class="defensive" (click)="addBot(false)"> 
+                <p class="profile-title">Défensif</p>
+                <img class="bot-profile-img" draggable="false" src="./assets/images/icones/defensive.png" alt="passive-img">
+                <div class="profile-description">
+                    <p>- Tendance à fuir d'un combat s'il est blessé</p>
+                    <p>- S'engage moins dans les combats et favorise les items donnant un avantage en défense et PV maximal</p>
+                </div>
+            </div>
+            <div class="aggressive" (click)="addBot(true)">
+                <p class="profile-title">Agressif</p>
+                <img class="bot-profile-img" draggable="false" src="./assets/images/icones/aggressive.png" alt="passive-img">
+                <div class="profile-description">
+                    <p>- Tendance à chercher la bataille et ne tentera jamais de se fuir</p>
+                    <p>- Favorise les confrontations ainsi que les items qui donne un avantage en attaque et rapidité</p>
+                </div>     
+            </div>
+        </div>
+    </div>
+}
+
+<div id="waiting-page" [ngClass]="{ 'disabled': isBotProfileVisible }">
+    <div class="disabled-overlay"></div>
     <header>
         @if(chosenGame){
-        <h3>Nom de la partie: {{ chosenGame.name }}</h3>
+            <div class="elem-container">
+                <p class="elem-title">Nom de la carte:</p>
+                <h3 class="elem-content condensed-txt"> {{ chosenGame.name }}</h3>
+            </div>
         }
-        <h3>Code d'accès: {{ accessCode }}</h3>
+        <div class="elem-container">
+            <p class="elem-title">Code d'accès:</p>
+            <h3 class="elem-content"> {{ accessCode }}</h3>
+        </div>
+        <div class="add-bot" (click)="toggleBotProfileVisibility()" [ngClass]="{ invisible: !isAdmin }">
+            <p class="add-bot-text">Ajouter un joueur virtuel</p>
+        </div>
     </header>
     <main>
         <div id="players-container">
@@ -13,13 +52,26 @@
         </div>
     </main>
     <footer>
+        @if(!isBotProfileVisible){
         <div id="footer-container">
-            <app-chat-box [isToggleable]="false"></app-chat-box>
+            <div class="chat">
+                <app-chat-box [isToggleable]="false"></app-chat-box>
+            </div>
             <div id="start-container">
-                <button id="start" class="big-button" (click)="handleStartGame()" [disabled]="!isAdmin" [ngClass]="{ disabled: !isAdmin }">
+                <button
+                    id="start"
+                    class="big-button"
+                    (click)="handleStartGame()"
+                    [disabled]="!isAdmin"
+                    [ngClass]="{ disabled: !isAdmin}">
                     Lancer une partie
                 </button>
-                <button id="quit-button" (click)="handleExit(accessCode)" [ngClass]="{ 'big-button': !isAdmin }">Quitter</button>
+                <button 
+                    id="quit-button" 
+                    (click)="handleExit(accessCode)" 
+                    [disabled]="isBotProfileVisible"
+                    [ngClass]="{ 'big-button': !isAdmin }"
+                >Quitter</button>
             </div>
             <div id="lock-container">
                 <div [ngClass]="{ disabled: !isAdmin }">
@@ -36,5 +88,6 @@
                 </div>
             </div>
         </div>
+    }
     </footer>
 </div>

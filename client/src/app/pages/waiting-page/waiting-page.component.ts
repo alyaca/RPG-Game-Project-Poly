@@ -1,23 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, MIN_NUMBER_PLAYER } from '@app/constants';
+
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
-import { Player } from '@common/player';
+import { Behavior, Player, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
     selector: 'app-waiting-page',
     standalone: true,
-    imports: [RouterLink, CommonModule, LobbyPlayerComponent, ChatBoxComponent, FormsModule],
+    imports: [CommonModule, LobbyPlayerComponent, ChatBoxComponent, FormsModule],
     templateUrl: './waiting-page.component.html',
     styleUrl: './waiting-page.component.scss',
 })
@@ -27,7 +28,9 @@ export class WaitingPageComponent implements OnInit {
     isLocked: boolean = false;
     isAdmin: boolean = false;
     players: Player[];
-
+    isBotProfileVisible: boolean = false;
+    status: Status;
+    behavior: Behavior;
     private router = inject(Router);
     private gameService = inject(GameService);
 
@@ -122,6 +125,34 @@ export class WaitingPageComponent implements OnInit {
                 itemSwap: null,
             });
         }
+    }
+
+    toggleBotProfileVisibility() {
+        if (this.isLocked) {
+            if (this.isMaxPlayersReached()) {
+                this.gameService.openDialog({
+                    title: DialogTitle.MaxPlayers,
+                    messages: [DialogMessages.MaxPlayers],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                });
+            } else {
+                this.gameService.openDialog({
+                    title: DialogTitle.AddBotWhenLocked,
+                    messages: [DialogMessages.AddBotWhenLocked],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                });
+            }
+            return;
+        }
+        this.isBotProfileVisible = !this.isBotProfileVisible;
+    }
+    addBot(isAgressive: boolean) {
+        this.isBotProfileVisible = false;
+
+        const behavior = isAgressive ? Behavior.Aggressive : Behavior.Defensive;
+        this.socketCommunicationService.send('createBot', behavior);
     }
 
     private confirmStartGame() {
