@@ -12,7 +12,6 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
 import { GameStatus } from '@common/room';
-import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
