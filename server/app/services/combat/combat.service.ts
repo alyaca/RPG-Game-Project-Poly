@@ -4,7 +4,7 @@ import { RoomService } from '@app/services/room/room.service';
 import { CombatInfo } from '@common/combat-info';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
-import { Room, GameStatus } from '@common/room';
+import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 

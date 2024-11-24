@@ -356,7 +356,7 @@ export class GameService {
         return false;
     }
 
-    onEndGame(winner: Player, room: Room, server: Server){
+    onEndGame(winner: Player, room: Room, server: Server) {
         room.gameStatus = GameStatus.Ended;
         room.stopwatch.stop();
         room.globalPostGameStats.gameDuration = room.stopwatch.getTime();

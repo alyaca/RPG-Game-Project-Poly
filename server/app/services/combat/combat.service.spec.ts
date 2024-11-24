@@ -38,6 +38,7 @@ describe('CombatService', () => {
             stopGameTimers: jest.fn(),
             getActivePlayer: jest.fn(),
             resetGlobalStats: jest.fn(),
+            onEndGame: jest.fn(),
         } as unknown as jest.Mocked<GameService>;
 
         mockServer = {
@@ -239,8 +240,8 @@ describe('CombatService', () => {
             const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
             service.checkEndGame(winner, room, mockServer);
 
-            expect(mockGameService.stopGameTimers).toHaveBeenCalledWith(room);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endGame', { winner, room });
+            expect(mockGameService.onEndGame).toHaveBeenCalledWith(winner, room, mockServer);
+            // expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endGame', { winner, room });
         });
     });
     describe('evadingPlayer', () => {

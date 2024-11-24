@@ -11,8 +11,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
-import { GameStatus } from '@common/room';
-import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
