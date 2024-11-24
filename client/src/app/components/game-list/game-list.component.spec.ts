@@ -30,6 +30,7 @@ describe('GameListComponent', () => {
             'deleteGame',
             'setSelectedGame',
             'getAllGames',
+            'exportGame',
         ]);
 
         await TestBed.configureTestingModule({
@@ -119,6 +120,12 @@ describe('GameListComponent', () => {
         component.refreshGameList();
         expect(gameListServiceSpy.getAllGames).toHaveBeenCalled();
         expect(component.games).toEqual(mockGamesList);
+    });
+
+    it('should export game when export logo is clicked', () => {
+        const game = mockGames[0];
+        component.exportGame(game);
+        expect(gameListServiceSpy.exportGame).toHaveBeenCalledWith(game);
     });
 
     describe('convertMapDimension', () => {

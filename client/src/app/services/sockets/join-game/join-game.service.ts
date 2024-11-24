@@ -80,7 +80,7 @@ export class JoinGameService {
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'left') {
+            if (result.action === 'left') {
                 this.socketCommunicationService.send('leaveRoom', this.gameService.roomId);
                 this.router.navigate(['/home']);
             }

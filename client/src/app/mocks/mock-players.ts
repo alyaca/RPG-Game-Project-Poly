@@ -1,5 +1,5 @@
 import { defaultAttributes } from '@app/default-attributes';
-import { Player, PlayerStats, Status, Behavior } from '@common/player';
+import { Behavior, Player, PlayerStats, Status } from '@common/player';
 
 export const mockPlayerStats: PlayerStats = {
     totalHp: 4,

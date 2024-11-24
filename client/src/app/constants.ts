@@ -5,7 +5,7 @@ export enum MapSize {
 }
 
 export enum GameMode {
-    Classic = 'classic',
+    Classic = 'classique',
     Ctf = 'ctf',
 }
 // Constants for the number of items and spawn points for each type of map
@@ -108,11 +108,27 @@ export const DICE_6 = '4 + (1-6)';
 export const DEFAULT_ACTION_POINT = 1;
 export const DEFAULT_EVASION_POINT = 2;
 
+// Constants for the maximum size of a file
+export const BYTES_PER_KILOBYTE = 1024;
+export const MAX_FILE_SIZE_MB = 5;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE;
+
 export enum ErrorMessages {
     MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
     MissingName = 'Veuillez entrer un nom de personnage',
     MissingAvatar = 'Veuillez sélectionner un avatar',
     NameWithSpace = 'Le nom ne peut pas contenir des espaces',
+    TitleInvalidLength = '- Le titre de la carte doit avoir une longueur entre 3 et 30 caractères et ne pas uniquement contenir des espaces',
+    NameAlreadyExists = '- Une carte avec le même nom existe déjà',
+    InvalidFile = '- Le fichier est invalide',
+    InvalidTilesDimensions = '- Les dimensions des tuiles sont invalides',
+    InvalidDimension = '- Les dimensions de la carte sont invalides',
+    InvalidTileType = '- Un ou plusieurs types de tuiles sont invalides',
+    InvalidObjectType = "- Un ou plusieurs types d'objets sont invalides",
+    FileTooLarge = '- Le fichier est trop volumineux',
+    InvalidMode = '- Le mode de jeu est invalide',
+    InvalidNbPlayers = '- Le nombre de joueurs est invalide pour la taille de la carte sélectionnée',
+    InvalidNbObjects = "- Le nombre d'objets est invalide pour la taille de la carte sélectionnée",
 }
 
 // Constants for timer component
@@ -240,5 +256,7 @@ export enum TileCost {
     Ice = 0,
     OpenDoor = 1,
 }
+
+export const INVALID_TILES_TYPE = 999;
 
 export const INFO_DIALOG_TIME = 2000;

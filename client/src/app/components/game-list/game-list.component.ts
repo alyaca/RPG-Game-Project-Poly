@@ -104,6 +104,10 @@ export class GameListComponent implements OnInit {
         this.router.navigate(['/edit-map']);
     }
 
+    exportGame(game: Game) {
+        this.gameListService.exportGame(game);
+    }
+
     refreshGameList() {
         this.gameListService.getAllGames().subscribe((games) => {
             this.games = games;

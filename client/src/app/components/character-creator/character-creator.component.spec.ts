@@ -12,7 +12,7 @@ import {
 } from '@app/constants';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
-import { Status, Behavior } from '@common/player';
+import { Behavior, Status } from '@common/player';
 import { CharacterCreatorComponent } from './character-creator.component';
 import SpyObj = jasmine.SpyObj;
 
