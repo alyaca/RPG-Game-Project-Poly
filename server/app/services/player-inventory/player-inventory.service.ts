@@ -126,11 +126,11 @@ export class PlayerInventoryService {
         const room = this.roomService.getRoom(infoSwap.client);
         this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[0].id);
         this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
-
+        
         room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
         this.roomService.updateRoomMap(room);
-        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
-        infoSwap.server.to(room.roomId).emit('updateTile', infoSwap.droppedItem); // should visually update the tile after swapping
+        // infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
+        infoSwap.server.to(room.roomId).emit('updateTile', {player : infoSwap.player, wasDropped : true}); // should visually update the tile after swapping
         return infoSwap.player;
     }
 }

@@ -149,9 +149,11 @@ export class GameService {
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
-            console.log("what's on the tile? ");
-            console.log(room.gameMap.itemPlacement[tile.x][tile.y]);
-            // THE FULL OBJECT IS ON THE TILE EXCEPT OF JUST THE NUMBER
+            // it puts the item but then as soon the player moves from the tile, the item disappears.
+            // but, the item is still available
+            // except for the kunee/armor
+            // the tile on which they are either dropped or just left there is not accessible after the swap
+            // no matter which item is picked up
             if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
                 this.playerInventoryService.updateInventory(
                     server,
@@ -161,7 +163,6 @@ export class GameService {
                     room.gameMap.itemPlacement[tile.x][tile.y],
                 );
             }
-            // the items are not removing themselves from the itemPlacement matrix
 
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);

@@ -45,13 +45,22 @@ export class NavigationService {
         this.objects = items;
     }
 
-    updateTile(activePlayer: Player, itemToPlace: number): void {
+    updateTile(activePlayer: Player, wasDropped : boolean): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
-            console.log()
-            this.positions[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
-            this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
+            // player picture gets doubled, but the actual one controlled stays the same
+            if(wasDropped)
+            {
+                console.log("dropped item, putting it on the ground");
+                this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+            }
+            else
+            {
+                console.log("didn't drop item");
+                this.objects[activePlayer.position.x][activePlayer.position.y] = 0;
+            }
+            // this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
         }
