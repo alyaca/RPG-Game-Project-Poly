@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { PostGameService } from '@app/services/post-game/post-game.service';
-// import { LigmaPlayer } from '@app/services/post-game/post-game.service';
 import { Player } from '@common/player';
 @Component({
     selector: 'app-post-game-attribute',

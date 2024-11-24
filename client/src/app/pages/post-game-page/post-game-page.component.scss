@@ -13,8 +13,6 @@
     margin-left: 5%;
     font-size: 1.2rem;
     flex: 1 1 35%;
-
-    // background-color: blue;
 }
 
 .explanations {
@@ -73,9 +71,6 @@
 
 
 .chat {
-    //display: flex;
-    // align-items: center;
-    // justify-content: center;
     width: 50%; 
     margin-top: 80%;
     margin-left: 1.5vw;
@@ -144,8 +139,7 @@
     color: #d2d2d2; 
   }
   
-  .global-attribute .value {
-    //font-family: 'Franklin Gothic Medium';
+.global-attribute .value {
     font-size: 1.2rem;
     color: #ffffff;
-  }
+}

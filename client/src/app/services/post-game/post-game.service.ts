@@ -43,8 +43,6 @@ export class PostGameService {
         nbFlagBearers: 0,
     };
 
-    // globalStats: GlobalPostGameStats;
-
     players: Player[];
     tilesGrid: number[][];
     isCTFMode: boolean;
@@ -196,7 +194,6 @@ export class PostGameService {
     calculatePlayerTilesVisited() {
         for (const player of this.players) {
             player.postGameStats.tilesVisited = this.calculateInteractionPct(player.positionHistory, this.findTotalTerrainTiles());
-            // console.log(player.name + ": " + player.postGameStats.tilesVisited);
         }
     }
 
@@ -235,77 +232,4 @@ export class PostGameService {
             this.doorsInteractedPct += '%';
         }
     }
-
-    // temporary
-    // initTempStats(){
-    //   for(let i = 0; i < this.players.length; i++){
-    //     this.players[i].postGameStats = this.tempPlayerStats[i];
-    //   }
-    //   this.globalStats = {
-    //     gameDuration: '00:00',
-    //     turns: 16,
-    //     globalTilesVisited: 30,
-    //     doorsInteracted: 50,
-    //     nbFlagBearers: 0,
-    //   }
-    // }
-
-    // temporary
-    //   tempPlayerStats: PostGameStats[] = [{
-    //     combats: 5,
-    //     victories: 3,
-    //     evasions: 1,
-    //     defeats: 1,
-    //     dmgDealt: 20,
-    //     dmgTaken: 12,
-    //     itemsObtained: 2,
-    //     tilesVisited: 78.2
-    //   },{
-    //     combats: 5,
-    //     victories: 2,
-    //     evasions: 1,
-    //     defeats: 2,
-    //     dmgDealt: 15,
-    //     dmgTaken: 17,
-    //     itemsObtained: 3,
-    //     tilesVisited: 82.5
-    //   },
-    //   {
-    //     combats: 4,
-    //     victories: 1,
-    //     evasions: 2,
-    //     defeats: 1,
-    //     dmgDealt: 14,
-    //     dmgTaken: 11,
-    //     itemsObtained: 2,
-    //     tilesVisited: 55.1,
-    //   },{
-    //     combats: 3,
-    //     victories: 1,
-    //     evasions: 1,
-    //     defeats: 1,
-    //     dmgDealt: 10,
-    //     dmgTaken: 15,
-    //     itemsObtained: 1,
-    //     tilesVisited: 67.0,
-    //   },{
-    //     combats: 3,
-    //     victories: 0,
-    //     evasions: 1,
-    //     defeats: 2,
-    //     dmgDealt: 8,
-    //     dmgTaken: 12,
-    //     itemsObtained: 1,
-    //     tilesVisited: 52.4,
-    //   },{
-    //     combats: 2,
-    //     victories: 0,
-    //     evasions: 1,
-    //     defeats: 1,
-    //     dmgDealt: 5,
-    //     dmgTaken: 8,
-    //     itemsObtained: 0,
-    //     tilesVisited: 42.8,
-    //   }
-    // ]
 }
