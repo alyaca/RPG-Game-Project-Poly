@@ -785,24 +785,24 @@ describe('GameService', () => {
     });
 
     it('should kick a bot, update avatars, and notify clients', () => {
-        const mockRoom = mockRooms[2];
+        const botRoom = mockRooms[2];
         const botId = 'bot';
-        const botPlayer = mockRoom.listPlayers.find((player) => player.id === botId);
+        const botPlayer = botRoom.listPlayers.find((player) => player.id === botId);
         if (botPlayer) {
             botPlayer.avatar = avatars[0];
             botPlayer.avatar.isTaken = true;
         }
-        jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
+        jest.spyOn(roomService, 'getRoom').mockReturnValue(botRoom);
         service.updateAvatarsForAllClients = jest.fn();
 
         service.onKickBot(mockSocket, botId, mockServer);
 
         expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
-        expect(mockRoom.listPlayers).not.toContainEqual(expect.objectContaining({ id: botId }));
-        expect(mockRoom.listPlayers.find((player) => player.id === botId)).toBeUndefined();
+        expect(botRoom.listPlayers).not.toContainEqual(expect.objectContaining({ id: botId }));
+        expect(botRoom.listPlayers.find((player) => player.id === botId)).toBeUndefined();
         expect(mockServer.to(botId).emit).toHaveBeenCalledWith('kickPlayer', botId);
-        expect(mockServer.to(mockRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', mockRoom);
-        expect(service.updateAvatarsForAllClients).toHaveBeenCalledWith(mockServer, mockRoom.roomId);
+        expect(mockServer.to(botRoom.roomId).emit).toHaveBeenCalledWith('updatedPlayer', botRoom);
+        expect(service.updateAvatarsForAllClients).toHaveBeenCalledWith(mockServer, botRoom.roomId);
     });
 
     it('should emit to client on emitStartGameEvents', () => {

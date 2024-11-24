@@ -364,7 +364,6 @@ describe('SocketGateway', () => {
     });
 
     it('should call set tiles doorAction event', () => {
-        const mockPlayer = { position: { x: 1, y: 1 } } as Player;
         jest.spyOn(gameService, 'handleDoor');
         const doorActionData: DoorActionData = { clickedPosition: { x: 0, y: 0 }, player: mockPlayer };
 
