@@ -4,7 +4,6 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CommonModule } from '@angular/common';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { PostGameAttributeComponent } from '@app/components/post-game-attribute/post-game-attribute.component';
-import { StopwatchService } from '@app/services/stopwatch/stopwatch.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { defaultGlobalStats } from '@app/mocks/default-global-stats';
@@ -22,7 +21,6 @@ export class PostGamePageComponent implements OnInit, OnDestroy {
         public socketCommunicationService: SocketCommunicationService,
         public navigationService: NavigationService,
         public postGameService: PostGameService,
-        public stopwatchService: StopwatchService,
         public gameService: GameService,
     ) {}
 
