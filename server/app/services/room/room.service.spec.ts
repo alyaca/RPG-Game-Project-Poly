@@ -9,6 +9,7 @@ import { GameStatus } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { RoomService } from './room.service';
+import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 
 describe('RoomService', () => {
     let service: RoomService;
@@ -187,6 +188,7 @@ describe('RoomService', () => {
             adminId: mockSocket.id,
             isLocked: false,
             gameStatus: GameStatus.Lobby,
+            globalPostGameStats: defaultGlobalStats,
         };
         expect(chatService.deleteMessagesByRoom).toHaveBeenCalledWith(roomId);
         expect(room).toEqual(expectedRoom);

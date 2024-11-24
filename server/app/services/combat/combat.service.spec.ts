@@ -1,6 +1,6 @@
 import { Timer } from '@app/classes/timer/timer';
 import { EVASION_SUCCESS_RATE } from '@app/constants';
-import { mockPlayers } from '@app/mocks/mock-players';
+import { defaultPostGameStats, mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
@@ -134,6 +134,7 @@ describe('CombatService', () => {
             service.attacker = player1;
             service.defender = player2;
             service.emitToCombatPlayers = jest.fn();
+            service.addDmgStats = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
             service.onEndTurn = jest.fn();
             service.getRandomValue = jest.fn().mockReturnValueOnce(5).mockReturnValueOnce(2);
@@ -182,8 +183,8 @@ describe('CombatService', () => {
             expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
         });
         it('should return false when player has hp', () => {
-            const player1 = { id: '1', attributes: { currentHp: 6, totalHp: 10 }, victories: 0 } as Player;
-            const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
+            const player1 = { id: '1', attributes: { currentHp: 6, totalHp: 10 }, postGameStats: {victories: 0} } as Player;
+            const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, postGameStats: {victories: 0} } as Player;
 
             mockRoomService.getRoom.mockReturnValue(room);
             mockGameService.getActivePlayer.mockReturnValue(player2);
@@ -227,18 +228,18 @@ describe('CombatService', () => {
 
     describe('checkEndGame', () => {
         it('should not emit endGame if no player has reached the victory threshold', () => {
-            const player1 = { id: '1', victories: 2 } as Player;
+            const player1 = { id: '1', postGameStats: {victories: 2} } as Player;
             service.checkEndGame(player1, room, mockServer);
 
             expect(mockGameService.stopGameTimers).not.toHaveBeenCalled();
             expect(mockServer.to(room.roomId).emit).not.toHaveBeenCalled();
         });
         it('should emit endGame if player has reached the victory threshold', () => {
-            const player = { id: '1', victories: 3 } as Player;
-            service.checkEndGame(player, room, mockServer);
+            const winner = { id: '1', postGameStats: {victories: 3} } as Player;
+            service.checkEndGame(winner, room, mockServer);
 
             expect(mockGameService.stopGameTimers).toHaveBeenCalledWith(room);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endGame', player);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endGame', {winner, room});
         });
     });
     describe('evadingPlayer', () => {
@@ -248,6 +249,7 @@ describe('CombatService', () => {
             mockRoomService.getRoom.mockReturnValue(mockRooms[0]);
             service.emitToCombatPlayers = jest.fn();
             service.continueTurn = jest.fn();
+            service.addDraws = jest.fn();
             service.attacker = attacker;
             jest.spyOn(service, 'isEvasionSuccessful').mockReturnValue(true);
 
@@ -272,12 +274,13 @@ describe('CombatService', () => {
     });
 
     it('should addVictory combat finish', () => {
-        const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, victories: 0 } as Player;
-        const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
+        const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, postGameStats: {victories: 0} } as Player;
+        const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, postGameStats: {victories: 0} } as Player;
 
         mockRoomService.getRoom.mockReturnValue(mockRooms[0]);
         service.emitToCombatPlayers = jest.fn();
         service.addVictory = jest.fn();
+        service.addDefeat = jest.fn();
 
         service.combatFinish(mockClient, player1, player2, mockServer);
 
