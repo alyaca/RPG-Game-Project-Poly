@@ -5,7 +5,6 @@ import { Avatar, Player } from './player';
 export enum GameStatus {
     Lobby = 'lobby',
     Started = 'started',
-    Paused = 'paused',
 }
 export interface Room {
     gameMap: Game;
@@ -16,4 +15,5 @@ export interface Room {
     isLocked: boolean;
     gameStatus: GameStatus;
     navigation?: Navigation;
+    isDebug?: boolean ;
 }

@@ -67,12 +67,16 @@ export class CombatService {
     }
 
     getCombatValues() {
+        // const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
         const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
+
         const attackValue = {
             total: this.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
+        // const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
         const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
+
         const defenseValue = {
             total: this.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,
@@ -129,7 +133,7 @@ export class CombatService {
             this.combatFinish(client, defender, attacker, server);
             if (activePlayer.id !== defender.id) {
                 this.continueTurn(client, server);
-                const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
+                const reachability = room.navigation.findReachableTiles(attacker, room);
                 server.to(room.roomId).emit('reachableTiles', reachability);
             } else {
                 this.combatEnded(room);
