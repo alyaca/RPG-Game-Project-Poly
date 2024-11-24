@@ -1,4 +1,4 @@
-<div class="player-stats" [ngClass]="{'active': player.isActive === true}">
+<div class="player-stats" [ngClass]="{'active': player.id === socketCommunicationService.socket.id}">
     <div class="player">
         <img class="player-img" [ngClass]="getStatusClass()" [src]="player.avatar?.src" alt="player-avatar">
         @if (isWinner()){

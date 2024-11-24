@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Player } from '@common/player';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { TOTAL_PERCENTAGE, VICTORIES_FOR_WIN } from '@app/constants';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 @Component({
     selector: 'app-player-statistics',
     standalone: true,
@@ -14,7 +15,7 @@ export class PlayerStatisticsComponent {
     @Input() player: Player;
     @Input() selectedAttribute: string;
 
-    constructor(private postGameService: PostGameService) {}
+    constructor(private postGameService: PostGameService, public socketCommunicationService: SocketCommunicationService) {}
 
     isWinner() {
         return this.player.postGameStats.victories === VICTORIES_FOR_WIN;
