@@ -46,24 +46,25 @@ export class NavigationService {
         this.objects = items;
     }
 
-    updateTile(activePlayer: Player, wasDropped : boolean): void {
+    updateTile(activePlayer: Player, wasDropped : boolean, droppedItem : number): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
         } else if (this.isObject(activePlayer.position)) {
-            // player picture gets doubled, but the actual one controlled stays the same
+            // when picking up an item(not swapping), the profile picture will stay there, but when swapping an item,
+            // it will put the item on the ground correctly
             if(wasDropped)
             {
-                console.log("dropped item, putting it on the ground");
-                this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+                this.positions[activePlayer.position.x][activePlayer.position.y] = droppedItem;
+                this.objects[activePlayer.position.x][activePlayer.position.y] = droppedItem;
             }
-            else
-            {
-                console.log("didn't drop item");
-                this.objects[activePlayer.position.x][activePlayer.position.y] = 0;
-            }
-            // this.objects[activePlayer.position.x][activePlayer.position.y] = itemToPlace!;
+            // else
+            // {
+            //     this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
+            //     this.objects[activePlayer.position.x][activePlayer.position.y] = 0;
+            // }
         } else {
             this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
+            this.objects[activePlayer.position.x][activePlayer.position.y] = 0;
         }
     }
 

@@ -14,6 +14,7 @@ import {
     ViewChild,
 } from '@angular/core';
 
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -29,7 +30,6 @@ import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 
 @Component({
     selector: 'app-game-grid',
@@ -169,8 +169,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('updateTile', (data : {player : Player; wasDropped : boolean}) => {
-            this.navigationService.updateTile(data.player, data.wasDropped);
+        this.socketCommunicationService.on('updateTile', (data : {player : Player; wasDropped : boolean, droppedItem : number}) => {
+            this.navigationService.updateTile(data.player, data.wasDropped, data.droppedItem);
         });
 
         this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
@@ -415,7 +415,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
         if (!playerToReplace) return;
         playerToReplace.position = position;
-        this.navigationService.updateTile(playerToReplace, false);
+        this.navigationService.updateTile(playerToReplace, false, 0);
         playerToReplace = player;
         this.placeAvatarOnTile(playerToReplace);
     }
@@ -424,7 +424,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.reachableTiles = [];
         this.fastestPath = [];
         if (this.activePlayer) {
-            this.navigationService.updateTile(this.activePlayer, false);
+            this.navigationService.updateTile(this.activePlayer, false, 0);
             this.activePlayer.position = position;
             this.placeAvatarOnTile(this.activePlayer);
         }
