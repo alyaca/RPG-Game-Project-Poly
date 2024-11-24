@@ -12,6 +12,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from './socket.gateway';
+/* eslint-disable max-lines */
 
 /* eslint-disable max-lines */
 describe('SocketGateway', () => {
@@ -443,6 +444,27 @@ describe('SocketGateway', () => {
         gateway.handleDebugMode(mockClient, debugMode);
         expect(gameService.updateLogsDebugMode).toHaveBeenCalledWith(debugMode, server, mockClient);
         expect(server.to(roomId).emit).toHaveBeenCalledWith('debugMode', debugMode);
+    });
+
+    it('should call startFight startFight event', () => {
+        const player1 = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
+        const player2 = { id: '2', attributes: { defense: 5, defDiceMax: 6, currentHp: 5 } } as Player;
+        const isPlayer1Active = true;
+        combatService.startFight = jest.fn();
+        gateway.handleStartFight(mockClient, { player1, player2, isPlayer1Active });
+        expect(combatService.startFight).toHaveBeenCalled();
+    });
+
+    it('should call attackPlayer attackPlayer event', () => {
+        combatService.attackPlayer = jest.fn();
+        gateway.handleAttackPlayer(mockClient);
+        expect(combatService.attackPlayer).toHaveBeenCalled();
+    });
+
+    it('should call evadingPlayer evadingPlayer event', () => {
+        combatService.evadingPlayer = jest.fn();
+        gateway.handleEvadeCombat(mockClient, mockPlayer);
+        expect(combatService.evadingPlayer).toHaveBeenCalled();
     });
 
     it('should call startFight startFight event', () => {

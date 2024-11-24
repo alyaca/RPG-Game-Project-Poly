@@ -3,4 +3,5 @@ export interface DialogData {
     messages: string[];
     options: string[];
     confirm: boolean;
+    isInput?: boolean;
 }

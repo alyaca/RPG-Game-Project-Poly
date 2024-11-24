@@ -28,6 +28,7 @@ describe('SimpleDialogComponent', () => {
                         title: 'Test title',
                         confirm: true,
                         options: ['option1', 'option2'],
+                        isInput: true,
                     },
                 },
                 { provide: Router, useValue: mockRouter },
@@ -45,29 +46,92 @@ describe('SimpleDialogComponent', () => {
 
     it('should close dialog with "left" when onClose is called with confirm true', () => {
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'left',
+            input: '',
+        });
     });
 
     it('should close dialog with "close" when onClose is called with confirm false', () => {
         component.data.confirm = false;
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('close');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'close',
+            input: '',
+        });
     });
 
     it('should close dialog with "right" when onCancel is called', () => {
+        component.inputValue = 'Test Input';
+
         component.onCancel();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('right');
+
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'right',
+            input: 'Test Input',
+        });
     });
 
     it('should navigate to /administration when title is "Sauvegarde réussie"', () => {
         component.data.title = 'Sauvegarde réussie';
         component.onClose();
-        expect(dialogRefSpy.close).toHaveBeenCalledWith('left');
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'left',
+            input: '',
+        });
         expect(mockRouter.navigate).toHaveBeenCalledWith(['/administration']);
     });
 
     it('should close dialog when close is called', () => {
         component.close();
         expect(dialogRefSpy.close).toHaveBeenCalled();
+    });
+
+    it('should pass the input value when onClose is called', () => {
+        component.inputValue = 'Test Input';
+        component.onClose();
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'left',
+            input: 'Test Input',
+        });
+    });
+
+    it('should pass null as input when onClose is called and isInput is false', () => {
+        component.data.isInput = false;
+        component.onClose();
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'left',
+            input: null,
+        });
+    });
+
+    it('should pass the input value when onCancel is called', () => {
+        component.inputValue = 'Test Input';
+        component.onCancel();
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'right',
+            input: 'Test Input',
+        });
+    });
+
+    it('should pass null as input when onCancel is called and isInput is false', () => {
+        component.data.isInput = false;
+        component.onCancel();
+        expect(dialogRefSpy.close).toHaveBeenCalledWith({
+            action: 'right',
+            input: null,
+        });
+    });
+
+    it('should set showError to true if onCancel is called with empty input and confirm is true', () => {
+        component.inputValue = '';
+        component.onCancel();
+        expect(component.showError).toBeTrue();
+    });
+
+    it('should reset showError to false after a valid onCancel call', () => {
+        component.inputValue = 'Valid Input';
+        component.onCancel();
+        expect(component.showError).toBeFalse();
     });
 });
