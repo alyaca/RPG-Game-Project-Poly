@@ -135,6 +135,7 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.MaxPlayers],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    itemSwap : null,
                 });
             } else {
                 this.gameService.openDialog({
@@ -142,6 +143,7 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.AddBotWhenLocked],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    itemSwap: null,
                 });
             }
             return;

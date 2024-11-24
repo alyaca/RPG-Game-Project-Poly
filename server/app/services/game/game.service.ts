@@ -2,6 +2,7 @@ import { Navigation } from '@app/classes/navigation/navigation';
 import {
     DEFAULT_ATTRIBUTE,
     EQUAL_ODDS_PROBABILITY,
+    FALLING_PROBABILITY,
     HIGH_ATTRIBUTE,
     MOVEMENT_TIME,
     SINGLE_PLAYER,
@@ -370,15 +371,6 @@ export class GameService {
         }
     }
 
-    private updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
-        const listPlayers = this.getPlayerConnectedInRoom(room);
-        const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        const nextIndex = (index + 1) % listPlayers.length;
-        listPlayers[index].isActive = false;
-        listPlayers[nextIndex].isActive = true;
-    }
-
     private getCost(tileType: number, activePlayer: Player): number {
         switch (tileType) {
             case TileType.Ground:
@@ -547,11 +539,13 @@ export class GameService {
         listPlayers[nextIndex].isActive = true;
     }
 
-    private updateAvatarsForAllClients(server: Server, roomId: string) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
-            if (clientSocket.rooms.has(roomId)) {
-                this.sendAvatarListToClient(clientSocket);
-            }
-        });
-    }
+    // private updateActivePlayer(socket: Socket) {
+    //     const room = this.roomService.getRoom(socket);
+    //     const listPlayers = this.getPlayerConnectedInRoom(room);
+    //     const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+    //     const nextIndex = (index + 1) % listPlayers.length;
+    //     listPlayers[index].isActive = false;
+    //     listPlayers[nextIndex].isActive = true;
+    // }
+
 }

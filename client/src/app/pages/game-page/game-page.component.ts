@@ -11,6 +11,7 @@ import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME
 // import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { ItemSwap } from '@common/item-swap';
@@ -65,6 +66,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public combatService: CombatService,
+        private navigationService : NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
