@@ -169,6 +169,7 @@ export class GameService {
         if (!this.isMoving) {
             this.updateActivePlayer(client);
             const activePlayer = this.getActivePlayer(room);
+            activePlayer.attributes.actionPoints = activePlayer.attributes.maxActionPoints;
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
             server.to(room.roomId).emit('reachability', activePlayer);
             server.to(room.roomId).emit('isActive', activePlayer);
@@ -316,9 +317,9 @@ export class GameService {
 
         if (!room.navigation.haveActions(activePlayer, players) && reachableTileCount === 0) {
             return true;
-        } else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.haveActions(activePlayer, players)) {
+        } else if (!room.navigation.hasMovementPoints(activePlayer) && !room.navigation.haveActions(activePlayer, players)) {
             return true;
-        } else if (activePlayer.attributes.movementPointsLeft === 0 && !room.navigation.hasActionPoints(activePlayer)) {
+        } else if (!room.navigation.hasMovementPoints(activePlayer) && !room.navigation.hasActionPoints(activePlayer)) {
             return true;
         }
         return false;
@@ -331,9 +332,13 @@ export class GameService {
 
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
+            activePlayer.attributes.actionPoints = 0;
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
+            if (this.checkEndTurn(client, activePlayer)) {
+                this.onTurnEnded(client, server);
+            }
         }
     }
 

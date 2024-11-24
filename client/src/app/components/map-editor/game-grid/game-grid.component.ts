@@ -13,6 +13,7 @@ import {
     ViewChild,
 } from '@angular/core';
 
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -27,7 +28,6 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 
 @Component({
     selector: 'app-game-grid',
@@ -353,8 +353,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleTileClick(row: number, col: number) {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
-            const clickedTile: Position = { x: row, y: col };
-            this.socketCommunicationService.send('doorAction', { position: clickedTile, player: this.activePlayer });
+            const position: Position = { x: row, y: col };
+            this.socketCommunicationService.send('doorAction', { clickedPosition: position, player: this.activePlayer });
             return;
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleFightAction(row, col);

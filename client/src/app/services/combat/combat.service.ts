@@ -81,11 +81,6 @@ export class CombatService {
             this.combatStatus = player.name + ' a échoué son attaque.';
         });
 
-        this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
-            this.isRolling = false;
-            this.onEvasion(player);
-        });
-
         this.socketCommunicationService.on('evasionFail', (player: Player) => {
             this.combatStatus = player.name + " n'a pas réussi à s'évader.";
             const evasionsLeft = this.isAttacker(this.activePlayer) ? this.evasionsActivePlayer : this.evasionsOpponent;

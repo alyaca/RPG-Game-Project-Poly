@@ -99,10 +99,9 @@ export class CombatService {
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
             this.logService.sendPlayerLog(room.roomId, server, combatPlayers.attacker, LogType.EvadeCombat);
-            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', combatPlayers.attacker);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
-            this.emitToCombatPlayers(server, combatPlayers, 'combatEnd', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
         } else {
             this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', combatPlayers.attacker);
             combatInfos.failEvasion = true;

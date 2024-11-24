@@ -125,7 +125,7 @@ export class GameService {
             confirm: false,
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
-                this.router.navigate(['/join-game']);
+                this.router.navigate(['/home']);
             }
         });
     }

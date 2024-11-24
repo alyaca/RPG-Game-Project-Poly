@@ -106,10 +106,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('combatEnd', (data: { listPlayers: Player[]; player: Player }) => {
-            this.allPlayers = data.listPlayers;
-            this.combatService.isRolling = false;
-            this.activePlayer.attributes.actionPoints = 0;
+            this.setPlayersOnCombatDone(data.listPlayers);
             this.combatService.onCombatEnd(data.player);
+        });
+
+        this.socketCommunicationService.on('evasionSuccess', (data: { listPlayers: Player[]; player: Player }) => {
+            this.setPlayersOnCombatDone(data.listPlayers);
+            this.combatService.onEvasion(data.player);
         });
 
         this.socketCommunicationService.on('playerFell', () => {
@@ -207,6 +210,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.gameService.openTempDialog({ title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME }).subscribe(() => {
             this.onEndTurn();
         });
+    }
+
+    setPlayersOnCombatDone(players: Player[]) {
+        this.allPlayers = players;
+        this.combatService.isRolling = false;
+        this.activePlayer.attributes.actionPoints = 0;
     }
 
     getPlayerCount() {
