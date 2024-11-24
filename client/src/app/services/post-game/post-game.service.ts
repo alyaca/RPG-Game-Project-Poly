@@ -207,7 +207,6 @@ export class PostGameService {
         this.globalStats = room.globalPostGameStats;
         this.isCTFMode = room.gameMap.mode === GameMode.Ctf;
 
-
         for (const player of this.players) {
             const matchingPlayer = room.listPlayers.find((p) => p.id === player.id);
             if (matchingPlayer) {

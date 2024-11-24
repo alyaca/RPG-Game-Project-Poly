@@ -124,7 +124,7 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         });
 
         this.socketCommunicationService.once('endGame', (data: { winner: Player; room: Room }) => {
-            //this.stopwatchService.stop();
+            // this.stopwatchService.stop();
             this.postGameService.transferRoomStats(data.room);
 
             // for(const position of this.postGameService.globalStats.globalTilesVisited){
