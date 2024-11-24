@@ -10,6 +10,7 @@ export class Navigation {
     path: Position[];
     players: Player[];
     positions: number[][];
+    isBot: boolean = false;
     private reachableTiles: Position[];
     private distances: number[][];
     private previous: Position[][];
@@ -155,6 +156,20 @@ export class Navigation {
         return player?.attributes.actionPoints > 0;
     }
 
+    findClosestPlayer(player: Player, players: Player[], room: Room): Player | undefined {
+        const reachability = this.findReachableTiles(player, room);
+        let playerOnTile: Player | undefined = undefined;
+        for (const tile of reachability) {
+            for (const pl of players) {
+                if (pl.position.x === tile.x && pl.position.y === tile.y) {
+                    playerOnTile = pl;
+                    break;
+                }
+            }
+        }
+        return playerOnTile;
+    }
+
     private findAllTilesDebug() {
         const reachableTiles: Position[] = [];
         for (let i = 0; i < this.gameMap.dimension; i++) {
@@ -188,7 +203,10 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            ///////
+            if (!this.isBot) {
+                if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            }
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -214,7 +232,9 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            if (!this.isBot) {
+                if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            }
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
