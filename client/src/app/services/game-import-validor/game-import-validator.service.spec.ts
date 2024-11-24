@@ -1,5 +1,19 @@
 import { TestBed } from '@angular/core/testing';
-import { ErrorMessages, INVALID_TILES_TYPE, NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TEST_INVALID_SIZE, TileType } from '@app/constants';
+import {
+    ErrorMessages,
+    GameMode,
+    INVALID_TILES_TYPE,
+    MAX_PLAYER_LARGE_MAP,
+    MAX_PLAYER_MEDIUM_MAP,
+    MAX_PLAYER_SMALL_MAP,
+    NO_OBJECT,
+    ObjectType,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+    TEST_INVALID_SIZE,
+    TileType,
+} from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
@@ -49,7 +63,10 @@ describe('GameImportValidatorService', () => {
             mockGame.itemPlacement = Array.from({ length: validDimension }, () => Array(validDimension).fill(NO_OBJECT));
 
             mockGame.itemPlacement[0][0] = ObjectType.Spawn;
-            mockGame.nbPlayers = 1;
+            mockGame.itemPlacement[0][1] = ObjectType.Spawn;
+            mockGame.itemPlacement[1][0] = ObjectType.Sandal;
+            mockGame.itemPlacement[1][1] = ObjectType.Trident;
+            mockGame.nbPlayers = 2;
 
             mockGame.dimension = validDimension;
 
@@ -154,6 +171,61 @@ describe('GameImportValidatorService', () => {
             expect(errors).toContain(ErrorMessages.InvalidObjectType);
         });
 
+        it('should validate the number of objects for a small map', async () => {
+            mockGame.dimension = SIZE_SMALL_MAP;
+            mockGame.itemPlacement = [
+                [ObjectType.Sandal, NO_OBJECT],
+                [ObjectType.Trident, ObjectType.Spawn],
+            ];
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidNbObjects);
+
+            mockGame.itemPlacement = [
+                [ObjectType.Sandal, ObjectType.Sandal],
+                [ObjectType.Trident, ObjectType.Spawn],
+            ];
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbObjects);
+        });
+
+        it('should validate the number of objects for a medium map', async () => {
+            mockGame.dimension = SIZE_MEDIUM_MAP;
+            mockGame.itemPlacement = [
+                [NO_OBJECT, ObjectType.Sandal, NO_OBJECT],
+                [ObjectType.Trident, ObjectType.Spawn, ObjectType.Sandal],
+                [NO_OBJECT, NO_OBJECT, ObjectType.Trident],
+            ];
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidNbObjects);
+
+            mockGame.itemPlacement = [
+                [ObjectType.Sandal, ObjectType.Sandal, ObjectType.Sandal],
+                [ObjectType.Trident, ObjectType.Spawn, ObjectType.Sandal],
+                [ObjectType.Sandal, ObjectType.Trident, ObjectType.Sandal],
+            ];
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbObjects);
+        });
+
+        it('should validate the number of objects for a large map', async () => {
+            mockGame.dimension = SIZE_LARGE_MAP;
+            mockGame.itemPlacement = Array.from({ length: SIZE_LARGE_MAP }, () => Array(SIZE_LARGE_MAP).fill(NO_OBJECT));
+            mockGame.itemPlacement[0][0] = ObjectType.Sandal;
+            mockGame.itemPlacement[0][1] = ObjectType.Trident;
+            mockGame.itemPlacement[0][2] = ObjectType.Sandal;
+            mockGame.itemPlacement[0][3] = ObjectType.Trident;
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidNbObjects);
+
+            mockGame.itemPlacement[0][4] = ObjectType.Sandal;
+            mockGame.itemPlacement[0][5] = ObjectType.Trident;
+            mockGame.itemPlacement[0][6] = ObjectType.Sandal;
+            mockGame.itemPlacement[0][7] = ObjectType.Trident;
+            mockGame.itemPlacement[0][8] = ObjectType.Sandal;
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbObjects);
+        });
+
         it('should validate title length and content', async () => {
             mockGame.name = '';
 
@@ -179,6 +251,49 @@ describe('GameImportValidatorService', () => {
 
             const errors = await service.validateMap(mockGame);
             expect(errors).toContain('- Pas toutes les tuiles de terrain sont accessibles');
+        });
+
+        it('should validate the game mode', async () => {
+            mockGame.mode = 'InvalidMode';
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidMode);
+
+            mockGame.mode = GameMode.Classic;
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidMode);
+        });
+
+        it('should validate the number of players for a small map', async () => {
+            mockGame.dimension = SIZE_SMALL_MAP;
+            mockGame.nbPlayers = MAX_PLAYER_SMALL_MAP;
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidNbPlayers);
+
+            mockGame.nbPlayers = MAX_PLAYER_SMALL_MAP + 1;
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbPlayers);
+        });
+
+        it('should validate the number of players for a medium map', async () => {
+            mockGame.dimension = SIZE_MEDIUM_MAP;
+            mockGame.nbPlayers = MAX_PLAYER_MEDIUM_MAP;
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidNbPlayers);
+
+            mockGame.nbPlayers = MAX_PLAYER_MEDIUM_MAP + 1;
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbPlayers);
+        });
+
+        it('should validate the number of players for a large map', async () => {
+            mockGame.dimension = SIZE_LARGE_MAP;
+            mockGame.nbPlayers = MAX_PLAYER_LARGE_MAP;
+            const noErrors = await service.validateMap(mockGame);
+            expect(noErrors).not.toContain(ErrorMessages.InvalidNbPlayers);
+
+            mockGame.nbPlayers = MAX_PLAYER_LARGE_MAP + 1;
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbPlayers);
         });
     });
 

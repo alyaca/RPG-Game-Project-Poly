@@ -5,7 +5,7 @@ export enum MapSize {
 }
 
 export enum GameMode {
-    Classic = 'classic',
+    Classic = 'classique',
     Ctf = 'ctf',
 }
 // Constants for the number of items and spawn points for each type of map
@@ -126,6 +126,9 @@ export enum ErrorMessages {
     InvalidTileType = '- Un ou plusieurs types de tuiles sont invalides',
     InvalidObjectType = "- Un ou plusieurs types d'objets sont invalides",
     FileTooLarge = '- Le fichier est trop volumineux',
+    InvalidMode = '- Le mode de jeu est invalide',
+    InvalidNbPlayers = '- Le nombre de joueurs est invalide pour la taille de la carte sélectionnée',
+    InvalidNbObjects = "- Le nombre d'objets est invalide pour la taille de la carte sélectionnée",
 }
 
 // Constants for timer component

@@ -16,7 +16,7 @@ export const dummyMap: Game = {
     name: 'map name',
     description: 'description',
     visible: true,
-    mode: 'normal',
+    mode: 'classique',
     image: 'image source',
     nbPlayers: NB_ITEMS_MEDIUM_MAP,
     tiles: [[TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground]],
@@ -54,7 +54,7 @@ export const mockNeighborGame: Game = {
     name: 'map name',
     description: 'description for map',
     visible: true,
-    mode: 'normal',
+    mode: 'classique',
     nbPlayers: 1,
     image: 'image for map',
     tiles: [

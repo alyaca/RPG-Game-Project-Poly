@@ -2,11 +2,16 @@ import { Injectable } from '@angular/core';
 import {
     DIRECTIONS,
     ErrorMessages,
+    GameMode,
     MAX_LEN_MAP_DESCRIPTION,
     MAX_LEN_MAP_TITLE,
+    MAX_PLAYER_LARGE_MAP,
+    MAX_PLAYER_MEDIUM_MAP,
+    MAX_PLAYER_SMALL_MAP,
     MIN_LEN_MAP_DESCRIPTION,
     MIN_LEN_MAP_TITLE,
     NO_OBJECT,
+    OBJECT_COUNT_MAP,
     ObjectType,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
@@ -36,11 +41,13 @@ export class GameImportValidatorService {
         this.validateAllDoors(game.tiles);
         this.validateAllSpawnPointsPlaced(game);
         this.validateTiles(game.tiles);
-        this.validateObjects(game.itemPlacement);
+        this.validateObjects(game.itemPlacement, game.dimension);
         this.validateTileAccessibility(game.tiles);
         this.validateTitle(game.name);
         this.validateDimensions(game.tiles, game.itemPlacement, game.dimension);
         this.validateDescription(game.description);
+        this.validateMode(game.mode);
+        this.validateNbPlayers(game.nbPlayers, game.dimension);
 
         await this.validateName(game.name);
 
@@ -89,15 +96,33 @@ export class GameImportValidatorService {
         });
     }
 
-    private validateObjects(itemPlacement: number[][]) {
+    private validateObjects(itemPlacement: number[][], dimension: number) {
+        let objectCount = 0;
         itemPlacement.forEach((row) => {
             row.forEach((item) => {
                 if (item < NO_OBJECT || item > ObjectType.Spawn) {
                     this.errorMessages.push(ErrorMessages.InvalidObjectType);
                     return;
                 }
+                if (item > NO_OBJECT && item < ObjectType.Spawn) {
+                    objectCount++;
+                }
             });
         });
+
+        if (dimension === SIZE_SMALL_MAP) {
+            if (objectCount !== OBJECT_COUNT_MAP.small) {
+                this.errorMessages.push(ErrorMessages.InvalidNbObjects);
+            }
+        } else if (dimension === SIZE_MEDIUM_MAP) {
+            if (objectCount > OBJECT_COUNT_MAP.medium || objectCount < OBJECT_COUNT_MAP.small) {
+                this.errorMessages.push(ErrorMessages.InvalidNbObjects);
+            }
+        } else if (dimension === SIZE_LARGE_MAP) {
+            if (objectCount > OBJECT_COUNT_MAP.large || objectCount < OBJECT_COUNT_MAP.small) {
+                this.errorMessages.push(ErrorMessages.InvalidNbObjects);
+            }
+        }
     }
 
     private validateSufficientTerrainTiles(array: number[][]) {
@@ -233,6 +258,28 @@ export class GameImportValidatorService {
             this.errorMessages.push(
                 '- La description de la carte doit avoir une longueur entre 10 et 128 charactères et ne pas uniquement contenir des espaces',
             );
+        }
+    }
+
+    private validateMode(mode: string) {
+        if (mode !== GameMode.Classic && mode !== GameMode.Ctf) {
+            this.errorMessages.push(ErrorMessages.InvalidMode);
+        }
+    }
+
+    private validateNbPlayers(nbPlayers: number, dimension: number) {
+        if (dimension === SIZE_SMALL_MAP) {
+            if (nbPlayers !== MAX_PLAYER_SMALL_MAP) {
+                this.errorMessages.push(ErrorMessages.InvalidNbPlayers);
+            }
+        } else if (dimension === SIZE_MEDIUM_MAP) {
+            if (nbPlayers < MAX_PLAYER_SMALL_MAP || nbPlayers > MAX_PLAYER_MEDIUM_MAP) {
+                this.errorMessages.push(ErrorMessages.InvalidNbPlayers);
+            }
+        } else if (dimension === SIZE_LARGE_MAP) {
+            if (nbPlayers < MAX_PLAYER_SMALL_MAP || nbPlayers > MAX_PLAYER_LARGE_MAP) {
+                this.errorMessages.push(ErrorMessages.InvalidNbPlayers);
+            }
         }
     }
 
