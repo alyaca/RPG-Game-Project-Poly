@@ -114,7 +114,7 @@ export class GameService {
             options: [DialogOptions.Stay, DialogOptions.Quit],
             confirm: true,
         }).subscribe((result) => {
-            if (result === DialogResult.Right) {
+            if (result.action === DialogResult.Right) {
                 this.router.navigate(['/home']);
                 this.socketCommunicationService.send('leaveRoom', roomId);
             }
