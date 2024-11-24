@@ -90,6 +90,23 @@ export class GameListService {
         );
     }
 
+    exportGame(game: Game) {
+        const { visible, ...gameWithoutVisible } = game;
+        void visible;
+
+        const gameJson = JSON.stringify(gameWithoutVisible);
+
+        const blob = new Blob([gameJson], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `${game.name}.json`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+    }
+
     private performDeleteGame(game: Game): Observable<boolean> {
         return this.http.delete<void>(`${this.allMapsApiUrl}/${game._id}`).pipe(
             map(() => true),

@@ -14,8 +14,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
 import { SocketGateway } from './socket.gateway';
-
 /* eslint-disable max-lines */
+
 describe('SocketGateway', () => {
     let gateway: SocketGateway;
     let socket: jest.Mocked<Socket>;

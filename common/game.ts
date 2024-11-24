@@ -2,7 +2,7 @@ export interface Game {
     _id: string;
     name: string;
     description: string;
-    visible: boolean;
+    visible?: boolean;
     mode: string;
     nbPlayers: number;
     image: string;

@@ -52,7 +52,7 @@ export const NEW_MAP_NO_ID = {
     name: 'map name',
     description: 'description of the map',
     visible: true,
-    mode: 'normal',
+    mode: 'classique',
     nbPlayers: SMALL_MAP_PLAYERS,
     image: 'image string',
     tiles: [
@@ -95,7 +95,7 @@ export const EXISTING_MAP = {
     name: 'old name',
     description: 'old description',
     visible: true,
-    mode: 'normal',
+    mode: 'classique',
     nbPlayers: MEDIUM_MAP_PLAYERS,
     image: 'old image string',
     tiles: [
@@ -178,7 +178,7 @@ export const MAP_TO_PUT = {
     name: 'new name for the map',
     description: 'a different description than the last one',
     visible: true,
-    mode: 'normal',
+    mode: 'classique',
     nbPlayers: MEDIUM_MAP_PLAYERS,
     image: 'a new image to represent the tiles',
     tiles: [
@@ -284,7 +284,7 @@ export const mockNeighborGame: Game = {
     name: 'map name',
     description: 'description for map',
     visible: true,
-    mode: 'normal',
+    mode: 'classique',
     nbPlayers: 1,
     image: 'image for map',
     tiles: [
