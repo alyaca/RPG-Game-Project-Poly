@@ -13,10 +13,10 @@ import {
     SIZE_SMALL_MAP,
     TileType,
 } from '@app/constants';
+import { GameListService } from '@app/services/game-list/game-list.service';
+import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { Game } from '@common/game';
 import { firstValueFrom } from 'rxjs';
-import { GameListService } from '../game-list/game-list.service';
-import { MapValidatorService } from '../map-validator/map-validator.service';
 
 @Injectable({
     providedIn: 'root',
@@ -139,9 +139,9 @@ export class GameImportValidatorService {
 
     private getNbSpawnPoints(mapObjects: number[][]): number {
         let spawnPoints = 0;
-        for (let x = 0; x < mapObjects.length; x++) {
-            for (let y = 0; y < mapObjects[x].length; y++) {
-                if (mapObjects[x][y] === ObjectType.Spawn) {
+        for (const row of mapObjects) {
+            for (const cell of row) {
+                if (cell === ObjectType.Spawn) {
                     spawnPoints++;
                 }
             }

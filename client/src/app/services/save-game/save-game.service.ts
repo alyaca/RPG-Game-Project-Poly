@@ -31,51 +31,6 @@ export class SaveGameService {
         return this.http.put(this.apiURL, mapToReplace).subscribe();
     }
 
-    private getPlayerNumber(height: number): number {
-        switch (height) {
-            case SIZE_SMALL_MAP:
-                return NB_ITEMS_SMALL_MAP;
-            case SIZE_MEDIUM_MAP:
-                return NB_ITEMS_MEDIUM_MAP;
-            case SIZE_LARGE_MAP:
-                return NB_ITEMS_LARGE_MAP;
-            default:
-                throw new Error('Taille de carte invalide');
-        }
-    }
-
-    private createMapObject(informations: Info, playerNumber: number, id: string | null) {
-        if (id) {
-            return {
-                _id: id,
-                name: informations.name,
-                description: informations.description,
-                visible: false,
-                mode: 'normal',
-                nbPlayers: playerNumber,
-                image: informations.image,
-                tiles: informations.grid,
-                dimension: informations.height,
-                itemPlacement: informations.items,
-                isSelected: false,
-                lastModification: new Date(),
-            };
-        }
-        return {
-            name: informations.name,
-            description: informations.description,
-            visible: false,
-            mode: 'normal',
-            nbPlayers: playerNumber,
-            image: informations.image,
-            tiles: informations.grid,
-            dimension: informations.height,
-            itemPlacement: informations.items,
-            isSelected: false,
-            lastModification: new Date(),
-        };
-    }
-
     importGame(file: File): Observable<Game | string[]> {
         return new Observable((observer) => {
             const reader = new FileReader();
@@ -132,7 +87,7 @@ export class SaveGameService {
         return this.http.post(this.apiURL, mapToStore);
     }
 
-    saveImportedGameWithNewName(newName: string): Observable<Object> {
+    saveImportedGameWithNewName(newName: string): Observable<object> {
         return this.isNameAlreadyExists(newName).pipe(
             concatMap((exists) => {
                 if (exists) {
@@ -152,5 +107,50 @@ export class SaveGameService {
                 return games.some((game) => game.name === name);
             }),
         );
+    }
+
+    private getPlayerNumber(height: number): number {
+        switch (height) {
+            case SIZE_SMALL_MAP:
+                return NB_ITEMS_SMALL_MAP;
+            case SIZE_MEDIUM_MAP:
+                return NB_ITEMS_MEDIUM_MAP;
+            case SIZE_LARGE_MAP:
+                return NB_ITEMS_LARGE_MAP;
+            default:
+                throw new Error('Taille de carte invalide');
+        }
+    }
+
+    private createMapObject(informations: Info, playerNumber: number, id: string | null) {
+        if (id) {
+            return {
+                _id: id,
+                name: informations.name,
+                description: informations.description,
+                visible: false,
+                mode: 'normal',
+                nbPlayers: playerNumber,
+                image: informations.image,
+                tiles: informations.grid,
+                dimension: informations.height,
+                itemPlacement: informations.items,
+                isSelected: false,
+                lastModification: new Date(),
+            };
+        }
+        return {
+            name: informations.name,
+            description: informations.description,
+            visible: false,
+            mode: 'normal',
+            nbPlayers: playerNumber,
+            image: informations.image,
+            tiles: informations.grid,
+            dimension: informations.height,
+            itemPlacement: informations.items,
+            isSelected: false,
+            lastModification: new Date(),
+        };
     }
 }

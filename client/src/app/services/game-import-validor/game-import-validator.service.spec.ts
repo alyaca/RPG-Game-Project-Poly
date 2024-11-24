@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { ErrorMessages, NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TEST_INVALID_SIZE, TileType } from '@app/constants';
+import { ErrorMessages, INVALID_TILES_TYPE, NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TEST_INVALID_SIZE, TileType } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
+import { GameListService } from '@app/services/game-list/game-list.service';
+import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { Game } from '@common/game';
 import { of } from 'rxjs';
-import { GameListService } from '../game-list/game-list.service';
-import { MapValidatorService } from '../map-validator/map-validator.service';
 import { GameImportValidatorService } from './game-import-validator.service';
 
 describe('GameImportValidatorService', () => {
@@ -136,7 +136,7 @@ describe('GameImportValidatorService', () => {
 
         it('should validate tile types', async () => {
             mockGame.tiles = [
-                [999, TileType.Wall],
+                [INVALID_TILES_TYPE, TileType.Wall],
                 [TileType.Water, TileType.OpenDoor],
             ];
 
@@ -146,7 +146,7 @@ describe('GameImportValidatorService', () => {
 
         it('should validate object types', async () => {
             mockGame.itemPlacement = [
-                [999, NO_OBJECT],
+                [INVALID_TILES_TYPE, NO_OBJECT],
                 [NO_OBJECT, ObjectType.Spawn],
             ];
 

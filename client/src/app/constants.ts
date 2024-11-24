@@ -109,9 +109,9 @@ export const DEFAULT_ACTION_POINT = 1;
 export const DEFAULT_EVASION_POINT = 2;
 
 // Constants for the maximum size of a file
-
+export const BYTES_PER_KILOBYTE = 1024;
 export const MAX_FILE_SIZE_MB = 5;
-export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE;
 
 export enum ErrorMessages {
     MissingAttributes = 'Veuillez sélectionner les valeurs des attributs souhaités',
@@ -253,5 +253,7 @@ export enum TileCost {
     Ice = 0,
     OpenDoor = 1,
 }
+
+export const INVALID_TILES_TYPE = 999;
 
 export const INFO_DIALOG_TIME = 2000;

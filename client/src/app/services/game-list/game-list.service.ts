@@ -92,6 +92,8 @@ export class GameListService {
 
     exportGame(game: Game) {
         const { visible, ...gameWithoutVisible } = game;
+        void visible;
+
         const gameJson = JSON.stringify(gameWithoutVisible);
 
         const blob = new Blob([gameJson], { type: 'application/json' });

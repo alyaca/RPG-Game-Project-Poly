@@ -18,22 +18,20 @@ describe('AdministrationPageComponent', () => {
     let saveGameServiceSpy: jasmine.SpyObj<SaveGameService>;
     let gameListServiceSpy: jasmine.SpyObj<GameListService>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let dialogRefMock: jasmine.SpyObj<MatDialogRef<SimpleDialogComponent>>;
     let routerSpy: jasmine.SpyObj<Router>;
     let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
 
     beforeEach(async () => {
-        const dialogRefMock: Partial<MatDialogRef<unknown>> = {
-            afterClosed: jasmine.createSpy('afterClosed').and.returnValue(of({ action: 'right', input: 'New Game Name' })),
-            close: jasmine.createSpy('close'),
-        };
-
-        dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        dialogSpy.open.and.returnValue(dialogRefMock as MatDialogRef<unknown>);
+        dialogSpy = jasmine.createSpyObj('MatDialog', ['open', 'afterClosed']);
+        dialogRefMock = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed']);
+        dialogRefMock.afterClosed.and.returnValue(of({ action: 'right', input: 'New Game Name' }));
         saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['importGame', 'saveImportedGame', 'saveImportedGameWithNewName']);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getGames', 'refreshGameList', 'getAllGames']);
         gameListServiceSpy.getGames.and.returnValue(of(mockGames));
         gameListServiceSpy.getAllGames.and.returnValue(of(mockGames));
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+        dialogSpy.open.and.returnValue(dialogRefMock);
 
         await TestBed.configureTestingModule({
             imports: [AdministrationPageComponent, GameListComponent, MatDialogModule],
@@ -151,11 +149,6 @@ describe('AdministrationPageComponent', () => {
     });
 
     it('should save game with new name if name conflict is resolved', () => {
-        const dialogRefMock = {
-            afterClosed: () => of({ action: 'right', input: 'New Game Name' }),
-        } as any;
-
-        dialogSpy.open.and.returnValue(dialogRefMock);
         spyOn(component.gameListComponent, 'refreshGameList');
 
         component.errorWhileImportingGame([ErrorMessages.NameAlreadyExists]);
@@ -180,9 +173,7 @@ describe('AdministrationPageComponent', () => {
             }),
         );
 
-        const dialogRefMock = {
-            afterClosed: () => of(null),
-        } as any;
+        dialogRefMock.afterClosed.and.returnValue(of(null));
         dialogSpy.open.and.returnValue(dialogRefMock);
         expect(component.gameListComponent.refreshGameList).toHaveBeenCalled();
     });
@@ -216,10 +207,6 @@ describe('AdministrationPageComponent', () => {
     });
 
     it('should handle error while saving imported game with new name', () => {
-        const dialogRefMock = {
-            afterClosed: () => of({ action: 'right', input: 'New Game Name' }),
-        } as any;
-
         let recursiveCallCount = 0;
 
         dialogSpy.open.and.returnValue(dialogRefMock);

@@ -53,7 +53,7 @@ export class AdministrationPageComponent {
                         this.gameSuccessfullyImported();
                     }
                 },
-                error: (err: Error) => {
+                error: () => {
                     this.errorWhileImportingGame([ErrorMessages.InvalidFile]);
                 },
             });
