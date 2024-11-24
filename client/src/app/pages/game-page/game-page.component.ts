@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -33,7 +33,7 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class GamePageComponent implements OnInit, AfterViewInit {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimer!: TimerComponent;
@@ -123,14 +123,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.attackAround = attackAround;
         });
 
-        this.socketCommunicationService.once('endGame', (data: {winner: Player, room: Room}) => {
+        this.socketCommunicationService.once('endGame', (data: { winner: Player; room: Room }) => {
             this.stopwatchService.stop();
             this.postGameService.transferRoomStats(data.room);
-            
+
             // for(const position of this.postGameService.globalStats.globalTilesVisited){
             //     console.log('('+position.x+', '+position.y+')');
             // }
-            
+
             this.socketCommunicationService.off('draw');
             this.gameService
                 .openDialog({
@@ -285,10 +285,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onEndTurn() {
         this.socketCommunicationService.send('endTurn');
-    }
-
-    ngOnDestroy() {
-        //this.socketCommunicationService.disconnect();
     }
 
     hasActionPoints() {

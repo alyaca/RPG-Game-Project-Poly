@@ -12,5 +12,3 @@ export const mockAttributes: Attributes = {
     defense: 4,
     defDiceMax: 4,
 };
-
-

@@ -25,5 +25,5 @@ export const playerNavigation: Player = {
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
-    positionHistory: []
+    positionHistory: [],
 };

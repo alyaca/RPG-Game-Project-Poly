@@ -16,7 +16,7 @@ import { baseBot } from '@app/mocks/mock-players';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Avatar, Behavior, Player, Position, PostGameStats, Status } from '@common/player';
+import { Avatar, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -136,7 +136,7 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
-        
+
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.gameLogsService.sendTurnLog(activePlayer, room.roomId, server);
 
@@ -150,7 +150,7 @@ export class GameService {
 
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        
+
         if (!this.isMoving) {
             room.globalPostGameStats.turns++;
             this.updateActivePlayer(client);
@@ -234,14 +234,14 @@ export class GameService {
         this.checkAttack(room, server);
     }
 
-    addUniqueTileToHistory(positionList: Position[], tile: Position){
-        if (!positionList.some(pos => pos.x === tile.x && pos.y === tile.y)) {
+    addUniqueTileToHistory(positionList: Position[], tile: Position) {
+        if (!positionList.some((pos) => pos.x === tile.x && pos.y === tile.y)) {
             positionList.push(tile);
         }
     }
 
-    initTileHistory(room: Room){
-        for(const player of room.listPlayers){
+    initTileHistory(room: Room) {
+        for (const player of room.listPlayers) {
             this.addUniqueTileToHistory(player.positionHistory, player.spawnPosition);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, player.spawnPosition);
         }
@@ -473,7 +473,5 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    // 
-
-
+    //
 }

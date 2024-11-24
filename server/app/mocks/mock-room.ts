@@ -5,7 +5,6 @@ import { mockGame } from './mock-game';
 import { mockNavigation } from './mock-navigation';
 import { defaultGlobalStats } from './default-global-stats';
 
-
 export const mockRooms: Room[] = [
     {
         gameMap: mockGame,

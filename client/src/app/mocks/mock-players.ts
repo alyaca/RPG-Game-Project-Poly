@@ -1,5 +1,4 @@
-import { defaultPostGameStats } from '@app/default-attributes';
-import { defaultAttributes } from '@app/default-attributes';
+import { defaultPostGameStats, defaultAttributes } from '@app/default-attributes';
 import { Player, Attributes, Status, Behavior } from '@common/player';
 
 const mockAttributes: Attributes = {
@@ -29,7 +28,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
-        positionHistory: []
+        positionHistory: [],
     },
     {
         id: '123',
@@ -43,7 +42,7 @@ export const mockPlayers: Player[] = [
         position: { x: 1, y: 1 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 1 },
-        positionHistory: []
+        positionHistory: [],
     },
     {
         id: 'id',
@@ -57,7 +56,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
-        positionHistory: []
+        positionHistory: [],
     },
 ];
 
@@ -73,5 +72,5 @@ export const baseBot: Player = {
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
-    positionHistory: []
+    positionHistory: [],
 };

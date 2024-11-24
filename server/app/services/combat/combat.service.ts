@@ -158,7 +158,7 @@ export class CombatService {
     checkEndGame(player: Player, room: Room, server: Server) {
         if (player.postGameStats.victories >= VICTORIES) {
             const winner = player;
-            server.to(room.roomId).emit('endGame', {winner, room});
+            server.to(room.roomId).emit('endGame', { winner, room });
             this.gameService.stopGameTimers(room);
         }
     }
@@ -190,14 +190,14 @@ export class CombatService {
         server.to(room.roomId).emit('combatEnd', room.listPlayers);
     }
 
-    addDefeat(room: Room, player: Player){
+    addDefeat(room: Room, player: Player) {
         const playerLoser = room.listPlayers.find((p) => p.id === player.id);
         playerLoser.postGameStats.defeats++;
         playerLoser.postGameStats.combats++;
     }
 
-    addDraws(room: Room){
-        // branche de Kim: 
+    addDraws(room: Room) {
+        // branche de Kim:
         // const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
         // const player2     = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
         const player1 = room.listPlayers.find((p) => p.id === this.attacker.id);
@@ -208,7 +208,7 @@ export class CombatService {
         player2.postGameStats.combats++;
     }
 
-    addDmgStats(room: Room){
+    addDmgStats(room: Room) {
         const attacker = room.listPlayers.find((p) => p.id === this.attacker.id);
         const defender = room.listPlayers.find((p) => p.id === this.defender.id);
         attacker.postGameStats.dmgDealt++;

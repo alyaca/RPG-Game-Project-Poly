@@ -10,21 +10,26 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { NavigationService } from '@app/services/navigation/navigation.service';
 
 @Component({
-  selector: 'app-post-game-page',
-  standalone: true,
-  imports: [PlayerStatisticsComponent, ChatBoxComponent, RouterLink, CommonModule, PostGameAttributeComponent],
-  templateUrl: './post-game-page.component.html',
-  styleUrl: './post-game-page.component.scss'
+    selector: 'app-post-game-page',
+    standalone: true,
+    imports: [PlayerStatisticsComponent, ChatBoxComponent, RouterLink, CommonModule, PostGameAttributeComponent],
+    templateUrl: './post-game-page.component.html',
+    styleUrl: './post-game-page.component.scss',
 })
-export class PostGamePageComponent implements OnInit, OnDestroy{
-  constructor(public socketCommunicationService: SocketCommunicationService, public navigationService: NavigationService, public postGameService: PostGameService, public stopwatchService: StopwatchService){}
+export class PostGamePageComponent implements OnInit, OnDestroy {
+    constructor(
+        public socketCommunicationService: SocketCommunicationService,
+        public navigationService: NavigationService,
+        public postGameService: PostGameService,
+        public stopwatchService: StopwatchService,
+    ) {}
 
-  ngOnInit(){
-    this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
-    this.postGameService.computeStats();
-  }
+    ngOnInit() {
+        this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
+        this.postGameService.computeStats();
+    }
 
-  ngOnDestroy(){
-    this.socketCommunicationService.disconnect();
-  }
+    ngOnDestroy() {
+        this.socketCommunicationService.disconnect();
+    }
 }

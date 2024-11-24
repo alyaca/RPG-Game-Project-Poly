@@ -12,5 +12,5 @@ export const mockRoom: Room = {
     adminId: '1234-admin',
     availableAvatars: avatars,
     gameStatus: GameStatus.Lobby,
-    globalPostGameStats: defaultGlobalStats
+    globalPostGameStats: defaultGlobalStats,
 };

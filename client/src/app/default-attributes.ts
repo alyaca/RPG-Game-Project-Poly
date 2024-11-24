@@ -23,5 +23,5 @@ export const defaultPostGameStats: PostGameStats = {
     dmgDealt: 0,
     dmgTaken: 0,
     itemsObtained: 0,
-    tilesVisited: 0
-}
+    tilesVisited: 0,
+};

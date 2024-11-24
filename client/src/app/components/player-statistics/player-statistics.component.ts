@@ -1,32 +1,31 @@
 import { Component, Input } from '@angular/core';
-// import { LigmaPlayer } from '@app/services/post-game/post-game.service';
 import { CommonModule } from '@angular/common';
-import { Player, Status } from '@common/player';
+import { Player } from '@common/player';
 import { PostGameService } from '@app/services/post-game/post-game.service';
+import { TOTAL_PERCENTAGE, VICTORIES_FOR_WIN } from '@app/constants';
 @Component({
-  selector: 'app-player-statistics',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './player-statistics.component.html',
-  styleUrl: './player-statistics.component.scss'
+    selector: 'app-player-statistics',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './player-statistics.component.html',
+    styleUrl: './player-statistics.component.scss',
 })
 export class PlayerStatisticsComponent {
-  @Input() player: Player;
-  @Input() selectedAttribute: string;
-  public Status = Status;
+    @Input() player: Player;
+    @Input() selectedAttribute: string;
 
-  constructor(private postGameService: PostGameService){}
+    constructor(private postGameService: PostGameService) {}
 
-  isWinner() {
-    return this.player.postGameStats.victories === 3;
-  }
-  
-  getStatusClass(): string {
-    return this.player.status;
-  }
+    isWinner() {
+        return this.player.postGameStats.victories === VICTORIES_FOR_WIN;
+    }
 
-  getBarWidth(attribute: number, statKey: keyof Player["postGameStats"], isPercent: boolean): number {
-    const max = isPercent ? 100 : this.postGameService.getMaxStat(statKey);
-    return Math.min(((attribute)/max)*100, 100);
-  }
+    getStatusClass(): string {
+        return this.player.status;
+    }
+
+    getBarWidth(attribute: number, statKey: keyof Player['postGameStats'], isPercent: boolean): number {
+        const max = isPercent ? TOTAL_PERCENTAGE : this.postGameService.getMaxStat(statKey);
+        return Math.min((attribute / max) * TOTAL_PERCENTAGE, TOTAL_PERCENTAGE);
+    }
 }

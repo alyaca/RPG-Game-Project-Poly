@@ -4,7 +4,7 @@ import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
 import { ObjectType } from '@common/avatars-info';
-import { Player, Position } from '@common/player';
+import { Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
 import { Navigation } from './navigation';
 
@@ -65,17 +65,16 @@ describe('Navigation', () => {
     //     navigation.hasPlayerOnTile = jest.fn().mockReturnValue(true);
     //     expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toEqual(playerNavigation);
 
-
     //     // // implementation below fixes the test somehow
     //     // const playerNavigation = { id: '1', position: { x: 0, y: 0 } } as Player
     //     // const adjacentPlayer = { id: '2', position: { x: 1, y: 0 } } as Player;
-    
+
     //     // navigation.players = [playerNavigation, adjacentPlayer];
     //     // navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 1, y: 0 }]); // Neighboring tile
     //     // navigation.hasPlayerOnTile = jest.fn().mockImplementation((neighbor, players) =>
     //     //     players.some((p) => p.position.x === neighbor.x && p.position.y === neighbor.y)
     //     // );
-    
+
     //     // const result = navigation.checkAttack(playerNavigation, navigation.players);
     //     // expect(result).toEqual(adjacentPlayer);
     // });
@@ -133,7 +132,7 @@ describe('Navigation', () => {
 
     describe('exploreNeighborsForReachableTiles', () => {
         let priorityQueue: PointWithDistance[];
-        let maxMovementPoints: number;
+        // let maxMovementPoints: number;
 
         beforeEach(() => {
             priorityQueue = [];

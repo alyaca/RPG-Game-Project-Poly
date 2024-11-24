@@ -23,8 +23,8 @@ export const defaultPostGameStats: PostGameStats = {
     dmgDealt: 0,
     dmgTaken: 0,
     itemsObtained: 0,
-    tilesVisited: 0
-}
+    tilesVisited: 0,
+};
 
 export const mockPlayers: Player[] = [
     {
@@ -39,7 +39,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
-        positionHistory: []
+        positionHistory: [],
     },
     {
         id: 'id',
@@ -53,7 +53,7 @@ export const mockPlayers: Player[] = [
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
-        positionHistory: []
+        positionHistory: [],
     },
 ];
 
@@ -83,7 +83,7 @@ export const mockNavigationPlayers: Player[] = [
         position: { x: 3, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
-        positionHistory: []
+        positionHistory: [],
     },
 ];
 
@@ -99,5 +99,5 @@ export const baseBot: Player = {
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
-    positionHistory: []
+    positionHistory: [],
 };

@@ -242,3 +242,11 @@ export enum TileCost {
 }
 
 export const INFO_DIALOG_TIME = 2000;
+
+export const SECS_IN_HOUR = 3600;
+export const SECS_IN_MIN = 60;
+export const MINS_IN_HOUR = 60;
+
+export const TOTAL_PERCENTAGE = 100;
+
+export const VICTORIES_FOR_WIN = 3;
