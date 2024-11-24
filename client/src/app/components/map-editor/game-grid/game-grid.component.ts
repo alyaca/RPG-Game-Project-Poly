@@ -13,6 +13,7 @@ import {
     ViewChild,
 } from '@angular/core';
 
+import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
 import { gameObjects } from '@app/objects-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -27,7 +28,6 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
-import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 
 @Component({
     selector: 'app-game-grid',
@@ -164,6 +164,17 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (this.activePlayer) {
                 this.activePlayer.attributes.actionPoints = 0;
             }
+        });
+
+        this.socketCommunicationService.on('botNavigation', (path: Position[]) => {
+            this.fastestPath = path;
+            this.sendBotPathToServer();
+        });
+
+        this.socketCommunicationService.on('botAttack', (data: { position: Position; player: Player }) => {
+            const { position, player } = data;
+            this.activePlayer = player;
+            this.handleFightAction(position.x, position.y);
         });
     }
 
@@ -370,7 +381,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleFightAction(row: number, col: number) {
+        if (!this.activePlayer) return;
+        console.log(this.navigationService.isNeighbor(row, col, this.activePlayer));
+        console.log(row, col);
+        console.log(this.activePlayer.position);
         if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && this.objectsArray[row][col] > ObjectType.Spawn) {
+            console.log('Combat action, after if');
             this.activePlayer.attributes.actionPoints--;
             this.gameService.isActionCombatSelected = false;
             const player1 = this.activePlayer;
@@ -385,6 +401,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
         const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
         return clickedPlayer;
+    }
+
+    async sendBotPathToServer() {
+        if (this.fastestPath.length > 0) {
+            this.socketCommunicationService.send('playerNavigation', this.fastestPath);
+            this.fastestPath = [];
+        }
     }
 
     async sendNavigation() {
