@@ -823,20 +823,4 @@ describe('GameService', () => {
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('reachableTiles', mockTiles);
         expect(service.checkActions).toHaveBeenCalled();
     });
-
-    // it('should call set tiles doorAction event', () => {
-    //     const mockPlayer = { position: { x: 1, y: 1 } } as Player;
-
-    //     gateway['navigation'].gameMap.tiles = [
-    //         [TileType.OpenDoor, TileType.Ground],
-    //         [TileType.Ground, TileType.Water],
-    //     ];
-    //     (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
-    //     (gameService.getActivePlayer as jest.Mock).mockReturnValue(mockPlayer);
-    //     gateway['navigation'].hasHandleDoorAction = jest.fn().mockReturnValue(true);
-
-    //     const doorActionData: DoorActionData = { position: { x: 0, y: 0 }, player: mockPlayer };
-    //     gateway.handleDoorAction(mockClient, doorActionData);
-    //     expect(server.to(roomId).emit).toHaveBeenCalledWith('doorClicked', gateway['navigation'].gameMap.tiles);
-    // });
 });
