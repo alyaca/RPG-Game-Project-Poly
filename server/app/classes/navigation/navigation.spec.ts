@@ -66,6 +66,7 @@ describe('Navigation', () => {
     });
 
     it('should return true if checkAttack or checkDoor return an array', () => {
+        navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(playerNavigation);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
@@ -76,6 +77,7 @@ describe('Navigation', () => {
     });
 
     it('haveActions should return false if checkAttack and checkDoor return undefined', () => {
+        navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(false);

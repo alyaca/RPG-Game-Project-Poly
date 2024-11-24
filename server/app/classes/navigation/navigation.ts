@@ -120,8 +120,12 @@ export class Navigation {
         return false;
     }
 
-    haveActions(player: Player, players: Player[]) {
-        return this.hasActionPoints(player) && (this.checkAttack(player, players) || this.checkDoor(player, players));
+    haveActions(player: Player, players: Player[]): boolean {
+        if (!this.hasActionPoints(player)) return false;
+        if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
+            return true;
+        }
+        return false;
     }
 
     checkAttack(player: Player, players: Player[]): Player | undefined {
