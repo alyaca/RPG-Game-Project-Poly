@@ -20,6 +20,7 @@ import { Avatar, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { BotService } from '../bot/bot.service';
 
 /* eslint-disable max-lines */
 @Injectable()
@@ -31,6 +32,7 @@ export class GameService {
         private roomService: RoomService,
         private gameLogsService: GameLogsService,
         private matchService: MatchService,
+        private botService: BotService,
     ) {}
 
     connectPlayerToGame(roomId: string) {
@@ -145,6 +147,12 @@ export class GameService {
                 this.playerTurnTimer(client, server);
             }
         });
+        //////
+        if (activePlayer.status === Status.Bot) {
+            this.botService.processBotTurn(room, server, activePlayer);
+            return;
+        }
+        /////
     }
 
     onTurnEnded(client: Socket, server: Server) {
@@ -156,6 +164,11 @@ export class GameService {
             server.to(room.roomId).emit('reachability', activePlayer);
             server.to(room.roomId).emit('isActive', activePlayer);
             server.to(room.roomId).emit('turnEnded', room.listPlayers);
+            if (activePlayer.status === Status.Bot) {
+                room.navigation.isBot = true;
+            } else {
+                room.navigation.isBot = false;
+            }
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
             this.checkDoors(room, server);
