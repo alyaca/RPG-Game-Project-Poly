@@ -136,7 +136,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     itemSwap: null,
                 })
                 .subscribe((result) => {
-                    if (result === DialogResult.Close) {
+                    if (result.action === DialogResult.Close) {
                         this.router.navigate(['/home']);
                     }
                 });
@@ -228,7 +228,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 itemSwap: null,
             })
             .subscribe((result) => {
-                if (result === DialogResult.Close) {
+                if (result.action === DialogResult.Close) {
                     this.onEndTurn();
                 }
             });
@@ -283,7 +283,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 itemSwap: null,
             })
             .subscribe((result) => {
-                if (result === DialogResult.Left) {
+                if (result.action === DialogResult.Left) {
                     if (this.isPlayerAdmin()) {
                         this.navigationService.isDebugMode = false;
                         this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
@@ -304,7 +304,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 itemSwap: null,
             })
             .subscribe((result) => {
-                if (result === DialogResult.Close) {
+                if (result.action === DialogResult.Close) {
                     this.socketCommunicationService.disconnect();
                     this.router.navigate(['/home']);
                 }

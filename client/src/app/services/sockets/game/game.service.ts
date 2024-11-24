@@ -106,7 +106,7 @@ export class GameService {
             confirm: true,
             itemSwap: null,
         }).subscribe((result) => {
-            if (result === DialogResult.Left) {
+            if (result.action === DialogResult.Left) {
                 this.socketCommunicationService.send('leaveRoom', roomId);
             }
         });
@@ -120,7 +120,7 @@ export class GameService {
             confirm: false,
             itemSwap: null,
         }).subscribe((result) => {
-            if (result === DialogResult.Close) {
+            if (result.action === DialogResult.Close) {
                 this.router.navigate(['/join-game']);
             }
         });

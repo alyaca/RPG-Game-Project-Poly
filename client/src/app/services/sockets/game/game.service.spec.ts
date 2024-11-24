@@ -103,7 +103,7 @@ describe('GameService', () => {
     it('should navigate when result is Close onAdminQuit', (done) => {
         const message = 'Game has been canceled';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onAdminQuit(message);
@@ -115,7 +115,7 @@ describe('GameService', () => {
 
     it('should send leaveRoom when result is left onPlayerQuit', (done) => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Left));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Left }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onPlayerQuit(mockRoom.roomId);
@@ -127,7 +127,7 @@ describe('GameService', () => {
 
     it('should navigate to join-game when result is close onPlayerKickedOut', (done) => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onPlayerKickedOut();

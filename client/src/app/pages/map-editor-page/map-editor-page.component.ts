@@ -110,7 +110,7 @@ export class MapEditorPageComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'left') {
+            if (result.action === 'left') {
                 this.router.navigate(['/administration']);
             }
         });

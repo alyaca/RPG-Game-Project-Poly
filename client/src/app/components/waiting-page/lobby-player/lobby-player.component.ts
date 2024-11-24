@@ -34,7 +34,7 @@ export class LobbyPlayerComponent {
             },
         });
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'right') {
+            if (result.action === 'right') {
                 if (this.lobbyPlayer.status === Status.Bot) {
                     this.socketCommunicationService.send('kickBot', this.lobbyPlayer.id);
                 } else {

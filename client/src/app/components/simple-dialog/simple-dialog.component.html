@@ -4,6 +4,10 @@
         @for (message of data.messages; track message){
         <app-simple-dialog-message [message]="message"></app-simple-dialog-message>
         }
+        <div *ngIf="data.isInput" class="input-container">
+            <input id="dialog-input" [(ngModel)]="inputValue" type="text" placeholder="Entrez une valeur" maxlength="30" />
+            <p *ngIf="showError" class="error-message">Ce champ est obligatoire.</p>
+        </div>
     </mat-dialog-content>
     @if(data.itemSwap){
         <div class="swap-item-container">
@@ -18,6 +22,6 @@
     }
     <mat-dialog-actions class="dialog-actions">
         <button class="button" mat-button (click)="onClose()">{{ data.confirm ? options[0] : 'Fermer' }}</button>
-        <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()"> {{ options[1] }}</button>
+        <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()">{{ options[1] }}</button>
     </mat-dialog-actions>
 </div>

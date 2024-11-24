@@ -6,4 +6,5 @@ export interface DialogData {
     options: string[];
     confirm: boolean;
     itemSwap: ItemSwap | null;
+    isInput?: boolean;
 }

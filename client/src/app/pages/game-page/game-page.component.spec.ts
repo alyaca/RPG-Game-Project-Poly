@@ -50,7 +50,7 @@ describe('GamePageComponent', () => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-        dialogRefSpy.afterClosed.and.returnValue(of('left'));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: 'left' }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
         gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints']);
@@ -232,7 +232,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should not navigate to home if the dialog is right', () => {
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Right));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Right }));
 
         component.handleExit();
         expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
@@ -246,14 +246,14 @@ describe('GamePageComponent', () => {
 
     it('should send debugMode event when admin leaves the game', () => {
         spyOn(component, 'isPlayerAdmin').and.returnValue(true);
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Left));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Left }));
 
         component.handleExit();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', false);
     });
 
     it('should navigate to /home if the dialog result is Left', () => {
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Left));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Left }));
         component.handleExit();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
@@ -267,7 +267,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should call openDialog with the correct parameters for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Close));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.handleDraw();
         expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
             title: DialogTitle.DrawGame,
@@ -279,7 +279,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should disconnect and navigate to home when dialog result is "Close" for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Close));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.handleDraw();
         expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
@@ -315,7 +315,7 @@ describe('GamePageComponent', () => {
 
     it('should call gameService.openDialog with the correct parameters for onPlayerFell', () => {
         const endTurnSpy = spyOn(component, 'onEndTurn');
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Close));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.onPlayerFell();
         expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
             title: DialogTitle.EndTurn,

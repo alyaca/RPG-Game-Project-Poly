@@ -185,7 +185,7 @@ describe('JoinGameService', () => {
 
     it('should open the dialog and navigate to /home if confirmed', () => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('left'));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: 'left' }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.handleLockedRoom();

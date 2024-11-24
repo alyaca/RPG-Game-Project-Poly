@@ -14,7 +14,6 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
-
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {

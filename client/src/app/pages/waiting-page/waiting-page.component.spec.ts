@@ -13,10 +13,10 @@ import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
+import { Behavior } from '@common/player';
 import { BehaviorSubject, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WaitingPageComponent } from './waiting-page.component';
-import { Behavior } from '@common/player';
 
 describe('WaitingPageComponent', () => {
     let component: WaitingPageComponent;
@@ -258,7 +258,7 @@ describe('WaitingPageComponent', () => {
     });
 
     it('should open the dialog and send startGame on confirm', (done) => {
-        gameServiceSpy.openDialog.and.returnValue(of(DialogResult.Right));
+        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Right }));
 
         component['confirmStartGame']();
         expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
