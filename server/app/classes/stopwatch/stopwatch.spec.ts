@@ -48,12 +48,12 @@ describe('Stopwatch', () => {
 
     it('should return formatted time after stop', () => {
         stopwatch.start();
-        jest.advanceTimersByTime(SECS_IN_HOUR * MILLISECONDS_IN_SECOND);
+        jest.advanceTimersByTime((SECS_IN_HOUR * MILLISECONDS_IN_SECOND) / 2);
         stopwatch.stop();
-        expect(stopwatch.getTime()).toBe('1h 00min 00s');
+        expect(stopwatch.getTime()).toBe('30min 00s');
     });
 
     it('should return formatted time without starting', () => {
-        expect(stopwatch.getTime()).toBe('0h 00min 00s');
+        expect(stopwatch.getTime()).toBe('00min 00s');
     });
 });

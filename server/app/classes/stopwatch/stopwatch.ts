@@ -22,12 +22,14 @@ export class Stopwatch {
     }
 
     private formatTime(seconds: number): string {
-        const hours = Math.floor(seconds / SECS_IN_HOUR);
+        // const hours = Math.floor(seconds / SECS_IN_HOUR);
         const minutes = Math.floor((seconds % SECS_IN_HOUR) / MINS_IN_HOUR);
         const secs = Math.floor(seconds % SECS_IN_MIN);
 
-        return [hours.toString().padStart(1, '0') + 'h', minutes.toString().padStart(2, '0') + 'min', secs.toString().padStart(2, '0') + 's'].join(
-            ' ',
-        );
+        return [minutes.toString().padStart(2, '0') + 'min', secs.toString().padStart(2, '0') + 's'].join(' ');
     }
+    //     return [hours.toString().padStart(1, '0') + 'h', minutes.toString().padStart(2, '0') + 'min', secs.toString().padStart(2, '0') + 's'].join(
+    //         ' ',
+    //     );
+    // }
 }
