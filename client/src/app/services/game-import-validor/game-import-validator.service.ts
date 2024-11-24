@@ -43,7 +43,7 @@ export class GameImportValidatorService {
         this.validateTiles(game.tiles);
         this.validateObjects(game.itemPlacement, game.dimension);
         this.validateTileAccessibility(game.tiles);
-        this.validateTitle(game.name);
+        this.validateTitle(game.name.trim());
         this.validateDimensions(game.tiles, game.itemPlacement, game.dimension);
         this.validateDescription(game.description);
         this.validateMode(game.mode);
