@@ -118,6 +118,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.attackAround = attackAround;
         });
 
+        //To remove maybe
+        this.socketCommunicationService.on('endTurnBot', () => {
+            this.onEndTurn();
+        });
+
         this.socketCommunicationService.once('endGame', (winner: Player) => {
             this.socketCommunicationService.off('draw');
             this.gameService
