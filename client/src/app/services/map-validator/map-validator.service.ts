@@ -7,6 +7,7 @@ import {
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
     MIN_LEN_MAP_TITLE,
+    MIN_NB_ITEMS,
     NB_ITEMS_LARGE_MAP,
     NB_ITEMS_MEDIUM_MAP,
     NB_ITEMS_SMALL_MAP,
@@ -80,7 +81,12 @@ export class MapValidatorService {
         }
 
         if (currentNumberItems > maxNbItems) {
-            this.errorMessages.push(`- Il y a trop d'objets sur cette carte. ${currentNumberItems} au lieu de ${maxNbItems}`);
+            this.errorMessages.push(`- Il y a trop d'objets sur cette carte. ${currentNumberItems} objets au lieu de ${maxNbItems}.`);
+        }
+
+        if(currentNumberItems < MIN_NB_ITEMS)
+        {
+            this.errorMessages.push(`Il n'y a pas assez d'objets sur la carte. Le minimum est ${MIN_NB_ITEMS} et il y en a présentement ${currentNumberItems}.`);
         }
     }
 
