@@ -1,4 +1,14 @@
-import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, FIGHT_TIME, LogType, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import {
+    END_COMBAT_DELAY,
+    EVASION_SUCCESS_RATE,
+    FIGHT_TIME,
+    ICE_TILE_PENALTY_VALUE,
+    LogType,
+    NO_EVASION_TIME,
+    SPAWN_POINT_ID,
+    TileType,
+    VICTORIES,
+} from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -34,11 +44,23 @@ export class CombatService {
             room,
             failEvasion: false,
         };
+        this.checkPlayerOnIce(combatPlayers.attacker, room.gameMap.tiles, room.listPlayers);
+        this.checkPlayerOnIce(combatPlayers.defender, room.gameMap.tiles, room.listPlayers);
+
         this.logService.sendStartCombatLog(combatPlayers, room.roomId, server);
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
         this.onStartTurn(client, server, room);
+    }
+
+    checkPlayerOnIce(player: Player, tiles: number[][], listPlayers: Player[]) {
+        const playerInRoom = listPlayers.find((p) => p.id === player.id);
+        const { x, y } = playerInRoom.position;
+        if (tiles[x][y] === TileType.Ice) {
+            player.attributes.attack -= ICE_TILE_PENALTY_VALUE;
+            player.attributes.defense -= ICE_TILE_PENALTY_VALUE;
+        }
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {

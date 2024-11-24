@@ -82,3 +82,5 @@ export const enum LogType {
     EvadeCombat = 'EVADE_COMBAT',
     DefaultWinCombat = 'DEFAULT_WIN_COMBAT',
 }
+
+export const ICE_TILE_PENALTY_VALUE = 2;
