@@ -39,7 +39,7 @@ export class SimpleDialogComponent {
     }
 
     onCancel() {
-        if (this.data.isInput && this.inputValue === '' && this.data.confirm) {
+        if (this.data.isInput && this.inputValue.trim() === '' && this.data.confirm) {
             this.showError = true;
             return;
         }

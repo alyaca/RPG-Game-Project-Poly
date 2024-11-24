@@ -79,8 +79,8 @@ export class AdministrationPageComponent {
                         next: () => {
                             this.gameListComponent.refreshGameList();
                         },
-                        error: () => {
-                            this.errorWhileImportingGame([ErrorMessages.NameAlreadyExists]);
+                        error: (error) => {
+                            this.errorWhileImportingGame([error.message]);
                         },
                     });
                 }

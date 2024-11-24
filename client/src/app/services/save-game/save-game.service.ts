@@ -1,6 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { NB_ITEMS_LARGE_MAP, NB_ITEMS_MEDIUM_MAP, NB_ITEMS_SMALL_MAP, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import {
+    ErrorMessages,
+    MAX_LEN_MAP_TITLE,
+    MIN_LEN_MAP_TITLE,
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
+} from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
 import { Game } from '@common/game';
@@ -91,7 +101,9 @@ export class SaveGameService {
         return this.isNameAlreadyExists(newName).pipe(
             concatMap((exists) => {
                 if (exists) {
-                    return throwError(() => new Error('Le nom existe déjà.'));
+                    return throwError(() => new Error(ErrorMessages.NameAlreadyExists));
+                } else if (newName.length < MIN_LEN_MAP_TITLE || newName.length > MAX_LEN_MAP_TITLE) {
+                    return throwError(() => new Error(ErrorMessages.TitleInvalidLength));
                 }
                 const playerNumber = this.getPlayerNumber(this.gameInfoImported.height);
                 const mapToStore = this.createMapObject(this.gameInfoImported, playerNumber, null);
