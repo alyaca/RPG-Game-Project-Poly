@@ -18,6 +18,7 @@ export interface Attribute {
 export class PostGameService {
     gameRoom: Room;
     doorsInteractedPct: string;
+    gameDuration: string;
     globalTilesVisitedPct: number;
     totalTerrainTiles: number = -1;
     totalDoors: number = -1;
@@ -205,6 +206,7 @@ export class PostGameService {
         this.players = room.listPlayers;
         this.globalStats = room.globalPostGameStats;
         this.isCTFMode = room.gameMap.mode === GameMode.Ctf;
+
 
         for (const player of this.players) {
             const matchingPlayer = room.listPlayers.find((p) => p.id === player.id);

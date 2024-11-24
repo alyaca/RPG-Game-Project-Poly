@@ -1,3 +1,4 @@
+import { Stopwatch } from '../server/app/classes/stopwatch/stopwatch';
 import { Navigation } from '../server/app/classes/navigation/navigation';
 import { Game } from './game';
 import { GlobalPostGameStats } from './global-post-game-stats';
@@ -8,8 +9,6 @@ export enum GameStatus {
     Started = 'started',
     Ended = 'ended',
 }
-
-
 
 export interface Room {
     gameMap: Game;
@@ -22,4 +21,5 @@ export interface Room {
     navigation?: Navigation;
     globalPostGameStats: GlobalPostGameStats
     isDebug?: boolean ;
+    stopwatch?: Stopwatch
 }

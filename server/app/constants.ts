@@ -68,3 +68,7 @@ export const EQUAL_ODDS_PROBABILITY = 0.5;
 export const EQUAL_ODDS_FAIL = 0.4;
 
 export const MIN_DICE_VALUE = 1;
+
+export const SECS_IN_HOUR = 3600;
+export const SECS_IN_MIN = 60;
+export const MINS_IN_HOUR = 60;

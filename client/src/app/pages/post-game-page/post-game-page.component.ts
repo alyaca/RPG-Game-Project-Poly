@@ -27,7 +27,7 @@ export class PostGamePageComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
+        //this.postGameService.globalStats.gameDuration = this.stopwatchService.getTime();
         this.postGameService.computeStats();
     }
 

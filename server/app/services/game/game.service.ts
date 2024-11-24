@@ -1,4 +1,5 @@
 import { Navigation } from '@app/classes/navigation/navigation';
+import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 import {
     DEFAULT_ATTRIBUTE,
     EQUAL_ODDS_PROBABILITY,
@@ -126,6 +127,8 @@ export class GameService {
     }
 
     onStartGame(room: Room, socket: Socket) {
+        room.stopwatch = new Stopwatch();
+        room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
@@ -351,6 +354,15 @@ export class GameService {
             return true;
         }
         return false;
+    }
+
+    onEndGame(winner: Player, room: Room, server: Server){
+        room.gameStatus = GameStatus.Ended;
+        room.stopwatch.stop();
+        room.globalPostGameStats.gameDuration = room.stopwatch.getTime();
+        server.to(room.roomId).emit('endGame', { winner, room });
+        this.resetGlobalStats(room);
+        this.stopGameTimers(room);
     }
 
     async delay(ms: number) {

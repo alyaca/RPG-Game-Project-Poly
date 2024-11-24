@@ -1,10 +1,5 @@
-import { Injectable } from '@angular/core';
-import { MILLISECONDS_IN_SECOND, MINS_IN_HOUR, SECS_IN_HOUR, SECS_IN_MIN } from '@app/constants';
-
-@Injectable({
-    providedIn: 'root',
-})
-export class StopwatchService {
+import { MILLISECONDS_IN_SECOND, SECS_IN_HOUR, MINS_IN_HOUR, SECS_IN_MIN } from "@app/constants";
+export class Stopwatch {
     private startTime: number | null = null;
     private elapsedTime: number = 0;
 

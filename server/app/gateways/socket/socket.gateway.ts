@@ -12,6 +12,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGa
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
 import { GameStatus } from '@common/room';
+import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
@@ -118,7 +119,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         this.gameService.onStartGame(room, client);
         const activePlayer = this.gameService.getActivePlayer(room);
-
         this.server.to(room.roomId).emit('startGame', room);
         this.server.to(room.roomId).emit('mapInformation', room);
         this.server.to(room.roomId).emit('isActive', activePlayer);
@@ -211,10 +211,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleForceEndGame(client: Socket, winner: Player) {
         this.logger.log('end of game has been forced');
         const room = this.roomService.getRoom(client);
-        room.gameStatus = GameStatus.Ended;
-        this.server.to(room.roomId).emit('endGame', { winner, room });
-        this.gameService.resetGlobalStats(room);
-        this.gameService.stopGameTimers(room);
+        this.gameService.onEndGame(winner, room, this.server);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

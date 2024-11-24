@@ -158,11 +158,7 @@ export class CombatService {
 
     checkEndGame(player: Player, room: Room, server: Server) {
         if (player.postGameStats.victories >= VICTORIES) {
-            const winner = player;
-            room.gameStatus = GameStatus.Ended;
-            server.to(room.roomId).emit('endGame', { winner, room });
-            this.gameService.resetGlobalStats(room);
-            this.gameService.stopGameTimers(room);
+            this.gameService.onEndGame(player, room, server);
         }
     }
 
