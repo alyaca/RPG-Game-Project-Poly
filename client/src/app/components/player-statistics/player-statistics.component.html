@@ -1,11 +1,11 @@
 <div class="player-stats" [ngClass]="{'active': player.id === socketCommunicationService.socket.id}">   
     <div class="decoration-bar" [ngClass]="{'self': player.id === socketCommunicationService.socket.id}"></div>
     <div class="player">
-        <img class="player-img" [ngClass]="getStatusClass()" [src]="player.avatar?.src" alt="player-avatar">
+        <img class="player-img" [ngClass]="getStatusClass()" [src]='player.avatar?.src' alt="player-avatar">
         @if (isWinner()){
-            <img class="decoration" [src]="'./assets/images/leaves/leafL.webp'" alt="left-leaf">
+            <img class="decoration" src='./assets/images/leaves/leafL.webp' alt="left-leaf">
             <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
-            <img class="decoration" [src]="'./assets/images/leaves/leafR.webp'" alt="right-leaf">
+            <img class="decoration" src='./assets/images/leaves/leafR.webp' alt="right-leaf">
         }
         @else {
             <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
