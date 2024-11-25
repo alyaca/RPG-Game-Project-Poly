@@ -2,16 +2,21 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import {
+    DialogMessages,
     DialogResult,
+    DialogTitle,
     MAX_PLAYER_LARGE_MAP,
     MAX_PLAYER_MEDIUM_MAP,
     MAX_PLAYER_SMALL_MAP,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
+    WARNING_TIME,
 } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
+import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
@@ -94,6 +99,22 @@ describe('GameService', () => {
 
         service.openDialog(dialogData);
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+            disableClose: true,
+            data: dialogData,
+        });
+    });
+
+    it('should open a dialog and not send leave if result is not leave', () => {
+        const dialogData = {
+            title: DialogTitle.EndFight,
+            message: DialogMessages.EndFight,
+            duration: WARNING_TIME,
+        };
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.openTempDialog(dialogData);
+        expect(dialogSpy.open).toHaveBeenCalledWith(TemporaryDialogComponent, {
             disableClose: true,
             data: dialogData,
         });
@@ -192,5 +213,59 @@ describe('GameService', () => {
         const player = JSON.parse(JSON.stringify(mockPlayers[0]));
         player.attributes.actionPoints = 0;
         expect(service.hasActionPoints(player)).toBeFalse();
+    });
+
+    it('should return true if action selected', () => {
+        service.isActionDoorSelected = true;
+        expect(service.isActionSelected()).toBe(true);
+        service.isActionDoorSelected = false;
+        service.isActionCombatSelected = true;
+        expect(service.isActionSelected()).toBe(true);
+    });
+
+    it('should return false if action not selected', () => {
+        service.isActionDoorSelected = false;
+        service.isActionCombatSelected = false;
+        expect(service.isActionSelected()).toBe(false);
+    });
+
+    it('should return true if is a target door', () => {
+        spyOn(service, 'isTargetDoor').and.returnValue(true);
+        expect(service.isTarget(MOCK_ROW, MOCK_COLUMN)).toBe(true);
+    });
+
+    it('should return true if is a target player ', () => {
+        spyOn(service, 'isTargetDoor').and.returnValue(false);
+        spyOn(service, 'isTargetPlayer').and.returnValue(true);
+        expect(service.isTarget(MOCK_ROW, MOCK_COLUMN)).toBe(true);
+    });
+
+    it('should return false if not a target', () => {
+        spyOn(service, 'isTargetDoor').and.returnValue(false);
+        spyOn(service, 'isTargetPlayer').and.returnValue(false);
+        expect(service.isTarget(MOCK_ROW, MOCK_COLUMN)).toBe(false);
+    });
+
+    it('should return false if action door is not selected', () => {
+        service.isActionDoorSelected = false;
+        expect(service.isTargetDoor(MOCK_ROW, MOCK_COLUMN)).toBe(false);
+    });
+
+    it('should return true if action door is selected', () => {
+        service.doorsTarget = [{ x: MOCK_ROW, y: MOCK_COLUMN }];
+        service.isActionDoorSelected = true;
+        expect(service.isTargetDoor(MOCK_ROW, MOCK_COLUMN)).toBe(true);
+    });
+
+    it('should return false if action combat is not selected', () => {
+        service.isActionCombatSelected = false;
+        expect(service.isTargetPlayer(MOCK_ROW, MOCK_COLUMN)).toBe(false);
+    });
+
+    it('should return true if action combat is selected', () => {
+        const player = { position: { x: MOCK_ROW, y: MOCK_COLUMN } } as Player;
+        service.playersTarget = [player];
+        service.isActionCombatSelected = true;
+        expect(service.isTargetPlayer(MOCK_ROW, MOCK_COLUMN)).toBe(true);
     });
 });

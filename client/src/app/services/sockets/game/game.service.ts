@@ -154,11 +154,11 @@ export class GameService {
         return this.isTargetDoor(row, col) || this.isTargetPlayer(row, col);
     }
 
-    private isTargetDoor(row: number, col: number) {
+    isTargetDoor(row: number, col: number) {
         return this.isActionDoorSelected ? this.doorsTarget.some((tile) => tile.x === row && tile.y === col) : false;
     }
 
-    private isTargetPlayer(row: number, col: number) {
+    isTargetPlayer(row: number, col: number) {
         return this.isActionCombatSelected ? this.playersTarget.some((tile) => tile.position.x === row && tile.position.y === col) : false;
     }
 }

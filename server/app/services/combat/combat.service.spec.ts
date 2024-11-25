@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, TileType } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, TileType, TURN_TIME } from '@app/constants';
 import { mockAttacker, mockCombatInfos, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -12,7 +12,8 @@ import { Player } from '@common/player';
 import { Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+
+/* eslint-disable max-lines */
 describe('CombatService', () => {
     let service: CombatService;
     let mockRoomService: jest.Mocked<RoomService>;
@@ -25,7 +26,7 @@ describe('CombatService', () => {
         mockRoomService = {
             getRoom: jest.fn(),
             getTurnTimer: jest.fn().mockReturnValue({
-                getTimeRemaining: jest.fn().mockReturnValue(60),
+                getTimeRemaining: jest.fn().mockReturnValue(TURN_TIME),
                 pauseTimer: jest.fn(),
                 resumeTimer: jest.fn(),
             }),
@@ -301,14 +302,16 @@ describe('CombatService', () => {
 
     describe('isEvasionSuccessful', () => {
         it('should return true when Math.random() is less than EVASION_SUCCESS_RATE', () => {
-            jest.spyOn(Math, 'random').mockReturnValue(EVASION_SUCCESS_RATE - 0.1);
+            const successRate = EVASION_SUCCESS_RATE - 1;
+            jest.spyOn(Math, 'random').mockReturnValue(successRate);
 
             const result = service['isEvasionSuccessful']();
             expect(result).toBe(true);
         });
 
         it('should return false when Math.random() is equal to or greater than EVASION_SUCCESS_RATE', () => {
-            jest.spyOn(Math, 'random').mockReturnValue(EVASION_SUCCESS_RATE + 0.1);
+            const successRate = EVASION_SUCCESS_RATE + 1;
+            jest.spyOn(Math, 'random').mockReturnValue(successRate);
 
             const result = service['isEvasionSuccessful']();
             expect(result).toBe(false);
@@ -554,7 +557,7 @@ describe('CombatService', () => {
     });
 
     it('should return true if valid tile', () => {
-        const result = service['isValidTile'](1, 1, 3);
+        const result = service['isValidTile'](1, 1, mockGame.dimension);
         expect(result).toBe(true);
     });
 
