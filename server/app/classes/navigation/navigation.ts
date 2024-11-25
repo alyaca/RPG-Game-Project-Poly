@@ -163,10 +163,10 @@ export class Navigation {
     }
 
     movePlayerFromWall(room: Room, player: Player): Position {
-        return this.findClosetValidTile(player, room);
+        return this.findClosestValidTile(player, room);
     }
 
-    findClosetValidTile(player: Player, room: Room): Position {
+    findClosestValidTile(player: Player, room: Room): Position {
         const game = room.gameMap;
         this.initializeDistances(player, game);
         const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];

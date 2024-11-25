@@ -512,6 +512,26 @@ export class GameService {
         return player;
     }
 
+    placeItemsOnGround(defender: Player, client: Socket, server: Server) {
+        // removes hp from the wrong person
+        // doesn't empty the inventory and update the stats
+        // drops the items correctly but can't see them
+        const room = this.roomService.getRoom(client);
+        console.log(defender.name);
+        if (defender.inventory.length === 0) return;
+        for (const items of defender.inventory) {
+            let position = room.navigation.findClosestValidTile(defender, room);
+            defender = this.playerInventoryService.removeItemEffects(defender, items.id);
+            room.gameMap.itemPlacement[position.x][position.y] = items.id;
+        }
+        defender.inventory = [];
+        client.emit('updateInventory', defender);
+        server.emit('updateObjects', room.gameMap.itemPlacement);
+
+        const index = room.listPlayers.findIndex((players) => players.id === defender.id);
+        room.listPlayers[index] = defender;
+    }
+
     playerInWall(room: Room, player: Player) {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }

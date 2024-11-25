@@ -156,7 +156,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             }
             infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
         });
-        console.log('ITEMS : ', room.gameMap.itemPlacement);
         client.emit('updateInventory', activePlayer);
     }
 
