@@ -19,7 +19,7 @@ import { DialogData } from '@app/interfaces/dialog-data';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
-import { Player } from '@common/player';
+import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 
 @Injectable({
@@ -32,6 +32,8 @@ export class GameService {
     selectedGame: Game;
     isActionDoorSelected: boolean = false;
     isActionCombatSelected: boolean = false;
+    playersTarget: Player[];
+    doorsTarget: Position[];
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
@@ -146,5 +148,17 @@ export class GameService {
 
     isActionSelected() {
         return this.isActionDoorSelected || this.isActionCombatSelected;
+    }
+
+    isTarget(row: number, col: number) {
+        return this.isTargetDoor(row, col) || this.isTargetPlayer(row, col);
+    }
+
+    private isTargetDoor(row: number, col: number) {
+        return this.isActionDoorSelected ? this.doorsTarget.some((tile) => tile.x === row && tile.y === col) : false;
+    }
+
+    private isTargetPlayer(row: number, col: number) {
+        return this.isActionCombatSelected ? this.playersTarget.some((tile) => tile.position.x === row && tile.position.y === col) : false;
     }
 }

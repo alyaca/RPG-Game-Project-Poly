@@ -22,7 +22,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player, Status } from '@common/player';
+import { Player, Position, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -119,16 +119,18 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onPlayerFell();
         });
 
-        this.socketCommunicationService.on('doorAround', (doorAround: boolean) => {
-            this.doorAround = doorAround;
+        this.socketCommunicationService.on('doorAround', (data: { doorAround: boolean; targets: Position[] }) => {
+            this.doorAround = data.doorAround;
+            this.gameService.doorsTarget = data.targets;
         });
 
         this.socketCommunicationService.on('doorClicked', () => {
             this.activePlayer.attributes.actionPoints = 0;
         });
 
-        this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
-            this.attackAround = attackAround;
+        this.socketCommunicationService.on('attackAround', (data: { attackAround: boolean; targets: Player[] }) => {
+            this.attackAround = data.attackAround;
+            this.gameService.playersTarget = data.targets;
         });
 
         this.socketCommunicationService.once('endGame', (winner: Player) => {
