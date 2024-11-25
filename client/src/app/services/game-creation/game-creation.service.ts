@@ -26,7 +26,6 @@ export class GameCreationService {
     }
 
     getGameMode(): string {
-        console.log(this.gameMode);
         return this.gameMode;
     }
 

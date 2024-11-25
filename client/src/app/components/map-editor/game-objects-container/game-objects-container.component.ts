@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { ObjectType } from '@app/constants';
+import { GameMode, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -29,7 +29,13 @@ export class GameObjectsContainerComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn);
+        const isCtfMode = this.gameCreationService.getGameMode() === GameMode.Ctf;
+        this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn || (isCtfMode && object.id === ObjectType.Flag));
+        if (this.gameCreationService.getGameMode() === GameMode.Ctf) {
+            this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn || object.id === ObjectType.Flag);
+        } else {
+            this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn);
+        }
         this.gameObjectService.resetObjectsCount();
         if (!this.gameCreationService.isNewGame) {
             this.gameObjectService.loadMapObjectCount();
@@ -69,4 +75,5 @@ export class GameObjectsContainerComponent implements OnInit {
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
+
 }
