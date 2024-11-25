@@ -168,7 +168,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
                 this.activePlayer.attributes.actionPoints -= 1;
             }
         });
-
+        /*
         this.socketCommunicationService.on('updateTile', (data : {player : Player; wasDropped : boolean, droppedItem : number}) => {
             this.navigationService.updateTile(data.player, data.wasDropped, data.droppedItem);
         });
@@ -176,6 +176,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
             this.navigationService.updateObjects(items);
         })
+            */
     }
 
     loadNewGame() {
@@ -415,7 +416,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
         if (!playerToReplace) return;
         playerToReplace.position = position;
-        this.navigationService.updateTile(playerToReplace, false, 0);
+        this.navigationService.updateTile(playerToReplace);
         playerToReplace = player;
         this.placeAvatarOnTile(playerToReplace);
     }
@@ -424,7 +425,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.reachableTiles = [];
         this.fastestPath = [];
         if (this.activePlayer) {
-            this.navigationService.updateTile(this.activePlayer, false, 0);
+            this.navigationService.updateTile(this.activePlayer);
             this.activePlayer.position = position;
             this.placeAvatarOnTile(this.activePlayer);
         }

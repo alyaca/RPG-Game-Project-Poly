@@ -31,6 +31,7 @@ export class PlayerInventoryService {
             room.gameMap.itemPlacement[activePlayer.position.x][activePlayer.position.y] = 0;
             this.roomService.updateRoomMap(room);
         }
+        //Si j<envoi un seul event, avec activePlayer et droppedItem, ça devrait suffire
         client.emit('updateInventory', activePlayer);
         server.to(room.roomId).emit('updateTile', { player: activePlayer, wasDropped: false, droppedItem: 0 });
         this.roomService.updateRoomPlayers(client, activePlayer);

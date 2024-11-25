@@ -41,11 +41,20 @@ export class NavigationService {
         this.initializeObjects(objects);
     }
 
-    updateObjects(items : number[][])
-    {
+    updateObjects(items: number[][]) {
         this.objects = items;
     }
+    updateTile(activePlayer: Player): void {
+        if (this.isInInitialPosition(activePlayer.position)) {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
+        } else if (this.isObject(activePlayer.position)) {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = this.getObject(activePlayer.position);
+        } else {
+            this.positions[activePlayer.position.x][activePlayer.position.y] = 0;
+        }
+    }
 
+    /*
     updateTile(activePlayer: Player, wasDropped : boolean, droppedItem : number): void {
         if (this.isInInitialPosition(activePlayer.position)) {
             this.positions[activePlayer.position.x][activePlayer.position.y] = ObjectType.Spawn;
@@ -67,6 +76,7 @@ export class NavigationService {
             this.objects[activePlayer.position.x][activePlayer.position.y] = 0;
         }
     }
+        */
 
     removePlayer(player: Player): void {
         this.positions[player.position.x][player.position.y] = 0;
