@@ -175,25 +175,15 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
         const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
         this.roomService.updateRoomPlayers(client, updatedPlayer);
+        const room = this.roomService.getRoom(infoSwap.client);
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+            if (timeLeft <= 0) {
+                this.gameService.onTurnEnded(infoSwap.client, infoSwap.server);
+            }
+            infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+        });
         client.emit('updateInventory', updatedPlayer);
     }
-
-    // @SubscribeMessage(SocketEvents.BeginItemSwitch)
-    // handleItemSwitch(client: Socket) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.roomService.getTurnTimer(room.roomId).pauseTimer();
-    // }
-
-    // @SubscribeMessage(SocketEvents.EndItemSwitch)
-    // handleResumeGame(client: Socket) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
-    //         if (timeLeft <= 0) {
-    //             this.handleEndTurn(client);
-    //         }
-    //         this.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
-    //     });
-    // }
 
     @SubscribeMessage(SocketEvents.EvadeCombat)
     handleEvadeCombat(client: Socket, player: Player) {

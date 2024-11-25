@@ -20,9 +20,10 @@ export class PlayerInventoryService {
             itemPickedUp = this.determineRandomItem(allItems);
         }
         if (activePlayer.inventory.length === 2) {
+            // timer pauses at the start of item switch
+            this.roomService.getTurnTimer(room.roomId).pauseTimer();
             client.emit('openItemSwitchModal', { activePlayer, itemPickedUp });
             return;
-            // server.emit('updateTile', itemPickedUp);
         } else {
             this.gameLogService.sendItemLog(activePlayer, room.roomId, server, itemPickedUp);
             activePlayer = this.updatePlayerWithItem(activePlayer, itemPickedUp);
@@ -31,7 +32,7 @@ export class PlayerInventoryService {
             this.roomService.updateRoomMap(room);
         }
         client.emit('updateInventory', activePlayer);
-        server.to(room.roomId).emit('updateTile', {player : activePlayer, wasDropped : false, droppedItem : 0});
+        server.to(room.roomId).emit('updateTile', { player: activePlayer, wasDropped: false, droppedItem: 0 });
         this.roomService.updateRoomPlayers(client, activePlayer);
     }
 
@@ -127,11 +128,12 @@ export class PlayerInventoryService {
         const room = this.roomService.getRoom(infoSwap.client);
         this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[0].id);
         this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
-        
+
         room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
         this.roomService.updateRoomMap(room);
+
         // infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
-        infoSwap.server.to(room.roomId).emit('updateTile', {player : infoSwap.player, wasDropped : true, droppedItem : infoSwap.droppedItem}); // should visually update the tile after swapping
+        infoSwap.server.to(room.roomId).emit('updateTile', { player: infoSwap.player, wasDropped: true, droppedItem: infoSwap.droppedItem }); // should visually update the tile after swapping
         return infoSwap.player;
     }
 }
