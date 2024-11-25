@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Player, Position } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
 import { NavigationService } from '@app/services/navigation/navigation.service';
-import { GameMode, POST_GAME_STAT_TYPES, TileType, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, POST_GAME_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { Room } from '@common/room';
 import { PostGameStat } from '@common/post-game-stat';
 
@@ -18,15 +18,15 @@ export class PostGameService {
     totalDoors: number = -1;
     explanations: string = '';
     selectedAttribute: string = '';
-    sortOrder: { [key: string]: 'ascending' | 'descending' | 'unsorted' } = {
-        combats: 'unsorted',
-        victories: 'unsorted',
-        evasions: 'unsorted',
-        defeats: 'unsorted',
-        dmgDealt: 'unsorted',
-        dmgTaken: 'unsorted',
-        itemsObtained: 'unsorted',
-        tilesVisited: 'unsorted',
+    sortOrder: { [key: string]: SortOrder } = {
+        combats: SortOrder.Unsorted,
+        victories: SortOrder.Unsorted,
+        evasions: SortOrder.Unsorted,
+        defeats: SortOrder.Unsorted,
+        dmgDealt: SortOrder.Unsorted,
+        dmgTaken: SortOrder.Unsorted,
+        itemsObtained: SortOrder.Unsorted,
+        tilesVisited: SortOrder.Unsorted,
     };
 
     globalStats: GlobalPostGameStats = {
@@ -47,21 +47,21 @@ export class PostGameService {
     resetOtherAttributes(attribute: keyof Player['postGameStats']) {
         Object.keys(this.sortOrder).forEach((key) => {
             if (key !== attribute) {
-                this.sortOrder[key] = 'unsorted';
+                this.sortOrder[key] = SortOrder.Unsorted;
             }
         });
     }
 
     toggleSortOrder(attribute: keyof Player['postGameStats']) {
-        if (this.sortOrder[attribute] === 'unsorted' || this.sortOrder[attribute] === 'ascending') {
-            this.sortOrder[attribute] = 'descending';
+        if (this.sortOrder[attribute] === SortOrder.Unsorted || this.sortOrder[attribute] === SortOrder.Ascending) {
+            this.sortOrder[attribute] = SortOrder.Descending;
         } else {
-            this.sortOrder[attribute] = 'ascending';
+            this.sortOrder[attribute] = SortOrder.Ascending;
         }
     }
 
     performSorting(attribute: keyof Player['postGameStats']) {
-        const isAscending = this.sortOrder[attribute] === 'ascending';
+        const isAscending = this.sortOrder[attribute] === SortOrder.Ascending;
 
         this.players.sort((a, b) => {
             const valA = a.postGameStats[attribute];

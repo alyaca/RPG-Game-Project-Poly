@@ -1,4 +1,4 @@
-import { PostGameStat } from "@common/post-game-stat";
+import { PostGameStat } from '@common/post-game-stat';
 
 export enum MapSize {
     Small = 'small',
@@ -317,3 +317,9 @@ export const POST_GAME_STAT_TYPES: PostGameStat[] = [
         explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
     },
 ];
+
+export enum SortOrder {
+    Unsorted = 'unsorted',
+    Ascending = 'ascending',
+    Descending = 'descending',
+}

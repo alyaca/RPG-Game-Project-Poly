@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { SortOrder } from '@app/constants';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { Player } from '@common/player';
 @Component({
@@ -12,6 +13,7 @@ import { Player } from '@common/player';
 export class PostGameAttributeComponent {
     @Input() attribute: keyof Player['postGameStats'];
     @Input() displayTxt: string;
+    sortOrder = SortOrder;
     constructor(public postGameService: PostGameService) {}
 
     isAttrRecord() {
