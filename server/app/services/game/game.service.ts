@@ -339,38 +339,6 @@ export class GameService {
         this.checkAttack(room, server);
     }
 
-    checkDoors(room: Room, server: Server) {
-        const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
-            server.to(room.roomId).emit('doorAround', true);
-        } else {
-            server.to(room.roomId).emit('doorAround', false);
-        }
-    }
-
-    checkAttack(room: Room, server: Server) {
-        const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
-            server.to(room.roomId).emit('attackAround', true);
-        } else {
-            server.to(room.roomId).emit('attackAround', false);
-        }
-    }
-
-    handleDoor(client: Socket, server: Server, doorActionData: DoorActionData) {
-        const { position, player } = doorActionData;
-        const room = this.roomService.getRoom(client);
-        const activePlayer = this.getActivePlayer(room);
-
-        if (room.navigation.hasHandleDoorAction(position.x, position.y, player)) {
-            this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, position);
-            // this.gameLogsService.sendDoorMessage(room.gameMap.tiles[position.x][position.y], activePlayer, room.roomId, server);
-            server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
-            const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit('reachableTiles', reachability);
-        }
-    }
-
     checkEndTurn(client: Socket, activePlayer: Player): boolean {
         if (!activePlayer || !this.isActivePlayer(client)) return;
         const room = this.roomService.getRoom(client);
@@ -402,6 +370,7 @@ export class GameService {
         const activePlayer = this.getActivePlayer(room);
 
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
+            this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
             activePlayer.attributes.actionPoints = 0;
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);

@@ -82,7 +82,7 @@ export class CombatService {
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
-            this.addDmgStats(room);
+            this.addDmgStats(room, combatPlayers);
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
@@ -120,7 +120,7 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
             this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
-            this.addDraws(room);
+            this.addDraws(room, combatPlayers);
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
         } else {
@@ -231,30 +231,6 @@ export class CombatService {
         server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
-    addDefeat(room: Room, player: Player) {
-        const playerLoser = room.listPlayers.find((p) => p.id === player.id);
-        playerLoser.postGameStats.defeats++;
-        playerLoser.postGameStats.combats++;
-    }
-
-    addDraws(room: Room) {
-        // branche de Kim:
-        // const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        // const player2     = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        const player2 = room.listPlayers.find((p) => p.id === this.defender.id);
-        player1.postGameStats.evasions++;
-        player1.postGameStats.combats++;
-        player2.postGameStats.evasions++;
-        player2.postGameStats.combats++;
-    }
-
-    addDmgStats(room: Room) {
-        const attacker = room.listPlayers.find((p) => p.id === this.attacker.id);
-        const defender = room.listPlayers.find((p) => p.id === this.defender.id);
-        attacker.postGameStats.dmgDealt++;
-        defender.postGameStats.dmgTaken++;
-    }
 
     addDefeat(room: Room, player: Player) {
         const playerLoser = room.listPlayers.find((p) => p.id === player.id);
@@ -262,21 +238,21 @@ export class CombatService {
         playerLoser.postGameStats.combats++;
     }
 
-    addDraws(room: Room) {
+    addDraws(room: Room, players: CombatPlayers) {
         // branche de Kim:
         // const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
         // const player2     = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        const player2 = room.listPlayers.find((p) => p.id === this.defender.id);
+        const player1 = room.listPlayers.find((p) => p.id === players.attacker.id);
+        const player2 = room.listPlayers.find((p) => p.id === players.defender.id);
         player1.postGameStats.evasions++;
         player1.postGameStats.combats++;
         player2.postGameStats.evasions++;
         player2.postGameStats.combats++;
     }
 
-    addDmgStats(room: Room) {
-        const attacker = room.listPlayers.find((p) => p.id === this.attacker.id);
-        const defender = room.listPlayers.find((p) => p.id === this.defender.id);
+    addDmgStats(room: Room, players: CombatPlayers) {
+        const attacker = room.listPlayers.find((p) => p.id === players.attacker.id);
+        const defender = room.listPlayers.find((p) => p.id === players.defender.id);
         attacker.postGameStats.dmgDealt++;
         defender.postGameStats.dmgTaken++;
     }

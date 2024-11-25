@@ -14,6 +14,7 @@ export const mockRoom: Room = {
     isLocked: false,
     gameStatus: GameStatus.Lobby,
     navigation: mockNavigation,
+    globalPostGameStats: defaultGlobalStats
 };
 
 export const mockRooms: Room[] = [
