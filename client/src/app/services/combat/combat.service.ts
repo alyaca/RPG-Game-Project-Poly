@@ -51,8 +51,8 @@ export class CombatService {
         });
 
         this.socketCommunicationService.on('attackValues', (data: { attackValue: CombatResult; defenseValue: CombatResult }) => {
-            this.attacker.attributes.attack = data.attackValue.total;
-            this.defender.attributes.defense = data.defenseValue.total;
+            // this.attacker.attributes.attack = data.attackValue.total;
+            // this.defender.attributes.defense = data.defenseValue.total;
             this.attackResult = data.attackValue;
             this.defenseResult = data.defenseValue;
             this.isRolling = false;
