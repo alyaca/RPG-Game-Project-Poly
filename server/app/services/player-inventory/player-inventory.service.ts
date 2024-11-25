@@ -3,7 +3,7 @@ import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { GameLogsService } from '../game-logs/game-logs.service';
 import { RoomService } from '../room/room.service';
 
@@ -14,8 +14,9 @@ export class PlayerInventoryService {
         private gameLogService: GameLogsService,
     ) {}
 
-    updateInventory(server: Server, client: Socket, allItems: number[][], activePlayer: Player, itemPickedUp: number) {
+    updateInventory(client: Socket, allItems: number[][], activePlayer: Player) {
         const room = this.roomService.getRoom(client);
+        let itemPickedUp = allItems[activePlayer.position.x][activePlayer.position.y];
         if (itemPickedUp === ObjectType.Random) {
             itemPickedUp = this.determineRandomItem(allItems);
         }
@@ -25,7 +26,7 @@ export class PlayerInventoryService {
             client.emit('openItemSwitchModal', { activePlayer, itemPickedUp });
             return;
         } else {
-            this.gameLogService.sendItemLog(activePlayer, room.roomId, server, itemPickedUp);
+            //this.gameLogService.sendItemLog(activePlayer, room.roomId, server, itemPickedUp);
             activePlayer = this.updatePlayerWithItem(activePlayer, itemPickedUp);
 
             room.gameMap.itemPlacement[activePlayer.position.x][activePlayer.position.y] = 0;
@@ -33,7 +34,8 @@ export class PlayerInventoryService {
         }
         //Si j<envoi un seul event, avec activePlayer et droppedItem, ça devrait suffire
         client.emit('updateInventory', activePlayer);
-        server.to(room.roomId).emit('updateTile', { player: activePlayer, wasDropped: false, droppedItem: 0 });
+        //TODO : place in gameService
+        // server.to(room.roomId).emit('updateTile', { player: activePlayer, wasDropped: false, droppedItem: 0 });
         this.roomService.updateRoomPlayers(client, activePlayer);
     }
 
@@ -123,6 +125,7 @@ export class PlayerInventoryService {
         infoSwap.player = this.removeItemEffects(infoSwap.player, infoSwap.oldInventory[0].id);
         infoSwap.player = this.removeItemEffects(infoSwap.player, infoSwap.oldInventory[1].id);
 
+        infoSwap.player.inventory = infoSwap.modifiedInventory;
         infoSwap.player = this.addStatsFromItem(infoSwap.player, infoSwap.modifiedInventory[0].id);
         infoSwap.player = this.addStatsFromItem(infoSwap.player, infoSwap.modifiedInventory[1].id);
 
@@ -133,8 +136,8 @@ export class PlayerInventoryService {
         room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
         this.roomService.updateRoomMap(room);
 
-        // infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
-        infoSwap.server.to(room.roomId).emit('updateTile', { player: infoSwap.player, wasDropped: true, droppedItem: infoSwap.droppedItem }); // should visually update the tile after swapping
+        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
+        //infoSwap.server.to(room.roomId).emit('updateTile', { player: infoSwap.player, wasDropped: true, droppedItem: infoSwap.droppedItem }); // should visually update the tile after swapping
         return infoSwap.player;
     }
 }

@@ -15,5 +15,5 @@ export interface Room {
     isLocked: boolean;
     gameStatus: GameStatus;
     navigation?: Navigation;
-    isDebug?: boolean ;
+    isDebug?: boolean;
 }

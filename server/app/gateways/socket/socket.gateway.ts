@@ -8,7 +8,6 @@ import { GameService } from '@app/services/game/game.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
-import { GameObject } from '@common/game-object';
 import { Avatar, Behavior, Player, Position } from '@common/player';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -156,13 +155,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.ItemSwapped)
     handleItemSwapped(
         client: Socket,
-        {
-            activePlayer,
-            inventoryToUndo,
-            newInventory,
-            droppedItem,
-        }: { activePlayer: Player; inventoryToUndo: GameObject[]; newInventory: GameObject[]; droppedItem: number },
+        { inventoryToUndo, newInventory, droppedItem },
+        //: { activePlayer: Player; inventoryToUndo: GameObject[]; newInventory: GameObject[]; droppedItem: number },
     ) {
+        const room = this.roomService.getRoom(client);
+        let activePlayer = this.gameService.getActivePlayer(room);
         // remove activePlayer
         const infoSwap: InfoSwap = {
             server: this.server,
@@ -172,17 +169,19 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             modifiedInventory: newInventory,
             droppedItem: droppedItem,
         };
+        //const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
+        activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
 
-        const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
-        this.roomService.updateRoomPlayers(client, updatedPlayer);
-        const room = this.roomService.getRoom(infoSwap.client);
+        //this.roomService.updateRoomPlayers(client, activePlayer);
+        //il y a un probleme avec les tours, a voir si c a cause de ca
         this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
             if (timeLeft <= 0) {
                 this.gameService.onTurnEnded(infoSwap.client, infoSwap.server);
             }
             infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
         });
-        client.emit('updateInventory', updatedPlayer);
+        console.log('ITEMS : ', room.gameMap.itemPlacement);
+        client.emit('updateInventory', activePlayer);
     }
 
     @SubscribeMessage(SocketEvents.EvadeCombat)

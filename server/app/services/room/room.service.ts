@@ -104,6 +104,7 @@ export class RoomService {
         return this.rooms.get(roomCode);
     }
 
+    //TO be removed
     updateRoomPlayers(client: Socket, updatedPlayer: Player) {
         const room = this.getRoom(client);
         for (let i = 0; i < room.listPlayers.length; i++) {
@@ -114,8 +115,7 @@ export class RoomService {
         }
     }
 
-    updateRoomMap(newRoomVersion : Room)
-    {
+    updateRoomMap(newRoomVersion: Room) {
         this.rooms.get(newRoomVersion.roomId).gameMap.itemPlacement = newRoomVersion.gameMap.itemPlacement;
     }
 
