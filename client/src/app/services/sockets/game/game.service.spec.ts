@@ -125,14 +125,14 @@ describe('GameService', () => {
         });
     });
 
-    it('should navigate to join-game when result is close onPlayerKickedOut', (done) => {
+    it('should navigate to home when result is close onPlayerKickedOut', (done) => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onPlayerKickedOut();
         setTimeout(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/join-game']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
             done();
         });
     });

@@ -127,6 +127,7 @@ export class Navigation {
     }
 
     haveActions(player: Player, players: Player[]): boolean {
+        if (!this.hasActionPoints(player)) return false;
         if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
             return true;
         }
@@ -194,6 +195,10 @@ export class Navigation {
         return true;
     }
 
+    hasMovementPoints(player: Player) {
+        return player?.attributes.movementPointsLeft > 0;
+    }
+
     private findAllTilesDebug() {
         const reachableTiles: Position[] = [];
         for (let i = 0; i < this.gameMap.dimension; i++) {
@@ -211,7 +216,7 @@ export class Navigation {
         if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
         if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
         if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
-        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
+        if (this.hasPlayerOnTile({ x: row, y: col }, this.players)) return false;
         if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn) return true;
         return false;
     }
@@ -227,7 +232,7 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             // if (game.tiles[newX][newY] === TileType.Wall) continue;
-            if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
+            if (this.hasPlayerOnTile(neighbor, this.players)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 

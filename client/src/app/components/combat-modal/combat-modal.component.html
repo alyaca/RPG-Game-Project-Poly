@@ -21,8 +21,13 @@
     </div>
     <div class="middle-section">
         <div>
-            <div class="player-avatar-container" [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.activePlayer) }">
-                <img class="player-img left-player" src="{{ activePlayer.avatar?.src }}" alt="right player portrait" />
+            <div class="player-avatar-container">
+                <img
+                    class="player-img left-player"
+                    [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.activePlayer) }"
+                    src="{{ activePlayer.avatar?.src }}"
+                    alt="right player portrait"
+                />
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">
@@ -45,8 +50,13 @@
             <app-dice #dice1 [value]="combatService.opponentResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
         </div>
         <div>
-            <div class="player-avatar-container" [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.opponent) }">
-                <img class="player-img right-player" src="{{ opponent.avatar?.src }}" alt="right player portrait" />
+            <div class="player-avatar-container">
+                <img
+                    class="player-img right-player"
+                    [ngClass]="{ 'active-player-border': combatService.isAttacker(combatService.opponent) }"
+                    src="{{ opponent.avatar?.src }}"
+                    alt="right player portrait"
+                />
                 <div class="damaged-overlay"></div>
             </div>
             <div class="evasions-remaining">

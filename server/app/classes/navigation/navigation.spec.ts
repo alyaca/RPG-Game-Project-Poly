@@ -3,6 +3,7 @@ import { mockGameNavigation, mockNeighborGame } from '@app/mocks/map-mocks';
 import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
+import { mockRoomDebug } from '@app/mocks/mock-room';
 import { ObjectType } from '@common/avatars-info';
 import { Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
@@ -66,6 +67,7 @@ describe('Navigation', () => {
     });
 
     it('should return true if checkAttack or checkDoor return an array', () => {
+        navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(playerNavigation);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
@@ -76,6 +78,7 @@ describe('Navigation', () => {
     });
 
     it('haveActions should return false if checkAttack and checkDoor return undefined', () => {
+        navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(false);
@@ -322,6 +325,82 @@ describe('Navigation', () => {
             { x: 0, y: 0 },
             { x: 1, y: 0 },
         ]);
+    });
+
+    it('should return the final destination if room in debug mode and the tile is valid', () => {
+        const destination = { x: 1, y: 1 };
+
+        navigation['isTileValid'] = jest.fn().mockReturnValue(true);
+
+        const result = navigation.findFastestPath(playerNavigation, destination, mockRoomDebug[0]);
+        expect(result).toEqual([destination]);
+    });
+
+    it('should return all tiles in debug mode', () => {
+        const mockDebugTiles = [
+            { x: 0, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: 2 },
+            { x: 1, y: 0 },
+            { x: 1, y: 1 },
+            { x: 1, y: 2 },
+            { x: 2, y: 0 },
+            { x: 2, y: 1 },
+            { x: 2, y: 2 },
+        ];
+
+        navigation['isTileValid'] = jest.fn().mockReturnValue(true);
+        const result = navigation.findReachableTiles(playerNavigation, mockRoomDebug[0]);
+        expect(result).toEqual(mockDebugTiles);
+    });
+
+    it('should return false when the tiles are not valid for debug Mode', () => {
+        const position: Position = { x: 1, y: 1 };
+        navigation.gameMap.tiles = [
+            [TileType.Ground, TileType.OpenDoor],
+            [TileType.Wall, TileType.ClosedDoor],
+        ];
+        navigation.gameMap.itemPlacement = [
+            [NO_ITEM, NO_ITEM],
+            [NO_ITEM, NO_ITEM],
+        ];
+
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
+        const isValid = navigation['isTileValid'](position.x, position.y);
+        expect(isValid).toBe(false);
+    });
+
+    it('should return false when the tiles are terrain tile, but there is an objet on it', () => {
+        const position: Position = { x: 0, y: 0 };
+
+        navigation.gameMap.tiles = [
+            [TileType.Ground, TileType.OpenDoor],
+            [TileType.Wall, TileType.ClosedDoor],
+        ];
+        navigation.gameMap.itemPlacement = [
+            [TileType.ClosedDoor, NO_ITEM],
+            [NO_ITEM, NO_ITEM],
+        ];
+
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
+        const isValid = navigation['isTileValid'](position.x, position.y);
+        expect(isValid).toBe(false);
+    });
+
+    it('should return true when the tiles are valid for debug Mode', () => {
+        const position: Position = { x: 0, y: 0 };
+        navigation.gameMap.tiles = [
+            [TileType.Ground, TileType.OpenDoor],
+            [TileType.Wall, TileType.ClosedDoor],
+        ];
+        navigation.gameMap.itemPlacement = [
+            [NO_ITEM, NO_ITEM],
+            [NO_ITEM, NO_ITEM],
+        ];
+
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
+        const isValid = navigation['isTileValid'](position.x, position.y);
+        expect(isValid).toBe(true);
     });
 
     // TODO : Tests from navigation client to fix

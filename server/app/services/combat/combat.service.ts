@@ -1,8 +1,21 @@
-import { EVASION_SUCCESS_RATE, FIGHT_TIME, NO_EVASION_TIME, SPAWN_POINT_ID, VICTORIES } from '@app/constants';
+import {
+    DEFAULT_COMBAT_RESULT,
+    END_COMBAT_DELAY,
+    EVASION_SUCCESS_RATE,
+    FIGHT_TIME,
+    ICE_TILE_PENALTY_VALUE,
+    LogType,
+    MIN_DICE_VALUE,
+    NO_EVASION_TIME,
+    TileType,
+    VICTORIES,
+} from '@app/constants';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { CombatInfo } from '@common/combat-info';
+import { CombatInfos } from '@common/combat-info';
+import { CombatPlayers } from '@common/combat-player';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
@@ -10,37 +23,46 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 @Injectable()
 export class CombatService {
-    combatInfos = new Map<string, CombatInfo>();
-    attacker: Player;
-    defender: Player;
+    combatInfos = new Map<string, CombatInfos>();
     checkedXiphos = false;
-    private gameTime: number;
 
     constructor(
         private roomService: RoomService,
         private gameService: GameService,
+        private logService: GameLogsService,
     ) {}
 
-    emitToCombatPlayers(server: Server, event: string, data?) {
-        server.to(this.attacker.id).emit(event, data);
-        server.to(this.defender.id).emit(event, data);
+    emitToCombatPlayers(server: Server, players: CombatPlayers, event: string, data?) {
+        server.to(players.attacker.id).emit(event, data);
+        server.to(players.defender.id).emit(event, data);
     }
 
     startFight(client: Socket, player1: Player, player2: Player, isPlayer1Active: boolean, server: Server) {
-        const room = this.roomService.getRoom(client);
         this.checkedXiphos = false;
-        this.attacker = player1;
-        this.defender = player2;
-        this.gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
+        const room = this.roomService.getRoom(client);
+        const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
+        const combatPlayers = { attacker: player1, defender: player2, combatResultDetails: DEFAULT_COMBAT_RESULT };
+        const combatInfos: CombatInfos = {
+            combatPlayers,
+            gameTime,
+            room,
+            failEvasion: false,
+        };
+        this.handlePlayerOnIce(combatPlayers.attacker, room.gameMap.tiles, room.listPlayers);
+        this.handlePlayerOnIce(combatPlayers.defender, room.gameMap.tiles, room.listPlayers);
+
+        this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
+        this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        this.emitToCombatPlayers(server, 'startFight', { player1, player2, isPlayer1Active });
+        this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
         this.onStartTurn(client, server, room);
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {
-        const turnTime = this.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
+        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        const turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
         this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
-            this.emitToCombatPlayers(server, 'combatTime', timeRemaining);
+            this.emitToCombatPlayers(server, combatPlayers, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
             }
@@ -48,26 +70,29 @@ export class CombatService {
     }
 
     onEndTurn(client: Socket, server: Server, room: Room) {
-        [this.attacker, this.defender] = [this.defender, this.attacker];
-        this.emitToCombatPlayers(server, 'combatTurnEnded', { attacker: this.attacker, defender: this.defender });
+        const combatInfos = this.combatInfos.get(room.roomId);
+        const combatPlayers = combatInfos.combatPlayers;
+        [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
+        this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', { combatPlayers, failEvasion: combatInfos.failEvasion });
+        combatInfos.failEvasion = false;
         this.onStartTurn(client, server, room);
     }
 
-    checkXiphos(server: Server) {
-        if (this.attacker.inventory.find((objects) => objects.id === ObjectType.Xiphos)) {
-            if (this.attacker.attributes.currentHp <= this.attacker.attributes.totalHp / 2) {
-                this.defender.attributes.defense -= 1;
-                this.attacker.attributes.attack += 2;
-                this.emitToCombatPlayers(server, 'updateStats', { attacker: this.attacker, defender: this.defender });
+    checkXiphos(server: Server, players: CombatPlayers) {
+        if (players.attacker.inventory.find((objects) => objects.id === ObjectType.Xiphos)) {
+            if (players.attacker.attributes.currentHp <= players.attacker.attributes.totalHp / 2) {
+                players.defender.attributes.defense -= 1;
+                players.attacker.attributes.attack += 2;
+                this.emitToCombatPlayers(server, players, 'updateStats', { attacker: players.attacker, defender: players.defender });
                 return true;
             }
             return false;
         }
     }
 
-    checkAchillesArmor() {
-        if (this.attacker.inventory.find((objects) => objects.id === ObjectType.Armor)) {
-            this.attacker.attributes.currentHp--;
+    checkAchillesArmor(combatPlayers: CombatPlayers) {
+        if (combatPlayers.attacker.inventory.find((objects) => objects.id === ObjectType.Armor)) {
+            combatPlayers.attacker.attributes.currentHp--;
             return true;
         }
         return false;
@@ -75,55 +100,62 @@ export class CombatService {
 
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        // xiphos item effect
-        if (!this.checkedXiphos) {
-            this.checkedXiphos = this.checkXiphos(server);
+        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+        const debugMode = room.isDebug;
+        if (!this.checkXiphos) {
+            this.checkedXiphos = this.checkXiphos(server, combatPlayers);
         }
-        const { attackValue, defenseValue } = this.getCombatValues();
-        this.emitToCombatPlayers(server, 'attackValues', { attackValue, defenseValue });
-
-        if (attackValue.total > defenseValue.total) {
-            this.defender.attributes.currentHp--;
-            this.emitToCombatPlayers(server, 'attackSuccess', this.attacker);
+        const { attackValues, defenseValues } = this.getCombatValues(combatPlayers, debugMode);
+        this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
+        if (attackValues.total > defenseValues.total) {
+            combatPlayers.defender.attributes.currentHp--;
+            this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
-            // Armor item, check objets-info.ts in common for full description
-            const shouldLowerAttackerHp = this.checkAchillesArmor();
-            // this.emitToCombatPlayers(server, 'attackFail', this.attacker, shouldLowerAttackerHp);
-            this.emitToCombatPlayers(server, 'attackFail', { attacker: this.attacker, shouldDamageSelf: shouldLowerAttackerHp });
+            const shouldDamageSelf = this.checkAchillesArmor(combatPlayers);
+            // this.emitToCombatPlayers(server, combatPlayers, 'attackFail', combatPlayers.attacker);
+            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', { attacker: combatPlayers.attacker, shouldDamageSelf: shouldDamageSelf });
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
-        const isPlayerDead = this.checkIfPlayerIsDead(client, this.defender, this.attacker, server);
+        this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
+        const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
             this.onEndTurn(client, server, room);
         }
     }
 
-    getCombatValues() {
-        // const attackDiceValue = this.gameService.isDebugMode? this.attacker.attributes.atkDiceMax : this.getRandomValue(this.attacker.attributes.atkDiceMax);
-        const attackDiceValue = this.getRandomValue(this.attacker.attributes.atkDiceMax);
-
-        const attackValue = {
-            total: this.attacker.attributes.attack + attackDiceValue,
+    getCombatValues(combatPlayers: CombatPlayers, debugMode: boolean) {
+        const attackDiceValue = debugMode
+            ? combatPlayers.attacker.attributes.atkDiceMax
+            : this.getRandomValue(combatPlayers.attacker.attributes.atkDiceMax);
+        const attackValues = {
+            total: combatPlayers.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
-        // const defenseDiceValue = this.gameService.isDebugMode? MIN_DICE_VALUE : this.getRandomValue(this.defender.attributes.defDiceMax);
-        const defenseDiceValue = this.getRandomValue(this.defender.attributes.defDiceMax);
-
-        const defenseValue = {
-            total: this.defender.attributes.defense + defenseDiceValue,
+        const defenseDiceValue = debugMode ? MIN_DICE_VALUE : this.getRandomValue(combatPlayers.defender.attributes.defDiceMax);
+        const defenseValues = {
+            total: combatPlayers.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,
         };
-        return { attackValue, defenseValue };
+        combatPlayers.combatResultDetails = { attackValues, defenseValues };
+        return { attackValues, defenseValues };
     }
 
-    evadingPlayer(client: Socket, player: Player, server: Server) {
+    evadingPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.attacker.attributes.evasion--;
+        const combatInfos = this.combatInfos.get(room.roomId);
+        const combatPlayers = combatInfos.combatPlayers;
+        combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.emitToCombatPlayers(server, 'evasionSuccess', player);
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
+            this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
             this.continueTurn(client, server);
-            this.emitToCombatPlayers(server, 'combatEnd', room.listPlayers);
+            this.combatInfos.delete(room.roomId);
         } else {
-            this.emitToCombatPlayers(server, 'evasionFail', player);
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatFail);
+            this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', combatPlayers.attacker);
+            combatInfos.failEvasion = true;
             this.onEndTurn(client, server, room);
         }
     }
@@ -134,59 +166,66 @@ export class CombatService {
 
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        this.resetCombatState(room);
+        this.logService.sendPlayerLog(room.roomId, server, player2, LogType.WinCombat);
         this.addVictory(room, player2, server);
-        client.to(room.roomId).emit('playerDead', player1);
+        client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
     }
 
     continueTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        this.combatEnded(room);
-        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
-            if (timeRemaining <= 0) {
-                this.gameService.onTurnEnded(client, server);
-            }
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-        });
+        const activePlayer = this.gameService.getActivePlayer(room);
+        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
+        this.resetCombatState(room);
+        setTimeout(() => {
+            this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
+                if (timeRemaining <= 0) {
+                    this.gameService.onTurnEnded(activePlayerSocket, server);
+                }
+                server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+            });
+        }, END_COMBAT_DELAY);
     }
 
-    combatEnded(room: Room) {
+    resetCombatState(room: Room) {
         this.roomService.getFightTimer(room.roomId).stopTimer();
+        this.combatInfos.delete(room.roomId);
         room.listPlayers.forEach((player) => {
             player.attributes.currentHp = player.attributes.totalHp;
         });
     }
 
     checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
-        const activePlayer = this.gameService.getActivePlayer(room);
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatFinish(client, defender, attacker, server);
-            if (activePlayer.id !== defender.id) {
-                this.continueTurn(client, server);
-                const reachability = room.navigation.findReachableTiles(attacker, room);
-                server.to(room.roomId).emit('reachableTiles', reachability);
-            } else {
-                this.combatEnded(room);
-                this.gameService.onTurnEnded(client, server);
-            }
+            this.manageTurnAfterCombat(client, defender, attacker, server);
             return true;
         }
-        // else if (attacker.attributes.currentHp <= 0) {
-        //     this.replacePlayerOnSpawnPoint(attacker, client, server);
-        //     this.combatFinish(client, attacker, defender, server);
-        //     this.continueTurn(client, server);
-        //     return true;
-        // const reachability = room.navigation.findReachableTiles(attacker, room.gameMap);
-        // server.to(room.roomId).emit('reachableTiles', reachability);
-        // }
         return false;
+    }
+
+    manageTurnAfterCombat(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
+        const activePlayer = this.gameService.getActivePlayer(room);
+        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
+        if (activePlayer.id !== defender.id) {
+            this.continueTurn(client, server);
+            const reachability = room.navigation.findReachableTiles(attacker, room);
+            server.to(room.roomId).emit('reachableTiles', reachability);
+        } else {
+            this.resetCombatState(room);
+            setTimeout(() => {
+                this.gameService.onTurnEnded(activePlayerSocket, server);
+            }, END_COMBAT_DELAY);
+        }
     }
 
     checkEndGame(player: Player, room: Room, server: Server) {
         if (player.victories >= VICTORIES) {
             server.to(room.roomId).emit('endGame', player);
             this.gameService.stopGameTimers(room);
+            this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         }
     }
 
@@ -197,42 +236,53 @@ export class CombatService {
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
+        this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
         this.defaultCombatWin(room, winner, server);
         if (winner.isActive) {
             const winnerSocket = server.sockets.sockets.get(winner.id);
             this.continueTurn(winnerSocket, server);
         }
-        this.combatEnded(room);
+        this.resetCombatState(room);
     }
 
     isInCombat(client: Socket) {
-        return client.id === this.attacker?.id || client.id === this.defender?.id;
+        if (!this.combatInfos.has(client.data?.roomCode)) return false;
+        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
+        return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
 
     addVictory(room: Room, player: Player, server: Server) {
         const playerWinner = room.listPlayers.find((p) => p.id === player.id);
         playerWinner.victories++;
         this.checkEndGame(playerWinner, room, server);
-        server.to(room.roomId).emit('combatEnd', room.listPlayers);
+        this.combatInfos.delete(room.roomId);
+        server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
-    replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server): void {
+    replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {
         const room = this.roomService.getRoom(socket);
+        const players = room.listPlayers;
         const playerToReplace = room.listPlayers.find((p) => p.id === player.id);
         if (!playerToReplace) return;
         room.gameMap.itemPlacement[playerToReplace.position.x][playerToReplace.position.y] = 0;
-        if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
+        if (this.checkSpawnPointAvailability(playerToReplace, players)) {
             const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
             server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         } else {
             const oldPosition = playerToReplace.position;
+            this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
             server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         }
     }
 
-    checkSpawnPointAvailability(player: Player, gameObjects: number[][]): boolean {
-        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === SPAWN_POINT_ID;
+    checkSpawnPointAvailability(player: Player, players: Player[]): boolean {
+        for (const p of players) {
+            if (p.position.x === player.spawnPosition.x && p.position.y === player.spawnPosition.y) {
+                return false;
+            }
+        }
+        return true;
     }
 
     replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {
@@ -243,6 +293,8 @@ export class CombatService {
                 return neighbor;
             }
         }
+        player.position = neighbors[0];
+        return this.replacePlayerOnNeighborTile(player, gameMap);
     }
 
     private getNeighbors(position: Position, game: Game): Position[] {
@@ -267,6 +319,16 @@ export class CombatService {
     }
 
     private getOpponent(client: Socket): Player {
-        return client.id === this.attacker.id ? this.defender : this.attacker;
+        const combatPlayers = this.combatInfos.get(client.data?.roomCode)?.combatPlayers;
+        return client.id === combatPlayers.attacker.id ? combatPlayers.defender : combatPlayers.attacker;
+    }
+
+    private handlePlayerOnIce(player: Player, tiles: number[][], listPlayers: Player[]) {
+        const playerInRoom = listPlayers.find((p) => p.id === player.id);
+        const { x, y } = playerInRoom.position;
+        if (tiles[x][y] === TileType.Ice) {
+            player.attributes.attack -= ICE_TILE_PENALTY_VALUE;
+            player.attributes.defense -= ICE_TILE_PENALTY_VALUE;
+        }
     }
 }

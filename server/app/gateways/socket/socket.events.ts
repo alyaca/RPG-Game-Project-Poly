@@ -15,7 +15,6 @@ export enum SocketEvents {
     BeforeStartTurn = 'beforeStartTurn',
     PlayerNavigation = 'playerNavigation',
     KickPlayer = 'kickPlayer',
-    SendGameLog = 'sendGameLog',
     StartFight = 'startFight',
     AttackPlayer = 'attackPlayer',
     EvadeCombat = 'evadeCombat',
@@ -29,5 +28,6 @@ export enum SocketEvents {
     DoorAction = 'doorAction',
     DebugMode = 'debugMode',
     TeleportPlayer = 'teleportPlayer',
+    FindPath = 'findPath',
     MovePlayerFromWall = 'movePlayerFromWall',
 }
