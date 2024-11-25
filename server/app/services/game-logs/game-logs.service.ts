@@ -10,15 +10,6 @@ export class GameLogsService {
     logs = new Map<string, ILogMessage[]>();
     lastLog = new Map<string, string>();
 
-    private sendLog(roomId: string, server: Server, players: Player[], message: string) {
-        const currentLog = this.lastLog.get(roomId);
-        if (currentLog !== message) {
-            this.lastLog.set(roomId, message);
-            const log = this.createLog(players, message, roomId);
-            server.to(roomId).emit('logReceived', log);
-        }
-    }
-
     sendDebugLog(isDebugMode: boolean, roomId: string, server: Server) {
         const message = this.generateDebugMessage(isDebugMode);
         this.sendLog(roomId, server, [], message);

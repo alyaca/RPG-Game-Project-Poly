@@ -383,11 +383,6 @@ export class GameService {
         }
     }
 
-    private checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
-    }
-
     private freeUpAvatar(room: Room, socket: Socket) {
         if (socket.data.clickedAvatar) {
             const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
@@ -439,21 +434,6 @@ export class GameService {
 
     private getPlayerConnectedInRoom(room: Room) {
         return room.listPlayers.filter((player) => player.status !== Status.Disconnected);
-    }
-
-    private getCost(tileType: number): number {
-        switch (tileType) {
-            case TileType.Ground:
-                return TileCost.Ground;
-            case TileType.Water:
-                return TileCost.Water;
-            case TileType.Ice:
-                return TileCost.Ice;
-            case TileType.OpenDoor:
-                return TileCost.OpenDoor;
-            default:
-                return Infinity;
-        }
     }
 
     private isActivePlayer(socket: Socket) {

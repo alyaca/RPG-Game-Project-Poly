@@ -13,7 +13,6 @@ import { Subscription } from 'rxjs';
     selector: 'app-combat-modal',
     standalone: true,
     imports: [TimerComponent, DiceComponent, CommonModule, CombatStatsBarComponent],
-    imports: [TimerComponent, DiceComponent, CommonModule, CombatStatsBarComponent],
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
