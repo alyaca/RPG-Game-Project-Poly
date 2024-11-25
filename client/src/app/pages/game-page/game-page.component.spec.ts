@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME, WARNING_TIME } from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME, WARNING_TIME } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -57,7 +57,7 @@ describe('GamePageComponent', () => {
         dialogRefSpy.afterClosed.and.returnValue(of({ action: 'left' }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints', 'openTempDialog']);
         navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack']);
 
         await TestBed.configureTestingModule({
@@ -424,17 +424,18 @@ describe('GamePageComponent', () => {
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('startTurn');
     });
 
-    it('should call gameService.openDialog with the correct parameters for onPlayerFell', () => {
-        const endTurnSpy = spyOn(component, 'onEndTurn');
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
+    it('should call gameService.openTempDialog with the correct parameters for onPlayerFell', () => {
+        gameServiceSpy.openTempDialog.and.returnValue(of(undefined));
+        spyOn(component, 'onEndTurn');
+
         component.onPlayerFell();
-        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+
+        expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
             title: DialogTitle.EndTurn,
-            messages: [DialogMessages.Fell],
-            confirm: false,
-            options: [DialogOptions.Close],
+            message: DialogMessages.Fell,
+            duration: INFO_DIALOG_TIME,
         });
-        expect(endTurnSpy).toHaveBeenCalled();
+        expect(component.onEndTurn).toHaveBeenCalled();
     });
 
     it('should update timeRemainingBeforeStartTurn when beforeStartTurnTimer event is emitted', () => {

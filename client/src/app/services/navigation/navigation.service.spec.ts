@@ -138,4 +138,8 @@ describe('NavigationServiceService', () => {
         const result = service.getPortraitId('');
         expect(result).toEqual(ObjectType.Spawn);
     });
+
+    it('should return the spawn for unknown names', () => {
+        expect(service.getPortraitId('')).toBe(ObjectType.Spawn);
+    });
 });

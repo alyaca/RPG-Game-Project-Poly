@@ -1,0 +1,75 @@
+import { CombatInfos } from '@common/combat-info';
+import { CombatPlayers } from '@common/combat-player';
+import { CombatResultDetails } from '@common/combat-result';
+import { Behavior, Player, Status } from '@common/player';
+import { mockRooms } from './mock-room';
+
+export const mockCombatResultDetails: CombatResultDetails = {
+    attackValues: { diceValue: 0, total: 0 },
+    defenseValues: { diceValue: 0, total: 0 },
+};
+
+export const mockAttacker: Player = {
+    id: 'attackerId',
+    attributes: {
+        totalHp: 10,
+        currentHp: 10,
+        speed: 4,
+        movementPointsLeft: 3,
+        maxActionPoints: 1,
+        actionPoints: 1,
+        attack: 10,
+        atkDiceMax: 6,
+        defense: 1,
+        defDiceMax: 1,
+        evasion: 2,
+    },
+    avatar: undefined,
+    isActive: true,
+    name: 'name',
+    status: Status.Player,
+    victories: 1,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+    spawnPosition: { x: 0, y: 0 },
+};
+
+export const mockDefender: Player = {
+    id: 'defenderId',
+    attributes: {
+        totalHp: 10,
+        currentHp: 5,
+        speed: 4,
+        movementPointsLeft: 3,
+        maxActionPoints: 1,
+        actionPoints: 1,
+        attack: 10,
+        atkDiceMax: 6,
+        defense: 5,
+        defDiceMax: 6,
+        evasion: 2,
+    },
+    avatar: undefined,
+    isActive: true,
+    name: 'name',
+    status: Status.Player,
+    victories: 1,
+    inventory: [],
+    position: { x: 5, y: 0 },
+    behavior: Behavior.Sentient,
+    spawnPosition: { x: 1, y: 0 },
+};
+
+export const mockCombatPlayers: CombatPlayers = {
+    attacker: mockAttacker,
+    defender: mockDefender,
+    combatResultDetails: mockCombatResultDetails,
+};
+
+export const mockCombatInfos: CombatInfos = {
+    combatPlayers: mockCombatPlayers,
+    gameTime: 60,
+    room: mockRooms[0],
+    failEvasion: false,
+};

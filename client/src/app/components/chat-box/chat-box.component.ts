@@ -18,13 +18,15 @@ import { Subscription } from 'rxjs';
 })
 export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
+    @ViewChild('logContainer') logContainer: ElementRef<HTMLDivElement>;
+
     @Input() isToggleable: boolean;
+    @Input() areLogsVisible: boolean = false;
     messages: ChatMessage[] = [];
     logs: LogMessage[] = [];
     filteredLogs: LogMessage[] = [];
     newMessage: string = '';
     newLog: string = '';
-    areLogsVisible: boolean = false;
     areLogsFiltered: boolean = false;
     chatType: string = 'Messagerie';
     toggleIconImage: string = './assets/images/icones/chat-message.png';
@@ -45,6 +47,9 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         if (this.messageContainer) {
             this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
         }
+        if (this.logContainer) {
+            this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
+        }
     }
 
     ngOnInit(): void {
@@ -64,6 +69,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
                 this.logs.push(message);
             }
         });
+        this.chatType = this.areLogsVisible ? 'Journal de jeu non filtré' : 'Messagerie';
     }
 
     isPlayerInLog(message: LogMessage): boolean {

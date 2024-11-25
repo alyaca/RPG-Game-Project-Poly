@@ -1,8 +1,10 @@
 import { Timer } from '@app/classes/timer/timer';
-import { EVASION_SUCCESS_RATE } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE } from '@app/constants';
+import { mockCombatInfos, mockCombatPlayers } from '@app/mocks/mock-combat-infos';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { CombatService } from '@app/services/combat/combat.service';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Player } from '@common/player';
@@ -14,10 +16,9 @@ describe('CombatService', () => {
     let service: CombatService;
     let mockRoomService: jest.Mocked<RoomService>;
     let mockGameService: jest.Mocked<GameService>;
+    let mockLogsService: jest.Mocked<GameLogsService>;
     let mockServer: Server;
     let mockClient: Socket;
-    let attacker: Player;
-    let defender: Player;
     let room: Room;
     beforeEach(async () => {
         mockRoomService = {
@@ -39,21 +40,38 @@ describe('CombatService', () => {
             getActivePlayer: jest.fn(),
         } as unknown as jest.Mocked<GameService>;
 
+        mockLogsService = {
+            createLog: jest.fn(),
+            getGameLog: jest.fn(),
+            sendPlayerLog: jest.fn(),
+            sendEndGameLog: jest.fn(),
+            sendGlobalCombatLog: jest.fn(),
+            sendCombatActionLog: jest.fn(),
+            sendCombatCombatResultLog: jest.fn(),
+        } as unknown as jest.Mocked<GameLogsService>;
+
         mockServer = {
             to: jest.fn().mockReturnThis(),
             emit: jest.fn(),
+            sockets: {
+                sockets: new Map(),
+            },
         } as unknown as jest.Mocked<Server>;
 
         mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
-        mockClient = { data: { id: 'admin1234' }, to: jest.fn().mockReturnThis(), emit: jest.fn() } as unknown as Socket;
-        attacker = { id: 'attackerId', attributes: { currentHp: 10, totalHp: 10, evasion: 2 } } as Player;
-        defender = { id: 'defenderId', attributes: { currentHp: 10, totalHp: 10 } } as Player;
         room = mockRooms[0];
         const module: TestingModule = await Test.createTestingModule({
-            providers: [CombatService, { provide: RoomService, useValue: mockRoomService }, { provide: GameService, useValue: mockGameService }],
+            providers: [
+                CombatService,
+                { provide: RoomService, useValue: mockRoomService },
+                { provide: GameService, useValue: mockGameService },
+                { provide: GameLogsService, useValue: mockLogsService },
+            ],
         }).compile();
 
         service = module.get<CombatService>(CombatService);
+        service.combatInfos.set(room.roomId, mockCombatInfos);
+        mockRoomService.getRoom.mockReturnValue(room);
     });
 
     it('should be defined', () => {
@@ -64,29 +82,25 @@ describe('CombatService', () => {
         it('should emit the event to both activePlayer and defensePlayer', () => {
             const event = 'testEvent';
             const data = { key: 'value' };
-            service.attacker = attacker;
-            service.defender = defender;
+            service.emitToCombatPlayers(mockServer, mockCombatPlayers, event, data);
 
-            service.emitToCombatPlayers(mockServer, event, data);
-
-            expect(mockServer.to).toHaveBeenCalledWith(service.attacker.id);
-            expect(mockServer.to).toHaveBeenCalledWith(service.defender.id);
-            expect(mockServer.to(service.attacker.id).emit).toHaveBeenCalledWith(event, data);
-            expect(mockServer.to(service.defender.id).emit).toHaveBeenCalledWith(event, data);
+            expect(mockServer.to).toHaveBeenCalledWith(mockCombatPlayers.attacker.id);
+            expect(mockServer.to).toHaveBeenCalledWith(mockCombatPlayers.defender.id);
+            expect(mockServer.to(mockCombatPlayers.attacker.id).emit).toHaveBeenCalledWith(event, data);
+            expect(mockServer.to(mockCombatPlayers.defender.id).emit).toHaveBeenCalledWith(event, data);
         });
     });
 
     describe('startFight', () => {
         it('should initialize players and emit startFight event', () => {
             const isPlayer1Active = true;
-            mockRoomService.getRoom.mockReturnValue(room);
             service.emitToCombatPlayers = jest.fn();
             service.onStartTurn = jest.fn();
+            service['handlePlayerOnIce'] = jest.fn();
 
-            service.startFight(mockClient, attacker, defender, isPlayer1Active, mockServer);
+            service.startFight(mockClient, mockCombatPlayers.attacker, mockCombatPlayers.defender, isPlayer1Active, mockServer);
 
-            expect(service.attacker).toBe(attacker);
-            expect(service.defender).toBe(defender);
+            expect(service.combatInfos.get(room.roomId)).toEqual(mockCombatInfos);
             expect(service.emitToCombatPlayers).toHaveBeenCalled();
             expect(service.onStartTurn).toHaveBeenCalledWith(mockClient, mockServer, room);
         });
@@ -102,7 +116,6 @@ describe('CombatService', () => {
             resetTimer: resetTimerMock,
         } as unknown as Timer;
         jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
-        service.attacker = attacker;
         service.emitToCombatPlayers = jest.fn();
         service.attackPlayer = jest.fn();
         room.listPlayers.push(mockPlayers[0]);
@@ -113,52 +126,51 @@ describe('CombatService', () => {
     });
 
     it('should switch attacker onEndTurn', () => {
-        service.attacker = attacker;
-        service.defender = defender;
-
         service.emitToCombatPlayers = jest.fn();
         service.onStartTurn = jest.fn();
 
-        service.onEndTurn(mockClient, mockServer, mockRooms[0]);
+        service.onEndTurn(mockClient, mockServer, room);
 
-        expect(service.attacker).toBe(defender);
-        expect(service.defender).toBe(attacker);
+        expect(service.combatInfos.get(room.roomId)).toBe(mockCombatInfos);
         expect(service.emitToCombatPlayers).toHaveBeenCalled();
-        expect(service.onStartTurn).toHaveBeenCalledWith(mockClient, mockServer, mockRooms[0]);
+        expect(service.onStartTurn).toHaveBeenCalledWith(mockClient, mockServer, room);
     });
 
     describe('attackPlayer', () => {
         it('should decrease defensePlayer HP when attack is successful', () => {
-            const player1 = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
-            const player2 = { id: '2', attributes: { defense: 5, defDiceMax: 6, currentHp: 5 } } as Player;
-            service.attacker = player1;
-            service.defender = player2;
+            const combatValue = { attackValues: { total: 10, diceValue: 4 }, defenseValues: { total: 4, diceValue: 1 } };
+            service.getCombatValues = jest.fn().mockReturnValue(combatValue);
             service.emitToCombatPlayers = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
             service.onEndTurn = jest.fn();
-            service.getRandomValue = jest.fn().mockReturnValueOnce(5).mockReturnValueOnce(2);
 
             service.attackPlayer(mockClient, mockServer);
 
-            expect(player2.attributes.currentHp).toBeLessThan(5);
-            expect(service.emitToCombatPlayers).toHaveBeenCalled();
+            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackValues', combatValue);
+            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(
+                mockServer,
+                mockCombatPlayers,
+                'attackSuccess',
+                mockCombatInfos.combatPlayers.attacker,
+            );
             expect(service.onEndTurn).toHaveBeenCalled();
         });
 
         it('should decrease activePlayer HP when defense is successful', () => {
-            const player1 = { id: '1', attributes: { attack: 4, atkDiceMax: 6, currentHp: 10 } } as Player;
-            const player2 = { id: '2', attributes: { defense: 4, defDiceMax: 6, currentHp: 10 } } as Player;
-            service.attacker = player1;
-            service.defender = player2;
+            const combatValue = { attackValues: 3, defenseValues: 10 };
+            service.getCombatValues = jest.fn().mockReturnValue(combatValue);
             service.emitToCombatPlayers = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
             service.onEndTurn = jest.fn();
-            service.getRandomValue = jest.fn().mockReturnValueOnce(2).mockReturnValueOnce(4);
 
             service.attackPlayer(mockClient, mockServer);
-
-            expect(player2.attributes.currentHp).toBe(10);
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'attackFail', player1);
+            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackValues', combatValue);
+            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(
+                mockServer,
+                mockCombatPlayers,
+                'attackFail',
+                mockCombatInfos.combatPlayers.attacker,
+            );
         });
     });
 
@@ -167,7 +179,6 @@ describe('CombatService', () => {
             const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, victories: 0 } as Player;
             const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
-            mockRoomService.getRoom.mockReturnValue(room);
             mockGameService.getActivePlayer.mockReturnValue(player2);
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
@@ -184,7 +195,6 @@ describe('CombatService', () => {
             const player1 = { id: '1', attributes: { currentHp: 6, totalHp: 10 }, victories: 0 } as Player;
             const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
-            mockRoomService.getRoom.mockReturnValue(room);
             mockGameService.getActivePlayer.mockReturnValue(player2);
             service.continueTurn = jest.fn();
             service.combatFinish = jest.fn();
@@ -242,31 +252,30 @@ describe('CombatService', () => {
     });
     describe('evadingPlayer', () => {
         it('should continue turn if evasion is successful', () => {
-            const player = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
-
-            mockRoomService.getRoom.mockReturnValue(mockRooms[0]);
             service.emitToCombatPlayers = jest.fn();
             service.continueTurn = jest.fn();
-            service.attacker = attacker;
             jest.spyOn(service, 'isEvasionSuccessful').mockReturnValue(true);
 
-            service.evadingPlayer(mockClient, player, mockServer);
+            service.evadingPlayer(mockClient, mockServer);
 
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'evasionSuccess', player);
+            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'evasionSuccess', {
+                listPlayers: room.listPlayers,
+                player: mockCombatPlayers.attacker,
+            });
             expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
+            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+            expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
         });
         it('should end turn if evasion is not successful', () => {
-            const player = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
-            service.attacker = attacker;
-            mockRoomService.getRoom.mockReturnValue(mockRooms[0]);
             service.emitToCombatPlayers = jest.fn();
             service.onEndTurn = jest.fn();
             jest.spyOn(service, 'isEvasionSuccessful').mockReturnValue(false);
 
-            service.evadingPlayer(mockClient, player, mockServer);
+            service.evadingPlayer(mockClient, mockServer);
 
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'evasionFail', player);
-            expect(service.onEndTurn).toHaveBeenCalledWith(mockClient, mockServer, mockRooms[0]);
+            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'evasionFail', mockCombatPlayers.attacker);
+            expect(service.onEndTurn).toHaveBeenCalledWith(mockClient, mockServer, room);
         });
     });
 
@@ -274,15 +283,13 @@ describe('CombatService', () => {
         const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, victories: 0 } as Player;
         const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
-        mockRoomService.getRoom.mockReturnValue(mockRooms[0]);
         service.emitToCombatPlayers = jest.fn();
         service.addVictory = jest.fn();
 
         service.combatFinish(mockClient, player1, player2, mockServer);
 
-        // expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, 'playerDead', player1);
-        expect(mockClient.to(mockRooms[0].roomId).emit).toHaveBeenCalledWith('playerDead', player1);
-        expect(service.addVictory).toHaveBeenCalledWith(mockRooms[0], player2, mockServer);
+        expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('playerDead', player1);
+        expect(service.addVictory).toHaveBeenCalledWith(room, player2, mockServer);
     });
 
     it('should stop the fight timer and reset each player hp', () => {
@@ -291,23 +298,29 @@ describe('CombatService', () => {
         room.listPlayers.push(player1);
         room.listPlayers.push(player2);
 
-        service.combatEnded(room);
+        service.resetCombatState(room);
 
         expect(mockRoomService.getFightTimer).toHaveBeenCalledWith(room.roomId);
         expect(mockRoomService.getFightTimer(room.roomId).stopTimer).toHaveBeenCalled();
     });
 
     it('should call onTurnEnded if time remaining is 0 or less', () => {
+        jest.useFakeTimers();
+        const player = mockPlayers[0];
+        mockGameService.getActivePlayer.mockReturnValue(player);
+        const mockSocket = { id: player.id } as Socket;
+        mockServer.sockets.sockets.set(player.id, mockSocket);
         mockRoomService.getTurnTimer.mockReturnValue({
             resumeTimer: jest.fn((callback: (timeRemaining: number) => void) => {
                 callback(0);
             }),
         } as unknown as Timer);
-        mockRoomService.getRoom.mockReturnValue(mockRooms[0]);
-        service.combatEnded = jest.fn();
+        service.resetCombatState = jest.fn();
 
         service.continueTurn(mockClient, mockServer);
+        jest.advanceTimersByTime(END_COMBAT_DELAY);
 
-        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(mockClient, mockServer);
+        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(mockSocket, mockServer);
+        jest.useRealTimers();
     });
 });
