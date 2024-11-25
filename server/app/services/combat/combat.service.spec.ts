@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, TileType } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, TileType } from '@app/constants';
 import { mockAttacker, mockCombatInfos, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -201,18 +201,32 @@ describe('CombatService', () => {
         });
     });
 
-    it('should calculate dice value and set result in combatPlayers', () => {
-        const attackDice = 2;
-        const defenseDice = 5;
-        const players = service.combatInfos.get(room.roomId).combatPlayers;
-        const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
-        const expectedDefenseValues = { total: players.defender.attributes.defense + defenseDice, diceValue: defenseDice };
-        const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
-        service['getRandomValue'] = jest.fn().mockReturnValueOnce(attackDice).mockReturnValue(defenseDice);
+    describe('getCombatValues', () => {
+        it('should set attack to max dice value and defense to min dice value on debug mode', () => {
+            const players = service.combatInfos.get(room.roomId).combatPlayers;
+            const attackDice = players.attacker.attributes.atkDiceMax;
+            const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
+            const expectedDefenseValues = { total: players.defender.attributes.defense + MIN_DICE_VALUE, diceValue: MIN_DICE_VALUE };
+            const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
 
-        const result = service.getCombatValues(mockCombatPlayers);
-        expect(result).toEqual(expectedResult);
-        expect(players.combatResultDetails).toEqual(expectedResult);
+            const result = service.getCombatValues(mockCombatPlayers, true);
+            expect(result).toEqual(expectedResult);
+            expect(players.combatResultDetails).toEqual(expectedResult);
+        });
+
+        it('should calculate dice value and set result in combatPlayers not in debug mode', () => {
+            const attackDice = 2;
+            const defenseDice = 5;
+            const players = service.combatInfos.get(room.roomId).combatPlayers;
+            const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
+            const expectedDefenseValues = { total: players.defender.attributes.defense + defenseDice, diceValue: defenseDice };
+            const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
+            service['getRandomValue'] = jest.fn().mockReturnValueOnce(attackDice).mockReturnValue(defenseDice);
+
+            const result = service.getCombatValues(mockCombatPlayers, false);
+            expect(result).toEqual(expectedResult);
+            expect(players.combatResultDetails).toEqual(expectedResult);
+        });
     });
 
     describe('checkIfPlayerIsDead', () => {
