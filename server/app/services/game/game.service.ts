@@ -521,13 +521,13 @@ export class GameService {
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
         }
         defender.inventory = [];
-        client.emit('updateInventory', defender);
-        server.emit('updateObjects', room.gameMap.itemPlacement);
 
         const index = room.listPlayers.findIndex((players) => players.id === defender.id);
         room.listPlayers[index] = defender;
         // idk
         this.roomService.updateRoomMap(room);
+        client.emit('updateInventory', defender);
+        server.emit('updateObjects', room.gameMap.itemPlacement);
     }
 
     playerInWall(room: Room, player: Player) {
