@@ -36,7 +36,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimer!: TimerComponent;
 
-    allPlayers: Player[];
+    allPlayers: Player[] | null;
     mapName: string;
     mapDimensions: string;
     resetTrigger: boolean = false;
@@ -211,7 +211,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     replenishHealth() {
-        for (const player of this.allPlayers) {
+        for (const player of this.allPlayers!) {
             player.attributes.currentHp = player.attributes.totalHp;
         }
     }
@@ -289,8 +289,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     isPlayerAdmin(): boolean {
-        const admin = this.allPlayers.find((player) => player.status === Status.Admin);
-        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
+        const admin = this.allPlayers!.find((player) => player.status === Status.Admin);
+        const currentPlayer = this.allPlayers!.find((player) => player.id === this.socketCommunicationService.socket.id);
         return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }
 }

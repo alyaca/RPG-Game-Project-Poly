@@ -89,7 +89,7 @@ export const RANDOM_ITEM = 1;
 export const CHECK_BEFORE_SAVING_DELAY = 500;
 export const VALIDATION_DURATION = 500;
 
-export const TEST_VALIDATION_DURATION = 800;
+export const TEST_VALIDATION_DURATION = 1200;
 
 // Constant for the time of the snackbar message
 export const MESSAGE_DURATION_ERROR = 4000;

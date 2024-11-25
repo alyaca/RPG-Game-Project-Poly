@@ -12,6 +12,7 @@ import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
+import { CombatService } from '@app/services/combat/combat.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -32,11 +33,13 @@ describe('GamePageComponent', () => {
     let httpMock: HttpTestingController;
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let combatServiceSpy: jasmine.SpyObj<CombatService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
 
     const accessCode = '1234';
 
     beforeEach(async () => {
+        combatServiceSpy = jasmine.createSpyObj(CombatService, ['initializeCombat']);
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
         socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, [
@@ -46,6 +49,7 @@ describe('GamePageComponent', () => {
             'isSocketAlive',
             'connect',
             'disconnect',
+            'off',
         ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
@@ -61,6 +65,7 @@ describe('GamePageComponent', () => {
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
+                { provide: CombatService, useValue: combatServiceSpy },
                 { provide: ChatBoxComponent, useValue: chatBoxSpy },
                 { provide: TimerComponent, useValue: timerSpy },
                 { provide: MatDialog, useValue: dialogSpy },
@@ -170,6 +175,107 @@ describe('GamePageComponent', () => {
             component.ngOnInit();
             expect(component.activePlayerName).toEqual(mockPlayer.name);
         });
+
+        it('should set isInCombat and call initializeCombat', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'startFight') {
+                    callback({ player1: mockPlayers[0], player2: mockPlayers[1], isPlayer1Active: true } as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.isInCombat).toBeFalse();
+            expect(combatServiceSpy.initializeCombat).toHaveBeenCalled();
+        });
+
+        it('should set isInCombat to false on combatEnd', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatEnd') {
+                    callback(mockPlayers as T);
+                }
+            });
+            component.activePlayer = mockPlayers[0];
+            component.ngOnInit();
+            expect(component.isInCombat).toBeFalse();
+            expect(component.allPlayers).toEqual(mockPlayers);
+            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
+        });
+
+        it('should set doorAround on doorAround event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'doorAround') {
+                    callback(true as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.doorAround).toBeTrue();
+
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'doorAround') {
+                    callback(false as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.doorAround).toBeFalse();
+        });
+
+        it('should callOpenDialog correctly on endGame', () => {
+            socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'endGame') {
+                    callback(mockPlayers[0] as T);
+                }
+            });
+            gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
+            component.ngOnInit();
+            expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+                title: DialogTitle.EndGame,
+                messages: ['Le gagnant de la partie est : ' + mockPlayers[0].name],
+                options: [DialogOptions.Close],
+                confirm: false,
+            });
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        });
+
+        // change to minus -1 when items are merged
+        it('should set actionPoints to 0 if doorClicked', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'doorClicked') {
+                    callback({} as T);
+                }
+            });
+            component.activePlayer = mockPlayers[0];
+            component.ngOnInit();
+            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
+        });
+
+        it('should set attackAround on the event attackAround', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'attackAround') {
+                    callback(true as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.attackAround).toBeTrue();
+
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'attackAround') {
+                    callback(false as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.attackAround).toBeFalse();
+        });
+
+        it('should call onEndTurn on endTurnBot event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'endTurnBot') {
+                    callback({} as T);
+                }
+            });
+            spyOn(component, 'onEndTurn');
+            component.ngOnInit();
+            expect(component.onEndTurn).toHaveBeenCalled();
+        });
+
         it('should disconnect on draw event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'playerFell') {
@@ -260,7 +366,7 @@ describe('GamePageComponent', () => {
     it('should replenish health for all players', () => {
         expect(mockPlayer.attributes.currentHp).not.toEqual(mockPlayer.attributes.totalHp);
         component.replenishHealth();
-        component.allPlayers.forEach((player) => {
+        component.allPlayers!.forEach((player) => {
             expect(player.attributes.currentHp).toEqual(player.attributes.totalHp);
         });
     });
@@ -274,6 +380,14 @@ describe('GamePageComponent', () => {
             options: [DialogOptions.Close],
             confirm: false,
         });
+    });
+
+    it('should return the player count', () => {
+        component.allPlayers = null;
+        expect(component.getPlayerCount()).toEqual(-1);
+
+        component.allPlayers = mockPlayers;
+        expect(component.getPlayerCount()).toEqual(mockPlayers.length);
     });
 
     it('should disconnect and navigate to home when dialog result is "Close" for handleDraw', () => {

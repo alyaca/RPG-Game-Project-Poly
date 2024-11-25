@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
 import { mockGameNavigation as mockGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
-import { mockPlayers } from '@app/mocks/mock-players';
+import { mockNoActivePlayers, mockPlayers } from '@app/mocks/mock-players';
 import { NavigationService } from './navigation.service';
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
@@ -126,5 +126,16 @@ describe('NavigationServiceService', () => {
 
     it('should return the correct ObjectType for known god names', () => {
         expect(service.getPortraitId('Hestia')).toBe(ObjectType.Hestia);
+    });
+
+    it('should return the first player if none are active', () => {
+        service.players = mockNoActivePlayers;
+        const result = service.getActivePlayer();
+        expect(result).toEqual(mockNoActivePlayers[0]);
+    });
+
+    it('should return an the Spawn if the god string is empty', () => {
+        const result = service.getPortraitId('');
+        expect(result).toEqual(ObjectType.Spawn);
     });
 });
