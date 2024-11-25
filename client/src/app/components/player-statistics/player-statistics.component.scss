@@ -2,22 +2,38 @@
     display: flex;
     align-items: center;
     width: 73vw;
-    border-top: 0.08rem solid gray;
+    border-top: 0.08rem solid black;
+    //
+    background-image: linear-gradient(to left, rgba(0,0,0,0), rgba(132, 132, 132, 0.1), rgba(131, 131, 131, 0.15))
 }
 
 .player {
-    flex: 1 1 17%;
+    flex: 1 1 19.5%;
     display: flex;
-    margin-left: 3%;
+    //margin-left: 3%;
     align-items: center;
 }
 
 .player-img {
-    height: 4.5rem;
-    width: 4.5rem;
-    margin: 3%;
-    margin-right: 10%;
-    border-radius: 1.5rem;
+    // height: 4.5rem;
+    // width: 4.5rem;
+    // margin: 2%;
+    // margin-right: 10%;
+    // border-radius: 1.5rem;
+
+    height: 5.1rem;
+    width: auto;
+    margin: 0;
+    margin-right: 7.5%;
+
+    -webkit-mask-image: linear-gradient(to right, black 95%, transparent 100%);
+    mask-image: linear-gradient(to right, black 95%, transparent 100%);
+    
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
 }
 
 .stat {
@@ -45,7 +61,7 @@
 }
 
 .active {
-    background-image: linear-gradient(to left, rgba(0,0,0,0), rgba(255, 240, 152, 0.15), rgba(255, 240, 152, 0.2))
+    background-image: linear-gradient(to left, rgba(0,0,0,0), rgba(255, 240, 152, 0.15), rgba(255, 240, 152, 0.25))
 }
 
 .decoration {
@@ -55,6 +71,7 @@
 
 .name {
     text-align: center;
+    font-size: 1rem;
 }
 
 .disconnected {
@@ -64,7 +81,7 @@
 }
 
 .admin {
-    color: #f95e4d;
+    color: #ff6f5f;
 }
 
 .bot {
@@ -122,4 +139,17 @@
 
 .txt {
     margin: 0.05rem;
+}
+
+.decoration-bar {
+    width: 0.3rem;
+    height: 5rem;
+    background-color: rgb(160, 160, 160); 
+    display: flex;
+    justify-content: flex-start;
+    border: 0.05rem solid black;
+}
+
+.self{
+    background-color: rgb(255, 240, 152); 
 }
