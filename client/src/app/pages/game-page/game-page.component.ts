@@ -280,6 +280,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     handleDraw() {
+        this.router.navigate(['/home']);
         this.gameService
             .openDialog({
                 title: DialogTitle.DrawGame,
@@ -290,7 +291,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             .subscribe((result) => {
                 if (result.action === DialogResult.Close) {
                     this.socketCommunicationService.disconnect();
-                    this.router.navigate(['/home']);
                 }
             });
     }
