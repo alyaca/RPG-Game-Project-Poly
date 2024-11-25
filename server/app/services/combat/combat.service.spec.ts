@@ -259,7 +259,6 @@ describe('CombatService', () => {
             service.emitToCombatPlayers = jest.fn();
             service.continueTurn = jest.fn();
             service.addDraws = jest.fn();
-            service.attacker = attacker;
             jest.spyOn(service, 'isEvasionSuccessful').mockReturnValue(true);
 
             service.evadingPlayer(mockClient, mockServer);

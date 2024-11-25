@@ -638,6 +638,7 @@ describe('GameService', () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
             service.checkEndTurn = jest.fn().mockReturnValue(true);
+            service.addUniqueTileToHistory = jest.fn();
             await service.processNavigation(room, server, path, mockSocket);
 
             expect(service.getActivePlayer).toHaveBeenCalledWith(room);

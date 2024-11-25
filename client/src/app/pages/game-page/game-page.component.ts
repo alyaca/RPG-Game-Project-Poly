@@ -143,7 +143,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
             //     console.log('('+position.x+', '+position.y+')');
             // }
 
-            
             this.gameService
                 .openDialog({
                     title: DialogTitle.EndGame,

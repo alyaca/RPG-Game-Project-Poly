@@ -235,7 +235,6 @@ export class CombatService {
         server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
-
     addDefeat(room: Room, player: Player) {
         const playerLoser = room.listPlayers.find((p) => p.id === player.id);
         playerLoser.postGameStats.defeats++;
