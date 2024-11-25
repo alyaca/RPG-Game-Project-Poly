@@ -20,7 +20,7 @@ export class PostGameAttributeComponent {
         return this.attribute === 'victories';
     }
 
-    getSortClass(playerStatType: string){
+    getSortClass(playerStatType: string) {
         return this.postGameService.sortOrder[playerStatType];
     }
 }

@@ -11,34 +11,14 @@
             <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
         }
     </div>
-    <p class="stat attr-value" [ngClass]="{'highlight': selectedAttribute === 'combats'}"> {{ player.postGameStats.combats }} </p>
-    <div class="stat record"> 
-        <p class="txt attr-value" [ngClass]="{'highlight': selectedAttribute === 'victories'}"> {{player.postGameStats.victories}} </p>
-        <p class="txt">/</p>
-        <p class="txt attr-value" [ngClass]="{'highlight': selectedAttribute === 'evasions'}"> {{player.postGameStats.evasions}} </p>
-        <p class="txt" >/</p>
-        <p class="txt attr-value" [ngClass]="{'highlight': selectedAttribute === 'defeats'}"> {{player.postGameStats.defeats}} </p>
-    </div>
-    <div class="stat">
-        <p class="attr-value" [ngClass]="{'highlight': selectedAttribute === 'dmgDealt'}"> {{ player.postGameStats.dmgDealt }} </p>
-        <div class="bar-container">
-            <div class="full-bar"></div>
-            <div class="bar" [ngClass]="{'highlight': selectedAttribute === 'dmgDealt'}" [style.width.%]="getBarWidth(player.postGameStats.dmgDealt, 'dmgDealt', false)"></div>
+    @for(stat of playerStatTypes; track stat.id){
+        <div class="stat attr-value">
+            <app-single-player-stat 
+            [selectedAttribute]="selectedAttribute"
+            [attribute]="stat.key"
+            [player]="player"
+            >
+            </app-single-player-stat>
         </div>
-    </div>
-    <div class="stat">
-        <p class="attr-value" [ngClass]="{'highlight': selectedAttribute === 'dmgTaken'}"> {{ player.postGameStats.dmgTaken }} </p>
-        <div class="bar-container">
-            <div class="full-bar"></div>
-            <div class="bar" [ngClass]="{'highlight': selectedAttribute === 'dmgTaken'}" [style.width.%]="getBarWidth(player.postGameStats.dmgTaken, 'dmgTaken', false)"></div>
-        </div>
-    </div>
-    <p class="stat attr-value" [ngClass]="{'highlight': selectedAttribute === 'itemsObtained'}"> {{ player.postGameStats.itemsObtained }} </p>
-    <div class="stat">
-        <p class="attr-value" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}"> {{ player.postGameStats.tilesVisited }}% </p>
-        <div class="bar-container">
-            <div class="full-bar"></div>
-            <div class="bar" [ngClass]="{'highlight': selectedAttribute === 'tilesVisited'}" [style.width.%]="getBarWidth(player.postGameStats.tilesVisited, 'tilesVisited', true)"></div>
-        </div>
-    </div>
+    }
 </div>
