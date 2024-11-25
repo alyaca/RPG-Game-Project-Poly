@@ -52,10 +52,10 @@
         </div>
         <div class="right-container">
             <div class="attributes">
-                @for(attribute of postGameService.attributes; track attribute.id){
+                @for(attribute of postGameService.postGameStatTypes; track attribute.id){
                     <app-post-game-attribute
-                    [attribute]="postGameService.attributes[$index].key"
-                    [displayTxt]="postGameService.attributes[$index].displayTxt"
+                    [attribute]="postGameService.postGameStatTypes[$index].key"
+                    [displayTxt]="postGameService.postGameStatTypes[$index].displayTxt"
                 ></app-post-game-attribute>
                 }
             </div>

@@ -2,15 +2,9 @@ import { Injectable } from '@angular/core';
 import { Player, Position } from '@common/player';
 import { GlobalPostGameStats } from '@common/global-post-game-stats';
 import { NavigationService } from '@app/services/navigation/navigation.service';
-import { GameMode, TileType, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, POST_GAME_STAT_TYPES, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { Room } from '@common/room';
-
-export interface Attribute {
-    id: number;
-    key: keyof Player['postGameStats'];
-    displayTxt: string;
-    explanations: string;
-}
+import { PostGameStat } from '@common/post-game-stat';
 
 @Injectable({
     providedIn: 'root',
@@ -46,45 +40,7 @@ export class PostGameService {
     players: Player[];
     tilesGrid: number[][];
     isCTFMode: boolean;
-
-    attributes: Attribute[] = [
-        {
-            id: 0,
-            key: 'combats',
-            displayTxt: 'Combats',
-            explanations: 'Nombre de combats participés par le joueur',
-        },
-        {
-            id: 1,
-            key: 'victories',
-            displayTxt: 'W/D/L',
-            explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
-        },
-        {
-            id: 2,
-            key: 'dmgDealt',
-            displayTxt: 'Dég. infligés',
-            explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
-        },
-        {
-            id: 3,
-            key: 'dmgTaken',
-            displayTxt: 'Dégats subis',
-            explanations: 'Nombre de points de dégats subis pas le joueur',
-        },
-        {
-            id: 4,
-            key: 'itemsObtained',
-            displayTxt: 'Obj. récup.',
-            explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
-        },
-        {
-            id: 5,
-            key: 'tilesVisited',
-            displayTxt: '%tuiles visités',
-            explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
-        },
-    ];
+    postGameStatTypes: PostGameStat[] = POST_GAME_STAT_TYPES;
 
     constructor(public navigationService: NavigationService) {}
 
@@ -125,7 +81,7 @@ export class PostGameService {
     }
 
     updateExplanations(attr: keyof Player['postGameStats'] | '') {
-        for (const attribute of this.attributes) {
+        for (const attribute of this.postGameStatTypes) {
             if (attribute.key === attr) {
                 this.explanations = attribute.explanations;
                 return;

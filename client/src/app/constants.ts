@@ -1,3 +1,5 @@
+import { PostGameStat } from "@common/post-game-stat";
+
 export enum MapSize {
     Small = 'small',
     Medium = 'medium',
@@ -276,3 +278,42 @@ export const MINS_IN_HOUR = 60;
 export const TOTAL_PERCENTAGE = 100;
 
 export const VICTORIES_FOR_WIN = 3;
+
+export const POST_GAME_STAT_TYPES: PostGameStat[] = [
+    {
+        id: 0,
+        key: 'combats',
+        displayTxt: 'Combats',
+        explanations: 'Nombre de combats participés par le joueur',
+    },
+    {
+        id: 1,
+        key: 'victories',
+        displayTxt: 'W/D/L',
+        explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
+    },
+    {
+        id: 2,
+        key: 'dmgDealt',
+        displayTxt: 'Dég. infligés',
+        explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
+    },
+    {
+        id: 3,
+        key: 'dmgTaken',
+        displayTxt: 'Dégats subis',
+        explanations: 'Nombre de points de dégats subis pas le joueur',
+    },
+    {
+        id: 4,
+        key: 'itemsObtained',
+        displayTxt: 'Obj. récup.',
+        explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
+    },
+    {
+        id: 5,
+        key: 'tilesVisited',
+        displayTxt: '%tuiles visités',
+        explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
+    },
+];
