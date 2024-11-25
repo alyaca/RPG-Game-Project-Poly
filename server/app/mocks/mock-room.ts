@@ -1,7 +1,7 @@
 import { avatars } from '@common/avatars-info';
 import { Player, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
-import { mockGame } from './mock-game';
+import { mockGame, mockGameDebug } from './mock-game';
 import { mockNavigation } from './mock-navigation';
 
 export const mockRoom: Room = {
@@ -56,7 +56,7 @@ export const mockRooms: Room[] = [
 
 export const mockRoomDebug: Room[] = [
     {
-        gameMap: mockGame,
+        gameMap: mockGameDebug,
         roomId: '1234',
         listPlayers: [],
         availableAvatars: avatars,
