@@ -484,41 +484,6 @@ export class GameService {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }
 
-    //To remove
-    movePlayerFromWall(room: Room, player: Player, client: Socket, server: Server) {
-        // this is fucking hideous
-        // but it sort of works (one player starts having multiple turns, the other either doesn't play or also gets teleported)
-        /*
-        let currentX = player.position.x;
-        let loopCounter = 0;
-        let currentY = player.position.y;
-        let directionsIndex = 0;
-        const directions = [
-            { dx: 0, dy: 1 },
-            { dx: 0, dy: -1 },
-            { dx: 1, dy: 0 },
-            { dx: -1, dy: 0 },
-        ];
-        const mapSize = room.gameMap.dimension;
-        while (
-            room.gameMap.tiles[currentX][currentY] === TileType.Wall ||
-            (room.gameMap.tiles[currentX][currentY] === TileType.ClosedDoor && room.navigation.positions[currentX][currentY] === 0 || room.gameMap.itemPlacement[currentX][currentY] !== 0)
-        ) {
-            currentX += (loopCounter * directions[directionsIndex].dx) % mapSize;
-            currentY += (loopCounter * directions[directionsIndex].dy) % mapSize;
-            directionsIndex = (directionsIndex + 1) % directions.length;
-            loopCounter += 1;
-        }
-        player.position.x = currentX;
-        player.position.y = currentY;
-
-        console.log('new player position ');
-        console.log(player.position.x);
-        console.log(player.position.y);
-        this.processNavigation(room, server, [player.position], client);
-        */
-    }
-
     private updateActivePlayer(socket: Socket, server: Server, room: Room) {
         let listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
@@ -526,29 +491,16 @@ export class GameService {
         if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
             previousActivePlayer = this.addActionPoints(previousActivePlayer);
         }
-        // modify position of player stuck in wall if he is
         if (this.playerInWall(room, previousActivePlayer)) {
             const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
             room.navigation.findFastestPath(previousActivePlayer, destination, room);
             previousActivePlayer.position = destination;
             this.processTeleportation(room, server, [previousActivePlayer.position]);
-
-            //this.movePlayerFromWall(room, previousActivePlayer, socket, server);
         }
-        // assignment of the new version of the player after the necessary modification
         listPlayers[index] = previousActivePlayer;
 
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;
     }
-
-    // private updateActivePlayer(socket: Socket) {
-    //     const room = this.roomService.getRoom(socket);
-    //     const listPlayers = this.getPlayerConnectedInRoom(room);
-    //     const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-    //     const nextIndex = (index + 1) % listPlayers.length;
-    //     listPlayers[index].isActive = false;
-    //     listPlayers[nextIndex].isActive = true;
-    // }
 }
