@@ -5,7 +5,7 @@ export interface InfoSwap {
     server: Server;
     client: Socket;
     player: Player;
-    oldInventory: GameObject[];
-    modifiedInventory: GameObject[];
-    droppedItem: number;
+    oldInventory?: GameObject[];
+    modifiedInventory?: GameObject[];
+    droppedItem?: number;
 }

@@ -13,6 +13,7 @@ import {
     TileType,
     TURN_TIME,
 } from '@app/constants';
+import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { baseBot } from '@app/mocks/mock-players';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
@@ -278,16 +279,14 @@ export class GameService {
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
-            // it puts the item but then as soon the player moves from the tile, the item disappears.
-            // but, the item is still available
-            // except for the kunee/armor
-            // the tile on which they are either dropped or just left there is not accessible after the swap
-            // no matter which item is picked up
             if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
-                this.playerInventoryService.updateInventory(client, room.gameMap.itemPlacement, player);
+                const infoSwap: InfoSwap = {
+                    server: server,
+                    client: client,
+                    player: player,
+                };
+                this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
                 server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
-                //TODO : send message players
-                //server.to(room.roomId).emit('updateTile', { player: players, wasDropped: false, droppedItem: 0 });
             }
 
             if (this.isMoving) {
@@ -299,10 +298,7 @@ export class GameService {
                 client.emit('playerFell');
                 break;
             }
-            // that if is useless ice costs zero already
-            // if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
-            // }
         }
 
         this.isMoving = false;
@@ -530,6 +526,8 @@ export class GameService {
 
         const index = room.listPlayers.findIndex((players) => players.id === defender.id);
         room.listPlayers[index] = defender;
+        // idk
+        this.roomService.updateRoomMap(room);
     }
 
     playerInWall(room: Room, player: Player) {
