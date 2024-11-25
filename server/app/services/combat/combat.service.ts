@@ -24,6 +24,7 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
+    checkedXiphos = false;
 
     constructor(
         private roomService: RoomService,
@@ -37,6 +38,7 @@ export class CombatService {
     }
 
     startFight(client: Socket, player1: Player, player2: Player, isPlayer1Active: boolean, server: Server) {
+        this.checkedXiphos = false;
         const room = this.roomService.getRoom(client);
         const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
         const combatPlayers = { attacker: player1, defender: player2, combatResultDetails: DEFAULT_COMBAT_RESULT };
@@ -76,21 +78,21 @@ export class CombatService {
         this.onStartTurn(client, server, room);
     }
 
-    checkXiphos(server: Server) {
-        if (this.attacker.inventory.find((objects) => objects.id === ObjectType.Xiphos)) {
-            if (this.attacker.attributes.currentHp <= this.attacker.attributes.totalHp / 2) {
-                this.defender.attributes.defense -= 1;
-                this.attacker.attributes.attack += 2;
-                this.emitToCombatPlayers(server, 'updateStats', { attacker: this.attacker, defender: this.defender });
+    checkXiphos(server: Server, players: CombatPlayers) {
+        if (players.attacker.inventory.find((objects) => objects.id === ObjectType.Xiphos)) {
+            if (players.attacker.attributes.currentHp <= players.attacker.attributes.totalHp / 2) {
+                players.defender.attributes.defense -= 1;
+                players.attacker.attributes.attack += 2;
+                this.emitToCombatPlayers(server, players, 'updateStats', { attacker: players.attacker, defender: players.defender });
                 return true;
             }
             return false;
         }
     }
 
-    checkAchillesArmor() {
-        if (this.attacker.inventory.find((objects) => objects.id === ObjectType.Armor)) {
-            this.attacker.attributes.currentHp--;
+    checkAchillesArmor(combatPlayers: CombatPlayers) {
+        if (combatPlayers.attacker.inventory.find((objects) => objects.id === ObjectType.Armor)) {
+            combatPlayers.attacker.attributes.currentHp--;
             return true;
         }
         return false;
@@ -100,6 +102,9 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
         const debugMode = room.isDebug;
+        if (!this.checkXiphos) {
+            this.checkedXiphos = this.checkXiphos(server, combatPlayers);
+        }
         const { attackValues, defenseValues } = this.getCombatValues(combatPlayers, debugMode);
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
@@ -107,7 +112,9 @@ export class CombatService {
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
-            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', combatPlayers.attacker);
+            const shouldDamageSelf = this.checkAchillesArmor(combatPlayers);
+            // this.emitToCombatPlayers(server, combatPlayers, 'attackFail', combatPlayers.attacker);
+            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', { attacker: combatPlayers.attacker, shouldDamageSelf: shouldDamageSelf });
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
         this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
