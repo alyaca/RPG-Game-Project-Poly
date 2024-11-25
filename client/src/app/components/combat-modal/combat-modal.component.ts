@@ -44,9 +44,11 @@ export class CombatModalComponent implements OnInit, OnDestroy {
             }),
         );
         this.combatService.initSocketListeners();
-        this.combatService.isRolling = true;
-        this.dice1?.rollDice();
-        this.dice2?.rollDice();
+
+        this.socketCommunicationService.on('attackValues', () => {
+            this.dice1?.rollDice();
+            this.dice2?.rollDice();
+        });
     }
 
     ngOnDestroy() {

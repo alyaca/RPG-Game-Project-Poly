@@ -216,7 +216,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     setPlayersOnCombatDone(players: Player[]) {
         this.allPlayers = players;
-        this.combatService.isRolling = false;
         this.activePlayer.attributes.actionPoints = 0;
     }
 

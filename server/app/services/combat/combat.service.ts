@@ -7,6 +7,7 @@ import {
     LogType,
     MIN_DICE_VALUE,
     NO_EVASION_TIME,
+    ROLL_DURATION,
     TileType,
     VICTORIES,
 } from '@app/constants';
@@ -92,7 +93,9 @@ export class CombatService {
         this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
         const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
-            this.onEndTurn(client, server, room);
+            setTimeout(() => {
+                this.onEndTurn(client, server, room);
+            }, ROLL_DURATION);
         }
     }
 

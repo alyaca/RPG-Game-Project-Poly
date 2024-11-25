@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { ATTACK_TIME, DialogMessages, DialogTitle, INFO_DIALOG_TIME } from '@app/constants';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { CombatPlayers } from '@common/combat-player';
@@ -27,7 +27,6 @@ export class CombatService {
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
-    isRolling: boolean = true;
     private attackResult: CombatResult;
     private defenseResult: CombatResult;
 
@@ -152,11 +151,6 @@ export class CombatService {
     onAttackValues(combatResultDetails: CombatResultDetails) {
         this.attackResult = combatResultDetails.attackValues;
         this.defenseResult = combatResultDetails.defenseValues;
-        this.isRolling = false;
-
-        setTimeout(() => {
-            this.isRolling = true;
-        }, DISPLAY_DICE_DELAY);
     }
 
     openTempDialog(dialogData: TempDialogData) {

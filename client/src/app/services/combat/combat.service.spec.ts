@@ -1,7 +1,7 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { fakeAsync, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-import { DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { DialogMessages, DialogTitle, INFO_DIALOG_TIME } from '@app/constants';
 import { mockAttacker, mockCombatPlayers, mockCombatResultDetails, mockDefender } from '@app/mocks/mock-combat-infos';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
@@ -285,9 +285,6 @@ describe('CombatService', () => {
         service.onAttackValues(mockCombatResultDetails);
         expect(service['attackResult']).toEqual(mockCombatResultDetails.attackValues);
         expect(service['defenseResult']).toEqual(mockCombatResultDetails.defenseValues);
-        expect(service.isRolling).toBeFalse();
-        tick(DISPLAY_DICE_DELAY);
-        expect(service.isRolling).toBeTrue();
     }));
 
     it('should reset players HP to their total HP', () => {

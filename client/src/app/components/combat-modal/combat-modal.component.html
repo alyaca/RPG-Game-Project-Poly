@@ -41,13 +41,13 @@
             <div class="stats-and-dice-value">
                 <div>{{ combatService.activePlayerResult.total }}</div>
             </div>
-            <app-dice #dice2 [value]="combatService.activePlayerResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
+            <app-dice #dice2 [value]="combatService.activePlayerResult.diceValue"></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
                 <div>{{ combatService.opponentResult.total }}</div>
             </div>
-            <app-dice #dice1 [value]="combatService.opponentResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
+            <app-dice #dice1 [value]="combatService.opponentResult.diceValue"></app-dice>
         </div>
         <div>
             <div class="player-avatar-container">

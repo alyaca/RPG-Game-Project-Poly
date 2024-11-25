@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, TileType, TURN_TIME } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, ROLL_DURATION, TileType, TURN_TIME } from '@app/constants';
 import { mockAttacker, mockCombatInfos, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -147,6 +147,7 @@ describe('CombatService', () => {
         service.emitToCombatPlayers = jest.fn();
         service.attackPlayer = jest.fn();
         room.listPlayers.push(mockPlayers[0]);
+
         service.onStartTurn(mockClient, mockServer, room);
         fightTimerCallback(remainingTime);
         expect(service.emitToCombatPlayers).toHaveBeenCalled();
@@ -166,6 +167,7 @@ describe('CombatService', () => {
 
     describe('attackPlayer', () => {
         it('should decrease defensePlayer HP when attack is successful', () => {
+            jest.useFakeTimers();
             const combatValue = { attackValues: { total: 10, diceValue: 4 }, defenseValues: { total: 4, diceValue: 1 } };
             service.getCombatValues = jest.fn().mockReturnValue(combatValue);
             service.emitToCombatPlayers = jest.fn();
@@ -173,6 +175,7 @@ describe('CombatService', () => {
             service.onEndTurn = jest.fn();
 
             service.attackPlayer(mockClient, mockServer);
+            jest.advanceTimersByTime(ROLL_DURATION);
 
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackValues', combatValue);
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(
@@ -267,12 +270,14 @@ describe('CombatService', () => {
 
     describe('manageTurnAfterCombat', () => {
         it('should continue turn if active player wins combat', () => {
+            service['continueTurn'] = jest.fn();
             mockGameService.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue([]);
 
             service.manageTurnAfterCombat(mockClient, mockDefender, mockAttacker, mockServer);
 
             expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('reachableTiles', []);
+            expect(service['continueTurn']).toHaveBeenCalled();
         });
 
         it('should end turn if active player loses combat', () => {

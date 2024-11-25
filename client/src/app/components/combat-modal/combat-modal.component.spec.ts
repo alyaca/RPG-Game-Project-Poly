@@ -69,8 +69,20 @@ describe('CombatModalComponent', () => {
         expect(component.activePlayer).toBe(combatServiceSpy.activePlayer);
         expect(component.opponent).toBe(combatServiceSpy.opponent);
         expect(combatServiceSpy.initSocketListeners).toHaveBeenCalled();
-        expect(diceMock1.rollDice).toHaveBeenCalled();
-        expect(diceMock2.rollDice).toHaveBeenCalled();
+    });
+
+    it('should subscribe to "attackValues" event and call rolldice', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'attackValues') {
+                callback({} as T);
+            }
+        });
+        spyOn(component.dice1, 'rollDice');
+        spyOn(component.dice2, 'rollDice');
+
+        component.ngOnInit();
+        expect(component.dice1.rollDice).toHaveBeenCalled();
+        expect(component.dice2.rollDice).toHaveBeenCalled();
     });
 
     it('should call resetPlayerHp, set isInCombat and emit closeModalEvent when closeModal is called', () => {
