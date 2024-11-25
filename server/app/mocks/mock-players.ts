@@ -1,3 +1,4 @@
+import { avatars } from '@common/avatars-info';
 import { Behavior, Player, PlayerStats, Status } from '@common/player';
 import { playerNavigation } from './mock-player';
 
@@ -19,9 +20,9 @@ export const mockPlayers: Player[] = [
     {
         id: 'admin1234',
         attributes: mockPlayerStats,
-        avatar: undefined,
+        avatar: avatars[0],
         isActive: true,
-        name: 'name',
+        name: 'mobile',
         status: Status.Player,
         victories: 1,
         inventory: [],
@@ -34,7 +35,7 @@ export const mockPlayers: Player[] = [
         attributes: mockPlayerStats,
         avatar: undefined,
         isActive: false,
-        name: 'name',
+        name: 'joseph',
         status: Status.Player,
         victories: 1,
         inventory: [],
@@ -47,7 +48,7 @@ export const mockPlayers: Player[] = [
         attributes: mockPlayerStats,
         avatar: undefined,
         isActive: false,
-        name: 'name',
+        name: 'loly',
         status: Status.Bot,
         victories: 1,
         inventory: [],
@@ -88,12 +89,26 @@ export const mockNavigationPlayers: Player[] = [
 
 export const baseBot: Player = {
     id: '0',
-    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    avatar: avatars[0],
     status: Status.Bot,
     name: 'Joueur virtuel',
     victories: 0,
     isActive: false,
     attributes: mockPlayerStats,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};
+
+export const playerDisconnected: Player = {
+    id: 'disconnected',
+    attributes: mockPlayerStats,
+    avatar: undefined,
+    isActive: false,
+    name: 'player-disconnected',
+    status: Status.Disconnected,
+    victories: 1,
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },

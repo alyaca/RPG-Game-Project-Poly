@@ -68,8 +68,6 @@ describe('CombatModalComponent', () => {
         component.ngOnInit();
         expect(component.activePlayer).toBe(combatServiceSpy.activePlayer);
         expect(component.opponent).toBe(combatServiceSpy.opponent);
-        expect(component.attacker).toBe(combatServiceSpy.attacker);
-        expect(component.defender).toBe(combatServiceSpy.defender);
         expect(combatServiceSpy.initSocketListeners).toHaveBeenCalled();
         expect(diceMock1.rollDice).toHaveBeenCalled();
         expect(diceMock2.rollDice).toHaveBeenCalled();
@@ -90,6 +88,6 @@ describe('CombatModalComponent', () => {
 
     it('should call socketCommunicationService.send with "evadeCombat" and attacker when triggerEvade is called', () => {
         component.triggerEvade();
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('evadeCombat', combatServiceSpy.attacker);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('evadeCombat');
     });
 });

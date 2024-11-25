@@ -127,4 +127,8 @@ describe('NavigationServiceService', () => {
     it('should return the correct ObjectType for known god names', () => {
         expect(service.getPortraitId('Hestia')).toBe(ObjectType.Hestia);
     });
+
+    it('should return the spawn for unknown names', () => {
+        expect(service.getPortraitId('')).toBe(ObjectType.Spawn);
+    });
 });

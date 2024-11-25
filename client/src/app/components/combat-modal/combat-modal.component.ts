@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat-stats-bar.component';
 import { DiceComponent } from '@app/components/dice/dice.component';
-import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { CombatService } from '@app/services/combat/combat.service';
@@ -13,7 +12,7 @@ import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-combat-modal',
     standalone: true,
-    imports: [TimerComponent, DiceComponent, CommonModule, TemporaryDialogComponent, CombatStatsBarComponent],
+    imports: [TimerComponent, DiceComponent, CommonModule, CombatStatsBarComponent],
     templateUrl: './combat-modal.component.html',
     styleUrl: './combat-modal.component.scss',
 })
@@ -23,8 +22,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     @ViewChild('dice2') dice2!: DiceComponent;
     activePlayer: Player;
     opponent: Player;
-    attacker: Player;
-    defender: Player;
 
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
@@ -40,8 +37,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.activePlayer = this.combatService.activePlayer;
         this.opponent = this.combatService.opponent;
-        this.attacker = this.combatService.attacker;
-        this.defender = this.combatService.defender;
 
         this.subscription.add(
             this.combatService.combatTurnTime$.subscribe((timeRemaining) => {
@@ -49,8 +44,9 @@ export class CombatModalComponent implements OnInit, OnDestroy {
             }),
         );
         this.combatService.initSocketListeners();
-        this.dice1.rollDice();
-        this.dice2.rollDice();
+        this.combatService.isRolling = true;
+        this.dice1?.rollDice();
+        this.dice2?.rollDice();
     }
 
     ngOnDestroy() {
@@ -70,6 +66,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     }
 
     triggerEvade() {
-        this.socketCommunicationService.send('evadeCombat', this.combatService.attacker);
+        this.socketCommunicationService.send('evadeCombat');
     }
 }
