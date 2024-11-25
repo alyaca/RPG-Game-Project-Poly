@@ -45,6 +45,20 @@ export class MapValidatorService {
         this.showValidationResult();
     }
 
+    isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
+        const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
+        const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
+        const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
+        const isWallRight = array[row]?.[col + 1] === TileType.Wall;
+
+        const isTerrainAbove = array[row - 1]?.[col] < TileType.Wall;
+        const isTerrainBelow = array[row + 1]?.[col] < TileType.Wall;
+        const isTerrainLeft = array[row]?.[col - 1] < TileType.Wall;
+        const isTerrainRight = array[row]?.[col + 1] < TileType.Wall;
+
+        return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
+    }
+
     private showValidationResult() {
         setTimeout(() => {
             const dialogTitle: string = this.errorMessages.length > 0 ? 'Carte invalide' : 'Sauvegarde réussie';
@@ -68,20 +82,6 @@ export class MapValidatorService {
                 }
             }
         });
-    }
-
-    private isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
-        const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
-        const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
-        const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
-        const isWallRight = array[row]?.[col + 1] === TileType.Wall;
-
-        const isTerrainAbove = array[row - 1]?.[col] < TileType.Wall;
-        const isTerrainBelow = array[row + 1]?.[col] < TileType.Wall;
-        const isTerrainLeft = array[row]?.[col - 1] < TileType.Wall;
-        const isTerrainRight = array[row]?.[col + 1] < TileType.Wall;
-
-        return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
     private validateAllDoors(array: number[][]) {

@@ -278,6 +278,17 @@ describe('GameListService', () => {
         deleteReq.flush(null, { status: 500, statusText: 'Network error' });
     });
 
+    it('should export game as JSON file', () => {
+        const game: Game = { _id: '1', name: 'Test Game', visible: true } as Game;
+        spyOn(window.URL, 'createObjectURL').and.returnValue('blob-url');
+        spyOn(window.URL, 'revokeObjectURL');
+
+        service.exportGame(game);
+
+        expect(window.URL.createObjectURL).toHaveBeenCalled();
+        expect(window.URL.revokeObjectURL).toHaveBeenCalled();
+    });
+
     it('should return true when performDeleteGame successfully deletes the game', () => {
         const game: Game = mockGames[0];
 
