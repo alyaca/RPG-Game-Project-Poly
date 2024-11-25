@@ -312,7 +312,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should call gameService.openTempDialog with the correct parameters for onPlayerFell', () => {
-        gameServiceSpy.openTempDialog.and.returnValue(of(undefined)); // Mocking the observable
+        gameServiceSpy.openTempDialog.and.returnValue(of(undefined));
         spyOn(component, 'onEndTurn');
 
         component.onPlayerFell();

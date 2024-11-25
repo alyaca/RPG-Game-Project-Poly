@@ -31,7 +31,6 @@ describe('CombatService', () => {
             getFightTimer: jest.fn().mockReturnValue({
                 resetTimer: jest.fn(),
                 stopTimer: jest.fn(),
-                sendStartCombatLog: jest.fn(),
             }),
         } as unknown as jest.Mocked<RoomService>;
 
@@ -44,9 +43,11 @@ describe('CombatService', () => {
         mockLogsService = {
             createLog: jest.fn(),
             getGameLog: jest.fn(),
-            sendStartCombatLog: jest.fn(),
             sendPlayerLog: jest.fn(),
             sendEndGameLog: jest.fn(),
+            sendGlobalCombatLog: jest.fn(),
+            sendCombatActionLog: jest.fn(),
+            sendCombatCombatResultLog: jest.fn(),
         } as unknown as jest.Mocked<GameLogsService>;
 
         mockServer = {
@@ -137,7 +138,7 @@ describe('CombatService', () => {
 
     describe('attackPlayer', () => {
         it('should decrease defensePlayer HP when attack is successful', () => {
-            const combatValue = { attackValue: { total: 10, diceValue: 4 }, defenseValue: { total: 4, diceValue: 1 } };
+            const combatValue = { attackValues: { total: 10, diceValue: 4 }, defenseValues: { total: 4, diceValue: 1 } };
             service.getCombatValues = jest.fn().mockReturnValue(combatValue);
             service.emitToCombatPlayers = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
@@ -156,7 +157,7 @@ describe('CombatService', () => {
         });
 
         it('should decrease activePlayer HP when defense is successful', () => {
-            const combatValue = { attackValue: 3, defenseValue: 10 };
+            const combatValue = { attackValues: 3, defenseValues: 10 };
             service.getCombatValues = jest.fn().mockReturnValue(combatValue);
             service.emitToCombatPlayers = jest.fn();
             service.checkIfPlayerIsDead = jest.fn().mockReturnValue(false);
@@ -262,7 +263,8 @@ describe('CombatService', () => {
                 player: mockCombatPlayers.attacker,
             });
             expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
-            expect(mockLogsService.sendPlayerLog).toHaveBeenCalled();
+            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+            expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
         });
         it('should end turn if evasion is not successful', () => {
             service.emitToCombatPlayers = jest.fn();
@@ -271,6 +273,7 @@ describe('CombatService', () => {
 
             service.evadingPlayer(mockClient, mockServer);
 
+            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'evasionFail', mockCombatPlayers.attacker);
             expect(service.onEndTurn).toHaveBeenCalledWith(mockClient, mockServer, room);
         });

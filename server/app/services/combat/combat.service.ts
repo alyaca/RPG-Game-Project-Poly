@@ -47,7 +47,7 @@ export class CombatService {
         this.handlePlayerOnIce(combatPlayers.attacker, room.gameMap.tiles, room.listPlayers);
         this.handlePlayerOnIce(combatPlayers.defender, room.gameMap.tiles, room.listPlayers);
 
-        this.logService.sendStartCombatLog(combatPlayers, room.roomId, server);
+        this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
@@ -77,14 +77,17 @@ export class CombatService {
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
-        const { attackValue, defenseValue } = this.getCombatValues(combatPlayers);
-        this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValue, defenseValue });
-        if (attackValue.total > defenseValue.total) {
+        const { attackValues, defenseValues } = this.getCombatValues(combatPlayers);
+        this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
+        if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
             this.emitToCombatPlayers(server, combatPlayers, 'attackFail', combatPlayers.attacker);
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
+        this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
         const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
             this.onEndTurn(client, server, room);
@@ -93,16 +96,17 @@ export class CombatService {
 
     getCombatValues(combatPlayers: CombatPlayers) {
         const attackDiceValue = this.getRandomValue(combatPlayers.attacker.attributes.atkDiceMax);
-        const attackValue = {
+        const attackValues = {
             total: combatPlayers.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
         const defenseDiceValue = this.getRandomValue(combatPlayers.defender.attributes.defDiceMax);
-        const defenseValue = {
+        const defenseValues = {
             total: combatPlayers.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,
         };
-        return { attackValue, defenseValue };
+        combatPlayers.combatResultDetails = { attackValues, defenseValues };
+        return { attackValues, defenseValues };
     }
 
     evadingPlayer(client: Socket, server: Server) {
@@ -111,11 +115,13 @@ export class CombatService {
         const combatPlayers = combatInfos.combatPlayers;
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.logService.sendPlayerLog(room.roomId, server, combatPlayers.attacker, LogType.EvadeCombat);
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
+            this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
         } else {
+            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatFail);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', combatPlayers.attacker);
             combatInfos.failEvasion = true;
             this.onEndTurn(client, server, room);
@@ -198,7 +204,7 @@ export class CombatService {
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
-        this.logService.sendPlayerLog(room.roomId, server, winner, LogType.DefaultWinCombat);
+        this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
         this.defaultCombatWin(room, winner, server);
         if (winner.isActive) {
             const winnerSocket = server.sockets.sockets.get(winner.id);

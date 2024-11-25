@@ -62,12 +62,12 @@ describe('GameLogsService', () => {
         expect(service['sendLog']).toHaveBeenCalledWith(roomId, mockServer, mockPlayers, 'test');
     });
 
-    it('should call send log and generateStartCombatMessage on sendStartCombatLog', () => {
-        service['generateStartCombatMessage'] = jest.fn().mockReturnValue('test');
+    it('should call send log and generatePlayerLogMessage on sendGlobalCombatLog', () => {
+        service['generatePlayerLogMessage'] = jest.fn().mockReturnValue('test');
         service['sendLog'] = jest.fn();
-        service.sendStartCombatLog(mockCombatPlayers, roomId, mockServer);
+        service.sendGlobalCombatLog(roomId, mockServer, mockCombatPlayers, LogType.StartCombat);
 
-        expect(service['generateStartCombatMessage']).toHaveBeenCalledWith(mockCombatPlayers);
+        expect(service['generatePlayerLogMessage']).toHaveBeenCalledWith(LogType.StartCombat, mockAttacker.name, mockDefender.name);
         expect(service['sendLog']).toHaveBeenCalledWith(roomId, mockServer, [mockAttacker, mockDefender], 'test');
     });
 
@@ -78,6 +78,24 @@ describe('GameLogsService', () => {
 
         expect(service['generatePlayerLogMessage']).toHaveBeenCalledWith(LogType.GiveUp, mockPlayer.name);
         expect(service['sendLog']).toHaveBeenCalledWith(roomId, mockServer, [mockPlayer], 'test');
+    });
+
+    it('should call sendLog and generatePlayerLogMessage on sendGlobalCombatLog', () => {
+        service['generatePlayerLogMessage'] = jest.fn().mockReturnValue('test');
+        service['sendLog'] = jest.fn();
+        service.sendGlobalCombatLog(roomId, mockServer, mockCombatPlayers, LogType.NoWinnerCombat);
+
+        expect(service['generatePlayerLogMessage']).toHaveBeenCalledWith(LogType.NoWinnerCombat, mockAttacker.name, mockDefender.name);
+        expect(service['sendLog']).toHaveBeenCalledWith(roomId, mockServer, [mockAttacker, mockDefender], 'test');
+    });
+
+    it('should call sendLogToCombatPlayers and generatePlayerLogMessage on evade success', () => {
+        service['generatePlayerLogMessage'] = jest.fn().mockReturnValue('test');
+        service['sendLogToCombatPlayers'] = jest.fn();
+        service.sendCombatActionLog(roomId, mockServer, mockCombatPlayers, LogType.EvadeCombatSuccess);
+
+        expect(service['generatePlayerLogMessage']).toHaveBeenCalledWith(LogType.EvadeCombatSuccess, mockAttacker.name);
+        expect(service['sendLogToCombatPlayers']).toHaveBeenCalledWith(roomId, mockServer, mockCombatPlayers, 'test');
     });
 
     it('should create a log', () => {
@@ -148,14 +166,14 @@ describe('GameLogsService', () => {
             expect(result).toBe(`${name} a gagné le combat. Le combat est terminé !`);
         });
 
-        it('should return the correct message for LogType.EvadeCombat', () => {
-            const result = service['generatePlayerLogMessage'](LogType.EvadeCombat, name);
-            expect(result).toBe(`${name} s'est évadé. Le combat est terminé !`);
+        it('should return the correct message for LogType.EvadeCombatSuccess', () => {
+            const result = service['generatePlayerLogMessage'](LogType.EvadeCombatSuccess, name);
+            expect(result).toBe(`${name} s'est évadé avec succès.`);
         });
 
-        it('should return the correct message for LogType.DefaultWinCombat', () => {
-            const result = service['generatePlayerLogMessage'](LogType.DefaultWinCombat, name);
-            expect(result).toBe(`${name} a gagné le combat par défaut puisque l'opposant a quitté la partie.`);
+        it('should return the correct message for LogType.EvadeCombatFail', () => {
+            const result = service['generatePlayerLogMessage'](LogType.EvadeCombatFail, name);
+            expect(result).toBe(`${name} a échoué son évasion.`);
         });
 
         it('should return the default message for unknown log type', () => {
@@ -164,13 +182,7 @@ describe('GameLogsService', () => {
         });
     });
 
-    it('should generate start combat message', () => {
-        const message = service['generateStartCombatMessage'](mockCombatPlayers);
-
-        expect(message).toBe(`${mockAttacker.name} et ${mockDefender.name} sont entrés en combat.`);
-    });
-
-    it('should send turn log if message is different', () => {
+    it('should send log if message is different', () => {
         const spyEmit = jest.spyOn(mockServer.to(roomId), 'emit');
         const message = 'test';
         const mockLog = {
@@ -184,5 +196,23 @@ describe('GameLogsService', () => {
 
         expect(spyEmit).toHaveBeenCalledWith('logReceived', mockLog);
         expect(service['createLog']).toHaveBeenCalledWith([mockPlayer], message, roomId);
+    });
+
+    it('should send log to combat players if message is different', () => {
+        const spyEmitAttacker = jest.spyOn(mockServer.to(mockAttacker.id), 'emit');
+        const spyEmitDefender = jest.spyOn(mockServer.to(mockDefender.id), 'emit');
+        const message = 'test';
+        const mockLog = {
+            roomId,
+            message,
+            players: [mockPlayer],
+        };
+        service['createLog'] = jest.fn().mockReturnValue(mockLog);
+
+        service['sendLogToCombatPlayers'](roomId, mockServer, mockCombatPlayers, message);
+
+        expect(spyEmitAttacker).toHaveBeenCalledWith('logReceived', mockLog);
+        expect(spyEmitDefender).toHaveBeenCalledWith('logReceived', mockLog);
+        expect(service['createLog']).toHaveBeenCalledWith([mockAttacker, mockDefender], message, roomId);
     });
 });

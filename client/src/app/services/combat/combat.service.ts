@@ -5,7 +5,7 @@ import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIAL
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { CombatPlayers } from '@common/combat-player';
-import { CombatResult } from '@common/combat-result';
+import { CombatResult, CombatResultDetails } from '@common/combat-result';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
 @Injectable({
@@ -56,9 +56,9 @@ export class CombatService {
             this.combatTurnTimeSource.next(timeRemaining);
         });
 
-        this.socketCommunicationService.on('attackValues', (data: { attackValue: CombatResult; defenseValue: CombatResult }) => {
-            this.attackResult = data.attackValue;
-            this.defenseResult = data.defenseValue;
+        this.socketCommunicationService.on('attackValues', (combatResultDetails: CombatResultDetails) => {
+            this.attackResult = combatResultDetails.attackValues;
+            this.defenseResult = combatResultDetails.defenseValues;
             this.isRolling = false;
 
             setTimeout(() => {

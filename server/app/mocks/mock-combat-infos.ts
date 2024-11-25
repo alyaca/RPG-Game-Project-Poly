@@ -1,7 +1,13 @@
 import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
+import { CombatResultDetails } from '@common/combat-result';
 import { Behavior, Player, Status } from '@common/player';
 import { mockRooms } from './mock-room';
+
+export const mockCombatResultDetails: CombatResultDetails = {
+    attackValues: { diceValue: 0, total: 0 },
+    defenseValues: { diceValue: 0, total: 0 },
+};
 
 export const mockAttacker: Player = {
     id: 'attackerId',

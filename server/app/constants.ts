@@ -79,8 +79,11 @@ export const enum LogType {
     CloseDoor = 'CLOSE_DOOR',
     StartCombat = 'START_COMBAT',
     WinCombat = 'WIN_COMBAT',
-    EvadeCombat = 'EVADE_COMBAT',
-    DefaultWinCombat = 'DEFAULT_WIN_COMBAT',
+    EvadeCombatFail = 'EVADE_COMBAT_FAIL',
+    EvadeCombatSuccess = 'EVADE_COMBAT_SUCCESS',
+    NoWinnerCombat = 'NO_WINNER_COMBAT',
+    AttackFail = 'ATTACK_FAIL',
+    AttackSuccess = 'ATTACK_SUCCESS',
 }
 
 export const ICE_TILE_PENALTY_VALUE = 2;
