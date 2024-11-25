@@ -173,7 +173,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 })
                 .subscribe(() => {
                     this.socketCommunicationService.send('itemSwapped', {
-                        activePlayer: data.activePlayer,
                         inventoryToUndo: oldInventory,
                         newInventory: data.activePlayer.inventory,
                         droppedItem: itemSwap.pickedUpItem.id,

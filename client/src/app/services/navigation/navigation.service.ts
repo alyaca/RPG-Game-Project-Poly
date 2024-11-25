@@ -42,7 +42,7 @@ export class NavigationService {
     }
 
     updateObjects(items: number[][]) {
-        this.objects = items;
+        this.objects = JSON.parse(JSON.stringify(items));
     }
     updateTile(activePlayer: Player): void {
         if (this.isInInitialPosition(activePlayer.position)) {
