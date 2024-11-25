@@ -31,11 +31,6 @@ export class GameObjectsContainerComponent implements OnInit {
     ngOnInit() {
         const isCtfMode = this.gameCreationService.getGameMode() === GameMode.Ctf;
         this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn || (isCtfMode && object.id === ObjectType.Flag));
-        if (this.gameCreationService.getGameMode() === GameMode.Ctf) {
-            this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn || object.id === ObjectType.Flag);
-        } else {
-            this.gameObjects = Array.from(this.gameObjectService.objects).filter((object) => object.id <= ObjectType.Spawn);
-        }
         this.gameObjectService.resetObjectsCount();
         if (!this.gameCreationService.isNewGame) {
             this.gameObjectService.loadMapObjectCount();

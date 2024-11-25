@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { GameMode, MapSize, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { MapSize, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { Game } from '@common/game';
@@ -22,9 +22,9 @@ describe('GameCreationService', () => {
         expect(service.sizeSubject.getValue()).toEqual(MapSize.Small);
     });
 
-    it('should select the right mode', () => {
-        service.setSelectedMode(GameMode.Classic);
-        expect(service.modeSubject.getValue()).toEqual(GameMode.Classic);
+    it('should return the right game mode', () => {
+        service.gameMode = "Classic";
+        expect(service.getGameMode()).toEqual("Classic");
     });
 
     it('should update map dimensions when size is small', () => {
@@ -65,4 +65,5 @@ describe('GameCreationService', () => {
         const result = service.convertMapDimension(game);
         expect(result).toBe('none');
     });
+
 });
