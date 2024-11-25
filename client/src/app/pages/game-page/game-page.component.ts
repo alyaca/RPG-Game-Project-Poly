@@ -67,7 +67,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     attackAround: boolean = false;
 
     private router = inject(Router);
-    // private stopwatchService = inject(StopwatchService);
     private postGameService = inject(PostGameService);
     constructor(
         private gameCreationService: GameCreationService,
@@ -81,7 +80,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-        // this.stopwatchService.start();
         if (!this.mapDimensions || !this.mapName) {
             this.router.navigate(['/home']);
         }
@@ -138,10 +136,6 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.socketCommunicationService.once('endGame', (data: { winner: Player; room: Room }) => {
             this.removeListeners();
             this.postGameService.transferRoomStats(data.room);
-
-            // for(const position of this.postGameService.globalStats.globalTilesVisited){
-            //     console.log('('+position.x+', '+position.y+')');
-            // }
 
             this.gameService
                 .openDialog({

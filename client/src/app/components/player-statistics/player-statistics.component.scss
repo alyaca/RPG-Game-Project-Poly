@@ -3,24 +3,16 @@
     align-items: center;
     width: 73vw;
     border-top: 0.08rem solid black;
-    //
     background-image: linear-gradient(to left, rgba(0,0,0,0), rgba(132, 132, 132, 0.2), rgba(163, 163, 163, 0.25))
 }
 
 .player {
     flex: 1 1 19.5%;
     display: flex;
-    //margin-left: 3%;
     align-items: center;
 }
 
 .player-img {
-    // height: 4.5rem;
-    // width: 4.5rem;
-    // margin: 2%;
-    // margin-right: 10%;
-    // border-radius: 1.5rem;
-
     height: 5.1rem;
     width: auto;
     margin: 0;
