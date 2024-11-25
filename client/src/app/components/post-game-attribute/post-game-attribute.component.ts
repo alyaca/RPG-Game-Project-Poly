@@ -19,4 +19,8 @@ export class PostGameAttributeComponent {
     isAttrRecord() {
         return this.attribute === 'victories';
     }
+
+    getSortClass(playerStatType: string){
+        return this.postGameService.sortOrder[playerStatType];
+    }
 }

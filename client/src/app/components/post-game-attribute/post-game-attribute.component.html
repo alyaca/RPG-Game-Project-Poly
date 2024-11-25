@@ -4,21 +4,15 @@
     (mouseenter)="postGameService.updateExplanations('victories')"
     (mouseleave)="postGameService.updateExplanations('')">
         <div class="sort-buttons">
-            <div class="sort-button" (click)="postGameService.sortPlayers('victories')"                         [ngClass]="{
-                'ascending': postGameService.sortOrder['victories'] === sortOrder.Ascending,
-                'descending': postGameService.sortOrder['victories'] === sortOrder.Descending,
-                'unsorted': postGameService.sortOrder['victories'] === sortOrder.Unsorted
-            }"></div>
-            <div class="sort-button" (click)="postGameService.sortPlayers('evasions')"                        [ngClass]="{
-                'ascending': postGameService.sortOrder['evasions'] === sortOrder.Ascending,
-                'descending': postGameService.sortOrder['evasions'] === sortOrder.Descending,
-                'unsorted': postGameService.sortOrder['evasions'] === sortOrder.Unsorted
-            }"></div>
-            <div class="sort-button" (click)="postGameService.sortPlayers('defeats')"                        [ngClass]="{
-                'ascending': postGameService.sortOrder['defeats'] === sortOrder.Ascending,
-                'descending': postGameService.sortOrder['defeats'] === sortOrder.Descending,
-                'unsorted': postGameService.sortOrder['defeats'] === sortOrder.Unsorted
-            }"></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('victories')"                      
+                [ngClass]="getSortClass('victories')"
+            ></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('evasions')"                       
+                [ngClass]="getSortClass('evasions')"
+            ></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('defeats')"               
+                [ngClass]="getSortClass('defeats')"
+            ></div>
         </div>
         <p class="attr-txt">W/D/L</p>
     </div>
@@ -31,11 +25,7 @@
         (click)="postGameService.sortPlayers(attribute)" >
     <div 
         class="sort-button" 
-        [ngClass]="{
-            'ascending': postGameService.sortOrder[attribute] === sortOrder.Ascending,
-            'descending': postGameService.sortOrder[attribute] === sortOrder.Descending,
-            'unsorted': postGameService.sortOrder[attribute] === sortOrder.Unsorted
-        }"
+        [ngClass]="getSortClass(attribute)"
     ></div>
     <p class="attr-txt"> {{ displayTxt }}</p>
 </div>

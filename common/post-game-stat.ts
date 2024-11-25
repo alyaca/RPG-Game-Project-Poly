@@ -1,5 +1,16 @@
 import { Player } from './player';
 
+// to see if its useful or not
+export enum PlayerStatType {
+    Combats = 'combats',
+    Victories = 'victories',
+    Evasions = 'evasions',
+    Defeats = 'defeats',
+    DmgDealt = 'dmgDealt',
+    ItemsObtained = 'itemsObtained',
+    TilesVisited = 'tilesVisited'
+}
+
 export interface PostGameStat {
     id: number;
     key: keyof Player['postGameStats'];
