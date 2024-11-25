@@ -5,6 +5,7 @@ import {
     FIGHT_TIME,
     ICE_TILE_PENALTY_VALUE,
     LogType,
+    MIN_DICE_VALUE,
     NO_EVASION_TIME,
     TileType,
     VICTORIES,
@@ -78,7 +79,8 @@ export class CombatService {
     attackPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
-        const { attackValues, defenseValues } = this.getCombatValues(combatPlayers);
+        const debugMode = room.isDebug;
+        const { attackValues, defenseValues } = this.getCombatValues(combatPlayers, debugMode);
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
@@ -96,13 +98,15 @@ export class CombatService {
         }
     }
 
-    getCombatValues(combatPlayers: CombatPlayers) {
-        const attackDiceValue = this.getRandomValue(combatPlayers.attacker.attributes.atkDiceMax);
+    getCombatValues(combatPlayers: CombatPlayers, debugMode: boolean) {
+        const attackDiceValue = debugMode
+            ? combatPlayers.attacker.attributes.atkDiceMax
+            : this.getRandomValue(combatPlayers.attacker.attributes.atkDiceMax);
         const attackValues = {
             total: combatPlayers.attacker.attributes.attack + attackDiceValue,
             diceValue: attackDiceValue,
         };
-        const defenseDiceValue = this.getRandomValue(combatPlayers.defender.attributes.defDiceMax);
+        const defenseDiceValue = debugMode ? MIN_DICE_VALUE : this.getRandomValue(combatPlayers.defender.attributes.defDiceMax);
         const defenseValues = {
             total: combatPlayers.defender.attributes.defense + defenseDiceValue,
             diceValue: defenseDiceValue,

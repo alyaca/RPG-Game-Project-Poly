@@ -23,3 +23,24 @@ export const mockGame: Game = {
     isSelected: false,
     lastModification: new Date(),
 };
+
+export const mockGameDebug: Game = {
+    _id: '1',
+    name: 'Map1',
+    description: 'Description1',
+    visible: true,
+    mode: 'normal',
+    nbPlayers: 2,
+    image: 'img1',
+    tiles: [
+        [0, 0],
+        [1, 1],
+    ],
+    dimension: 2,
+    itemPlacement: [
+        [0, SPAWN_POINT_ID],
+        [0, SPAWN_POINT_ID],
+    ],
+    isSelected: false,
+    lastModification: new Date(),
+};
