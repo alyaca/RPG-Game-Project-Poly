@@ -3,7 +3,7 @@ import {
     DEFAULT_ATTRIBUTE,
     DISCONNECTED_POSITION,
     EQUAL_ODDS_PROBABILITY,
-    FELLING_PROBABILITY,
+    FALLING_PROBABILITY,
     HIGH_ATTRIBUTE,
     LogType,
     MOVEMENT_TIME,
@@ -379,7 +379,7 @@ export class GameService {
 
     private checkFell(): boolean {
         const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
+        return randomValue > FALLING_PROBABILITY;
     }
 
     private freeUpAvatar(room: Room, socket: Socket) {
