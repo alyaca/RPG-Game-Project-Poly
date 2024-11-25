@@ -71,8 +71,16 @@ export class CombatService {
             this.combatStatus = player.name + ' a réussi son attaque.';
         });
 
-        this.socketCommunicationService.on('attackFail', (player: Player) => {
-            this.combatStatus = player.name + ' a échoué son attaque.';
+        this.socketCommunicationService.on('attackFail', (data: { attacker: Player; shouldDamageSelf: boolean }) => {
+            this.combatStatus = data.attacker.name + ' a échoué son attaque.';
+            if (data.shouldDamageSelf) {
+                this.activePlayer.attributes.currentHp--;
+            }
+        });
+
+        this.socketCommunicationService.on('updateStats', (data: { attacker: Player; defender: Player }) => {
+            this.attacker.attributes.attack = data.attacker.attributes.attack;
+            this.defender.attributes.defense = data.defender.attributes.defense;
         });
 
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {

@@ -34,7 +34,7 @@ export const gameObjects: GameObject[] = [
         id: ObjectType.Xiphos,
         name: 'Xiphos',
         image: './assets/images/objects/xiphos.jpg',
-        description: "Si vous avez moins de 50% de points de vie, votre adversaire perd 2 de défense et vous gagnez 2 d'attaque.",
+        description: "Si vous avez moins de 50% de points de vie, votre adversaire perd 1 de défense et vous gagnez 2 d'attaque.",
         count: ITEM_COUNT,
     },
     {

@@ -66,7 +66,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
         public combatService: CombatService,
-        private navigationService : NavigationService,
+        private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -156,7 +156,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; itemPickedUp: number }) => {
-            // this.socketCommunicationService.send('beginItemSwitch');
             const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
             const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
             const itemSwap: ItemSwap = {
@@ -179,7 +178,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                         newInventory: data.activePlayer.inventory,
                         droppedItem: itemSwap.pickedUpItem.id,
                     });
-                    // this.socketCommunicationService.send('endItemSwitch');
                 });
         });
     }

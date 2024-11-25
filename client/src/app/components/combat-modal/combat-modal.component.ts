@@ -50,6 +50,11 @@ export class CombatModalComponent implements OnInit, OnDestroy {
         this.combatService.initSocketListeners();
         this.dice1.rollDice();
         this.dice2.rollDice();
+
+        this.socketCommunicationService.on('updateStats', (data: { attacker: Player; defender: Player }) => {
+            this.attacker.attributes.attack = data.attacker.attributes.attack;
+            this.defender.attributes.defense = data.defender.attributes.defense;
+        });
     }
 
     ngOnDestroy() {
