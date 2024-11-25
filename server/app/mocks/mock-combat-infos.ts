@@ -64,6 +64,7 @@ export const mockDefender: Player = {
 export const mockCombatPlayers: CombatPlayers = {
     attacker: mockAttacker,
     defender: mockDefender,
+    combatResultDetails: mockCombatResultDetails,
 };
 
 export const mockCombatInfos: CombatInfos = {

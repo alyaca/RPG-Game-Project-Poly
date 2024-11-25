@@ -310,7 +310,7 @@ export class GameService {
     }
 
     checkEndTurn(client: Socket, activePlayer: Player): boolean {
-        if (!activePlayer || !this.isActivePlayer) return;
+        if (!activePlayer || !this.isActivePlayer(client)) return;
         const room = this.roomService.getRoom(client);
         const reachableTileCount = room.navigation.findReachableTiles(activePlayer, room).length;
         const players = room.listPlayers;
@@ -348,7 +348,7 @@ export class GameService {
 
     private checkAttack(room: Room, server: Server) {
         const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+        if (room.navigation.checkAttack(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
             server.to(room.roomId).emit('attackAround', true);
         } else {
             server.to(room.roomId).emit('attackAround', false);
@@ -357,7 +357,7 @@ export class GameService {
 
     private checkDoors(room: Room, server: Server) {
         const activePlayer = this.getActivePlayer(room);
-        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && activePlayer.attributes.actionPoints > 0) {
+        if (room.navigation.checkDoor(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
             server.to(room.roomId).emit('doorAround', true);
         } else {
             server.to(room.roomId).emit('doorAround', false);

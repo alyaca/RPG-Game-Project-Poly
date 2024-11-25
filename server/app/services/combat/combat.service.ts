@@ -1,11 +1,11 @@
 import {
+    DEFAULT_COMBAT_RESULT,
     END_COMBAT_DELAY,
     EVASION_SUCCESS_RATE,
     FIGHT_TIME,
     ICE_TILE_PENALTY_VALUE,
     LogType,
     NO_EVASION_TIME,
-    SPAWN_POINT_ID,
     TileType,
     VICTORIES,
 } from '@app/constants';
@@ -37,7 +37,7 @@ export class CombatService {
     startFight(client: Socket, player1: Player, player2: Player, isPlayer1Active: boolean, server: Server) {
         const room = this.roomService.getRoom(client);
         const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
-        const combatPlayers = { attacker: player1, defender: player2 };
+        const combatPlayers = { attacker: player1, defender: player2, combatResultDetails: DEFAULT_COMBAT_RESULT };
         const combatInfos: CombatInfos = {
             combatPlayers,
             gameTime,
@@ -227,23 +227,30 @@ export class CombatService {
         server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
-    replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server): void {
+    replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {
         const room = this.roomService.getRoom(socket);
+        const players = room.listPlayers;
         const playerToReplace = room.listPlayers.find((p) => p.id === player.id);
         if (!playerToReplace) return;
         room.gameMap.itemPlacement[playerToReplace.position.x][playerToReplace.position.y] = 0;
-        if (this.checkSpawnPointAvailability(playerToReplace, room.gameMap.itemPlacement)) {
+        if (this.checkSpawnPointAvailability(playerToReplace, players)) {
             const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
             server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         } else {
             const oldPosition = playerToReplace.position;
+            this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
             server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
         }
     }
 
-    checkSpawnPointAvailability(player: Player, gameObjects: number[][]): boolean {
-        return gameObjects[player.spawnPosition.x][player.spawnPosition.y] === SPAWN_POINT_ID;
+    checkSpawnPointAvailability(player: Player, players: Player[]): boolean {
+        for (const p of players) {
+            if (p.position.x === player.spawnPosition.x && p.position.y === player.spawnPosition.y) {
+                return false;
+            }
+        }
+        return true;
     }
 
     replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {
@@ -254,6 +261,8 @@ export class CombatService {
                 return neighbor;
             }
         }
+        player.position = neighbors[0];
+        return this.replacePlayerOnNeighborTile(player, gameMap);
     }
 
     private getNeighbors(position: Position, game: Game): Position[] {

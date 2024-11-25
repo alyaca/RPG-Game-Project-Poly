@@ -1,5 +1,5 @@
 import { LogType, TileType } from '@app/constants';
-import { mockAttacker, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
+import { mockAttacker, mockCombatPlayers, mockCombatResultDetails, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockPlayers, playerDisconnected } from '@app/mocks/mock-players';
 import { mockServer } from '@app/mocks/mock-server';
 import { Player } from '@common/player';
@@ -98,6 +98,15 @@ describe('GameLogsService', () => {
         expect(service['sendLogToCombatPlayers']).toHaveBeenCalledWith(roomId, mockServer, mockCombatPlayers, 'test');
     });
 
+    it('should call sendLogToCombatPlayers and generateCombatResultMessage with dice result', () => {
+        service['generateCombatResultMessage'] = jest.fn().mockReturnValue('test');
+        service['sendLogToCombatPlayers'] = jest.fn();
+        service.sendCombatCombatResultLog(roomId, mockServer, mockCombatPlayers);
+
+        expect(service['generateCombatResultMessage']).toHaveBeenCalledWith(mockCombatPlayers);
+        expect(service['sendLogToCombatPlayers']).toHaveBeenCalledWith(roomId, mockServer, mockCombatPlayers, 'test');
+    });
+
     it('should create a log', () => {
         const players: Player[] = [mockPlayer];
         const message = 'Test message';
@@ -134,6 +143,15 @@ describe('GameLogsService', () => {
     it('should not return a message with the names of disconnected players', () => {
         const result = service['generateEndGameMessage']([playerDisconnected]);
         expect(result).toBe('Fin de partie : ');
+    });
+
+    it('should generate combatResult message ', () => {
+        const { attackValues, defenseValues } = mockCombatResultDetails;
+        const message = service['generateCombatResultMessage'](mockCombatPlayers);
+        expect(message).toBe(
+            `Résultat de l'attaque : ${mockAttacker.attributes.attack} + ${attackValues.diceValue} (dé) = ${attackValues.total}\n` +
+                `Résultat de la défense :  ${mockDefender.attributes.attack} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`,
+        );
     });
 
     describe('generatePlayerLogMessage', () => {
@@ -174,6 +192,28 @@ describe('GameLogsService', () => {
         it('should return the correct message for LogType.EvadeCombatFail', () => {
             const result = service['generatePlayerLogMessage'](LogType.EvadeCombatFail, name);
             expect(result).toBe(`${name} a échoué son évasion.`);
+        });
+
+        it('should return the correct message for LogType.NoWinnerCombat', () => {
+            const defenderName = 'player2';
+            const result = service['generatePlayerLogMessage'](LogType.NoWinnerCombat, name, defenderName);
+            expect(result).toBe(`Combat termniné sans gagnant entre ${name} et ${defenderName}.`);
+        });
+
+        it('should return the correct message for LogType.StartCombat', () => {
+            const defenderName = 'player2';
+            const result = service['generatePlayerLogMessage'](LogType.StartCombat, name, defenderName);
+            expect(result).toBe(`${name} et ${defenderName} sont entrés en combat.`);
+        });
+
+        it('should return the correct message for LogType.AttackFail', () => {
+            const result = service['generatePlayerLogMessage'](LogType.AttackFail, name);
+            expect(result).toBe(`${name} a échoué son attaque.`);
+        });
+
+        it('should return the correct message for LogType.AttackSuccess', () => {
+            const result = service['generatePlayerLogMessage'](LogType.AttackSuccess, name);
+            expect(result).toBe(`${name} a réussi son attaque.`);
         });
 
         it('should return the default message for unknown log type', () => {

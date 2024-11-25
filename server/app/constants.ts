@@ -87,3 +87,5 @@ export const enum LogType {
 }
 
 export const ICE_TILE_PENALTY_VALUE = 2;
+
+export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
