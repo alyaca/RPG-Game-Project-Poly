@@ -22,8 +22,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     @ViewChild('dice2') dice2!: DiceComponent;
     activePlayer: Player;
     opponent: Player;
-    attacker: Player;
-    defender: Player;
 
     totalTime: number = COMBAT_TURN_LENGTH;
     timeRemaining: number = COMBAT_TURN_LENGTH;
@@ -39,8 +37,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.activePlayer = this.combatService.activePlayer;
         this.opponent = this.combatService.opponent;
-        this.attacker = this.combatService.attacker;
-        this.defender = this.combatService.defender;
 
         this.subscription.add(
             this.combatService.combatTurnTime$.subscribe((timeRemaining) => {
@@ -48,8 +44,9 @@ export class CombatModalComponent implements OnInit, OnDestroy {
             }),
         );
         this.combatService.initSocketListeners();
-        this.dice1.rollDice();
-        this.dice2.rollDice();
+        this.combatService.isRolling = true;
+        this.dice1?.rollDice();
+        this.dice2?.rollDice();
     }
 
     ngOnDestroy() {
@@ -69,6 +66,6 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     }
 
     triggerEvade() {
-        this.socketCommunicationService.send('evadeCombat', this.combatService.attacker);
+        this.socketCommunicationService.send('evadeCombat');
     }
 }

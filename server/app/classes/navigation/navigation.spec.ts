@@ -80,6 +80,7 @@ describe('Navigation', () => {
     // });
 
     it('should return true if checkAttack or checkDoor return an array', () => {
+        navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(playerNavigation);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
@@ -90,6 +91,7 @@ describe('Navigation', () => {
     });
 
     it('haveActions should return false if checkAttack and checkDoor return undefined', () => {
+        navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(false);
@@ -424,4 +426,20 @@ describe('Navigation', () => {
         component.sendNavigation(0, 0);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
     });*/
+
+    // it('should call set tiles doorAction event', () => {
+    //     const mockPlayer = { position: { x: 1, y: 1 } } as Player;
+
+    //     gateway['navigation'].gameMap.tiles = [
+    //         [TileType.OpenDoor, TileType.Ground],
+    //         [TileType.Ground, TileType.Water],
+    //     ];
+    //     (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+    //     (gameService.getActivePlayer as jest.Mock).mockReturnValue(mockPlayer);
+    //     gateway['navigation'].hasHandleDoorAction = jest.fn().mockReturnValue(true);
+
+    //     const doorActionData: DoorActionData = { position: { x: 0, y: 0 }, player: mockPlayer };
+    //     gateway.handleDoorAction(mockClient, doorActionData);
+    //     expect(server.to(roomId).emit).toHaveBeenCalledWith('doorClicked', gateway['navigation'].gameMap.tiles);
+    // });
 });

@@ -15,7 +15,6 @@ export enum SocketEvents {
     BeforeStartTurn = 'beforeStartTurn',
     PlayerNavigation = 'playerNavigation',
     KickPlayer = 'kickPlayer',
-    SendGameLog = 'sendGameLog',
     StartFight = 'startFight',
     AttackPlayer = 'attackPlayer',
     EvadeCombat = 'evadeCombat',
@@ -27,4 +26,5 @@ export enum SocketEvents {
     ForceEndGame = 'forceEndGame', // Temporary
     DebugMode = 'debugMode',
     TeleportPlayer = 'teleportPlayer',
+    FindPath = 'findPath',
 }

@@ -89,9 +89,9 @@ app-lobby-player {
 
 .invisible {
     display: none;
-    visibility: hidden; 
-    pointer-events: none; 
-    opacity: 0; 
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
 }
 
 #lock {
@@ -214,7 +214,6 @@ app-lobby-player {
     flex: 0 0 15.5%;
 }
 
-
 .switch .tooltiptext {
     visibility: hidden;
     width: 300%;
@@ -241,7 +240,7 @@ app-lobby-player {
     border-radius: 2rem;
     width: 15rem;
     height: 3rem;
-    line-height: 2rem; 
+    line-height: 2rem;
     align-self: center;
     border-bottom: 0.4rem solid black;
     border-right: 0.4rem solid black;
@@ -268,16 +267,15 @@ app-lobby-player {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.75); 
-    z-index: 999; 
-    pointer-events: none; 
-    display: none; 
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 999;
+    pointer-events: none;
+    display: none;
 }
 
 #waiting-page.disabled .disabled-overlay {
     display: block;
 }
-
 
 .add-virtual-player-container {
     position: fixed;
@@ -296,7 +294,7 @@ app-lobby-player {
     font-family: papyrus;
 }
 
-.bot-title{
+.bot-title {
     flex: 0 0 7%;
     width: 100%;
     color: rgb(255, 239, 160);
@@ -308,7 +306,6 @@ app-lobby-player {
     align-items: center;
     display: flex;
     flex-direction: row;
-
 }
 
 .bot-options {
@@ -382,7 +379,6 @@ app-lobby-player {
     text-align: center;
 }
 
-
 .close-button {
     position: absolute;
     top: 1rem;
@@ -410,7 +406,7 @@ app-lobby-player {
     font-family: 'Franklin Gothic Medium';
     font-size: 2.5rem;
     letter-spacing: 0.2rem;
-    text-align: center; 
+    text-align: center;
     justify-content: center;
     align-self: center;
     align-items: center;
@@ -419,7 +415,7 @@ app-lobby-player {
 .elem-container {
     display: flex;
     flex-direction: column;
-    text-align: center; 
+    text-align: center;
     margin-top: 0.5rem;
     width: 18rem;
 }
@@ -427,7 +423,7 @@ app-lobby-player {
 .elem-title {
     font-size: 1rem;
     font-family: Papyrus;
-    text-align: center; 
+    text-align: center;
     margin: 0;
 }
 

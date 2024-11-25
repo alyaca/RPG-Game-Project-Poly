@@ -5,6 +5,17 @@ import { mockGame } from './mock-game';
 import { mockNavigation } from './mock-navigation';
 import { defaultGlobalStats } from './default-global-stats';
 
+export const mockRoom: Room = {
+    gameMap: mockGame,
+    roomId: '1234',
+    listPlayers: [],
+    availableAvatars: avatars,
+    adminId: 'admin1234',
+    isLocked: false,
+    gameStatus: GameStatus.Lobby,
+    navigation: mockNavigation,
+};
+
 export const mockRooms: Room[] = [
     {
         gameMap: mockGame,

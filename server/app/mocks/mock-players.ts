@@ -1,3 +1,4 @@
+import { avatars } from '@common/avatars-info';
 import { Behavior, Player, Attributes, Status, PostGameStats } from '@common/player';
 import { playerNavigation } from './mock-player';
 
@@ -30,9 +31,9 @@ export const mockPlayers: Player[] = [
     {
         id: 'admin1234',
         attributes: mockAttributes,
-        avatar: undefined,
+        avatar: avatars[0],
         isActive: true,
-        name: 'name',
+        name: 'mobile',
         status: Status.Player,
         postGameStats: defaultPostGameStats,
         inventory: [],
@@ -49,11 +50,26 @@ export const mockPlayers: Player[] = [
         name: 'name',
         status: Status.Bot,
         postGameStats: defaultPostGameStats,
+        name: 'joseph',
+        status: Status.Player,
+        victories: 1,
         inventory: [],
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
-        positionHistory: [],
+    },
+    {
+        id: 'bot',
+        attributes: mockPlayerStats,
+        avatar: undefined,
+        isActive: false,
+        name: 'loly',
+        status: Status.Bot,
+        victories: 1,
+        inventory: [],
+        position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Aggressive,
     },
 ];
 
@@ -89,7 +105,7 @@ export const mockNavigationPlayers: Player[] = [
 
 export const baseBot: Player = {
     id: '0',
-    avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
+    avatar: avatars[0],
     status: Status.Bot,
     name: 'Joueur virtuel',
     postGameStats: defaultPostGameStats,
@@ -100,4 +116,32 @@ export const baseBot: Player = {
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
     positionHistory: [],
+};
+
+export const playerDisconnected: Player = {
+    id: 'disconnected',
+    attributes: mockPlayerStats,
+    avatar: undefined,
+    isActive: false,
+    name: 'player-disconnected',
+    status: Status.Disconnected,
+    victories: 1,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+};
+
+export const playerDisconnected: Player = {
+    id: 'disconnected',
+    attributes: mockPlayerStats,
+    avatar: undefined,
+    isActive: false,
+    name: 'player-disconnected',
+    status: Status.Disconnected,
+    victories: 1,
+    inventory: [],
+    position: { x: 0, y: 0 },
+    spawnPosition: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
 };

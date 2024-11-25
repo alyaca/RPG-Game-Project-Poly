@@ -7,7 +7,16 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DEFAULT_ACTION_POINT, DialogMessages, DialogOptions, DialogResult, DialogTitle, STARTING_TIME, TURN_TIME } from '@app/constants';
+import {
+    DEFAULT_ACTION_POINT,
+    DialogMessages,
+    DialogOptions,
+    DialogResult,
+    DialogTitle,
+    INFO_DIALOG_TIME,
+    STARTING_TIME,
+    TURN_TIME,
+} from '@app/constants';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -99,11 +108,15 @@ export class GamePageComponent implements OnInit, AfterViewInit {
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
-        this.socketCommunicationService.on('combatEnd', (listPlayers: Player[]) => {
-            this.allPlayers = listPlayers;
-            this.navigationService.players = listPlayers;
-            this.combatService.isInCombat = false;
-            this.activePlayer.attributes.actionPoints = 0;
+        this.socketCommunicationService.on('combatEnd', (data: { listPlayers: Player[]; player: Player }) => {
+            this.setPlayersOnCombatDone(data.listPlayers);
+            this.navigationService.players = data.listPlayers;
+            this.combatService.onCombatEnd(data.player);
+        });
+
+        this.socketCommunicationService.on('evasionSuccess', (data: { listPlayers: Player[]; player: Player }) => {
+            this.setPlayersOnCombatDone(data.listPlayers);
+            this.combatService.onEvasion(data.player);
         });
 
         this.socketCommunicationService.on('playerFell', () => {
@@ -123,13 +136,14 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         });
 
         this.socketCommunicationService.once('endGame', (data: { winner: Player; room: Room }) => {
+            this.removeListeners();
             this.postGameService.transferRoomStats(data.room);
 
             // for(const position of this.postGameService.globalStats.globalTilesVisited){
             //     console.log('('+position.x+', '+position.y+')');
             // }
 
-            this.socketCommunicationService.off('draw');
+            
             this.gameService
                 .openDialog({
                     title: DialogTitle.EndGame,
@@ -185,6 +199,13 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         });
     }
 
+    removeListeners() {
+        this.socketCommunicationService.off('beforeStartTurnTimer');
+        this.socketCommunicationService.off('turnEnded');
+        this.socketCommunicationService.off('startedTurnTimer');
+        this.socketCommunicationService.off('draw');
+    }
+
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
@@ -197,13 +218,15 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     }
 
     onPlayerFell() {
-        this.gameService
-            .openDialog({ title: DialogTitle.EndTurn, messages: [DialogMessages.Fell], confirm: false, options: [DialogOptions.Close] })
-            .subscribe((result) => {
-                if (result.action === DialogResult.Close) {
-                    this.onEndTurn();
-                }
-            });
+        this.gameService.openTempDialog({ title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME }).subscribe(() => {
+            this.onEndTurn();
+        });
+    }
+
+    setPlayersOnCombatDone(players: Player[]) {
+        this.allPlayers = players;
+        this.combatService.isRolling = false;
+        this.activePlayer.attributes.actionPoints = 0;
     }
 
     getPlayerCount() {
@@ -297,5 +320,9 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         const admin = this.allPlayers.find((player) => player.status === Status.Admin);
         const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
         return !!(currentPlayer && admin && currentPlayer.id === admin.id);
+    }
+
+    isCombatStarted() {
+        return this.combatService.isInCombat;
     }
 }

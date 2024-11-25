@@ -1,15 +1,29 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { INIT_DISPLAY_DELAY } from '@app/constants';
 import { TemporaryDialogComponent } from './temporary-dialog.component';
-import { LONG_TEMP_DIALOG_DURATION, TEMP_DIALOG_DURATION } from '@app/constants';
 
 describe('TemporaryDialogComponent', () => {
     let component: TemporaryDialogComponent;
     let fixture: ComponentFixture<TemporaryDialogComponent>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<TemporaryDialogComponent>>;
 
     beforeEach(async () => {
+        dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
+
         await TestBed.configureTestingModule({
-            imports: [TemporaryDialogComponent],
+            imports: [MatDialogModule],
+            providers: [
+                { provide: MatDialogRef, useValue: dialogRefSpy },
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {
+                        message: 'Test message',
+                        title: 'Test title',
+                        duration: INIT_DISPLAY_DELAY,
+                    },
+                },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(TemporaryDialogComponent);
@@ -17,31 +31,14 @@ describe('TemporaryDialogComponent', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    it('should create the component', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should show the dialog with a message', () => {
-        const message = 'Test Message';
-        component.show(message, TEMP_DIALOG_DURATION);
-
-        expect(component.message).toBe(message);
-        expect(component.isVisible).toBe(true);
-    });
-
-    it('should hide the dialog after the specified duration', fakeAsync(() => {
-        component.show('Test Message', LONG_TEMP_DIALOG_DURATION);
-
-        tick(LONG_TEMP_DIALOG_DURATION);
-        expect(component.isVisible).toBe(false);
-    }));
-
-    it('should set the message correctly when shown multiple times', () => {
-        component.show('First Message', TEMP_DIALOG_DURATION);
-        expect(component.message).toBe('First Message');
-
-        component.show('Second Message', TEMP_DIALOG_DURATION);
-        expect(component.message).toBe('Second Message');
-        expect(component.isVisible).toBe(true);
+    it('should close the dialog after the specified duration using done callback', (done) => {
+        setTimeout(() => {
+            expect(dialogRefSpy.close).toHaveBeenCalled();
+            done();
+        }, INIT_DISPLAY_DELAY);
     });
 });

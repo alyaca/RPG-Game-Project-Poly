@@ -60,6 +60,7 @@ export enum TileCost {
 
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
+export const END_COMBAT_DELAY = 2500;
 
 export const DEFAULT_ATTRIBUTE = 4;
 export const HIGH_ATTRIBUTE = 6;
@@ -72,3 +73,23 @@ export const MIN_DICE_VALUE = 1;
 export const SECS_IN_HOUR = 3600;
 export const SECS_IN_MIN = 60;
 export const MINS_IN_HOUR = 60;
+export const MAX_GENERATION_VALUE = 1000000000;
+export const DISCONNECTED_POSITION = { x: 100, y: 100 };
+
+export const enum LogType {
+    StartTurn = 'TURN',
+    GiveUp = 'GIVE_UP',
+    OpenDoor = 'OPEN_DOOR',
+    CloseDoor = 'CLOSE_DOOR',
+    StartCombat = 'START_COMBAT',
+    WinCombat = 'WIN_COMBAT',
+    EvadeCombatFail = 'EVADE_COMBAT_FAIL',
+    EvadeCombatSuccess = 'EVADE_COMBAT_SUCCESS',
+    NoWinnerCombat = 'NO_WINNER_COMBAT',
+    AttackFail = 'ATTACK_FAIL',
+    AttackSuccess = 'ATTACK_SUCCESS',
+}
+
+export const ICE_TILE_PENALTY_VALUE = 2;
+
+export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };

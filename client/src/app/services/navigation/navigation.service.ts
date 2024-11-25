@@ -29,8 +29,8 @@ export class NavigationService {
     initialPositions: Position[] = [];
     positions: number[][];
     isDebugMode: boolean = false;
+    reachableTiles: Position[];
     private objects: number[][];
-    private reachableTiles: Position[];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
         this.objects = JSON.parse(JSON.stringify(objects));
@@ -98,10 +98,6 @@ export class NavigationService {
 
     isReachableTile(row: number, col: number): boolean {
         return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
-    }
-
-    getActivePlayer(): Player {
-        return this.players.find((player) => player.isActive) || this.players[0];
     }
 
     isNeighbor(row: number, col: number, player: Player): boolean {

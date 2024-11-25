@@ -8,7 +8,7 @@
         </div>
         <button (click)="forceEndGame()">Terminer la partie (temp)</button> 
         <div class="chat">
-            <app-chat-box [isToggleable]="true"></app-chat-box>
+            <app-chat-box [isToggleable]="true" [areLogsVisible]="true"></app-chat-box>
         </div>
         <div class="quit" (click)="handleExit()">
             <p>Abandonner la partie</p>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="center-button">
                     <p class="action-text">Fin de tour</p>
-                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer || isTurnStartShowed">
+                    <div class="button-outer end-outer" [class.disabled]="!isActivePlayer || isTurnStartShowed || isCombatStarted()">
                         <div class="end-turn-button-inner" (click)="onEndTurn()"></div>
                     </div>
                 </div>
