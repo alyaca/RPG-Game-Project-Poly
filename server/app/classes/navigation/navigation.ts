@@ -161,6 +161,39 @@ export class Navigation {
         return player?.attributes.actionPoints > 0;
     }
 
+    movePlayerFromWall(room: Room, player: Player): Position {
+        return this.findClosetValidTile(player, room);
+    }
+
+    findClosetValidTile(player: Player, room: Room): Position {
+        const game = room.gameMap;
+        this.initializeDistances(player, game);
+        const priorityQueue: PointWithDistance[] = [{ x: player.position.x, y: player.position.y, distance: 0 }];
+
+        while (priorityQueue.length > 0) {
+            const nextNode = this.getNextNode(priorityQueue);
+            if (!nextNode) break;
+
+            const neighbors = this.getNeighbors(nextNode, game);
+            for (const neighbor of neighbors) {
+                if (this.isTileValidForPlayer(neighbor.x, neighbor.y)) {
+                    return neighbor;
+                }
+                this.exploreNeighbors(neighbors, nextNode, priorityQueue, game);
+            }
+        }
+        return player.position;
+    }
+
+    isTileValidForPlayer(row: number, col: number): boolean {
+        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
+        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
+        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
+        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
+        if (this.gameMap.itemPlacement[row][col] !== NO_ITEM) return false;
+        return true;
+    }
+
     private findAllTilesDebug() {
         const reachableTiles: Position[] = [];
         for (let i = 0; i < this.gameMap.dimension; i++) {
