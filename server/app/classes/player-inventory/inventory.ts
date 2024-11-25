@@ -1,18 +1,10 @@
-import { GameLogsService } from '@app/services/game-logs/game-logs.service';
-import { RoomService } from '@app/services/room/room.service';
-import { ObjectType } from '@common/avatars-info';
-import { gameObjects } from '@common/objects-info';
-import { Player } from '@common/player';
-import { Socket } from 'socket.io';
+//import { RoomService } from '@app/services/room/room.service';
 
 export class Inventory {
-    constructor(
-        private roomService: RoomService,
-        private gameLogService: GameLogsService,
-    ) {}
+    constructor(/*private roomService: RoomService*/) {}
 
     initializeInventory() {}
-
+    /*
     updateInventory(client: Socket, allItems: number[][], activePlayer: Player, itemPickedUp: number) {
         const room = this.roomService.getRoom(client);
         if (itemPickedUp === ObjectType.Random) {
@@ -88,4 +80,5 @@ export class Inventory {
         const realItem = itemsAvailable[itemToUse - 1];
         return realItem;
     }
+        */
 }

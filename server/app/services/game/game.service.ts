@@ -130,6 +130,7 @@ export class GameService {
 
     onStartGame(room: Room, socket: Socket) {
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
+
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
@@ -247,13 +248,10 @@ export class GameService {
             // the tile on which they are either dropped or just left there is not accessible after the swap
             // no matter which item is picked up
             if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
-                this.playerInventoryService.updateInventory(
-                    server,
-                    client,
-                    room.gameMap.itemPlacement,
-                    player,
-                    room.gameMap.itemPlacement[tile.x][tile.y],
-                );
+                this.playerInventoryService.updateInventory(client, room.gameMap.itemPlacement, player);
+                server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
+                //TODO : send message players
+                //server.to(room.roomId).emit('updateTile', { player: players, wasDropped: false, droppedItem: 0 });
             }
 
             if (this.isMoving) {
