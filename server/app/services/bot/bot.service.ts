@@ -34,7 +34,6 @@ export class BotService {
                 server.to(room.roomId).emit('botNavigation', path);
                 //Magic number
                 await this.delay(3000);
-                console.log('AC position', activePlayer.position);
                 this.attackPlayer(room, server, target, activePlayer);
                 //server.to(room.roomId).emit('endTurnBot', path);
                 return;
@@ -52,6 +51,7 @@ export class BotService {
 
     async processAggressiveBot(room: Room, server: Server, activePlayer: Player) {
         //Magic number
+        console.log('aggressive bot');
         await this.delay(this.getRandomInt(3000, 25000));
         const players = room.listPlayers;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
@@ -65,15 +65,16 @@ export class BotService {
                 server.to(room.roomId).emit('botNavigation', path);
                 //Magic number
                 await this.delay(3000);
-                console.log('AC position', activePlayer.position);
                 this.attackPlayer(room, server, target, activePlayer);
                 //server.to(room.roomId).emit('endTurnBot', path);
                 return;
             }
         }
         //check for attack items
-        if (this.checkForAttackItems(room, reachability)) {
-            const path = room.navigation.findFastestPath(activePlayer, this.checkForAttackItems(room, reachability), room);
+        const item = this.checkForAttackItems(room, reachability);
+        console.log('item', item);
+        if (item) {
+            const path = room.navigation.findFastestPath(activePlayer, item, room);
             server.to(room.roomId).emit('botNavigation', path);
             return;
         }
@@ -100,15 +101,14 @@ export class BotService {
         const items = room.gameMap.itemPlacement;
         for (const tile of reachability) {
             //TODO : replacer les valeurs par les valeurs des objets qui sont dans client
-            //Lightning, Xiphos et ObjectType.Armor
-            if (items[tile.x][tile.y] === 4 || items[tile.x][tile.y] === 5) {
+            //Lightning, Xiphos
+            console.log('item', items[tile.x][tile.y]);
+            if (items[tile.x][tile.y] === 4 || items[tile.x][tile.y] === 5 || items[tile.x][tile.y] === 3) {
+                console.log('0');
                 return tile;
-            } else if (items[tile.x][tile.y] === 3) {
-                return tile;
-            } else {
-                return this.checkForAnyItems(room, reachability);
             }
         }
+        return this.checkForAnyItems(room, reachability);
     }
 
     private checkForDefenseItems(room: Room, reachability: Position[]) {
@@ -117,15 +117,15 @@ export class BotService {
             //Magic number
             if (items[tile.x][tile.y] === 6 || items[tile.x][tile.y] === 2) {
                 return tile;
-            } else {
-                return this.checkForAnyItems(room, reachability);
             }
         }
+        return this.checkForAnyItems(room, reachability);
     }
 
     private checkForAnyItems(room: Room, reachability: Position[]) {
         for (const tile of reachability) {
-            if (room.gameMap.itemPlacement[tile.x][tile.y] !== 0) {
+            //TODO : magic number
+            if (room.gameMap.itemPlacement[tile.x][tile.y] !== 0 && room.gameMap.itemPlacement[tile.x][tile.y] !== 8) {
                 return tile;
             }
         }
