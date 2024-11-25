@@ -8,7 +8,6 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class GameCreationService {
     sizeSubject = new BehaviorSubject<string | null>(null);
-    modeSubject = new BehaviorSubject<string | null>(null);
 
     isNewGame: boolean = true;
     isModifiable: boolean = true;
@@ -16,13 +15,19 @@ export class GameCreationService {
     loadedObjects: number[][] = [];
     loadedMapName: string = '';
     loadedMapDescription: string = '';
+    gameMode: string = '';
 
     setSelectedSize(size: string) {
         this.sizeSubject.next(size);
     }
 
     setSelectedMode(mode: string) {
-        this.modeSubject.next(mode);
+        this.gameMode = mode;
+    }
+
+    getGameMode(): string {
+        console.log(this.gameMode);
+        return this.gameMode;
     }
 
     getStoredSize(): string | null {
