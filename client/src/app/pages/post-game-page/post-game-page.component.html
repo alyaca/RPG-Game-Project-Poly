@@ -14,7 +14,8 @@
             <div class="global-stats">
                 <p
                 class="global-attribute"                 
-                (mouseleave)="postGameService.updateExplanationsGlobal('gameDuration')">
+                (mouseenter)="postGameService.updateExplanationsGlobal('gameDuration')"
+                (mouseleave)="postGameService.updateExplanations('')">
                 <span class="label">Duree de la partie: </span> 
                 <span class="value">{{ postGameService.globalStats.gameDuration }}</span>
                 <p

@@ -15,7 +15,10 @@ export class PlayerStatisticsComponent {
     @Input() player: Player;
     @Input() selectedAttribute: string;
 
-    constructor(private postGameService: PostGameService, public socketCommunicationService: SocketCommunicationService) {}
+    constructor(
+        private postGameService: PostGameService,
+        public socketCommunicationService: SocketCommunicationService,
+    ) {}
 
     isWinner() {
         return this.player.postGameStats.victories === VICTORIES_FOR_WIN;
