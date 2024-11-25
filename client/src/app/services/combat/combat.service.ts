@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { ATTACK_TIME, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
+import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { CombatResult } from '@common/combat-result';
+import { CombatPlayers } from '@common/combat-player';
+import { CombatResult, CombatResultDetails } from '@common/combat-result';
 import { Player } from '@common/player';
 import { BehaviorSubject } from 'rxjs';
 @Injectable({
@@ -20,19 +22,22 @@ export class CombatService {
     defender: Player;
     combatStatus: string = '';
     turnMessage: string;
-    activePlayerResult: CombatResult = { total: 0, diceValue: 1 };
-    opponentResult: CombatResult = { total: 0, diceValue: 1 };
-    attackResult: CombatResult;
-    defenseResult: CombatResult;
+    activePlayerResult: CombatResult;
+    opponentResult: CombatResult;
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
     isRolling: boolean = true;
+    private attackResult: CombatResult;
+    private defenseResult: CombatResult;
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
         private dialog: MatDialog,
-    ) {}
+    ) {
+        this.activePlayerResult = { total: 0, diceValue: 1 };
+        this.opponentResult = { total: 0, diceValue: 1 };
+    }
 
     initializeCombat(player1: Player, player2: Player, isPlayer1Active: boolean) {
         this.activePlayer = isPlayer1Active ? player1 : player2;
@@ -40,6 +45,7 @@ export class CombatService {
         this.attacker = player1;
         this.defender = player2;
         this.isInCombat = true;
+        this.combatStatus = '';
         this.evasionsActivePlayer = new Array(2).fill(1);
         this.evasionsOpponent = new Array(2).fill(1);
         this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
@@ -50,11 +56,9 @@ export class CombatService {
             this.combatTurnTimeSource.next(timeRemaining);
         });
 
-        this.socketCommunicationService.on('attackValues', (data: { attackValue: CombatResult; defenseValue: CombatResult }) => {
-            // this.attacker.attributes.attack = data.attackValue.total;
-            // this.defender.attributes.defense = data.defenseValue.total;
-            this.attackResult = data.attackValue;
-            this.defenseResult = data.defenseValue;
+        this.socketCommunicationService.on('attackValues', (combatResultDetails: CombatResultDetails) => {
+            this.attackResult = combatResultDetails.attackValues;
+            this.defenseResult = combatResultDetails.defenseValues;
             this.isRolling = false;
 
             setTimeout(() => {
@@ -71,16 +75,8 @@ export class CombatService {
             this.combatStatus = player.name + ' a réussi son attaque.';
         });
 
-        this.socketCommunicationService.on('attackFail', (data: { attacker: Player; shouldDamageSelf: boolean }) => {
-            this.combatStatus = data.attacker.name + ' a échoué son attaque.';
-            if (data.shouldDamageSelf) {
-                this.activePlayer.attributes.currentHp--;
-            }
-        });
-
-        this.socketCommunicationService.on('updateStats', (data: { attacker: Player; defender: Player }) => {
-            this.attacker.attributes.attack = data.attacker.attributes.attack;
-            this.defender.attributes.defense = data.defender.attributes.defense;
+        this.socketCommunicationService.on('attackFail', (player: Player) => {
+            this.combatStatus = player.name + ' a échoué son attaque.';
         });
 
         this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
@@ -93,16 +89,14 @@ export class CombatService {
             evasionsLeft.pop();
         });
 
-        this.socketCommunicationService.on('combatTurnEnded', (data: { attacker: Player; defender: Player }) => {
-            this.activePlayerResult = this.determineStats(this.activePlayer);
-            this.opponentResult = this.determineStats(this.opponent);
-            this.attacker = data.attacker;
-            this.defender = data.defender;
+        this.socketCommunicationService.on('combatTurnEnded', (data: { combatPlayers: CombatPlayers; failEvasion: boolean }) => {
+            if (!data.failEvasion) {
+                this.activePlayerResult = this.determineStats(this.activePlayer);
+                this.opponentResult = this.determineStats(this.opponent);
+            }
+            this.attacker = data.combatPlayers.attacker;
+            this.defender = data.combatPlayers.defender;
             this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
-        });
-
-        this.socketCommunicationService.on('playerDead', (player: Player) => {
-            this.combatStatus = player.name + ' a perdu le combat.';
         });
 
         this.socketCommunicationService.on('defaultWin', () => {
@@ -116,7 +110,6 @@ export class CombatService {
         this.socketCommunicationService.off('attackValues');
         this.socketCommunicationService.off('attackSuccess');
         this.socketCommunicationService.off('attackFail');
-        this.socketCommunicationService.off('evasionSuccess');
         this.socketCommunicationService.off('evasionFail');
         this.socketCommunicationService.off('combatTurnEnded');
         this.socketCommunicationService.off('defaultWin');
@@ -128,32 +121,42 @@ export class CombatService {
     }
 
     onPlayerDisconnected() {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
+        this.dialog.open(TemporaryDialogComponent, {
             disableClose: true,
             data: {
-                title: 'Abandon de partie',
-                messages: ["L'adversaire a abandonné la partie. Vous gagnez par défaut le combat."],
+                title: DialogTitle.DefaultFightWin,
+                message: DialogMessages.DefaultFightWin,
+                duration: INFO_DIALOG_TIME,
             },
         });
+    }
 
-        setTimeout(() => {
-            dialogRef.close();
-        }, INFO_DIALOG_TIME);
+    onCombatEnd(winner: Player) {
+        this.openTempDialog({
+            title: DialogTitle.EndFight,
+            message: DialogMessages.EndFight + winner?.name,
+            duration: INFO_DIALOG_TIME,
+        }).subscribe(() => {
+            this.isInCombat = false;
+        });
     }
 
     onEvasion(player: Player) {
-        const dialogRef = this.dialog.open(SimpleDialogComponent, {
-            disableClose: true,
-            data: {
-                title: 'Evasion',
-                messages: [`${player.name} a réussi à s'évader !`],
-            },
-        });
-
-        setTimeout(() => {
-            dialogRef.close();
+        this.openTempDialog({
+            title: DialogTitle.SuccessEvasion,
+            message: player?.name + " a réussi à s'évader !",
+            duration: INFO_DIALOG_TIME,
+        }).subscribe(() => {
             this.isInCombat = false;
-        }, INFO_DIALOG_TIME);
+        });
+    }
+
+    openTempDialog(dialogData: TempDialogData) {
+        const dialogRef = this.dialog.open(TemporaryDialogComponent, {
+            disableClose: true,
+            data: dialogData,
+        });
+        return dialogRef.afterClosed();
     }
 
     resetPlayerHp(player1: Player, player2: Player) {
@@ -171,5 +174,9 @@ export class CombatService {
 
     isCurrentTurn() {
         return this.socketCommunicationService.socket.id === this.attacker.id;
+    }
+
+    isCurrentPlayer(player: Player) {
+        return this.socketCommunicationService.socket.id === player.id;
     }
 }

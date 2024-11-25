@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
+import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import {
     DialogMessages,
     DialogOptions,
@@ -15,6 +16,7 @@ import {
     SIZE_SMALL_MAP,
 } from '@app/constants';
 import { DialogData } from '@app/interfaces/dialog-data';
+import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/game';
 import { Player } from '@common/player';
@@ -72,6 +74,14 @@ export class GameService {
         return dialogRef.afterClosed();
     }
 
+    openTempDialog(dialogData: TempDialogData) {
+        const dialogRef = this.dialog.open(TemporaryDialogComponent, {
+            disableClose: true,
+            data: dialogData,
+        });
+        return dialogRef.afterClosed();
+    }
+
     onAdminQuit(message: string) {
         this.openDialog({
             title: DialogTitle.GameCanceled,
@@ -121,7 +131,7 @@ export class GameService {
             itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
-                this.router.navigate(['/join-game']);
+                this.router.navigate(['/home']);
             }
         });
     }
@@ -138,5 +148,9 @@ export class GameService {
 
     hasActionPoints(player: Player) {
         return player?.attributes.actionPoints > 0;
+    }
+
+    isActionSelected() {
+        return this.isActionDoorSelected || this.isActionCombatSelected;
     }
 }

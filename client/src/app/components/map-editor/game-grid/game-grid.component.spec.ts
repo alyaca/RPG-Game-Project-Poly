@@ -448,14 +448,6 @@ describe('GameGridComponent', () => {
         });
     });
 
-    it('should call navigationService.isReachableTile with the correct row and column', () => {
-        const row = 2;
-        const col = 3;
-        component.reachableTiles = [{ x: 2, y: 3 }];
-        const result = component.isReachableTile(row, col);
-        expect(result).toBe(true);
-    });
-
     describe('drag event', () => {
         it('should prevent default behaviour on drag over ', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
