@@ -98,6 +98,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
+        console.log('onInit called');
         this.socketCommunicationService.connect();
         this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
             this.navigationService.reachableTiles = reachability;
@@ -174,8 +175,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activePlayer!.attributes.currentHp = player.attributes.totalHp;
         });
 
-    this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
-        this.navigationService.updateObjects(items);
+        this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
+            this.navigationService.updateObjects(items);
+        });
+
+        this.socketCommunicationService.on('updateObjectsAfterCombat', (data: { newGrid: number[][]; position: Position }) => {
+            this.navigationService.updateObjects(data.newGrid);
+            this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
     }
 

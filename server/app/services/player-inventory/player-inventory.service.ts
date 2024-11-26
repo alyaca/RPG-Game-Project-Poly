@@ -25,16 +25,12 @@ export class PlayerInventoryService {
             info.client.emit('openItemSwitchModal', { activePlayer: info.player, itemPickedUp });
             return;
         } else {
-            //this.gameLogService.sendItemLog(activePlayer, room.roomId, server, itemPickedUp);
             info.player = this.updatePlayerWithItem(info.player, itemPickedUp);
             this.gameLogService.sendItemLog(info.player, room.roomId, info.server, itemPickedUp);
             room.gameMap.itemPlacement[info.player.position.x][info.player.position.y] = 0;
-            this.roomService.updateRoomMap(room);
         }
-        //Si j<envoi un seul event, avec activePlayer et droppedItem, ça devrait suffire
         info.client.emit('updateInventory', info.player);
         //TODO : place in gameService
-        // server.to(room.roomId).emit('updateTile', { player: activePlayer, wasDropped: false, droppedItem: 0 });
         this.roomService.updateRoomPlayers(info.client, info.player);
     }
 
@@ -133,10 +129,8 @@ export class PlayerInventoryService {
         this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
 
         room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
-        this.roomService.updateRoomMap(room);
 
-        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement); // idk
-        //infoSwap.server.to(room.roomId).emit('updateTile', { player: infoSwap.player, wasDropped: true, droppedItem: infoSwap.droppedItem }); // should visually update the tile after swapping
+        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
         return infoSwap.player;
     }
 }

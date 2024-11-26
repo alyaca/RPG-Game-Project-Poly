@@ -274,21 +274,23 @@ export class GameService {
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
+        let pickedUpItem = false;
         const player = this.getActivePlayer(room);
 
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
+            pickedUpItem = false;
             if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
                 const infoSwap: InfoSwap = {
                     server: server,
                     client: client,
                     player: player,
                 };
+                pickedUpItem = true;
                 this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
                 server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
             }
-
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
@@ -299,6 +301,7 @@ export class GameService {
                 break;
             }
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
+            if (pickedUpItem) break;
         }
 
         this.isMoving = false;
@@ -509,24 +512,23 @@ export class GameService {
     }
 
     placeItemsOnGround(defender: Player, client: Socket, server: Server) {
-        // the hp bar is at 1/4 instead of being full, the rest is fine though
-        // drops the items correctly but can't see them (still there)
-        // i have to stop movement when picking up an item
         const room = this.roomService.getRoom(client);
         if (defender.inventory.length === 0) return;
         for (const items of defender.inventory) {
             let position = room.navigation.findClosestValidTile(defender, room);
             defender = this.playerInventoryService.removeItemEffects(defender, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
+            console.log(position.x);
+            console.log(position.y);
+            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
         }
+
         defender.inventory = [];
 
         const index = room.listPlayers.findIndex((players) => players.id === defender.id);
         room.listPlayers[index].inventory = defender.inventory;
         room.listPlayers[index].attributes = defender.attributes;
-        this.roomService.updateRoomMap(room);
         server.to(defender.id).emit('updateInventory', defender);
-        server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
     }
 
     playerInWall(room: Room, player: Player) {
