@@ -27,6 +27,8 @@ export class CombatService {
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
+    canAttackOrEvade: boolean = false;
+
     private attackResult: CombatResult;
     private defenseResult: CombatResult;
 
@@ -45,6 +47,7 @@ export class CombatService {
         this.defender = player2;
         this.isInCombat = true;
         this.combatStatus = '';
+        this.canAttackOrEvade = true;
         this.evasionsActivePlayer = new Array(2).fill(1);
         this.evasionsOpponent = new Array(2).fill(1);
         this.setTurnMessage();
@@ -124,6 +127,7 @@ export class CombatService {
             this.activePlayerResult = this.determineStats(this.activePlayer);
             this.opponentResult = this.determineStats(this.opponent);
         }
+        this.canAttackOrEvade = true;
         this.attacker = combatPlayers.attacker;
         this.defender = combatPlayers.defender;
         this.setTurnMessage();
