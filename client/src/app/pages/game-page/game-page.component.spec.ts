@@ -287,20 +287,12 @@ describe('GamePageComponent', () => {
     });
 
     it('should call openDialog with the correct parameters for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.handleDraw();
-        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+        expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
             title: DialogTitle.DrawGame,
-            messages: [DialogMessages.DrawGame],
-            options: [DialogOptions.Close],
-            confirm: false,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
         });
-    });
-
-    it('should disconnect and navigate to home when dialog result is "Close" for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
-        component.handleDraw();
-        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 

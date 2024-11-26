@@ -8,6 +8,7 @@ import {
     MIN_DICE_VALUE,
     NO_EVASION_TIME,
     ROLL_DURATION,
+    SINGLE_PLAYER,
     TileType,
     VICTORIES,
 } from '@app/constants';
@@ -179,14 +180,13 @@ export class CombatService {
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
+        const nbSockets = server.sockets.adapter.rooms.get(room.roomId).size;
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
-        this.defaultCombatWin(room, winner, server);
-        if (winner.isActive) {
+        this.defaultCombatWin(client, winner, server);
+        if (winner.isActive && nbSockets > SINGLE_PLAYER) {
             const winnerSocket = server.sockets.sockets.get(winner.id);
             this.continueTurn(winnerSocket, server);
         }
-        this.resetCombatState(room);
-        server.to(room.roomId).emit('combatOver');
     }
 
     isInCombat(client: Socket) {
@@ -222,6 +222,8 @@ export class CombatService {
             server.to(room.roomId).emit('endGame', player);
             this.gameService.stopGameTimers(room);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
+        } else {
+            server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player });
         }
     }
 
@@ -230,7 +232,6 @@ export class CombatService {
         playerWinner.victories++;
         this.checkEndGame(playerWinner, room, server);
         this.combatInfos.delete(room.roomId);
-        server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
     private replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {
@@ -252,6 +253,7 @@ export class CombatService {
 
     private checkSpawnPointAvailability(player: Player, players: Player[]): boolean {
         for (const p of players) {
+            if (p.id === player.id) continue;
             if (p.position.x === player.spawnPosition.x && p.position.y === player.spawnPosition.y) {
                 return false;
             }
@@ -291,9 +293,9 @@ export class CombatService {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
 
-    private defaultCombatWin(room: Room, player: Player, server: Server) {
-        this.addVictory(room, player, server);
+    private defaultCombatWin(client: Socket, player: Player, server: Server) {
         server.to(player.id).emit('defaultWin');
+        this.combatWon(client, player, server);
     }
 
     private getOpponent(client: Socket) {

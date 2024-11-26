@@ -73,10 +73,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         public socketCommunicationService: SocketCommunicationService,
         public gameService: GameService,
         private navigationService: NavigationService,
-        public combatService: CombatService,
+        private combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
+        this.combatService.isInCombat = false;
     }
 
     ngOnInit() {
@@ -94,10 +95,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
         });
+
         this.socketCommunicationService.on('draw', () => {
             this.socketCommunicationService.disconnect();
             this.handleDraw();
         });
+
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
             this.activePlayerName = name;
         });
@@ -290,18 +293,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     handleDraw() {
         this.router.navigate(['/home']);
-        this.gameService
-            .openDialog({
-                title: DialogTitle.DrawGame,
-                messages: [DialogMessages.DrawGame],
-                options: [DialogOptions.Close],
-                confirm: false,
-            })
-            .subscribe((result) => {
-                if (result.action === DialogResult.Close) {
-                    this.socketCommunicationService.disconnect();
-                }
-            });
+        this.gameService.openTempDialog({
+            title: DialogTitle.DrawGame,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
+        });
     }
 
     onEndTurn() {

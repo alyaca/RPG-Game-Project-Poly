@@ -113,13 +113,15 @@ export class CombatService {
     }
 
     onCombatEnd(winner: Player) {
-        this.openTempDialog({
-            title: DialogTitle.EndFight,
-            message: DialogMessages.EndFight + winner?.name,
-            duration: INFO_DIALOG_TIME,
-        }).subscribe(() => {
-            this.isInCombat = false;
-        });
+        if (this.isInCombat) {
+            this.openTempDialog({
+                title: DialogTitle.EndFight,
+                message: DialogMessages.EndFight + winner?.name,
+                duration: INFO_DIALOG_TIME,
+            }).subscribe(() => {
+                this.isInCombat = false;
+            });
+        }
     }
 
     onCombatTurnEnded(combatPlayers: CombatPlayers, failEvasion: boolean) {
