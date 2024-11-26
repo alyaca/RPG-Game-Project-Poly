@@ -17,7 +17,7 @@ export class PlayerStatisticsComponent {
     @Input() selectedAttribute: string;
     playerStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
-    constructor(public socketCommunicationService: SocketCommunicationService) {}
+    constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     isWinner() {
         return this.player.postGameStats.victories === VICTORIES_FOR_WIN;
@@ -25,5 +25,9 @@ export class PlayerStatisticsComponent {
 
     getStatusClass(): string {
         return this.player.status;
+    }
+
+    getSocketId(): string | undefined {
+        return this.socketCommunicationService.socket.id;
     }
 }

@@ -1,5 +1,5 @@
-import { GlobalPostGameStat } from '@common/global-post-game-stats';
-import { PostGameStat } from '@common/post-game-stat';
+import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-stats';
+import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
 
 export enum MapSize {
     Small = 'small',
@@ -283,37 +283,37 @@ export const VICTORIES_FOR_WIN = 3;
 export const PLAYER_STAT_TYPES: PostGameStat[] = [
     {
         id: 0,
-        key: 'combats',
+        key: PlayerStatType.Combats,
         displayTxt: 'Combats',
         explanations: 'Nombre de combats participés par le joueur',
     },
     {
         id: 1,
-        key: 'victories',
+        key: PlayerStatType.Victories,
         displayTxt: 'W/D/L',
         explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
     },
     {
         id: 2,
-        key: 'dmgDealt',
+        key: PlayerStatType.DmgDealt,
         displayTxt: 'Dég. infligés',
         explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
     },
     {
         id: 3,
-        key: 'dmgTaken',
+        key: PlayerStatType.DmgTaken,
         displayTxt: 'Dégats subis',
         explanations: 'Nombre de points de dégats subis par le joueur',
     },
     {
         id: 4,
-        key: 'itemsObtained',
+        key: PlayerStatType.ItemsObtained,
         displayTxt: 'Obj. récup.',
         explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
     },
     {
         id: 5,
-        key: 'tilesVisited',
+        key: PlayerStatType.TilesVisited,
         displayTxt: '%tuiles visités',
         explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
     },
@@ -322,31 +322,31 @@ export const PLAYER_STAT_TYPES: PostGameStat[] = [
 export const GLOBAL_STAT_TYPES: GlobalPostGameStat[] = [
     {
         id: 0,
-        key: 'gameDuration',
+        key: GlobalStatType.GameDuration,
         displayTxt: 'Durée de la partie',
         explanations: "Temps écoulé depuis le début de la partie jusqu'à la fin de la partie",
     },
     {
         id: 1,
-        key: 'turns',
+        key: GlobalStatType.Turns,
         displayTxt: 'Nombre de tours',
         explanations: 'Somme des tours de tous les joueurs de cette partie',
     },
     {
         id: 2,
-        key: 'globalTilesVisited',
+        key: GlobalStatType.GlobalTilesVisited,
         displayTxt: '% tuiles visitées global',
         explanations: 'Pourcentage des tuiles de terrain visitées par au moins un joueur',
     },
     {
         id: 3,
-        key: 'doorsInteracted',
+        key: GlobalStatType.DoorsInteracted,
         displayTxt: '% portes interagies',
         explanations: 'Pourcentage des portes ayant été manipulées au moins une fois',
     },
     {
         id: 4,
-        key: 'nbFlagBearers',
+        key: GlobalStatType.NbFlagBearers,
         displayTxt: 'détenteurs de drapeau',
         explanations: 'Nombre de joueurs différents ayant détenu le drapeau (si applicable)',
     },

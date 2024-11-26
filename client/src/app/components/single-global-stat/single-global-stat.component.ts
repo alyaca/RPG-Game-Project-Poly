@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { PostGameService } from '@app/services/post-game/post-game.service';
-import { GlobalPostGameStat } from '@common/global-post-game-stats';
+import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-stats';
 
 @Component({
     selector: 'app-single-global-stat',
@@ -14,12 +14,20 @@ export class SingleGlobalStatComponent {
     constructor(public postGameService: PostGameService) {}
 
     formatStatValue(): string {
-        if (this.globalStat.key === 'doorsInteracted') {
-            return this.postGameService.doorsInteractedPct;
-        } else if (this.globalStat.key === 'globalTilesVisited') {
-            return this.postGameService.globalTilesVisitedPct.toString() + '%';
-        } else {
-            return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
+        switch (this.globalStat.key) {
+            case GlobalStatType.DoorsInteracted:
+                return this.postGameService.doorsInteractedPct;
+            case GlobalStatType.GlobalTilesVisited:
+                return this.postGameService.globalTilesVisitedPct.toString() + '%';
+            default:
+                return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
         }
+        // if (this.globalStat.key === GlobalStatType.DoorsInteracted) {
+        //     return this.postGameService.doorsInteractedPct;
+        // } else if (this.globalStat.key === GlobalStatType.GlobalTilesVisited) {
+        //     return this.postGameService.globalTilesVisitedPct.toString() + '%';
+        // } else {
+        //     return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
+        // }
     }
 }

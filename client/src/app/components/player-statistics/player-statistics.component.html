@@ -1,5 +1,5 @@
-<div class="player-stats" [ngClass]="{'active': player.id === socketCommunicationService.socket.id, 'disconnected': getStatusClass() === 'disconnected'  }">   
-    <div class="decoration-bar" [ngClass]="{'self': player.id === socketCommunicationService.socket.id}"></div>
+<div class="player-stats" [ngClass]="{'active': player.id === getSocketId(), 'disconnected': getStatusClass() === 'disconnected'  }">   
+    <div class="decoration-bar" [ngClass]="{'self': player.id === getSocketId()}"></div>
     <div class="player">
         <img class="player-img" [ngClass]="getStatusClass()" [src]='player.avatar?.src' alt="player-avatar">
         @if (isWinner()){

@@ -17,6 +17,7 @@ import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
+import { PlayerStatType } from '@common/post-game-stat';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -84,7 +85,7 @@ export class CombatService {
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
-            this.addToPostGameStats(room, combatPlayers, 'dmgDealt', 'dmgTaken');
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.DmgDealt, PlayerStatType.DmgTaken);
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
@@ -124,8 +125,8 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
             this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
-            this.addToPostGameStats(room, combatPlayers, 'evasions', 'evasions');
-            this.addToPostGameStats(room, combatPlayers, 'combats', 'combats');
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.Evasions, PlayerStatType.Evasions);
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
         } else {
@@ -228,9 +229,9 @@ export class CombatService {
     }
 
     addVictory(combatPlayers: CombatPlayers, room: Room, server: Server) {
-        const playerWinner = this.addToPostGameStats(room, combatPlayers, 'victories', 'defeats');
+        const playerWinner = this.addToPostGameStats(room, combatPlayers, PlayerStatType.Victories, PlayerStatType.Defeats);
 
-        this.addToPostGameStats(room, combatPlayers, 'combats', 'combats');
+        this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
         this.combatInfos.delete(room.roomId);
         server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });

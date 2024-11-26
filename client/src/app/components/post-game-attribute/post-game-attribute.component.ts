@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { SortOrder } from '@app/constants';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { Player } from '@common/player';
+import { PlayerStatType } from '@common/post-game-stat';
 @Component({
     selector: 'app-post-game-attribute',
     standalone: true,
@@ -17,7 +18,7 @@ export class PostGameAttributeComponent {
     constructor(public postGameService: PostGameService) {}
 
     isAttrRecord() {
-        return this.attribute === 'victories';
+        return this.attribute === PlayerStatType.Victories;
     }
 
     getSortClass(playerStatType: string) {

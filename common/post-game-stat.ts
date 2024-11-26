@@ -7,6 +7,7 @@ export enum PlayerStatType {
     Evasions = 'evasions',
     Defeats = 'defeats',
     DmgDealt = 'dmgDealt',
+    DmgTaken = 'dmgTaken',
     ItemsObtained = 'itemsObtained',
     TilesVisited = 'tilesVisited'
 }

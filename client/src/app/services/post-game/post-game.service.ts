@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Player, Position } from '@common/player';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
-import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { Room } from '@common/room';
 import { PostGameStat } from '@common/post-game-stat';
@@ -41,8 +40,6 @@ export class PostGameService {
     tilesGrid: number[][];
     isCTFMode: boolean;
     postGameStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
-
-    constructor(public navigationService: NavigationService) {}
 
     resetOtherAttributes(attribute: keyof Player['postGameStats']) {
         Object.keys(this.sortOrder).forEach((key) => {

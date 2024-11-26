@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { Player } from '@common/player';
 import { TOTAL_PERCENTAGE } from '@app/constants';
+import { PlayerStatType } from '@common/post-game-stat';
 
 @Component({
     selector: 'app-single-player-stat',
@@ -24,7 +25,7 @@ export class SinglePlayerStatComponent {
 
     formatStatValue() {
         const formattedStat = this.getStatValue().toString();
-        return this.attribute === 'tilesVisited' ? formattedStat + '%' : formattedStat;
+        return this.attribute === PlayerStatType.TilesVisited ? formattedStat + '%' : formattedStat;
     }
 
     getAttrKey() {
@@ -32,15 +33,15 @@ export class SinglePlayerStatComponent {
     }
 
     isRecord(): boolean {
-        return this.attribute === 'victories';
+        return this.attribute === PlayerStatType.Victories;
     }
 
     hasBar(): boolean {
-        return ['dmgDealt', 'dmgTaken', 'tilesVisited'].includes(this.attribute);
+        return [PlayerStatType.DmgDealt as string, PlayerStatType.DmgTaken as string, PlayerStatType.TilesVisited as string].includes(this.attribute);
     }
 
     isPercent(): boolean {
-        return this.attribute === 'tilesVisited';
+        return this.attribute === PlayerStatType.TilesVisited;
     }
 
     getBarWidth(attribute: number, statKey: keyof Player['postGameStats'], isPercent: boolean): number {
