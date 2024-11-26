@@ -50,11 +50,10 @@ export class PostGameService {
     }
 
     toggleSortOrder(attribute: keyof Player['postGameStats']) {
-        if (this.sortOrder[attribute] === SortOrder.Unsorted || this.sortOrder[attribute] === SortOrder.Ascending) {
-            this.sortOrder[attribute] = SortOrder.Descending;
-        } else {
-            this.sortOrder[attribute] = SortOrder.Ascending;
-        }
+        this.sortOrder[attribute] =
+            this.sortOrder[attribute] === SortOrder.Unsorted || this.sortOrder[attribute] === SortOrder.Ascending
+                ? SortOrder.Descending
+                : SortOrder.Ascending;
     }
 
     performSorting(attribute: keyof Player['postGameStats']) {

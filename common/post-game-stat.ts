@@ -1,6 +1,5 @@
 import { Player } from './player';
 
-// to see if its useful or not
 export enum PlayerStatType {
     Combats = 'combats',
     Victories = 'victories',
