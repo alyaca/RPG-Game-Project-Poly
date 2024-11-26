@@ -53,6 +53,7 @@ export class CombatService {
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
+        server.to(room.roomId).emit('combatInProgress');
         this.onStartTurn(client, server, room);
     }
 
@@ -125,6 +126,7 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
             this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
+            server.to(room.roomId).emit('combatOver');
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
         } else {
@@ -135,12 +137,12 @@ export class CombatService {
         }
     }
 
-    combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
+    combatWon(client: Socket, winner: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         this.resetCombatState(room);
-        this.logService.sendPlayerLog(room.roomId, server, player2, LogType.WinCombat);
-        this.addVictory(room, player2, server);
-        client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
+        this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
+        this.addVictory(room, winner, server);
+        server.to(room.roomId).emit('combatOver');
     }
 
     continueTurn(client: Socket, server: Server) {
@@ -184,6 +186,7 @@ export class CombatService {
             this.continueTurn(winnerSocket, server);
         }
         this.resetCombatState(room);
+        server.to(room.roomId).emit('combatOver');
     }
 
     isInCombat(client: Socket) {
@@ -207,7 +210,7 @@ export class CombatService {
     private checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         if (defender.attributes.currentHp <= 0) {
             this.replacePlayerOnSpawnPoint(defender, client, server);
-            this.combatFinish(client, defender, attacker, server);
+            this.combatWon(client, attacker, server);
             this.manageTurnAfterCombat(client, defender, attacker, server);
             return true;
         }

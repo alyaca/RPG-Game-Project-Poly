@@ -55,6 +55,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     isActivePlayer: boolean = false;
     isInCombat: boolean = false;
+    combatInProgress: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
     timeRemainingStartTurn: number = TURN_TIME;
@@ -89,6 +90,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.replenishHealth();
             this.onBeforeStartTurn();
         });
+
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
         });
@@ -103,6 +105,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
             this.combatService.isInCombat = true;
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
+        });
+
+        this.socketCommunicationService.on('combatInProgress', () => {
+            this.combatInProgress = true;
+        });
+
+        this.socketCommunicationService.on('combatOver', () => {
+            this.combatInProgress = false;
         });
 
         this.socketCommunicationService.on('combatEnd', (data: { listPlayers: Player[]; player: Player }) => {

@@ -240,14 +240,14 @@ describe('CombatService', () => {
 
             mockGameService.getActivePlayer.mockReturnValue(player2);
             service.manageTurnAfterCombat = jest.fn();
-            service.combatFinish = jest.fn();
+            service.combatWon = jest.fn();
             service['replacePlayerOnSpawnPoint'] = jest.fn();
 
             const isDead = service['checkIfPlayerIsDead'](mockClient, player1, player2, mockServer);
 
             expect(isDead).toBe(true);
             expect(service['replacePlayerOnSpawnPoint']).toHaveBeenCalled();
-            expect(service.combatFinish).toHaveBeenCalled();
+            expect(service.combatWon).toHaveBeenCalled();
             expect(service.manageTurnAfterCombat).toHaveBeenCalledWith(mockClient, player1, player2, mockServer);
         });
         it('should return false when player has hp', () => {
@@ -256,14 +256,14 @@ describe('CombatService', () => {
 
             mockGameService.getActivePlayer.mockReturnValue(player2);
             service.manageTurnAfterCombat = jest.fn();
-            service.combatFinish = jest.fn();
+            service.combatWon = jest.fn();
             service['replacePlayerOnSpawnPoint'] = jest.fn();
 
             const isDead = service['checkIfPlayerIsDead'](mockClient, player2, player1, mockServer);
 
             expect(isDead).toBe(false);
             expect(service['replacePlayerOnSpawnPoint']).not.toHaveBeenCalled();
-            expect(service.combatFinish).not.toHaveBeenCalled();
+            expect(service.combatWon).not.toHaveBeenCalled();
             expect(service.manageTurnAfterCombat).not.toHaveBeenCalledWith(mockClient, player2, player1, mockServer);
         });
     });
@@ -369,15 +369,13 @@ describe('CombatService', () => {
     });
 
     it('should addVictory combat finish', () => {
-        const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, victories: 0 } as Player;
         const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, victories: 0 } as Player;
 
         service.emitToCombatPlayers = jest.fn();
         service['addVictory'] = jest.fn();
 
-        service.combatFinish(mockClient, player1, player2, mockServer);
+        service.combatWon(mockClient, player2, mockServer);
 
-        expect(mockClient.to(room.roomId).emit).toHaveBeenCalledWith('playerDead', player1);
         expect(service['addVictory']).toHaveBeenCalledWith(room, player2, mockServer);
     });
 
