@@ -12,36 +12,10 @@
     <div class="middle-container">
         <div class="left-container">
             <div class="global-stats">
-                <p
-                class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal('gameDuration')"
-                (mouseleave)="postGameService.updateExplanations('')">
-                <span class="label">Duree de la partie: </span> 
-                <span class="value">{{ postGameService.globalStats.gameDuration }}</span>
-                <p
-                class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal('turns')"
-                (mouseleave)="postGameService.updateExplanations('')">
-                <span class="label">Nombre de tours: </span> 
-                <span class="value">{{ postGameService.globalStats.turns }}</span>
-                <p
-                class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal('globalTilesVisited')"
-                (mouseleave)="postGameService.updateExplanations('')">
-                <span class="label">% de tuiles visitées: </span> 
-                <span class="value">{{ postGameService.globalTilesVisitedPct }}%</span>
-                <p
-                class="global-attribute"                 
-                (mouseenter)="postGameService.updateExplanationsGlobal('doorsInteracted')"
-                (mouseleave)="postGameService.updateExplanations('')">
-                <span class="label">% de portes interagies: </span> 
-                <span class="value">{{ postGameService.doorsInteractedPct }}</span>
-                @if(postGameService.isCTFMode){
-                    <p class="global-attribute"                 
-                    (mouseenter)="postGameService.updateExplanationsGlobal('nbFlagBearers')"
-                    (mouseleave)="postGameService.updateExplanations('')">
-                    <span class="label">Nombre de détenteurs de drapeau: </span> 
-                    <span class="value">{{ postGameService.globalStats.nbFlagBearers }}</span>
+                @for(globalStat of globalStats; track globalStat.id){
+                    <app-single-global-stat
+                        [globalStat]="globalStat"
+                    ></app-single-global-stat>
                 }
                 <!-- <p>nb tuiles de terrain:  {{ totalTerrainTiles }}</p> 
                 <p>nb portes:  {{ totalDoors }}</p>  temp -->

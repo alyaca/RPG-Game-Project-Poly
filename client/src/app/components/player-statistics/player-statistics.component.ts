@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Player } from '@common/player';
-import { POST_GAME_STAT_TYPES, VICTORIES_FOR_WIN } from '@app/constants';
+import { PLAYER_STAT_TYPES, VICTORIES_FOR_WIN } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { SinglePlayerStatComponent } from '@app/components/single-player-stat/single-player-stat.component';
 import { PostGameStat } from '@common/post-game-stat';
@@ -15,7 +15,7 @@ import { PostGameStat } from '@common/post-game-stat';
 export class PlayerStatisticsComponent {
     @Input() player: Player;
     @Input() selectedAttribute: string;
-    playerStatTypes: PostGameStat[] = POST_GAME_STAT_TYPES;
+    playerStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
     constructor(public socketCommunicationService: SocketCommunicationService) {}
 

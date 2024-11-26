@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Player, Position } from '@common/player';
-import { GlobalPostGameStats } from '@common/global-post-game-stats';
+import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
 import { NavigationService } from '@app/services/navigation/navigation.service';
-import { GameMode, POST_GAME_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { Room } from '@common/room';
 import { PostGameStat } from '@common/post-game-stat';
 
@@ -40,7 +40,7 @@ export class PostGameService {
     players: Player[];
     tilesGrid: number[][];
     isCTFMode: boolean;
-    postGameStatTypes: PostGameStat[] = POST_GAME_STAT_TYPES;
+    postGameStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
     constructor(public navigationService: NavigationService) {}
 
@@ -90,26 +90,8 @@ export class PostGameService {
         this.explanations = '';
     }
 
-    updateExplanationsGlobal(stat: keyof GlobalPostGameStats) {
-        switch (stat) {
-            case 'gameDuration':
-                this.explanations = "Temps écoulé depuis le début de la partie jusqu'à la fin de la partie";
-                break;
-            case 'turns':
-                this.explanations = 'Somme des tours de tous les joueurs de cette partie';
-                break;
-            case 'globalTilesVisited':
-                this.explanations = 'Pourcentage des tuiles de terrain visitées par au moins un joueur';
-                break;
-            case 'doorsInteracted':
-                this.explanations = 'Pourcentage des portes ayant été manipulées au moins une fois';
-                break;
-            case 'nbFlagBearers':
-                this.explanations = 'Nombre de joueurs différents ayant détenu le drapeau (si applicable)';
-                break;
-            default:
-                this.explanations = '';
-        }
+    updateExplanationsGlobal(stat: GlobalPostGameStat) {
+        this.explanations = stat.explanations;
     }
 
     getMaxStat(statKey: keyof Player['postGameStats']): number {

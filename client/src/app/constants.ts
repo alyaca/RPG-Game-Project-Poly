@@ -1,3 +1,4 @@
+import { GlobalPostGameStat } from '@common/global-post-game-stats';
 import { PostGameStat } from '@common/post-game-stat';
 
 export enum MapSize {
@@ -279,7 +280,7 @@ export const TOTAL_PERCENTAGE = 100;
 
 export const VICTORIES_FOR_WIN = 3;
 
-export const POST_GAME_STAT_TYPES: PostGameStat[] = [
+export const PLAYER_STAT_TYPES: PostGameStat[] = [
     {
         id: 0,
         key: 'combats',
@@ -302,7 +303,7 @@ export const POST_GAME_STAT_TYPES: PostGameStat[] = [
         id: 3,
         key: 'dmgTaken',
         displayTxt: 'Dégats subis',
-        explanations: 'Nombre de points de dégats subis pas le joueur',
+        explanations: 'Nombre de points de dégats subis par le joueur',
     },
     {
         id: 4,
@@ -315,6 +316,39 @@ export const POST_GAME_STAT_TYPES: PostGameStat[] = [
         key: 'tilesVisited',
         displayTxt: '%tuiles visités',
         explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
+    },
+];
+
+export const GLOBAL_STAT_TYPES: GlobalPostGameStat[] = [
+    {
+        id: 0,
+        key: 'gameDuration',
+        displayTxt: 'Durée de la partie',
+        explanations: "Temps écoulé depuis le début de la partie jusqu'à la fin de la partie",
+    },
+    {
+        id: 1,
+        key: 'turns',
+        displayTxt: 'Nombre de tours',
+        explanations: 'Somme des tours de tous les joueurs de cette partie',
+    },
+    {
+        id: 2,
+        key: 'globalTilesVisited',
+        displayTxt: '% tuiles visitées global',
+        explanations: 'Pourcentage des tuiles de terrain visitées par au moins un joueur',
+    },
+    {
+        id: 3,
+        key: 'doorsInteracted',
+        displayTxt: '% portes interagies',
+        explanations: 'Pourcentage des portes ayant été manipulées au moins une fois',
+    },
+    {
+        id: 4,
+        key: 'nbFlagBearers',
+        displayTxt: 'détenteurs de drapeau',
+        explanations: 'Nombre de joueurs différents ayant détenu le drapeau (si applicable)',
     },
 ];
 

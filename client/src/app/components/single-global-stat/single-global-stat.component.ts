@@ -1,0 +1,25 @@
+import { Component, Input } from '@angular/core';
+import { PostGameService } from '@app/services/post-game/post-game.service';
+import { GlobalPostGameStat } from '@common/global-post-game-stats';
+
+@Component({
+    selector: 'app-single-global-stat',
+    standalone: true,
+    imports: [],
+    templateUrl: './single-global-stat.component.html',
+    styleUrl: './single-global-stat.component.scss',
+})
+export class SingleGlobalStatComponent {
+    @Input() globalStat: GlobalPostGameStat;
+    constructor(public postGameService: PostGameService) {}
+
+    formatStatValue(): string {
+        if (this.globalStat.key === 'doorsInteracted') {
+            return this.postGameService.doorsInteractedPct;
+        } else if (this.globalStat.key === 'globalTilesVisited') {
+            return this.postGameService.globalTilesVisitedPct.toString() + '%';
+        } else {
+            return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
+        }
+    }
+}
