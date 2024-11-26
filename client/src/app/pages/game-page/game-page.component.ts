@@ -146,7 +146,7 @@ export class GamePageComponent implements OnInit, AfterViewInit {
                 })
                 .subscribe((result) => {
                     if (result.action === DialogResult.Close) {
-                        this.router.navigate(['/post-game-lobby']);
+                        this.router.navigate(['/post-game-lobby'], { queryParams: { roomCode: data.room.roomId } });
                     }
                 });
         });
