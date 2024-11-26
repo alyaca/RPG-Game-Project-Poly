@@ -84,7 +84,7 @@ export class CombatService {
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
-            this.addDmgStats(room, combatPlayers);
+            this.addToPostGameStats(room, combatPlayers, 'dmgDealt', 'dmgTaken');
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
@@ -124,7 +124,8 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
             this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
-            this.addDraws(room, combatPlayers);
+            this.addToPostGameStats(room, combatPlayers, 'evasions', 'evasions');
+            this.addToPostGameStats(room, combatPlayers, 'combats', 'combats');
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
         } else {
@@ -141,10 +142,10 @@ export class CombatService {
 
     combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
         this.resetCombatState(room);
         this.logService.sendPlayerLog(room.roomId, server, player2, LogType.WinCombat);
-        this.addDefeat(room, player1);
-        this.addVictory(room, player2, server);
+        this.addVictory(combatPlayers, room, server);
         client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
     }
 
@@ -212,7 +213,7 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
-        this.defaultCombatWin(room, winner, server);
+        this.defaultCombatWin(client, room, winner, server);
         if (winner.isActive) {
             const winnerSocket = server.sockets.sockets.get(winner.id);
             this.continueTurn(winnerSocket, server);
@@ -226,38 +227,24 @@ export class CombatService {
         return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
 
-    addVictory(room: Room, player: Player, server: Server) {
-        const playerWinner = room.listPlayers.find((p) => p.id === player.id);
-        playerWinner.postGameStats.victories++;
-        playerWinner.postGameStats.combats++;
+    addVictory(combatPlayers: CombatPlayers, room: Room, server: Server) {
+        const playerWinner = this.addToPostGameStats(room, combatPlayers, 'victories', 'defeats');
+
+        this.addToPostGameStats(room, combatPlayers, 'combats', 'combats');
         this.checkEndGame(playerWinner, room, server);
         this.combatInfos.delete(room.roomId);
         server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
-    addDefeat(room: Room, player: Player) {
-        const playerLoser = room.listPlayers.find((p) => p.id === player.id);
-        playerLoser.postGameStats.defeats++;
-        playerLoser.postGameStats.combats++;
-    }
-
-    addDraws(room: Room, players: CombatPlayers) {
-        // branche de Kim:
-        // const player1 = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        // const player2     = room.listPlayers.find((p) => p.id === this.combatPlayers.attacker.id);
-        const player1 = room.listPlayers.find((p) => p.id === players.attacker.id);
-        const player2 = room.listPlayers.find((p) => p.id === players.defender.id);
-        player1.postGameStats.evasions++;
-        player1.postGameStats.combats++;
-        player2.postGameStats.evasions++;
-        player2.postGameStats.combats++;
-    }
-
-    addDmgStats(room: Room, players: CombatPlayers) {
+    addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
         const attacker = room.listPlayers.find((p) => p.id === players.attacker.id);
         const defender = room.listPlayers.find((p) => p.id === players.defender.id);
-        attacker.postGameStats.dmgDealt++;
-        defender.postGameStats.dmgTaken++;
+        if (attacker && defender) {
+            attacker.postGameStats[attr1 as keyof Player['postGameStats']]++;
+            defender.postGameStats[attr2 as keyof Player['postGameStats']]++;
+            return attacker;
+        }
+        return null;
     }
 
     replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {
@@ -314,8 +301,9 @@ export class CombatService {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
 
-    private defaultCombatWin(room: Room, player: Player, server: Server) {
-        this.addVictory(room, player, server);
+    private defaultCombatWin(client: Socket, room: Room, player: Player, server: Server) {
+        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
+        this.addVictory(combatPlayers, room, server);
         server.to(player.id).emit('defaultWin');
     }
 
