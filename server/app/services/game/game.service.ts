@@ -509,11 +509,10 @@ export class GameService {
     }
 
     placeItemsOnGround(defender: Player, client: Socket, server: Server) {
-        // removes hp from the wrong person
-        // doesn't empty the inventory and update the stats
-        // drops the items correctly but can't see them
+        // the hp bar is at 1/4 instead of being full, the rest is fine though
+        // drops the items correctly but can't see them (still there)
+        // i have to stop movement when picking up an item
         const room = this.roomService.getRoom(client);
-        console.log(defender.name);
         if (defender.inventory.length === 0) return;
         for (const items of defender.inventory) {
             let position = room.navigation.findClosestValidTile(defender, room);
@@ -523,11 +522,11 @@ export class GameService {
         defender.inventory = [];
 
         const index = room.listPlayers.findIndex((players) => players.id === defender.id);
-        room.listPlayers[index] = defender;
-        // idk
+        room.listPlayers[index].inventory = defender.inventory;
+        room.listPlayers[index].attributes = defender.attributes;
         this.roomService.updateRoomMap(room);
-        client.emit('updateInventory', defender);
-        server.emit('updateObjects', room.gameMap.itemPlacement);
+        server.to(defender.id).emit('updateInventory', defender);
+        server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
     }
 
     playerInWall(room: Room, player: Player) {

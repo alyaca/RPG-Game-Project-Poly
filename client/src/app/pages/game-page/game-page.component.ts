@@ -207,6 +207,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.timeRemainingStartTurn = timeRemaining;
             this.turnTimer.updateProgress();
         });
+
+        this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
+            this.navigationService.updateObjects(items);
+        });
     }
 
     removeListeners() {
