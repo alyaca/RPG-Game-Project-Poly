@@ -10,7 +10,7 @@
         (drop)="onDrop($event, rowIndex, colIndex)"
         (dragover)="onDragOver($event)"
         (click)="handleTileClick(rowIndex, colIndex)"
-        (contextmenu)="showDetails($event, rowIndex, colIndex)"
+        (contextmenu)="handleRightClick($event, rowIndex, colIndex)"
     >
         <img class="tile-image" [src]="tileService.getTileImage(col)" (mouseover)="findPath(rowIndex, colIndex)" draggable="false" />
         @if(objectsArray[rowIndex][colIndex] > 8){
