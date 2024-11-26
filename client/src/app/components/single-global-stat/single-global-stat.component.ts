@@ -22,12 +22,5 @@ export class SingleGlobalStatComponent {
             default:
                 return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
         }
-        // if (this.globalStat.key === GlobalStatType.DoorsInteracted) {
-        //     return this.postGameService.doorsInteractedPct;
-        // } else if (this.globalStat.key === GlobalStatType.GlobalTilesVisited) {
-        //     return this.postGameService.globalTilesVisitedPct.toString() + '%';
-        // } else {
-        //     return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
-        // }
     }
 }
