@@ -43,7 +43,6 @@ export class NavigationService {
 
     updateObjects(items: number[][]) {
         this.objects = JSON.parse(JSON.stringify(items));
-        console.log(this.objects);
     }
 
     updateTile(activePlayer: Player): void {

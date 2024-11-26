@@ -98,7 +98,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-        console.log('onInit called');
         this.socketCommunicationService.connect();
         this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
             this.navigationService.reachableTiles = reachability;

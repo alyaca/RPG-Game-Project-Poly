@@ -30,4 +30,5 @@ export enum SocketEvents {
     TeleportPlayer = 'teleportPlayer',
     FindPath = 'findPath',
     MovePlayerFromWall = 'movePlayerFromWall',
+    LeftGame = 'leftGame',
 }

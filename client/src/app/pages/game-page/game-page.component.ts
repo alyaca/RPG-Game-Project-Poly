@@ -292,6 +292,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             })
             .subscribe((result) => {
                 if (result.action === DialogResult.Left) {
+                    this.socketCommunicationService.send('leftGame');
                     if (this.isPlayerAdmin()) {
                         this.navigationService.isDebugMode = false;
                         this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);

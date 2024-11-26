@@ -129,14 +129,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(SocketEvents.ItemSwapped)
-    handleItemSwapped(
-        client: Socket,
-        { inventoryToUndo, newInventory, droppedItem },
-        //: { activePlayer: Player; inventoryToUndo: GameObject[]; newInventory: GameObject[]; droppedItem: number },
-    ) {
+    handleItemSwapped(client: Socket, { inventoryToUndo, newInventory, droppedItem }) {
         const room = this.roomService.getRoom(client);
         let activePlayer = this.gameService.getActivePlayer(room);
-        // remove activePlayer
         const infoSwap: InfoSwap = {
             server: this.server,
             client: client,
@@ -145,11 +140,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             modifiedInventory: newInventory,
             droppedItem: droppedItem,
         };
-        //const updatedPlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
         activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
 
-        //this.roomService.updateRoomPlayers(client, activePlayer);
-        //il y a un probleme avec les tours, a voir si c a cause de ca
         this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
             if (timeLeft <= 0) {
                 this.gameService.onTurnEnded(infoSwap.client, infoSwap.server);
@@ -187,6 +179,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             timestamp: message.timestamp,
         };
         await this.saveMessage(client, messageWithRoomId);
+    }
+
+    @SubscribeMessage(SocketEvents.LeftGame)
+    handleDropItemsOnAbandon(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        const player = room.listPlayers.find((player) => player.id === client.id);
+        this.gameService.placeItemsOnGround(player, client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.DebugMode)

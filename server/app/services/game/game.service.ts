@@ -518,8 +518,6 @@ export class GameService {
             let position = room.navigation.findClosestValidTile(defender, room);
             defender = this.playerInventoryService.removeItemEffects(defender, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
-            console.log(position.x);
-            console.log(position.y);
             server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
         }
 
