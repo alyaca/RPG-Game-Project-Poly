@@ -274,6 +274,20 @@ export class GameService {
         this.checkActions(room, server);
     }
 
+    startItemSwap(infoSwap: InfoSwap) {
+        const room = this.roomService.getRoom(infoSwap.client);
+        let activePlayer = this.getActivePlayer(room);
+        activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
+
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+            if (timeLeft <= 0) {
+                this.onTurnEnded(infoSwap.client, infoSwap.server);
+            }
+            infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+        });
+        infoSwap.client.emit('updateInventory', activePlayer);
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         let pickedUpItem = false;

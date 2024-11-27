@@ -196,6 +196,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
+    isActionDoorSelected() {
+        return this.gameService.isActionDoorSelected;
+    }
+
+    isActionCombatSelected() {
+        return this.gameService.isActionCombatSelected;
+    }
+
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
             this.activePlayer = activePlayer;

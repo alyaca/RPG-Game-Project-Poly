@@ -1,10 +1,8 @@
-import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { IMessage } from '@app/interfaces/message.interface';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
-import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/game';
 import { Avatar, Behavior, Player, Position } from '@common/player';
@@ -17,14 +15,13 @@ import { SocketEvents } from './socket.events';
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
-    private roomService: RoomService;
-    private logger: Logger;
 
     constructor(
+        private roomService: RoomService,
+        private logger: Logger,
         private chatService: ChatService,
         private combatService: CombatService,
         private gameService: GameService,
-        private playerInventoryService: PlayerInventoryService,
     ) {}
 
     @SubscribeMessage(SocketEvents.CreateRoom)
@@ -132,25 +129,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.ItemSwapped)
     handleItemSwapped(client: Socket, { inventoryToUndo, newInventory, droppedItem }) {
-        const room = this.roomService.getRoom(client);
-        let activePlayer = this.gameService.getActivePlayer(room);
-        const infoSwap: InfoSwap = {
-            server: this.server,
-            client,
-            player: activePlayer,
-            oldInventory: inventoryToUndo,
-            modifiedInventory: newInventory,
-            droppedItem,
-        };
-        activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
-
-        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
-            if (timeLeft <= 0) {
-                this.gameService.onTurnEnded(infoSwap.client, infoSwap.server);
-            }
-            infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
-        });
-        client.emit('updateInventory', activePlayer);
+        this.gameService.startItemSwap({ server: this.server, client, oldInventory: inventoryToUndo, modifiedInventory: newInventory, droppedItem });
     }
 
     @SubscribeMessage(SocketEvents.EvadeCombat)
