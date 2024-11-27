@@ -81,7 +81,7 @@ export class Navigation {
     }
 
     getTileCost(tileType: number): number {
-        const player = this.players.find((player) => player.isActive);
+        const player = this.players.find((players) => players.isActive);
         switch (tileType) {
             case TileType.Ground:
                 return TileCost.Ground;
@@ -92,7 +92,7 @@ export class Navigation {
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
             case TileType.Wall:
-                if (player!.inventory.find((object) => object.id === ObjectType.Kunee)) {
+                if (player.inventory.find((object) => object.id === ObjectType.Kunee)) {
                     return TileCost.Ground;
                 }
                 return Infinity;

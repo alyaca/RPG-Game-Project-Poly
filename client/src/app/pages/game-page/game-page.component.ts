@@ -8,7 +8,6 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
-// import { CombatService } from '@app/services/combat/combat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
@@ -76,10 +75,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.mapDimensions || !this.mapName) {
             this.router.navigate(['/home']);
         }
-
-        // this.socketCommunicationService.on<number[][]>('updateTile', (items) => {
-        //     this.navigationService.updateObjectsPosition(items);
-        // });
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
             this.allPlayers = room.listPlayers;
@@ -207,10 +202,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.timeRemainingStartTurn = timeRemaining;
             this.turnTimer.updateProgress();
         });
-
-        // this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
-        //     this.navigationService.updateObjects(items);
-        // });
     }
 
     removeListeners() {
@@ -218,6 +209,19 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.off('turnEnded');
         this.socketCommunicationService.off('startedTurnTimer');
         this.socketCommunicationService.off('draw');
+        this.socketCommunicationService.off('openItemSwitchModal');
+        this.socketCommunicationService.off('isActive');
+        this.socketCommunicationService.off('debugMode');
+        this.socketCommunicationService.off('endGame');
+        this.socketCommunicationService.off('attackAround');
+        this.socketCommunicationService.off('doorAround');
+        this.socketCommunicationService.off('doorClicked');
+        this.socketCommunicationService.off('evasionSuccess');
+        this.socketCommunicationService.off('combatEnd');
+        this.socketCommunicationService.off('playerFell');
+        this.socketCommunicationService.off('mapInformation');
+        this.socketCommunicationService.off('disconnectedPlayer');
+        this.socketCommunicationService.off('startFight');
     }
 
     onBeforeStartTurn() {
@@ -239,7 +243,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     setPlayersOnCombatDone(players: Player[]) {
         this.allPlayers = players;
         this.combatService.isRolling = false;
-        this.activePlayer.attributes.actionPoints = 0;
+        this.activePlayer.attributes.actionPoints -= 1;
     }
 
     getPlayerCount() {

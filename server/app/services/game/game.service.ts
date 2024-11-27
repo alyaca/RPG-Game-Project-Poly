@@ -18,13 +18,13 @@ import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { baseBot } from '@app/mocks/mock-players';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
 import { Avatar, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { PlayerInventoryService } from '../player-inventory/player-inventory.service';
 
 /* eslint-disable max-lines */
 @Injectable()
@@ -283,9 +283,9 @@ export class GameService {
             pickedUpItem = false;
             if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
                 const infoSwap: InfoSwap = {
-                    server: server,
-                    client: client,
-                    player: player,
+                    server,
+                    client,
+                    player,
                 };
                 pickedUpItem = true;
                 this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
@@ -356,6 +356,39 @@ export class GameService {
                 this.onTurnEnded(client, server);
             }
         }
+    }
+
+    addActionPoints(player: Player) {
+        // to fix(maybe)
+        if (player.attributes.actionPoints === 1) {
+            player.attributes.maxActionPoints = 2;
+            player.attributes.actionPoints += 1;
+        } else {
+            player.attributes.actionPoints = 1;
+        }
+        return player;
+    }
+
+    placeItemsOnGround(defender: Player, client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        if (defender.inventory.length === 0) return;
+        for (const items of defender.inventory) {
+            const position = room.navigation.findClosestValidTile(defender, room);
+            defender = this.playerInventoryService.removeItemEffects(defender, items.id);
+            room.gameMap.itemPlacement[position.x][position.y] = items.id;
+            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
+        }
+
+        defender.inventory = [];
+
+        const index = room.listPlayers.findIndex((players) => players.id === defender.id);
+        room.listPlayers[index].inventory = defender.inventory;
+        room.listPlayers[index].attributes = defender.attributes;
+        server.to(defender.id).emit('updateInventory', defender);
+    }
+
+    playerInWall(room: Room, player: Player) {
+        return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }
 
     async delay(ms: number) {
@@ -500,41 +533,8 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    addActionPoints(player: Player) {
-        // to fix(maybe)
-        if (player.attributes.actionPoints === 1) {
-            player.attributes.maxActionPoints = 2;
-            player.attributes.actionPoints += 1;
-        } else {
-            player.attributes.actionPoints = 1;
-        }
-        return player;
-    }
-
-    placeItemsOnGround(defender: Player, client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
-        if (defender.inventory.length === 0) return;
-        for (const items of defender.inventory) {
-            let position = room.navigation.findClosestValidTile(defender, room);
-            defender = this.playerInventoryService.removeItemEffects(defender, items.id);
-            room.gameMap.itemPlacement[position.x][position.y] = items.id;
-            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
-        }
-
-        defender.inventory = [];
-
-        const index = room.listPlayers.findIndex((players) => players.id === defender.id);
-        room.listPlayers[index].inventory = defender.inventory;
-        room.listPlayers[index].attributes = defender.attributes;
-        server.to(defender.id).emit('updateInventory', defender);
-    }
-
-    playerInWall(room: Room, player: Player) {
-        return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
-    }
-
     private updateActivePlayer(socket: Socket, server: Server, room: Room) {
-        let listPlayers = this.getPlayerConnectedInRoom(room);
+        const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         let previousActivePlayer = listPlayers[index];
         if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {

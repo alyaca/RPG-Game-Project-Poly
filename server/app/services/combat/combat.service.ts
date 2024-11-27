@@ -113,7 +113,7 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
             const shouldDamageSelf = this.checkAchillesArmor(combatPlayers);
-            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', { attacker: combatPlayers.attacker, shouldDamageSelf: shouldDamageSelf });
+            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', { attacker: combatPlayers.attacker, shouldDamageSelf });
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
         this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);

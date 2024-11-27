@@ -17,10 +17,10 @@ import { SocketEvents } from './socket.events';
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
+    private roomService : RoomService;
+    private logger: Logger;
 
     constructor(
-        private roomService: RoomService,
-        private logger: Logger,
         private chatService: ChatService,
         private combatService: CombatService,
         private gameService: GameService,
@@ -134,11 +134,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         let activePlayer = this.gameService.getActivePlayer(room);
         const infoSwap: InfoSwap = {
             server: this.server,
-            client: client,
+            client,
             player: activePlayer,
             oldInventory: inventoryToUndo,
             modifiedInventory: newInventory,
-            droppedItem: droppedItem,
+            droppedItem,
         };
         activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
 
@@ -184,7 +184,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.LeftGame)
     handleDropItemsOnAbandon(client: Socket) {
         const room = this.roomService.getRoom(client);
-        const player = room.listPlayers.find((player) => player.id === client.id);
+        const player = room.listPlayers.find((players) => players.id === client.id);
         this.gameService.placeItemsOnGround(player, client, this.server);
     }
 

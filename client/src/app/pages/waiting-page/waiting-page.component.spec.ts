@@ -295,6 +295,7 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.MaxPlayers],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap : null,
         });
         expect(component.isBotProfileVisible).toBeFalse();
     });
@@ -310,6 +311,7 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.AddBotWhenLocked],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap : null,
         });
         expect(component.isBotProfileVisible).toBeFalse();
     });
