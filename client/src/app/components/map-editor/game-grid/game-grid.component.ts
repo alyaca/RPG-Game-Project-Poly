@@ -167,13 +167,16 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('updateInventory', (data: { updatedPlayer: Player; listPlayers: Player[] }) => {
+        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
             if (this.activePlayer) {
-                this.activePlayer.inventory = data.updatedPlayer.inventory;
-                this.activePlayer.attributes = data.updatedPlayer.attributes;
-                this.activePlayer.attributes.currentHp = data.updatedPlayer.attributes.totalHp;
+                this.activePlayer.inventory = playerToUpdate.inventory;
+                this.activePlayer.attributes = playerToUpdate.attributes;
+                this.activePlayer.attributes.currentHp = playerToUpdate.attributes.totalHp;
             }
-            this.navigationService.players = data.listPlayers;
+        });
+
+        this.socketCommunicationService.on<Player[]>('updatePlayersList', (listPlayers: Player[]) => {
+            this.navigationService.players = listPlayers;
         });
 
         this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {

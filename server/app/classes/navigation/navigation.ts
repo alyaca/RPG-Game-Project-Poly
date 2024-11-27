@@ -244,7 +244,6 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.hasPlayerOnTile(neighbor, this.players)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
@@ -270,7 +269,6 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;

@@ -35,10 +35,10 @@ export class PlayerInfoInventoryComponent implements OnInit {
             }
         });
 
-        this.socketCommunicationService.on('updateInventory', (data: { updatedPlayer: Player; listPlayers: Player[] }) => {
-            this.player.attributes = data.updatedPlayer.attributes;
-            this.player.inventory = data.updatedPlayer.inventory;
-            this.player.attributes.currentHp = data.updatedPlayer.attributes.totalHp;
+        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+            this.player.attributes = playerToUpdate.attributes;
+            this.player.inventory = playerToUpdate.inventory;
+            this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
         });
     }
 
