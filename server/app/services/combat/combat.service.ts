@@ -225,8 +225,7 @@ export class CombatService {
 
     private checkEndGame(player: Player, room: Room, server: Server) {
         if (player.postGameStats.victories >= VICTORIES) {
-            server.to(room.roomId).emit('endGame', player);
-            this.gameService.stopGameTimers(room);
+            this.gameService.onEndGame(player, room, server);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         } else {
             server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player });

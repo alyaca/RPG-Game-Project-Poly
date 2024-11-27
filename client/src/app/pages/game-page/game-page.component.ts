@@ -319,7 +319,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.socketCommunicationService.disconnect();
         document.removeEventListener('keydown', this.keyDownListener);
     }
 

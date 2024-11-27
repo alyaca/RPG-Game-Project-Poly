@@ -27,7 +27,7 @@
                 @for(attribute of postGameService.postGameStatTypes; track attribute.id){
                     <app-post-game-attribute
                     [attribute]="postGameService.postGameStatTypes[$index].key"
-                    [displayTxt]="postGameService.postGameStatTypes[$index].displayTxt"
+                    [displayText]="postGameService.postGameStatTypes[$index].displayText"
                 ></app-post-game-attribute>
                 }
             </div>

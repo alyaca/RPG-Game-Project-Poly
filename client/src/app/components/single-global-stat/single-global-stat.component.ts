@@ -11,6 +11,7 @@ import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-sta
 })
 export class SingleGlobalStatComponent {
     @Input() globalStat: GlobalPostGameStat;
+    globalStatType = GlobalStatType;
     constructor(public postGameService: PostGameService) {}
 
     formatStatValue(): string {

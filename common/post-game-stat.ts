@@ -14,6 +14,6 @@ export enum PlayerStatType {
 export interface PostGameStat {
     id: number;
     key: keyof Player['postGameStats'];
-    displayTxt: string;
+    displayText: string;
     explanations: string;
 }

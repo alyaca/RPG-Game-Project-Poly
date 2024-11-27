@@ -27,7 +27,7 @@ export class PlayerStatisticsComponent {
         return this.player.status;
     }
 
-    getSocketId(): string | undefined {
-        return this.socketCommunicationService.socket.id;
+    getSocketId() {
+        return this.socketCommunicationService.socket?.id;
     }
 }

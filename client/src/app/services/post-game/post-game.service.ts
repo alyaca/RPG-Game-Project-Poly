@@ -3,7 +3,7 @@ import { Player, Position } from '@common/player';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
 import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { Room } from '@common/room';
-import { PostGameStat } from '@common/post-game-stat';
+import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
 
 @Injectable({
     providedIn: 'root',
@@ -114,11 +114,11 @@ export class PostGameService {
         return this.countTiles((tile) => tile > TileType.Wall);
     }
 
-    calculateInteractionPct(elemList: Position[], maxElem: number): number {
-        if (maxElem === 0) {
+    calculateInteractionPct(elementList: Position[], maxElement: number): number {
+        if (maxElement === 0) {
             return -1;
         }
-        return Number(((elemList.length / maxElem) * TOTAL_PERCENTAGE).toFixed(2));
+        return Number(((elementList.length / maxElement) * TOTAL_PERCENTAGE).toFixed(2));
     }
 
     calculateDoorsInteracted(): number {
@@ -165,5 +165,9 @@ export class PostGameService {
         } else {
             this.doorsInteractedPct += '%';
         }
+    }
+
+    isAttrVictories(selectedAttribute: keyof Player['postGameStats']) {
+        return selectedAttribute === PlayerStatType.Victories;
     }
 }

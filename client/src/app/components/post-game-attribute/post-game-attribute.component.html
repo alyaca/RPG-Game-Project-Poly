@@ -1,4 +1,4 @@
-@if(isAttrRecord()){
+@if(postGameService.isAttrVictories(attribute)){
     <div 
     class="attribute" 
     (mouseenter)="postGameService.updateExplanations('victories')"
@@ -27,7 +27,7 @@
         class="sort-button" 
         [ngClass]="getSortClass(attribute)"
     ></div>
-    <p class="attr-txt"> {{ displayTxt }}</p>
+    <p class="attr-txt"> {{ displayText }}</p>
 </div>
 }
 
