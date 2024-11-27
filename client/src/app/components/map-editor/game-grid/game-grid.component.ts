@@ -277,8 +277,26 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    showDetails(event: MouseEvent, row: number, col: number) {
+    checkTeleportation(position: Position) {
+        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
+            if (!this.isMoving) {
+                this.isMoving = true;
+                this.socketCommunicationService.send('teleportPlayer', position);
+            }
+        }
+    }
+
+    handleRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
+        if (this.navigationService.isDebugMode) {
+            const position: Position = { x: row, y: col };
+            this.checkTeleportation(position);
+        } else {
+            this.showDetails(row, col);
+        }
+    }
+
+    showDetails(row: number, col: number) {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
             this.isPopupVisible = true;
             this.gameTileInfoService.tileId = this.tilesGrid[row][col];

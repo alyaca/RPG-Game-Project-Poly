@@ -67,6 +67,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     attackAround: boolean = false;
 
     private router = inject(Router);
+    private isChatFocus: boolean = false;
+    private keyDownListener: (event: KeyboardEvent) => void;
 
     constructor(
         private gameCreationService: GameCreationService,
@@ -162,14 +164,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 });
         });
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'd') {
-                if (this.isPlayerAdmin()) {
-                    this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
-                    this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
-                }
-            }
-        });
+        this.toggleDebugMode();
+        document.addEventListener('keydown', this.keyDownListener);
 
         this.socketCommunicationService.on('debugMode', (debugMode: boolean) => {
             this.navigationService.isDebugMode = debugMode;
@@ -208,6 +204,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.off('turnEnded');
         this.socketCommunicationService.off('startedTurnTimer');
         this.socketCommunicationService.off('draw');
+    }
+
+    onChatFocus(isFocus: boolean) {
+        this.isChatFocus = isFocus;
+        this.toggleDebugMode();
+    }
+
+    toggleDebugMode() {
+        this.keyDownListener = (event: KeyboardEvent) => {
+            if (!this.isChatFocus && event.key === 'd' && this.isPlayerAdmin()) {
+                this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
+                this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
+            }
+        };
     }
 
     onBeforeStartTurn() {
@@ -306,6 +316,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnDestroy() {
         this.socketCommunicationService.disconnect();
+        document.removeEventListener('keydown', this.keyDownListener);
     }
 
     hasActionPoints() {

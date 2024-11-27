@@ -156,19 +156,18 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         room.isDebug = debugMode;
         this.gameService.updateLogsDebugMode(debugMode, this.server, client);
         this.server.to(room.roomId).emit('debugMode', debugMode);
-        const activePlayer = this.gameService.getActivePlayer(room);
-        const reachability = room.navigation.findReachableTiles(activePlayer, room);
-        this.server.to(room.roomId).emit('reachableTiles', reachability);
     }
 
     @SubscribeMessage(SocketEvents.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        if (room.isDebug) {
-            this.gameService.processTeleportation(room, this.server, path);
-        } else {
-            this.gameService.processNavigation(room, this.server, path, client);
-        }
+        this.gameService.processNavigation(room, this.server, path, client);
+    }
+
+    @SubscribeMessage(SocketEvents.TeleportPlayer)
+    handleTeleportPlayer(client: Socket, position: Position) {
+        const room = this.roomService.getRoom(client);
+        this.gameService.processTeleportation(room, this.server, position);
     }
 
     @SubscribeMessage(SocketEvents.DoorAction)
