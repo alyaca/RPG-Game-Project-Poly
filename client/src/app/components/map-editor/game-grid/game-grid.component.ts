@@ -381,11 +381,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleFightAction(row: number, col: number) {
         if (!this.activePlayer) return;
-        console.log(this.navigationService.isNeighbor(row, col, this.activePlayer));
-        console.log(row, col);
-        console.log(this.activePlayer.position);
         if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && this.objectsArray[row][col] > ObjectType.Spawn) {
-            console.log('Combat action, after if');
             this.activePlayer.attributes.actionPoints--;
             this.gameService.isActionCombatSelected = false;
             const player1 = this.activePlayer;
