@@ -28,10 +28,10 @@ export class PlayerInventoryService {
             this.gameLogService.sendItemLog(info.player, room.roomId, info.server, itemPickedUp);
             room.gameMap.itemPlacement[info.player.position.x][info.player.position.y] = 0;
         }
-        info.client.emit('updateInventory', info.player);
         info.client.emit('inventoryChange', info.player);
         const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
         room.listPlayers[index] = info.player;
+        info.client.emit('updateInventory', { updatedPlayer: info.player, listPlayers: room.listPlayers });
     }
 
     determineRandomItem(allObjects: number[][]): number {
