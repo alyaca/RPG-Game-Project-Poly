@@ -23,6 +23,7 @@ export class Navigation {
     }
 
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
+        this.destination = destination;
         const game = room.gameMap;
         this.initializeDistances(player, game);
 
@@ -230,7 +231,10 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (!this.isReachableTile(newX, newY)) continue;
+            ////
+            console.log(this.isBot);
+            if (!this.isReachableTile(newX, newY) && this.isBot) continue;
+            ////
             if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (!this.isBot) {
                 if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;

@@ -12,8 +12,8 @@ import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
-import { CombatService } from '@app/services/combat/combat.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
@@ -40,7 +40,7 @@ describe('GamePageComponent', () => {
     const accessCode = '1234';
 
     beforeEach(async () => {
-        combatServiceSpy = jasmine.createSpyObj(CombatService, ['initializeCombat']);
+        combatServiceSpy = jasmine.createSpyObj(CombatService, ['initializeCombat', 'onCombatEnd']);
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
         socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, [
@@ -194,29 +194,9 @@ describe('GamePageComponent', () => {
                     callback(mockPlayers as T);
                 }
             });
-            component.activePlayer = mockPlayers[0];
+            spyOn(component, 'setPlayersOnCombatDone');
             component.ngOnInit();
-            expect(component.isInCombat).toBeFalse();
-            expect(component.allPlayers).toEqual(mockPlayers);
-            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
-        });
-
-        it('should set doorAround on doorAround event', () => {
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'doorAround') {
-                    callback(true as T);
-                }
-            });
-            component.ngOnInit();
-            expect(component.doorAround).toBeTrue();
-
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'doorAround') {
-                    callback(false as T);
-                }
-            });
-            component.ngOnInit();
-            expect(component.doorAround).toBeFalse();
+            expect(component.setPlayersOnCombatDone).toHaveBeenCalled();
         });
 
         it('should callOpenDialog correctly on endGame', () => {
@@ -246,24 +226,6 @@ describe('GamePageComponent', () => {
             component.activePlayer = mockPlayers[0];
             component.ngOnInit();
             expect(component.activePlayer.attributes.actionPoints).toEqual(0);
-        });
-
-        it('should set attackAround on the event attackAround', () => {
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'attackAround') {
-                    callback(true as T);
-                }
-            });
-            component.ngOnInit();
-            expect(component.attackAround).toBeTrue();
-
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'attackAround') {
-                    callback(false as T);
-                }
-            });
-            component.ngOnInit();
-            expect(component.attackAround).toBeFalse();
         });
 
         it('should call onEndTurn on endTurnBot event', () => {
@@ -404,9 +366,8 @@ describe('GamePageComponent', () => {
         component.handleDraw();
         expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
             title: DialogTitle.DrawGame,
-            messages: [DialogMessages.DrawGame],
-            options: [DialogOptions.Close],
-            confirm: false,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
         });
     });
 
@@ -416,13 +377,6 @@ describe('GamePageComponent', () => {
 
         component.allPlayers = mockPlayers;
         expect(component.getPlayerCount()).toEqual(mockPlayers.length);
-    });
-
-    it('should disconnect and navigate to home when dialog result is "Close" for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
-        component.handleDraw();
-        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {

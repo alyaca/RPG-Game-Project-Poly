@@ -61,6 +61,7 @@ export class CombatService {
     onStartTurn(client: Socket, server: Server, room: Room) {
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
         const turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
+        //TODO : remove the hard coded value
         this.roomService.getFightTimer(room.roomId).resetTimer(1 /*turnTime*/, (timeRemaining: number) => {
             this.emitToCombatPlayers(server, combatPlayers, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
@@ -71,7 +72,6 @@ export class CombatService {
 
     onEndTurn(client: Socket, server: Server, room: Room) {
         const combatInfos = this.combatInfos.get(room.roomId);
-        console.log('onEndTurn', combatInfos.combatPlayers);
         const combatPlayers = combatInfos.combatPlayers;
         [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
         this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', { combatPlayers, failEvasion: combatInfos.failEvasion });
