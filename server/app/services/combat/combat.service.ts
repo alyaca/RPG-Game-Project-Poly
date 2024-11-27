@@ -88,7 +88,7 @@ export class CombatService {
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
-            this.addToPostGameStats(room, combatPlayers, PlayerStatType.DmgDealt, PlayerStatType.DmgTaken);
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.DamageDealt, PlayerStatType.DamageTaken);
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {

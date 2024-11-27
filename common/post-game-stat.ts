@@ -5,10 +5,10 @@ export enum PlayerStatType {
     Victories = 'victories',
     Evasions = 'evasions',
     Defeats = 'defeats',
-    DmgDealt = 'dmgDealt',
-    DmgTaken = 'dmgTaken',
+    DamageDealt = 'damageDealt',
+    DamageTaken = 'damageTaken',
     ItemsObtained = 'itemsObtained',
-    TilesVisited = 'tilesVisited'
+    TilesVisited = 'tilesVisited',
 }
 
 export interface PostGameStat {

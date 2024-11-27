@@ -1,5 +1,5 @@
-import { Attributes, PostGameStats } from '@common/player';
 import { DEFAULT_ACTION_POINT, DEFAULT_ATTRIBUTE, DEFAULT_EVASION_POINT } from '@app/constants';
+import { Attributes, PostGameStats } from '@common/player';
 
 export const defaultAttributes: Attributes = {
     totalHp: DEFAULT_ATTRIBUTE,
@@ -20,8 +20,8 @@ export const defaultPostGameStats: PostGameStats = {
     victories: 0,
     evasions: 0,
     defeats: 0,
-    dmgDealt: 0,
-    dmgTaken: 0,
+    damageDealt: 0,
+    damageTaken: 0,
     itemsObtained: 0,
     tilesVisited: 0,
 };

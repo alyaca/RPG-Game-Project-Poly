@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Player, Position } from '@common/player';
-import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
 import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
-import { Room } from '@common/room';
+import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
+import { Player, Position } from '@common/player';
 import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
+import { Room } from '@common/room';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PostGameService {
     gameRoom: Room;
-    doorsInteractedPct: string;
+    doorsInteractedPercentage: string;
     gameDuration: string;
-    globalTilesVisitedPct: number;
+    globalTilesVisitedPercentage: number;
     totalTerrainTiles: number = -1;
     totalDoors: number = -1;
     explanations: string = '';
@@ -22,8 +22,8 @@ export class PostGameService {
         victories: SortOrder.Unsorted,
         evasions: SortOrder.Unsorted,
         defeats: SortOrder.Unsorted,
-        dmgDealt: SortOrder.Unsorted,
-        dmgTaken: SortOrder.Unsorted,
+        DamageDealt: SortOrder.Unsorted,
+        DamageTaken: SortOrder.Unsorted,
         itemsObtained: SortOrder.Unsorted,
         tilesVisited: SortOrder.Unsorted,
     };
@@ -59,12 +59,12 @@ export class PostGameService {
     performSorting(attribute: keyof Player['postGameStats']) {
         const isAscending = this.sortOrder[attribute] === SortOrder.Ascending;
 
-        this.players.sort((a, b) => {
-            const valA = a.postGameStats[attribute];
-            const valB = b.postGameStats[attribute];
+        this.players.sort((frontElement, backElement) => {
+            const frontValue = frontElement.postGameStats[attribute];
+            const backValue = backElement.postGameStats[attribute];
 
-            if (valA > valB) return isAscending ? 1 : -1;
-            if (valA < valB) return isAscending ? -1 : 1;
+            if (frontValue > backValue) return isAscending ? 1 : -1;
+            if (frontValue < backValue) return isAscending ? -1 : 1;
             return 0;
         });
     }
@@ -114,7 +114,7 @@ export class PostGameService {
         return this.countTiles((tile) => tile > TileType.Wall);
     }
 
-    calculateInteractionPct(elementList: Position[], maxElement: number): number {
+    calculateInteractionPercentage(elementList: Position[], maxElement: number): number {
         if (maxElement === 0) {
             return -1;
         }
@@ -122,12 +122,12 @@ export class PostGameService {
     }
 
     calculateDoorsInteracted(): number {
-        return this.calculateInteractionPct(this.globalStats.doorsInteracted, this.findTotalDoors());
+        return this.calculateInteractionPercentage(this.globalStats.doorsInteracted, this.findTotalDoors());
     }
 
     calculatePlayerTilesVisited() {
         for (const player of this.players) {
-            player.postGameStats.tilesVisited = this.calculateInteractionPct(player.positionHistory, this.findTotalTerrainTiles());
+            player.postGameStats.tilesVisited = this.calculateInteractionPercentage(player.positionHistory, this.findTotalTerrainTiles());
         }
     }
 
@@ -148,22 +148,22 @@ export class PostGameService {
 
     computeStats() {
         this.calculatePlayerTilesVisited();
-        this.computeDoorsInteractedPct();
-        this.computeGlobalTilesVisitedPct();
+        this.computeDoorsInteractedPercentage();
+        this.computeGlobalTilesVisitedPercentage();
     }
 
-    computeGlobalTilesVisitedPct() {
+    computeGlobalTilesVisitedPercentage() {
         this.totalTerrainTiles = this.findTotalTerrainTiles();
-        this.globalTilesVisitedPct = this.calculateInteractionPct(this.globalStats.globalTilesVisited, this.totalTerrainTiles);
+        this.globalTilesVisitedPercentage = this.calculateInteractionPercentage(this.globalStats.globalTilesVisited, this.totalTerrainTiles);
     }
 
-    computeDoorsInteractedPct() {
+    computeDoorsInteractedPercentage() {
         this.totalDoors = this.findTotalDoors();
-        this.doorsInteractedPct = this.calculateInteractionPct(this.globalStats.doorsInteracted, this.totalDoors).toString();
-        if (this.doorsInteractedPct === '-1') {
-            this.doorsInteractedPct = 'NA';
+        this.doorsInteractedPercentage = this.calculateInteractionPercentage(this.globalStats.doorsInteracted, this.totalDoors).toString();
+        if (this.doorsInteractedPercentage === '-1') {
+            this.doorsInteractedPercentage = 'NA';
         } else {
-            this.doorsInteractedPct += '%';
+            this.doorsInteractedPercentage += '%';
         }
     }
 

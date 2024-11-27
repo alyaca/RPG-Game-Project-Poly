@@ -295,13 +295,13 @@ export const PLAYER_STAT_TYPES: PostGameStat[] = [
     },
     {
         id: 2,
-        key: PlayerStatType.DmgDealt,
+        key: PlayerStatType.DamageDealt,
         displayText: 'Dég. infligés',
         explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
     },
     {
         id: 3,
-        key: PlayerStatType.DmgTaken,
+        key: PlayerStatType.DamageTaken,
         displayText: 'Dégats subis',
         explanations: 'Nombre de points de dégats subis par le joueur',
     },

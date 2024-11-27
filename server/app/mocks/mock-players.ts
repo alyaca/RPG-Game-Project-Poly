@@ -1,5 +1,5 @@
 import { avatars } from '@common/avatars-info';
-import { Behavior, Player, Attributes, Status, PostGameStats } from '@common/player';
+import { Attributes, Behavior, Player, PostGameStats, Status } from '@common/player';
 import { playerNavigation } from './mock-player';
 
 export const mockAttributes: Attributes = {
@@ -21,8 +21,8 @@ export const defaultPostGameStats: PostGameStats = {
     victories: 0,
     evasions: 0,
     defeats: 0,
-    dmgDealt: 0,
-    dmgTaken: 0,
+    damageDealt: 0,
+    damageTaken: 0,
     itemsObtained: 0,
     tilesVisited: 0,
 };

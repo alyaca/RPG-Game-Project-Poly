@@ -17,9 +17,9 @@ export class SingleGlobalStatComponent {
     formatStatValue(): string {
         switch (this.globalStat.key) {
             case GlobalStatType.DoorsInteracted:
-                return this.postGameService.doorsInteractedPct;
+                return this.postGameService.doorsInteractedPercentage;
             case GlobalStatType.GlobalTilesVisited:
-                return this.postGameService.globalTilesVisitedPct.toString() + '%';
+                return this.postGameService.globalTilesVisitedPercentage.toString() + '%';
             default:
                 return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
         }

@@ -36,7 +36,6 @@ export interface Player {
     behavior: Behavior;
 }
 
-
 export interface Attributes {
     totalHp: number;
     currentHp: number;
@@ -52,12 +51,12 @@ export interface Attributes {
 }
 
 export interface PostGameStats {
-    combats: number,
+    combats: number;
     victories: number;
     evasions: number;
     defeats: number;
-    dmgDealt: number;
-    dmgTaken: number;
+    damageDealt: number;
+    damageTaken: number;
     itemsObtained: number;
     tilesVisited: number;
 }

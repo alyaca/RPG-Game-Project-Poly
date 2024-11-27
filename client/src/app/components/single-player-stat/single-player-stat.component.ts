@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TOTAL_PERCENTAGE } from '@app/constants';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { Player, PostGameStats } from '@common/player';
-import { TOTAL_PERCENTAGE } from '@app/constants';
 import { PlayerStatType } from '@common/post-game-stat';
 
 @Component({
@@ -33,7 +33,9 @@ export class SinglePlayerStatComponent {
     }
 
     hasBar(): boolean {
-        return [PlayerStatType.DmgDealt as string, PlayerStatType.DmgTaken as string, PlayerStatType.TilesVisited as string].includes(this.attribute);
+        return [PlayerStatType.DamageDealt as string, PlayerStatType.DamageTaken as string, PlayerStatType.TilesVisited as string].includes(
+            this.attribute,
+        );
     }
 
     isPercent(): boolean {
@@ -45,7 +47,7 @@ export class SinglePlayerStatComponent {
         return Math.min((attribute / max) * TOTAL_PERCENTAGE, TOTAL_PERCENTAGE);
     }
 
-    getAttribute(){
+    getAttribute() {
         return this.attribute as keyof PostGameStats;
     }
 }
