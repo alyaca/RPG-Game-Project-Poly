@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
+import { mockMediumItemsMatrice } from '@app/mocks/mock-game';
 import { mockGameNavigation as mockGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -23,6 +24,11 @@ describe('NavigationServiceService', () => {
     it('should be created', () => {
         expect(service).toBeTruthy();
     });
+
+    it('should set the objects', () => {
+        service.updateObjects(mockMediumItemsMatrice);
+        expect(service.objects).toEqual(JSON.parse(JSON.stringify(mockMediumItemsMatrice)));
+    })
 
     it('should update the tile to spawn', () => {
         spyOn(service, 'isInInitialPosition').and.returnValue(true);

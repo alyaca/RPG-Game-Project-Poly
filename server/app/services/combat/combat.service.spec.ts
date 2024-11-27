@@ -38,6 +38,7 @@ describe('CombatService', () => {
             onTurnEnded: jest.fn(),
             stopGameTimers: jest.fn(),
             getActivePlayer: jest.fn(),
+            placeItemsOnGround : jest.fn(),
         } as unknown as jest.Mocked<GameService>;
 
         mockLogsService = {
@@ -156,6 +157,7 @@ describe('CombatService', () => {
             expect(service.onEndTurn).toHaveBeenCalled();
         });
 
+        // add the fact that a player can have Achilles' armor or Xiphos in his inventory
         it('should decrease activePlayer HP when defense is successful', () => {
             const combatValue = { attackValues: 3, defenseValues: 10 };
             service.getCombatValues = jest.fn().mockReturnValue(combatValue);

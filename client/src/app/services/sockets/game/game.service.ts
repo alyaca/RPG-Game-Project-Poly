@@ -90,7 +90,9 @@ export class GameService {
             options: [DialogOptions.Close],
             itemSwap: null,
         }).subscribe((result) => {
+            console.log(result); // appears
             if (result === DialogResult.Close) {
+                console.log("WTF"); // doesn't appear
                 this.router.navigate(['/home']);
             }
         });

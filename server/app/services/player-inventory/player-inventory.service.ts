@@ -1,10 +1,10 @@
 import { InfoSwap } from '@app/interfaces/info-item-swap';
+import { GameLogsService } from '@app/services/game-logs/game-logs.service';
+import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
 import { Injectable } from '@nestjs/common';
-import { GameLogsService } from '../game-logs/game-logs.service';
-import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class PlayerInventoryService {
@@ -30,7 +30,7 @@ export class PlayerInventoryService {
             room.gameMap.itemPlacement[info.player.position.x][info.player.position.y] = 0;
         }
         info.client.emit('updateInventory', info.player);
-        //TODO : place in gameService
+        // TODO : place in gameService
         this.roomService.updateRoomPlayers(info.client, info.player);
     }
 
