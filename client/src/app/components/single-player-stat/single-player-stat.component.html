@@ -1,4 +1,4 @@
-@if(postGameService.isAttrVictories(getAttribute())){
+@if(postGameService.isAttributeVictories(getAttribute())){
     <div class="stat record"> 
         <p class="txt attr-value" [ngClass]="{'highlight': selectedAttribute === 'victories'}"> {{player.postGameStats.victories}} </p>
         <p class="txt">/</p>

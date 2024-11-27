@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { PostGameAttributeComponent } from '@app/components/post-game-attribute/post-game-attribute.component';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { NavigationService } from '@app/services/navigation/navigation.service';
 import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { GlobalPostGameStat } from '@common/global-post-game-stats';
@@ -23,10 +22,9 @@ export class PostGamePageComponent implements OnInit, OnDestroy {
     globalStats: GlobalPostGameStat[] = GLOBAL_STAT_TYPES;
 
     constructor(
-        public socketCommunicationService: SocketCommunicationService,
-        public navigationService: NavigationService,
+        private socketCommunicationService: SocketCommunicationService,
         public postGameService: PostGameService,
-        public gameService: GameService,
+        private gameService: GameService,
     ) {}
 
     ngOnInit() {

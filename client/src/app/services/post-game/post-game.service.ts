@@ -22,8 +22,8 @@ export class PostGameService {
         victories: SortOrder.Unsorted,
         evasions: SortOrder.Unsorted,
         defeats: SortOrder.Unsorted,
-        DamageDealt: SortOrder.Unsorted,
-        DamageTaken: SortOrder.Unsorted,
+        damageDealt: SortOrder.Unsorted,
+        damageTaken: SortOrder.Unsorted,
         itemsObtained: SortOrder.Unsorted,
         tilesVisited: SortOrder.Unsorted,
     };
@@ -76,9 +76,9 @@ export class PostGameService {
         this.performSorting(attribute);
     }
 
-    updateExplanations(attr: keyof Player['postGameStats'] | '') {
+    updateExplanations(selectedAttribute: keyof Player['postGameStats'] | '') {
         for (const attribute of this.postGameStatTypes) {
-            if (attribute.key === attr) {
+            if (attribute.key === selectedAttribute) {
                 this.explanations = attribute.explanations;
                 return;
             }
@@ -167,7 +167,7 @@ export class PostGameService {
         }
     }
 
-    isAttrVictories(selectedAttribute: keyof Player['postGameStats']) {
+    isAttributeVictories(selectedAttribute: keyof Player['postGameStats']) {
         return selectedAttribute === PlayerStatType.Victories;
     }
 }
