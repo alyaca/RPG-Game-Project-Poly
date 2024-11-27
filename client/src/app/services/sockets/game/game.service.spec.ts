@@ -3,7 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import {
+    DialogOptions,
     DialogResult,
+    DialogTitle,
     MAX_PLAYER_LARGE_MAP,
     MAX_PLAYER_MEDIUM_MAP,
     MAX_PLAYER_SMALL_MAP,
@@ -100,16 +102,38 @@ describe('GameService', () => {
         });
     });
 
-    it('should navigate when result is Close onAdminQuit', (done) => {
-        const message = 'Game has been canceled';
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
+    // it('should navigate when result is Close onAdminQuit', (done) => {
+    //     const message = 'Game has been canceled';
+    //     const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+    //     dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
+    //     dialogSpy.open.and.returnValue(dialogRefSpy);
 
+    //     service.onAdminQuit(message);
+    //     setTimeout(() => {
+    //         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    //         done();
+    //     });
+    // });
+    it('should navigate when result is Close onAdminQuit', (done) => {
+        const message = 'message';
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close)); 
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+    
         service.onAdminQuit(message);
         setTimeout(() => {
+            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                disableClose: true,
+                data: {
+                    title: DialogTitle.GameCanceled,
+                    messages: [message],
+                    confirm: false,
+                    options: [DialogOptions.Close], 
+                    itemSwap: null,
+                },
+            });
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-            done();
+            done(); // Signal Jasmine that the test is complete
         });
     });
 
