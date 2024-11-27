@@ -565,7 +565,7 @@ export class GameService {
             const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
             room.navigation.findFastestPath(previousActivePlayer, destination, room);
             previousActivePlayer.position = destination;
-            this.processTeleportation(room, server, [previousActivePlayer.position]);
+            this.processTeleportation(room, server, previousActivePlayer.position);
         }
         listPlayers[index] = previousActivePlayer;
 

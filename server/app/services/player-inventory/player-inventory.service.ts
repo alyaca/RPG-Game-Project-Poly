@@ -117,6 +117,13 @@ export class PlayerInventoryService {
     }
 
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
+        let newItem = 0;
+        for (const items of infoSwap.modifiedInventory) {
+            for (const oldItems of infoSwap.oldInventory) {
+                if (items === oldItems) continue;
+                newItem = items.id;
+            }
+        }
         const room = this.roomService.getRoom(infoSwap.client);
         let playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
         playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
@@ -126,9 +133,9 @@ export class PlayerInventoryService {
         playerToUpdate = this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[0].id);
         playerToUpdate = this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[1].id);
 
-        this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, infoSwap.modifiedInventory[0].id);
-        this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
-
+        if (newItem > 0) {
+            this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, newItem);
+        }
         room.gameMap.itemPlacement[playerToUpdate.position.x][playerToUpdate.position.y] = infoSwap.droppedItem;
 
         const index = room.listPlayers.findIndex((players) => players.name === playerToUpdate.name);
