@@ -92,7 +92,7 @@ export class Navigation {
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
             case TileType.Wall:
-                if (player.inventory.find((object) => object.id === ObjectType.Kunee)) {
+                if (player?.inventory.find((object) => object.id === ObjectType.Kunee)) {
                     return TileCost.Ground;
                 }
                 return Infinity;

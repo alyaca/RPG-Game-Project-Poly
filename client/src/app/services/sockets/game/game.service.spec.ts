@@ -1,4 +1,4 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
@@ -116,17 +116,29 @@ describe('GameService', () => {
         });
 
         // this shit is not passing
-    it('should navigate when result is Close onAdminQuit', fakeAsync(() => {
-        const message = 'Game has been canceled';
-        // const dialogData = {title : DialogTitle.GameCanceled, messages : [message], options: [DialogOptions.Close], confirm : false, itemSwap : null};
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of({ action: 'Fermer'}));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
-    
-        service.onAdminQuit(message);
-        tick();
-        expect(routerSpy.navigate).toHaveBeenCalled();
-    }));
+        it('should navigate when result is Close onAdminQuit', (done) => {
+            const message = 'message';
+            const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+            dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close)); 
+            dialogSpy.open.and.returnValue(dialogRefSpy);
+        
+            service.onAdminQuit(message);
+        
+            setTimeout(() => {
+                expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                    disableClose: true,
+                    data: {
+                        title: DialogTitle.GameCanceled, 
+                        messages: [message],
+                        confirm: false,
+                        options: [DialogOptions.Close], 
+                        itemSwap: null,
+                    },
+                });
+                expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+                done(); 
+            });
+        });
 
     it('isActionSelected should return the correct attribute', () => {
         service.isActionDoorSelected = true;
