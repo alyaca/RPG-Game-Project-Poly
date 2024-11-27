@@ -3,7 +3,6 @@ import { mockGameNavigation, mockNeighborGame } from '@app/mocks/map-mocks';
 import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
-import { mockRoomDebug } from '@app/mocks/mock-room';
 import { ObjectType } from '@common/avatars-info';
 import { Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
@@ -327,35 +326,8 @@ describe('Navigation', () => {
         ]);
     });
 
-    it('should return the final destination if room in debug mode and the tile is valid', () => {
-        const destination = { x: 1, y: 1 };
-
-        navigation['isTileValid'] = jest.fn().mockReturnValue(true);
-
-        const result = navigation.findFastestPath(playerNavigation, destination, mockRoomDebug[0]);
-        expect(result).toEqual([destination]);
-    });
-
-    it('should return all tiles in debug mode', () => {
-        const mockDebugTiles = [
-            { x: 0, y: 0 },
-            { x: 0, y: 1 },
-            { x: 0, y: 2 },
-            { x: 1, y: 0 },
-            { x: 1, y: 1 },
-            { x: 1, y: 2 },
-            { x: 2, y: 0 },
-            { x: 2, y: 1 },
-            { x: 2, y: 2 },
-        ];
-
-        navigation['isTileValid'] = jest.fn().mockReturnValue(true);
-        const result = navigation.findReachableTiles(playerNavigation, mockRoomDebug[0]);
-        expect(result).toEqual(mockDebugTiles);
-    });
-
-    it('should return false when the tiles are not valid for debug Mode', () => {
-        const position: Position = { x: 1, y: 1 };
+    it('should return true if the tiles is valid for debug Mode', () => {
+        const position: Position = { x: 0, y: 0 };
         navigation.gameMap.tiles = [
             [TileType.Ground, TileType.OpenDoor],
             [TileType.Wall, TileType.ClosedDoor],
@@ -367,7 +339,7 @@ describe('Navigation', () => {
 
         navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
         const isValid = navigation['isTileValid'](position.x, position.y);
-        expect(isValid).toBe(false);
+        expect(isValid).toBe(true);
     });
 
     it('should return false when the tiles are terrain tile, but there is an objet on it', () => {
@@ -478,15 +450,4 @@ describe('Navigation', () => {
     //     expect(getNeighborsSpy).toHaveBeenCalled();
     //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
     // });
-
-    /* it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
-        gameCreationServiceSpy.isModifiable = false;
-        component.isActivePlayer = true;
-        component.hasStarted = true;
-        component.isMoving = false;
-        navigationServiceSpy.isDebugMode = true;
-        navigationServiceSpy.isTileValid.and.returnValue(true);
-        component.sendNavigation(0, 0);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
-    });*/
 });

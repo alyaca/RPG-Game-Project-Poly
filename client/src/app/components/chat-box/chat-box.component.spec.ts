@@ -202,4 +202,16 @@ describe('ChatBoxComponent', () => {
         expect(component.areLogsFiltered).toBe(false);
         expect(component.chatType).toBe('Journal de jeu non filtré');
     });
+
+    it('should emit true when onFocus is called', () => {
+        spyOn(component.chatFocusChange, 'emit');
+        component.onFocus();
+        expect(component.chatFocusChange.emit).toHaveBeenCalledWith(true);
+    });
+
+    it('should emit false when onBlur is called', () => {
+        spyOn(component.chatFocusChange, 'emit');
+        component.onBlur();
+        expect(component.chatFocusChange.emit).toHaveBeenCalledWith(false);
+    });
 });
