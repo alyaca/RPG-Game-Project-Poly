@@ -163,7 +163,7 @@ export class GameService {
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
             if (timeRemaining <= 0) {
-                this.playerTurnTimer(client, server);
+                this.playerTurnTimer(room, server);
             }
         });
         //////
@@ -174,10 +174,9 @@ export class GameService {
         /////
     }
 
-    onTurnEnded(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
+    onTurnEnded(room: Room, server: Server) {
         if (!this.isMoving) {
-            this.updateActivePlayer(client);
+            this.updateActivePlayer(room);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.actionPoints = activePlayer.attributes.maxActionPoints;
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
@@ -198,8 +197,8 @@ export class GameService {
     }
 
     assignStatsToBot(bot: Player): Player {
-        bot.attributes.attack = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
-        bot.attributes.defense = bot.attributes.attack === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
+        bot.attributes.currentHp = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
+        bot.attributes.speed = bot.attributes.currentHp === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
 
         bot.attributes.atkDiceMax = Math.random() > EQUAL_ODDS_PROBABILITY ? HIGH_ATTRIBUTE : DEFAULT_ATTRIBUTE;
         bot.attributes.defDiceMax = bot.attributes.atkDiceMax === HIGH_ATTRIBUTE ? DEFAULT_ATTRIBUTE : HIGH_ATTRIBUTE;
@@ -308,11 +307,11 @@ export class GameService {
         server.to(room.roomId).emit('endMovement');
         server.to(room.roomId).emit('reachableTiles', reachability);
         if (this.checkEndTurn(client, player)) {
-            this.onTurnEnded(client, server);
+            this.onTurnEnded(room, server);
             return;
         }
         if (this.isTurnSkipped) {
-            this.onTurnEnded(client, server);
+            this.onTurnEnded(room, server);
             this.isTurnSkipped = false;
             return;
         }
@@ -352,7 +351,7 @@ export class GameService {
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
             if (this.checkEndTurn(client, activePlayer)) {
-                this.onTurnEnded(client, server);
+                this.onTurnEnded(room, server);
             }
         }
     }
@@ -451,7 +450,7 @@ export class GameService {
     private playerDisconnected(room: Room, socket: Socket, server: Server) {
         const disconnectedPlayer = this.getPlayerById(room, socket);
         if (this.isActivePlayer(socket)) {
-            this.onTurnEnded(socket, server);
+            this.onTurnEnded(room, server);
         }
         disconnectedPlayer.status = Status.Disconnected;
         if (this.isLastPlayer(room)) {
@@ -461,12 +460,21 @@ export class GameService {
         this.sortPlayersBySpeed(room);
     }
 
-    private playerTurnTimer(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
+    // private playerTurnTimer(client: Socket, server: Server) {
+    //     const room = this.roomService.getRoom(client);
+    //     this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
+    //         server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+    //         if (timeRemaining <= 0) {
+    //             this.onTurnEnded(client, server);
+    //         }
+    //     });
+    // }
+
+    private playerTurnTimer(room: Room, server: Server) {
         this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
             server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
             if (timeRemaining <= 0) {
-                this.onTurnEnded(client, server);
+                this.onTurnEnded(room, server);
             }
         });
     }
@@ -496,8 +504,8 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
+    private updateActivePlayer(room: Room) {
+        // const room = this.roomService.getRoom(socket);
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         const nextIndex = (index + 1) % listPlayers.length;

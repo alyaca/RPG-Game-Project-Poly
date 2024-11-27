@@ -127,7 +127,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.EndTurn)
     handleEndTurn(client: Socket) {
-        this.gameService.onTurnEnded(client, this.server);
+        const room = this.roomService.getRoom(client);
+        this.gameService.onTurnEnded(room, this.server);
         this.logger.debug(`client ${client.id} turn is over`);
     }
 
