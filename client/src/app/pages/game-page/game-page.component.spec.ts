@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { ATTACK_TIME, DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, ObjectType, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { ATTACK_TIME, DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -34,12 +34,22 @@ describe('GamePageComponent', () => {
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
-    let combatServiceSpy : jasmine.SpyObj<CombatService>;
+    let combatServiceSpy: jasmine.SpyObj<CombatService>;
 
     const accessCode = '1234';
 
     beforeEach(async () => {
-        combatServiceSpy = jasmine.createSpyObj(CombatService, ['onEvasion', 'onCombatEnd', 'removeListeners', 'isCurrentTurn','isInCombat', 'initializeCombat', 'ngOnInit', 'initSocketListeners', 'isAttacker']);
+        combatServiceSpy = jasmine.createSpyObj(CombatService, [
+            'onEvasion',
+            'onCombatEnd',
+            'removeListeners',
+            'isCurrentTurn',
+            'isInCombat',
+            'initializeCombat',
+            'ngOnInit',
+            'initSocketListeners',
+            'isAttacker',
+        ]);
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
         socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, [
@@ -65,17 +75,17 @@ describe('GamePageComponent', () => {
         combatServiceSpy.opponent = mockPlayers[1];
         combatServiceSpy.attacker = mockPlayers[0];
         combatServiceSpy.defender = mockPlayers[1];
-        combatServiceSpy.evasionsActivePlayer = [1,1];
-        combatServiceSpy.evasionsOpponent = [1,1];
-        combatServiceSpy.activePlayerResult = {total : 5, diceValue : 2};
-        combatServiceSpy.opponentResult = {total : 3, diceValue : 3};
+        combatServiceSpy.evasionsActivePlayer = [1, 1];
+        combatServiceSpy.evasionsOpponent = [1, 1];
+        combatServiceSpy.activePlayerResult = { total: 5, diceValue: 2 };
+        combatServiceSpy.opponentResult = { total: 3, diceValue: 3 };
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
-                { provide : CombatService, useValue : combatServiceSpy},
+                { provide: CombatService, useValue: combatServiceSpy },
                 { provide: ChatBoxComponent, useValue: chatBoxSpy },
                 { provide: TimerComponent, useValue: timerSpy },
                 { provide: MatDialog, useValue: dialogSpy },
@@ -173,97 +183,26 @@ describe('GamePageComponent', () => {
             expect(navigationServiceSpy.isDebugMode).toBeTrue();
         });
 
-        it('should start combat on startFight', () =>{
-            const data = {player1 : mockPlayers[0], player2 : mockPlayers[1], isPlayer1Active : true};
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event : string, callback : (data : T) => void) => {
-                if (event === 'startFight')
-                {
-                    callback(data as T);
+        it('should set combatInProgress to true on combatInProgress event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatInProgress') {
+                    callback({} as T);
                 }
             });
             component.ngOnInit();
-            expect(combatServiceSpy.isInCombat).toBeTrue();
-            expect(combatServiceSpy.initializeCombat).toHaveBeenCalledWith(data.player1, data.player2, data.isPlayer1Active);
+            expect(component.combatInProgress).toBe(true);
         });
 
-        it('should call the right functions on combatEnd', () => {
-            const data = {listPlayers : mockPlayers, player : mockPlayers[0]};
-            component.activePlayer = mockPlayers[0];
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event : string, callback : (data : T) => void) => {
-                if (event === 'combatEnd')
-                {
-                    callback(data as T);
-                }
-            });
-            spyOn(component, 'setPlayersOnCombatDone');
-            component.ngOnInit();
-            expect(component.setPlayersOnCombatDone).toHaveBeenCalledWith(data.listPlayers);
-            expect(combatServiceSpy.onCombatEnd).toHaveBeenCalledWith(data.player);
-        });
-
-        it('should call the required function on evasionSucces', () => {
-            const data = {listPlayers : mockPlayers, player : mockPlayers[0]};
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event : string, callback : (data  : T) => void) => {
-                if (event === 'evasionSuccess')
-                {
-                    callback(data as T);
-                }
-            });
-            spyOn(component, 'setPlayersOnCombatDone');
-            component.ngOnInit();
-            expect(component.setPlayersOnCombatDone).toHaveBeenCalledWith(data.listPlayers);
-            expect(combatServiceSpy.onEvasion).toHaveBeenCalledWith(data.player);
-        });
-
-
-        it('should open the itemSwitch modal on the event', () => {
-            gameServiceSpy.openDialog.and.returnValue(of(''));
-            const data = {activePlayer : mockPlayers[0], itemPickedUp : ObjectType.Trident};
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event : string, callback : (data : T) => void) => {
-                if (event === 'openItemSwitchModal')
-                {
-                    callback(data as T);
+        it('should set combatInProgress to false on combatOver event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatOver') {
+                    callback({} as T);
                 }
             });
             component.ngOnInit();
-            expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
+            expect(component.combatInProgress).toBe(false);
         });
     });
-
-    it('should turn off the listeners', () => {
-        component.removeListeners();
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('beforeStartTurnTimer');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('turnEnded');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('startedTurnTimer');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('draw');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('openItemSwitchModal');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('isActive');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('debugMode');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('endGame');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('attackAround');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('doorAround');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('doorClicked');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('evasionSuccess');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('combatEnd');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('playerFell');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('mapInformation');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('disconnectedPlayer');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('startFight');
-    });
-
-    it('should set the players onCombatDone', () => {
-        component.activePlayer = mockPlayers[0];
-        component.activePlayer.attributes.actionPoints = 2;
-        component.setPlayersOnCombatDone(mockPlayers);
-        expect(component.allPlayers).toEqual(mockPlayers);
-        expect(combatServiceSpy.isRolling).toBeFalse();
-        expect(component.activePlayer.attributes.actionPoints).toEqual(1);
-    });
-
-    it('should return isInCombat', () => {
-        combatServiceSpy.isInCombat = true;
-        expect(component.isCombatStarted()).toEqual(combatServiceSpy.isInCombat);
-    })
 
     it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
         mockSocket.id = '0';
@@ -340,21 +279,12 @@ describe('GamePageComponent', () => {
     });
 
     it('should call openDialog with the correct parameters for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.handleDraw();
-        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+        expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
             title: DialogTitle.DrawGame,
-            messages: [DialogMessages.DrawGame],
-            options: [DialogOptions.Close],
-            confirm: false,
-            itemSwap: null,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
         });
-    });
-
-    it('should disconnect and navigate to home when dialog result is "Close" for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
-        component.handleDraw();
-        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });
 

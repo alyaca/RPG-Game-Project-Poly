@@ -53,17 +53,17 @@ describe('Navigation', () => {
         expect(navigation['distances'][playerNavigation.position.x][playerNavigation.position.y]).toEqual(0);
     });
 
-    it('should return undefined if the player is not adjacent to anyone else', () => {
+    it('should return false if the player is not adjacent to anyone else', () => {
         navigation.players = [playerNavigation];
         navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 1, y: 1 }]);
-        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBeUndefined();
+        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(false);
     });
 
-    it('should return the player adjacent to the active one', () => {
+    it('should return true if a player is adjacent to the active one', () => {
         navigation.players = [playerNavigation];
         navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
         navigation.hasPlayerOnTile = jest.fn().mockReturnValue(true);
-        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toEqual(playerNavigation);
+        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
 
     it('should return true if checkAttack or checkDoor return an array', () => {

@@ -897,10 +897,11 @@ describe('GameService', () => {
             room.navigation.checkAttack = jest.fn().mockReturnValue(true);
             service.getActivePlayer = jest.fn().mockReturnValue(mockPlayer);
             room.navigation.hasActionPoints = jest.fn().mockReturnValue(true);
+            room.navigation.getNeighborPlayers = jest.fn().mockReturnValue([mockPlayer]);
 
             service['checkAttack'](room, mockServer);
 
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('attackAround', true);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('attackAround', { attackAround: true, targets: [mockPlayer] });
         });
 
         it('should emit attackAround false when attack is not possible and player has action points', () => {
@@ -919,10 +920,11 @@ describe('GameService', () => {
             room.navigation.checkDoor = jest.fn().mockReturnValue(true);
             service.getActivePlayer = jest.fn().mockReturnValue(mockPlayer);
             room.navigation.hasActionPoints = jest.fn().mockReturnValue(true);
+            room.navigation.getNeighborDoors = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
 
             service['checkDoors'](room, mockServer);
 
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('doorAround', true);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('doorAround', { doorAround: true, targets: [{ x: 0, y: 0 }] });
         });
 
         it('should emit doorAround false when door is not around and player has action points', () => {

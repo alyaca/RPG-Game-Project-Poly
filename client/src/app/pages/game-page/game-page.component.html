@@ -1,6 +1,6 @@
 <div class="page-element" #pageElement>
-    @if (combatService.isInCombat){
-    <app-combat-modal [isInCombat]="combatService.isInCombat"></app-combat-modal>
+    @if (isCombatStarted()){
+    <app-combat-modal [isInCombat]="isCombatStarted()"></app-combat-modal>
     }
     <div class="left-container">
         <div class="player-bar">
@@ -46,8 +46,11 @@
         </div>
     </div>
     <div class="right-container">
-        <div class="timer">
-            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" #turnTimer> </app-timer>
+        <div class="timer-container">
+            @if(combatInProgress){
+            <div class="combat"><span class="flashing-text">Combat en cours</span></div>
+            }
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" #turnTimer></app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id ;){
