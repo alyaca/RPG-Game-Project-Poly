@@ -17,7 +17,7 @@ import { SocketEvents } from './socket.events';
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     private server: Server;
-    private roomService : RoomService;
+    private roomService: RoomService;
     private logger: Logger;
 
     constructor(

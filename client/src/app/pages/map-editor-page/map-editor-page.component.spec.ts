@@ -183,7 +183,6 @@ describe('MapEditorPageComponent', () => {
 
         dialogSpy.open.and.returnValue(dialogRef);
         component.handleExit();
-        
         expect(dialogSpy.open).toHaveBeenCalled();
         tick();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);

@@ -1,4 +1,5 @@
 import { defaultAttributes } from '@app/default-attributes';
+import { gameObjects } from '@common/objects-info';
 import { Behavior, Player, PlayerStats, Status } from '@common/player';
 
 export const mockPlayerStats: PlayerStats = {
@@ -69,6 +70,20 @@ export const mockPlayers: Player[] = [
         spawnPosition: { x: 0, y: 0 },
     },
 ];
+
+export const mockInventoryPlayer: Player = {
+    id: 'admin1234',
+    attributes: mockPlayerStats,
+    avatar: undefined,
+    isActive: true,
+    name: 'name',
+    status: Status.Player,
+    victories: 1,
+    inventory: [gameObjects[0], gameObjects[1]],
+    position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+    spawnPosition: { x: 0, y: 0 },
+};
 
 export const baseBot: Player = {
     id: '0',

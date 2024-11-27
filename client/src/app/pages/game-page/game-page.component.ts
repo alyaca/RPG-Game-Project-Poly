@@ -59,7 +59,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     doorAround: boolean = false;
     attackAround: boolean = false;
 
-    public gameService = inject(GameService);
+    private gameService = inject(GameService);
     private router = inject(Router);
 
     constructor(
@@ -67,7 +67,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         public socketCommunicationService: SocketCommunicationService,
         public combatService: CombatService,
         private navigationService: NavigationService,
-        private combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -173,10 +172,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; itemPickedUp: number }) => {
             const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
             const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
+            if (!fullItem) return;
             const itemSwap: ItemSwap = {
                 currentItem1: data.activePlayer.inventory[0],
                 currentItem2: data.activePlayer.inventory[1],
-                pickedUpItem: fullItem!,
+                pickedUpItem: fullItem,
             };
             this.gameService
                 .openDialog({

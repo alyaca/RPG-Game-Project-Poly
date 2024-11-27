@@ -236,6 +236,7 @@ export class CombatService {
 
     private checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         if (defender.attributes.currentHp <= 0) {
+            this.gameService.placeItemsOnGround(defender, client, server);
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.combatWon(client, attacker, server);
             this.manageTurnAfterCombat(client, defender, attacker, server);

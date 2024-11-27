@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
-import { mockMediumItemsMatrice } from '@app/mocks/mock-game';
+import { mockMediumItemsMatrice, mockObjectsMatrice } from '@app/mocks/mock-game';
 import { mockGameNavigation as mockGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -28,7 +28,7 @@ describe('NavigationServiceService', () => {
     it('should set the objects', () => {
         service.updateObjects(mockMediumItemsMatrice);
         expect(service.objects).toEqual(JSON.parse(JSON.stringify(mockMediumItemsMatrice)));
-    })
+    });
 
     it('should update the tile to spawn', () => {
         spyOn(service, 'isInInitialPosition').and.returnValue(true);
@@ -42,6 +42,13 @@ describe('NavigationServiceService', () => {
         spyOn(service, 'isInInitialPosition').and.returnValue(false);
         service.updateTile(playerNavigation);
         expect(service.positions[playerNavigation.position.x][playerNavigation.position.y]).toBe(ObjectType.Kunee);
+    });
+
+    it('should put 0 if the object is spawn', () => {
+        service.objects = mockObjectsMatrice;
+        service.initializeObjects(mockObjectsMatrice);
+        expect(service.objects[0][0]).toEqual(0);
+        expect(service.objects[0][1]).toEqual(0);
     });
 
     it('should update tile with 0 if other conditions fail', () => {

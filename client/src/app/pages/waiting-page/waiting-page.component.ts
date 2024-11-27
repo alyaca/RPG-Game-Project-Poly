@@ -135,7 +135,7 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.MaxPlayers],
                     options: [DialogOptions.Close],
                     confirm: false,
-                    itemSwap : null,
+                    itemSwap: null,
                 });
             } else {
                 this.gameService.openDialog({

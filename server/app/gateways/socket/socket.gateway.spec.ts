@@ -32,12 +32,12 @@ describe('SocketGateway', () => {
 
     beforeEach(async () => {
         const playerInventoryServiceMock = {
-            updateInventory : jest.fn(),
-            determineRandomItem : jest.fn(),
-            addStatsFromItem : jest.fn(),
-            removeItemEffects : jest.fn(),
-            updatePlayerWithItem : jest.fn(),
-            updatePlayerAfterSwap : jest.fn(),
+            updateInventory: jest.fn(),
+            determineRandomItem: jest.fn(),
+            addStatsFromItem: jest.fn(),
+            removeItemEffects: jest.fn(),
+            updatePlayerWithItem: jest.fn(),
+            updatePlayerAfterSwap: jest.fn(),
         };
 
         const chatServiceMock = {
@@ -59,8 +59,8 @@ describe('SocketGateway', () => {
             leaveRoom: jest.fn(),
             isPlayerAdmin: jest.fn(),
             deleteRoom: jest.fn(),
-            getRoom: jest.fn(),
-            getRoomId: jest.fn(),
+            getRoom: jest.fn().mockReturnValue(mockRoom),
+            getRoomId: jest.fn().mockReturnValue(mockRoom.roomId),
             rooms: new Map(),
         };
 
@@ -127,7 +127,7 @@ describe('SocketGateway', () => {
                 { provide: GameService, useValue: gameServiceMock },
                 { provide: ChatService, useValue: chatServiceMock },
                 { provide: CombatService, useValue: combatServiceMock },
-                { provide : PlayerInventoryService, useValue: playerInventoryServiceMock },
+                { provide: PlayerInventoryService, useValue: playerInventoryServiceMock },
             ],
         }).compile();
 

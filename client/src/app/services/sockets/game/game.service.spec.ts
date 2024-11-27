@@ -13,7 +13,7 @@ import {
     MAX_PLAYER_SMALL_MAP,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
-    SIZE_SMALL_MAP
+    SIZE_SMALL_MAP,
     WARNING_TIME,
 } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -123,13 +123,24 @@ describe('GameService', () => {
     });
 
     it('should navigate when result is Close onAdminQuit', (done) => {
-        const message = 'Game has been canceled';
+        const message = 'message';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
+        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onAdminQuit(message);
+
         setTimeout(() => {
+            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                disableClose: true,
+                data: {
+                    title: DialogTitle.GameCanceled,
+                    messages: [message],
+                    confirm: false,
+                    options: [DialogOptions.Close],
+                    itemSwap: null,
+                },
+            });
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
             done();
         });
@@ -143,7 +154,7 @@ describe('GameService', () => {
         service.isActionDoorSelected = false;
         service.isActionCombatSelected = true;
         expect(service.isActionSelected()).toEqual(service.isActionCombatSelected);
-    })
+    });
 
     it('should send leaveRoom when result is left onPlayerQuit', (done) => {
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);

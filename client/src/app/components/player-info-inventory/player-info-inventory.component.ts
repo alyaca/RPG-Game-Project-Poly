@@ -18,16 +18,11 @@ export class PlayerInfoInventoryComponent implements OnInit {
     actionPointsArray: number[];
     movementPointsArray: number[];
     descriptionPosition: string = 'bottom';
-
-    // check if when the hp changes, the hp bar visual also changes
-
-    // Those functions are just for testing purposes to make sure that the page is reactive but,
-    // we can use them to display the change in hp and all the other stuff when we do the game's logic.
     constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     get emptySlots(): number[] {
         const emptySlotsCount = 2 - (this.player?.inventory?.length || 0);
-        return Array.from({ length: emptySlotsCount });
+        return Array.from({ length: emptySlotsCount }, () => 0);
     }
 
     ngOnInit() {

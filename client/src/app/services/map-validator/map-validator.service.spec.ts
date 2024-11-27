@@ -101,7 +101,7 @@ describe('MapValidatorService', () => {
 
         service['validateNumberItems'](mockLargeItemsMatrice);
         service['validateNumberItems'](mockInvalidItemsMatrice);
-    })
+    });
 
     it('should add an error message if a map with the same name exists', () => {
         const mockMaps: Game[] = [

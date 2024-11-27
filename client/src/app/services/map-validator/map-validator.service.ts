@@ -54,6 +54,20 @@ export class MapValidatorService {
         this.showValidationResult();
     }
 
+    isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
+        const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
+        const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
+        const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
+        const isWallRight = array[row]?.[col + 1] === TileType.Wall;
+
+        const isTerrainAbove = array[row - 1]?.[col] < TileType.Wall;
+        const isTerrainBelow = array[row + 1]?.[col] < TileType.Wall;
+        const isTerrainLeft = array[row]?.[col - 1] < TileType.Wall;
+        const isTerrainRight = array[row]?.[col + 1] < TileType.Wall;
+
+        return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
+    }
+
     private validateNumberItems(objects: number[][]) {
         let maxNbItems: number;
         let currentNumberItems = 0;
@@ -84,24 +98,11 @@ export class MapValidatorService {
             this.errorMessages.push(`- Il y a trop d'objets sur cette carte. ${currentNumberItems} objets au lieu de ${maxNbItems}.`);
         }
 
-        if(currentNumberItems < MIN_NB_ITEMS)
-        {
-            this.errorMessages.push(`Il n'y a pas assez d'objets sur la carte. Le minimum est ${MIN_NB_ITEMS} et il y en a présentement ${currentNumberItems}.`);
+        if (currentNumberItems < MIN_NB_ITEMS) {
+            this.errorMessages.push(
+                `Il n'y a pas assez d'objets sur la carte. Le minimum est ${MIN_NB_ITEMS} et il y en a présentement ${currentNumberItems}.`,
+            );
         }
-    }
-
-    isDoorPlacementValid(array: number[][], row: number, col: number): boolean {
-        const isWallAbove = array[row - 1]?.[col] === TileType.Wall;
-        const isWallBelow = array[row + 1]?.[col] === TileType.Wall;
-        const isWallLeft = array[row]?.[col - 1] === TileType.Wall;
-        const isWallRight = array[row]?.[col + 1] === TileType.Wall;
-
-        const isTerrainAbove = array[row - 1]?.[col] < TileType.Wall;
-        const isTerrainBelow = array[row + 1]?.[col] < TileType.Wall;
-        const isTerrainLeft = array[row]?.[col - 1] < TileType.Wall;
-        const isTerrainRight = array[row]?.[col + 1] < TileType.Wall;
-
-        return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
     private showValidationResult() {
