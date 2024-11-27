@@ -32,7 +32,6 @@ export class PlayerInventoryService {
         info.client.emit('inventoryChange', info.player);
         const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
         room.listPlayers[index] = info.player;
-        // this.roomService.updateRoomPlayers(info.client, info.player);
     }
 
     determineRandomItem(allObjects: number[][]): number {

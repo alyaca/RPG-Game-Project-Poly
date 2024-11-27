@@ -54,7 +54,7 @@ export class GameLogsService {
         this.sendLog(roomId, server, [player], message);
     }
 
-    generateItemPickupMessage(player: Player, item: number) {
+    private generateItemPickupMessage(player: Player, item: number) {
         const fullItem = gameObjects.find((object) => object.id === item);
         return `${player.name} a ramassé ${fullItem.name}`;
     }
