@@ -332,7 +332,7 @@ describe('CombatService', () => {
 
     describe('checkEndGame', () => {
         it('should not emit endGame if no player has reached the victory threshold', () => {
-            const player1 = { id: '1', postGameStats: {victories: 2} } as Player;
+            const player1 = { id: '1', postGameStats: { victories: 2 } } as Player;
             service['checkEndGame'](player1, room, mockServer);
 
             expect(mockGameService.stopGameTimers).not.toHaveBeenCalled();
@@ -340,7 +340,7 @@ describe('CombatService', () => {
             expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
         });
         it('should emit endGame if player has reached the victory threshold', () => {
-            const winner = { id: '1', postGameStats: {victories: 3} } as Player;
+            const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
             service['checkEndGame'](winner, room, mockServer);
 
             expect(mockGameService.onEndGame).toHaveBeenCalledWith(winner, room, mockServer);
@@ -379,7 +379,7 @@ describe('CombatService', () => {
     });
 
     it('should addVictory combat finish', () => {
-        const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, postGameStats: {victories: 3} } as Player;
+        const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, postGameStats: { victories: 3 } } as Player;
 
         service.emitToCombatPlayers = jest.fn();
         service['addVictory'] = jest.fn();
