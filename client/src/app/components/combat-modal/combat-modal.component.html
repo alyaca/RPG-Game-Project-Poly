@@ -41,13 +41,13 @@
             <div class="stats-and-dice-value">
                 <div>{{ combatService.activePlayerResult.total }}</div>
             </div>
-            <app-dice #dice2 [value]="combatService.activePlayerResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
+            <app-dice #dice2 [value]="combatService.activePlayerResult.diceValue"></app-dice>
         </div>
         <div class="dice-container">
             <div class="stats-and-dice-value">
                 <div>{{ combatService.opponentResult.total }}</div>
             </div>
-            <app-dice #dice1 [value]="combatService.opponentResult.diceValue" [isRolling]="combatService.isRolling"></app-dice>
+            <app-dice #dice1 [value]="combatService.opponentResult.diceValue"></app-dice>
         </div>
         <div>
             <div class="player-avatar-container">
@@ -71,11 +71,7 @@
         <div class="evasion-container">
             <div>
                 <p class="action-text">Évader</p>
-                <div
-                    [class.disabled]="!combatService.isCurrentTurn() || !combatService.evasionLeft()"
-                    class="button-outer end-outer"
-                    (click)="triggerEvade()"
-                >
+                <div [class.disabled]="!canEvade()" class="button-outer end-outer" (click)="triggerEvade()">
                     <div class="evade-button"></div>
                 </div>
             </div>
@@ -85,7 +81,7 @@
         </div>
         <div>
             <p class="action-text">Attaquer</p>
-            <div [class.disabled]="!combatService.isCurrentTurn()" class="button-outer end-outer" (click)="triggerAttack()">
+            <div [class.disabled]="!canAttack()" class="button-outer end-outer" (click)="triggerAttack()">
                 <div class="attack-button"></div>
             </div>
         </div>

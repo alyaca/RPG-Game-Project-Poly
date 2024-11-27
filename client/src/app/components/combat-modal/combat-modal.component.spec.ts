@@ -4,7 +4,7 @@ import { TemporaryDialogComponent } from '@app/components/temporary-dialog/tempo
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { CombatService } from '@app/services/combat/combat.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
@@ -30,6 +30,7 @@ describe('CombatModalComponent', () => {
             'isCurrentTurn',
             'isInCombat',
             'resetPlayerHp',
+            'evasionLeft',
         ]);
         diceMock1 = jasmine.createSpyObj('DiceComponent', ['rollDice']);
         diceMock2 = jasmine.createSpyObj('DiceComponent', ['rollDice']);
@@ -69,8 +70,20 @@ describe('CombatModalComponent', () => {
         expect(component.activePlayer).toBe(combatServiceSpy.activePlayer);
         expect(component.opponent).toBe(combatServiceSpy.opponent);
         expect(combatServiceSpy.initSocketListeners).toHaveBeenCalled();
-        expect(diceMock1.rollDice).toHaveBeenCalled();
-        expect(diceMock2.rollDice).toHaveBeenCalled();
+    });
+
+    it('should subscribe to "attackValues" event and call rolldice', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'attackValues') {
+                callback({} as T);
+            }
+        });
+        spyOn(component.dice1, 'rollDice');
+        spyOn(component.dice2, 'rollDice');
+
+        component.ngOnInit();
+        expect(component.dice1.rollDice).toHaveBeenCalled();
+        expect(component.dice2.rollDice).toHaveBeenCalled();
     });
 
     it('should call resetPlayerHp, set isInCombat and emit closeModalEvent when closeModal is called', () => {
@@ -82,12 +95,36 @@ describe('CombatModalComponent', () => {
     });
 
     it('should call socketCommunicationService.send with "attackPlayer" when triggerAttack is called', () => {
+        combatServiceSpy.canAttackOrEvade = true;
         component.triggerAttack();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('attackPlayer');
+        expect(combatServiceSpy.canAttackOrEvade).toBe(false);
     });
 
     it('should call socketCommunicationService.send with "evadeCombat" and attacker when triggerEvade is called', () => {
+        combatServiceSpy.canAttackOrEvade = true;
         component.triggerEvade();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('evadeCombat');
+        expect(combatServiceSpy.canAttackOrEvade).toBe(false);
+    });
+
+    it('should return true if player can evade', () => {
+        combatServiceSpy.isCurrentTurn.and.returnValue(true);
+        combatServiceSpy.evasionLeft.and.returnValue(true);
+        combatServiceSpy.canAttackOrEvade = true;
+
+        const result = component.canEvade();
+        expect(result).toBe(true);
+        expect(combatServiceSpy.isCurrentTurn).toHaveBeenCalled();
+        expect(combatServiceSpy.evasionLeft).toHaveBeenCalled();
+    });
+
+    it('should return true if player can attack', () => {
+        combatServiceSpy.isCurrentTurn.and.returnValue(true);
+        combatServiceSpy.canAttackOrEvade = true;
+
+        const result = component.canAttack();
+        expect(result).toBe(true);
+        expect(combatServiceSpy.isCurrentTurn).toHaveBeenCalled();
     });
 });

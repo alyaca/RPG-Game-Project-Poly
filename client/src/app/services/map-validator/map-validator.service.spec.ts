@@ -27,7 +27,7 @@ describe('MapValidatorService', () => {
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray', 'getGameMode']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray']);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllGames']);
         gameListServiceSpy.getAllGames.and.returnValue(of([]));
 

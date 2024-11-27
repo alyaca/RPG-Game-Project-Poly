@@ -119,24 +119,37 @@ export class Navigation {
         return false;
     }
 
-    checkAttack(player: Player, players: Player[]): Player | undefined {
-        const neighbors = this.getNeighbors(player.position, this.gameMap);
-        for (const neighbor of neighbors) {
-            if (this.hasPlayerOnTile(neighbor, players)) {
-                return players.find((p) => p.position.x === neighbor.x && p.position.y === neighbor.y);
-            }
-        }
-        return undefined;
+    checkAttack(player: Player, players: Player[]) {
+        return this.getNeighborPlayers(player, players).length > 0;
     }
 
-    checkDoor(player: Player, players: Player[]): Position | undefined {
+    getNeighborPlayers(player: Player, players: Player[]): Player[] {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
+        const neighboringPlayers: Player[] = [];
         for (const neighbor of neighbors) {
-            if (this.isTileDoor(neighbor) && !this.hasPlayerOnTile(neighbor, players)) {
-                return neighbor;
+            if (this.hasPlayerOnTile(neighbor, players)) {
+                const foundPlayer = players.find((p) => p.position.x === neighbor.x && p.position.y === neighbor.y);
+                if (foundPlayer) {
+                    neighboringPlayers.push(foundPlayer);
+                }
             }
         }
-        return undefined;
+        return neighboringPlayers;
+    }
+
+    getNeighborDoors(player: Player, players: Player[]): Position[] {
+        const neighbors = this.getNeighbors(player.position, this.gameMap);
+        const doors: Position[] = [];
+        for (const neighbor of neighbors) {
+            if (this.isTileDoor(neighbor) && !this.hasPlayerOnTile(neighbor, players)) {
+                doors.push(neighbor);
+            }
+        }
+        return doors;
+    }
+
+    checkDoor(player: Player, players: Player[]) {
+        return this.getNeighborDoors(player, players).length > 0;
     }
 
     hasPlayerOnTile(position: Position, players: Player[]) {
