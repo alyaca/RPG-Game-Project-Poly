@@ -6,7 +6,6 @@ import { mockRoom, mockRoomDebug, mockRooms } from '@app/mocks/mock-room';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
-import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player } from '@common/player';
@@ -31,15 +30,6 @@ describe('SocketGateway', () => {
     let combatService: CombatService;
 
     beforeEach(async () => {
-        const playerInventoryServiceMock = {
-            updateInventory: jest.fn(),
-            determineRandomItem: jest.fn(),
-            addStatsFromItem: jest.fn(),
-            removeItemEffects: jest.fn(),
-            updatePlayerWithItem: jest.fn(),
-            updatePlayerAfterSwap: jest.fn(),
-        };
-
         const chatServiceMock = {
             saveMessage: jest.fn(),
             getMessagesByRoom: jest.fn(),
@@ -59,8 +49,8 @@ describe('SocketGateway', () => {
             leaveRoom: jest.fn(),
             isPlayerAdmin: jest.fn(),
             deleteRoom: jest.fn(),
-            getRoom: jest.fn().mockReturnValue(mockRoom),
-            getRoomId: jest.fn().mockReturnValue(mockRoom.roomId),
+            getRoom: jest.fn(),
+            getRoomId: jest.fn(),
             rooms: new Map(),
         };
 
@@ -127,7 +117,6 @@ describe('SocketGateway', () => {
                 { provide: GameService, useValue: gameServiceMock },
                 { provide: ChatService, useValue: chatServiceMock },
                 { provide: CombatService, useValue: combatServiceMock },
-                { provide: PlayerInventoryService, useValue: playerInventoryServiceMock },
             ],
         }).compile();
 

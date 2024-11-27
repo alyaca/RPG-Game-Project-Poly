@@ -4,7 +4,6 @@ import { GameTimers } from '@app/interfaces/game-timers';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
-import { Player } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -102,17 +101,6 @@ export class RoomService {
     getRoom(client: Socket) {
         const roomCode = this.getRoomId(client);
         return this.rooms.get(roomCode);
-    }
-
-    // TO be removed
-    updateRoomPlayers(client: Socket, updatedPlayer: Player) {
-        const room = this.getRoom(client);
-        for (let i = 0; i < room.listPlayers.length; i++) {
-            if (room.listPlayers[i].id === updatedPlayer.id) {
-                this.rooms.get(room.roomId).listPlayers[i] = updatedPlayer;
-                client.emit('inventoryChange', updatedPlayer);
-            }
-        }
     }
 
     getRoomMap(roomId: string): Game {

@@ -20,7 +20,6 @@ export class PlayerInventoryService {
             itemPickedUp = this.determineRandomItem(allItems);
         }
         if (info.player.inventory.length === 2) {
-            // timer pauses at the start of item switch
             this.roomService.getTurnTimer(room.roomId).pauseTimer();
             info.client.emit('openItemSwitchModal', { activePlayer: info.player, itemPickedUp });
             return;
@@ -30,8 +29,10 @@ export class PlayerInventoryService {
             room.gameMap.itemPlacement[info.player.position.x][info.player.position.y] = 0;
         }
         info.client.emit('updateInventory', info.player);
-        // TODO : place in gameService
-        this.roomService.updateRoomPlayers(info.client, info.player);
+        info.client.emit('inventoryChange', info.player);
+        const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
+        room.listPlayers[index] = info.player;
+        // this.roomService.updateRoomPlayers(info.client, info.player);
     }
 
     determineRandomItem(allObjects: number[][]): number {
@@ -117,20 +118,21 @@ export class PlayerInventoryService {
     }
 
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
-        infoSwap.player = this.removeItemEffects(infoSwap.player, infoSwap.oldInventory[0].id);
-        infoSwap.player = this.removeItemEffects(infoSwap.player, infoSwap.oldInventory[1].id);
-
-        infoSwap.player.inventory = infoSwap.modifiedInventory;
-        infoSwap.player = this.addStatsFromItem(infoSwap.player, infoSwap.modifiedInventory[0].id);
-        infoSwap.player = this.addStatsFromItem(infoSwap.player, infoSwap.modifiedInventory[1].id);
-
         const room = this.roomService.getRoom(infoSwap.client);
-        this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[0].id);
-        this.gameLogService.sendItemLog(infoSwap.player, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
+        let playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
+        playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
+        playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[1].id);
 
-        room.gameMap.itemPlacement[infoSwap.player.position.x][infoSwap.player.position.y] = infoSwap.droppedItem;
+        playerToUpdate.inventory = infoSwap.modifiedInventory;
+        playerToUpdate = this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[0].id);
+        playerToUpdate = this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[1].id);
+
+        this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, infoSwap.modifiedInventory[0].id);
+        this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, infoSwap.modifiedInventory[1].id);
+
+        room.gameMap.itemPlacement[playerToUpdate.position.x][playerToUpdate.position.y] = infoSwap.droppedItem;
 
         infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
-        return infoSwap.player;
+        return playerToUpdate;
     }
 }

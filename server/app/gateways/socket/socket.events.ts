@@ -21,7 +21,6 @@ export enum SocketEvents {
     EndGame = 'endGame',
     CreateBot = 'createBot',
     KickBot = 'kickBot',
-    InventoryChange = 'inventoryChange',
     BeginItemSwitch = 'beginItemSwitch',
     EndItemSwitch = 'endItemSwitch',
     ItemSwapped = 'itemSwapped',

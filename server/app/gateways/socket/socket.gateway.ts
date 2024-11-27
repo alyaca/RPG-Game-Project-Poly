@@ -45,13 +45,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
     }
 
-    @SubscribeMessage(SocketEvents.InventoryChange)
-    handleInventoryChange(client: Socket, updatedPlayer: Player) {
-        this.logger.debug(`client ${client.id} picked up an item`);
-        this.roomService.updateRoomPlayers(client, updatedPlayer);
-        client.emit('updateInventory', updatedPlayer);
-    }
-
     @SubscribeMessage(SocketEvents.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`);

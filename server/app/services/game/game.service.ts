@@ -174,7 +174,7 @@ export class GameService {
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         if (!this.isMoving) {
-            this.updateActivePlayer(client, server, room);
+            this.updateActivePlayer(server, room);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.actionPoints = activePlayer.attributes.maxActionPoints;
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
@@ -551,7 +551,7 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateActivePlayer(socket: Socket, server: Server, room: Room) {
+    private updateActivePlayer(server: Server, room: Room) {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         let previousActivePlayer = listPlayers[index];

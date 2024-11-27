@@ -3,11 +3,12 @@ import { Player, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { mockGame, mockGameDebug } from './mock-game';
 import { mockNavigation } from './mock-navigation';
+import { mockPlayers } from './mock-players';
 
 export const mockRoom: Room = {
     gameMap: mockGame,
     roomId: '1234',
-    listPlayers: [],
+    listPlayers: mockPlayers,
     availableAvatars: avatars,
     adminId: 'admin1234',
     isLocked: false,

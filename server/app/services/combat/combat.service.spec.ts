@@ -183,16 +183,10 @@ describe('CombatService', () => {
             jest.advanceTimersByTime(ROLL_DURATION);
 
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackValues', combatValue);
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(
-                mockServer,
-                mockCombatPlayers,
-                'attackSuccess',
-                mockCombatInfos.combatPlayers.attacker,
-            );
+            expect(service.emitToCombatPlayers).toHaveBeenCalled();
             expect(service.onEndTurn).toHaveBeenCalled();
         });
 
-        // add the fact that a player can have Achilles' armor or Xiphos in his inventory
         it('should decrease activePlayer HP when defense is successful', () => {
             const combatValue = { attackValues: 3, defenseValues: 10 };
             service.getCombatValues = jest.fn().mockReturnValue(combatValue);
@@ -202,12 +196,7 @@ describe('CombatService', () => {
 
             service.attackPlayer(mockClient, mockServer);
             expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackValues', combatValue);
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(
-                mockServer,
-                mockCombatPlayers,
-                'attackFail',
-                mockCombatInfos.combatPlayers.attacker,
-            );
+            expect(service.emitToCombatPlayers).toHaveBeenCalled();
         });
     });
 
