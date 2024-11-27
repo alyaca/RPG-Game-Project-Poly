@@ -29,7 +29,7 @@ describe('GameObjectsContainerComponent', () => {
             'ngOnDestroy',
         ]);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'getGameMode']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame']);
         await TestBed.configureTestingModule({
             providers: [
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },

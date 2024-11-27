@@ -206,6 +206,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.navigationService.isDebugMode;
     }
 
+    //boff j'y crois moyen
+    /*onPlayerWriting(event: Event) {
+        this.isPlayerWriting = !this.isPlayerWriting;
+        ;
+    }*/
+
     onPlayerFell() {
         this.gameService.openTempDialog({ title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME }).subscribe(() => {
             this.onEndTurn();

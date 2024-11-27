@@ -140,10 +140,6 @@ export class GameObjectService implements OnDestroy {
         this.dragStartPosition = { row, col };
         this.checkGameObject(row, col);
     }
-
-    getGameMode(){
-        return this.gameCreationService.getGameMode();
-    }
     
     private resetDrag() {
         this.dragStartPosition = null;

@@ -22,11 +22,6 @@ describe('GameCreationService', () => {
         expect(service.sizeSubject.getValue()).toEqual(MapSize.Small);
     });
 
-    it('should return the right game mode', () => {
-        service.gameMode = "Classic";
-        expect(service.getGameMode()).toEqual("Classic");
-    });
-
     it('should update map dimensions when size is small', () => {
         service.setSelectedSize(MapSize.Small);
         expect(service.updateDimensions()).toEqual(SIZE_SMALL_MAP);

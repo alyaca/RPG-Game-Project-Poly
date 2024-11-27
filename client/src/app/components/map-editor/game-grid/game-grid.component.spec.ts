@@ -171,8 +171,7 @@ describe('GameGridComponent', () => {
         component.objectsArray = mockGameNavigation.itemPlacement;
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
-        const event = new MouseEvent('click', { button: 2 });
-        component.showDetails(event, 0, 0);
+        component.showDetails(0, 0);
         expect(component.isPopupVisible).toBeTrue();
         expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
         expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
@@ -243,8 +242,7 @@ describe('GameGridComponent', () => {
             component.objectsArray = mockGameNavigation.itemPlacement;
             gameCreationServiceSpy.isModifiable = false;
             component.isActivePlayer = true;
-            const event = new MouseEvent('click', { button: 2 });
-            component.showDetails(event, 0, 0);
+            component.showDetails(0, 0);
             expect(component.isPopupVisible).toBeTrue();
             expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
             expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);

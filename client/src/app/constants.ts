@@ -72,7 +72,6 @@ export enum ObjectType {
     Apollo = 18,
     Ares = 19,
     Aphrodite = 20,
-    Flag = 21,
 }
 
 // For no object in grid
