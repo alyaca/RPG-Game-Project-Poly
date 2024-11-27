@@ -442,4 +442,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.placeAvatarOnTile(this.activePlayer);
         }
     }
+
+    isTarget(row: number, col: number) {
+        return this.gameService.isTarget(row, col);
+    }
 }

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { ROLL_DICE_DELAY } from '@app/constants';
+import { ROLL_DURATION } from '@app/constants';
 @Component({
     selector: 'app-dice',
     standalone: true,
@@ -10,7 +10,7 @@ import { ROLL_DICE_DELAY } from '@app/constants';
 })
 export class DiceComponent {
     @Input() value: number = 1;
-    @Input() isRolling: boolean = false;
+    isRolling: boolean = false;
 
     rollDice() {
         if (this.isRolling) return;
@@ -18,6 +18,6 @@ export class DiceComponent {
 
         setTimeout(() => {
             this.isRolling = false;
-        }, ROLL_DICE_DELAY);
+        }, ROLL_DURATION);
     }
 }

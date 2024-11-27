@@ -123,7 +123,8 @@ body {
     height: 99vh;
 }
 
-.timer {
+.timer-container {
+    position: relative;
     flex: 0 0 10%;
     width: 80%;
     margin-bottom: 15%;
@@ -241,4 +242,53 @@ body {
 .button-outer.disabled > div {
     pointer-events: none;
     filter: grayscale(70%) brightness(50%);
+}
+
+.combat {
+    position: absolute;
+    width: 40%;
+    height: 140%;
+    top: 1rem;
+    left: 5.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f95e4d;
+    background-image: linear-gradient(to top, rgb(18, 18, 17), rgb(40, 36, 36) 70%, #514c3e);
+    z-index: 2;
+    text-align: center;
+    border-radius: 1rem;
+    border: 2px solid;
+    padding: 0 0.5rem 0;
+    animation: flash 1s infinite;
+}
+
+.flashing-text {
+    animation: flashText 1s infinite;
+}
+
+@keyframes flash {
+    0% {
+        border-color: rgba(249, 94, 77, 1);
+    }
+    50% {
+        border-color: rgba(252, 126, 112, 0.5);
+    }
+    100% {
+        border-color: rgba(249, 94, 77, 1);
+    }
+}
+
+@keyframes flashText {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
 }

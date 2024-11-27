@@ -46,7 +46,7 @@ export const MOVEMENT_TIME = 150;
 export const FALLING_PROBABILITY = 0.1;
 
 export const SINGLE_PLAYER = 1;
-
+export const ROLL_DURATION = 800;
 // constant for tests
 export const FOWARD_TIME = 1000;
 

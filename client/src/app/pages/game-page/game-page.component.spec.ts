@@ -296,6 +296,26 @@ describe('GamePageComponent', () => {
             component.ngOnInit();
             expect(navigationServiceSpy.isDebugMode).toBeTrue();
         });
+
+        it('should set combatInProgress to true on combatInProgress event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatInProgress') {
+                    callback({} as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.combatInProgress).toBe(true);
+        });
+
+        it('should set combatInProgress to false on combatOver event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatOver') {
+                    callback({} as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.combatInProgress).toBe(false);
+        });
     });
 
     it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
@@ -372,9 +392,8 @@ describe('GamePageComponent', () => {
     });
 
     it('should call openDialog with the correct parameters for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.handleDraw();
-        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+        expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
             title: DialogTitle.DrawGame,
             messages: [DialogMessages.DrawGame],
             options: [DialogOptions.Close],

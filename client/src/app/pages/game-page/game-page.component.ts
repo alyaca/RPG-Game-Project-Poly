@@ -17,12 +17,12 @@ import {
     STARTING_TIME,
     TURN_TIME,
 } from '@app/constants';
-import { CombatService } from '@app/services/combat/combat.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player, Status } from '@common/player';
+import { Player, Position, Status } from '@common/player';
 import { Room } from '@common/room';
 
 @Component({
@@ -55,6 +55,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     isActivePlayer: boolean = false;
     isInCombat: boolean = false;
+    combatInProgress: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
     timeRemainingStartTurn: number = TURN_TIME;
@@ -72,10 +73,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         public socketCommunicationService: SocketCommunicationService,
         public gameService: GameService,
         private navigationService: NavigationService,
-        public combatService: CombatService,
+        private combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
+        this.combatService.isInCombat = false;
     }
 
     ngOnInit() {
@@ -89,13 +91,16 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.replenishHealth();
             this.onBeforeStartTurn();
         });
+
         this.socketCommunicationService.on('disconnectedPlayer', (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
         });
+
         this.socketCommunicationService.on('draw', () => {
             this.socketCommunicationService.disconnect();
             this.handleDraw();
         });
+
         this.socketCommunicationService.on('otherPlayerTurn', (name: string) => {
             this.activePlayerName = name;
         });
@@ -103,6 +108,14 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('startFight', (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
             this.combatService.isInCombat = true;
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
+        });
+
+        this.socketCommunicationService.on('combatInProgress', () => {
+            this.combatInProgress = true;
+        });
+
+        this.socketCommunicationService.on('combatOver', () => {
+            this.combatInProgress = false;
         });
 
         this.socketCommunicationService.on('combatEnd', (data: { listPlayers: Player[]; player: Player }) => {
@@ -119,16 +132,18 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onPlayerFell();
         });
 
-        this.socketCommunicationService.on('doorAround', (doorAround: boolean) => {
-            this.doorAround = doorAround;
+        this.socketCommunicationService.on('doorAround', (data: { doorAround: boolean; targets: Position[] }) => {
+            this.doorAround = data.doorAround;
+            this.gameService.doorsTarget = data.targets;
         });
 
         this.socketCommunicationService.on('doorClicked', () => {
             this.activePlayer.attributes.actionPoints = 0;
         });
 
-        this.socketCommunicationService.on('attackAround', (attackAround: boolean) => {
-            this.attackAround = attackAround;
+        this.socketCommunicationService.on('attackAround', (data: { attackAround: boolean; targets: Player[] }) => {
+            this.attackAround = data.attackAround;
+            this.gameService.playersTarget = data.targets;
         });
 
         //To remove maybe
@@ -219,7 +234,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     setPlayersOnCombatDone(players: Player[]) {
         this.allPlayers = players;
-        this.combatService.isRolling = false;
         this.activePlayer.attributes.actionPoints = 0;
     }
 
@@ -283,19 +297,12 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     handleDraw() {
-        this.gameService
-            .openDialog({
-                title: DialogTitle.DrawGame,
-                messages: [DialogMessages.DrawGame],
-                options: [DialogOptions.Close],
-                confirm: false,
-            })
-            .subscribe((result) => {
-                if (result.action === DialogResult.Close) {
-                    this.socketCommunicationService.disconnect();
-                    this.router.navigate(['/home']);
-                }
-            });
+        this.router.navigate(['/home']);
+        this.gameService.openTempDialog({
+            title: DialogTitle.DrawGame,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
+        });
     }
 
     onEndTurn() {

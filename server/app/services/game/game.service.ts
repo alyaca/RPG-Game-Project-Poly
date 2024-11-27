@@ -96,8 +96,10 @@ export class GameService {
             socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
             const activePlayer = this.getActivePlayer(room);
             player.position = DISCONNECTED_POSITION;
-            const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit('reachableTiles', reachability);
+            if (activePlayer.id !== player.id) {
+                const reachability = room.navigation.findReachableTiles(activePlayer, room);
+                server.to(room.roomId).emit('reachableTiles', reachability);
+            }
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit('updatedPlayer', room);
@@ -362,7 +364,8 @@ export class GameService {
     private checkAttack(room: Room, server: Server) {
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkAttack(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
-            server.to(room.roomId).emit('attackAround', true);
+            const targets = room.navigation.getNeighborPlayers(activePlayer, room.listPlayers);
+            server.to(room.roomId).emit('attackAround', { attackAround: true, targets });
         } else {
             server.to(room.roomId).emit('attackAround', false);
         }
@@ -371,7 +374,8 @@ export class GameService {
     private checkDoors(room: Room, server: Server) {
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkDoor(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
-            server.to(room.roomId).emit('doorAround', true);
+            const targets = room.navigation.getNeighborDoors(activePlayer, room.listPlayers);
+            server.to(room.roomId).emit('doorAround', { doorAround: true, targets });
         } else {
             server.to(room.roomId).emit('doorAround', false);
         }
