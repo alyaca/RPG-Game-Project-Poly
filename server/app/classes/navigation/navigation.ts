@@ -21,7 +21,6 @@ export class Navigation {
     }
 
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
-
         const game = room.gameMap;
         this.initializeDistances(player, game);
 

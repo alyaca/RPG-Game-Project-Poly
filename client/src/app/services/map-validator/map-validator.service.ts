@@ -9,7 +9,7 @@ import {
     MIN_LEN_MAP_TITLE,
     ObjectType,
     TileType,
-    VALIDATION_DURATION
+    VALIDATION_DURATION,
 } from '@app/constants';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';

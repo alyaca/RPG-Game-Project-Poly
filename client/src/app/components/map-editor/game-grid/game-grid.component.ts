@@ -285,14 +285,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         }
     }
-    
+
     handleRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        if(this.navigationService.isDebugMode){
+        if (this.navigationService.isDebugMode) {
             const position: Position = { x: row, y: col };
-           this.checkTeleportation(position);
-        }
-        else{
+            this.checkTeleportation(position);
+        } else {
             this.showDetails(row, col);
         }
     }

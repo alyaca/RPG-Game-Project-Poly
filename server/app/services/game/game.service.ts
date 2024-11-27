@@ -260,9 +260,9 @@ export class GameService {
     processTeleportation(room: Room, server: Server, position: Position) {
         const player = this.getActivePlayer(room);
         const playerId = player.id;
-        if(room.navigation.isTileValid(position.x, position.y)){
+        if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
-            server.to(room.roomId).emit('teleportPlayer', {position, playerId });
+            server.to(room.roomId).emit('teleportPlayer', { position, playerId });
         }
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');
@@ -281,7 +281,7 @@ export class GameService {
                 await this.delay(MOVEMENT_TIME);
             }
             server.to(room.roomId).emit('playerNavigation', tile);
-            if(!room.isDebug){
+            if (!room.isDebug) {
                 if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
                     this.stopGameTimers(room);
                     client.emit('playerFell');

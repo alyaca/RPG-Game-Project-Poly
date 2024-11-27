@@ -69,5 +69,4 @@ export class GameObjectsContainerComponent implements OnInit {
             this.gameObjectService.removeObjectFromGrid(gameObject);
         }
     }
-
 }

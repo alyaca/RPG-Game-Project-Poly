@@ -60,5 +60,4 @@ describe('GameCreationService', () => {
         const result = service.convertMapDimension(game);
         expect(result).toBe('none');
     });
-
 });

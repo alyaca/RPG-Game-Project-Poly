@@ -600,7 +600,7 @@ describe('GameGridComponent', () => {
         expect(result).toBeUndefined();
     });
 
-   it('should call checkTeleportation if debug mode is enabled', () => {
+    it('should call checkTeleportation if debug mode is enabled', () => {
         navigationServiceSpy.isDebugMode = true;
         spyOn(component, 'checkTeleportation');
         const event = new MouseEvent('click');
@@ -625,5 +625,4 @@ describe('GameGridComponent', () => {
         expect(component.isMoving).toBeTrue();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
-
 });
