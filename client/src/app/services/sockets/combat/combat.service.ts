@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
-import { ATTACK_TIME, DialogMessages, DialogTitle, DISPLAY_DICE_DELAY, INFO_DIALOG_TIME } from '@app/constants';
+import { ATTACK_TIME, DialogMessages, DialogTitle, INFO_DIALOG_TIME } from '@app/constants';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { CombatPlayers } from '@common/combat-player';
@@ -27,7 +27,8 @@ export class CombatService {
     isInCombat: boolean = false;
     evasionsActivePlayer: number[];
     evasionsOpponent: number[];
-    isRolling: boolean = true;
+    canAttackOrEvade: boolean = false;
+
     private attackResult: CombatResult;
     private defenseResult: CombatResult;
 
@@ -46,9 +47,10 @@ export class CombatService {
         this.defender = player2;
         this.isInCombat = true;
         this.combatStatus = '';
+        this.canAttackOrEvade = true;
         this.evasionsActivePlayer = new Array(2).fill(1);
         this.evasionsOpponent = new Array(2).fill(1);
-        this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
+        this.setTurnMessage();
     }
 
     initSocketListeners() {
@@ -57,22 +59,11 @@ export class CombatService {
         });
 
         this.socketCommunicationService.on('attackValues', (combatResultDetails: CombatResultDetails) => {
-            this.attackResult = combatResultDetails.attackValues;
-            this.defenseResult = combatResultDetails.defenseValues;
-            this.isRolling = false;
-
-            setTimeout(() => {
-                this.isRolling = true;
-            }, DISPLAY_DICE_DELAY);
+            this.onAttackValues(combatResultDetails);
         });
 
         this.socketCommunicationService.on('attackSuccess', (player: Player) => {
-            if (this.isAttacker(this.activePlayer)) {
-                this.opponent.attributes.currentHp--;
-            } else {
-                this.activePlayer.attributes.currentHp--;
-            }
-            this.combatStatus = player.name + ' a réussi son attaque.';
+            this.onAttackSuccess(player);
         });
 
         this.socketCommunicationService.on('attackFail', (player: Player) => {
@@ -86,13 +77,7 @@ export class CombatService {
         });
 
         this.socketCommunicationService.on('combatTurnEnded', (data: { combatPlayers: CombatPlayers; failEvasion: boolean }) => {
-            if (!data.failEvasion) {
-                this.activePlayerResult = this.determineStats(this.activePlayer);
-                this.opponentResult = this.determineStats(this.opponent);
-            }
-            this.attacker = data.combatPlayers.attacker;
-            this.defender = data.combatPlayers.defender;
-            this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
+            this.onCombatTurnEnded(data.combatPlayers, data.failEvasion);
         });
 
         this.socketCommunicationService.on('defaultWin', () => {
@@ -128,13 +113,26 @@ export class CombatService {
     }
 
     onCombatEnd(winner: Player) {
-        this.openTempDialog({
-            title: DialogTitle.EndFight,
-            message: DialogMessages.EndFight + winner?.name,
-            duration: INFO_DIALOG_TIME,
-        }).subscribe(() => {
-            this.isInCombat = false;
-        });
+        if (this.isInCombat) {
+            this.openTempDialog({
+                title: DialogTitle.EndFight,
+                message: DialogMessages.EndFight + winner?.name,
+                duration: INFO_DIALOG_TIME,
+            }).subscribe(() => {
+                this.isInCombat = false;
+            });
+        }
+    }
+
+    onCombatTurnEnded(combatPlayers: CombatPlayers, failEvasion: boolean) {
+        if (!failEvasion) {
+            this.activePlayerResult = this.determineStats(this.activePlayer);
+            this.opponentResult = this.determineStats(this.opponent);
+        }
+        this.canAttackOrEvade = true;
+        this.attacker = combatPlayers.attacker;
+        this.defender = combatPlayers.defender;
+        this.setTurnMessage();
     }
 
     onEvasion(player: Player) {
@@ -145,6 +143,20 @@ export class CombatService {
         }).subscribe(() => {
             this.isInCombat = false;
         });
+    }
+
+    onAttackSuccess(player: Player) {
+        if (this.isAttacker(this.activePlayer)) {
+            this.opponent.attributes.currentHp--;
+        } else {
+            this.activePlayer.attributes.currentHp--;
+        }
+        this.combatStatus = player.name + ' a réussi son attaque.';
+    }
+
+    onAttackValues(combatResultDetails: CombatResultDetails) {
+        this.attackResult = combatResultDetails.attackValues;
+        this.defenseResult = combatResultDetails.defenseValues;
     }
 
     openTempDialog(dialogData: TempDialogData) {
@@ -174,5 +186,9 @@ export class CombatService {
 
     isCurrentPlayer(player: Player) {
         return this.socketCommunicationService.socket.id === player.id;
+    }
+
+    setTurnMessage() {
+        this.turnMessage = this.isCurrentTurn() ? "C'est votre tour" : "C'est le tour de votre adversaire";
     }
 }

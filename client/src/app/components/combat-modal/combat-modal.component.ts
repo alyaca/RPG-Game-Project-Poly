@@ -4,7 +4,7 @@ import { CombatStatsBarComponent } from '@app/components/combat-stats-bar/combat
 import { DiceComponent } from '@app/components/dice/dice.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
-import { CombatService } from '@app/services/combat/combat.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Subscription } from 'rxjs';
@@ -44,9 +44,11 @@ export class CombatModalComponent implements OnInit, OnDestroy {
             }),
         );
         this.combatService.initSocketListeners();
-        this.combatService.isRolling = true;
-        this.dice1?.rollDice();
-        this.dice2?.rollDice();
+
+        this.socketCommunicationService.on('attackValues', () => {
+            this.dice1?.rollDice();
+            this.dice2?.rollDice();
+        });
     }
 
     ngOnDestroy() {
@@ -62,10 +64,24 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     }
 
     triggerAttack() {
-        this.socketCommunicationService.send('attackPlayer');
+        if (this.combatService.canAttackOrEvade) {
+            this.socketCommunicationService.send('attackPlayer');
+        }
+        this.combatService.canAttackOrEvade = false;
     }
 
     triggerEvade() {
-        this.socketCommunicationService.send('evadeCombat');
+        if (this.combatService.canAttackOrEvade) {
+            this.socketCommunicationService.send('evadeCombat');
+        }
+        this.combatService.canAttackOrEvade = false;
+    }
+
+    canEvade() {
+        return this.combatService.isCurrentTurn() && this.combatService.evasionLeft() && this.combatService.canAttackOrEvade;
+    }
+
+    canAttack() {
+        return this.combatService.isCurrentTurn() && this.combatService.canAttackOrEvade;
     }
 }

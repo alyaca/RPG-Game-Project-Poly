@@ -71,6 +71,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.createPlayer(room, player, client);
         this.server.to(room.roomId).emit('updatedPlayer', room);
         client.emit('isPlayerAdmin', isAdmin);
+        this.logger.debug(`Player created with client ${client.id} in room ${room.roomId}`);
     }
 
     @SubscribeMessage(SocketEvents.CreateBot)
@@ -112,6 +113,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.StartFight)
     handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
         this.combatService.startFight(client, player1, player2, isPlayer1Active, this.server);
+        this.logger.debug(`Starting a fight between  ${player1.name} and ${player2.name}.`);
     }
 
     @SubscribeMessage(SocketEvents.AttackPlayer)

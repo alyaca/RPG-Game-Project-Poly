@@ -7,6 +7,8 @@ import {
     LogType,
     MIN_DICE_VALUE,
     NO_EVASION_TIME,
+    ROLL_DURATION,
+    SINGLE_PLAYER,
     TileType,
     VICTORIES,
 } from '@app/constants';
@@ -54,6 +56,7 @@ export class CombatService {
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
+        server.to(room.roomId).emit('combatInProgress');
         this.onStartTurn(client, server, room);
     }
 
@@ -95,7 +98,9 @@ export class CombatService {
         this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
         const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
-            this.onEndTurn(client, server, room);
+            setTimeout(() => {
+                this.onEndTurn(client, server, room);
+            }, ROLL_DURATION);
         }
     }
 
@@ -127,6 +132,7 @@ export class CombatService {
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
             this.addToPostGameStats(room, combatPlayers, PlayerStatType.Evasions, PlayerStatType.Evasions);
             this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
+            server.to(room.roomId).emit('combatOver');
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
         } else {
@@ -137,17 +143,13 @@ export class CombatService {
         }
     }
 
-    isEvasionSuccessful() {
-        return Math.random() < EVASION_SUCCESS_RATE;
-    }
-
-    combatFinish(client: Socket, player1: Player, player2: Player, server: Server) {
+    combatWon(client: Socket, winner: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
         this.resetCombatState(room);
-        this.logService.sendPlayerLog(room.roomId, server, player2, LogType.WinCombat);
+        this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
         this.addVictory(combatPlayers, room, server);
-        client.to(room.roomId).emit('playerDead', player1); // To see if needed for other clients
+        server.to(room.roomId).emit('combatOver');
     }
 
     continueTurn(client: Socket, server: Server) {
@@ -163,24 +165,6 @@ export class CombatService {
                 server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
             });
         }, END_COMBAT_DELAY);
-    }
-
-    resetCombatState(room: Room) {
-        this.roomService.getFightTimer(room.roomId).stopTimer();
-        this.combatInfos.delete(room.roomId);
-        room.listPlayers.forEach((player) => {
-            player.attributes.currentHp = player.attributes.totalHp;
-        });
-    }
-
-    checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
-        if (defender.attributes.currentHp <= 0) {
-            this.replacePlayerOnSpawnPoint(defender, client, server);
-            this.combatFinish(client, defender, attacker, server);
-            this.manageTurnAfterCombat(client, defender, attacker, server);
-            return true;
-        }
-        return false;
     }
 
     manageTurnAfterCombat(client: Socket, defender: Player, attacker: Player, server: Server) {
@@ -199,27 +183,16 @@ export class CombatService {
         }
     }
 
-    checkEndGame(player: Player, room: Room, server: Server) {
-        if (player.postGameStats.victories >= VICTORIES) {
-            this.gameService.onEndGame(player, room, server);
-            this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
-        }
-    }
-
-    getRandomValue(max: number) {
-        return Math.floor(Math.random() * max + 1);
-    }
-
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
+        const nbSockets = server.sockets.adapter.rooms.get(room.roomId).size;
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
-        this.defaultCombatWin(client, room, winner, server);
-        if (winner.isActive) {
+        this.defaultCombatWin(client, winner, server);
+        if (winner.isActive && nbSockets > SINGLE_PLAYER) {
             const winnerSocket = server.sockets.sockets.get(winner.id);
             this.continueTurn(winnerSocket, server);
         }
-        this.resetCombatState(room);
     }
 
     isInCombat(client: Socket) {
@@ -228,16 +201,47 @@ export class CombatService {
         return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
 
-    addVictory(combatPlayers: CombatPlayers, room: Room, server: Server) {
+    private isEvasionSuccessful() {
+        return Math.random() < EVASION_SUCCESS_RATE;
+    }
+
+    private resetCombatState(room: Room) {
+        this.roomService.getFightTimer(room.roomId).stopTimer();
+        this.combatInfos.delete(room.roomId);
+        room.listPlayers.forEach((player) => {
+            player.attributes.currentHp = player.attributes.totalHp;
+        });
+    }
+
+    private checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
+        if (defender.attributes.currentHp <= 0) {
+            this.replacePlayerOnSpawnPoint(defender, client, server);
+            this.combatWon(client, attacker, server);
+            this.manageTurnAfterCombat(client, defender, attacker, server);
+            return true;
+        }
+        return false;
+    }
+
+    private checkEndGame(player: Player, room: Room, server: Server) {
+        if (player.postGameStats.victories >= VICTORIES) {
+            server.to(room.roomId).emit('endGame', player);
+            this.gameService.stopGameTimers(room);
+            this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
+        } else {
+            server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player });
+        }
+    }
+
+    private addVictory(combatPlayers: CombatPlayers, room: Room, server: Server) {
         const playerWinner = this.addToPostGameStats(room, combatPlayers, PlayerStatType.Victories, PlayerStatType.Defeats);
 
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
         this.combatInfos.delete(room.roomId);
-        server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player: playerWinner });
     }
 
-    addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
+    private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
         const attacker = room.listPlayers.find((p) => p.id === players.attacker.id);
         const defender = room.listPlayers.find((p) => p.id === players.defender.id);
         if (attacker && defender) {
@@ -248,7 +252,7 @@ export class CombatService {
         return null;
     }
 
-    replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {
+    private replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {
         const room = this.roomService.getRoom(socket);
         const players = room.listPlayers;
         const playerToReplace = room.listPlayers.find((p) => p.id === player.id);
@@ -265,8 +269,9 @@ export class CombatService {
         }
     }
 
-    checkSpawnPointAvailability(player: Player, players: Player[]): boolean {
+    private checkSpawnPointAvailability(player: Player, players: Player[]): boolean {
         for (const p of players) {
+            if (p.id === player.id) continue;
             if (p.position.x === player.spawnPosition.x && p.position.y === player.spawnPosition.y) {
                 return false;
             }
@@ -274,7 +279,7 @@ export class CombatService {
         return true;
     }
 
-    replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {
+    private replacePlayerOnNeighborTile(player: Player, gameMap: Game): Position {
         const neighbors = this.getNeighbors(player.spawnPosition, gameMap);
         for (const neighbor of neighbors) {
             if (gameMap.itemPlacement[neighbor.x][neighbor.y] === 0) {
@@ -284,6 +289,10 @@ export class CombatService {
         }
         player.position = neighbors[0];
         return this.replacePlayerOnNeighborTile(player, gameMap);
+    }
+
+    private getRandomValue(max: number) {
+        return Math.floor(Math.random() * max + 1);
     }
 
     private getNeighbors(position: Position, game: Game): Position[] {
@@ -302,14 +311,14 @@ export class CombatService {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
 
-    private defaultCombatWin(client: Socket, room: Room, player: Player, server: Server) {
-        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
-        this.addVictory(combatPlayers, room, server);
+    private defaultCombatWin(client: Socket, player: Player, server: Server) {
         server.to(player.id).emit('defaultWin');
+        this.combatWon(client, player, server);
     }
 
-    private getOpponent(client: Socket): Player {
+    private getOpponent(client: Socket) {
         const combatPlayers = this.combatInfos.get(client.data?.roomCode)?.combatPlayers;
+        if (!combatPlayers) return;
         return client.id === combatPlayers.attacker.id ? combatPlayers.defender : combatPlayers.attacker;
     }
 

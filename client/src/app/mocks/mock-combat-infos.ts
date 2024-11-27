@@ -1,10 +1,9 @@
-import { TURN_TIME } from '@app/constants';
 import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
 import { CombatResultDetails } from '@common/combat-result';
 import { Behavior, Player, Status } from '@common/player';
-import { mockRooms } from './mock-room';
-import { defaultPostGameStats } from './mock-players';
+import { mockRoom } from './mock-room';
+import { defaultPostGameStats } from '@app/default-attributes';
 
 export const mockCombatResultDetails: CombatResultDetails = {
     attackValues: { diceValue: 0, total: 0 },
@@ -31,11 +30,11 @@ export const mockAttacker: Player = {
     name: 'name',
     status: Status.Player,
     postGameStats: defaultPostGameStats,
+    positionHistory: [],
     inventory: [],
     position: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
     spawnPosition: { x: 0, y: 0 },
-    positionHistory: [],
 };
 
 export const mockDefender: Player = {
@@ -58,11 +57,11 @@ export const mockDefender: Player = {
     name: 'name',
     status: Status.Player,
     postGameStats: defaultPostGameStats,
+    positionHistory: [],
     inventory: [],
     position: { x: 5, y: 0 },
     behavior: Behavior.Sentient,
     spawnPosition: { x: 1, y: 0 },
-    positionHistory: [],
 };
 
 export const mockCombatPlayers: CombatPlayers = {
@@ -73,7 +72,7 @@ export const mockCombatPlayers: CombatPlayers = {
 
 export const mockCombatInfos: CombatInfos = {
     combatPlayers: mockCombatPlayers,
-    gameTime: TURN_TIME,
-    room: mockRooms[0],
+    gameTime: 60,
+    room: mockRoom,
     failEvasion: false,
 };
