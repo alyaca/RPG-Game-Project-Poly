@@ -262,12 +262,13 @@ export class GameService {
         this.gameLogsService.sendDebugLog(isDebugMode, room.roomId, server);
     }
 
-    processTeleportation(room: Room, server: Server, path: Position[]) {
+    processTeleportation(room: Room, server: Server, position: Position) {
         const player = this.getActivePlayer(room);
         const playerId = player.id;
-        const position = path[0];
-        player.position = position;
-        server.to(room.roomId).emit('teleportPlayer', { position, playerId });
+        if (room.navigation.isTileValid(position.x, position.y)) {
+            player.position = position;
+            server.to(room.roomId).emit('teleportPlayer', { position, playerId });
+        }
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit('endMovement');
         server.to(room.roomId).emit('reachableTiles', reachability);
@@ -311,10 +312,12 @@ export class GameService {
                 await this.delay(MOVEMENT_TIME);
             }
             server.to(room.roomId).emit('playerNavigation', tile);
-            if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
-                this.stopGameTimers(room);
-                client.emit('playerFell');
-                break;
+            if (!room.isDebug) {
+                if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
+                    this.stopGameTimers(room);
+                    client.emit('playerFell');
+                    break;
+                }
             }
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
             if (pickedUpItem) break;

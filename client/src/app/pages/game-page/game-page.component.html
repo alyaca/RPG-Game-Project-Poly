@@ -7,7 +7,7 @@
             <app-player-info-inventory class="player-bar" [playerId]="socketCommunicationService.socket.id"></app-player-info-inventory>
         </div>
         <div class="chat">
-            <app-chat-box [isToggleable]="true" [areLogsVisible]="true"></app-chat-box>
+            <app-chat-box [isToggleable]="true" [areLogsVisible]="true" (chatFocusChange)="onChatFocus($event)"></app-chat-box>
         </div>
         <div class="quit" (click)="handleExit()">
             <p>Abandonner la partie</p>

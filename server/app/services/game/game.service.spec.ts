@@ -656,11 +656,11 @@ describe('GameService', () => {
     });
 
     describe('processTeleportation', () => {
-        let path;
+        let position;
         let server;
 
         beforeEach(() => {
-            path = [{ x: 0, y: 1 }];
+            position = { x: 0, y: 1 };
 
             server = {
                 to: jest.fn().mockReturnThis(),
@@ -675,11 +675,12 @@ describe('GameService', () => {
 
         it('should teleport the player and emit the correct events', () => {
             server.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
-            service.processTeleportation(room, server, path);
-            expect(mockPlayers[0].position).toEqual(path[0]);
+            room.navigation.isTileValid = jest.fn().mockReturnValue(true);
 
+            service.processTeleportation(room, server, position);
+            expect(mockPlayers[0].position).toEqual(position);
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith('teleportPlayer', {
-                position: path[0],
+                position,
                 playerId: mockPlayers[0].id,
             });
 

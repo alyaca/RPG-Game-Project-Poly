@@ -178,8 +178,7 @@ describe('GameGridComponent', () => {
         component.objectsArray = mockGameNavigation.itemPlacement;
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
-        const event = new MouseEvent('click', { button: 2 });
-        component.showDetails(event, 0, 0);
+        component.showDetails(0, 0);
         expect(component.isPopupVisible).toBeTrue();
         expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
         expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
@@ -260,8 +259,7 @@ describe('GameGridComponent', () => {
             component.objectsArray = mockGameNavigation.itemPlacement;
             gameCreationServiceSpy.isModifiable = false;
             component.isActivePlayer = true;
-            const event = new MouseEvent('click', { button: 2 });
-            component.showDetails(event, 0, 0);
+            component.showDetails(0, 0);
             expect(component.isPopupVisible).toBeTrue();
             expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
             expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
@@ -613,5 +611,31 @@ describe('GameGridComponent', () => {
     it('should return undefined if there is no game object with the specified id', () => {
         const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
         expect(result).toBeUndefined();
+    });
+
+    it('should call checkTeleportation if debug mode is enabled', () => {
+        navigationServiceSpy.isDebugMode = true;
+        spyOn(component, 'checkTeleportation');
+        const event = new MouseEvent('click');
+        component.handleRightClick(event, 0, 0);
+        expect(component.checkTeleportation).toHaveBeenCalled();
+    });
+
+    it('should call showDetails if debug mode is disabled', () => {
+        navigationServiceSpy.isDebugMode = false;
+        spyOn(component, 'showDetails');
+        const event = new MouseEvent('click');
+        component.handleRightClick(event, 0, 0);
+        expect(component.showDetails).toHaveBeenCalled();
+    });
+
+    it('should call teleportPlayer if conditions are met', () => {
+        const position = { x: 1, y: 1 };
+        gameCreationServiceSpy.isModifiable = false;
+        component.isActivePlayer = true;
+        component.isMoving = false;
+        component.checkTeleportation(position);
+        expect(component.isMoving).toBeTrue();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 });

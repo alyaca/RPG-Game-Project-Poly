@@ -2,7 +2,7 @@ import { IMessage } from '@app/interfaces/message.interface';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
-import { mockRoom, mockRoomDebug, mockRooms } from '@app/mocks/mock-room';
+import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
@@ -355,11 +355,11 @@ describe('SocketGateway', () => {
         expect(gameService.processNavigation).toHaveBeenCalled();
     });
 
-    it('should call processTeleportation when debugMode during playerNavigation event', () => {
-        (roomService.getRoom as jest.Mock).mockReturnValue(mockRoomDebug[0]);
-        jest.spyOn(gameService, 'processNavigation');
-        const path = [{ x: 1, y: 2 }];
-        gateway.handlePlayerNavigation(mockClient, path);
+    it('should call processTeleportation during teleportPlayer event', () => {
+        (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+        jest.spyOn(gameService, 'processTeleportation');
+        const position = { x: 1, y: 2 };
+        gateway.handleTeleportPlayer(mockClient, position);
         expect(gameService.processTeleportation).toHaveBeenCalled();
     });
 

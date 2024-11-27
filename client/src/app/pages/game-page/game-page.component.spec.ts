@@ -21,6 +21,7 @@ import { Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { GamePageComponent } from './game-page.component';
 
+/* eslint-disable max-lines */
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let timerSpy: jasmine.SpyObj<TimerComponent>;
@@ -201,6 +202,14 @@ describe('GamePageComponent', () => {
             });
             component.ngOnInit();
             expect(component.combatInProgress).toBe(false);
+        });
+
+        it('should call toggleDebugMode and addEventListener on ngOnInit', () => {
+            spyOn(component, 'toggleDebugMode');
+            spyOn(document, 'addEventListener');
+            component.ngOnInit();
+            expect(component.toggleDebugMode).toHaveBeenCalled();
+            expect(document.addEventListener).toHaveBeenCalled();
         });
     });
 
@@ -389,5 +398,36 @@ describe('GamePageComponent', () => {
         spyOn(component, 'closeTurnStartPopUp');
         component.timerEvents();
         expect(component.timeRemainingStartTurn).toBe(TURN_TIME);
+    });
+
+    it('should update isChatFocus and call toggleDebugMode', () => {
+        spyOn(component, 'toggleDebugMode');
+
+        component.onChatFocus(true);
+
+        expect(component['isChatFocus']).toBeTrue();
+        expect(component.toggleDebugMode).toHaveBeenCalled();
+    });
+
+    it('should update isChatFocus to false and call toggleDebugMode', () => {
+        spyOn(component, 'toggleDebugMode');
+
+        component.onChatFocus(false);
+
+        expect(component['isChatFocus']).toBeFalse();
+        expect(component.toggleDebugMode).toHaveBeenCalled();
+    });
+
+    it('should toggle debug mode when "d" is pressed, chat is not focused, and player is admin', () => {
+        spyOn(component, 'isPlayerAdmin').and.returnValue(true);
+        navigationServiceSpy.isDebugMode = false;
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        component['isChatFocus'] = false;
+
+        component.toggleDebugMode();
+        component['keyDownListener'](event);
+
+        expect(navigationServiceSpy.isDebugMode).toBeTrue();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', true);
     });
 });

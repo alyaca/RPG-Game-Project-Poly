@@ -21,12 +21,6 @@ export class Navigation {
     }
 
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
-        if (room.isDebug) {
-            if (this.isTileValid(destination.x, destination.y)) {
-                return [destination];
-            }
-        }
-
         const game = room.gameMap;
         this.initializeDistances(player, game);
 
@@ -56,10 +50,6 @@ export class Navigation {
     }
 
     findReachableTiles(player: Player, room: Room): Position[] {
-        if (room.isDebug) {
-            return this.findAllTilesDebug();
-        }
-
         const game = room.gameMap;
         this.initializeDistances(player, game);
         const maxMovementPoints = player.attributes.movementPointsLeft;
@@ -212,20 +202,7 @@ export class Navigation {
         return player?.attributes.movementPointsLeft > 0;
     }
 
-    private findAllTilesDebug() {
-        const reachableTiles: Position[] = [];
-        for (let i = 0; i < this.gameMap.dimension; i++) {
-            for (let j = 0; j < this.gameMap.dimension; j++) {
-                if (this.isTileValid(i, j)) {
-                    reachableTiles.push({ x: i, y: j });
-                }
-            }
-        }
-        this.reachableTiles = reachableTiles;
-        return reachableTiles;
-    }
-
-    private isTileValid(row: number, col: number): boolean {
+    isTileValid(row: number, col: number): boolean {
         if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
         if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
         if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
