@@ -20,6 +20,7 @@ import { Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { GamePageComponent } from './game-page.component';
 
+/* eslint-disable max-lines */
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let timerSpy: jasmine.SpyObj<TimerComponent>;
@@ -219,7 +220,6 @@ describe('GamePageComponent', () => {
             expect(component.toggleDebugMode).toHaveBeenCalled();
             expect(document.addEventListener).toHaveBeenCalled();
         });
-
     });
 
     it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
@@ -416,7 +416,6 @@ describe('GamePageComponent', () => {
         expect(component.toggleDebugMode).toHaveBeenCalled();
     });
 
-
     it('should update isChatFocus to false and call toggleDebugMode', () => {
         spyOn(component, 'toggleDebugMode');
 
@@ -427,7 +426,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should toggle debug mode when "d" is pressed, chat is not focused, and player is admin', () => {
-        spyOn(component, 'isPlayerAdmin').and.returnValue(true); 
+        spyOn(component, 'isPlayerAdmin').and.returnValue(true);
         navigationServiceSpy.isDebugMode = false;
         const event = new KeyboardEvent('keydown', { key: 'd' });
         component['isChatFocus'] = false;
