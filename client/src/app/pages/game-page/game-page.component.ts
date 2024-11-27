@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
@@ -19,8 +19,8 @@ import {
 } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
-import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { PostGameService } from '@app/services/post-game/post-game.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player, Position, Status } from '@common/player';
@@ -41,7 +41,7 @@ import { Room } from '@common/room';
     templateUrl: './game-page.component.html',
     styleUrl: './game-page.component.scss',
 })
-export class GamePageComponent implements OnInit, AfterViewInit {
+export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() selectedSize: string | null = 'small';
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimer!: TimerComponent;
@@ -68,6 +68,8 @@ export class GamePageComponent implements OnInit, AfterViewInit {
     attackAround: boolean = false;
 
     private router = inject(Router);
+    private isChatFocus: boolean = false;
+    private keyDownListener: (event: KeyboardEvent) => void;
     private postGameService = inject(PostGameService);
     constructor(
         private gameCreationService: GameCreationService,
@@ -166,14 +168,8 @@ export class GamePageComponent implements OnInit, AfterViewInit {
                 });
         });
 
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'd') {
-                if (this.isPlayerAdmin()) {
-                    this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
-                    this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
-                }
-            }
-        });
+        this.toggleDebugMode();
+        document.addEventListener('keydown', this.keyDownListener);
 
         this.socketCommunicationService.on('debugMode', (debugMode: boolean) => {
             this.navigationService.isDebugMode = debugMode;
@@ -212,6 +208,20 @@ export class GamePageComponent implements OnInit, AfterViewInit {
         this.socketCommunicationService.off('turnEnded');
         this.socketCommunicationService.off('startedTurnTimer');
         this.socketCommunicationService.off('draw');
+    }
+
+    onChatFocus(isFocus: boolean) {
+        this.isChatFocus = isFocus;
+        this.toggleDebugMode();
+    }
+
+    toggleDebugMode() {
+        this.keyDownListener = (event: KeyboardEvent) => {
+            if (!this.isChatFocus && event.key === 'd' && this.isPlayerAdmin()) {
+                this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
+                this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
+            }
+        };
     }
 
     onBeforeStartTurn() {
@@ -306,6 +316,11 @@ export class GamePageComponent implements OnInit, AfterViewInit {
 
     onEndTurn() {
         this.socketCommunicationService.send('endTurn');
+    }
+
+    ngOnDestroy() {
+        this.socketCommunicationService.disconnect();
+        document.removeEventListener('keydown', this.keyDownListener);
     }
 
     hasActionPoints() {

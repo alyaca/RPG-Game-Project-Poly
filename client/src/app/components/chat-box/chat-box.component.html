@@ -26,6 +26,8 @@
             placeholder="{{ chatType }}"
             maxlength="200"
             [disabled]="areLogsVisible"
+            (focus)="onFocus()"
+            (blur)="onBlur()"
         />
         @if(areLogsVisible && areLogsFiltered){
         <img class="filter-icon" src="./assets/images/icones/filter.png" alt="filter" (click)="toggleLogsFilter()" />

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ChatMessageComponent } from '@app/components/chat-message/chat-message.component';
@@ -19,9 +19,10 @@ import { Subscription } from 'rxjs';
 export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('messageContainer') messageContainer: ElementRef<HTMLDivElement>;
     @ViewChild('logContainer') logContainer: ElementRef<HTMLDivElement>;
-
     @Input() isToggleable: boolean;
     @Input() areLogsVisible: boolean = false;
+    @Output() chatFocusChange = new EventEmitter<boolean>();
+
     messages: ChatMessage[] = [];
     logs: LogMessage[] = [];
     filteredLogs: LogMessage[] = [];
@@ -41,6 +42,14 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
 
     get toggleIconClass() {
         return this.areLogsVisible ? 'icon-logs' : 'icon-chat';
+    }
+
+    onFocus() {
+        this.chatFocusChange.emit(true);
+    }
+
+    onBlur() {
+        this.chatFocusChange.emit(false);
     }
 
     scrollToBottom(): void {

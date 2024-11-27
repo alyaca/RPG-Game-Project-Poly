@@ -35,6 +35,7 @@ export class MapValidatorService {
         if (isNewMap || oldMapName !== title) {
             this.validateName(title);
         }
+
         this.validateSufficientTerrainTiles(array);
         this.validateAllDoors(array);
         this.validateAllSpawnPointsPlaced();

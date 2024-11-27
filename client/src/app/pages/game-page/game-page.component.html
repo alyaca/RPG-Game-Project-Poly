@@ -8,7 +8,7 @@
         </div>
         <button (click)="forceEndGame()">Terminer la partie (temp)</button> 
         <div class="chat">
-            <app-chat-box [isToggleable]="true" [areLogsVisible]="true"></app-chat-box>
+            <app-chat-box [isToggleable]="true" [areLogsVisible]="true" (chatFocusChange)="onChatFocus($event)"></app-chat-box>
         </div>
         <div class="quit" (click)="handleExit()">
             <p>Abandonner la partie</p>
