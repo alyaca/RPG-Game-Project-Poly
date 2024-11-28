@@ -4,41 +4,48 @@ import { gameObjects } from '@app/objects-info';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/game-tile';
+import { Player } from '@common/player';
+import { Room } from '@common/room';
 @Injectable({
     providedIn: 'root',
 })
 export class GameTileInfoService {
     tileId: number = 0;
     itemId: number = 0;
+    selectedPlayer?: Player;
     selectedRow: number = -1;
     selectedCol: number = -1;
     gameTile: GameTile = {
         id: 1,
         name: '',
-        description: '',
+        descriptions: [],
         image: '',
     };
 
     tileDescriptions = [
-        `Le gazon est la tuile par défaut du jeu. C'est une tuile de terrain ayant un cout de 1. 
-    Les joueurs et les objects peuvent y être posés dessus`,
+        ['Tuile par défaut du jeu (tuile de terrain)', 'Les joueurs et les objects peuvent y être posés dessus', 'coût: 1'],
+        [
+            'Un joueur qui y marche dessus à 10% de chance de perdre pied et tomber, terminant instantanément le tour du joueur',
+            'tant que le joueur se trouve sur de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.',
+            'coût: 0',
+        ],
+        ['Tuile de terrain', 'Coût: 2'],
+        [
+            'Obstacles infranchissables par les joueurs à moins que le joueur obtienne un item spécial',
+            'Aucun objet y est placé dessus',
+            'Pas considée comme une tuile de terrain',
+        ],
 
-        `La glace à un coût de 0, cependant un joueur qui y marche dessus à 10% de chance de perdre pied et
-    tomber, terminant instantanément le tour du joueur. De plus, tant que le joueur se trouve sur
-    de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.`,
-
-        "L'eau est une tuile de terrain ayant un coût de 2.",
-
-        'Les murs sont des obstacles infranchissables par les joueurs. Aussi, aucun objet y est placé dessus',
-
-        `Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire
-    y passer à travers. Sinon il agit comme un obstacle infranchissable comme une tuile de mur.`,
-
-        `Une porte ouverte agit comme une tuile de gazon, ayant aussi un coût de 1. Elle peut être fermée par 
-    le joueur en interagissant avec le bouton 'Porte'.`,
+        [
+            "Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire y passer à travers.",
+            'Sinon il agit comme un obstacle infranchissable comme une tuile de mur.',
+        ],
+        ['Une porte ouverte agit comme une tuile de gazon', "Elle peut être fermée par le joueur en interagissant avec le bouton 'Porte'."],
     ];
 
     tileNames = ['Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'];
+
+    currentRoom: Room;
 
     constructor(
         public tileService: TileService,
@@ -56,16 +63,16 @@ export class GameTileInfoService {
         this.gameTile.id = this.tileId;
         this.gameTile.name = this.tileNames[this.tileId - 1];
         this.gameTile.image = this.tileService.getTileImage(this.tileId);
-        this.gameTile.description = this.tileDescriptions[this.tileId - 1];
+        this.gameTile.descriptions = this.tileDescriptions[this.tileId - 1];
         return this.gameTile;
     }
 
-    getPlayer() {
-        for (const player of this.navigationService.players) {
+    getPlayer(room: Room) {
+        for (const player of room.listPlayers) {
             if (player.position.x === this.selectedRow && player.position.y === this.selectedCol) {
                 return player;
             }
         }
-        return null;
+        return undefined;
     }
 }

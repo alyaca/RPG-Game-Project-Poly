@@ -1,14 +1,34 @@
 <div class="tile-player-info">
-    @if(gameTileInfoService.getPlayer()) {
+    @if(gameTileInfoService.selectedPlayer) {
         <div class="info">
-            <h2> {{ gameTileInfoService.getPlayer()?.name }}</h2>
-            <img class="big-image" [src]="gameTileInfoService.getItem()?.image" alt="player image"> 
+            <h2> {{ gameTileInfoService.selectedPlayer.name }}</h2>
+            <p class="small-text">Attributs</p>
+            <p class="small-text"> 
+                -> PV total: {{ gameTileInfoService.selectedPlayer.attributes.totalHp }} 
+                rapidité: {{ gameTileInfoService.selectedPlayer.attributes.speed }}
+                attaque: {{ gameTileInfoService.selectedPlayer.attributes.attack }}
+                défense: {{ gameTileInfoService.selectedPlayer.attributes.defense }}
+            </p>
+            <p class="small-text">Bilan de combats (victoires/Évasions/Défaites) </p>
+            <p class="small-text">
+                -> {{ gameTileInfoService.selectedPlayer.postGameStats.victories }} / 
+                {{ gameTileInfoService.selectedPlayer.postGameStats.evasions }} /
+                {{ gameTileInfoService.selectedPlayer.postGameStats.defeats }} 
+            </p>
+            <p class="small-text">Dégats</p>
+            <p class="small-text">
+                -> Dégats infligés: {{ gameTileInfoService.selectedPlayer.postGameStats.damageDealt }}
+                Dégats subis: {{ gameTileInfoService.selectedPlayer.postGameStats.damageTaken }} 
+            </p>
+            <img class="big-image" [src]="gameTileInfoService.selectedPlayer.avatar?.src" alt="player image"> 
         </div>
     }   
     @else {
         <div class="info">
             <h5> {{ gameTileInfoService.getTile().name}}</h5>
-            <p class="small-text"> {{ gameTileInfoService.getTile().description }}</p>
+            @for(description of gameTileInfoService.getTile().descriptions; let i = $index; track description){
+                <p class="small-text"> - {{ description }}</p>
+            }
             <img [ngClass]="{'big-image': !gameTileInfoService.getItem(), 'small-image': gameTileInfoService.getItem()}"  [src]="gameTileInfoService.getTile().image" alt="tile image"> 
         
             @if(gameTileInfoService.getItem()){

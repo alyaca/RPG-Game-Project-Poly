@@ -56,7 +56,7 @@ describe('GameTileInfoService', () => {
 
             expect(result.id).toBe(tileId);
             expect(result.name).toBe(service.tileNames[tileId - 1]);
-            expect(result.description).toBe(service.tileDescriptions[tileId - 1]);
+            expect(result.descriptions).toBe(service.tileDescriptions[tileId - 1]);
             expect(result.image).toBe('image-path');
             expect(tileServiceSpy.getTileImage).toHaveBeenCalledWith(tileId);
         });

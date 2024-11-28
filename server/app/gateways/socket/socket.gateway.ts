@@ -220,4 +220,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
         this.logger.log(`Client disconnected: ${client.id}`);
     }
+
+    @SubscribeMessage(SocketEvents.GetRoom)
+    getRoom(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.server.to(room.roomId).emit('obtainRoomInfo', room);
+    }
 }
