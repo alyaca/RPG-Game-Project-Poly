@@ -14,22 +14,22 @@
 }
 
 .small-image {
-    height: 4rem;
-    width: 4rem;
+    height: 6rem;
+    width: 6rem;
     align-self: center;
     border-radius: 1rem;
 }
 
 .big-image {
-    height: 12rem;
-    width: 12rem;
+    height: 10rem;
+    width: 10rem;
     align-self: center;
     border-radius: 1rem;
 }
 
 .small-text {
-    margin-top: -0.5rem;
-    font-size: 0.7rem;
+    margin-top: -0.6rem;
+    font-size: 0.8rem;
 }
 
 .info {
@@ -62,4 +62,12 @@ h2, h5 {
     transform: scale(1.05);
     background-image: linear-gradient(to left, rgb(122, 27, 27), rgb(155, 31, 31));
     color: white;
+}
+
+.img-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10%;
+    align-items: center;
+    justify-content: center;
 }
