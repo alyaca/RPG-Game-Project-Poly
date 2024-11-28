@@ -268,4 +268,16 @@ describe('GameService', () => {
         service.isActionCombatSelected = true;
         expect(service.isTargetPlayer(MOCK_ROW, MOCK_COLUMN)).toBe(true);
     });
+
+    it('should send leaveRoom when result is left onQuitPostGameLobby', (done) => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Left }));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.onQuitPostGameLobby(mockRoom.roomId);
+        setTimeout(() => {
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', mockRoom.roomId);
+            done();
+        });
+    });
 });
