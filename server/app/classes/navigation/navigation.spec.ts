@@ -10,6 +10,7 @@ import { PointWithDistance } from '@common/point-distance.interface';
 import { Navigation } from './navigation';
 
 /* eslint max-lines: ["off"] */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 describe('Navigation', () => {
     let navigation: Navigation;
 

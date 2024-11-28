@@ -27,6 +27,7 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 /* eslint-disable max-lines */
+/* eslint-disable max-len */
 @Injectable()
 export class GameService {
     isMoving: boolean = false;
@@ -563,13 +564,20 @@ export class GameService {
         }
         if (this.playerInWall(room, previousActivePlayer)) {
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
-            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position : {x : previousActivePlayer.position.x, y : previousActivePlayer.position.y} });
+            server.to(room.roomId).emit('updateObjectsAfterCombat', {
+                newGrid: room.gameMap.itemPlacement,
+                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+            });
             const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
             room.navigation.findFastestPath(previousActivePlayer, destination, room);
+
             previousActivePlayer.position = destination;
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
             this.processTeleportation(room, server, previousActivePlayer.position);
-            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position : {x : previousActivePlayer.position.x, y : previousActivePlayer.position.y} });
+            server.to(room.roomId).emit('updateObjectsAfterCombat', {
+                newGrid: room.gameMap.itemPlacement,
+                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+            });
         }
         listPlayers[index] = previousActivePlayer;
 

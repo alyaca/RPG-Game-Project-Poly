@@ -36,13 +36,13 @@ export class PlayerInventoryService {
         info.server.emit('updatePlayersList', info.player);
     }
 
-    determineRandomItem(allObjects: number[][], room : Room): number {
+    determineRandomItem(allObjects: number[][], room: Room): number {
         const itemsNotAvailable: number[] = [];
         const itemsAvailable: number[] = [];
 
-        for(const players of room.listPlayers) {
-            if(players.inventory.length > 0) {
-                for(const items of players.inventory) {
+        for (const players of room.listPlayers) {
+            if (players.inventory.length > 0) {
+                for (const items of players.inventory) {
                     itemsNotAvailable.push(items.id);
                 }
             }
@@ -128,10 +128,8 @@ export class PlayerInventoryService {
 
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
         let newItem = 0;
-        for (const items of infoSwap.modifiedInventory)
-        {
-            if(!infoSwap.oldInventory.includes(items))
-            {
+        for (const items of infoSwap.modifiedInventory) {
+            if (!infoSwap.oldInventory.includes(items)) {
                 newItem = items.id;
                 break;
             }

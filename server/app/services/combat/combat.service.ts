@@ -23,6 +23,8 @@ import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
+/* eslint-disable max-len */
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
@@ -61,27 +63,27 @@ export class CombatService {
         this.onStartTurn(client, server, room);
     }
 
-    checkXiphos(combatPlayers : CombatPlayers, server : Server)
-    {
-        if(combatPlayers.attacker.inventory.find((items) => items.id === ObjectType.Xiphos))
-        {
-            if(combatPlayers.attacker.attributes.currentHp <= (combatPlayers.attacker.attributes.totalHp/2))
-            {
+    checkXiphos(combatPlayers: CombatPlayers, server: Server) {
+        if (combatPlayers.attacker.inventory.find((items) => items.id === ObjectType.Xiphos)) {
+            if (combatPlayers.attacker.attributes.currentHp <= combatPlayers.attacker.attributes.totalHp / 2) {
                 combatPlayers.attacker.attributes.attack += 2;
                 combatPlayers.defender.attributes.defense -= 1;
                 this.checkedXiphos = true;
-                this.emitToCombatPlayers(server, combatPlayers, 'updateStats', { attacker: combatPlayers.attacker, defender: combatPlayers.defender });
+                this.emitToCombatPlayers(server, combatPlayers, 'updateStats', {
+                    attacker: combatPlayers.attacker,
+                    defender: combatPlayers.defender,
+                });
                 return combatPlayers;
             }
-        }
-        else if (combatPlayers.defender.inventory.find((items) => items.id === ObjectType.Xiphos))
-        {
-            if(combatPlayers.defender.attributes.currentHp <= (combatPlayers.defender.attributes.totalHp/2))
-            {
+        } else if (combatPlayers.defender.inventory.find((items) => items.id === ObjectType.Xiphos)) {
+            if (combatPlayers.defender.attributes.currentHp <= combatPlayers.defender.attributes.totalHp / 2) {
                 combatPlayers.defender.attributes.attack += 2;
                 combatPlayers.attacker.attributes.defense -= 1;
                 this.checkedXiphos = true;
-                this.emitToCombatPlayers(server, combatPlayers, 'updateStats', { attacker: combatPlayers.attacker, defender: combatPlayers.defender });
+                this.emitToCombatPlayers(server, combatPlayers, 'updateStats', {
+                    attacker: combatPlayers.attacker,
+                    defender: combatPlayers.defender,
+                });
                 return combatPlayers;
             }
         }
@@ -90,8 +92,7 @@ export class CombatService {
 
     onStartTurn(client: Socket, server: Server, room: Room) {
         let combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
-        if(!this.checkedXiphos)
-        {
+        if (!this.checkedXiphos) {
             combatPlayers = this.checkXiphos(combatPlayers, server);
         }
         const turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
