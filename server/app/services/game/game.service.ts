@@ -562,8 +562,6 @@ export class GameService {
             previousActivePlayer = this.addActionPoints(previousActivePlayer);
         }
         if (this.playerInWall(room, previousActivePlayer)) {
-            console.log(previousActivePlayer.position.x);
-            console.log(previousActivePlayer.position.y);
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
             server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position : {x : previousActivePlayer.position.x, y : previousActivePlayer.position.y} });
             const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
@@ -572,7 +570,6 @@ export class GameService {
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
             this.processTeleportation(room, server, previousActivePlayer.position);
             server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position : {x : previousActivePlayer.position.x, y : previousActivePlayer.position.y} });
-            // server.to(room.roomId).emit('updateObjects', (room.gameMap.itemPlacement));
         }
         listPlayers[index] = previousActivePlayer;
 

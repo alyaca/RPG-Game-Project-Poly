@@ -3,12 +3,14 @@ import { mockGameNavigation, mockNeighborGame } from '@app/mocks/map-mocks';
 import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
+import { mockRoom } from '@app/mocks/mock-room';
 import { ObjectType } from '@common/avatars-info';
 import { Position } from '@common/player';
 import { PointWithDistance } from '@common/point-distance.interface';
 import { Navigation } from './navigation';
 
 /* eslint max-lines: ["off"] */
+/* global spyOn */
 describe('Navigation', () => {
     let navigation: Navigation;
 
@@ -18,6 +20,80 @@ describe('Navigation', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+    });
+
+    it('should call everything with findReachableTiles', () => {
+        const getNeighborsSpy = spyOn<any>(navigation, 'getNeighbors');
+        const exploreNeighborsForReachableTilesSpy = spyOn<any>(navigation, 'exploreNeighborsForReachableTiles');
+        const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
+        getNextNodeSpy.and.callFake(() => {
+            const callCounter = getNextNodeSpy.calls.count();
+            if (callCounter === 1) {
+                return { x: 1, y: 1, distance: 1 };
+            } else {
+                return undefined;
+            }
+        });
+
+        getNeighborsSpy.and.callFake(() => {
+            const callCounter = getNeighborsSpy.calls.count();
+            if (callCounter === 1) {
+                return [{ x: 1, y: 1 }];
+            } else {
+                return [];
+            }
+        });
+
+        const result = navigation.findReachableTiles(playerNavigation, mockRoom);
+        expect(result).toBeDefined();
+        expect(getNextNodeSpy).toHaveBeenCalled();
+        expect(getNeighborsSpy).toHaveBeenCalled();
+        expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
+    });
+
+    it('should call everything', () => {
+        const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
+        const isDestinationReachedSpy = spyOn<any>(navigation, 'isDestinationReached');
+        navigation['previous'] = [
+            [
+                { x: 1, y: 1 },
+                { x: 1, y: 1 },
+            ],
+            [
+                { x: 1, y: 1 },
+                { x: 1, y: 1 },
+            ],
+        ];
+        getNextNodeSpy.and.callFake(() => {
+            const callCounter = getNextNodeSpy.calls.count();
+            if (callCounter === 1) {
+                return { x: 1, y: 1, distance: 1 };
+            } else {
+                return undefined;
+            }
+        });
+
+        isDestinationReachedSpy.and.callFake(() => {
+            const callCounter = isDestinationReachedSpy.calls.count();
+            if (callCounter === 1) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+
+        navigation['previous'][1][1] = { x: 1, y: 1 };
+        const initDistancesSpy = spyOn(navigation, 'initializeDistances');
+        const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
+        const exploreNeighborsSpy = spyOn<any>(navigation, 'exploreNeighbors');
+        const reconstructPathSpy = spyOn<any>(navigation, 'reconstructPath');
+        navigation.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockRoom);
+        expect(initDistancesSpy).toHaveBeenCalledWith(playerNavigation, mockGame);
+        expect(getNextNodeSpy).toHaveBeenCalled();
+        expect(isDestinationReachedSpy).toHaveBeenCalled();
+        expect(exploreNeighborsSpy).toHaveBeenCalled();
+        expect(getNeighborsSpy).toHaveBeenCalled();
+        expect(reconstructPathSpy).toHaveBeenCalledWith({ x: 1, y: 1 });
     });
 
     it('should toggle door state', () => {
@@ -374,80 +450,4 @@ describe('Navigation', () => {
         const isValid = navigation['isTileValid'](position.x, position.y);
         expect(isValid).toBe(true);
     });
-
-    // TODO : Tests from navigation client to fix
-
-    // it('should call everything', () => {
-    //     navigation['previous'] = [
-    //         [
-    //             { x: 1, y: 1 },
-    //             { x: 1, y: 1 },
-    //         ],
-    //         [
-    //             { x: 1, y: 1 },
-    //             { x: 1, y: 1 },
-    //         ],
-    //     ];
-    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
-    //     const isDestinationReachedSpy = spyOn<any>(navigation, 'isDestinationReached');
-    //     getNextNodeSpy.and.callFake(() => {
-    //         const callCounter = getNextNodeSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return { x: 1, y: 1, distance: 1 };
-    //         } else {
-    //             return undefined;
-    //         }
-    //     });
-
-    //     isDestinationReachedSpy.and.callFake(() => {
-    //         const callCounter = isDestinationReachedSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return false;
-    //         } else {
-    //             return true;
-    //         }
-    //     });
-
-    //     navigation['previous'][1][1] = { x: 1, y: 1 };
-    //     const initDistancesSpy = spyOn(navigation, 'initializeDistances');
-    //     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
-    //     const exploreNeighborsSpy = spyOn<any>(navigation, 'exploreNeighbors');
-    //     const reconstructPathSpy = spyOn<any>(navigation, 'reconstructPath');
-    //     navigation.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockGame);
-    //     expect(initDistancesSpy).toHaveBeenCalledWith(playerNavigation, mockGame);
-    //     expect(getNextNodeSpy).toHaveBeenCalled();
-    //     expect(isDestinationReachedSpy).toHaveBeenCalled();
-    //     expect(exploreNeighborsSpy).toHaveBeenCalled();
-    //     expect(getNeighborsSpy).toHaveBeenCalled();
-    //     expect(reconstructPathSpy).toHaveBeenCalledWith({ x: 1, y: 1 });
-    // });
-
-    // it('should call everything with findReachableTiles', () => {
-    //     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
-    //     const exploreNeighborsForReachableTilesSpy = spyOn<any>(navigation, 'exploreNeighborsForReachableTiles');
-    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
-    //     getNextNodeSpy.and.callFake(() => {
-    //         const callCounter = getNextNodeSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return { x: 1, y: 1, distance: 1 };
-    //         } else {
-    //             return undefined;
-    //         }
-    //     });
-
-    //     getNeighborsSpy.and.callFake(() => {
-    //         const callCounter = getNeighborsSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return [{ x: 1, y: 1 }];
-    //         } else {
-    //             return [];
-    //         }
-    //     });
-
-    //     const result = navigation.findReachableTiles(playerNavigation, mockGame, DEFAULT_ATTRIBUTE);
-    //     expect(result).toBeDefined();
-    //     expect(getNextNodeSpy).toHaveBeenCalled();
-    //     expect(getNeighborsSpy).toHaveBeenCalled();
-    //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
-    // });
 });

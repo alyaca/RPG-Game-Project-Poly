@@ -188,10 +188,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('updateObjectsAfterCombat', (data: { newGrid: number[][]; position: Position }) => {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
-            console.log(data.newGrid);
-            console.log(data.position.x);
-            console.log(data.position.y);
-            console.log(this.objectsArray);
         });
     }
 

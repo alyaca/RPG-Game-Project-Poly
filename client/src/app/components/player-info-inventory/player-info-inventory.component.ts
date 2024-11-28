@@ -38,7 +38,6 @@ export class PlayerInfoInventoryComponent implements OnInit {
         this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
             if(this.player.name === playerToUpdate.name)
             {
-                console.log(playerToUpdate.name);
                 this.player.attributes = playerToUpdate.attributes;
                 this.player.inventory = playerToUpdate.inventory;
                 this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
