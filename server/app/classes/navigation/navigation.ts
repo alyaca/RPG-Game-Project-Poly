@@ -11,7 +11,6 @@ export class Navigation {
     players: Player[];
     positions: number[][];
     isBot: boolean = false;
-    //private reachableTiles: Position[];
     private distances: number[][];
     private previous: Position[][];
     private destination: Position;
@@ -45,7 +44,6 @@ export class Navigation {
     isReachableTile(row: number, col: number): boolean {
         if (this.destination.x === row && this.destination.y === col) return true;
         return !this.players.some((player) => player.position.x === row && player.position.y === col);
-        //return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
     }
 
     initializeDistances(player: Player, game: Game): void {
@@ -72,7 +70,6 @@ export class Navigation {
             this.exploreNeighborsForReachableTiles(neighbors, nextNode, priorityQueue, maxMovementPoints, game);
         }
         reachableTiles.shift();
-        //this.reachableTiles = reachableTiles;
         return reachableTiles;
     }
 
@@ -203,7 +200,6 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (game.tiles[newX][newY] === TileType.Wall) continue;
-            ///////
             if (!this.isBot) {
                 if (this.hasPlayerOnTile(neighbor, this.players)) continue;
             }
@@ -231,10 +227,7 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            ////
-            console.log(this.isBot);
             if (!this.isReachableTile(newX, newY) && this.isBot) continue;
-            ////
             if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (!this.isBot) {
                 if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
