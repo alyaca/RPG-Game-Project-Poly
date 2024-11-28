@@ -295,6 +295,13 @@ export class CombatService {
             this.combatWon(client, attacker, server);
             return true;
         }
+        else if (attacker.attributes.currentHp <= 0) {
+            this.gameService.placeItemsOnGround(client, server, attacker);
+            this.replacePlayerOnSpawnPoint(attacker, client, server);
+            this.manageTurnAfterCombat(client, attacker, defender, server);
+            this.combatWon(client, defender, server);
+            return true;
+        }
         return false;
     }
 
