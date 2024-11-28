@@ -11,7 +11,7 @@ import {
     STARTING_TIME,
     TileCost,
     TileType,
-    TURN_TIME
+    TURN_TIME,
 } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';

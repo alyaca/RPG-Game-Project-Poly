@@ -4,6 +4,7 @@ import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
 import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
+import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class PlayerInventoryService {
         const room = this.roomService.getRoom(info.client);
         let itemPickedUp = allItems[info.player.position.x][info.player.position.y];
         if (itemPickedUp === ObjectType.Random) {
-            itemPickedUp = this.determineRandomItem(allItems);
+            itemPickedUp = this.determineRandomItem(allItems, room);
         }
         if (info.player.inventory.length === 2) {
             this.roomService.getTurnTimer(room.roomId).pauseTimer();
@@ -35,9 +36,17 @@ export class PlayerInventoryService {
         info.server.emit('updatePlayersList', info.player);
     }
 
-    determineRandomItem(allObjects: number[][]): number {
+    determineRandomItem(allObjects: number[][], room : Room): number {
         const itemsNotAvailable: number[] = [];
         const itemsAvailable: number[] = [];
+
+        for(const players of room.listPlayers) {
+            if(players.inventory.length > 0) {
+                for(const items of players.inventory) {
+                    itemsNotAvailable.push(items.id);
+                }
+            }
+        }
 
         for (const objectRows of allObjects) {
             for (const objects of objectRows) {
