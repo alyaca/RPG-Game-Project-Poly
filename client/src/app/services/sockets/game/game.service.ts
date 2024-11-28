@@ -130,6 +130,7 @@ export class GameService {
             messages: [DialogMessages.QuitPostGameLobby],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
+            itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
                 this.router.navigate(['/home']);

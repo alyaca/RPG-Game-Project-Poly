@@ -82,8 +82,8 @@ export class PlayerInventoryService {
             case ObjectType.Lightning:
                 playerToBuff.attributes.attack *= 2;
                 playerToBuff.attributes.defense -= 2;
-                playerToBuff.attributes.currentHp -= 1;
                 playerToBuff.attributes.totalHp -= 1;
+                playerToBuff.attributes.currentHp -= 1;
                 break;
             default:
                 break;
