@@ -130,13 +130,13 @@ describe('Navigation', () => {
 
     it('should return false if the player is not adjacent to anyone else', () => {
         navigation.players = [playerNavigation];
-        navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 1, y: 1 }]);
+        navigation.getNeighborPlayers = jest.fn().mockReturnValue([]);
         expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(false);
     });
 
     it('should return true if a player is adjacent to the active one', () => {
         navigation.players = [playerNavigation];
-        navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
+        navigation.getNeighborPlayers = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
         navigation.hasPlayerOnTile = jest.fn().mockReturnValue(true);
         expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
@@ -184,6 +184,7 @@ describe('Navigation', () => {
             [1, 1, 1],
         ];
         navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ice);
+        navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
         navigation['exploreNeighborsForReachableTiles'](
             [{ x: 1, y: 2 }],
             { x: 0, y: 0, distance: 0 },
@@ -259,6 +260,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
+            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
             const expectedDistance = 1;
 
@@ -271,6 +273,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
+            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, maxMovementPoints, mockNeighborGame);
             expect(navigation['distances'][1][0]).toBe(Infinity);
             expect(priorityQueue).not.toContain({ x: 1, y: 0, distance: Infinity });
@@ -280,6 +283,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
+            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
 
             expect(navigation['distances'][1][0]).toBe(1);
@@ -361,6 +365,7 @@ describe('Navigation', () => {
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
+            navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
             expect(navigation['distances'][2][0]).toBe(Infinity);
@@ -376,6 +381,7 @@ describe('Navigation', () => {
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
+            navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
             expect(navigation['distances'][1][0]).toBe(TileCost.Ground);

@@ -10,6 +10,7 @@ import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { PostGameService } from '@app/services/post-game/post-game.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -63,7 +64,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     private router = inject(Router);
     private isChatFocus: boolean = false;
     private keyDownListener: (event: KeyboardEvent) => void;
-
+    private postGameService = inject(PostGameService);
     constructor(
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
@@ -115,6 +116,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on('combatEnd', (data: { listPlayers: Player[]; player: Player }) => {
             this.setPlayersOnCombatDone(data.listPlayers);
+            this.navigationService.players = data.listPlayers;
             this.combatService.onCombatEnd(data.player);
         });
 
@@ -141,19 +143,21 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.gameService.playersTarget = data.targets;
         });
 
-        this.socketCommunicationService.once('endGame', (winner: Player) => {
+        this.socketCommunicationService.once('endGame', (data: { winner: Player; room: Room }) => {
             this.removeListeners();
+            this.postGameService.transferRoomStats(data.room);
+
             this.gameService
                 .openDialog({
                     title: DialogTitle.EndGame,
-                    messages: ['Le gagnant de la partie est : ' + winner.name],
+                    messages: ['Le gagnant de la partie est : ' + data.winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
                     itemSwap: null,
                 })
                 .subscribe((result) => {
                     if (result.action === DialogResult.Close) {
-                        this.router.navigate(['/home']);
+                        this.router.navigate(['/post-game-lobby'], { queryParams: { roomCode: data.room.roomId } });
                     }
                 });
         });
@@ -357,12 +361,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.socketCommunicationService.disconnect();
         document.removeEventListener('keydown', this.keyDownListener);
     }
 
     hasActionPoints() {
         return this.gameService.hasActionPoints(this.activePlayer);
+    }
+
+    forceEndGame() {
+        this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
     }
 
     isPlayerAdmin(): boolean {

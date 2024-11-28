@@ -2,6 +2,7 @@ import { avatars } from '@common/avatars-info';
 import { GameStatus, Room } from '@common/room';
 import { mockGames } from './mock-game';
 import { mockLobbyPlayers } from './mock-lobby-players';
+import { defaultGlobalStats } from './default-global-stats';
 
 export const mockRoom: Room = {
     gameMap: mockGames[0],
@@ -11,4 +12,5 @@ export const mockRoom: Room = {
     adminId: '1234-admin',
     availableAvatars: avatars,
     gameStatus: GameStatus.Lobby,
+    globalPostGameStats: defaultGlobalStats,
 };

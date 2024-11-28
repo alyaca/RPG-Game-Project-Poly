@@ -25,6 +25,8 @@ export enum SocketEvents {
     EndItemSwitch = 'endItemSwitch',
     ItemSwapped = 'itemSwapped',
     DoorAction = 'doorAction',
+
+    ForceEndGame = 'forceEndGame', // Temporary
     DebugMode = 'debugMode',
     TeleportPlayer = 'teleportPlayer',
     FindPath = 'findPath',

@@ -15,6 +15,7 @@ import { AttributesService } from '@app/services/attributes/attributes.service';
 import { Behavior, Status } from '@common/player';
 import { CharacterCreatorComponent } from './character-creator.component';
 import SpyObj = jasmine.SpyObj;
+import { defaultPostGameStats } from '@app/default-attributes';
 
 describe('CharacterCreatorComponent', () => {
     let component: CharacterCreatorComponent;
@@ -189,11 +190,12 @@ describe('CharacterCreatorComponent', () => {
             isActive: false,
             name: component.characterName,
             status: Status.Player,
-            victories: 0,
             inventory: [],
             position: { x: -1, y: -1 },
             behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
+            postGameStats: defaultPostGameStats,
+            positionHistory: [],
         });
     });
 

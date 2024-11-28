@@ -1,8 +1,7 @@
 import { avatars } from '@common/avatars-info';
-import { Behavior, Player, PlayerStats, Status } from '@common/player';
-import { playerNavigation } from './mock-player';
+import { Attributes, Behavior, Player, PostGameStats, Status } from '@common/player';
 
-export const mockPlayerStats: PlayerStats = {
+export const mockAttributes: Attributes = {
     totalHp: 4,
     currentHp: 4,
     speed: 4,
@@ -16,50 +15,89 @@ export const mockPlayerStats: PlayerStats = {
     evasion: 2,
 };
 
+export const defaultPostGameStats: PostGameStats = {
+    combats: 0,
+    victories: 0,
+    evasions: 0,
+    defeats: 0,
+    damageDealt: 0,
+    damageTaken: 0,
+    itemsObtained: 0,
+    tilesVisited: 0,
+};
+
 export const mockPlayers: Player[] = [
     {
         id: 'admin1234',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: avatars[0],
         isActive: true,
         name: 'mobile',
         status: Status.Player,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
+        positionHistory: [],
     },
     {
         id: 'id',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: false,
         name: 'joseph',
         status: Status.Player,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
+        positionHistory: [],
     },
     {
         id: 'bot',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: false,
         name: 'loly',
         status: Status.Bot,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Aggressive,
+        positionHistory: [],
     },
 ];
 
 export const mockNavigationPlayers: Player[] = [
-    playerNavigation,
+    {
+        id: '123',
+        attributes: {
+            totalHp: 100,
+            currentHp: 100,
+            speed: 4,
+            movementPointsLeft: 3,
+            maxActionPoints: 1,
+            actionPoints: 1,
+            attack: 1,
+            atkDiceMax: 1,
+            defense: 1,
+            defDiceMax: 1,
+            evasion: 2,
+        },
+        avatar: { id: 20, name: 'a', src: 'a.img', isSelected: true, isTaken: true },
+        isActive: true,
+        name: 'Hestia',
+        status: Status.Player,
+        postGameStats: defaultPostGameStats,
+        inventory: [],
+        position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Sentient,
+        positionHistory: [],
+    },
     {
         id: '456',
         attributes: {
@@ -79,11 +117,12 @@ export const mockNavigationPlayers: Player[] = [
         isActive: true,
         name: 'Zeus',
         status: Status.Player,
-        victories: 0,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 3, y: 0 },
         spawnPosition: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
+        positionHistory: [],
     },
 ];
 
@@ -92,27 +131,29 @@ export const baseBot: Player = {
     avatar: avatars[0],
     status: Status.Bot,
     name: 'Joueur virtuel',
-    victories: 0,
+    postGameStats: defaultPostGameStats,
     isActive: false,
-    attributes: mockPlayerStats,
+    attributes: mockAttributes,
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
+    positionHistory: [],
 };
 
 export const playerDisconnected: Player = {
     id: 'disconnected',
-    attributes: mockPlayerStats,
+    attributes: mockAttributes,
     avatar: undefined,
     isActive: false,
     name: 'player-disconnected',
     status: Status.Disconnected,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
+    positionHistory: [],
 };
 
 export const mockCombatValues = { attackValues: { total: 5, diceValue: 2 }, defenseValues: { total: 4, diceValue: 2 } };
