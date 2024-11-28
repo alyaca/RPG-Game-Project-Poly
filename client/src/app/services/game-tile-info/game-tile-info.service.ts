@@ -45,8 +45,6 @@ export class GameTileInfoService {
 
     tileNames = ['Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'];
 
-    currentRoom: Room;
-
     constructor(
         public tileService: TileService,
         public navigationService: NavigationService,
@@ -65,6 +63,12 @@ export class GameTileInfoService {
         this.gameTile.image = this.tileService.getTileImage(this.tileId);
         this.gameTile.descriptions = this.tileDescriptions[this.tileId - 1];
         return this.gameTile;
+    }
+
+    transferRoomData(room: Room) {
+        this.tileId = room.gameMap.tiles[this.selectedRow][this.selectedCol];
+        this.itemId = room.gameMap.itemPlacement[this.selectedRow][this.selectedCol];
+        this.selectedPlayer = this.getPlayer(room);
     }
 
     getPlayer(room: Room) {

@@ -166,12 +166,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on('obtainRoomInfo', (room: Room) => {
-            this.gameTileInfoService.currentRoom = room;
-            const row = this.gameTileInfoService.selectedRow;
-            const col = this.gameTileInfoService.selectedCol;
-            this.gameTileInfoService.tileId = room.gameMap.tiles[row][col];
-            this.gameTileInfoService.itemId = room.gameMap.itemPlacement[row][col];
-            this.gameTileInfoService.selectedPlayer = this.gameTileInfoService.getPlayer(room)
+            this.gameTileInfoService.transferRoomData(room);
         });
     }
 

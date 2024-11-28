@@ -2,30 +2,31 @@
     @if(gameTileInfoService.selectedPlayer) {
         <div class="info">
             <h2> {{ gameTileInfoService.selectedPlayer.name }}</h2>
-            <p class="small-text">Attributs</p>
-            <p class="small-text"> 
-                -> PV total: {{ gameTileInfoService.selectedPlayer.attributes.totalHp }} 
-                rapidité: {{ gameTileInfoService.selectedPlayer.attributes.speed }}
-                attaque: {{ gameTileInfoService.selectedPlayer.attributes.attack }}
-                défense: {{ gameTileInfoService.selectedPlayer.attributes.defense }}
-            </p>
-            <p class="small-text">Bilan de combats (victoires/Évasions/Défaites) </p>
-            <p class="small-text">
-                -> {{ gameTileInfoService.selectedPlayer.postGameStats.victories }} / 
-                {{ gameTileInfoService.selectedPlayer.postGameStats.evasions }} /
-                {{ gameTileInfoService.selectedPlayer.postGameStats.defeats }} 
-            </p>
-            <p class="small-text">Dégats</p>
-            <p class="small-text">
-                -> Dégats infligés: {{ gameTileInfoService.selectedPlayer.postGameStats.damageDealt }}
-                Dégats subis: {{ gameTileInfoService.selectedPlayer.postGameStats.damageTaken }} 
-            </p>
-            <img class="big-image" [src]="gameTileInfoService.selectedPlayer.avatar?.src" alt="player image"> 
+            <img class="big-image" [src]="gameTileInfoService.selectedPlayer.avatar?.src" alt="player image">
+            <div class="stats">
+                <div class="left-stats">
+                    <p class="small-text">Attributs</p>
+                    <p class="small-text"> - PV total: {{ gameTileInfoService.selectedPlayer.attributes.totalHp }}</p>
+                    <p class="small-text"> - Rapidité: {{ gameTileInfoService.selectedPlayer.attributes.speed }}</p>
+                    <p class="small-text"> - Attaque: {{ gameTileInfoService.selectedPlayer.attributes.attack }}</p>
+                    <p class="small-text"> - Défense: {{ gameTileInfoService.selectedPlayer.attributes.defense }}</p>
+                </div>
+                <div class="right-stats">
+                    <p class="small-text">Bilan de combat (Victoires/Évasions/Défaites) </p>
+                    <p class="small-text">
+                        - {{ gameTileInfoService.selectedPlayer.postGameStats.victories }} / 
+                        {{ gameTileInfoService.selectedPlayer.postGameStats.evasions }} /
+                        {{ gameTileInfoService.selectedPlayer.postGameStats.defeats }} 
+                    </p>
+                    <p class="small-text"> - Dégats infligés: {{ gameTileInfoService.selectedPlayer.postGameStats.damageDealt }}</p>
+                    <p class="small-text"> - Dégats subis: {{ gameTileInfoService.selectedPlayer.postGameStats.damageTaken }} </p>
+                </div>
+            </div> 
         </div>
     }   
     @else {
         <div class="info">
-            <h5> {{ gameTileInfoService.getTile().name}}</h5>
+            <h4> {{ gameTileInfoService.getTile().name}}</h4>
             @for(description of gameTileInfoService.getTile().descriptions; let i = $index; track description){
                 <p class="small-text"> - {{ description }}</p>
             }
@@ -36,7 +37,7 @@
                 }
             </div> 
             @if(gameTileInfoService.getItem()){
-                <h5> {{ gameTileInfoService.getItem()?.name }}</h5>
+                <h4> {{ gameTileInfoService.getItem()?.name }}</h4>
                 <p class="small-text"> {{ gameTileInfoService.getItem()?.description }}</p>
             }
         </div>

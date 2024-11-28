@@ -25,7 +25,7 @@ describe('TilePlayerInfoComponent', () => {
             description: 'Modifie le dé du joueur qui équipe cet objet : les valeurs équiprobables possibles sont 1, 2, 3, 5, 6, 6',
             count: ITEM_COUNT,
         });
-        gameTileInfoServiceSpy.getTile.and.returnValue({ id: 1, name: 'Ice', image: 'image', description: 'it makes you fall' });
+        gameTileInfoServiceSpy.getTile.and.returnValue({ id: 1, name: 'Ice', image: 'image', descriptions: ['it makes you fall'] });
         fixture.detectChanges();
     });
 

@@ -183,6 +183,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.onEndGame(winner, room, this.server);
     }
 
+
+    @SubscribeMessage(SocketEvents.GetRoom)
+    handleGetRoom(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.server.to(room.roomId).emit('obtainRoomInfo', room);
+    }
+
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
         try {
             const savedMessage = await this.chatService.saveMessage(message);
@@ -219,11 +226,5 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             this.gameService.stopGameTimers(room);
         }
         this.logger.log(`Client disconnected: ${client.id}`);
-    }
-
-    @SubscribeMessage(SocketEvents.GetRoom)
-    getRoom(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        this.server.to(room.roomId).emit('obtainRoomInfo', room);
     }
 }
