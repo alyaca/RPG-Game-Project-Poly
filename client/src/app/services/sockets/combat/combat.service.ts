@@ -73,8 +73,8 @@ export class CombatService {
             }
         });
 
-        this.socketCommunicationService.on('evasionSuccess', (player: Player) => {
-            this.onEvasion(player);
+        this.socketCommunicationService.on('evasionSuccess', (data: { listPlayers: Player[]; player: Player}) => {
+            this.onEvasion(data.player);
         });
 
         this.socketCommunicationService.on('evasionFail', (player: Player) => {
