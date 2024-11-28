@@ -128,12 +128,15 @@ export class PlayerInventoryService {
 
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
         let newItem = 0;
-        for (const items of infoSwap.modifiedInventory) {
-            for (const oldItems of infoSwap.oldInventory) {
-                if (items === oldItems) continue;
+        for (const items of infoSwap.modifiedInventory)
+        {
+            if(!infoSwap.oldInventory.includes(items))
+            {
                 newItem = items.id;
+                break;
             }
         }
+
         const room = this.roomService.getRoom(infoSwap.client);
         let playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
         playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
