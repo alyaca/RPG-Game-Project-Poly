@@ -429,11 +429,10 @@ export class GameService {
         return player;
     }
 
-    placeItemsOnGround(client: Socket, server: Server, player : Player | undefined) {
+    placeItemsOnGround(client: Socket, server: Server, player: Player | undefined) {
         const room = this.roomService.getRoom(client);
         let playerToDropItems = player;
         if (!playerToDropItems) {
-
             playerToDropItems = room.listPlayers.find((players) => players.id === client.id);
         }
         if (playerToDropItems.inventory.length === 0) return;

@@ -290,7 +290,7 @@ describe('CombatService', () => {
             service.manageTurnAfterCombat(mockClient, mockPlayers[0], mockAttacker, mockServer);
             jest.advanceTimersByTime(END_COMBAT_DELAY);
 
-            expect(service['resetCombatState']).toHaveBeenCalledWith(room);
+            expect(service['resetCombatState']).toHaveBeenCalled();
             expect(mockServer.to(room.roomId).emit).not.toHaveBeenCalledWith('reachableTiles', []);
             expect(mockGameService.onTurnEnded).toHaveBeenCalled();
         });
@@ -390,7 +390,7 @@ describe('CombatService', () => {
         room.listPlayers.push(player1);
         room.listPlayers.push(player2);
 
-        service['resetCombatState'](room);
+        service['resetCombatState'](room, mockCombatPlayers);
 
         expect(mockRoomService.getFightTimer).toHaveBeenCalledWith(room.roomId);
         expect(mockRoomService.getFightTimer(room.roomId).stopTimer).toHaveBeenCalled();

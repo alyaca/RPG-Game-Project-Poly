@@ -63,7 +63,7 @@ export class CombatService {
         this.onStartTurn(client, server, room);
     }
 
-    checkXiphos(combatPlayers: CombatPlayers, server: Server, room : Room) {
+    checkXiphos(combatPlayers: CombatPlayers, server: Server, room: Room) {
         if (combatPlayers.attacker.inventory.find((items) => items.id === ObjectType.Xiphos)) {
             if (combatPlayers.attacker.attributes.currentHp <= combatPlayers.attacker.attributes.totalHp / 2) {
                 combatPlayers.attacker.attributes.attack += 2;
@@ -248,11 +248,11 @@ export class CombatService {
         return Math.random() < EVASION_SUCCESS_RATE;
     }
 
-    private hasXiphos(player : Player) {
+    private hasXiphos(player: Player) {
         return player.inventory.find((items) => items.id === ObjectType.Xiphos);
     }
 
-    private resetCombatState(room: Room, combatPlayers : CombatPlayers) {
+    private resetCombatState(room: Room, combatPlayers: CombatPlayers) {
         const attacker = combatPlayers.attacker;
         const defender = combatPlayers.defender;
         const hasCheckedXiphos = this.combatInfos.get(room.roomId).checkedXiphos;
@@ -261,7 +261,6 @@ export class CombatService {
         if (this.hasXiphos(attacker) && hasCheckedXiphos) {
             attackerAffected = true;
         }
-        
         if (this.hasXiphos(defender) && hasCheckedXiphos) {
             defenderAffected = true;
         }
