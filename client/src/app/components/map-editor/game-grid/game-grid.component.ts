@@ -175,8 +175,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on<Player[]>('updatePlayersList', (listPlayers: Player[]) => {
-            this.navigationService.players = listPlayers;
+        this.socketCommunicationService.on<Player>('updatePlayersList', (updatedPlayer : Player) => {
+            const index = this.navigationService.players.findIndex((players) => players.name === updatedPlayer.name);
+            this.navigationService.players[index].attributes = updatedPlayer.attributes;
+            this.navigationService.players[index].inventory = updatedPlayer.inventory;
         });
 
         this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
@@ -186,6 +188,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on('updateObjectsAfterCombat', (data: { newGrid: number[][]; position: Position }) => {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
+            console.log(data.newGrid);
+            console.log(data.position.x);
+            console.log(data.position.y);
+            console.log(this.objectsArray);
         });
     }
 

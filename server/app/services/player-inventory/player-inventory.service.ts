@@ -29,9 +29,10 @@ export class PlayerInventoryService {
             room.gameMap.itemPlacement[info.player.position.x][info.player.position.y] = 0;
         }
         const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
-        room.listPlayers[index] = info.player;
+        room.listPlayers[index].attributes = info.player.attributes;
+        room.listPlayers[index].inventory = info.player.inventory;
         info.client.emit('updateInventory', info.player);
-        info.client.emit('updatePlayersList', room.listPlayers);
+        info.server.emit('updatePlayersList', info.player);
     }
 
     determineRandomItem(allObjects: number[][]): number {
@@ -139,11 +140,12 @@ export class PlayerInventoryService {
         room.gameMap.itemPlacement[playerToUpdate.position.x][playerToUpdate.position.y] = infoSwap.droppedItem;
 
         const index = room.listPlayers.findIndex((players) => players.name === playerToUpdate.name);
-        room.listPlayers[index] = playerToUpdate;
+        room.listPlayers[index].attributes = playerToUpdate.attributes;
+        room.listPlayers[index].inventory = playerToUpdate.inventory;
 
         infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
-        infoSwap.server.to(room.roomId).emit('updateInventory', playerToUpdate);
-        infoSwap.server.to(room.roomId).emit('updatePlayersList', room.listPlayers);
+        infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate);
+        infoSwap.server.to(room.roomId).emit('updatePlayersList', playerToUpdate);
         return playerToUpdate;
     }
 }
