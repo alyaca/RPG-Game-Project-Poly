@@ -123,10 +123,10 @@ export class GameService {
         this.openDialog({
             title: DialogTitle.QuitPostGameLobby,
             messages: [DialogMessages.QuitPostGameLobby],
-            options: [DialogOptions.Stay, DialogOptions.Quit],
+            options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
         }).subscribe((result) => {
-            if (result.action === DialogResult.Right) {
+            if (result.action === DialogResult.Left) {
                 this.router.navigate(['/home']);
                 this.socketCommunicationService.send('leaveRoom', roomId);
             }

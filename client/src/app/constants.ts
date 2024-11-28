@@ -237,7 +237,7 @@ export enum DialogTitle {
     SuccessEvasion = 'Évasion réussie',
     MaxPlayers = 'Nombre de joueurs maximal atteint',
     AddBotWhenLocked = 'Partie vérrouillée',
-    QuitPostGameLobby = "Retourner à la page d'acceuil",
+    QuitPostGameLobby = "Retourner à la page d'accueil",
 }
 
 export enum DialogMessages {
