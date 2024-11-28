@@ -419,9 +419,13 @@ export class GameService {
 
     addActionPoints(player: Player) {
         // to fix(maybe)
-        if (player.attributes.actionPoints === 1) {
-            player.attributes.maxActionPoints = 2;
-            player.attributes.actionPoints += 1;
+        if (player.inventory.find((items) => items.id === ObjectType.Trident)) {
+            if (player.attributes.actionPoints === 1) {
+                player.attributes.maxActionPoints = 2;
+                player.attributes.actionPoints += 1;
+            } else {
+                player.attributes.actionPoints = 1;
+            }
         } else {
             player.attributes.actionPoints = 1;
         }
@@ -602,9 +606,9 @@ export class GameService {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         let previousActivePlayer = listPlayers[index];
-        if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
-            previousActivePlayer = this.addActionPoints(previousActivePlayer);
-        }
+        // if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
+        previousActivePlayer = this.addActionPoints(previousActivePlayer);
+        // }
         if (this.playerInWall(room, previousActivePlayer)) {
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
             server.to(room.roomId).emit('updateObjectsAfterCombat', {
