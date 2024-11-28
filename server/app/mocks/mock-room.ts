@@ -3,6 +3,7 @@ import { Player, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { mockGame, mockGameDebug } from './mock-game';
 import { mockNavigation } from './mock-navigation';
+import { defaultGlobalStats } from './default-global-stats';
 
 export const mockRoom: Room = {
     gameMap: mockGame,
@@ -13,6 +14,7 @@ export const mockRoom: Room = {
     isLocked: false,
     gameStatus: GameStatus.Lobby,
     navigation: mockNavigation,
+    globalPostGameStats: defaultGlobalStats,
 };
 
 export const mockRooms: Room[] = [
@@ -25,6 +27,7 @@ export const mockRooms: Room[] = [
         isLocked: false,
         gameStatus: GameStatus.Lobby,
         navigation: mockNavigation,
+        globalPostGameStats: defaultGlobalStats,
     },
     {
         gameMap: mockGame,
@@ -35,6 +38,7 @@ export const mockRooms: Room[] = [
         isLocked: false,
         gameStatus: GameStatus.Lobby,
         navigation: mockNavigation,
+        globalPostGameStats: defaultGlobalStats,
     },
     {
         gameMap: mockGame,
@@ -51,6 +55,7 @@ export const mockRooms: Room[] = [
         adminId: 'admin1234',
         isLocked: false,
         gameStatus: GameStatus.Lobby,
+        globalPostGameStats: defaultGlobalStats,
     },
 ];
 
@@ -64,6 +69,7 @@ export const mockRoomDebug: Room[] = [
         isLocked: false,
         gameStatus: GameStatus.Lobby,
         navigation: mockNavigation,
+        globalPostGameStats: defaultGlobalStats,
         isDebug: true,
     },
     {
@@ -74,6 +80,7 @@ export const mockRoomDebug: Room[] = [
         adminId: 'admin1234',
         isLocked: false,
         gameStatus: GameStatus.Lobby,
+        globalPostGameStats: defaultGlobalStats,
         isDebug: false,
     },
 ];

@@ -10,6 +10,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SocketEvents } from './socket.events';
+
 @WebSocketGateway({ cors: { origin: '*' } })
 @Injectable()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
@@ -173,6 +174,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(SocketEvents.DoorAction)
     handleDoorAction(client: Socket, doorActionData: DoorActionData) {
         this.gameService.handleDoor(client, this.server, doorActionData);
+    }
+
+    @SubscribeMessage(SocketEvents.ForceEndGame) // temporary
+    handleForceEndGame(client: Socket, winner: Player) {
+        this.logger.log('end of game has been forced');
+        const room = this.roomService.getRoom(client);
+        this.gameService.onEndGame(winner, room, this.server);
     }
 
     async saveMessage(client: Socket, message: IMessage): Promise<void> {

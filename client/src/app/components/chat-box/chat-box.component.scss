@@ -38,6 +38,10 @@
     align-items: center;
 }
 
+#chat-input:hover{
+    background: linear-gradient(to right, rgba(111, 109, 56, 0.4), rgba(177, 168, 131, 0.1));
+}
+
 .input-container.logs-active {
     width: 222%;
     display: flex;

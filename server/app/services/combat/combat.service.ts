@@ -19,9 +19,11 @@ import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
 import { Game } from '@common/game';
 import { Player, Position } from '@common/player';
+import { PlayerStatType } from '@common/post-game-stat';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
@@ -86,6 +88,7 @@ export class CombatService {
         this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.DamageDealt, PlayerStatType.DamageTaken);
             this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
@@ -127,6 +130,8 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
             this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.Evasions, PlayerStatType.Evasions);
+            this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
             server.to(room.roomId).emit('combatOver');
             this.continueTurn(client, server);
             this.combatInfos.delete(room.roomId);
@@ -140,9 +145,10 @@ export class CombatService {
 
     combatWon(client: Socket, winner: Player, server: Server) {
         const room = this.roomService.getRoom(client);
+        const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
         this.resetCombatState(room);
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
-        this.addVictory(room, winner, server);
+        this.addVictory(combatPlayers, room, server);
         server.to(room.roomId).emit('combatOver');
     }
 
@@ -218,20 +224,31 @@ export class CombatService {
     }
 
     private checkEndGame(player: Player, room: Room, server: Server) {
-        if (player.victories >= VICTORIES) {
-            server.to(room.roomId).emit('endGame', player);
-            this.gameService.stopGameTimers(room);
+        if (player.postGameStats.victories >= VICTORIES) {
+            this.gameService.onEndGame(player, room, server);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         } else {
             server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player });
         }
     }
 
-    private addVictory(room: Room, player: Player, server: Server) {
-        const playerWinner = room.listPlayers.find((p) => p.id === player.id);
-        playerWinner.victories++;
+    private addVictory(combatPlayers: CombatPlayers, room: Room, server: Server) {
+        const playerWinner = this.addToPostGameStats(room, combatPlayers, PlayerStatType.Victories, PlayerStatType.Defeats);
+
+        this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
         this.combatInfos.delete(room.roomId);
+    }
+
+    private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
+        const attacker = room.listPlayers.find((p) => p.id === players.attacker.id);
+        const defender = room.listPlayers.find((p) => p.id === players.defender.id);
+        if (attacker && defender) {
+            attacker.postGameStats[attr1 as keyof Player['postGameStats']]++;
+            defender.postGameStats[attr2 as keyof Player['postGameStats']]++;
+            return attacker;
+        }
+        return null;
     }
 
     private replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {

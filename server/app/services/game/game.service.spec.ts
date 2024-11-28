@@ -1,6 +1,6 @@
 import { Timer } from '@app/classes/timer/timer';
 import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
-import { baseBot, mockPlayers, mockPlayerStats } from '@app/mocks/mock-players';
+import { baseBot, mockPlayers, mockAttributes } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
@@ -605,6 +605,7 @@ describe('GameService', () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
             service.checkEndTurn = jest.fn().mockReturnValue(false);
+            service.addUniqueTileToHistory = jest.fn();
             service.checkActions = jest.fn();
             service.isTurnSkipped = false;
             await service.processNavigation(room, server, path, mockSocket);
@@ -623,6 +624,7 @@ describe('GameService', () => {
             ];
             service['checkFell'] = jest.fn().mockReturnValue(false);
             service.checkEndTurn = jest.fn().mockReturnValue(false);
+            service.addUniqueTileToHistory = jest.fn();
 
             await service.processNavigation(room, server, path, mockSocket);
 
@@ -636,6 +638,7 @@ describe('GameService', () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
             service.checkEndTurn = jest.fn().mockReturnValue(true);
+            service.addUniqueTileToHistory = jest.fn();
             await service.processNavigation(room, server, path, mockSocket);
 
             expect(service.getActivePlayer).toHaveBeenCalledWith(room);
@@ -694,7 +697,7 @@ describe('GameService', () => {
 
     it('should assign attack and defense stats based on random values', () => {
         const mockPlayerBot = mockPlayers[3];
-        mockPlayerBot.attributes = mockPlayerStats;
+        mockPlayerBot.attributes = mockAttributes;
         jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_SUCCESS).mockReturnValueOnce(EQUAL_ODDS_FAIL);
 
         const result = service.assignStatsToBot(mockPlayerBot);
@@ -706,7 +709,7 @@ describe('GameService', () => {
 
     it('should assign the opposite set of stats if random values are different', () => {
         const mockPlayerBot = mockPlayers[3];
-        mockPlayerBot.attributes = mockPlayerStats;
+        mockPlayerBot.attributes = mockAttributes;
         jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_FAIL).mockReturnValueOnce(EQUAL_ODDS_SUCCESS);
 
         const result = service.assignStatsToBot(mockPlayerBot);

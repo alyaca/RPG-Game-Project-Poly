@@ -1,4 +1,5 @@
 import { Navigation } from '@app/classes/navigation/navigation';
+import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 import {
     DEFAULT_ATTRIBUTE,
     DISCONNECTED_POSITION,
@@ -134,6 +135,8 @@ export class GameService {
 
     onStartGame(socket: Socket, server: Server) {
         const room = this.roomService.getRoom(socket);
+        room.stopwatch = new Stopwatch();
+        room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
@@ -155,6 +158,7 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
+
         server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, server, activePlayer, LogType.StartTurn);
 
@@ -168,7 +172,9 @@ export class GameService {
 
     onTurnEnded(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
+
         if (!this.isMoving) {
+            room.globalPostGameStats.turns++;
             this.updateActivePlayer(client);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.actionPoints = activePlayer.attributes.maxActionPoints;
@@ -270,13 +276,37 @@ export class GameService {
         this.checkActions(room, server);
     }
 
+    addUniqueTileToHistory(positionList: Position[], tile: Position) {
+        if (!positionList.some((pos) => pos.x === tile.x && pos.y === tile.y)) {
+            positionList.push(tile);
+        }
+    }
+
+    initTileHistory(room: Room) {
+        for (const player of room.listPlayers) {
+            this.addUniqueTileToHistory(player.positionHistory, player.spawnPosition);
+            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, player.spawnPosition);
+        }
+    }
+
+    resetGlobalStats(room: Room) {
+        room.globalPostGameStats.globalTilesVisited = [];
+        room.globalPostGameStats.doorsInteracted = [];
+        room.globalPostGameStats.turns = 0;
+        room.globalPostGameStats.nbFlagBearers = 0;
+        room.globalPostGameStats.gameDuration = '';
+    }
+
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
         const player = this.getActivePlayer(room);
-
+        this.initTileHistory(room); // Should maybe call this function elsewhere
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
+            this.addUniqueTileToHistory(player.positionHistory, tile);
+            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
+
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
@@ -330,12 +360,22 @@ export class GameService {
         return false;
     }
 
+    onEndGame(winner: Player, room: Room, server: Server) {
+        room.gameStatus = GameStatus.Ended;
+        room.stopwatch.stop();
+        room.globalPostGameStats.gameDuration = room.stopwatch.getTime();
+        server.to(room.roomId).emit('endGame', { winner, room });
+        this.resetGlobalStats(room);
+        this.stopGameTimers(room);
+    }
+
     handleDoor(client: Socket, server: Server, doorActionData: DoorActionData) {
         const { clickedPosition, player } = doorActionData;
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
 
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
+            this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
             activePlayer.attributes.actionPoints = 0;
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);

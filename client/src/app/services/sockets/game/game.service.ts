@@ -119,6 +119,20 @@ export class GameService {
         });
     }
 
+    onQuitPostGameLobby(roomId: string) {
+        this.openDialog({
+            title: DialogTitle.QuitPostGameLobby,
+            messages: [DialogMessages.QuitPostGameLobby],
+            options: [DialogOptions.Quit, DialogOptions.Stay],
+            confirm: true,
+        }).subscribe((result) => {
+            if (result.action === DialogResult.Left) {
+                this.router.navigate(['/home']);
+                this.socketCommunicationService.send('leaveRoom', roomId);
+            }
+        });
+    }
+
     onPlayerKickedOut() {
         this.openDialog({
             title: DialogTitle.KickedOut,

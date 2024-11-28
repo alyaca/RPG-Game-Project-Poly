@@ -1,0 +1,34 @@
+@if(postGameService.isAttributeVictories(attribute)){
+    <div 
+    class="attribute" 
+    (mouseenter)="postGameService.updateExplanations('victories')"
+    (mouseleave)="postGameService.updateExplanations('')">
+        <div class="sort-buttons">
+            <div class="sort-button" (click)="postGameService.sortPlayers('victories')"                      
+                [ngClass]="getSortClass('victories')"
+            ></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('evasions')"                       
+                [ngClass]="getSortClass('evasions')"
+            ></div>
+            <div class="sort-button" (click)="postGameService.sortPlayers('defeats')"               
+                [ngClass]="getSortClass('defeats')"
+            ></div>
+        </div>
+        <p class="attr-txt">V/É/D</p>
+    </div>
+}
+@else {
+    <div 
+        class="attribute" 
+        (mouseenter)="postGameService.updateExplanations(attribute)"
+        (mouseleave)="postGameService.updateExplanations('')"
+        (click)="postGameService.sortPlayers(attribute)" >
+    <div 
+        class="sort-button" 
+        [ngClass]="getSortClass(attribute)"
+    ></div>
+    <p class="attr-txt"> {{ displayText }}</p>
+</div>
+}
+
+
