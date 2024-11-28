@@ -194,7 +194,7 @@ export class Navigation {
         if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
         if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
         if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
-        if (this.players.some((player) => player.position.x === row && player.position.y === col)) return false;
+        if (this.hasPlayerOnTile({x:row, y : col}, this.players)) return false;
         if (this.gameMap.itemPlacement[row][col] !== NO_ITEM) return false;
         return true;
     }

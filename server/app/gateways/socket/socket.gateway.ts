@@ -158,9 +158,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(SocketEvents.LeftGame)
     handleDropItemsOnAbandon(client: Socket) {
-        const room = this.roomService.getRoom(client);
-        const player = room.listPlayers.find((players) => players.id === client.id);
-        this.gameService.placeItemsOnGround(player, client, this.server);
+        this.gameService.placeItemsOnGround(client, this.server);
     }
 
     @SubscribeMessage(SocketEvents.DebugMode)

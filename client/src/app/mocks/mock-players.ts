@@ -72,6 +72,8 @@ export const mockInventoryPlayer: Player = {
     position: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
     spawnPosition: { x: 0, y: 0 },
+    postGameStats: defaultPostGameStats,
+    positionHistory: [],
 };
 
 export const baseBot: Player = {

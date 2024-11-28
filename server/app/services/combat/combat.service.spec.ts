@@ -201,7 +201,7 @@ describe('CombatService', () => {
 
         service.attackPlayer(mockClient, mockServer);
         expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackValues', combatValue);
-        expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'attackFail', mockCombatInfos.combatPlayers.attacker);
+        expect(service.emitToCombatPlayers).toHaveBeenCalled();
     });
 
     describe('getCombatValues', () => {

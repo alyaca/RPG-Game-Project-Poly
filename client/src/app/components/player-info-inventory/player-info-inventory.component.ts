@@ -38,7 +38,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
 
         this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
             if (this.player.name === playerToUpdate.name) {
-                if (playerToUpdate.inventory.find((items) => items.id === ObjectType.Xiphos)) {
+                if (this.hasXiphos(playerToUpdate)) {
                     this.player.attributes.attack = DEFAULT_ATTRIBUTE;
                     this.player.attributes.defense = DEFAULT_ATTRIBUTE;
                 } else {
@@ -48,6 +48,10 @@ export class PlayerInfoInventoryComponent implements OnInit {
                 this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
             }
         });
+    }
+
+    hasXiphos(player: Player) {
+        return player.inventory.find((items) => items.id === ObjectType.Xiphos);
     }
 
     increaseMovement() {

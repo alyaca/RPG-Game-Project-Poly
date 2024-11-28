@@ -131,7 +131,6 @@ export class PlayerInventoryService {
         for (const items of infoSwap.modifiedInventory) {
             if (!infoSwap.oldInventory.includes(items)) {
                 newItem = items.id;
-                break;
             }
         }
 

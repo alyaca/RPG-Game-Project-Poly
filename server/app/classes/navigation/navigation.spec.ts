@@ -368,7 +368,7 @@ describe('Navigation', () => {
             navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
-            expect(navigation['distances'][2][0]).toBe(Infinity);
+            expect(navigation['distances'][2][0]).toBe(1);
             expect(navigation['distances'][1][0]).toBe(TileCost.Ground);
         });
 

@@ -429,22 +429,23 @@ export class GameService {
         return player;
     }
 
-    placeItemsOnGround(defender: Player, client: Socket, server: Server) {
+    placeItemsOnGround(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        if (defender.inventory.length === 0) return;
-        for (const items of defender.inventory) {
-            const position = room.navigation.findClosestValidTile(defender, room);
-            defender = this.playerInventoryService.removeItemEffects(defender, items.id);
+        let player = room.listPlayers.find((players) => players.id === client.id);
+        if (player.inventory.length === 0) return;
+        for (const items of player.inventory) {
+            const position = room.navigation.findClosestValidTile(player, room);
+            player = this.playerInventoryService.removeItemEffects(player, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
             server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
         }
 
-        defender.inventory = [];
+        player.inventory = [];
 
-        const index = room.listPlayers.findIndex((players) => players.id === defender.id);
-        room.listPlayers[index].inventory = defender.inventory;
-        room.listPlayers[index].attributes = defender.attributes;
-        server.to(defender.id).emit('updateInventory', defender);
+        const index = room.listPlayers.findIndex((players) => players.id === player.id);
+        room.listPlayers[index].inventory = player.inventory;
+        room.listPlayers[index].attributes = player.attributes;
+        server.to(player.id).emit('updateInventory', player);
     }
 
     playerInWall(room: Room, player: Player) {
