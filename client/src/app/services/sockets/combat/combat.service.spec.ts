@@ -106,23 +106,10 @@ describe('CombatService', () => {
                 callback(data as T);
             }
         });
+        service.opponent = mockPlayers[1];
         service.activePlayer = data.attacker;
         service.initSocketListeners();
         expect(service.combatStatus).toBe(`${data.attacker.name} a échoué son attaque.`);
-    });
-
-    it('should update the stats on event updateStats', () => {
-        service.attacker = mockPlayers[0];
-        service.defender = mockPlayers[1];
-        const data = { attacker: mockAttacker, defender: mockDefender };
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'updateStats') {
-                callback(data as T);
-            }
-        });
-        service.initSocketListeners();
-        expect(service.attacker.attributes.attack).toEqual(data.attacker.attributes.attack);
-        expect(service.defender.attributes.defense).toEqual(data.defender.attributes.defense);
     });
 
     it('should call onEvasion with the event evasionSuccess', () => {

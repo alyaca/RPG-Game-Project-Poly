@@ -26,6 +26,7 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 /* eslint-disable max-len */
+/* eslint-disable max-lines */
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
@@ -196,12 +197,12 @@ export class CombatService {
         this.combatInfos.delete(room.roomId);
     }
 
-    combatWon(client: Socket, winner: Player, server: Server) {
+    combatWon(client: Socket, winner: Player, server: Server, attackerWon: boolean) {
         const room = this.roomService.getRoom(client);
         const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
         this.resetCombatState(room, combatPlayers);
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
-        this.addVictory(combatPlayers, room, server);
+        this.addVictory(combatPlayers, room, server, attackerWon);
         this.combatInfos.delete(room.roomId);
         server.to(room.roomId).emit('combatOver');
     }
@@ -298,18 +299,43 @@ export class CombatService {
         });
     }
 
+    private resetAttackerIce(room: Room, attacker: Player) {
+        if (room.gameMap.tiles[attacker.position.x][attacker.position.y] === TileType.Ice) {
+            attacker.attributes.attack += 2;
+            attacker.attributes.defense += 2;
+            return attacker;
+        }
+        return attacker;
+    }
+
+    private resetDefenderIce(room: Room, defender: Player) {
+        if (room.gameMap.tiles[defender.position.x][defender.position.y] === TileType.Ice) {
+            defender.attributes.attack += 2;
+            defender.attributes.defense += 2;
+            return defender;
+        }
+        return defender;
+    }
+
     private checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
+        const room = this.roomService.getRoom(client);
         if (defender.attributes.currentHp <= 0) {
             this.gameService.placeItemsOnGround(client, server, defender);
             this.replacePlayerOnSpawnPoint(defender, client, server);
             this.manageTurnAfterCombat(client, defender, attacker, server);
-            this.combatWon(client, attacker, server);
+            this.combatWon(client, attacker, server, true);
+            attacker = this.resetAttackerIce(room, attacker);
+            defender = this.resetDefenderIce(room, defender);
+            this.emitToCombatPlayers(server, { attacker, defender }, 'updateStats', { attacker, defender });
             return true;
         } else if (attacker.attributes.currentHp <= 0) {
             this.gameService.placeItemsOnGround(client, server, attacker);
             this.replacePlayerOnSpawnPoint(attacker, client, server);
             this.manageTurnAfterCombat(client, attacker, defender, server);
-            this.combatWon(client, defender, server);
+            this.combatWon(client, defender, server, false);
+            attacker = this.resetAttackerIce(room, attacker);
+            defender = this.resetDefenderIce(room, defender);
+            this.emitToCombatPlayers(server, { attacker, defender }, 'updateStats', { attacker, defender });
             return true;
         }
         return false;
@@ -324,8 +350,24 @@ export class CombatService {
         }
     }
 
-    private addVictory(combatPlayers: CombatPlayers, room: Room, server: Server) {
-        const playerWinner = this.addToPostGameStats(room, combatPlayers, PlayerStatType.Victories, PlayerStatType.Defeats);
+    private addStatsForWinLoss(room: Room, combatPlayers: CombatPlayers, attackerWon: boolean) {
+        const attacker = room.listPlayers.find((players) => players.id === combatPlayers.attacker.id);
+        const defender = room.listPlayers.find((players) => players.id === combatPlayers.defender.id);
+        if (attacker && defender) {
+            if (attackerWon) {
+                attacker.postGameStats.victories++;
+                defender.postGameStats.defeats++;
+                return attacker;
+            } else {
+                attacker.postGameStats.defeats--;
+                defender.postGameStats.victories++;
+                return defender;
+            }
+        }
+    }
+
+    private addVictory(combatPlayers: CombatPlayers, room: Room, server: Server, attackerWon: boolean) {
+        const playerWinner = this.addStatsForWinLoss(room, combatPlayers, attackerWon);
 
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
@@ -403,7 +445,7 @@ export class CombatService {
 
     private defaultCombatWin(client: Socket, player: Player, server: Server) {
         server.to(player.id).emit('defaultWin');
-        this.combatWon(client, player, server);
+        this.combatWon(client, player, server, true);
     }
 
     private getOpponent(client: Socket) {
