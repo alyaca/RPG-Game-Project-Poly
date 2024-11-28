@@ -129,8 +129,9 @@ export class PlayerInventoryService {
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
         let newItem = 0;
         for (const items of infoSwap.modifiedInventory) {
-            if (!infoSwap.oldInventory.includes(items)) {
+            if (!infoSwap.oldInventory.find((oldItems) => oldItems.id === items.id)) {
                 newItem = items.id;
+                break;
             }
         }
 

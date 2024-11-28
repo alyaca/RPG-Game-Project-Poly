@@ -29,7 +29,6 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class CombatService {
     combatInfos = new Map<string, CombatInfos>();
-    // checkedXiphos = false;
 
     constructor(
         private roomService: RoomService,
@@ -189,9 +188,10 @@ export class CombatService {
     combatWon(client: Socket, winner: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
-        this.resetCombatState(room);
+        this.resetCombatState(room, combatPlayers);
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
         this.addVictory(combatPlayers, room, server);
+        this.combatInfos.delete(room.roomId);
         server.to(room.roomId).emit('combatOver');
     }
 
@@ -199,7 +199,7 @@ export class CombatService {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);
         const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
-        this.resetCombatState(room);
+        this.resetCombatState(room, this.combatInfos.get(room.roomId).combatPlayers);
         setTimeout(() => {
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
                 if (timeRemaining <= 0) {
@@ -219,7 +219,7 @@ export class CombatService {
             const reachability = room.navigation.findReachableTiles(attacker, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
         } else {
-            this.resetCombatState(room);
+            this.resetCombatState(room, this.combatInfos.get(room.roomId).combatPlayers);
             setTimeout(() => {
                 this.gameService.onTurnEnded(activePlayerSocket, server);
             }, END_COMBAT_DELAY);
@@ -252,9 +252,9 @@ export class CombatService {
         return player.inventory.find((items) => items.id === ObjectType.Xiphos);
     }
 
-    private resetCombatState(room: Room) {
-        const attacker = this.combatInfos.get(room.roomId).combatPlayers.attacker;
-        const defender = this.combatInfos.get(room.roomId).combatPlayers.defender;
+    private resetCombatState(room: Room, combatPlayers : CombatPlayers) {
+        const attacker = combatPlayers.attacker;
+        const defender = combatPlayers.defender;
         const hasCheckedXiphos = this.combatInfos.get(room.roomId).checkedXiphos;
         let attackerAffected = false;
         let defenderAffected = false;
@@ -267,7 +267,6 @@ export class CombatService {
         }
 
         this.roomService.getFightTimer(room.roomId).stopTimer();
-        this.combatInfos.delete(room.roomId);
         room.listPlayers.forEach((player) => {
             if (attackerAffected) {
                 if (player.name === attacker.name) {
@@ -291,10 +290,10 @@ export class CombatService {
 
     private checkIfPlayerIsDead(client: Socket, defender: Player, attacker: Player, server: Server) {
         if (defender.attributes.currentHp <= 0) {
-            this.gameService.placeItemsOnGround(client, server);
+            this.gameService.placeItemsOnGround(client, server, defender);
             this.replacePlayerOnSpawnPoint(defender, client, server);
-            this.combatWon(client, attacker, server);
             this.manageTurnAfterCombat(client, defender, attacker, server);
+            this.combatWon(client, attacker, server);
             return true;
         }
         return false;
@@ -314,7 +313,6 @@ export class CombatService {
 
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
-        this.combatInfos.delete(room.roomId);
     }
 
     private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
