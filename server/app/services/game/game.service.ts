@@ -183,7 +183,6 @@ export class GameService {
             room.globalPostGameStats.turns++;
             this.updateActivePlayer(server, room);
             const activePlayer = this.getActivePlayer(room);
-            activePlayer.attributes.actionPoints = activePlayer.attributes.maxActionPoints;
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
             server.to(room.roomId).emit('reachability', activePlayer);
             server.to(room.roomId).emit('isActive', activePlayer);
@@ -408,7 +407,7 @@ export class GameService {
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
             this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
-            activePlayer.attributes.actionPoints = 0;
+            activePlayer.attributes.actionPoints--;
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);

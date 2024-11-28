@@ -113,10 +113,11 @@ describe('CombatService', () => {
     });
 
     it('should call onEvasion with the event evasionSuccess', () => {
+        const data = { listPlayers: mockPlayers, player: mockAttacker };
         spyOn(service, 'onEvasion');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'evasionSuccess') {
-                callback(mockAttacker as T);
+                callback(data as T);
             }
         });
         service.initSocketListeners();

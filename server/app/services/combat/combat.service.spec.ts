@@ -14,6 +14,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 
 /* eslint-disable max-lines */
+/* eslint-disable max-len */
 describe('CombatService', () => {
     let service: CombatService;
     let mockRoomService: jest.Mocked<RoomService>;
@@ -238,9 +239,18 @@ describe('CombatService', () => {
 
     describe('checkIfPlayerIsDead', () => {
         it('should return true and reset HP if a player dies', () => {
-            const player1 = { id: '1', attributes: { currentHp: 0, totalHp: 10 }, postGameStats: { victories: 0 }, position: { x: 1, y: 2 }} as Player;
-            const player2 = { id: '2', attributes: { currentHp: 10, totalHp: 10 }, postGameStats: { victories: 0 }, position: { x: 2, y: 3 } } as Player;
-
+            const player1 = {
+                id: '1',
+                attributes: { currentHp: 0, totalHp: 10 },
+                postGameStats: { victories: 0 },
+                position: { x: 1, y: 2 },
+            } as Player;
+            const player2 = {
+                id: '2',
+                attributes: { currentHp: 10, totalHp: 10 },
+                postGameStats: { victories: 0 },
+                position: { x: 2, y: 3 },
+            } as Player;
             mockRoomService.getRoom.mockReturnValue(room);
             mockGameService.getActivePlayer.mockReturnValue(player2);
             service.manageTurnAfterCombat = jest.fn();
