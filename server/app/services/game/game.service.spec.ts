@@ -7,11 +7,13 @@ import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
-import { Behavior, Player, Status } from '@common/player';
+import { Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
+import { mockGlobalStats } from '@app/mocks/default-global-stats';
+import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 
 /* eslint-disable max-lines */
 describe('GameService', () => {
@@ -962,4 +964,66 @@ describe('GameService', () => {
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('reachableTiles', mockTiles);
         expect(service.onTurnEnded).toHaveBeenCalled();
     });
+
+    it('should reset globalPostGameStats in the room', () => {
+        room.globalPostGameStats = mockGlobalStats;
+        service.resetGlobalStats(room);
+        expect(room.globalPostGameStats.globalTilesVisited).toEqual([]);
+        expect(room.globalPostGameStats.doorsInteracted).toEqual([]);
+        expect(room.globalPostGameStats.turns).toBe(1);
+        expect(room.globalPostGameStats.nbFlagBearers).toBe(0);
+        expect(room.globalPostGameStats.gameDuration).toBe('');
+    });
+    
+    it('should handle end of the game correctly', () => {
+        const mockWinner = mockPlayers[0];
+        room.stopwatch = {
+            stop: jest.fn(),
+            getTime: jest.fn().mockReturnValue('15:32'),
+        } as unknown as Stopwatch;
+    
+        jest.spyOn(service, 'resetGlobalStats');
+        jest.spyOn(service, 'stopGameTimers');
+
+        service.onEndGame(mockWinner, room, mockServer);
+
+        expect(room.gameStatus).toBe(GameStatus.Ended);
+        expect(room.stopwatch.stop).toHaveBeenCalled();
+        expect(mockServer.to).toHaveBeenCalledWith(room.roomId);
+    
+        expect(service.resetGlobalStats).toHaveBeenCalledWith(room);
+        expect(service.stopGameTimers).toHaveBeenCalledWith(room);
+    });
+
+    describe('addUniqueTileToHistory', () => {
+        it('should add a tile to the position list if it does not already exist', () => {
+            const positionList = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+            const newTile = { x: 2, y: 2 };
+            service.addUniqueTileToHistory(positionList, newTile);
+    
+            expect(positionList).toContainEqual(newTile);
+            expect(positionList.length).toBe(3);
+        });
+    
+        it('should not add a tile if a matching position already exists', () => {
+            const positionList = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+            const duplicateTile = { x: 1, y: 1 };
+    
+            service.addUniqueTileToHistory(positionList, duplicateTile);
+    
+            expect(positionList).toContainEqual(duplicateTile);
+            expect(positionList.length).toBe(2);
+        });
+    
+        it('should handle an empty position list and add the tile', () => {
+            const positionList: Position[] = [];
+            const newTile = { x: 3, y: 3 };
+    
+            service.addUniqueTileToHistory(positionList, newTile);
+    
+            expect(positionList).toContainEqual(newTile);
+            expect(positionList.length).toBe(1);
+        });
+    });
+    
 });
