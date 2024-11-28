@@ -332,7 +332,6 @@ describe('CombatService', () => {
             const player1 = { id: '1', postGameStats: { victories: 2 } } as Player;
             service['checkEndGame'](player1, room, mockServer);
 
-            expect(mockGameService.stopGameTimers).not.toHaveBeenCalled();
             expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('combatEnd', { listPlayers: room.listPlayers, player: player1 });
             expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
         });
@@ -341,8 +340,8 @@ describe('CombatService', () => {
             const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
             service['checkEndGame'](winner, room, mockServer);
 
-            expect(mockGameService.stopGameTimers).toHaveBeenCalledWith(room);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('endGame', winner);
+            expect(mockGameService.onEndGame).toHaveBeenCalled();
+            expect(mockLogsService.sendEndGameLog).toHaveBeenCalled();
         });
     });
 
@@ -362,6 +361,7 @@ describe('CombatService', () => {
             expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
             expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
             expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
+            expect(service.continueTurn).toHaveBeenCalled();
         });
 
         it('should end turn if evasion is not successful', () => {
