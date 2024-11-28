@@ -91,13 +91,17 @@ export class CombatService {
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {
-        let combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
-        if (!this.combatInfos.get(room.roomId).checkedXiphos) {
-            combatPlayers = this.checkXiphos(combatPlayers, server, room);
+        const combatInfos = this.combatInfos.get(room.roomId);
+        if (!combatInfos.checkedXiphos) {
+            combatInfos.combatPlayers = this.checkXiphos(combatInfos.combatPlayers, server, room);
         }
-        const turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
-        this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
-            this.emitToCombatPlayers(server, combatPlayers, 'combatTime', timeRemaining);
+        this.setFightTimer(client, server, combatInfos);
+    }
+
+    setFightTimer(client: Socket, server: Server, combatInfos: CombatInfos) {
+        const turnTime = combatInfos.combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
+        this.roomService.getFightTimer(combatInfos.room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
+            this.emitToCombatPlayers(server, combatInfos.combatPlayers, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
             }
@@ -169,20 +173,27 @@ export class CombatService {
         const combatPlayers = combatInfos.combatPlayers;
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
-            this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
-            this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
-            this.addToPostGameStats(room, combatPlayers, PlayerStatType.Evasions, PlayerStatType.Evasions);
-            this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
-            server.to(room.roomId).emit('combatOver');
-            this.continueTurn(client, server);
-            this.combatInfos.delete(room.roomId);
+            this.onEvasionSuccess(client, server);
         } else {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatFail);
             this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', combatPlayers.attacker);
             combatInfos.failEvasion = true;
             this.onEndTurn(client, server, room);
         }
+    }
+
+    onEvasionSuccess(client: Socket, server: Server) {
+        const room = this.roomService.getRoom(client);
+        const combatInfos = this.combatInfos.get(room.roomId);
+        const combatPlayers = combatInfos.combatPlayers;
+        this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
+        this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
+        this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
+        this.addToPostGameStats(room, combatPlayers, PlayerStatType.Evasions, PlayerStatType.Evasions);
+        this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
+        server.to(room.roomId).emit('combatOver');
+        this.continueTurn(client, server);
+        this.combatInfos.delete(room.roomId);
     }
 
     combatWon(client: Socket, winner: Player, server: Server) {
@@ -294,8 +305,7 @@ export class CombatService {
             this.manageTurnAfterCombat(client, defender, attacker, server);
             this.combatWon(client, attacker, server);
             return true;
-        }
-        else if (attacker.attributes.currentHp <= 0) {
+        } else if (attacker.attributes.currentHp <= 0) {
             this.gameService.placeItemsOnGround(client, server, attacker);
             this.replacePlayerOnSpawnPoint(attacker, client, server);
             this.manageTurnAfterCombat(client, attacker, defender, server);

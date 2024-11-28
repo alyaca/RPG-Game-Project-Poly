@@ -120,7 +120,11 @@ describe('CombatService', () => {
         });
     });
 
-    it('should reset timer and emit to players onStartTurn', () => {
+    // TODO: continue missing test
+    // describe('onStartTurn', () => {
+    // });
+
+    it('should reset timer and emit to players setFightTimer', () => {
         const remainingTime = 2;
         const fightTimerCallback = jest.fn();
         const resetTimerMock = jest.fn((time, callback) => {
@@ -133,13 +137,13 @@ describe('CombatService', () => {
         service.emitToCombatPlayers = jest.fn();
         service.attackPlayer = jest.fn();
         room.listPlayers.push(mockPlayers[0]);
-        service.onStartTurn(mockClient, mockServer, room);
+        service.setFightTimer(mockClient, mockServer, mockCombatInfos);
         fightTimerCallback(remainingTime);
         expect(service.emitToCombatPlayers).toHaveBeenCalled();
         fightTimerCallback(0);
     });
 
-    it('should reset timer to 3 seconds and emit to players onStartTurn', () => {
+    it('should reset timer to 3 seconds and emit to players setFightTimer', () => {
         const attacker = service.combatInfos.get(room.roomId).combatPlayers.attacker;
         attacker.attributes.evasion = 0;
         const remainingTime = 2;
@@ -155,7 +159,7 @@ describe('CombatService', () => {
         service.attackPlayer = jest.fn();
         room.listPlayers.push(mockPlayers[0]);
 
-        service.onStartTurn(mockClient, mockServer, room);
+        service.setFightTimer(mockClient, mockServer, mockCombatInfos);
         fightTimerCallback(remainingTime);
         expect(service.emitToCombatPlayers).toHaveBeenCalled();
         fightTimerCallback(0);
@@ -341,23 +345,28 @@ describe('CombatService', () => {
         });
     });
 
+    it('should evade when evasion sucessfull', () => {
+        service.emitToCombatPlayers = jest.fn();
+        service.continueTurn = jest.fn();
+        service['addToPostGameStats'] = jest.fn();
+
+        service.onEvasionSuccess(mockClient, mockServer);
+
+        expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'evasionSuccess', {
+            listPlayers: room.listPlayers,
+            player: mockCombatPlayers.attacker,
+        });
+        expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
+        expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+        expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
+    });
+
     describe('evadingPlayer', () => {
         it('should continue turn if evasion is successful', () => {
-            service.emitToCombatPlayers = jest.fn();
-            service.continueTurn = jest.fn();
             service['isEvasionSuccessful'] = jest.fn().mockReturnValue(true);
-            service['addToPostGameStats'] = jest.fn();
-
+            service.onEvasionSuccess = jest.fn();
             service.evadingPlayer(mockClient, mockServer);
-
-            expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, mockCombatPlayers, 'evasionSuccess', {
-                listPlayers: room.listPlayers,
-                player: mockCombatPlayers.attacker,
-            });
-            expect(service.continueTurn).toHaveBeenCalledWith(mockClient, mockServer);
-            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
-            expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
-            expect(service.continueTurn).toHaveBeenCalled();
+            expect(service.onEvasionSuccess).toHaveBeenCalledWith(mockClient, mockServer);
         });
 
         it('should end turn if evasion is not successful', () => {
