@@ -11,6 +11,8 @@ import {
     SINGLE_PLAYER,
     TileType,
     VICTORIES,
+    XIPHOS_ATTACK_BONUS,
+    XIPHOS_DEFENSE_PENALTY,
 } from '@app/constants';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
@@ -65,36 +67,20 @@ export class CombatService {
     }
 
     checkXiphos(combatPlayers: CombatPlayers, server: Server, room: Room) {
-        if (combatPlayers.attacker.inventory.find((items) => items.id === ObjectType.Xiphos)) {
-            if (combatPlayers.attacker.attributes.currentHp <= combatPlayers.attacker.attributes.totalHp / 2) {
-                combatPlayers.attacker.attributes.attack += 2;
-                combatPlayers.defender.attributes.defense -= 1;
-                this.combatInfos.get(room.roomId).checkedXiphos = true;
-                this.emitToCombatPlayers(server, combatPlayers, 'updateStats', {
-                    attacker: combatPlayers.attacker,
-                    defender: combatPlayers.defender,
-                });
-                return combatPlayers;
-            }
-        } else if (combatPlayers.defender.inventory.find((items) => items.id === ObjectType.Xiphos)) {
-            if (combatPlayers.defender.attributes.currentHp <= combatPlayers.defender.attributes.totalHp / 2) {
-                combatPlayers.defender.attributes.attack += 2;
-                combatPlayers.attacker.attributes.defense -= 1;
-                this.combatInfos.get(room.roomId).checkedXiphos = true;
-                this.emitToCombatPlayers(server, combatPlayers, 'updateStats', {
-                    attacker: combatPlayers.attacker,
-                    defender: combatPlayers.defender,
-                });
-                return combatPlayers;
-            }
+        const { attacker, defender } = combatPlayers;
+        if (this.isXiphosActive(attacker)) {
+            this.applyXiphosEffect(attacker, defender, combatPlayers, room.roomId, server);
         }
-        return combatPlayers;
+
+        if (this.isXiphosActive(defender)) {
+            this.applyXiphosEffect(defender, attacker, combatPlayers, room.roomId, server);
+        }
     }
 
     onStartTurn(client: Socket, server: Server, room: Room) {
         const combatInfos = this.combatInfos.get(room.roomId);
         if (!combatInfos.checkedXiphos) {
-            combatInfos.combatPlayers = this.checkXiphos(combatInfos.combatPlayers, server, room);
+            this.checkXiphos(combatInfos.combatPlayers, server, room);
         }
         this.setFightTimer(client, server, combatInfos);
     }
@@ -264,16 +250,34 @@ export class CombatService {
         return player.inventory.find((items) => items.id === ObjectType.Xiphos);
     }
 
+    private isXiphosActive(player: Player): boolean {
+        return this.hasXiphos(player) && this.hasHealthBelowHalf(player);
+    }
+
+    private hasHealthBelowHalf(player: Player) {
+        return player.attributes.currentHp <= player.attributes.totalHp / 2;
+    }
+
+    private applyXiphosEffect(player: Player, opponent: Player, combatPlayers: CombatPlayers, roomId: string, server: Server) {
+        player.attributes.attack += XIPHOS_ATTACK_BONUS;
+        opponent.attributes.defense -= XIPHOS_DEFENSE_PENALTY;
+        this.combatInfos.get(roomId).checkedXiphos = true;
+        this.emitToCombatPlayers(server, combatPlayers, 'updateStats', combatPlayers);
+    }
+
+    private isAttacker(player: Player, combatPlayers: CombatPlayers) {
+        return player.id === combatPlayers.attacker.id;
+    }
+
     private resetCombatState(room: Room, combatPlayers: CombatPlayers) {
-        const attacker = combatPlayers.attacker;
-        const defender = combatPlayers.defender;
-        const hasCheckedXiphos = this.combatInfos.get(room.roomId).checkedXiphos;
+        const { attacker, defender } = combatPlayers;
+        const { checkedXiphos } = this.combatInfos.get(room.roomId);
         let attackerAffected = false;
         let defenderAffected = false;
-        if (this.hasXiphos(attacker) && hasCheckedXiphos) {
+        if (this.hasXiphos(attacker) && checkedXiphos) {
             attackerAffected = true;
         }
-        if (this.hasXiphos(defender) && hasCheckedXiphos) {
+        if (this.hasXiphos(defender) && checkedXiphos) {
             defenderAffected = true;
         }
 

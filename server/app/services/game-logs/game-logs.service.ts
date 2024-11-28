@@ -74,7 +74,7 @@ export class GameLogsService {
         const { attackValues, defenseValues } = combatResultDetails;
         return (
             `Résultat de l'attaque : ${attacker.attributes.attack} + ${attackValues.diceValue} (dé) = ${attackValues.total}\n` +
-            `Résultat de la défense :  ${defender.attributes.attack} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`
+            `Résultat de la défense :  ${defender.attributes.defense} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`
         );
     }
 

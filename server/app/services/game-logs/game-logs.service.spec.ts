@@ -166,7 +166,7 @@ describe('GameLogsService', () => {
         const message = service['generateCombatResultMessage'](mockCombatPlayers);
         expect(message).toBe(
             `Résultat de l'attaque : ${mockAttacker.attributes.attack} + ${attackValues.diceValue} (dé) = ${attackValues.total}\n` +
-                `Résultat de la défense :  ${mockDefender.attributes.attack} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`,
+                `Résultat de la défense :  ${mockDefender.attributes.defense} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`,
         );
     });
 

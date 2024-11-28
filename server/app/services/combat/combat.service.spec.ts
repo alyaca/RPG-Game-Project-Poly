@@ -14,7 +14,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 
 /* eslint-disable max-lines */
-/* eslint-disable max-len */
 describe('CombatService', () => {
     let service: CombatService;
     let mockRoomService: jest.Mocked<RoomService>;

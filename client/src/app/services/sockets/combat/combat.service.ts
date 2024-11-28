@@ -91,6 +91,16 @@ export class CombatService {
             this.onPlayerDisconnected();
             this.isInCombat = false;
         });
+
+        this.socketCommunicationService.on('updateStats', (combatPlayers: CombatPlayers) => {
+            if (this.isAttacker(this.activePlayer)) {
+                this.activePlayer.attributes.attack = combatPlayers.attacker.attributes.attack;
+                this.opponent.attributes.defense = combatPlayers.defender.attributes.defense;
+            } else {
+                this.activePlayer.attributes.defense = combatPlayers.defender.attributes.defense;
+                this.opponent.attributes.attack = combatPlayers.attacker.attributes.attack;
+            }
+        });
     }
 
     removeListeners() {
