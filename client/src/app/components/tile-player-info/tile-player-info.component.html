@@ -4,32 +4,34 @@
             <h2> {{ gameTileInfoService.selectedPlayer.name }}</h2>
             <img class="big-image" [src]="gameTileInfoService.selectedPlayer.avatar?.src" alt="player image">
             <div class="stats">
-                <div class="left-stats">
-                    <p class="small-text">Attributs</p>
-                    <p class="small-text"> - PV total: {{ gameTileInfoService.selectedPlayer.attributes.totalHp }}</p>
-                    <p class="small-text"> - Rapidité: {{ gameTileInfoService.selectedPlayer.attributes.speed }}</p>
-                    <p class="small-text"> - Attaque: {{ gameTileInfoService.selectedPlayer.attributes.attack }}</p>
-                    <p class="small-text"> - Défense: {{ gameTileInfoService.selectedPlayer.attributes.defense }}</p>
-                </div>
-                <div class="right-stats">
-                    <p class="small-text">Bilan de combat (Victoires/Évasions/Défaites) </p>
-                    <p class="small-text">
-                        - {{ gameTileInfoService.selectedPlayer.postGameStats.victories }} / 
+                <ul class="left-stats">
+                    <li class="small-text">Attributs</li>
+                    <li class="small-text"> PV total: {{ gameTileInfoService.selectedPlayer.attributes.totalHp }}</li>
+                    <li class="small-text"> Rapidité: {{ gameTileInfoService.selectedPlayer.attributes.speed }}</li>
+                    <li class="small-text"> Attaque: {{ gameTileInfoService.selectedPlayer.attributes.attack }}</li>
+                    <li class="small-text"> Défense: {{ gameTileInfoService.selectedPlayer.attributes.defense }}</li>
+                </ul>
+                <ul class="right-stats">
+                    <li class="small-text">Bilan de combat (Victoires/Évasions/Défaites) </li>
+                    <li class="small-text">
+                        {{ gameTileInfoService.selectedPlayer.postGameStats.victories }} / 
                         {{ gameTileInfoService.selectedPlayer.postGameStats.evasions }} /
                         {{ gameTileInfoService.selectedPlayer.postGameStats.defeats }} 
-                    </p>
-                    <p class="small-text"> - Dégats infligés: {{ gameTileInfoService.selectedPlayer.postGameStats.damageDealt }}</p>
-                    <p class="small-text"> - Dégats subis: {{ gameTileInfoService.selectedPlayer.postGameStats.damageTaken }} </p>
-                </div>
+                    </li>
+                    <li class="small-text"> Dégats infligés: {{ gameTileInfoService.selectedPlayer.postGameStats.damageDealt }}</li>
+                    <li class="small-text"> Dégats subis: {{ gameTileInfoService.selectedPlayer.postGameStats.damageTaken }} </li>
+                </ul>
             </div> 
         </div>
     }   
     @else {
         <div class="info">
             <h4> {{ gameTileInfoService.getTile().name}}</h4>
-            @for(description of gameTileInfoService.getTile().descriptions; let i = $index; track description){
-                <p class="small-text"> - {{ description }}</p>
-            }
+            <ul>
+                @for(description of gameTileInfoService.getTile().descriptions; let i = $index; track description){
+                    <li class="small-text"> {{ description }}</li>
+                }
+            </ul>
             <div class="img-container">
                 <img [ngClass]="{'big-image': !gameTileInfoService.getItem(), 'small-image': gameTileInfoService.getItem()}"  [src]="gameTileInfoService.getTile().image" alt="tile image"> 
                 @if(gameTileInfoService.getItem()){
