@@ -9,8 +9,14 @@ export const defaultGlobalStats: GlobalPostGameStats = {
 };
 
 export const mockGlobalStats: GlobalPostGameStats = {
-    globalTilesVisited: [{x: 1, y: 2}, {x: 3, y: 4}],
-    doorsInteracted: [{x: 5, y: 6}, {x: 7, y: 8}],
+    globalTilesVisited: [
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+    ],
+    doorsInteracted: [
+        { x: 5, y: 6 },
+        { x: 7, y: 8 },
+    ],
     turns: 5,
     nbFlagBearers: 2,
     gameDuration: '30min 00s',

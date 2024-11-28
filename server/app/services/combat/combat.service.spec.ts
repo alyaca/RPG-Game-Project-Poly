@@ -639,29 +639,29 @@ describe('CombatService', () => {
             attacker: mockPlayers[0],
             defender: mockPlayers[1],
         };
-    
-        const attr1 = PlayerStatType.Victories; 
-        const attr2 = PlayerStatType.Defeats; 
+
+        const attr1 = PlayerStatType.Victories;
+        const attr2 = PlayerStatType.Defeats;
         const result = service.addToPostGameStats(room, players, attr1, attr2);
 
         expect(result).toEqual(mockPlayers[0]);
-        expect(mockPlayers[0].postGameStats.victories).toBe(1); 
-        expect(mockPlayers[1].postGameStats.defeats).toBe(1); 
+        expect(mockPlayers[0].postGameStats.victories).toBe(1);
+        expect(mockPlayers[1].postGameStats.defeats).toBe(1);
     });
-    
-    it('should return null if either attacker or defender is not found', () => {    
+
+    it('should return null if either attacker or defender is not found', () => {
         room.listPlayers = mockPlayers;
-    
+
         const players: CombatPlayers = {
             attacker: { id: mockPlayers[0].id } as Player,
             defender: { id: 'nonexistent-defender' } as Player,
         };
-    
+
         const attr1 = PlayerStatType.Victories;
         const attr2 = PlayerStatType.Defeats;
-    
+
         const result = service.addToPostGameStats(room, players, attr1, attr2);
 
-        expect(result).toBeNull(); 
+        expect(result).toBeNull();
     });
 });
