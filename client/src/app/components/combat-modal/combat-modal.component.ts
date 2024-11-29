@@ -7,8 +7,8 @@ import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/interfaces/player';
+import { ClientToServerEvent } from '@common/socket.events';
 import { Subscription } from 'rxjs';
-
 @Component({
     selector: 'app-combat-modal',
     standalone: true,
@@ -65,14 +65,14 @@ export class CombatModalComponent implements OnInit, OnDestroy {
 
     triggerAttack() {
         if (this.combatService.canAttackOrEvade) {
-            this.socketCommunicationService.send('attackPlayer');
+            this.socketCommunicationService.send(ClientToServerEvent.AttackPlayer);
         }
         this.combatService.canAttackOrEvade = false;
     }
 
     triggerEvade() {
         if (this.combatService.canAttackOrEvade) {
-            this.socketCommunicationService.send('evadeCombat');
+            this.socketCommunicationService.send(ClientToServerEvent.EvadeCombat);
         }
         this.combatService.canAttackOrEvade = false;
     }
