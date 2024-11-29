@@ -41,22 +41,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimer!: TimerComponent;
 
+    // Used in html
     allPlayers: Player[];
     mapName: string;
     mapDimensions: string;
     activePlayerName: string | null;
     activePlayer: Player;
-
     isActivePlayer: boolean = false;
     isInCombat: boolean = false;
     combatInProgress: boolean = false;
     isTurnStartShowed: boolean = false;
     timeRemainingBeforeStartTurn: number = STARTING_TIME;
     timeRemainingStartTurn: number = TURN_TIME;
-    isFirstTimerDone: boolean = false;
     beforeTurnTotalTime: number = STARTING_TIME;
     turnTotalTime: number = TURN_TIME;
-
     doorAround: boolean = false;
     attackAround: boolean = false;
 
@@ -306,7 +304,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     closeTurnStartPopUp() {
         this.isTurnStartShowed = false;
-        this.isFirstTimerDone = true;
         this.beforeTurnTotalTime = STARTING_TIME;
         this.activePlayerName = null;
         this.enableClicks();

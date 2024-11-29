@@ -15,6 +15,7 @@ export class PostGameAttributeComponent {
     @Input() attribute: keyof Player['postGameStats'];
     @Input() displayText: string;
     sortOrder = SortOrder;
+    // Public for it to be accessed in html
     constructor(public postGameService: PostGameService) {}
 
     getSortClass(playerStatType: string) {

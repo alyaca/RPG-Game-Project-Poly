@@ -13,9 +13,9 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class RoomService {
     rooms = new Map<string, Room>();
-    gameTimers = new Map<string, GameTimers>();
+    private gameTimers = new Map<string, GameTimers>();
 
-    adminList: string[] = [];
+    private adminList: string[] = [];
     private io: Server;
 
     constructor(private chatService: ChatService) {}

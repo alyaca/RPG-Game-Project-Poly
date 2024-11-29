@@ -12,6 +12,7 @@ import { GlobalPostGameStat, GlobalStatType } from '@common/interfaces/global-po
 export class SingleGlobalStatComponent {
     @Input() globalStat: GlobalPostGameStat;
     globalStatType = GlobalStatType;
+    // Used in the html to access functions/attributes
     constructor(public postGameService: PostGameService) {}
 
     formatStatValue(): string {

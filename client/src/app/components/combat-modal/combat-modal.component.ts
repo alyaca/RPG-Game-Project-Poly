@@ -30,8 +30,9 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     private subscription: Subscription = new Subscription();
 
     constructor(
+        // Used in html
         public combatService: CombatService,
-        public socketCommunicationService: SocketCommunicationService,
+        private socketCommunicationService: SocketCommunicationService,
     ) {}
 
     ngOnInit() {

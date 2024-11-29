@@ -17,6 +17,7 @@ export class SinglePlayerStatComponent {
     @Input() selectedAttribute: string;
     @Input() attribute: string;
 
+    // Used in html to access its attributes/functions
     constructor(public postGameService: PostGameService) {}
 
     getStatValue(): number {

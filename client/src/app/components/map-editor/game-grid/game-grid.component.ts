@@ -53,26 +53,26 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
 
-    oldMapName: string;
-
-    tilesGrid: number[][];
-    objectsArray: number[][];
-    gridSize: number;
-    currentPlayer: Player;
-    activePlayer: Player | undefined;
-
-    selectedRow: number = 0;
-    selectedCol: number = 0;
-
-    isMouseDown: boolean = false;
-
-    previousRow: number | null = null;
-    previousCol: number | null = null;
-
-    fastestPath: Position[] = [];
-    isMoving: boolean = false;
+    // Used in html
     isActivePlayer: boolean = false;
     isPopupVisible: boolean = false;
+    fastestPath: Position[] = [];
+
+    // currentPlayer: Player;
+
+    private oldMapName: string;
+
+    private tilesGrid: number[][];
+    private objectsArray: number[][];
+    private gridSize: number;
+    private activePlayer: Player | undefined;
+
+    private isMouseDown: boolean = false;
+
+    private previousRow: number | null = null;
+    private previousCol: number | null = null;
+
+    private isMoving: boolean = false;
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
@@ -124,9 +124,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.ActivePlayer, (activePlayer: Player) => {
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
             this.activePlayer = activePlayer;
-            if (this.activePlayer && this.isActivePlayer) {
-                this.currentPlayer = this.activePlayer;
-            }
+            // if (this.activePlayer && this.isActivePlayer) {
+            //     this.currentPlayer = this.activePlayer;
+            // }
         });
 
         this.socketCommunicationService.on<Position>(ServerToClientEvent.PlayerNavigation, (tile) => {
