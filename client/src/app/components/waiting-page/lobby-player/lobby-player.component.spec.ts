@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player, Status } from '@common/player';
+import { Player, Status } from '@common/interfaces/player';
 import { of } from 'rxjs';
 import { LobbyPlayerComponent } from './lobby-player.component';
 
@@ -52,7 +52,6 @@ describe('LobbyPlayerComponent', () => {
                 messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
                 options: ['Annuler', 'Exclure'],
                 confirm: true,
-                itemSwap: null,
             },
         });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('kickPlayer', component.lobbyPlayer.id);
@@ -72,7 +71,6 @@ describe('LobbyPlayerComponent', () => {
                 messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
                 options: ['Annuler', 'Exclure'],
                 confirm: true,
-                itemSwap: null,
             },
         });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('kickBot', component.lobbyPlayer.id);

@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { ObjectType, SIZE_SMALL_MAP } from '@app/constants';
+import { SIZE_SMALL_MAP } from '@app/constants';
 import { mockMediumItemsMatrice, mockObjectsMatrice } from '@app/mocks/mock-game';
 import { mockGameNavigation as mockGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { ObjectType } from '@common/constants';
 import { NavigationService } from './navigation.service';
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 

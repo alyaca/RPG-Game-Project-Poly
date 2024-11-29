@@ -1,8 +1,6 @@
 import { defaultPostGameStats } from '@app/default-attributes';
-import { CombatInfos } from '@common/combat-info';
-import { CombatPlayers } from '@common/combat-player';
-import { CombatResultDetails } from '@common/combat-result';
-import { Behavior, Player, Status } from '@common/player';
+import { CombatInfos, CombatPlayers, CombatResultDetails } from '@common/interfaces/combat-info';
+import { Behavior, Player, Status } from '@common/interfaces/player';
 import { mockRoom } from './mock-room';
 
 export const mockCombatResultDetails: CombatResultDetails = {

@@ -1,4 +1,4 @@
-import { GameObject } from '@common/game-object';
+import { GameObject } from '@common/interfaces/game-object';
 
 export interface Avatar {
     id?: number;

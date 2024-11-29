@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ObjectType } from '@common/avatars-info';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],

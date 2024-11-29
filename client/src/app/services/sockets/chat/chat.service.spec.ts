@@ -6,7 +6,7 @@ import { ChatMessage } from '@app/interfaces/chat-message';
 import { LogMessage } from '@app/interfaces/log-message';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 import { environment } from 'src/environments/environment';
 import { ChatService } from './chat.service';
 

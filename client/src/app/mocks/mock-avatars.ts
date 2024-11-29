@@ -1,4 +1,4 @@
-import { Avatar } from '@common/player';
+import { Avatar } from '@common/interfaces/player';
 
 export const mockAvatars: Avatar[] = [
     { name: 'avatar1', src: '/image1' },

@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { ObjectType } from '@common/constants';
 
 @Component({
     selector: 'app-game-objects-container',

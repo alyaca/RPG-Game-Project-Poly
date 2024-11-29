@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { GameMode, ObjectType, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
-import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
-import { Player, Position } from '@common/player';
-import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
-import { Room } from '@common/room';
+import { PLAYER_STAT_TYPES, SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, TileType } from '@common/constants';
+import { GlobalPostGameStat, GlobalPostGameStats } from '@common/interfaces/global-post-game-stats';
+import { Player, Position } from '@common/interfaces/player';
+import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
+import { Room } from '@common/interfaces/room';
+import { ObjectType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',

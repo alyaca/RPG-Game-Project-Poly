@@ -6,6 +6,7 @@ import { IMessage } from '@app/interfaces/backend-interfaces/message.interface';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { LogMessage } from '@app/interfaces/log-message';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -27,11 +28,11 @@ export class ChatService {
             timestamp: new Date(),
         };
 
-        this.socketCommunication.send('sendMessages', message);
+        this.socketCommunication.send(ClientToServerEvent.SendMessage, message);
     }
 
     onMessageReceived(callback: (message: ChatMessage) => void) {
-        this.socketCommunication.on<IMessage>('messageReceived', (backendMessage) => {
+        this.socketCommunication.on<IMessage>(ServerToClientEvent.MessageReceived, (backendMessage) => {
             const formattedMessage: ChatMessage = {
                 id: this.generateUniqueId(),
                 username: backendMessage.username,
@@ -43,7 +44,7 @@ export class ChatService {
     }
 
     onLogReceived(callback: (message: LogMessage) => void) {
-        this.socketCommunication.on<ILogMessage>('logReceived', (backendMessage) => {
+        this.socketCommunication.on<ILogMessage>(ServerToClientEvent.LogReceived, (backendMessage) => {
             const formattedMessage: LogMessage = {
                 id: this.generateUniqueId(),
                 message: backendMessage.message,

@@ -1,4 +1,4 @@
-import { Attributes } from '@common/player';
+import { Attributes } from '@common/interfaces/player';
 
 export const mockAttributes: Attributes = {
     totalHp: 4,

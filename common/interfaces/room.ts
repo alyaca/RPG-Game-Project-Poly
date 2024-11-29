@@ -1,5 +1,5 @@
-import { Navigation } from '../server/app/classes/navigation/navigation';
-import { Stopwatch } from '../server/app/classes/stopwatch/stopwatch';
+import { Navigation } from '../../server/app/classes/navigation/navigation';
+import { Stopwatch } from '../../server/app/classes/stopwatch/stopwatch';
 import { Game } from './game';
 import { GlobalPostGameStats } from './global-post-game-stats';
 import { Avatar, Player } from './player';
@@ -19,7 +19,7 @@ export interface Room {
     isLocked: boolean;
     gameStatus: GameStatus;
     navigation?: Navigation;
-    globalPostGameStats: GlobalPostGameStats
-    isDebug?: boolean ;
-    stopwatch?: Stopwatch
+    globalPostGameStats: GlobalPostGameStats;
+    isDebug?: boolean;
+    stopwatch?: Stopwatch;
 }

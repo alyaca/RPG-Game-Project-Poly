@@ -9,7 +9,6 @@ import {
     NO_EVASION_TIME,
     ROLL_DURATION,
     SINGLE_PLAYER,
-    TileType,
     VICTORIES,
     XIPHOS_ATTACK_BONUS,
     XIPHOS_DEFENSE_PENALTY,
@@ -18,16 +17,16 @@ import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { CombatInfos } from '@common/combat-info';
-import { CombatPlayers } from '@common/combat-player';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
-import { PlayerStatType } from '@common/post-game-stat';
-import { Room } from '@common/room';
+import { TileType } from '@common/constants';
+import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
+import { PlayerStatType } from '@common/interfaces/post-game-stat';
+import { Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
-/* eslint-disable max-len */
 /* eslint-disable max-lines */
 @Injectable()
 export class CombatService {
@@ -61,8 +60,8 @@ export class CombatService {
         this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        this.emitToCombatPlayers(server, combatPlayers, 'startFight', { player1, player2, isPlayer1Active });
-        server.to(room.roomId).emit('combatInProgress');
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.StartFight, { player1, player2, isPlayer1Active });
+        server.to(room.roomId).emit(ServerToClientEvent.CombatInProgress);
         this.onStartTurn(client, server, room);
     }
 
@@ -88,7 +87,7 @@ export class CombatService {
     setFightTimer(client: Socket, server: Server, combatInfos: CombatInfos) {
         const turnTime = combatInfos.combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
         this.roomService.getFightTimer(combatInfos.room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
-            this.emitToCombatPlayers(server, combatInfos.combatPlayers, 'combatTime', timeRemaining);
+            this.emitToCombatPlayers(server, combatInfos.combatPlayers, ServerToClientEvent.CombatTime, timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
             }
@@ -99,7 +98,7 @@ export class CombatService {
         const combatInfos = this.combatInfos.get(room.roomId);
         const combatPlayers = combatInfos.combatPlayers;
         [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
-        this.emitToCombatPlayers(server, combatPlayers, 'combatTurnEnded', { combatPlayers, failEvasion: combatInfos.failEvasion });
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.CombatTurnEnded, { combatPlayers, failEvasion: combatInfos.failEvasion });
         combatInfos.failEvasion = false;
         this.onStartTurn(client, server, room);
     }
@@ -117,18 +116,18 @@ export class CombatService {
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
         const debugMode = room.isDebug;
         const { attackValues, defenseValues } = this.getCombatValues(combatPlayers, debugMode);
-        this.emitToCombatPlayers(server, combatPlayers, 'attackValues', { attackValues, defenseValues });
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.AttackValues, { attackValues, defenseValues });
         if (attackValues.total > defenseValues.total) {
             combatPlayers.defender.attributes.currentHp--;
             this.addToPostGameStats(room, combatPlayers, PlayerStatType.DamageDealt, PlayerStatType.DamageTaken);
-            this.emitToCombatPlayers(server, combatPlayers, 'attackSuccess', combatPlayers.attacker);
+            this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.AttackSuccess, combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
             const shouldDamageSelf = this.checkAchillesArmor(combatPlayers);
-            this.emitToCombatPlayers(server, combatPlayers, 'attackFail', { attacker: combatPlayers.attacker, shouldDamageSelf });
+            this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.AttackFail, { attacker: combatPlayers.attacker, shouldDamageSelf });
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
-        this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
+        this.logService.sendCombatResultLog(room.roomId, server, combatPlayers);
         const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
             setTimeout(() => {
@@ -163,7 +162,7 @@ export class CombatService {
             this.onEvasionSuccess(client, server);
         } else {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatFail);
-            this.emitToCombatPlayers(server, combatPlayers, 'evasionFail', combatPlayers.attacker);
+            this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.EvasionFail, combatPlayers.attacker);
             combatInfos.failEvasion = true;
             this.onEndTurn(client, server, room);
         }
@@ -175,10 +174,13 @@ export class CombatService {
         const combatPlayers = combatInfos.combatPlayers;
         this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
         this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.NoWinnerCombat);
-        this.emitToCombatPlayers(server, combatPlayers, 'evasionSuccess', { listPlayers: room.listPlayers, player: combatPlayers.attacker });
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.EvasionSuccess, {
+            listPlayers: room.listPlayers,
+            player: combatPlayers.attacker,
+        });
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Evasions, PlayerStatType.Evasions);
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
-        server.to(room.roomId).emit('combatOver');
+        server.to(room.roomId).emit(ServerToClientEvent.CombatOver);
         this.continueTurn(client, server);
         this.combatInfos.delete(room.roomId);
     }
@@ -190,7 +192,7 @@ export class CombatService {
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
         this.addVictory(combatPlayers, room, server, attackerWon);
         this.combatInfos.delete(room.roomId);
-        server.to(room.roomId).emit('combatOver');
+        server.to(room.roomId).emit(ServerToClientEvent.CombatOver);
     }
 
     continueTurn(client: Socket, server: Server) {
@@ -203,7 +205,7 @@ export class CombatService {
                 if (timeRemaining <= 0) {
                     this.gameService.onTurnEnded(activePlayerSocket, server);
                 }
-                server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+                server.to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeRemaining);
             });
         }, END_COMBAT_DELAY);
     }
@@ -215,7 +217,7 @@ export class CombatService {
         if (activePlayer.id !== defender.id) {
             this.continueTurn(client, server);
             const reachability = room.navigation.findReachableTiles(attacker, room);
-            server.to(room.roomId).emit('reachableTiles', reachability);
+            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         } else {
             this.resetCombatState(room, this.combatInfos.get(room.roomId).combatPlayers);
             setTimeout(() => {
@@ -273,7 +275,7 @@ export class CombatService {
         player.attributes.attack += XIPHOS_ATTACK_BONUS;
         opponent.attributes.defense -= XIPHOS_DEFENSE_PENALTY;
         this.combatInfos.get(roomId).checkedXiphos = true;
-        this.emitToCombatPlayers(server, combatPlayers, 'updateStats', combatPlayers);
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.UpdateStats, combatPlayers);
     }
 
     private isAttacker(player: Player, combatPlayers: CombatPlayers) {
@@ -341,7 +343,7 @@ export class CombatService {
             this.combatWon(client, attacker, server, true);
             attacker = this.resetAttackerIce(room, attacker);
             defender = this.resetDefenderIce(room, defender);
-            this.emitToCombatPlayers(server, { attacker, defender }, 'updateStats', { attacker, defender });
+            this.emitToCombatPlayers(server, { attacker, defender }, ServerToClientEvent.UpdateStats, { attacker, defender });
             return true;
         } else if (attacker.attributes.currentHp <= 0) {
             this.gameService.placeItemsOnGround(client, server, attacker);
@@ -350,7 +352,7 @@ export class CombatService {
             this.combatWon(client, defender, server, false);
             attacker = this.resetAttackerIce(room, attacker);
             defender = this.resetDefenderIce(room, defender);
-            this.emitToCombatPlayers(server, { attacker, defender }, 'updateStats', { attacker, defender });
+            this.emitToCombatPlayers(server, { attacker, defender }, ServerToClientEvent.UpdateStats, { attacker, defender });
             return true;
         }
         return false;
@@ -361,7 +363,7 @@ export class CombatService {
             this.gameService.onEndGame(player, room, server);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         } else {
-            server.to(room.roomId).emit('combatEnd', { listPlayers: room.listPlayers, player });
+            server.to(room.roomId).emit(ServerToClientEvent.CombatEnd, { listPlayers: room.listPlayers, player });
         }
     }
 
@@ -397,11 +399,11 @@ export class CombatService {
         if (this.checkSpawnPointAvailability(playerToReplace, players)) {
             const oldPosition = playerToReplace.position;
             playerToReplace.position = playerToReplace.spawnPosition;
-            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
+            server.to(room.roomId).emit(ServerToClientEvent.RespawnPlayer, { oldPosition, playerToReplace });
         } else {
             const oldPosition = playerToReplace.position;
             this.replacePlayerOnNeighborTile(playerToReplace, room.gameMap);
-            server.to(room.roomId).emit('respawnPlayer', { oldPosition, playerToReplace });
+            server.to(room.roomId).emit(ServerToClientEvent.RespawnPlayer, { oldPosition, playerToReplace });
         }
     }
 
@@ -448,7 +450,7 @@ export class CombatService {
     }
 
     private defaultCombatWin(client: Socket, player: Player, server: Server) {
-        server.to(player.id).emit('defaultWin');
+        server.to(player.id).emit(ServerToClientEvent.DefaultCombatWin);
         this.combatWon(client, player, server, true);
     }
 
