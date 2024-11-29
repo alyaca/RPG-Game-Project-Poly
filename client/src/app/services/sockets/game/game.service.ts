@@ -21,6 +21,8 @@ import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/interfaces/game';
+import { GameObject } from '@common/interfaces/game-object';
+import { ItemSwap } from '@common/interfaces/item-swap';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
@@ -185,6 +187,28 @@ export class GameService {
             } else {
                 this.router.navigate([PathRoute.HOME]);
             }
+        });
+    }
+
+    onOpenItemSwitchModal(activePlayer: Player, foundItem: GameObject) {
+        const oldInventory = JSON.parse(JSON.stringify(activePlayer.inventory));
+        const itemSwap: ItemSwap = {
+            currentItem1: activePlayer.inventory[0],
+            currentItem2: activePlayer.inventory[1],
+            pickedUpItem: foundItem,
+        };
+
+        this.openDialog({
+            title: DialogTitle.ItemExchange,
+            messages: [`Quel objet voulez échangé pour celui-ci: ${foundItem?.name}`],
+            options: [],
+            confirm: false,
+        }).subscribe(() => {
+            this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
+                inventoryToUndo: oldInventory,
+                newInventory: activePlayer.inventory,
+                droppedItem: itemSwap.pickedUpItem.id,
+            });
         });
     }
 

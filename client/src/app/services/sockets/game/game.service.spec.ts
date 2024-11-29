@@ -229,7 +229,7 @@ describe('GameService', () => {
 
     it('should disconnect and navigate /home on drawGame event', () => {
         spyOn(socketCommunicationServiceSpy, 'disconnect');
-        service.onGameDraw();
+        service.onDrawGame();
         expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });

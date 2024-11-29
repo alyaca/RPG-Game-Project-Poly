@@ -13,11 +13,10 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { ItemSwap } from '@common/interfaces/item-swap';
+import { GameObject } from '@common/interfaces/game-object';
 import { Player, Position, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
-import { gameObjects } from '@common/objects-info';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
@@ -101,7 +100,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.StartFight, (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
-            this.combatService.isInCombat = true;
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
@@ -154,30 +152,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.navigationService.isDebugMode = debugMode;
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; itemPickedUp: number }) => {
-            const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
-            const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
-            if (!fullItem) return;
-            const itemSwap: ItemSwap = {
-                currentItem1: data.activePlayer.inventory[0],
-                currentItem2: data.activePlayer.inventory[1],
-                pickedUpItem: fullItem,
-            };
-            this.gameService
-                .openDialog({
-                    title: DialogTitle.ItemExchange,
-                    messages: [`Quel objet voulez échangé pour celui-ci: ${fullItem?.name}`],
-                    options: [],
-                    confirm: false,
-                    itemSwap,
-                })
-                .subscribe(() => {
-                    this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
-                        inventoryToUndo: oldInventory,
-                        newInventory: data.activePlayer.inventory,
-                        droppedItem: itemSwap.pickedUpItem.id,
-                    });
-                });
+        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; foundItem: GameObject }) => {
+            this.gameService.onOpenItemSwitchModal(data.activePlayer, data.foundItem);
         });
     }
 

@@ -23,7 +23,8 @@ export class PlayerInventoryService {
         }
         if (info.player.inventory.length === 2) {
             this.roomService.getTurnTimer(room.roomId).pauseTimer();
-            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
+            const foundItem = gameObjects.find((items) => items.id === itemPickedUp);
+            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, foundItem });
             return;
         } else {
             info.player = this.updatePlayerWithItem(info.player, itemPickedUp);
