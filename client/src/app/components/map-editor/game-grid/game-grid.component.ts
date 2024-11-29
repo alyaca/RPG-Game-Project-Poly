@@ -57,8 +57,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isActivePlayer: boolean = false;
     isPopupVisible: boolean = false;
     fastestPath: Position[] = [];
-
-    // currentPlayer: Player;
+    currentPlayer: Player;
 
     private oldMapName: string;
 
@@ -124,9 +123,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.ActivePlayer, (activePlayer: Player) => {
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
             this.activePlayer = activePlayer;
-            // if (this.activePlayer && this.isActivePlayer) {
-            //     this.currentPlayer = this.activePlayer;
-            // }
+            if (this.activePlayer && this.isActivePlayer) {
+                this.currentPlayer = this.activePlayer;
+            }
         });
 
         this.socketCommunicationService.on<Position>(ServerToClientEvent.PlayerNavigation, (tile) => {
