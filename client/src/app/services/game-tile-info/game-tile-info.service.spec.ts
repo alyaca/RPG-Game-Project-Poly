@@ -5,6 +5,9 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/game-tile';
 import { mockRoom } from '@app/mocks/mock-room';
+import { Room } from '@common/room';
+import { gameObjects } from '@common/objects-info';
+import { Player } from '@common/player';
 
 describe('GameTileInfoService', () => {
     let service: GameTileInfoService;

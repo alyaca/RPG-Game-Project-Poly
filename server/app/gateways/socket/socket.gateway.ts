@@ -193,7 +193,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.onEndGame(winner, room, this.server);
     }
 
-
     @SubscribeMessage(SocketEvents.GetRoom)
     handleGetRoom(client: Socket) {
         const room = this.roomService.getRoom(client);
