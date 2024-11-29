@@ -127,7 +127,7 @@ export class PlayerInventoryService {
         return player;
     }
 
-    addUniqueItemToHistory(player: Player, newItemId: number){
+    addUniqueItemToHistory(player: Player, newItemId: number) {
         if (!player.collectedItems.some((item) => item === newItemId)) {
             player.collectedItems.push(newItemId);
         }
