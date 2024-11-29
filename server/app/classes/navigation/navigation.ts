@@ -118,14 +118,10 @@ export class Navigation {
     }
 
     haveActions(player: Player, players: Player[]): boolean {
-        if (!this.hasActionPoints(player)) return false;
-        if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
-            return true;
-        }
-        return false;
+        return this.hasActionPoints(player) && (this.checkAttack(player, players) || this.checkDoor(player, players));
     }
 
-    checkAttack(player: Player, players: Player[]) {
+    checkAttack(player: Player, players: Player[]): boolean {
         return this.getNeighborPlayers(player, players).length > 0;
     }
 
@@ -154,7 +150,7 @@ export class Navigation {
         return doors;
     }
 
-    checkDoor(player: Player, players: Player[]) {
+    checkDoor(player: Player, players: Player[]): boolean {
         return this.getNeighborDoors(player, players).length > 0;
     }
 

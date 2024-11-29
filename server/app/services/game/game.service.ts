@@ -71,7 +71,7 @@ export class GameService {
     }
 
     getActivePlayer(room: Room): Player {
-        return room.listPlayers.find((player) => player.isActive === true);
+        return room.listPlayers.find((player) => player.isActive);
     }
 
     getGame(roomId: string) {
@@ -606,9 +606,8 @@ export class GameService {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         let previousActivePlayer = listPlayers[index];
-        // if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
         previousActivePlayer = this.addActionPoints(previousActivePlayer);
-        // }
+
         if (this.playerInWall(room, previousActivePlayer)) {
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
             server.to(room.roomId).emit('updateObjectsAfterCombat', {

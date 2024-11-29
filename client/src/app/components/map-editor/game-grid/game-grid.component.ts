@@ -200,11 +200,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.oldMapName = this.gameCreationService.loadedMapName;
     }
 
-    deepCopyMatrix(matrix: number[][] | null): number[][] {
-        if (!matrix) {
-            return [];
-        }
-        return JSON.parse(JSON.stringify(matrix));
+    deepCopyMatrix(matrix: number[][]): number[][] {
+        return matrix ? JSON.parse(JSON.stringify(matrix)) : [];
     }
 
     ngOnChanges(changes: SimpleChanges) {
