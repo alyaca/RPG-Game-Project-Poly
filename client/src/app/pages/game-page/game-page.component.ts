@@ -108,7 +108,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.combatInProgress, () => {
+        this.socketCommunicationService.on(ServerToClientEvent.CombatInProgress, () => {
             this.combatInProgress = true;
         });
 

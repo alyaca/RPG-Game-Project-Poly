@@ -61,7 +61,7 @@ export class CombatService {
         this.combatInfos.set(room.roomId, combatInfos);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.StartFight, { player1, player2, isPlayer1Active });
-        server.to(room.roomId).emit(ServerToClientEvent.combatInProgress);
+        server.to(room.roomId).emit(ServerToClientEvent.CombatInProgress);
         this.onStartTurn(client, server, room);
     }
 

@@ -41,7 +41,7 @@ export enum ServerToClientEvent {
     BeforeStartTurnTimer = 'beforeStartTurnTimer',
     CharacterSelected = 'characterSelected',
     CombatEnd = 'combatEnd',
-    combatInProgress = 'combatInProgress',
+    CombatInProgress = 'combatInProgress',
     CombatOver = 'combatOver',
     CombatTime = 'combatTime',
     CombatTurnEnded = 'combatTurnEnded',
