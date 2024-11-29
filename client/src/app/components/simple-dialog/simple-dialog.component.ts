@@ -7,11 +7,12 @@ import { Router } from '@angular/router';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
 import { DialogData } from '@app/interfaces/dialog-data';
 import { ItemSwap } from '@common/item-swap';
+import { GameObjectComponent } from '../map-editor/game-object/game-object.component';
 
 @Component({
     selector: 'app-simple-dialog',
     standalone: true,
-    imports: [CommonModule, MatDialogModule, MatButtonModule, SimpleDialogMessageComponent, FormsModule],
+    imports: [CommonModule, MatDialogModule, MatButtonModule, SimpleDialogMessageComponent, FormsModule, GameObjectComponent],
     templateUrl: './simple-dialog.component.html',
     styleUrl: './simple-dialog.component.scss',
 })
@@ -20,6 +21,7 @@ export class SimpleDialogComponent {
     options: string[] = ['', ''];
     inputValue: string = '';
     showError: boolean = false;
+    descriptionPosition: string = 'top';
 
     constructor(
         private dialogRef: MatDialogRef<SimpleDialogComponent>,
