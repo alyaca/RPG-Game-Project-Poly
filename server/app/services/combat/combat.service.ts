@@ -18,7 +18,7 @@ import { RoomService } from '@app/services/room/room.service';
 import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
 import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
+import { Player, Position, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -60,14 +60,31 @@ export class CombatService {
 
     onStartTurn(client: Socket, server: Server, room: Room) {
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
-        const turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
-        //TODO : remove the hard coded value
-        this.roomService.getFightTimer(room.roomId).resetTimer(1 /*turnTime*/, (timeRemaining: number) => {
+        let turnTime = 0;
+        if (this.isBothPlayersBot(combatPlayers)) {
+            turnTime = 1;
+        } else {
+            turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
+        }
+        const timeToAttack = this.generateRaondom(turnTime);
+        this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
             this.emitToCombatPlayers(server, combatPlayers, 'combatTime', timeRemaining);
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
             }
+            //Added to make the bot attack on random time
+            console.log('timeRemaining', timeToAttack);
+            if (combatPlayers.attacker.status === Status.Bot && timeRemaining == timeToAttack) {
+                this.attackPlayer(client, server);
+                return;
+            }
         });
+    }
+    private isBothPlayersBot(combatPlayers: CombatPlayers): boolean {
+        return combatPlayers.attacker.status === Status.Bot && combatPlayers.defender.status === Status.Bot;
+    }
+    private generateRaondom(max: number): number {
+        return Math.floor(Math.random() * max + 1);
     }
 
     onEndTurn(client: Socket, server: Server, room: Room) {

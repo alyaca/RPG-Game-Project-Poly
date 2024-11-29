@@ -102,7 +102,6 @@ export class BotService {
         for (const tile of reachability) {
             //TODO : replacer les valeurs par les valeurs des objets qui sont dans client
             //Lightning, Xiphos
-            console.log('item', items[tile.x][tile.y]);
             if (items[tile.x][tile.y] === 4 || items[tile.x][tile.y] === 5 || items[tile.x][tile.y] === 3) {
                 console.log('0');
                 return tile;
