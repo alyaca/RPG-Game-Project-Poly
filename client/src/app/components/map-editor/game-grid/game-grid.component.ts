@@ -188,7 +188,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
 
-        this.socketCommunicationService.on('obtainRoomInfo', (room: Room) => {
+        this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
             this.gameTileInfoService.transferRoomData(room);
         });
     }
