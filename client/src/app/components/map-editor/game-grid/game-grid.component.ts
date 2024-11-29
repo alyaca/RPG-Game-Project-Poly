@@ -325,7 +325,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     showDetails(row: number, col: number) {
-        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
+        if (!this.gameCreationService.isModifiable) {
             this.socketCommunicationService.send('getRoom');
             this.isPopupVisible = true;
 

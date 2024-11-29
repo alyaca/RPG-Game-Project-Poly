@@ -6,6 +6,7 @@ import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/game-tile';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
+import { TILE_DESCRIPTIONS } from '@app/constants';
 @Injectable({
     providedIn: 'root',
 })
@@ -22,26 +23,7 @@ export class GameTileInfoService {
         image: '',
     };
 
-    tileDescriptions = [
-        ['Tuile par défaut du jeu (tuile de terrain)', 'Les joueurs et les objects peuvent y être posés dessus', 'coût: 1'],
-        [
-            'Un joueur qui y marche dessus à 10% de chance de perdre pied et tomber, terminant instantanément le tour du joueur',
-            'tant que le joueur se trouve sur de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.',
-            'coût: 0',
-        ],
-        ['Tuile de terrain', 'Coût: 2'],
-        [
-            'Obstacles infranchissables par les joueurs à moins que le joueur obtienne un item spécial',
-            'Aucun objet y est placé dessus',
-            'Pas considée comme une tuile de terrain',
-        ],
-
-        [
-            "Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire y passer à travers.",
-            'Sinon il agit comme un obstacle infranchissable comme une tuile de mur.',
-        ],
-        ['Une porte ouverte agit comme une tuile de gazon', "Elle peut être fermée par le joueur en interagissant avec le bouton 'Porte'."],
-    ];
+    tileDescriptions = TILE_DESCRIPTIONS;
 
     tileNames = ['Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'];
 
