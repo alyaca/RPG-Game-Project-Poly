@@ -19,6 +19,7 @@ import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
+import { TileType } from '@common/constants';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
@@ -186,6 +187,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
+
+        this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
+            this.gameTileInfoService.transferRoomData(room);
+        });
     }
 
     getTileImage(col: number) {
@@ -323,10 +328,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     showDetails(row: number, col: number) {
-        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
+        if (!this.gameCreationService.isModifiable) {
+            this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
             this.isPopupVisible = true;
-            this.gameTileInfoService.tileId = this.tilesGrid[row][col];
-            this.gameTileInfoService.itemId = this.objectsArray[row][col];
+
             this.gameTileInfoService.selectedRow = row;
             this.gameTileInfoService.selectedCol = col;
         }
