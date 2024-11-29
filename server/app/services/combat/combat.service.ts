@@ -6,6 +6,7 @@ import {
     ICE_TILE_PENALTY_VALUE,
     LogType,
     MIN_DICE_VALUE,
+    MODES,
     NO_EVASION_TIME,
     ROLL_DURATION,
     SINGLE_PLAYER,
@@ -374,7 +375,9 @@ export class CombatService {
         const playerWinner = this.addStatsForWinLoss(room, combatPlayers, attackerWon);
 
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
-        this.checkEndGame(playerWinner, room, server);
+        if (room.gameMap.mode !== MODES[0]) {
+            this.checkEndGame(playerWinner, room, server);
+        }
     }
 
     private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {

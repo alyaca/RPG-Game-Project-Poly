@@ -7,6 +7,7 @@ import {
     FALLING_PROBABILITY,
     HIGH_ATTRIBUTE,
     LogType,
+    MODES,
     MOVEMENT_TIME,
     SINGLE_PLAYER,
     STARTING_TIME,
@@ -325,7 +326,11 @@ export class GameService {
             this.isMoving = true;
             player.position = tile;
             pickedUpItem = false;
-            if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
+            if (
+                (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident &&
+                    room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) ||
+                room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag
+            ) {
                 const infoSwap: InfoSwap = {
                     server,
                     client,
@@ -337,6 +342,10 @@ export class GameService {
             }
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
+
+            if (room.gameMap.mode === MODES[0]) {
+                this.checkCtfEndGame(player, room, server);
+            }
 
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
@@ -460,6 +469,15 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private checkCtfEndGame(player: Player, room: Room, server: Server) {
+        const hasPlayerFlag = player.inventory.find((object) => object.id === ObjectType.Flag);
+        const isPlayerOnSpawn = player.position.x === player.spawnPosition.x && player.position.y === player.spawnPosition.y;
+        if (isPlayerOnSpawn && hasPlayerFlag) {
+            this.onEndGame(player, room, server);
+            this.gameLogsService.sendEndGameLog(room.listPlayers, room.roomId, server);
+        }
     }
 
     private checkAttack(room: Room, server: Server) {
