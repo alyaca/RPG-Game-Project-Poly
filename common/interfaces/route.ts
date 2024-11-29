@@ -6,4 +6,5 @@ export enum PathRoute {
     CreateGame = '/game-creation',
     JoinGame = '/join-game',
     PostGame = '/post-game-lobby',
+    GamePage = '/game-page',
 }

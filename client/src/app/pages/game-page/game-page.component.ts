@@ -1,22 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, inject, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { Router } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CombatModalComponent } from '@app/components/combat-modal/combat-modal.component';
 import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-sidebar/ingame-players-sidebar.component';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { GameObject } from '@common/interfaces/game-object';
-import { Player, Position, Status } from '@common/interfaces/player';
+import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
-import { PathRoute } from '@common/interfaces/route';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
@@ -56,7 +53,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     doorAround: boolean = false;
     attackAround: boolean = false;
 
-    private router = inject(Router);
     private isChatFocus: boolean = false;
     private keyDownListener: (event: KeyboardEvent) => void;
     constructor(
@@ -77,7 +73,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit() {
         if (!this.mapDimensions || !this.mapName) {
-            this.router.navigate([PathRoute.Home]);
+            this.gameService.navigateToHome();
         }
 
         this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
@@ -87,43 +83,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onBeforeStartTurn();
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.PlayerDisconnected, (listPlayers: Player[]) => {
-            this.allPlayers = listPlayers;
-        });
+        this.initCombatListeners();
+        this.initGameListener();
+    }
 
-        this.socketCommunicationService.on(ServerToClientEvent.DrawGame, () => {
-            this.gameService.onDrawGame();
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.OtherPlayerTurn, (name: string) => {
-            this.activePlayerName = name;
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.StartFight, (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
-            this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.CombatInProgress, () => {
-            this.combatInProgress = true;
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.CombatOver, () => {
-            this.combatInProgress = false;
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.CombatEnd, (data: { listPlayers: Player[]; player: Player }) => {
-            this.setPlayersOnCombatDone(data.listPlayers);
-            this.navigationService.players = data.listPlayers;
-            this.combatService.onCombatEnd(data.player);
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.EvasionSuccess, (data: { listPlayers: Player[]; player: Player }) => {
-            this.setPlayersOnCombatDone(data.listPlayers);
-            this.combatService.onEvasion(data.player);
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.PlayerFell, () => {
-            this.onPlayerFell();
+    initGameListener() {
+        this.gameService.addGamePageListeners();
+        this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
+            this.attackAround = data.attackAround;
+            this.gameService.playersTarget = data.targets;
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.DoorAround, (data: { doorAround: boolean; targets: Position[] }) => {
@@ -135,34 +103,47 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.activePlayer.attributes.actionPoints -= 1;
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
-            this.attackAround = data.attackAround;
-            this.gameService.playersTarget = data.targets;
+        this.socketCommunicationService.on(ServerToClientEvent.PlayerDisconnected, (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
         });
 
-        this.socketCommunicationService.once(ServerToClientEvent.EndGame, (data: { winner: Player; room: Room }) => {
-            this.removeListeners();
-            this.gameService.onEndGame(data.winner, data.room);
+        this.socketCommunicationService.on(ServerToClientEvent.OtherPlayerTurn, (name: string) => {
+            this.activePlayerName = name;
         });
+    }
 
+    initDebugModeListener() {
         this.toggleDebugMode();
         document.addEventListener('keydown', this.keyDownListener);
 
         this.socketCommunicationService.on(ServerToClientEvent.DebugMode, (debugMode: boolean) => {
             this.navigationService.isDebugMode = debugMode;
         });
+    }
 
-        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; foundItem: GameObject }) => {
-            this.gameService.onOpenItemSwitchModal(data.activePlayer, data.foundItem);
+    initCombatListeners() {
+        this.socketCommunicationService.on(ServerToClientEvent.CombatEnd, (data: { listPlayers: Player[]; player: Player }) => {
+            this.setPlayersOnCombatDone(data.listPlayers);
+            this.navigationService.players = data.listPlayers;
+            this.combatService.onCombatEnd(data.player);
         });
-    }
 
-    isActionDoorSelected() {
-        return this.gameService.isActionDoorSelected;
-    }
+        this.socketCommunicationService.on(ServerToClientEvent.CombatInProgress, () => {
+            this.combatInProgress = true;
+        });
 
-    isActionCombatSelected() {
-        return this.gameService.isActionCombatSelected;
+        this.socketCommunicationService.on(ServerToClientEvent.CombatOver, () => {
+            this.combatInProgress = false;
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.EvasionSuccess, (data: { listPlayers: Player[]; player: Player }) => {
+            this.setPlayersOnCombatDone(data.listPlayers);
+            this.combatService.onEvasion(data.player);
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.StartFight, (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
+            this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
+        });
     }
 
     ngAfterViewInit() {
@@ -171,10 +152,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.isActivePlayer = this.gameService.isActivePlayer(activePlayer);
             this.isTurnStartShowed = this.isActivePlayer;
         });
-        this.timerEvents();
+        this.initTimerEvents();
     }
 
-    timerEvents() {
+    initTimerEvents() {
         this.socketCommunicationService.on(ServerToClientEvent.BeforeStartTurnTimer, (timeRemaining: number) => {
             this.timeRemainingBeforeStartTurn = timeRemaining;
         });
@@ -189,51 +170,15 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
-    removeListeners() {
-        this.socketCommunicationService.off(ServerToClientEvent.ActivePlayer);
-        this.socketCommunicationService.off(ServerToClientEvent.AttackAround);
-        this.socketCommunicationService.off(ServerToClientEvent.BeforeStartTurnTimer);
-        this.socketCommunicationService.off(ServerToClientEvent.CombatEnd);
-        this.socketCommunicationService.off(ServerToClientEvent.DebugMode);
-        this.socketCommunicationService.off(ServerToClientEvent.DrawGame);
-        this.socketCommunicationService.off(ServerToClientEvent.DoorAround);
-        this.socketCommunicationService.off(ServerToClientEvent.DoorClicked);
-        this.socketCommunicationService.off(ServerToClientEvent.EndGame);
-        this.socketCommunicationService.off(ServerToClientEvent.EvasionSuccess);
-        this.socketCommunicationService.off(ServerToClientEvent.OpenItemSwitchModal);
-        this.socketCommunicationService.off(ServerToClientEvent.StartedTurnTimer);
-        this.socketCommunicationService.off(ServerToClientEvent.StartFight);
-        this.socketCommunicationService.off(ServerToClientEvent.TurnEnded);
-    }
-
     onChatFocus(isFocus: boolean) {
         this.isChatFocus = isFocus;
         this.toggleDebugMode();
-    }
-
-    toggleDebugMode() {
-        this.keyDownListener = (event: KeyboardEvent) => {
-            if (!this.isChatFocus && event.key === 'd' && this.isPlayerAdmin()) {
-                this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
-                this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
-            }
-        };
     }
 
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
         this.socketCommunicationService.send(ClientToServerEvent.StartTurn);
-    }
-
-    isDebugMode(): boolean {
-        return this.navigationService.isDebugMode;
-    }
-
-    onPlayerFell() {
-        this.gameService.openTempDialog({ title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME }).subscribe(() => {
-            this.onEndTurn();
-        });
     }
 
     setPlayersOnCombatDone(players: Player[]) {
@@ -270,60 +215,51 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     toggleActionDoorSelected() {
-        this.gameService.isActionDoorSelected = !this.gameService.isActionDoorSelected;
-        this.gameService.isActionCombatSelected = false;
+        this.gameService.toggleActionDoorSelected();
     }
 
     toggleActionCombatSelected() {
-        this.gameService.isActionCombatSelected = !this.gameService.isActionCombatSelected;
-        this.gameService.isActionDoorSelected = false;
+        this.gameService.toggleActionCombatSelected();
+    }
+
+    toggleDebugMode() {
+        this.keyDownListener = (event: KeyboardEvent) => {
+            if (!this.isChatFocus && event.key === 'd' && this.gameService.isCurrentPlayerAdmin(this.allPlayers)) {
+                this.navigationService.isDebugMode = !this.navigationService.isDebugMode;
+                this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
+            }
+        };
     }
 
     handleExit() {
-        this.gameService
-            .openDialog({
-                title: DialogTitle.QuitGame,
-                messages: [DialogMessages.QuitGame],
-                options: [DialogOptions.Quit, DialogOptions.Stay],
-                confirm: true,
-            })
-            .subscribe((result) => {
-                if (result.action === DialogResult.Left) {
-                    this.socketCommunicationService.send(ClientToServerEvent.LeftGame);
-                    if (this.isPlayerAdmin()) {
-                        this.navigationService.isDebugMode = false;
-                        this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
-                    }
-                    this.socketCommunicationService.disconnect();
-                    this.router.navigate([PathRoute.Home]);
-                }
-            });
-    }
-
-    onEndTurn() {
-        this.socketCommunicationService.send(ClientToServerEvent.EndTurn);
-    }
-
-    ngOnDestroy() {
-        document.removeEventListener('keydown', this.keyDownListener);
+        this.gameService.handleExit(this.allPlayers);
     }
 
     hasActionPoints() {
         return this.gameService.hasActionPoints(this.activePlayer);
     }
 
-    // To remove after stats done
-    forceEndGame() {
-        this.socketCommunicationService.send(ClientToServerEvent.ForceEndGame, this.allPlayers[0]);
-    }
-
-    isPlayerAdmin(): boolean {
-        const admin = this.allPlayers.find((player) => player.status === Status.Admin);
-        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
-        return !!(currentPlayer && admin && currentPlayer.id === admin.id);
+    onEndTurn() {
+        this.socketCommunicationService.send(ClientToServerEvent.EndTurn);
     }
 
     isCombatStarted() {
         return this.combatService.isInCombat;
+    }
+
+    isActionDoorSelected() {
+        return this.gameService.isActionDoorSelected;
+    }
+
+    isActionCombatSelected() {
+        return this.gameService.isActionCombatSelected;
+    }
+
+    isDebugMode(): boolean {
+        return this.navigationService.isDebugMode;
+    }
+
+    ngOnDestroy() {
+        document.removeEventListener('keydown', this.keyDownListener);
     }
 }

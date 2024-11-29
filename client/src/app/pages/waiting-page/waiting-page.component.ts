@@ -58,9 +58,9 @@ export class WaitingPageComponent implements OnInit {
     }
 
     initSocketListeners() {
-        this.gameService.onRoomDeleted();
-        this.gameService.onLeftRoom();
-        this.gameService.onKickPlayer();
+        this.gameService.handleRoomDeleted();
+        this.gameService.handleLeftRoom();
+        this.gameService.handleKickPlayer();
         this.socketCommunicationService.on(ServerToClientEvent.UpdatedPlayer, (room: Room) => {
             this.players = room.listPlayers;
             this.onMaxPlayers();
@@ -73,7 +73,7 @@ export class WaitingPageComponent implements OnInit {
         this.socketCommunicationService.on<Room>(ServerToClientEvent.StartGame, (room: Room) => {
             this.chosenGame = room.gameMap;
             this.loadMap();
-            this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
+            this.router.navigate([PathRoute.GamePage], { queryParams: { roomCode: this.accessCode } });
         });
     }
 
@@ -92,7 +92,7 @@ export class WaitingPageComponent implements OnInit {
     }
 
     handleExit(accessCode: string) {
-        this.gameService.onPlayerQuit(accessCode);
+        this.gameService.openPlayerQuitDialog(accessCode);
     }
 
     loadMap() {

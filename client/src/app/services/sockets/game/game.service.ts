@@ -18,12 +18,13 @@ import {
 } from '@app/constants';
 import { DialogData } from '@app/interfaces/dialog-data';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
+import { NavigationService } from '@app/services/navigation/navigation.service';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/interfaces/game';
 import { GameObject } from '@common/interfaces/game-object';
 import { ItemSwap } from '@common/interfaces/item-swap';
-import { Player, Position } from '@common/interfaces/player';
+import { Player, Position, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
@@ -46,6 +47,7 @@ export class GameService {
         private dialog: MatDialog,
         private router: Router,
         private postGameService: PostGameService,
+        private navigationService: NavigationService,
     ) {}
 
     setRoomId(room: string) {
@@ -91,7 +93,7 @@ export class GameService {
         return dialogRef.afterClosed();
     }
 
-    onAdminQuit(message: string) {
+    openAdminQuitDialog(message: string) {
         this.openDialog({
             title: DialogTitle.GameCanceled,
             messages: [message],
@@ -99,48 +101,53 @@ export class GameService {
             options: [DialogOptions.Close],
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
-                this.router.navigate([PathRoute.Home]);
+                this.navigateToHome();
             }
         });
     }
 
-    onDrawGame() {
-        this.socketCommunicationService.disconnect();
-        this.router.navigate([PathRoute.Home]);
-        this.openTempDialog({
-            title: DialogTitle.DrawGame,
-            message: DialogMessages.DrawGame,
-            duration: INFO_DIALOG_TIME,
+    handleDrawGame() {
+        this.socketCommunicationService.on(ServerToClientEvent.DrawGame, () => {
+            this.socketCommunicationService.disconnect();
+            this.navigateToHome();
+            this.openTempDialog({
+                title: DialogTitle.DrawGame,
+                message: DialogMessages.DrawGame,
+                duration: INFO_DIALOG_TIME,
+            });
         });
     }
 
-    onEndGame(winner: Player, room: Room) {
-        this.postGameService.transferRoomStats(room);
-        this.openDialog({
-            title: DialogTitle.EndGame,
-            messages: ['Le gagnant de la partie est : ' + winner.name],
-            options: [DialogOptions.Close],
-            confirm: false,
-        }).subscribe((result) => {
-            if (result.action === DialogResult.Close) {
-                this.router.navigate([PathRoute.PostGame], { queryParams: { roomCode: room.roomId } });
-            }
+    handleEndGame() {
+        this.socketCommunicationService.once(ServerToClientEvent.EndGame, (data: { winner: Player; room: Room }) => {
+            this.removeGamePageListeners();
+            this.postGameService.transferRoomStats(data.room);
+            this.openDialog({
+                title: DialogTitle.EndGame,
+                messages: ['Le gagnant de la partie est : ' + data.winner.name],
+                options: [DialogOptions.Close],
+                confirm: false,
+            }).subscribe((result) => {
+                if (result.action === DialogResult.Close) {
+                    this.router.navigate([PathRoute.PostGame], { queryParams: { roomCode: data.room.roomId } });
+                }
+            });
         });
     }
 
-    onRoomDeleted() {
+    handleRoomDeleted() {
         this.socketCommunicationService.once('roomDeleted', (message: string) => {
-            this.onAdminQuit(message);
+            this.openAdminQuitDialog(message);
         });
     }
 
-    onKickPlayer() {
+    handleKickPlayer() {
         this.socketCommunicationService.once('kickPlayer', () => {
-            this.onPlayerKickedOut();
+            this.openPlayerKickoutDialog();
         });
     }
 
-    onPlayerQuit(roomId: string) {
+    openPlayerQuitDialog(roomId: string) {
         this.openDialog({
             title: DialogTitle.QuitGame,
             messages: [DialogMessages.QuitGame],
@@ -153,7 +160,7 @@ export class GameService {
         });
     }
 
-    onQuitPostGameLobby(roomId: string) {
+    openQuitPostGameLobby(roomId: string) {
         this.openDialog({
             title: DialogTitle.QuitPostGameLobby,
             messages: [DialogMessages.QuitPostGameLobby],
@@ -161,13 +168,13 @@ export class GameService {
             confirm: true,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
-                this.router.navigate([PathRoute.Home]);
+                this.navigateToHome();
                 this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomId);
             }
         });
     }
 
-    onPlayerKickedOut() {
+    openPlayerKickoutDialog() {
         this.openDialog({
             title: DialogTitle.KickedOut,
             messages: [DialogMessages.KickedOut],
@@ -175,39 +182,50 @@ export class GameService {
             confirm: false,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
-                this.router.navigate([PathRoute.Home]);
+                this.navigateToHome();
             }
         });
     }
 
-    onLeftRoom() {
+    handleLeftRoom() {
         this.socketCommunicationService.on(ServerToClientEvent.LeftRoom, (isAdmin) => {
             if (isAdmin) {
                 this.router.navigate([PathRoute.CreateGame]);
             } else {
-                this.router.navigate([PathRoute.Home]);
+                this.navigateToHome();
             }
         });
     }
 
-    onOpenItemSwitchModal(activePlayer: Player, foundItem: GameObject) {
-        const oldInventory = JSON.parse(JSON.stringify(activePlayer.inventory));
-        const itemSwap: ItemSwap = {
-            currentItem1: activePlayer.inventory[0],
-            currentItem2: activePlayer.inventory[1],
-            pickedUpItem: foundItem,
-        };
+    handleOpenItemSwitchModal() {
+        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; foundItem: GameObject }) => {
+            this.openSwitchItemDialog(data.activePlayer, data.foundItem);
+        });
+    }
 
+    handleExit(players: Player[]) {
         this.openDialog({
-            title: DialogTitle.ItemExchange,
-            messages: [`Quel objet voulez échangé pour celui-ci: ${foundItem?.name}`],
-            options: [],
-            confirm: false,
-        }).subscribe(() => {
-            this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
-                inventoryToUndo: oldInventory,
-                newInventory: activePlayer.inventory,
-                droppedItem: itemSwap.pickedUpItem.id,
+            title: DialogTitle.QuitGame,
+            messages: [DialogMessages.QuitGame],
+            options: [DialogOptions.Quit, DialogOptions.Stay],
+            confirm: true,
+        }).subscribe((result) => {
+            if (result.action === DialogResult.Left) {
+                this.socketCommunicationService.send(ClientToServerEvent.LeftGame);
+                if (this.isCurrentPlayerAdmin(players)) {
+                    this.navigationService.isDebugMode = false;
+                    this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
+                }
+                this.socketCommunicationService.disconnect();
+                this.navigateToHome();
+            }
+        });
+    }
+
+    handlePlayerFell() {
+        this.socketCommunicationService.on(ServerToClientEvent.PlayerFell, () => {
+            this.openTempDialog({ title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME }).subscribe(() => {
+                this.socketCommunicationService.send(ClientToServerEvent.EndTurn);
             });
         });
     }
@@ -234,5 +252,74 @@ export class GameService {
 
     isActivePlayer(player: Player) {
         return player.id === this.socketCommunicationService.socket.id;
+    }
+
+    getCurrentPlayer(players: Player[]) {
+        return players.find((player) => player.id === this.socketCommunicationService.socket.id);
+    }
+
+    isCurrentPlayerAdmin(players: Player[]): boolean {
+        const admin = players.find((player) => player.status === Status.Admin);
+        const currentPlayer = this.getCurrentPlayer(players);
+        return !!(currentPlayer && admin && currentPlayer.id === admin.id);
+    }
+
+    removeGamePageListeners() {
+        this.socketCommunicationService.off(ServerToClientEvent.ActivePlayer);
+        this.socketCommunicationService.off(ServerToClientEvent.AttackAround);
+        this.socketCommunicationService.off(ServerToClientEvent.BeforeStartTurnTimer);
+        this.socketCommunicationService.off(ServerToClientEvent.CombatEnd);
+        this.socketCommunicationService.off(ServerToClientEvent.DebugMode);
+        this.socketCommunicationService.off(ServerToClientEvent.DrawGame);
+        this.socketCommunicationService.off(ServerToClientEvent.DoorAround);
+        this.socketCommunicationService.off(ServerToClientEvent.DoorClicked);
+        this.socketCommunicationService.off(ServerToClientEvent.EndGame);
+        this.socketCommunicationService.off(ServerToClientEvent.EvasionSuccess);
+        this.socketCommunicationService.off(ServerToClientEvent.OpenItemSwitchModal);
+        this.socketCommunicationService.off(ServerToClientEvent.StartedTurnTimer);
+        this.socketCommunicationService.off(ServerToClientEvent.StartFight);
+        this.socketCommunicationService.off(ServerToClientEvent.TurnEnded);
+    }
+
+    addGamePageListeners() {
+        this.handleEndGame();
+        this.handleOpenItemSwitchModal();
+        this.handleDrawGame();
+        this.handlePlayerFell();
+    }
+
+    toggleActionDoorSelected() {
+        this.isActionDoorSelected = !this.isActionDoorSelected;
+        this.isActionCombatSelected = false;
+    }
+
+    toggleActionCombatSelected() {
+        this.isActionCombatSelected = !this.isActionCombatSelected;
+        this.isActionDoorSelected = false;
+    }
+
+    private openSwitchItemDialog(activePlayer: Player, foundItem: GameObject) {
+        const oldInventory = JSON.parse(JSON.stringify(activePlayer.inventory));
+        const itemSwap: ItemSwap = {
+            currentItem1: activePlayer.inventory[0],
+            currentItem2: activePlayer.inventory[1],
+            pickedUpItem: foundItem,
+        };
+        this.openDialog({
+            title: DialogTitle.ItemExchange,
+            messages: [`Quel objet voulez échangé pour celui-ci: ${foundItem?.name}`],
+            options: [],
+            confirm: false,
+        }).subscribe(() => {
+            this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
+                inventoryToUndo: oldInventory,
+                newInventory: activePlayer.inventory,
+                droppedItem: itemSwap.pickedUpItem.id,
+            });
+        });
+    }
+
+    navigateToHome() {
+        this.router.navigate([PathRoute.Home]);
     }
 }
