@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { GameMode, MapSize, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { GameMode, MapSize } from '@common/constants';
 import { PathRoute } from '@common/interfaces/route';
 import { CreationDialogComponent } from './creation-dialog.component';
 

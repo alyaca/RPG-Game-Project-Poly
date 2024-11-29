@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { Router } from '@angular/router';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
+import { DialogResult } from '@app/constants';
 import { DialogData } from '@app/interfaces/dialog-data';
 import { ItemSwap } from '@common/interfaces/item-swap';
 import { PathRoute } from '@common/interfaces/route';
@@ -34,7 +35,7 @@ export class SimpleDialogComponent {
 
     onClose() {
         this.dialogRef.close({
-            action: this.data.confirm ? 'left' : 'close',
+            action: this.data.confirm ? DialogResult.Left : DialogResult.Close,
             input: this.data.isInput ? this.inputValue : null,
         });
         if (this.data.title === 'Sauvegarde réussie') {

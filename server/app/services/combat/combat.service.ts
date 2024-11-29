@@ -9,7 +9,6 @@ import {
     NO_EVASION_TIME,
     ROLL_DURATION,
     SINGLE_PLAYER,
-    TileType,
     VICTORIES,
     XIPHOS_ATTACK_BONUS,
     XIPHOS_DEFENSE_PENALTY,
@@ -18,6 +17,7 @@ import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
 import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';

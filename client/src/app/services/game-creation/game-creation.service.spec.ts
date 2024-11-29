@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { MapSize, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { MapSize } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 
 describe('GameCreationService', () => {

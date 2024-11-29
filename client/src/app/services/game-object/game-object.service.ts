@@ -1,8 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, TileType } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { MapPosition } from '@app/interfaces/map-position';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
 import { gameObjects } from '@common/objects-info';
 import { Subscription } from 'rxjs';
 

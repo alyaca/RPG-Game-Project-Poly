@@ -10,8 +10,6 @@ import {
     MOVEMENT_TIME,
     SINGLE_PLAYER,
     STARTING_TIME,
-    TileCost,
-    TileType,
     TURN_TIME,
 } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
@@ -22,6 +20,7 @@ import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
+import { TileCost, TileType } from '@common/constants';
 import { Avatar, Behavior, Player, Position, Status } from '@common/interfaces/player';
 import { GameStatus, Room } from '@common/interfaces/room';
 import { Injectable } from '@nestjs/common';

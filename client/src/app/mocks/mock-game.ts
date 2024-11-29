@@ -1,5 +1,5 @@
-import { GameMode, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
+import { GameMode, ObjectType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 
 export const mockGameObject: GameObject = {

@@ -1,5 +1,7 @@
-import { NO_ITEM, TileCost, TileType } from '@app/constants';
+import { NO_ITEM } from '@app/constants';
+
 import { ObjectType } from '@common/avatars-info';
+import { TileCost, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
 import { PointWithDistance } from '@common/interfaces/point-distance.interface';

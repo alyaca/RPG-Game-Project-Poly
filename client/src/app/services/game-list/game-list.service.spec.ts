@@ -1,8 +1,8 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GameMode } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
+import { GameMode } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';

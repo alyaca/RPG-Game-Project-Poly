@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { NO_OBJECT, TileId, TileType } from '@app/constants';
+import { NO_OBJECT, TileId } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { TileType } from '@common/constants';
 import { TileService } from './tile.service';
 
 describe('TileService', () => {

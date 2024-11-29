@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
+import { PLAYER_STAT_TYPES, SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, TileType } from '@common/constants';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/interfaces/global-post-game-stats';
 import { Player, Position } from '@common/interfaces/player';
 import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';

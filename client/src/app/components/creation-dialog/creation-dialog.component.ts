@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { GameMode, MapSize, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
+import { MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameMode, MapSize } from '@common/constants';
 import { PathRoute } from '@common/interfaces/route';
 
 @Component({

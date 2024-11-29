@@ -14,9 +14,9 @@ import {
     SIZE_SMALL_MAP,
     SMALL_MAP_PLAYERS,
     TILE_COUNT,
-    TileType,
 } from '@app/constants';
 import { Map } from '@app/model/schema/map.schema';
+import { TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import mongoose from 'mongoose';
 
