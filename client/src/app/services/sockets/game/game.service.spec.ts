@@ -22,6 +22,7 @@ import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/interfaces/player';
 import { PathRoute } from '@common/interfaces/route';
+import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
 
@@ -206,7 +207,7 @@ describe('GameService', () => {
 
     it('should navigate to game-creation when admin on leftRoom event', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'leftRoom') {
+            if (event === ServerToClientEvent.LeftRoom) {
                 callback(true as T);
             }
         });
@@ -217,7 +218,7 @@ describe('GameService', () => {
 
     it('should navigate to home when not admin on leftRoom event', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'leftRoom') {
+            if (event === ServerToClientEvent.LeftRoom) {
                 callback(false as T);
             }
         });

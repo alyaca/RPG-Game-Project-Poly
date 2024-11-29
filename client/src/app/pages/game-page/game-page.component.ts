@@ -44,8 +44,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     allPlayers: Player[];
     mapName: string;
     mapDimensions: string;
-    resetTrigger: boolean = false;
-    saveTrigger: boolean = false;
     activePlayerName: string | null;
     activePlayer: Player;
 

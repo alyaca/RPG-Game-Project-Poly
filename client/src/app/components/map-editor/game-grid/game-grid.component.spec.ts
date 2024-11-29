@@ -21,6 +21,7 @@ import { ToolButtonService } from '@app/services/tool-button/tool-button.service
 import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/constants';
 import { Player, Position, Status } from '@common/interfaces/player';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Socket } from 'socket.io-client';
 import { GameGridComponent } from './game-grid.component';
 
@@ -234,20 +235,20 @@ describe('GameGridComponent', () => {
             navigationServiceSpy.players = mockLobbyPlayers;
 
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'isActive') {
+                if (event === ServerToClientEvent.ActivePlayer) {
                     callback(player as T);
                 }
             });
 
             component.ngOnInit();
-            expect(component.currentPlayer).toBe(player);
+            expect(component.currentPlayer).toEqual(player);
         });
 
         it('should set isActivePlayer and currentPlayer when playerId matches socket ID', () => {
             socketCommunicationServiceSpy.socket.id = mockLobbyPlayers[0].id;
             navigationServiceSpy.players = mockLobbyPlayers;
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'isActive') {
+                if (event === ServerToClientEvent.ActivePlayer) {
                     callback(mockLobbyPlayers[0] as T);
                 }
             });

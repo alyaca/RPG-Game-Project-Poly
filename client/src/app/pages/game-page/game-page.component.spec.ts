@@ -17,6 +17,7 @@ import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PathRoute } from '@common/interfaces/route';
+import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
@@ -123,7 +124,7 @@ describe('GamePageComponent', () => {
     describe('ngOnInit', () => {
         it('should set players and health on mapInformation event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'mapInformation') {
+                if (event === ServerToClientEvent.MapInformation) {
                     callback(mockRoom as T);
                 }
             });
@@ -134,9 +135,9 @@ describe('GamePageComponent', () => {
             expect(component.replenishHealth).toHaveBeenCalled();
         });
 
-        it('should set players on mapInformation event', () => {
+        it('should set players on PlayerDisconnected event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'disconnectedPlayer') {
+                if (event === ServerToClientEvent.PlayerDisconnected) {
                     callback(mockLobbyPlayers as T);
                 }
             });
@@ -146,7 +147,7 @@ describe('GamePageComponent', () => {
 
         it('should disconnect on draw event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'draw') {
+                if (event === ServerToClientEvent.DrawGame) {
                     callback({} as T);
                 }
             });
@@ -220,7 +221,7 @@ describe('GamePageComponent', () => {
         socketCommunicationServiceSpy.socket.id = mockPlayers[0].id;
         spyOn(component, 'timerEvents');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'isActive') {
+            if (event === ServerToClientEvent.ActivePlayer) {
                 callback(mockPlayers[0] as T);
             }
         });
