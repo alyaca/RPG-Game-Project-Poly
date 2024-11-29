@@ -1,5 +1,6 @@
-import { defaultPostGameStats, defaultAttributes } from '@app/default-attributes';
-import { Player, Attributes, Status, Behavior } from '@common/player';
+import { defaultAttributes, defaultPostGameStats } from '@app/default-attributes';
+import { gameObjects } from '@common/objects-info';
+import { Attributes, Behavior, Player, Status } from '@common/player';
 
 const mockAttributes: Attributes = {
     totalHp: 4,
@@ -59,6 +60,21 @@ export const mockPlayers: Player[] = [
         positionHistory: [],
     },
 ];
+
+export const mockInventoryPlayer: Player = {
+    id: 'admin1234',
+    attributes: mockAttributes,
+    avatar: undefined,
+    isActive: true,
+    name: 'name',
+    status: Status.Player,
+    inventory: [gameObjects[0], gameObjects[1]],
+    position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+    spawnPosition: { x: 0, y: 0 },
+    postGameStats: defaultPostGameStats,
+    positionHistory: [],
+};
 
 export const baseBot: Player = {
     id: '0',

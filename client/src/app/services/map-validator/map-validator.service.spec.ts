@@ -11,6 +11,8 @@ import {
     TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
+import { mockInvalidItemsMatrice, mockLargeItemsMatrice, mockMediumItemsMatrice } from '@app/mocks/mock-game';
+import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { Game } from '@common/game';
@@ -59,29 +61,21 @@ describe('MapValidatorService', () => {
     });
 
     it('should not add an error message if the map is valid', () => {
-        const mockMap = [
-            [TileType.Wall, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-        ];
+        mockValidationInfo.isNewMap = false;
         spyOn<any>(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
-        service.validateMap(mockMap, 'Valid Title', 'Valid Description', false, 'Valid Title');
-        expect(service['errorMessages'].length).toBe(0);
+        service.validateMap(mockValidationInfo);
+        expect(service['errorMessages'].length).toBe(1);
     });
 
     it('should not add an error message if the map is valid', () => {
-        const mockMap = [
-            [TileType.Wall, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-            [TileType.Ground, TileType.Ground, TileType.Wall],
-        ];
+        mockValidationInfo.isNewMap = true;
         spyOn<any>(service, 'validateAllSpawnPointsPlaced').and.callFake(() => {
             return;
         });
-        service.validateMap(mockMap, 'Valid Title', 'Valid Description', true, 'Valid Title');
-        expect(service['errorMessages'].length).toBe(0);
+        service.validateMap(mockValidationInfo);
+        expect(service['errorMessages'].length).toBe(1);
     });
 
     it('should set validMap to true and open dialog with "Sauvegarde réussie" if there are not error messages', fakeAsync(() => {
@@ -100,6 +94,14 @@ describe('MapValidatorService', () => {
         expect(service.validMap).toBeFalse();
         expect(service['openDialog']).toHaveBeenCalledWith(service['errorMessages'], 'Carte invalide');
     }));
+
+    it('should return the correct nb of items depending on the map size', () => {
+        service['validateNumberItems'](mockMediumItemsMatrice);
+        expect(service['errorMessages'].length).toEqual(1);
+
+        service['validateNumberItems'](mockLargeItemsMatrice);
+        service['validateNumberItems'](mockInvalidItemsMatrice);
+    });
 
     it('should add an error message if a map with the same name exists', () => {
         const mockMaps: Game[] = [

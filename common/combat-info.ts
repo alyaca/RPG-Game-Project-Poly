@@ -6,4 +6,5 @@ export interface CombatInfos {
     gameTime: number;
     room: Room;
     failEvasion: boolean;
+    checkedXiphos : boolean;
 }

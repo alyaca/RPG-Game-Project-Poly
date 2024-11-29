@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import { DialogMessages, DialogTitle, INFO_DIALOG_TIME } from '@app/constants';
 import { mockAttacker, mockCombatPlayers, mockCombatResultDetails, mockDefender } from '@app/mocks/mock-combat-infos';
+import { mockPlayers } from '@app/mocks/mock-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
@@ -99,14 +100,28 @@ describe('CombatService', () => {
     });
 
     it('should subscribe to "attackFail" event and update combatStatus', () => {
+        const data = { attacker: mockAttacker, shouldDamageSelf: true };
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === 'attackFail') {
-                callback(mockAttacker as T);
+                callback(data as T);
             }
         });
-
+        service.opponent = mockPlayers[1];
+        service.activePlayer = data.attacker;
         service.initSocketListeners();
-        expect(service.combatStatus).toBe(`${mockAttacker.name} a échoué son attaque.`);
+        expect(service.combatStatus).toBe(`${data.attacker.name} a échoué son attaque.`);
+    });
+
+    it('should call onEvasion with the event evasionSuccess', () => {
+        const data = { listPlayers: mockPlayers, player: mockAttacker };
+        spyOn(service, 'onEvasion');
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'evasionSuccess') {
+                callback(data as T);
+            }
+        });
+        service.initSocketListeners();
+        expect(service.onEvasion).toHaveBeenCalledWith(mockAttacker);
     });
 
     it('should subscribe to "evasionFail" event and update combatStatus and evasion count', () => {

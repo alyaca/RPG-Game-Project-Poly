@@ -7,22 +7,15 @@ import { IngamePlayersSidebarComponent } from '@app/components/ingame-players-si
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import {
-    DEFAULT_ACTION_POINT,
-    DialogMessages,
-    DialogOptions,
-    DialogResult,
-    DialogTitle,
-    INFO_DIALOG_TIME,
-    STARTING_TIME,
-    TURN_TIME,
-} from '@app/constants';
+import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { ItemSwap } from '@common/item-swap';
+import { gameObjects } from '@common/objects-info';
 import { Player, Position, Status } from '@common/player';
 import { Room } from '@common/room';
 
@@ -67,6 +60,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     doorAround: boolean = false;
     attackAround: boolean = false;
 
+    private gameService = inject(GameService);
     private router = inject(Router);
     private isChatFocus: boolean = false;
     private keyDownListener: (event: KeyboardEvent) => void;
@@ -74,9 +68,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     constructor(
         private gameCreationService: GameCreationService,
         public socketCommunicationService: SocketCommunicationService,
-        public gameService: GameService,
+        public combatService: CombatService,
         private navigationService: NavigationService,
-        private combatService: CombatService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
@@ -142,7 +135,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on('doorClicked', () => {
-            this.activePlayer.attributes.actionPoints = 0;
+            this.activePlayer.attributes.actionPoints -= 1;
         });
 
         this.socketCommunicationService.on('attackAround', (data: { attackAround: boolean; targets: Player[] }) => {
@@ -160,6 +153,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: ['Le gagnant de la partie est : ' + data.winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    itemSwap: null,
                 })
                 .subscribe((result) => {
                     if (result.action === DialogResult.Close) {
@@ -174,15 +168,46 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on('debugMode', (debugMode: boolean) => {
             this.navigationService.isDebugMode = debugMode;
         });
+
+        this.socketCommunicationService.on('openItemSwitchModal', (data: { activePlayer: Player; itemPickedUp: number }) => {
+            const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
+            const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
+            if (!fullItem) return;
+            const itemSwap: ItemSwap = {
+                currentItem1: data.activePlayer.inventory[0],
+                currentItem2: data.activePlayer.inventory[1],
+                pickedUpItem: fullItem,
+            };
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.ItemExchange,
+                    messages: [`Quel objet voulez échangé pour celui-ci: ${fullItem?.name}`],
+                    options: [],
+                    confirm: false,
+                    itemSwap,
+                })
+                .subscribe(() => {
+                    this.socketCommunicationService.send('itemSwapped', {
+                        inventoryToUndo: oldInventory,
+                        newInventory: data.activePlayer.inventory,
+                        droppedItem: itemSwap.pickedUpItem.id,
+                    });
+                });
+        });
+    }
+
+    isActionDoorSelected() {
+        return this.gameService.isActionDoorSelected;
+    }
+
+    isActionCombatSelected() {
+        return this.gameService.isActionCombatSelected;
     }
 
     ngAfterViewInit() {
         this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+            this.activePlayer = activePlayer;
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
-            const playerToAssign = this.navigationService.players.find((player) => player.id === activePlayer.id);
-            if (playerToAssign) {
-                this.activePlayer = playerToAssign;
-            }
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -208,6 +233,19 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.off('turnEnded');
         this.socketCommunicationService.off('startedTurnTimer');
         this.socketCommunicationService.off('draw');
+        this.socketCommunicationService.off('openItemSwitchModal');
+        this.socketCommunicationService.off('isActive');
+        this.socketCommunicationService.off('debugMode');
+        this.socketCommunicationService.off('endGame');
+        this.socketCommunicationService.off('attackAround');
+        this.socketCommunicationService.off('doorAround');
+        this.socketCommunicationService.off('doorClicked');
+        this.socketCommunicationService.off('evasionSuccess');
+        this.socketCommunicationService.off('combatEnd');
+        this.socketCommunicationService.off('playerFell');
+        this.socketCommunicationService.off('mapInformation');
+        this.socketCommunicationService.off('disconnectedPlayer');
+        this.socketCommunicationService.off('startFight');
     }
 
     onChatFocus(isFocus: boolean) {
@@ -227,7 +265,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
-        this.activePlayer.attributes.actionPoints = DEFAULT_ACTION_POINT;
         this.socketCommunicationService.send('startTurn');
     }
 
@@ -243,7 +280,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     setPlayersOnCombatDone(players: Player[]) {
         this.allPlayers = players;
-        this.activePlayer.attributes.actionPoints = 0;
+        this.activePlayer.attributes.actionPoints -= 1;
     }
 
     getPlayerCount() {
@@ -292,9 +329,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 messages: [DialogMessages.QuitGame],
                 options: [DialogOptions.Quit, DialogOptions.Stay],
                 confirm: true,
+                itemSwap: null,
             })
             .subscribe((result) => {
                 if (result.action === DialogResult.Left) {
+                    this.socketCommunicationService.send('leftGame');
                     if (this.isPlayerAdmin()) {
                         this.navigationService.isDebugMode = false;
                         this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);

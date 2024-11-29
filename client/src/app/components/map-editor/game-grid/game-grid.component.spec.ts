@@ -3,11 +3,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { mockGameNavigation } from '@app/mocks/mock-map';
+import { mockGameNavigation, mockPositions } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
+import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -77,6 +78,7 @@ describe('GameGridComponent', () => {
             'gameMap',
             'isNeighbor',
             'updateTile',
+            'isOnWall',
         ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['hasActionPoints']);
 
@@ -164,6 +166,11 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
         });
+
+        it('should call connect on ngOnInit', () => {
+            component.ngOnInit();
+            expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
+        });
     });
 
     it('showDetails should set attributes', () => {
@@ -196,6 +203,16 @@ describe('GameGridComponent', () => {
             component.ngOnInit();
             expect(component.displayPortraitOnSpawnPoints).toHaveBeenCalled();
             expect(navigationServiceSpy.initialize).toHaveBeenCalled();
+        });
+
+        it('should set reachableTiles on reachableTiles event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'reachableTiles') {
+                    callback(mockPositions as T);
+                }
+            });
+            component.ngOnInit();
+            expect(navigationServiceSpy.reachableTiles).toEqual(mockPositions);
         });
 
         it('should listen to doorClicked event onInit', () => {
@@ -391,6 +408,7 @@ describe('GameGridComponent', () => {
 
     describe('ngOnChanges', () => {
         it('should reset the grid when resetTrigger changes to true', () => {
+            component.oldMapName = mockValidationInfo.oldMapName;
             component.tilesGrid[0][0] = TileType.Water;
             const changes: SimpleChanges = {
                 resetTrigger: new SimpleChange(false, true, false),
@@ -401,22 +419,17 @@ describe('GameGridComponent', () => {
         });
 
         it('should validate the map when saveTrigger changes to true', () => {
-            component.mapName = 'Test Map';
-            component.mapDescription = 'Description';
-            component.tilesGrid = [[TileType.Ground]];
-            gameCreationServiceSpy.isNewGame = true;
+            component.oldMapName = mockValidationInfo.oldMapName;
+            component.mapName = mockValidationInfo.title;
+            component.mapDescription = mockValidationInfo.description;
+            component.tilesGrid = mockValidationInfo.tiles;
+            gameCreationServiceSpy.isNewGame = mockValidationInfo.isNewMap;
             const changes: SimpleChanges = {
                 saveTrigger: new SimpleChange(false, true, false),
             };
             component.saveTrigger = true;
             component.ngOnChanges(changes);
-            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(
-                component.tilesGrid,
-                component.mapName,
-                component.mapDescription,
-                true,
-                component.oldMapName,
-            );
+            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(mockValidationInfo);
         });
 
         it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {

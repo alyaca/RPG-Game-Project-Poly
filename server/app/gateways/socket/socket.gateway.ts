@@ -121,6 +121,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.attackPlayer(client, this.server);
     }
 
+    @SubscribeMessage(SocketEvents.ItemSwapped)
+    handleItemSwapped(client: Socket, { inventoryToUndo, newInventory, droppedItem }) {
+        this.gameService.startItemSwap({ server: this.server, client, oldInventory: inventoryToUndo, modifiedInventory: newInventory, droppedItem });
+    }
+
     @SubscribeMessage(SocketEvents.EvadeCombat)
     handleEvadeCombat(client: Socket) {
         this.combatService.evadingPlayer(client, this.server);
@@ -149,6 +154,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
             timestamp: message.timestamp,
         };
         await this.saveMessage(client, messageWithRoomId);
+    }
+
+    @SubscribeMessage(SocketEvents.LeftGame)
+    handleDropItemsOnAbandon(client: Socket) {
+        this.gameService.placeItemsOnGround(client, this.server, undefined);
     }
 
     @SubscribeMessage(SocketEvents.DebugMode)

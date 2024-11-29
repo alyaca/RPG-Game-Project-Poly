@@ -66,8 +66,15 @@ export class CombatService {
             this.onAttackSuccess(player);
         });
 
-        this.socketCommunicationService.on('attackFail', (player: Player) => {
-            this.combatStatus = player.name + ' a échoué son attaque.';
+        this.socketCommunicationService.on('attackFail', (data: { attacker: Player; shouldDamageSelf: boolean }) => {
+            this.combatStatus = data.attacker.name + ' a échoué son attaque.';
+            if (data.shouldDamageSelf) {
+                this.onAttackFailWithArmor();
+            }
+        });
+
+        this.socketCommunicationService.on('evasionSuccess', (data: { listPlayers: Player[]; player: Player }) => {
+            this.onEvasion(data.player);
         });
 
         this.socketCommunicationService.on('evasionFail', (player: Player) => {
@@ -83,6 +90,16 @@ export class CombatService {
         this.socketCommunicationService.on('defaultWin', () => {
             this.onPlayerDisconnected();
             this.isInCombat = false;
+        });
+
+        this.socketCommunicationService.on('updateStats', (combatPlayers: CombatPlayers) => {
+            if (this.isAttacker(this.activePlayer)) {
+                this.activePlayer.attributes.attack = combatPlayers.attacker.attributes.attack;
+                this.opponent.attributes.defense = combatPlayers.defender.attributes.defense;
+            } else {
+                this.activePlayer.attributes.defense = combatPlayers.defender.attributes.defense;
+                this.opponent.attributes.attack = combatPlayers.attacker.attributes.attack;
+            }
         });
     }
 
@@ -152,6 +169,14 @@ export class CombatService {
             this.activePlayer.attributes.currentHp--;
         }
         this.combatStatus = player.name + ' a réussi son attaque.';
+    }
+
+    onAttackFailWithArmor() {
+        if (this.isAttacker(this.activePlayer)) {
+            this.activePlayer.attributes.currentHp--;
+        } else {
+            this.opponent.attributes.currentHp--;
+        }
     }
 
     onAttackValues(combatResultDetails: CombatResultDetails) {
