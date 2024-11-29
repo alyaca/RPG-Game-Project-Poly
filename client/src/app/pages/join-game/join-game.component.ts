@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 import { CharacterCreatorComponent } from '@app/components/character-creator/character-creator.component';
 import { JoinGameService } from '@app/services/sockets/join-game/join-game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Avatar, Player } from '@common/player';
-import { Room } from '@common/room';
+import { Avatar, Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 @Component({
     selector: 'app-join-game',
     standalone: true,

@@ -4,9 +4,8 @@ import { TemporaryDialogComponent } from '@app/components/temporary-dialog/tempo
 import { ATTACK_TIME, DialogMessages, DialogTitle, INFO_DIALOG_TIME } from '@app/constants';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { CombatPlayers } from '@common/combat-player';
-import { CombatResult, CombatResultDetails } from '@common/combat-result';
-import { Player } from '@common/player';
+import { CombatPlayers, CombatResult, CombatResultDetails } from '@common/interfaces/combat-info';
+import { Player } from '@common/interfaces/player';
 import { BehaviorSubject } from 'rxjs';
 @Injectable({
     providedIn: 'root',

@@ -1,9 +1,9 @@
 import { NO_ITEM, TileCost, TileType } from '@app/constants';
 import { ObjectType } from '@common/avatars-info';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
-import { PointWithDistance } from '@common/point-distance.interface';
-import { Room } from '@common/room';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
+import { PointWithDistance } from '@common/interfaces/point-distance.interface';
+import { Room } from '@common/interfaces/room';
 
 export class Navigation {
     gameMap: Game;

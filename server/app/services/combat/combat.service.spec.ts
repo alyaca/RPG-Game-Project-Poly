@@ -8,8 +8,8 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 

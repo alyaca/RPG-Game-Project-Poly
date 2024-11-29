@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TOTAL_PERCENTAGE } from '@app/constants';
 import { PostGameService } from '@app/services/post-game/post-game.service';
-import { Player, PostGameStats } from '@common/player';
-import { PlayerStatType } from '@common/post-game-stat';
+import { Player, PostGameStats } from '@common/interfaces/player';
+import { PlayerStatType } from '@common/interfaces/post-game-stat';
 
 @Component({
     selector: 'app-single-player-stat',

@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
 import { DialogData } from '@app/interfaces/dialog-data';
-import { ItemSwap } from '@common/item-swap';
+import { ItemSwap } from '@common/interfaces/item-swap';
 
 @Component({
     selector: 'app-simple-dialog',

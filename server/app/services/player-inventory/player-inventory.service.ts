@@ -2,9 +2,9 @@ import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

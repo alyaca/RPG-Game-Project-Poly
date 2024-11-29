@@ -6,7 +6,7 @@ import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 import { Subscription } from 'rxjs';
 
 @Component({

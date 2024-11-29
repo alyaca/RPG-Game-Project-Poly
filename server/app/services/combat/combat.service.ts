@@ -18,12 +18,11 @@ import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { CombatInfos } from '@common/combat-info';
-import { CombatPlayers } from '@common/combat-player';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
-import { PlayerStatType } from '@common/post-game-stat';
-import { Room } from '@common/room';
+import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
+import { PlayerStatType } from '@common/interfaces/post-game-stat';
+import { Room } from '@common/interfaces/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 

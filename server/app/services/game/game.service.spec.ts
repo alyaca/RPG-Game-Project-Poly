@@ -1,6 +1,6 @@
 import { Timer } from '@app/classes/timer/timer';
 import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
-import { baseBot, mockPlayers, mockAttributes } from '@app/mocks/mock-players';
+import { baseBot, mockAttributes, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
@@ -8,8 +8,8 @@ import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
-import { Behavior, Player, Status } from '@common/player';
-import { GameStatus, Room } from '@common/room';
+import { Behavior, Player, Status } from '@common/interfaces/player';
+import { GameStatus, Room } from '@common/interfaces/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';

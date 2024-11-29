@@ -15,7 +15,7 @@ import { mockInvalidItemsMatrice, mockLargeItemsMatrice, mockMediumItemsMatrice 
 import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { MapValidatorService } from './map-validator.service';
 

@@ -1,15 +1,15 @@
 import { Timer } from '@app/classes/timer/timer';
 import { ACCESS_CODE_LENGTH } from '@app/constants';
+import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
-import { GameStatus } from '@common/room';
+import { GameStatus } from '@common/interfaces/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { RoomService } from './room.service';
-import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 
 describe('RoomService', () => {
     let service: RoomService;

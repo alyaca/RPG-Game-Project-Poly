@@ -20,7 +20,7 @@ import {
 } from '@app/constants';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({

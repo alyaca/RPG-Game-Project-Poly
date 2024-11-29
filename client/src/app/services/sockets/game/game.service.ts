@@ -18,9 +18,9 @@ import {
 import { DialogData } from '@app/interfaces/dialog-data';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
-import { Room } from '@common/room';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 
 @Injectable({
     providedIn: 'root',
@@ -90,7 +90,6 @@ export class GameService {
             messages: [message],
             confirm: false,
             options: [DialogOptions.Close],
-            itemSwap: null,
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
                 this.router.navigate(['/home']);
@@ -116,7 +115,6 @@ export class GameService {
             messages: [DialogMessages.QuitGame],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
-            itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
                 this.socketCommunicationService.send('leaveRoom', roomId);
@@ -130,7 +128,6 @@ export class GameService {
             messages: [DialogMessages.QuitPostGameLobby],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
-            itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
                 this.router.navigate(['/home']);
@@ -145,7 +142,6 @@ export class GameService {
             messages: [DialogMessages.KickedOut],
             options: [DialogOptions.Close],
             confirm: false,
-            itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
                 this.router.navigate(['/home']);

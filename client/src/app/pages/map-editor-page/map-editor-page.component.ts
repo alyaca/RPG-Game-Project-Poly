@@ -105,7 +105,6 @@ export class MapEditorPageComponent implements OnInit {
                 messages: ['Toutes modifications non enregistrés seront perdues, êtes-vous certain de vouloir quitter?'],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
-                itemSwap: null,
             },
         });
 

@@ -4,8 +4,8 @@ import { GameTimers } from '@app/interfaces/game-timers';
 import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
-import { Game } from '@common/game';
-import { GameStatus, Room } from '@common/room';
+import { Game } from '@common/interfaces/game';
+import { GameStatus, Room } from '@common/interfaces/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 

@@ -22,8 +22,8 @@ import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { Avatar, Behavior, Player, Position, Status } from '@common/player';
-import { GameStatus, Room } from '@common/room';
+import { Avatar, Behavior, Player, Position, Status } from '@common/interfaces/player';
+import { GameStatus, Room } from '@common/interfaces/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 

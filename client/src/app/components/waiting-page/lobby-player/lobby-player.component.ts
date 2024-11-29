@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { Status } from '@app/interfaces/player-object';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Behavior, Player } from '@common/player';
+import { Behavior, Player } from '@common/interfaces/player';
 @Component({
     selector: 'app-lobby-player',
     standalone: true,
@@ -30,7 +30,6 @@ export class LobbyPlayerComponent {
                 messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
                 options: ['Annuler', 'Exclure'],
                 confirm: true,
-                itemSwap: null,
             },
         });
         dialogRef.afterClosed().subscribe((result) => {

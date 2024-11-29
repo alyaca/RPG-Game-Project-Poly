@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 
 @Injectable({
     providedIn: 'root',
@@ -76,7 +76,6 @@ export class JoinGameService {
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
-                itemSwap: null,
             },
         });
 

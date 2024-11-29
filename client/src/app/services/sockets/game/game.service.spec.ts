@@ -20,7 +20,7 @@ import { mockPlayers } from '@app/mocks/mock-players';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
 
@@ -93,7 +93,6 @@ describe('GameService', () => {
             messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
             options: ['Quitter', 'Rester'],
             confirm: true,
-            itemSwap: null,
         };
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('stay'));
@@ -138,7 +137,6 @@ describe('GameService', () => {
                     messages: [message],
                     confirm: false,
                     options: [DialogOptions.Close],
-                    itemSwap: null,
                 },
             });
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);

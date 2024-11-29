@@ -17,7 +17,7 @@ import {
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { GameImportValidatorService } from './game-import-validator.service';
 

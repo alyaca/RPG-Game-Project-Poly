@@ -1,7 +1,7 @@
 import { SPAWN_POINT_ID } from '@app/constants';
 import { RoomService } from '@app/services/room/room.service';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 

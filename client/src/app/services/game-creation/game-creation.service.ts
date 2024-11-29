@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MapSize, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({

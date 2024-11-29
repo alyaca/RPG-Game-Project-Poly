@@ -4,7 +4,7 @@ import { mockPlayers, playerDisconnected } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ObjectType } from '@common/avatars-info';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameLogsService } from './game-logs.service';
 

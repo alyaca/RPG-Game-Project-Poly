@@ -19,7 +19,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { Player, Position, Status } from '@common/player';
+import { Player, Position, Status } from '@common/interfaces/player';
 import { Socket } from 'socket.io-client';
 import { GameGridComponent } from './game-grid.component';
 

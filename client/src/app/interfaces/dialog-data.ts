@@ -1,10 +1,10 @@
-import { ItemSwap } from '@common/item-swap';
+import { ItemSwap } from '@common/interfaces/item-swap';
 
 export interface DialogData {
     title: string;
     messages: string[];
     options: string[];
     confirm: boolean;
-    itemSwap: ItemSwap | null;
+    itemSwap?: ItemSwap;
     isInput?: boolean;
 }

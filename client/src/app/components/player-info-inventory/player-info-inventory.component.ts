@@ -2,8 +2,8 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
 import { MAX_INVENTORY_ITEMS, ObjectType } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 
 @Component({
     selector: 'app-player-info-inventory',

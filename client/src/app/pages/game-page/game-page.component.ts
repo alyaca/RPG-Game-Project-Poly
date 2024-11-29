@@ -14,10 +14,10 @@ import { PostGameService } from '@app/services/post-game/post-game.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { ItemSwap } from '@common/item-swap';
+import { ItemSwap } from '@common/interfaces/item-swap';
+import { Player, Position, Status } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
-import { Player, Position, Status } from '@common/player';
-import { Room } from '@common/room';
 
 @Component({
     selector: 'app-game-page',
@@ -153,7 +153,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: ['Le gagnant de la partie est : ' + data.winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
-                    itemSwap: null,
                 })
                 .subscribe((result) => {
                     if (result.action === DialogResult.Close) {
@@ -329,7 +328,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                 messages: [DialogMessages.QuitGame],
                 options: [DialogOptions.Quit, DialogOptions.Stay],
                 confirm: true,
-                itemSwap: null,
             })
             .subscribe((result) => {
                 if (result.action === DialogResult.Left) {

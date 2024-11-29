@@ -17,7 +17,7 @@ import {
     TileType,
 } from '@app/constants';
 import { Map } from '@app/model/schema/map.schema';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import mongoose from 'mongoose';
 
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

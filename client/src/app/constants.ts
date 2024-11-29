@@ -1,5 +1,5 @@
-import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-stats';
-import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
+import { GlobalPostGameStat, GlobalStatType } from '@common/interfaces/global-post-game-stats';
+import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
 
 export enum MapSize {
     Small = 'small',

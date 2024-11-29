@@ -1,15 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { PlayerStatisticsComponent } from '@app/components/player-statistics/player-statistics.component';
-import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { CommonModule } from '@angular/common';
-import { PostGameService } from '@app/services/post-game/post-game.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
+import { PlayerStatisticsComponent } from '@app/components/player-statistics/player-statistics.component';
 import { PostGameAttributeComponent } from '@app/components/post-game-attribute/post-game-attribute.component';
-import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { defaultGlobalStats } from '@app/mocks/default-global-stats';
-import { GameService } from '@app/services/sockets/game/game.service';
-import { GlobalPostGameStat } from '@common/global-post-game-stats';
-import { GLOBAL_STAT_TYPES } from '@app/constants';
 import { SingleGlobalStatComponent } from '@app/components/single-global-stat/single-global-stat.component';
+import { GLOBAL_STAT_TYPES } from '@app/constants';
+import { defaultGlobalStats } from '@app/mocks/default-global-stats';
+import { PostGameService } from '@app/services/post-game/post-game.service';
+import { GameService } from '@app/services/sockets/game/game.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { GlobalPostGameStat } from '@common/interfaces/global-post-game-stats';
 
 @Component({
     selector: 'app-post-game-page',

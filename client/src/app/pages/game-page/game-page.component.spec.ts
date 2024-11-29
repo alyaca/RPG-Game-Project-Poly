@@ -261,7 +261,6 @@ describe('GamePageComponent', () => {
             messages: [DialogMessages.QuitGame],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
-            itemSwap: null,
         });
     });
 

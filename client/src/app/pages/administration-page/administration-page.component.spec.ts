@@ -8,7 +8,7 @@ import { ErrorMessages } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { of, throwError } from 'rxjs';
 import { AdministrationPageComponent } from './administration-page.component';
 

@@ -1,8 +1,8 @@
 import { LogType, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
-import { CombatPlayers } from '@common/combat-player';
+import { CombatPlayers } from '@common/interfaces/combat-info';
+import { Player, Status } from '@common/interfaces/player';
 import { gameObjects } from '@common/objects-info';
-import { Player, Status } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 @Injectable()

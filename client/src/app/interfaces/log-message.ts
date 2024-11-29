@@ -1,4 +1,4 @@
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 
 export interface LogMessage {
     id: number;

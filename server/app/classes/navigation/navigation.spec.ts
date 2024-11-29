@@ -4,8 +4,8 @@ import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
 import { ObjectType } from '@common/avatars-info';
-import { Position } from '@common/player';
-import { PointWithDistance } from '@common/point-distance.interface';
+import { Position } from '@common/interfaces/player';
+import { PointWithDistance } from '@common/interfaces/point-distance.interface';
 import { Navigation } from './navigation';
 
 /* eslint max-lines: ["off"] */

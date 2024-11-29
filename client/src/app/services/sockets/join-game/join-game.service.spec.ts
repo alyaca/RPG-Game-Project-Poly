@@ -7,7 +7,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 import { of } from 'rxjs';
 import { JoinGameService } from './join-game.service';
 
@@ -177,7 +177,6 @@ describe('JoinGameService', () => {
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
-                itemSwap: null,
             },
         });
         expect(routerSpy.navigate).not.toHaveBeenCalledWith(['/home']);
@@ -196,7 +195,6 @@ describe('JoinGameService', () => {
                 messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
                 options: ['Quitter', 'Rester'],
                 confirm: true,
-                itemSwap: null,
             },
         });
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);

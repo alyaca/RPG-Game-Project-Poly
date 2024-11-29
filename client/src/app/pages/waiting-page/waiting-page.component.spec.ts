@@ -12,8 +12,8 @@ import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Game } from '@common/game';
-import { Behavior } from '@common/player';
+import { Game } from '@common/interfaces/game';
+import { Behavior } from '@common/interfaces/player';
 import { BehaviorSubject, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WaitingPageComponent } from './waiting-page.component';
@@ -216,7 +216,6 @@ describe('WaitingPageComponent', () => {
                 messages: [DialogMessages.NotEnoughPlayers],
                 options: [DialogOptions.Close],
                 confirm: false,
-                itemSwap: null,
             });
         });
 
@@ -227,7 +226,6 @@ describe('WaitingPageComponent', () => {
                 messages: [DialogMessages.RoomLocked],
                 options: [DialogOptions.Close],
                 confirm: false,
-                itemSwap: null,
             });
         });
 
@@ -266,7 +264,6 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.ConfirmStartGame],
             options: [DialogOptions.Cancel, DialogOptions.Confirm],
             confirm: true,
-            itemSwap: null,
         });
 
         setTimeout(() => {
@@ -295,7 +292,6 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.MaxPlayers],
             options: [DialogOptions.Close],
             confirm: false,
-            itemSwap: null,
         });
         expect(component.isBotProfileVisible).toBeFalse();
     });
@@ -311,7 +307,6 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.AddBotWhenLocked],
             options: [DialogOptions.Close],
             confirm: false,
-            itemSwap: null,
         });
         expect(component.isBotProfileVisible).toBeFalse();
     });

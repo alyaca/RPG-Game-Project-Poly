@@ -27,9 +27,9 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
+import { Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
-import { Player, Position } from '@common/player';
-import { Room } from '@common/room';
 
 @Component({
     selector: 'app-game-grid',
