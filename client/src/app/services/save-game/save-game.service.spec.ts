@@ -21,6 +21,25 @@ describe('SaveGameService', () => {
     let service: SaveGameService;
     let httpMock: HttpTestingController;
     let gameImportValidatorServiceSpy: jasmine.SpyObj<GameImportValidatorService>;
+    const dummyGame: Game = {
+        _id: 'Test ID',
+        name: 'Test Game',
+        description: 'Test Description',
+        image: 'Test Image',
+        tiles: [
+            [0, 0],
+            [0, 0],
+        ],
+        itemPlacement: [
+            [0, 0],
+            [0, 0],
+        ],
+        dimension: 10,
+        nbPlayers: 2,
+        mode: 'classique',
+        isSelected: false,
+        lastModification: new Date(),
+    };
 
     beforeEach(async () => {
         gameImportValidatorServiceSpy = jasmine.createSpyObj('GameImportValidatorService', ['validateMap']);
@@ -109,26 +128,6 @@ describe('SaveGameService', () => {
     });
 
     it('should transform Game to Info in cleanData', () => {
-        const dummyGame: Game = {
-            _id: 'Test ID',
-            name: 'Test Game',
-            description: 'Test Description',
-            image: 'Test Image',
-            tiles: [
-                [0, 0],
-                [0, 0],
-            ],
-            itemPlacement: [
-                [0, 0],
-                [0, 0],
-            ],
-            dimension: SIZE_MEDIUM_MAP,
-            nbPlayers: 4,
-            mode: 'classique',
-            isSelected: false,
-            lastModification: new Date(),
-        };
-
         const result = service.cleanData(dummyGame);
 
         expect(result).toEqual({
@@ -300,5 +299,47 @@ describe('SaveGameService', () => {
         });
 
         req.flush({});
+    });
+
+    it('should handle successful game import', (done) => {
+        const fileContent = JSON.stringify(dummyGame);
+        const file = new File([fileContent], 'test.json', { type: 'application/json' });
+
+        gameImportValidatorServiceSpy.validateMap.and.callFake(() => new Promise((resolve) => resolve([])));
+
+        const saveImportedGameSpy = spyOn(service, 'saveImportedGame').and.callFake(() => of(dummyGame));
+
+        service.importGame(file).subscribe((result) => {
+            expect(result).toEqual(dummyGame);
+            expect(saveImportedGameSpy).toHaveBeenCalled();
+            done();
+        });
+    });
+
+    it('should handle invalid game import', (done) => {
+        const fileContent = JSON.stringify(dummyGame);
+        const file = new File([fileContent], 'test.json', { type: 'application/json' });
+
+        gameImportValidatorServiceSpy.validateMap.and.callFake(() => new Promise((resolve) => resolve([ErrorMessages.InvalidMode])));
+
+        const saveImportedGameSpy = spyOn(service, 'saveImportedGame');
+
+        service.importGame(file).subscribe((result) => {
+            expect(result).toContain(ErrorMessages.InvalidMode);
+            expect(saveImportedGameSpy).not.toHaveBeenCalled();
+            done();
+        });
+    });
+
+    it('should handle wrong file type during import', (done) => {
+        const fileContent = 'This is not JSON content';
+        const file = new File([fileContent], 'test.txt', { type: 'text/plain' });
+
+        service.importGame(file).subscribe({
+            error: (error) => {
+                expect(error).toEqual([ErrorMessages.InvalidFile]);
+                done();
+            },
+        });
     });
 });

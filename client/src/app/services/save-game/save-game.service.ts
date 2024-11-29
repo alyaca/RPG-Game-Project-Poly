@@ -14,7 +14,7 @@ import {
 import { Info } from '@app/interfaces/info';
 import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
 import { Game } from '@common/game';
-import { catchError, concatMap, map, Observable, tap, throwError } from 'rxjs';
+import { concatMap, map, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -47,6 +47,7 @@ export class SaveGameService {
 
             reader.onload = async () => {
                 try {
+                    console.log('je passe dans le onload');
                     const gameData: Game = JSON.parse(reader.result as string);
                     const gameInfo: Info = this.cleanData(gameData);
                     this.gameInfoImported = gameInfo;
@@ -54,24 +55,16 @@ export class SaveGameService {
                     const errorMessages = await this.gameImportValidatorService.validateMap(gameData);
 
                     if (errorMessages.length === 0) {
-                        this.saveImportedGame(gameInfo)
-                            .pipe(
-                                tap((createdGame) => {
-                                    observer.next(createdGame as Game);
-                                    observer.complete();
-                                }),
-                                catchError((error) => {
-                                    observer.error(["Erreur lors de l'enregistrement du jeu : " + error.message]);
-                                    return throwError(() => new Error(error));
-                                }),
-                            )
-                            .subscribe();
+                        this.saveImportedGame(gameInfo).subscribe((createdGame) => {
+                            observer.next(createdGame as Game);
+                            observer.complete();
+                        });
                     } else {
-                        observer.next(errorMessages);
+                        observer.next(errorMessages as string[]);
                         observer.complete();
                     }
                 } catch (error) {
-                    observer.error(['Erreur lors de la lecture du fichier JSON.']);
+                    observer.error([ErrorMessages.InvalidFile]);
                 }
             };
 
