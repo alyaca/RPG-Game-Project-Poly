@@ -5,6 +5,7 @@ import { MapPosition } from '@app/interfaces/map-position';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { ObjectType } from '@common/avatars-info';
 import { TileType } from '@common/constants';
+import { TileRemoval } from '@common/interfaces/tile-removal';
 import { gameObjects } from '@common/objects-info';
 import { Subscription } from 'rxjs';
 
@@ -122,10 +123,10 @@ export class GameObjectService implements OnDestroy {
         return validTileType.includes(tiles[row][col]);
     }
 
-    onDrop(event: DragEvent, row: number, col: number, objects: number[][], tiles: number[][]) {
+    onDrop(event: DragEvent, { position, tiles, objects }: TileRemoval) {
         event.preventDefault();
-        if (this.draggedObject && objects[row][col] === NO_OBJECT && this.isValidTileForObject(row, col, tiles)) {
-            this.updateObjectGridPosition(this.draggedObject, row, col);
+        if (this.draggedObject && objects[position.x][position.y] === NO_OBJECT && this.isValidTileForObject(position.x, position.y, tiles)) {
+            this.updateObjectGridPosition(this.draggedObject, position.x, position.y);
         }
     }
 

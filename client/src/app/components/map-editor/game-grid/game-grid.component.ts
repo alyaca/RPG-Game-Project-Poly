@@ -279,7 +279,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     onDrop(event: DragEvent, row: number, col: number) {
-        this.gameObjectService.onDrop(event, row, col, this.objectsArray, this.tilesGrid);
+        this.gameObjectService.onDrop(event, { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray });
         this.isMouseDown = false;
         this.toolService.setSelectedTile('');
         this.sendInfoToMapCreationPage();

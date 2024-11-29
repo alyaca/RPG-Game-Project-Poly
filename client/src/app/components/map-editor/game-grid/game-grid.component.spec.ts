@@ -509,7 +509,11 @@ describe('GameGridComponent', () => {
         component['isMouseDown'] = true;
         const mockEvent = new DragEvent('drop');
         component.onDrop(mockEvent, 1, 1);
-        expect(gameObjectManagerServiceSpy.onDrop).toHaveBeenCalledWith(mockEvent, 1, 1, component['objectsArray'], component['tilesGrid']);
+        expect(gameObjectManagerServiceSpy.onDrop).toHaveBeenCalledWith(mockEvent, {
+            position: { x: 1, y: 1 },
+            tiles: component['tilesGrid'],
+            objects: component['objectsArray'],
+        });
         expect(component['isMouseDown']).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
         expect(component.sendInfoToMapCreationPage).toHaveBeenCalled();

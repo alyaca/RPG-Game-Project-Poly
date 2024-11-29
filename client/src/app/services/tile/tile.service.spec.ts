@@ -123,10 +123,14 @@ describe('TileService', () => {
                 [TileType.Ground, TileType.Ground],
                 [TileType.Ground, TileType.Ground],
             ];
-            const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
-                [NO_OBJECT, NO_OBJECT],
-                [NO_OBJECT, NO_OBJECT],
-            ]);
+            const result = service.removeTile(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: mockTiles,
+                objects: [
+                    [NO_OBJECT, NO_OBJECT],
+                    [NO_OBJECT, NO_OBJECT],
+                ],
+            });
             expect(result).toEqual(mockTiles);
         });
 
@@ -136,10 +140,14 @@ describe('TileService', () => {
                 [TileType.Ice, TileType.Ground],
                 [TileType.Water, TileType.Ground],
             ];
-            const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
-                [NO_OBJECT, NO_OBJECT],
-                [NO_OBJECT, NO_OBJECT],
-            ]);
+            const result = service.removeTile(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: mockTiles,
+                objects: [
+                    [NO_OBJECT, NO_OBJECT],
+                    [NO_OBJECT, NO_OBJECT],
+                ],
+            });
             expect(result).toEqual([
                 [TileType.Ground, TileType.Ground],
                 [TileType.Water, TileType.Ground],
@@ -152,10 +160,14 @@ describe('TileService', () => {
                 [TileType.Ice, TileType.Ground],
                 [TileType.Water, TileType.Ground],
             ];
-            const result = service.removeTile(mockEvent, 0, 0, mockTiles, [
-                [1, 0], // Assuming 1 indicates an object
-                [NO_OBJECT, NO_OBJECT],
-            ]);
+            const result = service.removeTile(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: mockTiles,
+                objects: [
+                    [1, 0],
+                    [NO_OBJECT, NO_OBJECT],
+                ],
+            });
             expect(result).toEqual(mockTiles);
         });
     });

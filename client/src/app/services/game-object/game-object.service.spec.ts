@@ -208,19 +208,17 @@ describe('GameObjectService', () => {
             service.draggedObject = null;
             const mockEvent = new DragEvent('drop');
             spyOn(service, 'isValidTileForObject').and.returnValue(false);
-            service.onDrop(
-                mockEvent,
-                0,
-                0,
-                [
+            service.onDrop(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: [
+                    [1, 1],
+                    [1, 1],
+                ],
+                objects: [
                     [0, 0],
                     [1, 0],
                 ],
-                [
-                    [1, 1],
-                    [1, 1],
-                ],
-            );
+            });
             expect(service.updateObjectGridPosition).not.toHaveBeenCalled();
         });
 
@@ -228,19 +226,17 @@ describe('GameObjectService', () => {
             service.draggedObject = mockGameObject;
             const mockEvent = new DragEvent('drop');
             spyOn(service, 'isValidTileForObject').and.returnValue(true);
-            service.onDrop(
-                mockEvent,
-                0,
-                0,
-                [
+            service.onDrop(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: [
+                    [1, 1],
+                    [1, 1],
+                ],
+                objects: [
                     [NO_OBJECT, 0],
                     [1, 0],
                 ],
-                [
-                    [1, 1],
-                    [1, 1],
-                ],
-            );
+            });
             expect(service.updateObjectGridPosition).toHaveBeenCalled();
         });
     });
