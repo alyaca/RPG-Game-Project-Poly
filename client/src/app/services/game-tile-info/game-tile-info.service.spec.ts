@@ -4,7 +4,10 @@ import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/interfaces/game-tile';
+import { mockRoom } from '@app/mocks/mock-room';
+import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
+import { Player } from '@common/interfaces/player';
 
 describe('GameTileInfoService', () => {
     let service: GameTileInfoService;
@@ -56,18 +59,19 @@ describe('GameTileInfoService', () => {
 
             expect(result.id).toBe(tileId);
             expect(result.name).toBe(service.tileNames[tileId - 1]);
-            expect(result.description).toBe(service.tileDescriptions[tileId - 1]);
+            expect(result.descriptions).toBe(service.tileDescriptions[tileId - 1]);
             expect(result.image).toBe('image-path');
             expect(tileServiceSpy.getTileImage).toHaveBeenCalledWith(tileId);
         });
     });
 
     describe('getPlayer', () => {
-        it('should return null if no player is on the selected tile', () => {
+        it('should return undefined if no player is on the selected tile', () => {
             navigationServiceSpy.players = mockPlayers;
             service.selectedRow = 2;
             service.selectedCol = 2;
-            expect(service.getPlayer()).toBeNull();
+            mockRoom.listPlayers = mockPlayers;
+            expect(service.getPlayer(mockRoom)).toBeUndefined();
         });
 
         it('should return the player if one is on the selected tile', () => {
@@ -79,15 +83,61 @@ describe('GameTileInfoService', () => {
             service.selectedCol = 0;
             mockPlayers[0].position.x = 0;
             mockPlayers[0].position.y = 0;
-            expect(service.getPlayer()).toEqual(mockPlayer);
+            mockRoom.listPlayers = mockPlayers;
+            expect(service.getPlayer(mockRoom)).toEqual(mockPlayer);
         });
 
-        it('should return null if player positions do not match selectedRow and selectedCol', () => {
+        it('should return undefined if player positions do not match selectedRow and selectedCol', () => {
             navigationServiceSpy.players = mockPlayers;
 
             service.selectedRow = 2;
             service.selectedCol = 2;
-            expect(service.getPlayer()).toBeNull();
+            mockRoom.listPlayers = mockPlayers;
+            expect(service.getPlayer(mockRoom)).toBeUndefined();
         });
+    });
+
+    describe('getPlayer', () => {
+        it('should return the correct player when a match is found', () => {
+            service.selectedRow = 2;
+            service.selectedCol = 1;
+            const mockPlayer = { position: { x: 2, y: 1 }, name: 'Player 1' } as Player;
+            const room = {
+                listPlayers: [mockPlayer, { position: { x: 1, y: 1 }, name: 'Player 2' }],
+            } as Room;
+            const result = service.getPlayer(room);
+            expect(result).toEqual(mockPlayer);
+        });
+
+        it('should return undefined when no player matches the position', () => {
+            service.selectedRow = 0;
+            service.selectedCol = 0;
+            const room = {
+                listPlayers: [
+                    { position: { x: 1, y: 1 }, name: 'Player 1' },
+                    { position: { x: 2, y: 2 }, name: 'Player 2' },
+                ],
+            } as Room;
+            const result = service.getPlayer(room);
+            expect(result).toBeUndefined();
+        });
+    });
+
+    it('should correctly transfer data from the room to the service properties', () => {
+        service.selectedRow = 1;
+        service.selectedCol = 2;
+
+        const mockTileId = 0;
+        const mockItemId = 2;
+        const player = mockPlayers[0];
+        player.position = { x: 1, y: 2 };
+        const room = mockRoom;
+        room.gameMap.tiles[1][2] = mockTileId;
+        room.gameMap.itemPlacement[1][2] = mockItemId;
+        spyOn(service, 'getPlayer').and.returnValue(player);
+        service.transferRoomData(room);
+        expect(service.tileId).toBe(mockTileId);
+        expect(service.itemId).toBe(mockItemId);
+        expect(service.selectedPlayer).toEqual(player);
     });
 });

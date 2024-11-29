@@ -16,9 +16,9 @@ import {
     SIZE_SMALL_MAP,
 } from '@app/constants';
 import { GameListService } from '@app/services/game-list/game-list.service';
-import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { ObjectType } from '@common/avatars-info';
-import { GameMode } from '@common/constants';
+import { GameMode, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { firstValueFrom } from 'rxjs';
 
