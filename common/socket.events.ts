@@ -70,6 +70,7 @@ export enum ServerToClientEvent {
     PathFound = 'pathFound',
     PlayerFell = 'playerFell',
     PlayerNavigation = 'playerNavigation',
+    Reachability = 'reachability',
     ReachableTiles = 'reachableTiles',
     RespawnPlayer = 'respawnPlayer',
     RoomCreated = 'roomCreated',

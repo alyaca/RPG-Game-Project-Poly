@@ -46,7 +46,7 @@ export class GameLogsService {
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
     }
 
-    sendCombatCombatResultLog(roomId: string, server: Server, combatPlayers: CombatPlayers) {
+    sendCombatResultLog(roomId: string, server: Server, combatPlayers: CombatPlayers) {
         const message = this.generateCombatResultMessage(combatPlayers);
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
     }

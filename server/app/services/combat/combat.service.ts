@@ -127,7 +127,7 @@ export class CombatService {
             this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.AttackFail, { attacker: combatPlayers.attacker, shouldDamageSelf });
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
-        this.logService.sendCombatCombatResultLog(room.roomId, server, combatPlayers);
+        this.logService.sendCombatResultLog(room.roomId, server, combatPlayers);
         const isPlayerDead = this.checkIfPlayerIsDead(client, combatPlayers.defender, combatPlayers.attacker, server);
         if (!isPlayerDead) {
             setTimeout(() => {

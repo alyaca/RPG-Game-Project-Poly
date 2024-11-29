@@ -184,7 +184,7 @@ export class GameService {
             this.updateActivePlayer(server, room);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
-            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, activePlayer);
+            server.to(room.roomId).emit(ServerToClientEvent.Reachability, activePlayer);
             server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
             server.to(room.roomId).emit(ServerToClientEvent.TurnEnded, room.listPlayers);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
