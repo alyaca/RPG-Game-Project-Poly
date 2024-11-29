@@ -230,20 +230,20 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     removeListeners() {
-        this.socketCommunicationService.off(ServerToClientEvent.BeforeStartTurnTimer);
-        this.socketCommunicationService.off(ServerToClientEvent.TurnEnded);
-        this.socketCommunicationService.off(ServerToClientEvent.StartedTurnTimer);
-        this.socketCommunicationService.off(ServerToClientEvent.DrawGame);
-        this.socketCommunicationService.off(ServerToClientEvent.OpenItemSwitchModal);
         this.socketCommunicationService.off(ServerToClientEvent.ActivePlayer);
-        this.socketCommunicationService.off(ServerToClientEvent.DebugMode);
-        this.socketCommunicationService.off(ServerToClientEvent.EndGame);
         this.socketCommunicationService.off(ServerToClientEvent.AttackAround);
+        this.socketCommunicationService.off(ServerToClientEvent.BeforeStartTurnTimer);
+        this.socketCommunicationService.off(ServerToClientEvent.CombatEnd);
+        this.socketCommunicationService.off(ServerToClientEvent.DebugMode);
+        this.socketCommunicationService.off(ServerToClientEvent.DrawGame);
         this.socketCommunicationService.off(ServerToClientEvent.DoorAround);
         this.socketCommunicationService.off(ServerToClientEvent.DoorClicked);
+        this.socketCommunicationService.off(ServerToClientEvent.EndGame);
         this.socketCommunicationService.off(ServerToClientEvent.EvasionSuccess);
-        this.socketCommunicationService.off(ServerToClientEvent.CombatEnd);
+        this.socketCommunicationService.off(ServerToClientEvent.OpenItemSwitchModal);
+        this.socketCommunicationService.off(ServerToClientEvent.StartedTurnTimer);
         this.socketCommunicationService.off(ServerToClientEvent.StartFight);
+        this.socketCommunicationService.off(ServerToClientEvent.TurnEnded);
     }
 
     onChatFocus(isFocus: boolean) {
