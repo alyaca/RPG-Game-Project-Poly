@@ -153,8 +153,9 @@ export class PostGameService {
         this.computeGlobalTilesVisitedPercentage();
         this.calculateUniqueItems();
 
-        // if(isCTFmode)
-        this.calculateFlagBearers();
+        if(this.isCTFMode){
+            this.calculateFlagBearers();
+        }
     }
 
     computeGlobalTilesVisitedPercentage() {
