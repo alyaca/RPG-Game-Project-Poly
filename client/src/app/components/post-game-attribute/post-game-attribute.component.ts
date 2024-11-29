@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { SORT_ORDER } from '@app/constants';
+import { SortOrder } from '@app/constants';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { Player } from '@common/interfaces/player';
 
@@ -14,7 +14,7 @@ import { Player } from '@common/interfaces/player';
 export class PostGameAttributeComponent {
     @Input() attribute: keyof Player['postGameStats'];
     @Input() displayText: string;
-    sortOrder = SORT_ORDER;
+    sortOrder = SortOrder;
     // Public for it to be accessed in html
     constructor(public postGameService: PostGameService) {}
 
