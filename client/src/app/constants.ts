@@ -113,6 +113,7 @@ export enum ErrorMessages {
     InvalidDimension = '- Les dimensions de la carte sont invalides',
     InvalidTileType = '- Un ou plusieurs types de tuiles sont invalides',
     InvalidObjectType = "- Un ou plusieurs types d'objets sont invalides",
+    InvalidNbFlags = '- Il doit y avoir exactement un drapeau sur la carte',
     FileTooLarge = '- Le fichier est trop volumineux',
     InvalidMode = '- Le mode de jeu est invalide',
     InvalidNbPlayers = '- Le nombre de joueurs est invalide pour la taille de la carte sélectionnée',
