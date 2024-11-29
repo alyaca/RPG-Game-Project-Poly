@@ -5,14 +5,14 @@
             <img class="big-image" [src]="gameTileInfoService.selectedPlayer.avatar?.src" alt="player image">
             <div class="stats">
                 <ul class="left-stats">
-                    <li class="small-text">Attributs</li>
+                    <p class="small-text">Attributs</p>
                     <li class="small-text"> PV total: {{ gameTileInfoService.selectedPlayer.attributes.totalHp }}</li>
                     <li class="small-text"> Rapidité: {{ gameTileInfoService.selectedPlayer.attributes.speed }}</li>
                     <li class="small-text"> Attaque: {{ gameTileInfoService.selectedPlayer.attributes.attack }}</li>
                     <li class="small-text"> Défense: {{ gameTileInfoService.selectedPlayer.attributes.defense }}</li>
                 </ul>
                 <ul class="right-stats">
-                    <li class="small-text">Bilan de combat (Victoires/Évasions/Défaites) </li>
+                    <p class="small-text">Bilan de combat (Victoires/Évasions/Défaites) </p>
                     <li class="small-text">
                         {{ gameTileInfoService.selectedPlayer.postGameStats.victories }} / 
                         {{ gameTileInfoService.selectedPlayer.postGameStats.evasions }} /
