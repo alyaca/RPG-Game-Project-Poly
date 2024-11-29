@@ -19,7 +19,7 @@ import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
-import { TileType } from '@common/constants'
+import { TileType } from '@common/constants';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
