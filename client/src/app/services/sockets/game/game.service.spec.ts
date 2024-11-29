@@ -227,6 +227,13 @@ describe('GameService', () => {
         expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
+    it('should disconnect and navigate /home on drawGame event', () => {
+        spyOn(socketCommunicationServiceSpy, 'disconnect');
+        service.onGameDraw();
+        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    });
+
     it('should return true if player has action points', () => {
         const player = { attributes: { actionPoints: 1 } } as unknown as Player;
         expect(service.hasActionPoints(player)).toBeTrue();

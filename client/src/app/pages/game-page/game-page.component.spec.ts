@@ -151,10 +151,11 @@ describe('GamePageComponent', () => {
                     callback({} as T);
                 }
             });
-            spyOn(component, 'handleDraw');
+            spyOn(gameServiceSpy, 'onDrawGame');
             component.ngOnInit();
-            expect(component.handleDraw).toHaveBeenCalled();
+            expect(gameServiceSpy.onDrawGame).toHaveBeenCalled();
         });
+
         it('should set active player name on otherPlayerTurn event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'otherPlayerTurn') {

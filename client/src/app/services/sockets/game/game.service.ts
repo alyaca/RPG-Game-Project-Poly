@@ -8,6 +8,7 @@ import {
     DialogOptions,
     DialogResult,
     DialogTitle,
+    INFO_DIALOG_TIME,
     MAX_PLAYER_LARGE_MAP,
     MAX_PLAYER_MEDIUM_MAP,
     MAX_PLAYER_SMALL_MAP,
@@ -17,6 +18,7 @@ import {
 } from '@app/constants';
 import { DialogData } from '@app/interfaces/dialog-data';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
+import { PostGameService } from '@app/services/post-game/post-game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
@@ -41,6 +43,7 @@ export class GameService {
         private socketCommunicationService: SocketCommunicationService,
         private dialog: MatDialog,
         private router: Router,
+        private postGameService: PostGameService,
     ) {}
 
     setRoomId(room: string) {
@@ -95,6 +98,30 @@ export class GameService {
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
                 this.router.navigate([PathRoute.HOME]);
+            }
+        });
+    }
+
+    onDrawGame() {
+        this.socketCommunicationService.disconnect();
+        this.router.navigate([PathRoute.HOME]);
+        this.openTempDialog({
+            title: DialogTitle.DrawGame,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
+        });
+    }
+
+    onEndGame(winner: Player, room: Room) {
+        this.postGameService.transferRoomStats(room);
+        this.openDialog({
+            title: DialogTitle.EndGame,
+            messages: ['Le gagnant de la partie est : ' + winner.name],
+            options: [DialogOptions.Close],
+            confirm: false,
+        }).subscribe((result) => {
+            if (result.action === DialogResult.Close) {
+                this.router.navigate([PathRoute.POST_GAME], { queryParams: { roomCode: room.roomId } });
             }
         });
     }
