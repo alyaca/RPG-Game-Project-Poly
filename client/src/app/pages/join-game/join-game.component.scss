@@ -6,13 +6,13 @@
 
 .submit-container {
     display: grid;
-    height: 40vh;
-    width: 60vh;
+    height: 60vh;
+    width: 70vw;
     justify-content: center;
     align-content: center;
     justify-items: center;
     align-items: center;
-    margin-top: 20%;
+    margin-top: 2%;
     background: linear-gradient(to left, rgba(49, 45, 34, 1), rgba(79, 73, 62, 1));
     font-family: 'Papyrus';
     font-weight: bold;
@@ -42,14 +42,34 @@
     margin-bottom: 3rem;
 }
 
-.join-game {
-    margin-top: 10%;
+#join-game {
+    border: none;
+    margin: 0;
+    margin-top: 2%;
+    width: 35%;
+    height: rem;
+    font-family: papyrus;
+    font-size: 1.2rem;
+    border-radius: 2rem;
+    transition: ease 0.2s;
+    background-image: linear-gradient(to right, rgb(186, 186, 186), rgb(235, 235, 235),rgb(224, 224, 224),rgb(168, 168, 168));
+}
+
+#join-game:hover {
+    transform: scale(1.1);
+    background: linear-gradient(to right, rgb(110, 105, 45), rgb(221, 201, 104) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
 }
 .invalid-code {
     margin-top: 5%;
     color: red;
     font-size: 100%;
     text-align: center;
+    min-height: 20%;
+    min-width: 20%;
+}
+
+.empty {
+    color: none;
 }
 
 .join-game {
@@ -72,9 +92,22 @@
     border-radius: 0.75rem;
     padding: 0.5rem;
     margin: 0;
-    font-family: Papyrus;
+    font-family: 'Franklin Gothic Medium';
     font-weight: bold;
-    font-size: 16px;
+    font-size: 5rem;
+    width: 32%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: 1.5rem;
+    
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .input-box:hover {
