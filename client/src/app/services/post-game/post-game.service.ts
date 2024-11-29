@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { PLAYER_STAT_TYPES, SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
-import { GameMode, TileType } from '@common/constants';
+import { GameMode, TileType, ObjectType } from '@common/constants';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/interfaces/global-post-game-stats';
 import { Player, Position } from '@common/interfaces/player';
 import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
 import { Room } from '@common/interfaces/room';
-import { ObjectType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -155,7 +154,7 @@ export class PostGameService {
         this.computeGlobalTilesVisitedPercentage();
         this.calculateUniqueItems();
 
-        if(this.isCTFMode){
+        if (this.isCTFMode) {
             this.calculateFlagBearers();
         }
     }
@@ -175,9 +174,9 @@ export class PostGameService {
         }
     }
 
-    calculateUniqueItems(){
-        for(const player of this.players){
-            if(player.collectedItems){
+    calculateUniqueItems() {
+        for (const player of this.players) {
+            if (player.collectedItems) {
                 player.postGameStats.itemsObtained = player.collectedItems.length;
             }
         }
@@ -203,8 +202,9 @@ export class PostGameService {
 
     // Replace ObjectType.Kunee by ObjectType.Flag
     calculateFlagBearers() {
-        this.globalStats.nbFlagBearers = this.players.reduce((count, player) => 
-            count + (player.collectedItems?.filter(itemId => itemId === ObjectType.Kunee).length || 0), 
-        0);
+        this.globalStats.nbFlagBearers = this.players.reduce(
+            (count, player) => count + (player.collectedItems?.filter((itemId) => itemId === ObjectType.Kunee).length || 0),
+            0,
+        );
     }
 }

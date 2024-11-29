@@ -21,7 +21,6 @@ import { ObjectType } from '@common/avatars-info';
 import { GameMode, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { firstValueFrom } from 'rxjs';
-import { TileType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
