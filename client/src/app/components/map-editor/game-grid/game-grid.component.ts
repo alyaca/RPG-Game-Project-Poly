@@ -13,7 +13,6 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
@@ -29,6 +28,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { TileRemoval } from '@common/interfaces/tile-removal';
 import { gameObjects } from '@common/objects-info';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
@@ -58,12 +58,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isPopupVisible: boolean = false;
     fastestPath: Position[] = [];
     currentPlayer: Player;
+    objectsArray: number[][];
+    tilesGrid: number[][];
+    gridSize: number;
 
     private oldMapName: string;
 
-    private tilesGrid: number[][];
-    private objectsArray: number[][];
-    private gridSize: number;
     private activePlayer: Player | undefined;
 
     private isMouseDown: boolean = false;
@@ -296,7 +296,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
         if (this.gameCreationService.isModifiable) {
-            this.tilesGrid = this.tileService.removeTile(event, row, col, this.tilesGrid, this.objectsArray);
+            const tileRemovalInfo: TileRemoval = { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray };
+            this.tilesGrid = this.tileService.removeTile(event, tileRemovalInfo);
             this.gameObjectService.removeObjectByClick(event, row, col);
             this.sendInfoToMapCreationPage();
         }
