@@ -186,6 +186,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
+
+        this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
+            this.gameTileInfoService.transferRoomData(room);
+        });
     }
 
     getTileImage(col: number) {
@@ -323,10 +327,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     showDetails(row: number, col: number) {
-        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
+        if (!this.gameCreationService.isModifiable) {
+            this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
             this.isPopupVisible = true;
-            this.gameTileInfoService.tileId = this.tilesGrid[row][col];
-            this.gameTileInfoService.itemId = this.objectsArray[row][col];
+
             this.gameTileInfoService.selectedRow = row;
             this.gameTileInfoService.selectedCol = col;
         }

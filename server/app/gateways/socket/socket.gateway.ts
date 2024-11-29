@@ -193,6 +193,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.gameService.onEndGame(winner, room, this.server);
     }
 
+    @SubscribeMessage(ClientToServerEvent.GetRoom)
+    handleGetRoom(client: Socket) {
+        const room = this.roomService.getRoom(client);
+        this.server.to(room.roomId).emit(ServerToClientEvent.ObtainRoomInfo, room);
+    }
+
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
         try {
             const savedMessage = await this.chatService.saveMessage(message);

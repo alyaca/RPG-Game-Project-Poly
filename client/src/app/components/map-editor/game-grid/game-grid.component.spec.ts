@@ -180,8 +180,6 @@ describe('GameGridComponent', () => {
         component.isActivePlayer = true;
         component.showDetails(0, 0);
         expect(component.isPopupVisible).toBeTrue();
-        expect(gameTileInfoServiceSpy.tileId).toEqual(component['tilesGrid'][0][0]);
-        expect(gameTileInfoServiceSpy.itemId).toEqual(component['objectsArray'][0][0]);
         expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
         expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
     });
@@ -261,8 +259,6 @@ describe('GameGridComponent', () => {
             component.isActivePlayer = true;
             component.showDetails(0, 0);
             expect(component.isPopupVisible).toBeTrue();
-            expect(gameTileInfoServiceSpy.tileId).toEqual(component['tilesGrid'][0][0]);
-            expect(gameTileInfoServiceSpy.itemId).toEqual(component['objectsArray'][0][0]);
             expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
             expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
         });
