@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { gameObjects } from '@common/objects-info';
 
-import { NavigationService } from '@app/services/navigation/navigation.service';
+import { TILE_DESCRIPTIONS, TILE_NAMES } from '@app/constants';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/interfaces/game-tile';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
-import { TILE_DESCRIPTIONS, TILE_NAMES } from '@app/constants';
 @Injectable({
     providedIn: 'root',
 })
@@ -27,10 +26,7 @@ export class GameTileInfoService {
 
     tileNames = TILE_NAMES;
 
-    constructor(
-        public tileService: TileService,
-        public navigationService: NavigationService,
-    ) {}
+    constructor(public tileService: TileService) {}
 
     getItem() {
         return this.itemId > 0 ? gameObjects[this.itemId - 1] : null;

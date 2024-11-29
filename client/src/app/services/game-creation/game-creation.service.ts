@@ -1,13 +1,23 @@
 import { Injectable } from '@angular/core';
 import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { MapSize } from '@common/constants';
+import { MapPosition } from '@app/interfaces/map-position';
+import { NavigationService } from '@app/services/navigation/navigation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { MapSize, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
+import { ClientToServerEvent } from '@common/socket.events';
 import { BehaviorSubject } from 'rxjs';
+import { GameTileInfoService } from '../game-tile-info/game-tile-info.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameCreationService {
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+        private navigationService: NavigationService,
+        private gameTileInfoService: GameTileInfoService,
+    ) {}
     sizeSubject = new BehaviorSubject<string | null>(null);
 
     isNewGame: boolean = true;
@@ -39,6 +49,52 @@ export class GameCreationService {
         } else if (size === MapSize.Large) {
             return SIZE_LARGE_MAP;
         }
+    }
+
+    resetGrid(mapSize: number, array: number[][]): number[][] {
+        if (!this.isNewGame) {
+            return this.loadedTiles;
+        }
+        array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
+        return array;
+    }
+
+    canTeleport(isMoving: boolean) {
+        return this.navigationService.isDebugMode && !this.isModifiable && !isMoving;
+    }
+
+    rightClick(position: MapPosition, isMoving: boolean) {
+        const isMovingAndTileInfoVisible = [];
+        if (this.canTeleport(isMoving)) {
+            this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
+            isMovingAndTileInfoVisible[0] = true;
+        } else {
+            isMovingAndTileInfoVisible[1] = this.showDetails(position);
+        }
+        isMovingAndTileInfoVisible[0] = false;
+        return isMovingAndTileInfoVisible;
+    }
+
+    showDetails(position: MapPosition) {
+        if (!this.isModifiable) {
+            this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
+            this.gameTileInfoService.selectedRow = position.row;
+            this.gameTileInfoService.selectedCol = position.col;
+            return true;
+        }
+        return false;
+    }
+
+    deepCopyMatrix(matrix: number[][] | null) {
+        return matrix ? JSON.parse(JSON.stringify(matrix)) : [];
+    }
+
+    loadExistingTiles() {
+        return this.deepCopyMatrix(this.loadedTiles);
+    }
+
+    loadExistingObjects() {
+        return this.deepCopyMatrix(this.loadedObjects);
     }
 
     convertMapDimension(game: Game): string {

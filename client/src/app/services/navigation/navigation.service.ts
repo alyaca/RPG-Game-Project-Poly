@@ -83,6 +83,21 @@ export class NavigationService {
         this.setInitialPositions();
     }
 
+    displayPortraitsOnSpawnPoints(players: Player[], objects: number[][]) {
+        for (const player of players) {
+            const { x, y } = player.position;
+            if (this.isPositionWithinBounds(x, y, objects)) {
+                objects[x][y] = this.getPortraitId(player.avatar?.name);
+            }
+        }
+        return objects;
+    }
+
+    placeAvatar(playerToPlace: Player, objects: number[][]) {
+        objects[playerToPlace.position.x][playerToPlace.position.y] = this.getPortraitId(playerToPlace.avatar?.name);
+        return objects;
+    }
+
     setInitialPositions(): void {
         for (const player of this.players) {
             this.initialPositions.push({ x: player.position.x, y: player.position.y });

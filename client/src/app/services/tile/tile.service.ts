@@ -1,14 +1,11 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { NO_OBJECT, TileId } from '@app/constants';
-import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { TileType } from '@common/constants';
 import { TileRemoval } from '@common/interfaces/tile-removal';
 @Injectable({
     providedIn: 'root',
 })
 export class TileService {
-    private gameCreationService = inject(GameCreationService);
-
     getTileImage(value: number): string {
         switch (value) {
             case TileType.Ground:
@@ -45,14 +42,6 @@ export class TileService {
             default:
                 break;
         }
-    }
-
-    resetGrid(mapSize: number, array: number[][]): number[][] {
-        if (!this.gameCreationService.isNewGame) {
-            return this.gameCreationService.loadedTiles;
-        }
-        array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
-        return array;
     }
 
     removeTile(event: MouseEvent, { position, tiles, objects }: TileRemoval) {
