@@ -12,9 +12,9 @@ import {
     TEST_INVALID_SIZE,
 } from '@app/constants';
 import { dummyInfo, dummyMap } from '@app/mocks/mock-map';
-import { Game } from '@common/game';
+import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
-import { GameImportValidatorService } from '../game-import-validor/game-import-validator.service';
 import { SaveGameService } from './save-game.service';
 
 describe('SaveGameService', () => {
@@ -265,21 +265,6 @@ describe('SaveGameService', () => {
     });
 
     it('should create a POST request in saveImportedGame', () => {
-        const dummyInfo = {
-            name: 'Test Name',
-            description: 'Test Description',
-            image: 'Test Image',
-            grid: [
-                [0, 0],
-                [0, 0],
-            ],
-            items: [
-                [0, 0],
-                [0, 0],
-            ],
-            height: SIZE_MEDIUM_MAP,
-        };
-
         service.saveImportedGame(dummyInfo).subscribe();
 
         const req = httpMock.expectOne(`${service.apiURL}`);
@@ -305,7 +290,7 @@ describe('SaveGameService', () => {
         const fileContent = JSON.stringify(dummyGame);
         const file = new File([fileContent], 'test.json', { type: 'application/json' });
 
-        gameImportValidatorServiceSpy.validateMap.and.callFake(() => new Promise((resolve) => resolve([])));
+        gameImportValidatorServiceSpy.validateMap.and.callFake(async () => new Promise((resolve) => resolve([])));
 
         const saveImportedGameSpy = spyOn(service, 'saveImportedGame').and.callFake(() => of(dummyGame));
 
@@ -320,7 +305,7 @@ describe('SaveGameService', () => {
         const fileContent = JSON.stringify(dummyGame);
         const file = new File([fileContent], 'test.json', { type: 'application/json' });
 
-        gameImportValidatorServiceSpy.validateMap.and.callFake(() => new Promise((resolve) => resolve([ErrorMessages.InvalidMode])));
+        gameImportValidatorServiceSpy.validateMap.and.callFake(async () => new Promise((resolve) => resolve([ErrorMessages.InvalidMode])));
 
         const saveImportedGameSpy = spyOn(service, 'saveImportedGame');
 

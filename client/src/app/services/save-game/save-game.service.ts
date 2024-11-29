@@ -47,7 +47,6 @@ export class SaveGameService {
 
             reader.onload = async () => {
                 try {
-                    console.log('je passe dans le onload');
                     const gameData: Game = JSON.parse(reader.result as string);
                     const gameInfo: Info = this.cleanData(gameData);
                     this.gameInfoImported = gameInfo;
