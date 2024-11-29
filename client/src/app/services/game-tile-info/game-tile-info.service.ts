@@ -3,9 +3,9 @@ import { gameObjects } from '@common/objects-info';
 
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
-import { GameTile } from '@common/game-tile';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { GameTile } from '@common/interfaces/game-tile';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 import { TILE_DESCRIPTIONS } from '@app/constants';
 @Injectable({
     providedIn: 'root',

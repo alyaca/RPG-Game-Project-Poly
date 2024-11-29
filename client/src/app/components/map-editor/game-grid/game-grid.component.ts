@@ -19,7 +19,8 @@ import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
-import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { TileType } from '@common/constants'
+import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
@@ -328,7 +329,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     showDetails(row: number, col: number) {
         if (!this.gameCreationService.isModifiable) {
-            this.socketCommunicationService.send('getRoom');
+            this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
             this.isPopupVisible = true;
 
             this.gameTileInfoService.selectedRow = row;
