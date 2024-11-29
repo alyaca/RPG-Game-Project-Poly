@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { GameMode, MapSize, MESSAGE_DURATION_SAVE_CHOICE } from '@app/constants';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { PathRoute } from '@common/interfaces/route';
 
 @Component({
     selector: 'app-creation-dialog',
@@ -48,7 +49,7 @@ export class CreationDialogComponent {
                 duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
         } else {
-            this.router.navigate(['/edit-map']);
+            this.router.navigate([PathRoute.EDIT]);
             this.dialogRef.close();
         }
     }

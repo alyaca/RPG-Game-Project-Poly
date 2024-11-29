@@ -8,6 +8,7 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { Player } from '@common/interfaces/player';
+import { PathRoute } from '@common/interfaces/route';
 import { of } from 'rxjs';
 import { JoinGameService } from './join-game.service';
 
@@ -179,7 +180,7 @@ describe('JoinGameService', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).not.toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).not.toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should open the dialog and navigate to /home if confirmed', () => {
@@ -197,7 +198,7 @@ describe('JoinGameService', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should return undefined if not a known error type', () => {

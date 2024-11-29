@@ -4,7 +4,7 @@ import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/interfaces/game-tile';
-import { gameObjects } from '@common/interfaces/objects-info';
+import { gameObjects } from '@common/objects-info';
 
 describe('GameTileInfoService', () => {
     let service: GameTileInfoService;

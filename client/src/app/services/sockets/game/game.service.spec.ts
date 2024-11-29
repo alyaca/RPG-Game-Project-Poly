@@ -21,6 +21,7 @@ import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/interfaces/player';
+import { PathRoute } from '@common/interfaces/route';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
 
@@ -139,7 +140,7 @@ describe('GameService', () => {
                     options: [DialogOptions.Close],
                 },
             });
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
             done();
         });
     });
@@ -173,7 +174,7 @@ describe('GameService', () => {
 
         service.onPlayerKickedOut();
         setTimeout(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
             done();
         });
     });
@@ -211,7 +212,7 @@ describe('GameService', () => {
         });
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.CREATE]);
     });
 
     it('should navigate to home when not admin on leftRoom event', () => {
@@ -222,7 +223,7 @@ describe('GameService', () => {
         });
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should return true if player has action points', () => {

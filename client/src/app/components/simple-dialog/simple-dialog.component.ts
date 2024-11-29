@@ -8,6 +8,7 @@ import { GameObjectComponent } from '@app/components/map-editor/game-object/game
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
 import { DialogData } from '@app/interfaces/dialog-data';
 import { ItemSwap } from '@common/interfaces/item-swap';
+import { PathRoute } from '@common/interfaces/route';
 
 @Component({
     selector: 'app-simple-dialog',
@@ -37,7 +38,7 @@ export class SimpleDialogComponent {
             input: this.data.isInput ? this.inputValue : null,
         });
         if (this.data.title === 'Sauvegarde réussie') {
-            this.router.navigate(['/administration']);
+            this.router.navigate([PathRoute.ADMIN]);
         }
     }
 

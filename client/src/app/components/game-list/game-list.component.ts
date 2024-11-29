@@ -7,6 +7,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { Game } from '@common/interfaces/game';
+import { PathRoute } from '@common/interfaces/route';
 
 @Component({
     selector: 'app-game-list',
@@ -101,7 +102,7 @@ export class GameListComponent implements OnInit {
 
         this.selectGame(game);
 
-        this.router.navigate(['/edit-map']);
+        this.router.navigate([PathRoute.EDIT]);
     }
 
     exportGame(game: Game) {

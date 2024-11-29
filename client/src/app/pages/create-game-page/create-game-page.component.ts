@@ -12,6 +12,7 @@ import { avatars } from '@common/avatars-info';
 import { Game } from '@common/interfaces/game';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -81,7 +82,7 @@ export class CreateGamePageComponent implements OnDestroy {
             this.roomCode = roomInfo.roomId;
             this.gameService.setRoomId(this.roomCode);
             this.gameService.joinRoom(this.roomCode);
-            this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.roomCode } });
+            this.router.navigate([PathRoute.WAIT], { queryParams: { roomCode: this.roomCode } });
         });
     }
 

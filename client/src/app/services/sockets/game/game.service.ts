@@ -21,6 +21,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
 
 @Injectable({
     providedIn: 'root',
@@ -92,7 +93,7 @@ export class GameService {
             options: [DialogOptions.Close],
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
             }
         });
     }
@@ -130,7 +131,7 @@ export class GameService {
             confirm: true,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
                 this.socketCommunicationService.send('leaveRoom', roomId);
             }
         });
@@ -144,7 +145,7 @@ export class GameService {
             confirm: false,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
             }
         });
     }
@@ -152,9 +153,9 @@ export class GameService {
     onLeftRoom() {
         this.socketCommunicationService.on('leftRoom', (isAdmin) => {
             if (isAdmin) {
-                this.router.navigate(['/game-creation']);
+                this.router.navigate([PathRoute.CREATE]);
             } else {
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
             }
         });
     }

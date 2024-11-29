@@ -13,6 +13,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { Game } from '@common/interfaces/game';
 import { Behavior, Player, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
 
 @Component({
     selector: 'app-waiting-page',
@@ -50,7 +51,7 @@ export class WaitingPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/home']);
+            this.router.navigate([PathRoute.HOME]);
         }
         this.initSocketListeners();
     }

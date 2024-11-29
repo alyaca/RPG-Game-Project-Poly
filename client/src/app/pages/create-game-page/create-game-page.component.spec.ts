@@ -10,6 +10,7 @@ import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Game } from '@common/interfaces/game';
+import { PathRoute } from '@common/interfaces/route';
 import { BehaviorSubject, of } from 'rxjs';
 import { CreateGamePageComponent } from './create-game-page.component';
 
@@ -134,7 +135,7 @@ describe('CreateGamePageComponent', () => {
         expect(gameServiceSpy.selectedGame).toBe(roomInfo.gameMap);
         expect(gameServiceSpy.setRoomId).toHaveBeenCalledWith(roomInfo.roomId);
         expect(gameServiceSpy.joinRoom).toHaveBeenCalledWith(roomInfo.roomId);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/waiting-page'], { queryParams: { roomCode: roomInfo.roomId } });
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.WAIT], { queryParams: { roomCode: roomInfo.roomId } });
     });
 
     it('should call createRoom when joinLobby is called', () => {

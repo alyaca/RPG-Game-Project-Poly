@@ -6,6 +6,7 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
 
 @Injectable({
     providedIn: 'root',
@@ -64,7 +65,7 @@ export class JoinGameService {
             this.handleLockedRoom();
         } else {
             this.socketCommunicationService.send('createPlayer', player);
-            this.router.navigate(['/waiting-page'], { queryParams: { roomCode: this.gameService.roomId } });
+            this.router.navigate([PathRoute.WAIT], { queryParams: { roomCode: this.gameService.roomId } });
         }
     }
 
@@ -82,7 +83,7 @@ export class JoinGameService {
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'left') {
                 this.socketCommunicationService.send('leaveRoom', this.gameService.roomId);
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
             }
         });
     }

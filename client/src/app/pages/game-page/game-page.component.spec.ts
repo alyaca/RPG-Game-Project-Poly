@@ -16,6 +16,7 @@ import { NavigationService } from '@app/services/navigation/navigation.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { PathRoute } from '@common/interfaces/route';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
@@ -275,7 +276,7 @@ describe('GamePageComponent', () => {
     it('should navigate to /home if the dialog result is Left', () => {
         gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Left }));
         component.handleExit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should replenish health for all players', () => {
@@ -293,7 +294,7 @@ describe('GamePageComponent', () => {
             message: DialogMessages.DrawGame,
             duration: INFO_DIALOG_TIME,
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {

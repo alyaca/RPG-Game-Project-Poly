@@ -13,6 +13,7 @@ import { SaveGameService } from '@app/services/save-game/save-game.service';
 import html2canvas from 'html2canvas';
 
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { PathRoute } from '@common/interfaces/route';
 
 @Component({
     selector: 'app-map-editor-page',
@@ -110,7 +111,7 @@ export class MapEditorPageComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'left') {
-                this.router.navigate(['/administration']);
+                this.router.navigate([PathRoute.ADMIN]);
             }
         });
     }
@@ -125,7 +126,7 @@ export class MapEditorPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.mapEditorService.isMapChosen()) {
-            this.router.navigate(['/administration']);
+            this.router.navigate([PathRoute.ADMIN]);
         }
 
         if (!this.gameCreationService.isNewGame) {

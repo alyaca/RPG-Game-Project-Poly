@@ -17,6 +17,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { ItemSwap } from '@common/interfaces/item-swap';
 import { Player, Position, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
 import { gameObjects } from '@common/objects-info';
 
 @Component({
@@ -78,7 +79,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit() {
         if (!this.mapDimensions || !this.mapName) {
-            this.router.navigate(['/home']);
+            this.router.navigate([PathRoute.HOME]);
         }
 
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
@@ -337,13 +338,13 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.socketCommunicationService.send('debugMode', this.navigationService.isDebugMode);
                     }
                     this.socketCommunicationService.disconnect();
-                    this.router.navigate(['/home']);
+                    this.router.navigate([PathRoute.HOME]);
                 }
             });
     }
 
     handleDraw() {
-        this.router.navigate(['/home']);
+        this.router.navigate([PathRoute.HOME]);
         this.gameService.openTempDialog({
             title: DialogTitle.DrawGame,
             message: DialogMessages.DrawGame,
