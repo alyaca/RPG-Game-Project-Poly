@@ -4,7 +4,7 @@
     }
     <div class="left-container">
         <div class="player-bar">
-            <app-player-info-inventory class="player-bar" [playerId]="socketCommunicationService.socket.id"></app-player-info-inventory>
+            <app-player-info-inventory class="player-bar" [playerId]="getSocketId()"></app-player-info-inventory>
         </div>
         <!-- <button (click)="forceEndGame()">Terminer la partie (temp)</button>  -->
         <div class="chat">

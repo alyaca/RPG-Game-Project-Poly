@@ -69,13 +69,17 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     private postGameService = inject(PostGameService);
     constructor(
         private gameCreationService: GameCreationService,
-        public socketCommunicationService: SocketCommunicationService,
-        public combatService: CombatService,
+        private socketCommunicationService: SocketCommunicationService,
+        private combatService: CombatService,
         private navigationService: NavigationService,
     ) {
         this.mapName = this.gameCreationService.loadedMapName;
         this.mapDimensions = this.findMapDimensions();
         this.combatService.isInCombat = false;
+    }
+
+    getSocketId() {
+        return this.socketCommunicationService.socket.id;
     }
 
     ngOnInit() {

@@ -35,6 +35,26 @@ export class PostGamePageComponent implements OnInit, OnDestroy {
         this.gameService.onQuitPostGameLobby(this.postGameService.gameRoom.roomId);
     }
 
+    getPostGameStatTypes() {
+        return this.postGameService.postGameStatTypes;
+    }
+
+    getPlayers() {
+        return this.postGameService.players;
+    }
+
+    getCtfMode() {
+        return this.postGameService.isCTFMode;
+    }
+
+    getSelectedAttribute() {
+        return this.postGameService.selectedAttribute;
+    }
+
+    getExplanations() {
+        return this.postGameService.explanations;
+    }
+
     ngOnDestroy() {
         this.postGameService.globalStats = defaultGlobalStats;
         this.socketCommunicationService.disconnect();

@@ -81,10 +81,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     constructor(
         private mapValidatorService: MapValidatorService,
-        public tileService: TileService,
-        public gameObjectService: GameObjectService,
-        public gameCreationService: GameCreationService,
-        public gameTileInfoService: GameTileInfoService,
+        private tileService: TileService,
+        private gameObjectService: GameObjectService,
+        private gameCreationService: GameCreationService,
+        private gameTileInfoService: GameTileInfoService,
     ) {}
 
     @HostListener('document:click', ['$event'])
@@ -187,6 +187,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
+    }
+
+    getTileImage(col: number) {
+        return this.tileService.getTileImage(col);
     }
 
     loadNewGame() {
