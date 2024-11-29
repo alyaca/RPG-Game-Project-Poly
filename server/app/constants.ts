@@ -12,12 +12,6 @@ export enum TileType {
     OpenDoor = 6,
 }
 
-export enum GameMode {
-    Classic = 'classic',
-    Ctf = 'ctf',
-}
-
-export const MODES = ['ctf', 'classique'];
 export const GENERATE_COUNT = 5;
 export const BASE_36 = 36;
 export const TILE_COUNT = 6;
@@ -54,14 +48,6 @@ export const SINGLE_PLAYER = 1;
 export const ROLL_DURATION = 800;
 // constant for tests
 export const FOWARD_TIME = 1000;
-
-// constants for tile cost
-export enum TileCost {
-    Ground = 1,
-    Water = 2,
-    Ice = 0,
-    OpenDoor = 1,
-}
 
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
@@ -100,3 +86,5 @@ export const XIPHOS_ATTACK_BONUS = 2;
 export const XIPHOS_DEFENSE_PENALTY = 1;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
+
+export const MODES = ['CaptureDeDrapeau', 'classique'];

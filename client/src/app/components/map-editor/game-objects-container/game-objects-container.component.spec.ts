@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
-import { GameMode, ITEM_COUNT, NO_OBJECT } from '@app/constants';
+import { ITEM_COUNT, NO_OBJECT } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { GameMode } from '@common/constants';
 import { GameObjectsContainerComponent } from './game-objects-container.component';
 
 describe('GameObjectsContainerComponent', () => {
@@ -123,15 +124,15 @@ describe('GameObjectsContainerComponent', () => {
         expect(gameObjectManagerServiceSpy.loadMapObjectCount).toHaveBeenCalled();
     });
 
-    it('should load a new game with a flag object if the game mode is CTF', () => {
+    it('should load a new game with a flag object if the game mode is capture the flag', () => {
         gameCreationServiceSpy.isNewGame = true;
-        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
         gameObjectManagerServiceSpy.objects = mockObjects;
         component.ngOnInit();
         expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
     });
 
-    it('should load a new game without a flag object if the game mode is not CTF', () => {
+    it('should load a new game without a flag object if the game mode is not capture ther flag', () => {
         gameCreationServiceSpy.isNewGame = true;
         gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.Classic);
         gameObjectManagerServiceSpy.objects = mockObjects;

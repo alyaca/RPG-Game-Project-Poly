@@ -1,5 +1,6 @@
-import { ITEM_COUNT, ObjectType } from '../client/src/app/constants';
-import { GameObject } from './game-object';
+import { ITEM_COUNT } from '../client/src/app/constants';
+import { ObjectType } from './avatars-info';
+import { GameObject } from './interfaces/game-object';
 
 export const gameObjects: GameObject[] = [
     {
@@ -60,9 +61,9 @@ export const gameObjects: GameObject[] = [
     },
     {
         id: ObjectType.Flag,
-        name: 'CTF Flag',
+        name: 'Drapeau',
         image: './assets/images/objects/flag.jpg',
-        description: 'Drapeau pour le mode CTF',
+        description: 'Drapeau du mode d mode Capture de Drapeau. Retournez sur votre point de départ avec le drapeau pour gagner!',
         count: ITEM_COUNT,
     },
     {

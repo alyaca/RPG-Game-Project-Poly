@@ -13,6 +13,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
+import { PathRoute } from '@common/interfaces/route';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -185,7 +186,7 @@ describe('MapEditorPageComponent', () => {
         component.handleExit();
         expect(dialogSpy.open).toHaveBeenCalled();
         tick();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
     }));
 
     it('should update the map name when updateMapName is called', () => {

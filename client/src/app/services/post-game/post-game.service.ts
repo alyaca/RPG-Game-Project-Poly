@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
-import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
-import { Player, Position } from '@common/player';
-import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
-import { Room } from '@common/room';
+import { PLAYER_STAT_TYPES, SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, TileType } from '@common/constants';
+import { GlobalPostGameStat, GlobalPostGameStats } from '@common/interfaces/global-post-game-stats';
+import { Player, Position } from '@common/interfaces/player';
+import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
+import { Room } from '@common/interfaces/room';
 
 @Injectable({
     providedIn: 'root',
@@ -38,7 +39,7 @@ export class PostGameService {
 
     players: Player[];
     tilesGrid: number[][];
-    isCTFMode: boolean;
+    isFlagMode: boolean;
     postGameStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
     resetOtherAttributes(attribute: keyof Player['postGameStats']) {
@@ -136,7 +137,7 @@ export class PostGameService {
         this.tilesGrid = room.gameMap.tiles;
         this.players = room.listPlayers;
         this.globalStats = room.globalPostGameStats;
-        this.isCTFMode = room.gameMap.mode === GameMode.Ctf;
+        this.isFlagMode = room.gameMap.mode === GameMode.CaptureTheFlag;
 
         for (const player of this.players) {
             const matchingPlayer = room.listPlayers.find((p) => p.id === player.id);

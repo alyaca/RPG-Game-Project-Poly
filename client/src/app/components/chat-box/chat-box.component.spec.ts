@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ChatMessage } from '@app/interfaces/chat-message';
 import { ChatService } from '@app/services/sockets/chat/chat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 import { BehaviorSubject, of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { ChatBoxComponent } from './chat-box.component';

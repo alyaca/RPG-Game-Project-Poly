@@ -1,21 +1,13 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import {
-    GameMode,
-    MAX_LEN_MAP_DESCRIPTION,
-    MAX_LEN_MAP_TITLE,
-    NB_ITEMS_MEDIUM_MAP,
-    NO_OBJECT,
-    ObjectType,
-    TileType,
-    VALIDATION_DURATION,
-} from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, VALIDATION_DURATION } from '@app/constants';
 import { mockInvalidItemsMatrice, mockLargeItemsMatrice, mockMediumItemsMatrice } from '@app/mocks/mock-game';
 import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { Game } from '@common/game';
+import { GameMode, ObjectType, TileType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { MapValidatorService } from './map-validator.service';
 
@@ -110,7 +102,7 @@ describe('MapValidatorService', () => {
                 name: 'Map1',
                 description: 'Description1',
                 visible: true,
-                mode: GameMode.Ctf,
+                mode: GameMode.CaptureTheFlag,
                 nbPlayers: 6,
                 image: 'img1',
                 tiles: [[0, 1]],
@@ -125,9 +117,9 @@ describe('MapValidatorService', () => {
         expect(service['errorMessages']).toContain('- Une carte avec le même nom existe déjà');
     });
 
-    it('should call validateFlag if in ctf mode', () => {
+    it('should call validateFlag if in capture the flag mode', () => {
         spyOn<any>(service, 'validateFlag');
-        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
+        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
         service.validateMap(mockValidationInfo);
         expect(service['validateFlag']).toHaveBeenCalled();
     });
@@ -227,8 +219,8 @@ describe('MapValidatorService', () => {
         });
     });
 
-    it('should add an error message if the map does not have a flag object in ctf mode', () => {
-        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
+    it('should add an error message if the map does not have a flag object in capture the flag mode', () => {
+        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
         service['mapObjects'] = gameObjectServiceSpy.objectsArray;
         service['validateFlag']();
         expect(service['errorMessages']).toContain('- Le drapeau doit être placé sur la carte lors du mode CTF.');

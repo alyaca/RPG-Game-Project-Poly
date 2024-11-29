@@ -5,6 +5,7 @@ import { DialogMessages, DialogTitle, INFO_DIALOG_TIME } from '@app/constants';
 import { mockAttacker, mockCombatPlayers, mockCombatResultDetails, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { CombatService } from './combat.service';
@@ -173,7 +174,7 @@ describe('CombatService', () => {
     it('should subscribe to "defaultWin" event and call onPlayerDisconnected', () => {
         spyOn(service, 'onPlayerDisconnected');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'defaultWin') {
+            if (event === ServerToClientEvent.DefaultCombatWin) {
                 callback({} as T);
             }
         });
@@ -186,13 +187,13 @@ describe('CombatService', () => {
     it('should remove all socket event listeners', () => {
         service.removeListeners();
 
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('combatTime');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('attackValues');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('attackSuccess');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('attackFail');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('evasionFail');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('combatTurnEnded');
-        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith('defaultWin');
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.CombatTime);
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.AttackValues);
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.AttackSuccess);
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.AttackFail);
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.EvasionFail);
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.CombatTurnEnded);
+        expect(socketCommunicationServiceSpy.off).toHaveBeenCalledWith(ServerToClientEvent.DefaultCombatWin);
     });
 
     it('should return true when active player has remaining evasions', () => {

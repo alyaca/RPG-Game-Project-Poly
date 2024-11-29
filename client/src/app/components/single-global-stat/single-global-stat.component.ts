@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { PostGameService } from '@app/services/post-game/post-game.service';
-import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-stats';
+import { GlobalPostGameStat, GlobalStatType } from '@common/interfaces/global-post-game-stats';
 
 @Component({
     selector: 'app-single-global-stat',
@@ -12,6 +12,7 @@ import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-sta
 export class SingleGlobalStatComponent {
     @Input() globalStat: GlobalPostGameStat;
     globalStatType = GlobalStatType;
+    // Used in the html to access functions/attributes
     constructor(public postGameService: PostGameService) {}
 
     formatStatValue(): string {

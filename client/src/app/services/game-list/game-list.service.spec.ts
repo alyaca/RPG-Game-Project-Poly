@@ -1,9 +1,9 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GameMode } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
-import { Game } from '@common/game';
+import { GameMode } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { GameListService } from './game-list.service';
@@ -40,7 +40,7 @@ describe('GameListService', () => {
                 name: 'Map1',
                 description: 'Description1',
                 visible: true,
-                mode: GameMode.Ctf,
+                mode: GameMode.CaptureTheFlag,
                 nbPlayers: 6,
                 image: 'img1',
                 tiles: [[0, 1]],

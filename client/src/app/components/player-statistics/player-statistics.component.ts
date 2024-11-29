@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Player } from '@common/player';
+import { Component, Input } from '@angular/core';
+import { SinglePlayerStatComponent } from '@app/components/single-player-stat/single-player-stat.component';
 import { PLAYER_STAT_TYPES, VICTORIES_FOR_WIN } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { SinglePlayerStatComponent } from '@app/components/single-player-stat/single-player-stat.component';
-import { PostGameStat } from '@common/post-game-stat';
+import { Player } from '@common/interfaces/player';
+import { PostGameStat } from '@common/interfaces/post-game-stat';
 @Component({
     selector: 'app-player-statistics',
     standalone: true,

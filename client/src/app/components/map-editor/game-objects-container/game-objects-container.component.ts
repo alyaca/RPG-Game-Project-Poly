@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { GameMode, ObjectType } from '@app/constants';
+import { ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { GameMode } from '@common/constants';
 
 @Component({
     selector: 'app-game-objects-container',
@@ -29,9 +30,9 @@ export class GameObjectsContainerComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        const isCtfMode = this.gameCreationService.getGameMode() === GameMode.Ctf;
+        const isFlagMode = this.gameCreationService.getGameMode() === GameMode.CaptureTheFlag;
         this.gameObjects = Array.from(this.gameObjectService.objects).filter(
-            (object) => object.id <= ObjectType.Spawn || (isCtfMode && object.id === ObjectType.Flag),
+            (object) => object.id <= ObjectType.Spawn || (isFlagMode && object.id === ObjectType.Flag),
         );
         this.gameObjectService.resetObjectsCount();
         if (!this.gameCreationService.isNewGame) {

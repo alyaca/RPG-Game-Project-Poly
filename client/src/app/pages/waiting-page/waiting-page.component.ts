@@ -5,15 +5,16 @@ import { Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { LobbyPlayerComponent } from '@app/components/waiting-page/lobby-player/lobby-player.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, MIN_NUMBER_PLAYER } from '@app/constants';
-
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Game } from '@common/game';
-import { Behavior, Player, Status } from '@common/player';
-import { Room } from '@common/room';
+import { Game } from '@common/interfaces/game';
+import { Behavior, Player, Status } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
     selector: 'app-waiting-page',
@@ -51,7 +52,7 @@ export class WaitingPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate(['/home']);
+            this.router.navigate([PathRoute.HOME]);
         }
         this.initSocketListeners();
     }
@@ -60,16 +61,16 @@ export class WaitingPageComponent implements OnInit {
         this.gameService.onRoomDeleted();
         this.gameService.onLeftRoom();
         this.gameService.onKickPlayer();
-        this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
+        this.socketCommunicationService.on(ServerToClientEvent.UpdatedPlayer, (room: Room) => {
             this.players = room.listPlayers;
             this.onMaxPlayers();
         });
 
-        this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
+        this.socketCommunicationService.on(ServerToClientEvent.IsPlayerAdmin, (isPlayerAdmin: boolean) => {
             this.isAdmin = isPlayerAdmin;
         });
 
-        this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.StartGame, (room: Room) => {
             this.chosenGame = room.gameMap;
             this.loadMap();
             this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
@@ -87,7 +88,7 @@ export class WaitingPageComponent implements OnInit {
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
-        this.socketCommunicationService.send('changeLockRoom', this.isLocked);
+        this.socketCommunicationService.send(ClientToServerEvent.ChangeLockRoom, this.isLocked);
     }
 
     handleExit(accessCode: string) {
@@ -111,7 +112,6 @@ export class WaitingPageComponent implements OnInit {
                 messages: [DialogMessages.NotEnoughPlayers],
                 options: [DialogOptions.Close],
                 confirm: false,
-                itemSwap: null,
             });
             return;
         } else if (this.isLocked) {
@@ -122,7 +122,6 @@ export class WaitingPageComponent implements OnInit {
                 messages: [DialogMessages.RoomLocked],
                 options: [DialogOptions.Close],
                 confirm: false,
-                itemSwap: null,
             });
         }
     }
@@ -135,7 +134,6 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.MaxPlayers],
                     options: [DialogOptions.Close],
                     confirm: false,
-                    itemSwap: null,
                 });
             } else {
                 this.gameService.openDialog({
@@ -143,7 +141,6 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.AddBotWhenLocked],
                     options: [DialogOptions.Close],
                     confirm: false,
-                    itemSwap: null,
                 });
             }
             return;
@@ -154,7 +151,7 @@ export class WaitingPageComponent implements OnInit {
         this.isBotProfileVisible = false;
 
         const behavior = isAgressive ? Behavior.Aggressive : Behavior.Defensive;
-        this.socketCommunicationService.send('createBot', behavior);
+        this.socketCommunicationService.send(ClientToServerEvent.CreateBot, behavior);
     }
 
     private confirmStartGame() {
@@ -164,12 +161,11 @@ export class WaitingPageComponent implements OnInit {
                 messages: [DialogMessages.ConfirmStartGame],
                 options: [DialogOptions.Cancel, DialogOptions.Confirm],
                 confirm: true,
-                itemSwap: null,
             })
             .subscribe((result) => {
                 if (result.action === DialogResult.Right) {
                     this.isLocked = true;
-                    this.socketCommunicationService.send('startGame');
+                    this.socketCommunicationService.send(ClientToServerEvent.StartGame);
                 }
             });
     }

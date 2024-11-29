@@ -1,16 +1,5 @@
-import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-stats';
-import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
-
-export enum MapSize {
-    Small = 'small',
-    Medium = 'medium',
-    Large = 'large',
-}
-
-export enum GameMode {
-    Classic = 'classic',
-    Ctf = 'ctf',
-}
+import { GlobalPostGameStat, GlobalStatType } from '@common/interfaces/global-post-game-stats';
+import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
 
 export const MAX_INVENTORY_ITEMS = 2;
 
@@ -31,15 +20,6 @@ export const MIN_LEN_MAP_TITLE = 3;
 export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 128;
-
-export enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
 
 // To validate a door position on a map
 export const DIRECTIONS = [
@@ -263,14 +243,6 @@ export enum DialogResult {
     Right = 'right',
     Left = 'left',
     Close = 'close',
-}
-
-// constants for tile cost
-export enum TileCost {
-    Ground = 1,
-    Water = 2,
-    Ice = 0,
-    OpenDoor = 1,
 }
 
 export const INVALID_TILES_TYPE = 999;

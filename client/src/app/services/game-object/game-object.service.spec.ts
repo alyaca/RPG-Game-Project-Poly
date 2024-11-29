@@ -1,20 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import {
-    GameMode,
-    ITEM_COUNT,
-    MapSize,
-    NB_ITEMS_MEDIUM_MAP,
-    NO_OBJECT,
-    OBJECT_COUNT_MAP,
-    ObjectType,
-    SIZE_MEDIUM_MAP,
-    TileType,
-} from '@app/constants';
+import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, SIZE_MEDIUM_MAP } from '@app/constants';
 import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameMode, MapSize, ObjectType, TileType } from '@common/constants';
 import { BehaviorSubject } from 'rxjs';
 import { GameObjectService } from './game-object.service';
 
@@ -229,19 +220,17 @@ describe('GameObjectService', () => {
             service.draggedObject = null;
             const mockEvent = new DragEvent('drop');
             spyOn(service, 'isValidTileForObject').and.returnValue(false);
-            service.onDrop(
-                mockEvent,
-                0,
-                0,
-                [
+            service.onDrop(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: [
+                    [1, 1],
+                    [1, 1],
+                ],
+                objects: [
                     [0, 0],
                     [1, 0],
                 ],
-                [
-                    [1, 1],
-                    [1, 1],
-                ],
-            );
+            });
             expect(service.updateObjectGridPosition).not.toHaveBeenCalled();
         });
 
@@ -249,19 +238,17 @@ describe('GameObjectService', () => {
             service.draggedObject = mockGameObject;
             const mockEvent = new DragEvent('drop');
             spyOn(service, 'isValidTileForObject').and.returnValue(true);
-            service.onDrop(
-                mockEvent,
-                0,
-                0,
-                [
+            service.onDrop(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: [
+                    [1, 1],
+                    [1, 1],
+                ],
+                objects: [
                     [NO_OBJECT, 0],
                     [1, 0],
                 ],
-                [
-                    [1, 1],
-                    [1, 1],
-                ],
-            );
+            });
             expect(service.updateObjectGridPosition).toHaveBeenCalled();
         });
     });
@@ -313,7 +300,7 @@ describe('GameObjectService', () => {
     });
 
     it('should return the game mode', () => {
-        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
-        expect(service.getGameMode()).toBe(GameMode.Ctf);
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
+        expect(service.getGameMode()).toBe(GameMode.CaptureTheFlag);
     });
 });

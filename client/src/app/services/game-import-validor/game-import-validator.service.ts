@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {
     DIRECTIONS,
     ErrorMessages,
-    GameMode,
     MAX_LEN_MAP_DESCRIPTION,
     MAX_LEN_MAP_TITLE,
     MAX_PLAYER_LARGE_MAP,
@@ -12,15 +11,15 @@ import {
     MIN_LEN_MAP_TITLE,
     NO_OBJECT,
     OBJECT_COUNT_MAP,
-    ObjectType,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
-    TileType,
 } from '@app/constants';
 import { GameListService } from '@app/services/game-list/game-list.service';
-import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { Game } from '@common/game';
+import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { ObjectType } from '@common/avatars-info';
+import { GameMode } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -262,7 +261,7 @@ export class GameImportValidatorService {
     }
 
     private validateMode(mode: string) {
-        if (mode !== GameMode.Classic && mode !== GameMode.Ctf) {
+        if (mode !== GameMode.Classic && mode !== GameMode.CaptureTheFlag) {
             this.errorMessages.push(ErrorMessages.InvalidMode);
         }
     }

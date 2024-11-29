@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import {
     DIRECTIONS,
-    GameMode,
     MAX_LEN_MAP_DESCRIPTION,
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
@@ -12,16 +11,16 @@ import {
     NB_ITEMS_LARGE_MAP,
     NB_ITEMS_MEDIUM_MAP,
     NB_ITEMS_SMALL_MAP,
-    ObjectType,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
-    TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { ObjectType } from '@common/avatars-info';
+import { GameMode, TileType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -45,7 +44,7 @@ export class MapValidatorService {
             this.validateName(validationInfo.title);
         }
 
-        if (this.gameObjectService.getGameMode() === GameMode.Ctf) {
+        if (this.gameObjectService.getGameMode() === GameMode.CaptureTheFlag) {
             this.validateFlag();
         }
 
@@ -175,9 +174,9 @@ export class MapValidatorService {
 
     private validateFlag() {
         this.mapObjects = this.gameObjectService.objectsArray;
-        const hasFlag = this.mapObjects.some((row) => row.includes(ObjectType.Flag));
+        const mapHasFlag = this.mapObjects.some((row) => row.includes(ObjectType.Flag));
 
-        if (!hasFlag) {
+        if (!mapHasFlag) {
             this.errorMessages.push('- Le drapeau doit être placé sur la carte lors du mode CTF.');
         }
     }

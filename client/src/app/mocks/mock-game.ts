@@ -1,6 +1,6 @@
-import { GameMode, ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
-import { Game } from '@common/game';
+import { GameMode, ObjectType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 
 export const mockGameObject: GameObject = {
     id: 1,
@@ -24,7 +24,7 @@ export const mockGames: Game[] = [
         name: 'Map1',
         description: 'Description1',
         visible: true,
-        mode: GameMode.Ctf,
+        mode: GameMode.CaptureTheFlag,
         nbPlayers: 6,
         image: 'img1',
         tiles: [
