@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP, TileType } from '@app/constants';
+import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, SIZE_MEDIUM_MAP } from '@app/constants';
 import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
+import { MapSize, ObjectType, TileType } from '@common/constants';
 import { GameObjectService } from './game-object.service';
 
 describe('GameObjectService', () => {
@@ -207,19 +208,17 @@ describe('GameObjectService', () => {
             service.draggedObject = null;
             const mockEvent = new DragEvent('drop');
             spyOn(service, 'isValidTileForObject').and.returnValue(false);
-            service.onDrop(
-                mockEvent,
-                0,
-                0,
-                [
+            service.onDrop(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: [
+                    [1, 1],
+                    [1, 1],
+                ],
+                objects: [
                     [0, 0],
                     [1, 0],
                 ],
-                [
-                    [1, 1],
-                    [1, 1],
-                ],
-            );
+            });
             expect(service.updateObjectGridPosition).not.toHaveBeenCalled();
         });
 
@@ -227,19 +226,17 @@ describe('GameObjectService', () => {
             service.draggedObject = mockGameObject;
             const mockEvent = new DragEvent('drop');
             spyOn(service, 'isValidTileForObject').and.returnValue(true);
-            service.onDrop(
-                mockEvent,
-                0,
-                0,
-                [
+            service.onDrop(mockEvent, {
+                position: { x: 0, y: 0 },
+                tiles: [
+                    [1, 1],
+                    [1, 1],
+                ],
+                objects: [
                     [NO_OBJECT, 0],
                     [1, 0],
                 ],
-                [
-                    [1, 1],
-                    [1, 1],
-                ],
-            );
+            });
             expect(service.updateObjectGridPosition).toHaveBeenCalled();
         });
     });

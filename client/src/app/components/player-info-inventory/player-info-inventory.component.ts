@@ -1,8 +1,10 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
+import { MAX_INVENTORY_ITEMS } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { ObjectType } from '@common/constants';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 
 @Component({
     selector: 'app-player-info-inventory',
@@ -18,12 +20,12 @@ export class PlayerInfoInventoryComponent implements OnInit {
     actionPointsArray: number[];
     movementPointsArray: number[];
     descriptionPosition: string = 'bottom';
-    // check if when the hp changes, the hp bar visual also changes
-
-    // Those functions are just for testing purposes to make sure that the page is reactive but,
-    // we can use them to display the change in hp and all the other stuff when we do the game's logic.
-
     constructor(private socketCommunicationService: SocketCommunicationService) {}
+
+    get emptySlots(): number[] {
+        const emptySlotsCount = MAX_INVENTORY_ITEMS - (this.player?.inventory?.length || 0);
+        return Array.from({ length: emptySlotsCount }, () => 0);
+    }
 
     ngOnInit() {
         this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
@@ -34,6 +36,18 @@ export class PlayerInfoInventoryComponent implements OnInit {
                 this.movementPointsArray = Array(this.player.attributes.speed);
             }
         });
+
+        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+            if (this.player.name === playerToUpdate.name) {
+                this.player.attributes = playerToUpdate.attributes;
+                this.player.inventory = playerToUpdate.inventory;
+                this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
+            }
+        });
+    }
+
+    hasXiphos(player: Player) {
+        return player.inventory.find((items) => items.id === ObjectType.Xiphos);
     }
 
     increaseMovement() {

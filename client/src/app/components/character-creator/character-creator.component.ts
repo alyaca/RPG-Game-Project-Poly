@@ -3,9 +3,10 @@ import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorMessages, MESSAGE_DURATION_VALIDATION_ERROR } from '@app/constants';
+import { defaultPostGameStats } from '@app/default-attributes';
 import { AttributesService } from '@app/services/attributes/attributes.service';
 import { avatars } from '@common/avatars-info';
-import { Avatar, Behavior, Player, PlayerStats, Status } from '@common/player';
+import { Attributes, Avatar, Behavior, Player, Status } from '@common/interfaces/player';
 
 @Component({
     selector: 'app-character-creator',
@@ -24,7 +25,7 @@ export class CharacterCreatorComponent implements OnDestroy {
     clickedAvatar: Avatar | undefined;
     characterName: string = '';
     player: Player;
-    attributes: PlayerStats;
+    attributes: Attributes;
 
     constructor(
         private attributesService: AttributesService,
@@ -65,7 +66,7 @@ export class CharacterCreatorComponent implements OnDestroy {
         return this.attributesService.isButtonSelected(buttonName);
     }
 
-    getAttributValue(attribute: keyof PlayerStats) {
+    getAttributValue(attribute: keyof Attributes) {
         return this.attributesService.getAttributValue(attribute);
     }
 
@@ -85,7 +86,7 @@ export class CharacterCreatorComponent implements OnDestroy {
         this.attributesService.setDefense(dice);
     }
 
-    diceDisplay(chosenAttribute: keyof PlayerStats) {
+    diceDisplay(chosenAttribute: keyof Attributes) {
         return this.attributesService.getDiceMessage(chosenAttribute);
     }
 
@@ -117,11 +118,12 @@ export class CharacterCreatorComponent implements OnDestroy {
             isActive: false,
             name: this.characterName,
             status: Status.Player,
-            victories: 0,
             inventory: [],
+            postGameStats: defaultPostGameStats,
             position: { x: -1, y: -1 },
             behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
+            positionHistory: [],
         };
     }
 

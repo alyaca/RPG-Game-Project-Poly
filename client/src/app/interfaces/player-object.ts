@@ -14,10 +14,10 @@ export interface PlayerObjects {
     name: string;
     victories: number;
     isActive: boolean;
-    attributes: PlayerStats;
+    attributes: Attributes;
 }
 
-export interface PlayerStats {
+export interface Attributes {
     totalHp: number;
     currentHp: number;
     speed: number;

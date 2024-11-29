@@ -7,19 +7,23 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME, WARNING_TIME } from '@app/constants';
+import { ATTACK_TIME, DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { PathRoute } from '@common/interfaces/route';
+import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 import { GamePageComponent } from './game-page.component';
 
+/* eslint-disable max-lines */
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let timerSpy: jasmine.SpyObj<TimerComponent>;
@@ -33,10 +37,22 @@ describe('GamePageComponent', () => {
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
+    let combatServiceSpy: jasmine.SpyObj<CombatService>;
 
     const accessCode = '1234';
 
     beforeEach(async () => {
+        combatServiceSpy = jasmine.createSpyObj(CombatService, [
+            'onEvasion',
+            'onCombatEnd',
+            'removeListeners',
+            'isCurrentTurn',
+            'isInCombat',
+            'initializeCombat',
+            'ngOnInit',
+            'initSocketListeners',
+            'isAttacker',
+        ]);
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
         socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, [
@@ -46,6 +62,7 @@ describe('GamePageComponent', () => {
             'isSocketAlive',
             'connect',
             'disconnect',
+            'off',
         ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
@@ -54,13 +71,24 @@ describe('GamePageComponent', () => {
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
         gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints', 'openTempDialog']);
-        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack']);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack', 'isOnWall']);
+
+        combatServiceSpy.combatTurnTime$ = of(ATTACK_TIME);
+        combatServiceSpy.activePlayer = mockPlayers[0];
+        combatServiceSpy.opponent = mockPlayers[1];
+        combatServiceSpy.attacker = mockPlayers[0];
+        combatServiceSpy.defender = mockPlayers[1];
+        combatServiceSpy.evasionsActivePlayer = [1, 1];
+        combatServiceSpy.evasionsOpponent = [1, 1];
+        combatServiceSpy.activePlayerResult = { total: 5, diceValue: 2 };
+        combatServiceSpy.opponentResult = { total: 3, diceValue: 3 };
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
+                { provide: CombatService, useValue: combatServiceSpy },
                 { provide: ChatBoxComponent, useValue: chatBoxSpy },
                 { provide: TimerComponent, useValue: timerSpy },
                 { provide: MatDialog, useValue: dialogSpy },
@@ -73,41 +101,6 @@ describe('GamePageComponent', () => {
         }).compileComponents();
 
         socketCommunicationServiceSpy.socket = mockSocket;
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'mapInformation') {
-                callback(mockRoom as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'isActive') {
-                callback(mockPlayer.id as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'beforeStartTurnTimer') {
-                callback(WARNING_TIME as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'turnEnded') {
-                callback(mockPlayers as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'startedTurnTimer') {
-                callback(TURN_TIME as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'debugMode') {
-                callback(true as T);
-            }
-        });
 
         httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
@@ -121,6 +114,7 @@ describe('GamePageComponent', () => {
 
     afterEach(() => {
         httpMock.verify();
+        fixture.destroy();
     });
 
     it('should create the component', () => {
@@ -130,7 +124,7 @@ describe('GamePageComponent', () => {
     describe('ngOnInit', () => {
         it('should set players and health on mapInformation event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'mapInformation') {
+                if (event === ServerToClientEvent.MapInformation) {
                     callback(mockRoom as T);
                 }
             });
@@ -141,9 +135,9 @@ describe('GamePageComponent', () => {
             expect(component.replenishHealth).toHaveBeenCalled();
         });
 
-        it('should set players on mapInformation event', () => {
+        it('should set players on PlayerDisconnected event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'disconnectedPlayer') {
+                if (event === ServerToClientEvent.PlayerDisconnected) {
                     callback(mockLobbyPlayers as T);
                 }
             });
@@ -153,7 +147,7 @@ describe('GamePageComponent', () => {
 
         it('should disconnect on draw event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'draw') {
+                if (event === ServerToClientEvent.DrawGame) {
                     callback({} as T);
                 }
             });
@@ -191,6 +185,34 @@ describe('GamePageComponent', () => {
             component.ngOnInit();
             expect(navigationServiceSpy.isDebugMode).toBeTrue();
         });
+
+        it('should set combatInProgress to true on combatInProgress event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatInProgress') {
+                    callback({} as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.combatInProgress).toBe(true);
+        });
+
+        it('should set combatInProgress to false on combatOver event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatOver') {
+                    callback({} as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.combatInProgress).toBe(false);
+        });
+
+        it('should call toggleDebugMode and addEventListener on ngOnInit', () => {
+            spyOn(component, 'toggleDebugMode');
+            spyOn(document, 'addEventListener');
+            component.ngOnInit();
+            expect(component.toggleDebugMode).toHaveBeenCalled();
+            expect(document.addEventListener).toHaveBeenCalled();
+        });
     });
 
     it('should set isActivePlayer and isTurnStartShowed when isActive event is emitted', () => {
@@ -199,7 +221,7 @@ describe('GamePageComponent', () => {
         socketCommunicationServiceSpy.socket.id = mockPlayers[0].id;
         spyOn(component, 'timerEvents');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'isActive') {
+            if (event === ServerToClientEvent.ActivePlayer) {
                 callback(mockPlayers[0] as T);
             }
         });
@@ -255,7 +277,7 @@ describe('GamePageComponent', () => {
     it('should navigate to /home if the dialog result is Left', () => {
         gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Left }));
         component.handleExit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should replenish health for all players', () => {
@@ -267,24 +289,17 @@ describe('GamePageComponent', () => {
     });
 
     it('should call openDialog with the correct parameters for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
         component.handleDraw();
-        expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
+        expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
             title: DialogTitle.DrawGame,
-            messages: [DialogMessages.DrawGame],
-            options: [DialogOptions.Close],
-            confirm: false,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
         });
-    });
-
-    it('should disconnect and navigate to home when dialog result is "Close" for handleDraw', () => {
-        gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
-        component.handleDraw();
-        expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {
+        component.activePlayer = mockPlayers[0];
         component.onEndTurn();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
     });
@@ -384,5 +399,36 @@ describe('GamePageComponent', () => {
         spyOn(component, 'closeTurnStartPopUp');
         component.timerEvents();
         expect(component.timeRemainingStartTurn).toBe(TURN_TIME);
+    });
+
+    it('should update isChatFocus and call toggleDebugMode', () => {
+        spyOn(component, 'toggleDebugMode');
+
+        component.onChatFocus(true);
+
+        expect(component['isChatFocus']).toBeTrue();
+        expect(component.toggleDebugMode).toHaveBeenCalled();
+    });
+
+    it('should update isChatFocus to false and call toggleDebugMode', () => {
+        spyOn(component, 'toggleDebugMode');
+
+        component.onChatFocus(false);
+
+        expect(component['isChatFocus']).toBeFalse();
+        expect(component.toggleDebugMode).toHaveBeenCalled();
+    });
+
+    it('should toggle debug mode when "d" is pressed, chat is not focused, and player is admin', () => {
+        spyOn(component, 'isPlayerAdmin').and.returnValue(true);
+        navigationServiceSpy.isDebugMode = false;
+        const event = new KeyboardEvent('keydown', { key: 'd' });
+        component['isChatFocus'] = false;
+
+        component.toggleDebugMode();
+        component['keyDownListener'](event);
+
+        expect(navigationServiceSpy.isDebugMode).toBeTrue();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', true);
     });
 });

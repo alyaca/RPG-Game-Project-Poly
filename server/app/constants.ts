@@ -2,17 +2,6 @@
 export const ACCESS_CODE_LENGTH = 4;
 export const MAX_ACCESS_CODE_VALUE = 10000;
 
-// Constants for map-mocks
-export enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
-
-export const MODES = ['ctf', 'classique'];
 export const GENERATE_COUNT = 5;
 export const BASE_36 = 36;
 export const TILE_COUNT = 6;
@@ -43,20 +32,12 @@ export const NO_EVASION_TIME = 3;
 export const MILLISECONDS_IN_SECOND = 1000;
 
 export const MOVEMENT_TIME = 150;
-export const FELLING_PROBABILITY = 0.1;
+export const FALLING_PROBABILITY = 0.1;
 
 export const SINGLE_PLAYER = 1;
-
+export const ROLL_DURATION = 800;
 // constant for tests
 export const FOWARD_TIME = 1000;
-
-// constants for tile cost
-export enum TileCost {
-    Ground = 1,
-    Water = 2,
-    Ice = 0,
-    OpenDoor = 1,
-}
 
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
@@ -69,6 +50,10 @@ export const EQUAL_ODDS_PROBABILITY = 0.5;
 export const EQUAL_ODDS_FAIL = 0.4;
 
 export const MIN_DICE_VALUE = 1;
+
+export const SECS_IN_HOUR = 3600;
+export const SECS_IN_MIN = 60;
+export const MINS_IN_HOUR = 60;
 export const MAX_GENERATION_VALUE = 1000000000;
 export const DISCONNECTED_POSITION = { x: 100, y: 100 };
 
@@ -87,5 +72,9 @@ export const enum LogType {
 }
 
 export const ICE_TILE_PENALTY_VALUE = 2;
+export const XIPHOS_ATTACK_BONUS = 2;
+export const XIPHOS_DEFENSE_PENALTY = 1;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
+
+export const MODES = ['ctf', 'classique'];

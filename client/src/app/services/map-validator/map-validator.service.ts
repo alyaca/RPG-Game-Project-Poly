@@ -7,12 +7,20 @@ import {
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
     MIN_LEN_MAP_TITLE,
-    ObjectType,
-    TileType,
+    MIN_NB_ITEMS,
+    NB_ITEMS_LARGE_MAP,
+    NB_ITEMS_MEDIUM_MAP,
+    NB_ITEMS_SMALL_MAP,
+    SIZE_LARGE_MAP,
+    SIZE_MEDIUM_MAP,
+    SIZE_SMALL_MAP,
     VALIDATION_DURATION,
 } from '@app/constants';
+import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -30,17 +38,18 @@ export class MapValidatorService {
         this.gameObjectService.initObjectsArray();
     }
 
-    validateMap(array: number[][], title: string, description: string, isNewMap: boolean, oldMapName: string) {
+    validateMap(validationInfo: ValidatingMapInfo) {
         this.errorMessages = [];
-        if (isNewMap || oldMapName !== title) {
-            this.validateName(title);
+        if (validationInfo.isNewMap || validationInfo.oldMapName !== validationInfo.title) {
+            this.validateName(validationInfo.title);
         }
-        this.validateSufficientTerrainTiles(array);
-        this.validateAllDoors(array);
+        this.validateSufficientTerrainTiles(validationInfo.tiles);
+        this.validateAllDoors(validationInfo.tiles);
         this.validateAllSpawnPointsPlaced();
-        this.validateTileAccessibility(array);
-        this.validateTitle(title);
-        this.validateDescription(description);
+        this.validateTileAccessibility(validationInfo.tiles);
+        this.validateTitle(validationInfo.title);
+        this.validateDescription(validationInfo.description);
+        this.validateNumberItems(validationInfo.objects);
 
         this.showValidationResult();
     }
@@ -57,6 +66,43 @@ export class MapValidatorService {
         const isTerrainRight = array[row]?.[col + 1] < TileType.Wall;
 
         return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
+    }
+
+    private validateNumberItems(objects: number[][]) {
+        let maxNbItems: number;
+        let currentNumberItems = 0;
+        switch (objects.length) {
+            case SIZE_SMALL_MAP:
+                maxNbItems = NB_ITEMS_SMALL_MAP;
+                break;
+            case SIZE_MEDIUM_MAP:
+                maxNbItems = NB_ITEMS_MEDIUM_MAP;
+                break;
+            case SIZE_LARGE_MAP:
+                maxNbItems = NB_ITEMS_LARGE_MAP;
+                break;
+            default:
+                maxNbItems = NB_ITEMS_MEDIUM_MAP;
+                break;
+        }
+
+        for (const objectsRows of objects) {
+            for (const individualItem of objectsRows) {
+                if (individualItem >= ObjectType.Trident && individualItem <= ObjectType.Random) {
+                    currentNumberItems += 1;
+                }
+            }
+        }
+
+        if (currentNumberItems > maxNbItems) {
+            this.errorMessages.push(`- Il y a trop d'objets sur cette carte. ${currentNumberItems} objets au lieu de ${maxNbItems}.`);
+        }
+
+        if (currentNumberItems < MIN_NB_ITEMS) {
+            this.errorMessages.push(
+                `Il n'y a pas assez d'objets sur la carte. Le minimum est ${MIN_NB_ITEMS} et il y en a présentement ${currentNumberItems}.`,
+            );
+        }
     }
 
     private showValidationResult() {

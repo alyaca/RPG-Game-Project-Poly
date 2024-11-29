@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { MapSize, SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { Game } from '@common/game';
+import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { MapSize } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -8,7 +9,6 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class GameCreationService {
     sizeSubject = new BehaviorSubject<string | null>(null);
-    modeSubject = new BehaviorSubject<string | null>(null);
 
     isNewGame: boolean = true;
     isModifiable: boolean = true;
@@ -16,13 +16,14 @@ export class GameCreationService {
     loadedObjects: number[][] = [];
     loadedMapName: string = '';
     loadedMapDescription: string = '';
+    gameMode: string = '';
 
     setSelectedSize(size: string) {
         this.sizeSubject.next(size);
     }
 
     setSelectedMode(mode: string) {
-        this.modeSubject.next(mode);
+        this.gameMode = mode;
     }
 
     getStoredSize(): string | null {

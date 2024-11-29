@@ -12,8 +12,9 @@ import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Game } from '@common/game';
-import { Behavior } from '@common/player';
+import { Game } from '@common/interfaces/game';
+import { Behavior } from '@common/interfaces/player';
+import { PathRoute } from '@common/interfaces/route';
 import { BehaviorSubject, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WaitingPageComponent } from './waiting-page.component';
@@ -104,18 +105,18 @@ describe('WaitingPageComponent', () => {
         it('should navigate to /home if no game is selected (refresh page)', () => {
             gameListServiceSpy.chosenGameSubject.next(null);
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
         });
 
         it('should navigate to /home if no game is received', () => {
             component.accessCode = accessCode;
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
         });
 
         it('should navigate to /home if no room is created', () => {
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
         });
 
         it('should set chosenGame when a game is selected', () => {

@@ -10,9 +10,10 @@ import {
     HIGH_ATTRIBUTE,
     MESSAGE_DURATION_VALIDATION_ERROR,
 } from '@app/constants';
+import { defaultPostGameStats } from '@app/default-attributes';
 import { mockAvatar, mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { AttributesService } from '@app/services/attributes/attributes.service';
-import { Behavior, Status } from '@common/player';
+import { Behavior, Status } from '@common/interfaces/player';
 import { CharacterCreatorComponent } from './character-creator.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -189,11 +190,12 @@ describe('CharacterCreatorComponent', () => {
             isActive: false,
             name: component.characterName,
             status: Status.Player,
-            victories: 0,
             inventory: [],
             position: { x: -1, y: -1 },
             behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
+            postGameStats: defaultPostGameStats,
+            positionHistory: [],
         });
     });
 

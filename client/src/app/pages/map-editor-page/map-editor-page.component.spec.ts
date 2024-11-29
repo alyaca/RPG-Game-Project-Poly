@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
@@ -13,6 +13,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
+import { PathRoute } from '@common/interfaces/route';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
 
@@ -173,7 +174,8 @@ describe('MapEditorPageComponent', () => {
         }, 0);
     });
 
-    it('should navigate to /administration if user confirms exit in handleExit', () => {
+    // line 114 not covered by this test for some reason
+    it('should navigate to /administration if user confirms exit in handleExit', fakeAsync(() => {
         const dialogRef: MatDialogRef<SimpleDialogComponent> = {
             afterClosed: () => of('left'),
             close: jasmine.createSpy('close'),
@@ -182,12 +184,10 @@ describe('MapEditorPageComponent', () => {
 
         dialogSpy.open.and.returnValue(dialogRef);
         component.handleExit();
-
         expect(dialogSpy.open).toHaveBeenCalled();
-        dialogRef.afterClosed().subscribe(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
-        });
-    });
+        tick();
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
+    }));
 
     it('should update the map name when updateMapName is called', () => {
         const newName = 'New Map Name';

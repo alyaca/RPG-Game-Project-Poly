@@ -1,13 +1,14 @@
 <div class="page-element" #pageElement>
-    @if (combatService.isInCombat){
-    <app-combat-modal [isInCombat]="combatService.isInCombat"></app-combat-modal>
+    @if (isCombatStarted()){
+    <app-combat-modal [isInCombat]="isCombatStarted()"></app-combat-modal>
     }
     <div class="left-container">
         <div class="player-bar">
-            <app-player-info-inventory class="player-bar" [playerId]="socketCommunicationService.socket.id"></app-player-info-inventory>
+            <app-player-info-inventory class="player-bar" [playerId]="getSocketId()"></app-player-info-inventory>
         </div>
+        <!-- <button (click)="forceEndGame()">Terminer la partie (temp)</button>  -->
         <div class="chat">
-            <app-chat-box [isToggleable]="true" [areLogsVisible]="true"></app-chat-box>
+            <app-chat-box [isToggleable]="true" [areLogsVisible]="true" (chatFocusChange)="onChatFocus($event)"></app-chat-box>
         </div>
         <div class="quit" (click)="handleExit()">
             <p>Abandonner la partie</p>
@@ -46,8 +47,11 @@
         </div>
     </div>
     <div class="right-container">
-        <div class="timer">
-            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" #turnTimer> </app-timer>
+        <div class="timer-container">
+            @if(combatInProgress){
+            <div class="combat"><span class="flashing-text">Combat en cours</span></div>
+            }
+            <app-timer [totalTime]="turnTotalTime" [timeRemaining]="timeRemainingStartTurn" #turnTimer></app-timer>
         </div>
         <div class="players">
             @for (player of allPlayers; track player.id ;){
@@ -60,7 +64,7 @@
                     <p class="action-text">Porte</p>
                     <div
                         class="button-outer action-outer"
-                        [class.selected]="gameService.isActionDoorSelected"
+                        [class.selected]="isActionDoorSelected()"
                         [class.disabled]="!isActivePlayer || isTurnStartShowed || !doorAround || !hasActionPoints()"
                         (click)="toggleActionDoorSelected()"
                     >
@@ -72,7 +76,7 @@
                     <p class="action-text">Attaquer</p>
                     <div
                         class="button-outer action-outer"
-                        [class.selected]="gameService.isActionCombatSelected"
+                        [class.selected]="isActionCombatSelected()"
                         [class.disabled]="!isActivePlayer || isTurnStartShowed || !attackAround || !hasActionPoints()"
                         (click)="toggleActionCombatSelected()"
                     >

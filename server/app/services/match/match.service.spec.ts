@@ -3,7 +3,7 @@ import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRooms } from '@app/mocks/mock-room';
 import { RoomService } from '@app/services/room/room.service';
-import { Position } from '@common/player';
+import { Position } from '@common/interfaces/player';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { MatchService } from './match.service';

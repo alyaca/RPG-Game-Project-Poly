@@ -1,14 +1,10 @@
-export enum MapSize {
-    Small = 'small',
-    Medium = 'medium',
-    Large = 'large',
-}
+import { GlobalPostGameStat, GlobalStatType } from '@common/interfaces/global-post-game-stats';
+import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
 
-export enum GameMode {
-    Classic = 'classique',
-    Ctf = 'ctf',
-}
+export const MAX_INVENTORY_ITEMS = 2;
+
 // Constants for the number of items and spawn points for each type of map
+export const MIN_NB_ITEMS = 2;
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
 export const NB_ITEMS_LARGE_MAP = 6;
@@ -24,15 +20,6 @@ export const MIN_LEN_MAP_TITLE = 3;
 export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 128;
-
-export enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
 
 // To validate a door position on a map
 export const DIRECTIONS = [
@@ -51,29 +38,6 @@ export const OBJECT_COUNT_MAP: { [key: string]: number } = {
 // Constants for initial count of game objects
 export const ITEM_COUNT = 1;
 
-export enum ObjectType {
-    Trident = 1,
-    Armor = 2,
-    Sandal = 3,
-    Lightning = 4,
-    Xiphos = 5,
-    Kunee = 6,
-    Random = 7,
-    Spawn = 8,
-    Hestia = 9,
-    Zeus = 10,
-    Hera = 11,
-    Poseidon = 12,
-    Artemis = 13,
-    Demeter = 14,
-    Hermes = 15,
-    Athena = 16,
-    Hephaestus = 17,
-    Apollo = 18,
-    Ares = 19,
-    Aphrodite = 20,
-}
-
 // For no object in grid
 export const NO_OBJECT = 0;
 
@@ -89,7 +53,7 @@ export const RANDOM_ITEM = 1;
 export const CHECK_BEFORE_SAVING_DELAY = 500;
 export const VALIDATION_DURATION = 500;
 
-export const TEST_VALIDATION_DURATION = 800;
+export const TEST_VALIDATION_DURATION = 1200;
 
 // Constant for the time of the snackbar message
 export const MESSAGE_DURATION_ERROR = 4000;
@@ -192,7 +156,6 @@ export enum TileClass {
     Wall = 'wall',
 }
 
-export const FELLING_PROBABILITY = 0.1;
 export const NAVIGATION_DELAY = 150;
 
 // Maximum number of players in a room
@@ -234,6 +197,8 @@ export enum DialogTitle {
     SuccessEvasion = 'Évasion réussie',
     MaxPlayers = 'Nombre de joueurs maximal atteint',
     AddBotWhenLocked = 'Partie vérrouillée',
+    ItemExchange = 'Échanger un objet',
+    QuitPostGameLobby = "Retourner à la page d'accueil",
 }
 
 export enum DialogMessages {
@@ -248,6 +213,7 @@ export enum DialogMessages {
     DefaultFightWin = "L'adversaire a abandonné la partie. Vous gagnez par défaut le combat.",
     MaxPlayers = "Vous ne pouvez plus d'ajouter de joueurs virtuels",
     AddBotWhenLocked = "Déverrouillez la salle d'attente avant d'ajouter un joueur virtuel",
+    QuitPostGameLobby = 'Vous quitteriez la page de fin de partie',
 }
 export enum DialogResult {
     Right = 'right',
@@ -255,14 +221,92 @@ export enum DialogResult {
     Close = 'close',
 }
 
-// constants for tile cost
-export enum TileCost {
-    Ground = 1,
-    Water = 2,
-    Ice = 0,
-    OpenDoor = 1,
-}
-
 export const INVALID_TILES_TYPE = 999;
 
 export const INFO_DIALOG_TIME = 2500;
+
+export const SECS_IN_HOUR = 3600;
+export const SECS_IN_MIN = 60;
+export const MINS_IN_HOUR = 60;
+
+export const TOTAL_PERCENTAGE = 100;
+
+export const VICTORIES_FOR_WIN = 3;
+
+export const PLAYER_STAT_TYPES: PostGameStat[] = [
+    {
+        id: 0,
+        key: PlayerStatType.Combats,
+        displayText: 'Combats',
+        explanations: 'Nombre de combats participés par le joueur',
+    },
+    {
+        id: 1,
+        key: PlayerStatType.Victories,
+        displayText: 'W/D/L',
+        explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
+    },
+    {
+        id: 2,
+        key: PlayerStatType.DamageDealt,
+        displayText: 'Dég. infligés',
+        explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
+    },
+    {
+        id: 3,
+        key: PlayerStatType.DamageTaken,
+        displayText: 'Dégats subis',
+        explanations: 'Nombre de points de dégats subis par le joueur',
+    },
+    {
+        id: 4,
+        key: PlayerStatType.ItemsObtained,
+        displayText: 'Obj. récup.',
+        explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
+    },
+    {
+        id: 5,
+        key: PlayerStatType.TilesVisited,
+        displayText: '%tuiles visités',
+        explanations: 'Pourcentage des tuiles de terrain visités par le joueur',
+    },
+];
+
+export const GLOBAL_STAT_TYPES: GlobalPostGameStat[] = [
+    {
+        id: 0,
+        key: GlobalStatType.GameDuration,
+        displayText: 'Durée de la partie',
+        explanations: "Temps écoulé depuis le début de la partie jusqu'à la fin de la partie",
+    },
+    {
+        id: 1,
+        key: GlobalStatType.Turns,
+        displayText: 'Nombre de tours',
+        explanations: 'Somme des tours de tous les joueurs de cette partie',
+    },
+    {
+        id: 2,
+        key: GlobalStatType.GlobalTilesVisited,
+        displayText: '% tuiles visitées global',
+        explanations: 'Pourcentage des tuiles de terrain visitées par au moins un joueur',
+    },
+    {
+        id: 3,
+        key: GlobalStatType.DoorsInteracted,
+        displayText: '% portes interagies',
+        explanations: 'Pourcentage des portes ayant été manipulées au moins une fois',
+    },
+    {
+        id: 4,
+        key: GlobalStatType.NbFlagBearers,
+        displayText: 'détenteurs de drapeau',
+        explanations: 'Nombre de joueurs différents ayant détenu le drapeau (si applicable)',
+    },
+];
+
+export enum SortOrder {
+    Unsorted = 'unsorted',
+    Ascending = 'ascending',
+    Descending = 'descending',
+}

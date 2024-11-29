@@ -1,7 +1,10 @@
-import { LogType, TileType } from '@app/constants';
+import { LogType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
-import { CombatPlayers } from '@common/combat-player';
-import { Player, Status } from '@common/player';
+import { TileType } from '@common/constants';
+import { CombatPlayers } from '@common/interfaces/combat-info';
+import { Player, Status } from '@common/interfaces/player';
+import { gameObjects } from '@common/objects-info';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 @Injectable()
@@ -43,9 +46,19 @@ export class GameLogsService {
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
     }
 
-    sendCombatCombatResultLog(roomId: string, server: Server, combatPlayers: CombatPlayers) {
+    sendCombatResultLog(roomId: string, server: Server, combatPlayers: CombatPlayers) {
         const message = this.generateCombatResultMessage(combatPlayers);
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
+    }
+
+    sendItemLog(player: Player, roomId: string, server: Server, itemPickedUp: number) {
+        const message = this.generateItemPickupMessage(player, itemPickedUp);
+        this.sendLog(roomId, server, [player], message);
+    }
+
+    private generateItemPickupMessage(player: Player, item: number) {
+        const fullItem = gameObjects.find((object) => object.id === item);
+        return `${player.name} a ramassé ${fullItem.name}`;
     }
 
     private createLog(players: Player[], message: string, roomId: string) {
@@ -63,7 +76,7 @@ export class GameLogsService {
         const { attackValues, defenseValues } = combatResultDetails;
         return (
             `Résultat de l'attaque : ${attacker.attributes.attack} + ${attackValues.diceValue} (dé) = ${attackValues.total}\n` +
-            `Résultat de la défense :  ${defender.attributes.attack} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`
+            `Résultat de la défense :  ${defender.attributes.defense} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`
         );
     }
 
@@ -110,13 +123,13 @@ export class GameLogsService {
         if (currentLog !== message) {
             this.lastLog.set(roomId, message);
             const log = this.createLog(players, message, roomId);
-            server.to(roomId).emit('logReceived', log);
+            server.to(roomId).emit(ServerToClientEvent.LogReceived, log);
         }
     }
 
     private sendLogToCombatPlayers(roomId: string, server: Server, players: CombatPlayers, message: string) {
         const log = this.createLog([players.attacker, players.defender], message, roomId);
-        server.to(players.attacker.id).emit('logReceived', log);
-        server.to(players.defender.id).emit('logReceived', log);
+        server.to(players.attacker.id).emit(ServerToClientEvent.LogReceived, log);
+        server.to(players.defender.id).emit(ServerToClientEvent.LogReceived, log);
     }
 }

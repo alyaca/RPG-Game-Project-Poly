@@ -1,7 +1,7 @@
-import { CombatInfos } from '@common/combat-info';
-import { CombatPlayers } from '@common/combat-player';
-import { CombatResultDetails } from '@common/combat-result';
-import { Behavior, Player, Status } from '@common/player';
+import { TURN_TIME } from '@app/constants';
+import { CombatInfos, CombatPlayers, CombatResultDetails } from '@common/interfaces/combat-info';
+import { Behavior, Player, Status } from '@common/interfaces/player';
+import { defaultPostGameStats } from './mock-players';
 import { mockRooms } from './mock-room';
 
 export const mockCombatResultDetails: CombatResultDetails = {
@@ -28,11 +28,12 @@ export const mockAttacker: Player = {
     isActive: true,
     name: 'name',
     status: Status.Player,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
     inventory: [],
     position: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
     spawnPosition: { x: 0, y: 0 },
+    positionHistory: [],
 };
 
 export const mockDefender: Player = {
@@ -54,11 +55,12 @@ export const mockDefender: Player = {
     isActive: true,
     name: 'name',
     status: Status.Player,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
     inventory: [],
     position: { x: 5, y: 0 },
     behavior: Behavior.Sentient,
     spawnPosition: { x: 1, y: 0 },
+    positionHistory: [],
 };
 
 export const mockCombatPlayers: CombatPlayers = {
@@ -69,7 +71,8 @@ export const mockCombatPlayers: CombatPlayers = {
 
 export const mockCombatInfos: CombatInfos = {
     combatPlayers: mockCombatPlayers,
-    gameTime: 60,
+    gameTime: TURN_TIME,
     room: mockRooms[0],
     failEvasion: false,
+    checkedXiphos: false,
 };

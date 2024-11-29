@@ -1,6 +1,8 @@
-import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TileType } from '@app/constants';
+import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { Game } from '@common/game';
+import { TileType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
+import { Position } from '@common/interfaces/player';
 
 export const dummyInfo: Info = {
     image: 'image file',
@@ -10,6 +12,8 @@ export const dummyInfo: Info = {
     items: [[NO_ITEM, NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM]],
     height: SIZE_MEDIUM_MAP,
 };
+
+export const mockPositions: Position[] = [{ x: 1, y: 1 }];
 
 export const dummyMap: Game = {
     _id: 'map to replace in DB',

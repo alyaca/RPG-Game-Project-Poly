@@ -7,7 +7,7 @@ import { GameListComponent } from '@app/components/game-list/game-list.component
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { ErrorMessages, HEIGHT_DIALOG, MAX_FILE_SIZE_BYTES, WIDTH_DIALOG } from '@app/constants';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 
 @Component({
     selector: 'app-administration-page',

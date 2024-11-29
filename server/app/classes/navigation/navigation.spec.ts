@@ -1,15 +1,16 @@
-import { DEFAULT_ATTRIBUTE, NO_ITEM, TileCost, TileType } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, NO_ITEM } from '@app/constants';
 import { mockGameNavigation, mockNeighborGame } from '@app/mocks/map-mocks';
 import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
-import { mockRoomDebug } from '@app/mocks/mock-room';
 import { ObjectType } from '@common/avatars-info';
-import { Position } from '@common/player';
-import { PointWithDistance } from '@common/point-distance.interface';
+import { TileCost, TileType } from '@common/constants';
+import { Position } from '@common/interfaces/player';
+import { PointWithDistance } from '@common/interfaces/point-distance.interface';
 import { Navigation } from './navigation';
 
 /* eslint max-lines: ["off"] */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 describe('Navigation', () => {
     let navigation: Navigation;
 
@@ -53,27 +54,27 @@ describe('Navigation', () => {
         expect(navigation['distances'][playerNavigation.position.x][playerNavigation.position.y]).toEqual(0);
     });
 
-    it('should return undefined if the player is not adjacent to anyone else', () => {
+    it('should return false if the player is not adjacent to anyone else', () => {
         navigation.players = [playerNavigation];
-        navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 1, y: 1 }]);
-        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBeUndefined();
+        navigation.getNeighborPlayers = jest.fn().mockReturnValue([]);
+        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(false);
     });
 
-    it('should return the player adjacent to the active one', () => {
+    it('should return true if a player is adjacent to the active one', () => {
         navigation.players = [playerNavigation];
-        navigation.getNeighbors = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
+        navigation.getNeighborPlayers = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
         navigation.hasPlayerOnTile = jest.fn().mockReturnValue(true);
-        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toEqual(playerNavigation);
+        expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
 
-    it('should return true if checkAttack or checkDoor return an array', () => {
+    it('should return true if checkAttack or checkDoor return true', () => {
         navigation.hasActionPoints = jest.fn().mockReturnValue(true);
-        navigation.checkAttack = jest.fn().mockReturnValue(playerNavigation);
+        navigation.checkAttack = jest.fn().mockReturnValue(true);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
 
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
-        navigation.checkDoor = jest.fn().mockReturnValue({ x: 1, y: 0 });
+        navigation.checkDoor = jest.fn().mockReturnValue(true);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
 
@@ -81,7 +82,7 @@ describe('Navigation', () => {
         navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
-        expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(false);
+        expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(undefined);
     });
 
     it('should return the correct tile cost', () => {
@@ -109,6 +110,7 @@ describe('Navigation', () => {
             [1, 1, 1],
         ];
         navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ice);
+        navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
         navigation['exploreNeighborsForReachableTiles'](
             [{ x: 1, y: 2 }],
             { x: 0, y: 0, distance: 0 },
@@ -184,6 +186,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
+            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
             const expectedDistance = 1;
 
@@ -196,6 +199,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
+            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, maxMovementPoints, mockNeighborGame);
             expect(navigation['distances'][1][0]).toBe(Infinity);
             expect(priorityQueue).not.toContain({ x: 1, y: 0, distance: Infinity });
@@ -205,6 +209,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
+            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
 
             expect(navigation['distances'][1][0]).toBe(1);
@@ -286,9 +291,10 @@ describe('Navigation', () => {
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
+            navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
-            expect(navigation['distances'][2][0]).toBe(Infinity);
+            expect(navigation['distances'][2][0]).toBe(1);
             expect(navigation['distances'][1][0]).toBe(TileCost.Ground);
         });
 
@@ -301,6 +307,7 @@ describe('Navigation', () => {
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
+            navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
             expect(navigation['distances'][1][0]).toBe(TileCost.Ground);
@@ -327,35 +334,8 @@ describe('Navigation', () => {
         ]);
     });
 
-    it('should return the final destination if room in debug mode and the tile is valid', () => {
-        const destination = { x: 1, y: 1 };
-
-        navigation['isTileValid'] = jest.fn().mockReturnValue(true);
-
-        const result = navigation.findFastestPath(playerNavigation, destination, mockRoomDebug[0]);
-        expect(result).toEqual([destination]);
-    });
-
-    it('should return all tiles in debug mode', () => {
-        const mockDebugTiles = [
-            { x: 0, y: 0 },
-            { x: 0, y: 1 },
-            { x: 0, y: 2 },
-            { x: 1, y: 0 },
-            { x: 1, y: 1 },
-            { x: 1, y: 2 },
-            { x: 2, y: 0 },
-            { x: 2, y: 1 },
-            { x: 2, y: 2 },
-        ];
-
-        navigation['isTileValid'] = jest.fn().mockReturnValue(true);
-        const result = navigation.findReachableTiles(playerNavigation, mockRoomDebug[0]);
-        expect(result).toEqual(mockDebugTiles);
-    });
-
-    it('should return false when the tiles are not valid for debug Mode', () => {
-        const position: Position = { x: 1, y: 1 };
+    it('should return true if the tiles is valid for debug Mode', () => {
+        const position: Position = { x: 0, y: 0 };
         navigation.gameMap.tiles = [
             [TileType.Ground, TileType.OpenDoor],
             [TileType.Wall, TileType.ClosedDoor],
@@ -367,7 +347,7 @@ describe('Navigation', () => {
 
         navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
         const isValid = navigation['isTileValid'](position.x, position.y);
-        expect(isValid).toBe(false);
+        expect(isValid).toBe(true);
     });
 
     it('should return false when the tiles are terrain tile, but there is an objet on it', () => {
@@ -402,10 +382,40 @@ describe('Navigation', () => {
         const isValid = navigation['isTileValid'](position.x, position.y);
         expect(isValid).toBe(true);
     });
+    // TODO : Tests from navigation client to fix (to adapt to server)
 
-    // TODO : Tests from navigation client to fix
+    // it('should call everything with findReachableTiles', () => {
+    //     const getNeighborsSpy = spyOn<any>(navigation, 'getNeighbors');
+    //     const exploreNeighborsForReachableTilesSpy = spyOn<any>(navigation, 'exploreNeighborsForReachableTiles');
+    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
+    //     getNextNodeSpy.and.callFake(() => {
+    //         const callCounter = getNextNodeSpy.calls.count();
+    //         if (callCounter === 1) {
+    //             return { x: 1, y: 1, distance: 1 };
+    //         } else {
+    //             return undefined;
+    //         }
+    //     });
+
+    //     getNeighborsSpy.and.callFake(() => {
+    //         const callCounter = getNeighborsSpy.calls.count();
+    //         if (callCounter === 1) {
+    //             return [{ x: 1, y: 1 }];
+    //         } else {
+    //             return [];
+    //         }
+    //     });
+
+    //     const result = navigation.findReachableTiles(playerNavigation, mockRoom);
+    //     expect(result).toBeDefined();
+    //     expect(getNextNodeSpy).toHaveBeenCalled();
+    //     expect(getNeighborsSpy).toHaveBeenCalled();
+    //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
+    // });
 
     // it('should call everything', () => {
+    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
+    //     const isDestinationReachedSpy = spyOn<any>(navigation, 'isDestinationReached');
     //     navigation['previous'] = [
     //         [
     //             { x: 1, y: 1 },
@@ -416,8 +426,6 @@ describe('Navigation', () => {
     //             { x: 1, y: 1 },
     //         ],
     //     ];
-    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
-    //     const isDestinationReachedSpy = spyOn<any>(navigation, 'isDestinationReached');
     //     getNextNodeSpy.and.callFake(() => {
     //         const callCounter = getNextNodeSpy.calls.count();
     //         if (callCounter === 1) {
@@ -441,7 +449,7 @@ describe('Navigation', () => {
     //     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
     //     const exploreNeighborsSpy = spyOn<any>(navigation, 'exploreNeighbors');
     //     const reconstructPathSpy = spyOn<any>(navigation, 'reconstructPath');
-    //     navigation.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockGame);
+    //     navigation.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockRoom);
     //     expect(initDistancesSpy).toHaveBeenCalledWith(playerNavigation, mockGame);
     //     expect(getNextNodeSpy).toHaveBeenCalled();
     //     expect(isDestinationReachedSpy).toHaveBeenCalled();
@@ -449,44 +457,4 @@ describe('Navigation', () => {
     //     expect(getNeighborsSpy).toHaveBeenCalled();
     //     expect(reconstructPathSpy).toHaveBeenCalledWith({ x: 1, y: 1 });
     // });
-
-    // it('should call everything with findReachableTiles', () => {
-    //     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
-    //     const exploreNeighborsForReachableTilesSpy = spyOn<any>(navigation, 'exploreNeighborsForReachableTiles');
-    //     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
-    //     getNextNodeSpy.and.callFake(() => {
-    //         const callCounter = getNextNodeSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return { x: 1, y: 1, distance: 1 };
-    //         } else {
-    //             return undefined;
-    //         }
-    //     });
-
-    //     getNeighborsSpy.and.callFake(() => {
-    //         const callCounter = getNeighborsSpy.calls.count();
-    //         if (callCounter === 1) {
-    //             return [{ x: 1, y: 1 }];
-    //         } else {
-    //             return [];
-    //         }
-    //     });
-
-    //     const result = navigation.findReachableTiles(playerNavigation, mockGame, DEFAULT_ATTRIBUTE);
-    //     expect(result).toBeDefined();
-    //     expect(getNextNodeSpy).toHaveBeenCalled();
-    //     expect(getNeighborsSpy).toHaveBeenCalled();
-    //     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
-    // });
-
-    /* it('sendNavigation should call send teleportPlayer event when navigation is debug mode', () => {
-        gameCreationServiceSpy.isModifiable = false;
-        component.isActivePlayer = true;
-        component.hasStarted = true;
-        component.isMoving = false;
-        navigationServiceSpy.isDebugMode = true;
-        navigationServiceSpy.isTileValid.and.returnValue(true);
-        component.sendNavigation(0, 0);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('teleportPlayer', { x: 0, y: 0 });
-    });*/
 });

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ObjectType } from '@common/avatars-info';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -25,12 +25,13 @@ export class NavigationService {
     path: Position[];
     players: Player[];
     gameMap: Game;
+    activePlayer: Player;
     fastestPath: Position[] = [];
     initialPositions: Position[] = [];
     positions: number[][];
     isDebugMode: boolean = false;
     reachableTiles: Position[];
-    private objects: number[][];
+    objects: number[][];
 
     initialize(game: Game, players: Player[], objects: number[][]): void {
         this.objects = JSON.parse(JSON.stringify(objects));
@@ -38,6 +39,10 @@ export class NavigationService {
         this.players = players;
         this.positions = objects;
         this.initializeObjects(objects);
+    }
+
+    updateObjects(items: number[][]) {
+        this.objects = JSON.parse(JSON.stringify(items));
     }
 
     updateTile(activePlayer: Player): void {

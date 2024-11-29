@@ -1,11 +1,12 @@
 import { Timer } from '@app/classes/timer/timer';
 import { ACCESS_CODE_LENGTH } from '@app/constants';
+import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
-import { GameStatus } from '@common/room';
+import { GameStatus } from '@common/interfaces/room';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Socket } from 'socket.io';
 import { RoomService } from './room.service';
@@ -77,7 +78,7 @@ describe('RoomService', () => {
 
     describe('isPlayerAdmin', () => {
         it('should return true if the player is an admin', () => {
-            service.adminList.push(mockSocket.id);
+            service['adminList'].push(mockSocket.id);
             const result = service.isPlayerAdmin(mockSocket);
             expect(result).toBe(true);
         });
@@ -187,12 +188,13 @@ describe('RoomService', () => {
             adminId: mockSocket.id,
             isLocked: false,
             gameStatus: GameStatus.Lobby,
+            globalPostGameStats: defaultGlobalStats,
         };
         expect(chatService.deleteMessagesByRoom).toHaveBeenCalledWith(roomId);
         expect(room).toEqual(expectedRoom);
         expect(mockSocket.join).toHaveBeenCalledWith(roomId);
         expect(mockSocket.data.roomCode).toBe(roomId);
-        expect(service.adminList).toContain(mockSocket.id);
+        expect(service['adminList']).toContain(mockSocket.id);
     });
 
     it('should return the room corresponding to the client', () => {
@@ -218,9 +220,9 @@ describe('RoomService', () => {
     });
 
     it('should remove the admin socket from the admin list', () => {
-        service.adminList = ['admin1234'];
+        service['adminList'] = ['admin1234'];
         service.removeAdmin(mockSocket);
-        expect(service.adminList).toEqual([]);
+        expect(service['adminList']).toEqual([]);
     });
 
     it('should retrieve the correct game map for a room', () => {
@@ -233,7 +235,7 @@ describe('RoomService', () => {
         const turnTimerInstance = new Timer();
         const fightTimerInstance = new Timer();
         const gameTimers = { turnTimer: turnTimerInstance, fightTimer: fightTimerInstance };
-        service.gameTimers.set(roomId, gameTimers);
+        service['gameTimers'].set(roomId, gameTimers);
 
         const turnTimer = service.getTurnTimer(roomId);
         const fightTimer = service.getFightTimer(roomId);

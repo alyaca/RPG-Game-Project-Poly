@@ -1,0 +1,39 @@
+<div class="post-game-lobby">
+    <div class="top-container">
+        <p class="title">Statistiques de fin de partie</p>
+        @if(getCtfMode()){
+        <p class="title">CTF</p>
+        } @else {
+        <p class="title">Partie Classique</p>
+        }
+        <p class="explanations">{{ getExplanations() }}</p>
+    </div>
+    <div class="middle-container">
+        <div class="left-container">
+            <div class="global-stats">
+                @for(globalStat of globalStats; track globalStat.id){
+                <app-single-global-stat [globalStat]="globalStat"></app-single-global-stat>
+                }
+            </div>
+            <div class="chat">
+                <app-chat-box [isToggleable]="false"></app-chat-box>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="attributes">
+                @for(attribute of getPostGameStatTypes(); track attribute.id){
+                <app-post-game-attribute
+                    [attribute]="getPostGameStatTypes()[$index].key"
+                    [displayText]="getPostGameStatTypes()[$index].displayText"
+                ></app-post-game-attribute>
+                }
+            </div>
+            @for(player of getPlayers(); track player.id){
+            <app-player-statistics [player]="player" [selectedAttribute]="getSelectedAttribute()"></app-player-statistics>
+            }
+        </div>
+    </div>
+    <div class="bottom-container">
+        <button class="quit" (click)="quitPostGameLobby()">Quitter</button>
+    </div>
+</div>

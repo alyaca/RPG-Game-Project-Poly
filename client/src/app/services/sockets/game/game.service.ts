@@ -18,9 +18,11 @@ import {
 import { DialogData } from '@app/interfaces/dialog-data';
 import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Game } from '@common/game';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
+import { PathRoute } from '@common/interfaces/route';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Injectable({
     providedIn: 'root',
@@ -32,6 +34,8 @@ export class GameService {
     selectedGame: Game;
     isActionDoorSelected: boolean = false;
     isActionCombatSelected: boolean = false;
+    playersTarget: Player[];
+    doorsTarget: Position[];
 
     constructor(
         private socketCommunicationService: SocketCommunicationService,
@@ -44,9 +48,9 @@ export class GameService {
     }
 
     joinRoom(roomCode: string) {
-        this.socketCommunicationService.send('joinRoom', roomCode);
+        this.socketCommunicationService.send(ClientToServerEvent.JoinRoom, roomCode);
 
-        this.socketCommunicationService.on('joinedRoom', (roomInfo: Room) => {
+        this.socketCommunicationService.on(ServerToClientEvent.JoinedRoom, (roomInfo: Room) => {
             this.isJoined = true;
             this.roomId = roomInfo.roomId;
             this.selectedGame = roomInfo.gameMap;
@@ -83,13 +87,16 @@ export class GameService {
     }
 
     onAdminQuit(message: string) {
-        this.openDialog({ title: DialogTitle.GameCanceled, messages: [message], confirm: false, options: [DialogOptions.Close] }).subscribe(
-            (result) => {
-                if (result.action === DialogResult.Close) {
-                    this.router.navigate(['/home']);
-                }
-            },
-        );
+        this.openDialog({
+            title: DialogTitle.GameCanceled,
+            messages: [message],
+            confirm: false,
+            options: [DialogOptions.Close],
+        }).subscribe((result) => {
+            if (result === DialogResult.Close) {
+                this.router.navigate([PathRoute.HOME]);
+            }
+        });
     }
 
     onRoomDeleted() {
@@ -112,7 +119,21 @@ export class GameService {
             confirm: true,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
-                this.socketCommunicationService.send('leaveRoom', roomId);
+                this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomId);
+            }
+        });
+    }
+
+    onQuitPostGameLobby(roomId: string) {
+        this.openDialog({
+            title: DialogTitle.QuitPostGameLobby,
+            messages: [DialogMessages.QuitPostGameLobby],
+            options: [DialogOptions.Quit, DialogOptions.Stay],
+            confirm: true,
+        }).subscribe((result) => {
+            if (result.action === DialogResult.Left) {
+                this.router.navigate([PathRoute.HOME]);
+                this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomId);
             }
         });
     }
@@ -125,17 +146,17 @@ export class GameService {
             confirm: false,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
             }
         });
     }
 
     onLeftRoom() {
-        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
+        this.socketCommunicationService.on(ServerToClientEvent.LeftRoom, (isAdmin) => {
             if (isAdmin) {
-                this.router.navigate(['/game-creation']);
+                this.router.navigate([PathRoute.CREATE]);
             } else {
-                this.router.navigate(['/home']);
+                this.router.navigate([PathRoute.HOME]);
             }
         });
     }
@@ -146,5 +167,17 @@ export class GameService {
 
     isActionSelected() {
         return this.isActionDoorSelected || this.isActionCombatSelected;
+    }
+
+    isTarget(row: number, col: number) {
+        return this.isTargetDoor(row, col) || this.isTargetPlayer(row, col);
+    }
+
+    isTargetDoor(row: number, col: number) {
+        return this.isActionDoorSelected ? this.doorsTarget.some((tile) => tile.x === row && tile.y === col) : false;
+    }
+
+    isTargetPlayer(row: number, col: number) {
+        return this.isActionCombatSelected ? this.playersTarget.some((tile) => tile.position.x === row && tile.position.y === col) : false;
     }
 }

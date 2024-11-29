@@ -1,11 +1,15 @@
-import { Navigation } from '../server/app/classes/navigation/navigation';
+import { Navigation } from '../../server/app/classes/navigation/navigation';
+import { Stopwatch } from '../../server/app/classes/stopwatch/stopwatch';
 import { Game } from './game';
+import { GlobalPostGameStats } from './global-post-game-stats';
 import { Avatar, Player } from './player';
 
 export enum GameStatus {
     Lobby = 'lobby',
     Started = 'started',
+    Ended = 'ended',
 }
+
 export interface Room {
     gameMap: Game;
     roomId: string;
@@ -15,5 +19,7 @@ export interface Room {
     isLocked: boolean;
     gameStatus: GameStatus;
     navigation?: Navigation;
-    isDebug?: boolean ;
+    globalPostGameStats: GlobalPostGameStats;
+    isDebug?: boolean;
+    stopwatch?: Stopwatch;
 }

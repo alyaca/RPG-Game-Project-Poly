@@ -1,5 +1,5 @@
 import { SPAWN_POINT_ID } from '@app/constants';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 
 export const mockGame: Game = {
     _id: '1',

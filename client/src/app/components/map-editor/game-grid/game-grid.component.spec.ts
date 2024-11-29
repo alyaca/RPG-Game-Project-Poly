@@ -1,24 +1,27 @@
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
-import { NO_OBJECT, ObjectType, SIZE_SMALL_MAP, TileType } from '@app/constants';
+import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
-import { mockGameNavigation } from '@app/mocks/mock-map';
+import { mockGameNavigation, mockPositions } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
+import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
-import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
+import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { Player, Position, Status } from '@common/player';
+import { ObjectType } from '@common/constants';
+import { Player, Position, Status } from '@common/interfaces/player';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Socket } from 'socket.io-client';
 import { GameGridComponent } from './game-grid.component';
 
@@ -77,6 +80,7 @@ describe('GameGridComponent', () => {
             'gameMap',
             'isNeighbor',
             'updateTile',
+            'isOnWall',
         ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['hasActionPoints']);
 
@@ -112,9 +116,9 @@ describe('GameGridComponent', () => {
         component = fixture.componentInstance;
         gameObjectManagerServiceSpy.objects = mockObjects;
         gameObjectsContainerSpy.gameObjects = mockObjects;
-        component.gridSize = SIZE_SMALL_MAP;
-        component.tilesGrid = tileServiceSpy.resetGrid(component.gridSize, component.tilesGrid);
-        component.objectsArray = gameObjectServiceMock.initObjectsArray();
+        component['gridSize'] = SIZE_SMALL_MAP;
+        component['tilesGrid'] = tileServiceSpy.resetGrid(component['gridSize'], component['tilesGrid']);
+        component['objectsArray'] = gameObjectServiceMock.initObjectsArray();
         gameObjectManagerServiceSpy['gridSize'] = SIZE_SMALL_MAP;
         spyOn(component, 'sendInfoToMapCreationPage');
     });
@@ -124,9 +128,7 @@ describe('GameGridComponent', () => {
     });
 
     it('should initialize properties correctly', () => {
-        expect(component.selectedRow).toBe(0);
-        expect(component.selectedCol).toBe(0);
-        expect(component.isMouseDown).toBeFalse();
+        expect(component['isMouseDown']).toBeFalse();
     });
 
     it('should call getSelectedTile', () => {
@@ -150,12 +152,12 @@ describe('GameGridComponent', () => {
             component.ngOnInit();
 
             expect(gameCreationServiceSpy.updateDimensions).toHaveBeenCalled();
-            expect(component.gridSize).toBe(SIZE_SMALL_MAP);
-            expect(component.tilesGrid).toEqual([
+            expect(component['gridSize']).toBe(SIZE_SMALL_MAP);
+            expect(component['tilesGrid']).toEqual([
                 [1, 1],
                 [0, 0],
             ]);
-            expect(component.objectsArray).toEqual([
+            expect(component['objectsArray']).toEqual([
                 [ObjectType.Armor, ObjectType.Armor],
                 [0, 0],
             ]);
@@ -164,18 +166,22 @@ describe('GameGridComponent', () => {
                 [0, 0],
             ]);
         });
+
+        it('should call connect on ngOnInit', () => {
+            component.ngOnInit();
+            expect(socketCommunicationServiceSpy.connect).toHaveBeenCalled();
+        });
     });
 
     it('showDetails should set attributes', () => {
-        component.tilesGrid = mockGameNavigation.tiles;
-        component.objectsArray = mockGameNavigation.itemPlacement;
+        component['tilesGrid'] = mockGameNavigation.tiles;
+        component['objectsArray'] = mockGameNavigation.itemPlacement;
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
-        const event = new MouseEvent('click', { button: 2 });
-        component.showDetails(event, 0, 0);
+        component.showDetails(0, 0);
         expect(component.isPopupVisible).toBeTrue();
-        expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
-        expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
+        expect(gameTileInfoServiceSpy.tileId).toEqual(component['tilesGrid'][0][0]);
+        expect(gameTileInfoServiceSpy.itemId).toEqual(component['objectsArray'][0][0]);
         expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
         expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
     });
@@ -199,6 +205,16 @@ describe('GameGridComponent', () => {
             expect(navigationServiceSpy.initialize).toHaveBeenCalled();
         });
 
+        it('should set reachableTiles on reachableTiles event', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'reachableTiles') {
+                    callback(mockPositions as T);
+                }
+            });
+            component.ngOnInit();
+            expect(navigationServiceSpy.reachableTiles).toEqual(mockPositions);
+        });
+
         it('should listen to doorClicked event onInit', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'doorClicked') {
@@ -208,7 +224,7 @@ describe('GameGridComponent', () => {
 
             component.ngOnInit();
             expect(gameServiceSpy.isActionDoorSelected).toBe(false);
-            expect(component.tilesGrid).toEqual(mockGameNavigation.tiles);
+            expect(component['tilesGrid']).toEqual(mockGameNavigation.tiles);
         });
 
         it('should listen to isActive event onInit', () => {
@@ -217,37 +233,36 @@ describe('GameGridComponent', () => {
             navigationServiceSpy.players = mockLobbyPlayers;
 
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'isActive') {
+                if (event === ServerToClientEvent.ActivePlayer) {
                     callback(player as T);
                 }
             });
 
             component.ngOnInit();
-            expect(component.currentPlayer).toBe(player);
+            expect(component.currentPlayer).toEqual(player);
         });
 
         it('should set isActivePlayer and currentPlayer when playerId matches socket ID', () => {
             socketCommunicationServiceSpy.socket.id = mockLobbyPlayers[0].id;
             navigationServiceSpy.players = mockLobbyPlayers;
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'isActive') {
+                if (event === ServerToClientEvent.ActivePlayer) {
                     callback(mockLobbyPlayers[0] as T);
                 }
             });
             component.ngOnInit();
-            expect(component.currentPlayer).toEqual(mockLobbyPlayers[0]);
+            expect(component['currentPlayer']).toEqual(mockLobbyPlayers[0]);
         });
 
         it('showDetails should set attributes', () => {
-            component.tilesGrid = mockGameNavigation.tiles;
-            component.objectsArray = mockGameNavigation.itemPlacement;
+            component['tilesGrid'] = mockGameNavigation.tiles;
+            component['objectsArray'] = mockGameNavigation.itemPlacement;
             gameCreationServiceSpy.isModifiable = false;
             component.isActivePlayer = true;
-            const event = new MouseEvent('click', { button: 2 });
-            component.showDetails(event, 0, 0);
+            component.showDetails(0, 0);
             expect(component.isPopupVisible).toBeTrue();
-            expect(gameTileInfoServiceSpy.tileId).toEqual(component.tilesGrid[0][0]);
-            expect(gameTileInfoServiceSpy.itemId).toEqual(component.objectsArray[0][0]);
+            expect(gameTileInfoServiceSpy.tileId).toEqual(component['tilesGrid'][0][0]);
+            expect(gameTileInfoServiceSpy.itemId).toEqual(component['objectsArray'][0][0]);
             expect(gameTileInfoServiceSpy.selectedCol).toEqual(0);
             expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
         });
@@ -265,7 +280,7 @@ describe('GameGridComponent', () => {
             });
 
             component.ngOnInit();
-            expect(component.isMoving).toBe(false);
+            expect(component['isMoving']).toBe(false);
         });
 
         it('should listen to playerNavigation event onInit', () => {
@@ -321,7 +336,7 @@ describe('GameGridComponent', () => {
         });
 
         it('should listen to combatEnd event and set actionPoints to 0, then call checkEndTurn', () => {
-            component.activePlayer = mockPlayers[0];
+            component['activePlayer'] = mockPlayers[0];
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'combatEnd') {
                     callback({} as T);
@@ -329,7 +344,7 @@ describe('GameGridComponent', () => {
             });
 
             component.ngOnInit();
-            expect(component.activePlayer.attributes.actionPoints).toBe(0);
+            expect(component['activePlayer'].attributes.actionPoints).toBe(0);
         });
     });
 
@@ -347,7 +362,7 @@ describe('GameGridComponent', () => {
 
     it('handleTileClick should call handleFightAction', () => {
         gameServiceSpy.isActionCombatSelected = true;
-        component.activePlayer = mockLobbyPlayers[0];
+        component['activePlayer'] = mockLobbyPlayers[0];
         gameServiceSpy.hasActionPoints.and.returnValue(true);
         const handleFightActionSpy = spyOn(component, 'handleFightAction');
         component.handleTileClick(1, 1);
@@ -358,20 +373,20 @@ describe('GameGridComponent', () => {
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
         component.hasStarted = true;
-        component.isMoving = false;
+        component['isMoving'] = false;
         component.sendNavigation();
-        expect(component.isMoving).toBeTrue();
+        expect(component['isMoving']).toBeTrue();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 
     it('navigateToTile should call everything', () => {
         spyOn(component, 'placeAvatarOnTile');
-        component.activePlayer = mockPlayers[0];
+        component['activePlayer'] = mockPlayers[0];
         component.navigateToTile({ x: 0, y: 0 });
         expect(component.placeAvatarOnTile).toHaveBeenCalled();
         expect(navigationServiceSpy.updateTile).toHaveBeenCalled();
-        expect(component.activePlayer.attributes.movementPointsLeft).toEqual(component.activePlayer.attributes.movementPointsLeft);
-        expect(component.activePlayer.position).toEqual({ x: 0, y: 0 });
+        expect(component['activePlayer'].attributes.movementPointsLeft).toEqual(component['activePlayer'].attributes.movementPointsLeft);
+        expect(component['activePlayer'].position).toEqual({ x: 0, y: 0 });
     });
 
     describe('deepCopyMatrix', () => {
@@ -393,32 +408,28 @@ describe('GameGridComponent', () => {
 
     describe('ngOnChanges', () => {
         it('should reset the grid when resetTrigger changes to true', () => {
-            component.tilesGrid[0][0] = TileType.Water;
+            component['oldMapName'] = mockValidationInfo.oldMapName;
+            component['tilesGrid'][0][0] = TileType.Water;
             const changes: SimpleChanges = {
                 resetTrigger: new SimpleChange(false, true, false),
             };
 
             component.ngOnChanges(changes);
-            expect(component.tilesGrid).toEqual([]);
+            expect(component['tilesGrid']).toEqual([]);
         });
 
         it('should validate the map when saveTrigger changes to true', () => {
-            component.mapName = 'Test Map';
-            component.mapDescription = 'Description';
-            component.tilesGrid = [[TileType.Ground]];
-            gameCreationServiceSpy.isNewGame = true;
+            component['oldMapName'] = mockValidationInfo.oldMapName;
+            component.mapName = mockValidationInfo.title;
+            component.mapDescription = mockValidationInfo.description;
+            component['tilesGrid'] = mockValidationInfo.tiles;
+            gameCreationServiceSpy.isNewGame = mockValidationInfo.isNewMap;
             const changes: SimpleChanges = {
                 saveTrigger: new SimpleChange(false, true, false),
             };
             component.saveTrigger = true;
             component.ngOnChanges(changes);
-            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(
-                component.tilesGrid,
-                component.mapName,
-                component.mapDescription,
-                true,
-                component.oldMapName,
-            );
+            expect(mapValidatorServiceSpy.validateMap).toHaveBeenCalledWith(mockValidationInfo);
         });
 
         it('should reset objectsArray and tilesGrid when resetTrigger changes and isNewGame is true', () => {
@@ -444,9 +455,9 @@ describe('GameGridComponent', () => {
 
     describe('mouse events', () => {
         it('should set isMouseDown to false on mouse up', () => {
-            component.isMouseDown = true;
+            component['isMouseDown'] = true;
             component.onMouseUp();
-            expect(component.isMouseDown).toBeFalse();
+            expect(component['isMouseDown']).toBeFalse();
         });
     });
 
@@ -477,8 +488,8 @@ describe('GameGridComponent', () => {
     });
 
     it('should return early when mouse is down and previousRow and previousCol match', () => {
-        component.previousRow = 1;
-        component.previousCol = 1;
+        component['previousRow'] = 1;
+        component['previousCol'] = 1;
         spyOn(component, 'onTileClick').and.callThrough();
 
         component.onTileClick(1, 1);
@@ -486,37 +497,41 @@ describe('GameGridComponent', () => {
     });
 
     it('onDragStart should call and set the correct methods', () => {
-        component.isMouseDown = true;
+        component['isMouseDown'] = true;
         gameCreationServiceSpy.isModifiable = true;
         component.onDragStart(1, 1);
         expect(toolServiceSpy.deactivateTileApplicator).toHaveBeenCalled();
-        expect(component.isMouseDown).toBeFalse();
+        expect(component['isMouseDown']).toBeFalse();
         expect(gameObjectManagerServiceSpy.onDragStart).toHaveBeenCalled();
     });
 
     it('onDrop should call the correct methods', () => {
-        component.isMouseDown = true;
+        component['isMouseDown'] = true;
         const mockEvent = new DragEvent('drop');
         component.onDrop(mockEvent, 1, 1);
-        expect(gameObjectManagerServiceSpy.onDrop).toHaveBeenCalledWith(mockEvent, 1, 1, component.objectsArray, component.tilesGrid);
-        expect(component.isMouseDown).toBeFalse();
+        expect(gameObjectManagerServiceSpy.onDrop).toHaveBeenCalledWith(mockEvent, {
+            position: { x: 1, y: 1 },
+            tiles: component['tilesGrid'],
+            objects: component['objectsArray'],
+        });
+        expect(component['isMouseDown']).toBeFalse();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
         expect(component.sendInfoToMapCreationPage).toHaveBeenCalled();
     });
 
     it('should call isValidTileForObject when calling the component function', () => {
-        component.tilesGrid = [
+        component['tilesGrid'] = [
             [1, 1],
             [1, 1],
         ];
         component.isValidTileForObject(1, 1);
-        expect(gameObjectManagerServiceSpy.isValidTileForObject).toHaveBeenCalledWith(1, 1, component.tilesGrid);
+        expect(gameObjectManagerServiceSpy.isValidTileForObject).toHaveBeenCalledWith(1, 1, component['tilesGrid']);
     });
 
     it('should not call the other methods if the condition is met in onTileClick', () => {
-        component.isMouseDown = true;
-        component.previousRow = 1;
-        component.previousCol = 1;
+        component['isMouseDown'] = true;
+        component['previousRow'] = 1;
+        component['previousCol'] = 1;
         component.onTileClick(1, 1);
         expect(tileServiceSpy.setTile).not.toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.handleGameObjectOnTile).not.toHaveBeenCalled();
@@ -529,40 +544,40 @@ describe('GameGridComponent', () => {
         });
 
         it('should call onTileClick is button is 0', () => {
-            component.isMouseDown = false;
+            component['isMouseDown'] = false;
             const mockEvent = new MouseEvent('click', { button: 0 });
             component.onMouseDown(mockEvent, 0, 0);
-            expect(component.isMouseDown).toBeTrue();
+            expect(component['isMouseDown']).toBeTrue();
             expect(component.onTileClick).toHaveBeenCalled();
         });
 
         it('should not call onTileClick if the event button is not 0', () => {
-            component.isMouseDown = false;
+            component['isMouseDown'] = false;
             const mockEvent = new MouseEvent('click', { button: 1 });
             component.onMouseDown(mockEvent, 0, 0);
-            expect(component.isMouseDown).toBeFalse();
+            expect(component['isMouseDown']).toBeFalse();
             expect(component.onTileClick).not.toHaveBeenCalled();
         });
 
         it('should call onTileClick if isMouseDown is true', () => {
-            component.isMouseDown = true;
+            component['isMouseDown'] = true;
             component.onMouseMove(0, 0);
             expect(component.onTileClick).toHaveBeenCalledWith(0, 0);
         });
 
         it('should not call onTileClick if isMouseDown is false', () => {
-            component.isMouseDown = false;
+            component['isMouseDown'] = false;
             component.onMouseMove(0, 0);
             expect(component.onTileClick).not.toHaveBeenCalled();
         });
     });
 
     it('should set the tile to Ground if conditions are met', () => {
-        component.tilesGrid = [
+        component['tilesGrid'] = [
             [TileType.Water, TileType.Ground],
             [TileType.Ground, TileType.Ground],
         ];
-        component.objectsArray = [
+        component['objectsArray'] = [
             [NO_OBJECT, NO_OBJECT],
             [NO_OBJECT, NO_OBJECT],
         ];
@@ -570,7 +585,7 @@ describe('GameGridComponent', () => {
         const event = new MouseEvent('click');
         component.removeTile(event, 0, 0);
 
-        expect(component.tilesGrid[0][0]).toBe(TileType.Ground);
+        expect(component['tilesGrid'][0][0]).toBe(TileType.Ground);
     });
 
     it('should call updateTile and update position if the player is found', () => {
@@ -600,5 +615,31 @@ describe('GameGridComponent', () => {
     it('should return undefined if there is no game object with the specified id', () => {
         const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
         expect(result).toBeUndefined();
+    });
+
+    it('should call checkTeleportation if debug mode is enabled', () => {
+        navigationServiceSpy.isDebugMode = true;
+        spyOn(component, 'checkTeleportation');
+        const event = new MouseEvent('click');
+        component.handleRightClick(event, 0, 0);
+        expect(component.checkTeleportation).toHaveBeenCalled();
+    });
+
+    it('should call showDetails if debug mode is disabled', () => {
+        navigationServiceSpy.isDebugMode = false;
+        spyOn(component, 'showDetails');
+        const event = new MouseEvent('click');
+        component.handleRightClick(event, 0, 0);
+        expect(component.showDetails).toHaveBeenCalled();
+    });
+
+    it('should call teleportPlayer if conditions are met', () => {
+        const position = { x: 1, y: 1 };
+        gameCreationServiceSpy.isModifiable = false;
+        component.isActivePlayer = true;
+        component['isMoving'] = false;
+        component.checkTeleportation(position);
+        expect(component['isMoving']).toBeTrue();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 });

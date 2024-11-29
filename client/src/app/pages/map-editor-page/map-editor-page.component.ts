@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { ToolbarComponent } from '@app/components/map-editor/toolbar/toolbar.component';
@@ -13,6 +13,7 @@ import { SaveGameService } from '@app/services/save-game/save-game.service';
 import html2canvas from 'html2canvas';
 
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { PathRoute } from '@common/interfaces/route';
 
 @Component({
     selector: 'app-map-editor-page',
@@ -20,7 +21,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
     templateUrl: './map-editor-page.component.html',
     styleUrls: ['./map-editor-page.component.scss'],
     providers: [GameGridComponent],
-    imports: [GameObjectsContainerComponent, FormsModule, RouterLink, GameGridComponent, ToolbarComponent],
+    imports: [GameObjectsContainerComponent, FormsModule, GameGridComponent, ToolbarComponent],
 })
 export class MapEditorPageComponent implements OnInit {
     @Input() selectedSize: string | null;
@@ -110,7 +111,7 @@ export class MapEditorPageComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'left') {
-                this.router.navigate(['/administration']);
+                this.router.navigate([PathRoute.ADMIN]);
             }
         });
     }
@@ -125,7 +126,7 @@ export class MapEditorPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.mapEditorService.isMapChosen()) {
-            this.router.navigate(['/administration']);
+            this.router.navigate([PathRoute.ADMIN]);
         }
 
         if (!this.gameCreationService.isNewGame) {

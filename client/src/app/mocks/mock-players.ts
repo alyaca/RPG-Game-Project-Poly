@@ -1,7 +1,8 @@
-import { defaultAttributes } from '@app/default-attributes';
-import { Behavior, Player, PlayerStats, Status } from '@common/player';
+import { defaultAttributes, defaultPostGameStats } from '@app/default-attributes';
+import { Attributes, Behavior, Player, Status } from '@common/interfaces/player';
+import { gameObjects } from '@common/objects-info';
 
-export const mockPlayerStats: PlayerStats = {
+const mockAttributes: Attributes = {
     totalHp: 4,
     currentHp: 4,
     speed: 4,
@@ -18,68 +19,74 @@ export const mockPlayerStats: PlayerStats = {
 export const mockPlayers: Player[] = [
     {
         id: 'admin1234',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: true,
         name: 'name',
         status: Status.Player,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
+        positionHistory: [],
     },
     {
         id: '123',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: true,
         name: 'name',
         status: Status.Admin,
-        victories: 2,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 1, y: 1 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 1, y: 1 },
+        positionHistory: [],
     },
     {
         id: 'id',
-        attributes: mockPlayerStats,
+        attributes: mockAttributes,
         avatar: undefined,
         isActive: false,
         name: 'name',
         status: Status.Player,
-        victories: 1,
+        postGameStats: defaultPostGameStats,
         inventory: [],
         position: { x: 0, y: 0 },
         behavior: Behavior.Sentient,
         spawnPosition: { x: 0, y: 0 },
-    },
-    {
-        id: 'bot',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'name',
-        status: Status.Bot,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        behavior: Behavior.Aggressive,
-        spawnPosition: { x: 0, y: 0 },
+        positionHistory: [],
     },
 ];
+
+export const mockInventoryPlayer: Player = {
+    id: 'admin1234',
+    attributes: mockAttributes,
+    avatar: undefined,
+    isActive: true,
+    name: 'name',
+    status: Status.Player,
+    inventory: [gameObjects[0], gameObjects[1]],
+    position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+    spawnPosition: { x: 0, y: 0 },
+    postGameStats: defaultPostGameStats,
+    positionHistory: [],
+};
 
 export const baseBot: Player = {
     id: '0',
     avatar: { name: 'a', src: '', isSelected: true, isTaken: true },
     status: Status.Bot,
     name: 'Joueur virtuel',
-    victories: 0,
+    postGameStats: defaultPostGameStats,
     isActive: false,
     attributes: defaultAttributes,
     inventory: [],
     position: { x: 0, y: 0 },
     spawnPosition: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
+    positionHistory: [],
 };

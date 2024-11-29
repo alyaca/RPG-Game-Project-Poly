@@ -1,6 +1,6 @@
-import { PlayerStats } from '@common/player';
+import { Attributes } from '@common/interfaces/player';
 
-export const mockPlayerStats: PlayerStats = {
+export const mockAttributes: Attributes = {
     totalHp: 4,
     currentHp: 4,
     speed: 4,
