@@ -2,9 +2,10 @@ import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
+import { Player } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -22,7 +23,7 @@ export class PlayerInventoryService {
         }
         if (info.player.inventory.length === 2) {
             this.roomService.getTurnTimer(room.roomId).pauseTimer();
-            info.client.emit('openItemSwitchModal', { activePlayer: info.player, itemPickedUp });
+            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
             return;
         } else {
             info.player = this.updatePlayerWithItem(info.player, itemPickedUp);
@@ -32,7 +33,7 @@ export class PlayerInventoryService {
         const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
-        info.client.emit('updateInventory', info.player);
+        info.client.emit(ServerToClientEvent.UpdatedInventory, info.player);
     }
 
     determineRandomItem(allObjects: number[][], room: Room): number {
@@ -152,8 +153,8 @@ export class PlayerInventoryService {
         room.listPlayers[index].attributes = playerToUpdate.attributes;
         room.listPlayers[index].inventory = playerToUpdate.inventory;
 
-        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
-        infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate);
+        infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
+        infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);
         return playerToUpdate;
     }
 }

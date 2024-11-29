@@ -1,4 +1,4 @@
-import { Behavior, Player, Status } from '@common/player';
+import { Behavior, Player, Status } from '@common/interfaces/player';
 import { defaultPostGameStats } from './mock-players';
 
 export const playerNavigation: Player = {

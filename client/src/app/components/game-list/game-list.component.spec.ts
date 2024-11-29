@@ -5,7 +5,7 @@ import { mockGames } from '@app/mocks/mock-game';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { GameListComponent } from './game-list.component';
 

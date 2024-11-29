@@ -1,7 +1,8 @@
-import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TileType } from '@app/constants';
+import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { Game } from '@common/game';
-import { Position } from '@common/player';
+import { TileType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
+import { Position } from '@common/interfaces/player';
 
 export const dummyInfo: Info = {
     image: 'image file',

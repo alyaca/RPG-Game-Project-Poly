@@ -13,7 +13,7 @@ import {
 } from '@app/constants';
 import { Info } from '@app/interfaces/info';
 import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
-import { Game } from '@common/game';
+import { Game } from '@common/interfaces/game';
 import { catchError, concatMap, map, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 

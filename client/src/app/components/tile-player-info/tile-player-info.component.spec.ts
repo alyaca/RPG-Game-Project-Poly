@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, ObjectType } from '@app/constants';
+import { ITEM_COUNT } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
+import { ObjectType } from '@common/constants';
 import { TilePlayerInfoComponent } from './tile-player-info.component';
 
 describe('TilePlayerInfoComponent', () => {

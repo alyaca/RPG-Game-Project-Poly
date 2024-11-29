@@ -33,10 +33,7 @@ export class GameTileInfoService {
     ) {}
 
     getItem() {
-        if (this.itemId > 0) {
-            return gameObjects[this.itemId - 1];
-        }
-        return null;
+        return this.itemId > 0 ? gameObjects[this.itemId - 1] : null;
     }
 
     getTile() {
