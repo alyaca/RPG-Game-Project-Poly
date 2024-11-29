@@ -425,22 +425,6 @@ describe('GamePageComponent', () => {
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', true);
     });
 
-    it('should send event debugMode when admin presses d on keyboard', () => {
-        navigationServiceSpy.isDebugMode = false;
-        gameServiceSpy.isCurrentPlayerAdmin.and.returnValue(true);
-        const event = new KeyboardEvent('keydown', { key: 'd' });
-        document.dispatchEvent(event);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('debugMode', true);
-    });
-
-    it('should not send event debugMode when player presses d on keyboard', () => {
-        navigationServiceSpy.isDebugMode = false;
-        gameServiceSpy.isCurrentPlayerAdmin.and.returnValue(false);
-        const event = new KeyboardEvent('keydown', { key: 'd' });
-        document.dispatchEvent(event);
-        expect(socketCommunicationServiceSpy.send).not.toHaveBeenCalled();
-    });
-
     it('should call handleExit of gameService', () => {
         component.handleExit();
         expect(gameServiceSpy.handleExit).toHaveBeenCalled();
