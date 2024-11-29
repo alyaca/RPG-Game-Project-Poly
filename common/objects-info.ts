@@ -59,6 +59,13 @@ export const gameObjects: GameObject[] = [
         count: -1,
     },
     {
+        id: ObjectType.Flag,
+        name: 'CTF Flag',
+        image: './assets/images/objects/flag.jpg',
+        description: 'Drapeau pour le mode CTF',
+        count: ITEM_COUNT,
+    },
+    {
         id: ObjectType.Hestia,
         name: 'Hestia',
         image: './assets/images/characters/Hestia.webp',

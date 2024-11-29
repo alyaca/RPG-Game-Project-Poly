@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import {
     DIRECTIONS,
+    GameMode,
     MAX_LEN_MAP_DESCRIPTION,
     MAX_LEN_MAP_TITLE,
     MIN_LEN_MAP_DESCRIPTION,
@@ -43,6 +44,11 @@ export class MapValidatorService {
         if (validationInfo.isNewMap || validationInfo.oldMapName !== validationInfo.title) {
             this.validateName(validationInfo.title);
         }
+
+        if (this.gameObjectService.getGameMode() === GameMode.Ctf) {
+            this.validateFlag();
+        }
+
         this.validateSufficientTerrainTiles(validationInfo.tiles);
         this.validateAllDoors(validationInfo.tiles);
         this.validateAllSpawnPointsPlaced();
@@ -164,6 +170,15 @@ export class MapValidatorService {
         }
         if (!this.allTilesAccessible(array, visited)) {
             this.errorMessages.push('- Pas toutes les tuiles de terrain sont accessibles');
+        }
+    }
+
+    private validateFlag() {
+        this.mapObjects = this.gameObjectService.objectsArray;
+        const hasFlag = this.mapObjects.some((row) => row.includes(ObjectType.Flag));
+
+        if (!hasFlag) {
+            this.errorMessages.push('- Le drapeau doit être placé sur la carte lors du mode CTF.');
         }
     }
 

@@ -10,6 +10,7 @@ export const dummyInfo: Info = {
     grid: [[TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground]],
     items: [[NO_ITEM, NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM]],
     height: SIZE_MEDIUM_MAP,
+    mode: 'classique',
 };
 
 export const mockPositions: Position[] = [{ x: 1, y: 1 }];

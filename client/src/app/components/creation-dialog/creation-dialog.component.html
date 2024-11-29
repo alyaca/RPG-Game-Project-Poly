@@ -3,7 +3,7 @@
         <div class="title">Choisir un mode de jeu :</div>
         <div class="button" class="options">
             <button [class.select]="selectedMode === gameMode.Classic" (click)="selectMode(gameMode.Classic)">Classique</button>
-            <button [attr.disabled]="selectedMode === gameMode.Ctf" (click)="selectMode(gameMode.Ctf)">CTF</button>
+            <button [class.select]="selectedMode === gameMode.Ctf" (click)="selectMode(gameMode.Ctf)">CTF</button>
         </div>
         <div class="title">Choisir la taille du jeu :</div>
         <div class="size-container">
