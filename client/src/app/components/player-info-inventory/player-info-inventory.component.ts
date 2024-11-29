@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { DEFAULT_ATTRIBUTE, ObjectType } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, MAX_INVENTORY_ITEMS, ObjectType } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -22,7 +22,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
     constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     get emptySlots(): number[] {
-        const emptySlotsCount = 2 - (this.player?.inventory?.length || 0);
+        const emptySlotsCount = MAX_INVENTORY_ITEMS - (this.player?.inventory?.length || 0);
         return Array.from({ length: emptySlotsCount }, () => 0);
     }
 
