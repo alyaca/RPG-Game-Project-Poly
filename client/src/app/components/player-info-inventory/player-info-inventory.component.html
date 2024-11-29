@@ -58,6 +58,9 @@
                     [descriptionPosition]="descriptionPosition"
                 ></app-game-object>
                 }
+                @for (slot of emptySlots; track $index) {
+                    <div class="empty-slot player-items"></div>
+                }
             </div>
         </div>
     }

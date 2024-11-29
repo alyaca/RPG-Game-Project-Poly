@@ -9,6 +9,38 @@
             <p *ngIf="showError" class="error-message">Ce champ est obligatoire.</p>
         </div>
     </mat-dialog-content>
+    @if(data.itemSwap){
+        <div class="swap-item-container">
+            <div class="pickedup-item-container">
+                <app-game-object
+                    class="inventory-object pickedup-item"
+                    [name]="data.itemSwap.pickedUpItem.name"
+                    [imageUrl]="data.itemSwap.pickedUpItem.image"
+                    [description]="data.itemSwap.pickedUpItem.description"
+                    [descriptionPosition]="descriptionPosition"
+                    [isLarge]="true"
+                ></app-game-object>
+            </div>
+                <div class="inventory-item-container">
+                    <app-game-object
+                        class="inventory-object"
+                        (click)="swapItems(true, data.itemSwap)"
+                        [name]="data.itemSwap.currentItem1.name"
+                        [imageUrl]="data.itemSwap.currentItem1.image"
+                        [description]="data.itemSwap.currentItem1.description"
+                        [descriptionPosition]="descriptionPosition"
+                    ></app-game-object>
+                    <app-game-object
+                        class="inventory-object"
+                        (click)="swapItems(false, data.itemSwap)"
+                        [name]="data.itemSwap.currentItem2.name"
+                        [imageUrl]="data.itemSwap.currentItem2.image"
+                        [description]="data.itemSwap.currentItem2.description"
+                        [descriptionPosition]="descriptionPosition"
+                    ></app-game-object>
+            </div>
+        </div>
+    }
     <mat-dialog-actions class="dialog-actions">
         <button class="button" mat-button (click)="onClose()">{{ data.confirm ? options[0] : 'Fermer' }}</button>
         <button *ngIf="data.confirm" class="button" mat-button (click)="onCancel()">{{ options[1] }}</button>

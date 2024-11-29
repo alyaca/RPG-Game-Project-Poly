@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { gameObjects } from '@app/objects-info';
+import { gameObjects } from '@common/objects-info';
 
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';

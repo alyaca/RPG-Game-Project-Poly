@@ -7,12 +7,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
-import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME, WARNING_TIME } from '@app/constants';
+import { ATTACK_TIME, DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { NavigationService } from '@app/services/navigation/navigation.service';
+import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { of } from 'rxjs';
@@ -34,10 +35,22 @@ describe('GamePageComponent', () => {
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
+    let combatServiceSpy: jasmine.SpyObj<CombatService>;
 
     const accessCode = '1234';
 
     beforeEach(async () => {
+        combatServiceSpy = jasmine.createSpyObj(CombatService, [
+            'onEvasion',
+            'onCombatEnd',
+            'removeListeners',
+            'isCurrentTurn',
+            'isInCombat',
+            'initializeCombat',
+            'ngOnInit',
+            'initSocketListeners',
+            'isAttacker',
+        ]);
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);
         socketCommunicationServiceSpy = jasmine.createSpyObj(SocketCommunicationService, [
@@ -47,6 +60,7 @@ describe('GamePageComponent', () => {
             'isSocketAlive',
             'connect',
             'disconnect',
+            'off',
         ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
@@ -55,13 +69,24 @@ describe('GamePageComponent', () => {
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
         gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints', 'openTempDialog']);
-        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack']);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack', 'isOnWall']);
+
+        combatServiceSpy.combatTurnTime$ = of(ATTACK_TIME);
+        combatServiceSpy.activePlayer = mockPlayers[0];
+        combatServiceSpy.opponent = mockPlayers[1];
+        combatServiceSpy.attacker = mockPlayers[0];
+        combatServiceSpy.defender = mockPlayers[1];
+        combatServiceSpy.evasionsActivePlayer = [1, 1];
+        combatServiceSpy.evasionsOpponent = [1, 1];
+        combatServiceSpy.activePlayerResult = { total: 5, diceValue: 2 };
+        combatServiceSpy.opponentResult = { total: 3, diceValue: 3 };
 
         await TestBed.configureTestingModule({
             imports: [GamePageComponent],
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
+                { provide: CombatService, useValue: combatServiceSpy },
                 { provide: ChatBoxComponent, useValue: chatBoxSpy },
                 { provide: TimerComponent, useValue: timerSpy },
                 { provide: MatDialog, useValue: dialogSpy },
@@ -74,41 +99,6 @@ describe('GamePageComponent', () => {
         }).compileComponents();
 
         socketCommunicationServiceSpy.socket = mockSocket;
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'mapInformation') {
-                callback(mockRoom as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'isActive') {
-                callback(mockPlayer.id as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'beforeStartTurnTimer') {
-                callback(WARNING_TIME as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'turnEnded') {
-                callback(mockPlayers as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'startedTurnTimer') {
-                callback(TURN_TIME as T);
-            }
-        });
-
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'debugMode') {
-                callback(true as T);
-            }
-        });
 
         httpMock = TestBed.inject(HttpTestingController);
         fixture = TestBed.createComponent(GamePageComponent);
@@ -122,6 +112,7 @@ describe('GamePageComponent', () => {
 
     afterEach(() => {
         httpMock.verify();
+        fixture.destroy();
     });
 
     it('should create the component', () => {
@@ -270,6 +261,7 @@ describe('GamePageComponent', () => {
             messages: [DialogMessages.QuitGame],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
+            itemSwap: null,
         });
     });
 
@@ -306,6 +298,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {
+        component.activePlayer = mockPlayers[0];
         component.onEndTurn();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
     });

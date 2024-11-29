@@ -1,5 +1,5 @@
-import { Stopwatch } from '../server/app/classes/stopwatch/stopwatch';
 import { Navigation } from '../server/app/classes/navigation/navigation';
+import { Stopwatch } from '../server/app/classes/stopwatch/stopwatch';
 import { Game } from './game';
 import { GlobalPostGameStats } from './global-post-game-stats';
 import { Avatar, Player } from './player';

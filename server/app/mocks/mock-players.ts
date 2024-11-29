@@ -155,3 +155,5 @@ export const playerDisconnected: Player = {
     behavior: Behavior.Sentient,
     positionHistory: [],
 };
+
+export const mockCombatValues = { attackValues: { total: 5, diceValue: 2 }, defenseValues: { total: 4, diceValue: 2 } };

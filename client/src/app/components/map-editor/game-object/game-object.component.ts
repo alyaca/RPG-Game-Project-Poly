@@ -16,4 +16,5 @@ export class GameObjectComponent {
     @Input() id: number;
     @Input() isDragging: boolean;
     @Input() descriptionPosition: string;
+    @Input() isLarge?: boolean;
 }

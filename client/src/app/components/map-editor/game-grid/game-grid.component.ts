@@ -1,3 +1,4 @@
+/* eslint max-lines: ["off"] */
 import {
     Component,
     ElementRef,
@@ -15,7 +16,7 @@ import {
 
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { NO_OBJECT, TileType } from '@app/constants';
-import { gameObjects } from '@app/objects-info';
+import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
@@ -26,6 +27,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
+import { gameObjects } from '@common/objects-info';
 import { Player, Position } from '@common/player';
 import { Room } from '@common/room';
 
@@ -161,8 +163,28 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.socketCommunicationService.on('combatEnd', () => {
             if (this.activePlayer) {
-                this.activePlayer.attributes.actionPoints = 0;
+                this.activePlayer.attributes.actionPoints -= 1;
             }
+        });
+
+        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+            const index = this.navigationService.players.findIndex((players) => players.name === playerToUpdate.name);
+            if (this.activePlayer) {
+                this.activePlayer.inventory = playerToUpdate.inventory;
+                this.activePlayer.attributes = playerToUpdate.attributes;
+                this.activePlayer.attributes.currentHp = playerToUpdate.attributes.totalHp;
+            }
+            this.navigationService.players[index].attributes = playerToUpdate.attributes;
+            this.navigationService.players[index].inventory = playerToUpdate.inventory;
+        });
+
+        this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
+            this.navigationService.updateObjects(items);
+        });
+
+        this.socketCommunicationService.on('updateObjectsAfterCombat', (data: { newGrid: number[][]; position: Position }) => {
+            this.navigationService.updateObjects(data.newGrid);
+            this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
 
         this.socketCommunicationService.on('obtainRoomInfo', (room: Room) => {
@@ -194,13 +216,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.onResetTrigger();
         }
         if (changes.saveTrigger && this.saveTrigger) {
-            this.mapValidatorService.validateMap(
-                this.tilesGrid,
-                this.mapName,
-                this.mapDescription,
-                this.gameCreationService.isNewGame,
-                this.oldMapName,
-            );
+            const validationInfo: ValidatingMapInfo = {
+                tiles: this.tilesGrid,
+                objects: this.objectsArray,
+                title: this.mapName,
+                description: this.mapDescription,
+                oldMapName: this.oldMapName,
+                isNewMap: this.gameCreationService.isNewGame,
+            };
+            this.mapValidatorService.validateMap(validationInfo);
         }
         this.sendInfoToMapCreationPage();
     }

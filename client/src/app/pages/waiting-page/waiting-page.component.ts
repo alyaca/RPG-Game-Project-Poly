@@ -111,6 +111,7 @@ export class WaitingPageComponent implements OnInit {
                 messages: [DialogMessages.NotEnoughPlayers],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             });
             return;
         } else if (this.isLocked) {
@@ -121,6 +122,7 @@ export class WaitingPageComponent implements OnInit {
                 messages: [DialogMessages.RoomLocked],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             });
         }
     }
@@ -133,6 +135,7 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.MaxPlayers],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    itemSwap: null,
                 });
             } else {
                 this.gameService.openDialog({
@@ -140,6 +143,7 @@ export class WaitingPageComponent implements OnInit {
                     messages: [DialogMessages.AddBotWhenLocked],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    itemSwap: null,
                 });
             }
             return;
@@ -160,6 +164,7 @@ export class WaitingPageComponent implements OnInit {
                 messages: [DialogMessages.ConfirmStartGame],
                 options: [DialogOptions.Cancel, DialogOptions.Confirm],
                 confirm: true,
+                itemSwap: null,
             })
             .subscribe((result) => {
                 if (result.action === DialogResult.Right) {

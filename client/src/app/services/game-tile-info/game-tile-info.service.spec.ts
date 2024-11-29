@@ -1,13 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { mockPlayers } from '@app/mocks/mock-players';
-import { mockRoom } from '@app/mocks/mock-room';
-import { gameObjects } from '@app/objects-info';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/game-tile';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { mockRoom } from '@app/mocks/mock-room';
 
 describe('GameTileInfoService', () => {
     let service: GameTileInfoService;

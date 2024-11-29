@@ -5,6 +5,7 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
 import {
     DialogMessages,
+    DialogOptions,
     DialogResult,
     DialogTitle,
     MAX_PLAYER_LARGE_MAP,
@@ -92,6 +93,7 @@ describe('GameService', () => {
             messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
             options: ['Quitter', 'Rester'],
             confirm: true,
+            itemSwap: null,
         };
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('stay'));
@@ -121,16 +123,37 @@ describe('GameService', () => {
     });
 
     it('should navigate when result is Close onAdminQuit', (done) => {
-        const message = 'Game has been canceled';
+        const message = 'message';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
+        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onAdminQuit(message);
+
         setTimeout(() => {
+            expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
+                disableClose: true,
+                data: {
+                    title: DialogTitle.GameCanceled,
+                    messages: [message],
+                    confirm: false,
+                    options: [DialogOptions.Close],
+                    itemSwap: null,
+                },
+            });
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
             done();
         });
+    });
+
+    it('isActionSelected should return the correct attribute', () => {
+        service.isActionDoorSelected = true;
+        service.isActionCombatSelected = false;
+        expect(service.isActionSelected()).toEqual(service.isActionDoorSelected);
+
+        service.isActionDoorSelected = false;
+        service.isActionCombatSelected = true;
+        expect(service.isActionSelected()).toEqual(service.isActionCombatSelected);
     });
 
     it('should send leaveRoom when result is left onPlayerQuit', (done) => {
