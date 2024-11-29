@@ -12,6 +12,11 @@ export enum TileType {
     OpenDoor = 6,
 }
 
+export enum GameMode {
+    Classic = 'classic',
+    Ctf = 'ctf',
+}
+
 export const MODES = ['ctf', 'classique'];
 export const GENERATE_COUNT = 5;
 export const BASE_36 = 36;

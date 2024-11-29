@@ -5,9 +5,9 @@ import {
     DISCONNECTED_POSITION,
     EQUAL_ODDS_PROBABILITY,
     FALLING_PROBABILITY,
+    GameMode,
     HIGH_ATTRIBUTE,
     LogType,
-    MODES,
     MOVEMENT_TIME,
     SINGLE_PLAYER,
     STARTING_TIME,
@@ -343,7 +343,7 @@ export class GameService {
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
 
-            if (room.gameMap.mode === MODES[0]) {
+            if (room.gameMap.mode === GameMode.Ctf) {
                 this.checkCtfEndGame(player, room, server);
             }
 

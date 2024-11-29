@@ -3,10 +3,10 @@ import {
     END_COMBAT_DELAY,
     EVASION_SUCCESS_RATE,
     FIGHT_TIME,
+    GameMode,
     ICE_TILE_PENALTY_VALUE,
     LogType,
     MIN_DICE_VALUE,
-    MODES,
     NO_EVASION_TIME,
     ROLL_DURATION,
     SINGLE_PLAYER,
@@ -347,7 +347,7 @@ export class CombatService {
     }
 
     private checkEndGame(player: Player, room: Room, server: Server) {
-        if (player.postGameStats.victories >= VICTORIES) {
+        if (player.postGameStats.victories >= VICTORIES && room.gameMap.mode === GameMode.Classic) {
             this.gameService.onEndGame(player, room, server);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         } else {
@@ -373,11 +373,8 @@ export class CombatService {
 
     private addVictory(combatPlayers: CombatPlayers, room: Room, server: Server, attackerWon: boolean) {
         const playerWinner = this.addStatsForWinLoss(room, combatPlayers, attackerWon);
-
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
-        if (room.gameMap.mode !== MODES[0]) {
-            this.checkEndGame(playerWinner, room, server);
-        }
+        this.checkEndGame(playerWinner, room, server);
     }
 
     private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {

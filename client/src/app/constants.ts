@@ -8,7 +8,7 @@ export enum MapSize {
 }
 
 export enum GameMode {
-    Classic = 'classique',
+    Classic = 'classic',
     Ctf = 'ctf',
 }
 
