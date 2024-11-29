@@ -608,11 +608,10 @@ describe('GameGridComponent', () => {
         expect(component.displayPortraitOnSpawnPoints).not.toHaveBeenCalled();
     });
 
-    //TODO, doesnt work anymore
-    /*it('should return undefined if there is no game object with the specified id', () => {
+    it('should return undefined if there is no game object with the specified id', () => {
         const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
         expect(result).toBeUndefined();
-    });*/
+    });
 
     it('should call checkTeleportation if debug mode is enabled', () => {
         navigationServiceSpy.isDebugMode = true;

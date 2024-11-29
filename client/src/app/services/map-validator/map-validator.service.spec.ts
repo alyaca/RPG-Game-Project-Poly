@@ -125,6 +125,13 @@ describe('MapValidatorService', () => {
         expect(service['errorMessages']).toContain('- Une carte avec le même nom existe déjà');
     });
 
+    it('should call validateFlag if in ctf mode', () => {
+        spyOn<any>(service, 'validateFlag');
+        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
+        service.validateMap(mockValidationInfo);
+        expect(service['validateFlag']).toHaveBeenCalled();
+    });
+
     describe('isDoorPlacementValid', () => {
         it('should return true for a valid door placement', () => {
             const mockMap = [
@@ -218,6 +225,13 @@ describe('MapValidatorService', () => {
             service['validateTileAccessibility'](mockMap);
             expect(service['errorMessages'].length).toBeGreaterThan(0);
         });
+    });
+
+    it('should add an error message if the map does not have a flag object in ctf mode', () => {
+        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
+        service['mapObjects'] = gameObjectServiceSpy.objectsArray;
+        service['validateFlag']();
+        expect(service['errorMessages']).toContain('- Le drapeau doit être placé sur la carte lors du mode CTF.');
     });
 
     describe('validateMap', () => {

@@ -1,18 +1,40 @@
 import { TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, MapSize, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, OBJECT_COUNT_MAP, ObjectType, SIZE_MEDIUM_MAP, TileType } from '@app/constants';
+import {
+    GameMode,
+    ITEM_COUNT,
+    MapSize,
+    NB_ITEMS_MEDIUM_MAP,
+    NO_OBJECT,
+    OBJECT_COUNT_MAP,
+    ObjectType,
+    SIZE_MEDIUM_MAP,
+    TileType,
+} from '@app/constants';
 import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
+import { BehaviorSubject } from 'rxjs';
+import { GameCreationService } from '../game-creation/game-creation.service';
 import { GameObjectService } from './game-object.service';
 
 describe('GameObjectService', () => {
     let service: GameObjectService;
     const mockGameObject = mockObjects[0];
     const mockGameObject2 = mockObjects[2];
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+    let sizeSubjectMock: BehaviorSubject<any>;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['getGameMode', 'getStoredSize', 'updateDimensions']);
+        sizeSubjectMock = new BehaviorSubject(null);
+
+        TestBed.configureTestingModule({
+            declarations: [],
+            providers: [{ provide: GameCreationService, useValue: gameCreationServiceSpy }],
+        }).compileComponents();
+
+        gameCreationServiceSpy.sizeSubject = sizeSubjectMock;
         service = TestBed.inject(GameObjectService);
         service.objects = mockObjects;
         service.objectsArray = [
@@ -288,5 +310,10 @@ describe('GameObjectService', () => {
         expect(service.selectedTile).toBeNull();
         expect(service.dragStartPosition).toEqual(mockMapPosition);
         expect(service.checkGameObject).toHaveBeenCalled();
+    });
+
+    it('should return the game mode', () => {
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.Ctf);
+        expect(service.getGameMode()).toBe(GameMode.Ctf);
     });
 });
