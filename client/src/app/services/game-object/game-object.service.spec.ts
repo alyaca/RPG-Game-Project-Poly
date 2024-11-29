@@ -14,8 +14,8 @@ import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { BehaviorSubject } from 'rxjs';
-import { GameCreationService } from '../game-creation/game-creation.service';
 import { GameObjectService } from './game-object.service';
 
 describe('GameObjectService', () => {
@@ -23,11 +23,11 @@ describe('GameObjectService', () => {
     const mockGameObject = mockObjects[0];
     const mockGameObject2 = mockObjects[2];
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
-    let sizeSubjectMock: BehaviorSubject<any>;
+    let sizeSubjectMock: BehaviorSubject<string | null>;
 
     beforeEach(() => {
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['getGameMode', 'getStoredSize', 'updateDimensions']);
-        sizeSubjectMock = new BehaviorSubject(null);
+        sizeSubjectMock = new BehaviorSubject<string | null>(null);
 
         TestBed.configureTestingModule({
             declarations: [],

@@ -1,4 +1,5 @@
 import { avatars } from '@common/avatars-info';
+import { gameObjects } from '@common/objects-info';
 import { Attributes, Behavior, Player, PostGameStats, Status } from '@common/player';
 
 export const mockAttributes: Attributes = {
@@ -157,3 +158,20 @@ export const playerDisconnected: Player = {
 };
 
 export const mockCombatValues = { attackValues: { total: 5, diceValue: 2 }, defenseValues: { total: 4, diceValue: 2 } };
+
+export const mockPlayerInventory: Player[] = [
+    {
+        id: '987',
+        attributes: mockAttributes,
+        avatar: undefined,
+        isActive: false,
+        name: 'loly',
+        status: Status.Bot,
+        postGameStats: defaultPostGameStats,
+        inventory: [gameObjects[8]],
+        position: { x: 0, y: 0 },
+        spawnPosition: { x: 0, y: 0 },
+        behavior: Behavior.Aggressive,
+        positionHistory: [],
+    },
+];

@@ -63,7 +63,6 @@ export class NavigationService {
         return this.players.some((player) => player.spawnPosition.x === position.x && player.spawnPosition.y === position.y);
     }
 
-    //Pas certaine ça fait quoi
     isObject(position: Position): boolean {
         return (
             this.objects[position.x][position.y] >= ObjectType.Trident &&

@@ -100,11 +100,11 @@ export class GameImportValidatorService {
         let objectCount = 0;
         itemPlacement.forEach((row) => {
             row.forEach((item) => {
-                if (item < NO_OBJECT || item > ObjectType.Spawn) {
+                if (item < NO_OBJECT || (item > ObjectType.Spawn && item !== ObjectType.Flag)) {
                     this.errorMessages.push(ErrorMessages.InvalidObjectType);
                     return;
                 }
-                if (item > NO_OBJECT && item < ObjectType.Spawn) {
+                if (item > NO_OBJECT && (item < ObjectType.Spawn || item === ObjectType.Flag)) {
                     objectCount++;
                 }
             });
