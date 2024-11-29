@@ -2,6 +2,7 @@ import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
+import { GameObject } from '@common/game-object';
 import { gameObjects } from '@common/objects-info';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -121,8 +122,15 @@ export class PlayerInventoryService {
         if (fullItem) {
             player.inventory.push(fullItem);
             player = this.addStatsFromItem(player, fullItem?.id);
+            this.addUniqueItemToHistory(player, fullItem?.id);
         }
         return player;
+    }
+
+    addUniqueItemToHistory(player: Player, newItemId: number){
+        if (!player.collectedItems.some((item) => item === newItemId)) {
+            player.collectedItems.push(newItemId);
+        }
     }
 
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
@@ -151,6 +159,8 @@ export class PlayerInventoryService {
         const index = room.listPlayers.findIndex((players) => players.name === playerToUpdate.name);
         room.listPlayers[index].attributes = playerToUpdate.attributes;
         room.listPlayers[index].inventory = playerToUpdate.inventory;
+
+        this.addUniqueItemToHistory(playerToUpdate, newItem);
 
         infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
         infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate);

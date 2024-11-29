@@ -124,6 +124,7 @@ export class CharacterCreatorComponent implements OnDestroy {
             behavior: Behavior.Sentient,
             spawnPosition: { x: -1, y: -1 },
             positionHistory: [],
+            collectedItems: [],
         };
     }
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GameMode, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
+import { GameMode, ObjectType, PLAYER_STAT_TYPES, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
 import { Player, Position } from '@common/player';
 import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
@@ -142,6 +142,7 @@ export class PostGameService {
             const matchingPlayer = room.listPlayers.find((p) => p.id === player.id);
             if (matchingPlayer) {
                 player.positionHistory = matchingPlayer.positionHistory;
+                player.collectedItems = matchingPlayer.collectedItems;
             }
         }
     }
@@ -150,6 +151,10 @@ export class PostGameService {
         this.calculatePlayerTilesVisited();
         this.computeDoorsInteractedPercentage();
         this.computeGlobalTilesVisitedPercentage();
+        this.calculateUniqueItems();
+
+        // if(isCTFmode)
+        this.calculateFlagBearers();
     }
 
     computeGlobalTilesVisitedPercentage() {
@@ -167,7 +172,36 @@ export class PostGameService {
         }
     }
 
+    calculateUniqueItems(){
+        for(const player of this.players){
+            if(player.collectedItems){
+                player.postGameStats.itemsObtained = player.collectedItems.length;
+            }
+        }
+    }
+
     isAttributeVictories(selectedAttribute: keyof Player['postGameStats']) {
         return selectedAttribute === PlayerStatType.Victories;
+    }
+
+    // calculateFlagBearers(){
+    //     let nbFlagBearers = 0;
+    //     for (const player of this.players){
+    //         if(player.collectedItems){
+    //             for(const itemId of player.collectedItems){
+    //                 if(itemId === ObjectType.Random){
+    //                     nbFlagBearers++;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     this.globalStats.nbFlagBearers = nbFlagBearers;
+    // }
+
+    // Replace ObjectType.Kunee by ObjectType.Flag
+    calculateFlagBearers() {
+        this.globalStats.nbFlagBearers = this.players.reduce((count, player) => 
+            count + (player.collectedItems?.filter(itemId => itemId === ObjectType.Kunee).length || 0), 
+        0);
     }
 }
