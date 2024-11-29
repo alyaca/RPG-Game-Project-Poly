@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { GameObjectComponent } from '@app/components/map-editor/game-object/game-object.component';
-import { DEFAULT_ATTRIBUTE, MAX_INVENTORY_ITEMS, ObjectType } from '@app/constants';
+import { MAX_INVENTORY_ITEMS, ObjectType } from '@app/constants';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/player';
 import { Room } from '@common/room';
@@ -38,12 +38,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
 
         this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
             if (this.player.name === playerToUpdate.name) {
-                if (this.hasXiphos(playerToUpdate)) {
-                    this.player.attributes.attack = DEFAULT_ATTRIBUTE;
-                    this.player.attributes.defense = DEFAULT_ATTRIBUTE;
-                } else {
-                    this.player.attributes = playerToUpdate.attributes;
-                }
+                this.player.attributes = playerToUpdate.attributes;
                 this.player.inventory = playerToUpdate.inventory;
                 this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
             }

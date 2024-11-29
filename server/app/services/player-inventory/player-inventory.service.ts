@@ -33,7 +33,6 @@ export class PlayerInventoryService {
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
         info.client.emit('updateInventory', info.player);
-        info.server.emit('updatePlayersList', info.player);
     }
 
     determineRandomItem(allObjects: number[][], room: Room): number {
@@ -155,7 +154,6 @@ export class PlayerInventoryService {
 
         infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
         infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate);
-        infoSwap.server.to(room.roomId).emit('updatePlayersList', playerToUpdate);
         return playerToUpdate;
     }
 }
