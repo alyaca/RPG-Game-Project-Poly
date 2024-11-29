@@ -32,7 +32,7 @@ import { Room } from '@common/interfaces/room';
 import { TileRemoval } from '@common/interfaces/tile-removal';
 import { gameObjects } from '@common/objects-info';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
-import { TileType } from '@common/constants';
+
 @Component({
     selector: 'app-game-grid',
     standalone: true,
