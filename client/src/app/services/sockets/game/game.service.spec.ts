@@ -354,4 +354,20 @@ describe('GameService', () => {
     // expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('endTurn');
     //     expect(component.onEndTurn).toHaveBeenCalled();
     // });
+
+    //     it('should disconnect on draw event', () => {
+    //         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+    //             if (event === 'playerFell') {
+    //                 callback({} as T);
+    //             }
+    //         });
+    //         component.ngOnInit();
+    //         expect(gameServiceSpy.handlePlayerFell).toHaveBeenCalled();
+    //     });
+
+    // it('should navigate to /home if the dialog result is Left', () => {
+    //     gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Left }));
+    //     component.handleExit();
+    //     // expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
+    // });
 });
