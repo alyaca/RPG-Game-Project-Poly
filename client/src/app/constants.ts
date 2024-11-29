@@ -331,3 +331,5 @@ export const TILE_DESCRIPTIONS = [
     ],
     ['Une porte ouverte agit comme une tuile de gazon', "Elle peut être fermée par le joueur en interagissant avec le bouton 'Porte'."],
 ];
+
+export const TILE_NAMES = ['Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'];
