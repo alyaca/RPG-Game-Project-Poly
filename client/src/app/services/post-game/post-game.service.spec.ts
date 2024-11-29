@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PostGameService } from './post-game.service';
 import { Player } from '@common/player';
-import { SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
+import { ObjectType, SortOrder, TileType, TOTAL_PERCENTAGE } from '@app/constants';
 import { PostGameStat } from '@common/post-game-stat';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/global-post-game-stats';
@@ -224,16 +224,35 @@ describe('PostGameService', () => {
     });
 
     describe('computeStats', () => {
-        it('should compute all stats', () => {
+        it('should compute all stats except calculateFlagBearers', () => {
             spyOn(service, 'calculatePlayerTilesVisited');
             spyOn(service, 'computeDoorsInteractedPercentage');
             spyOn(service, 'computeGlobalTilesVisitedPercentage');
+            spyOn(service, 'calculateUniqueItems');
 
+            service.isCTFMode = false;
             service.computeStats();
 
             expect(service.calculatePlayerTilesVisited).toHaveBeenCalled();
             expect(service.computeDoorsInteractedPercentage).toHaveBeenCalled();
             expect(service.computeGlobalTilesVisitedPercentage).toHaveBeenCalled();
+            expect(service.calculateUniqueItems).toHaveBeenCalled();
+        });
+        it('should compute all stats', () => {
+            spyOn(service, 'calculatePlayerTilesVisited');
+            spyOn(service, 'computeDoorsInteractedPercentage');
+            spyOn(service, 'computeGlobalTilesVisitedPercentage');
+            spyOn(service, 'calculateUniqueItems');
+            spyOn(service, 'calculateFlagBearers');
+
+            service.isCTFMode = true;
+            service.computeStats();
+
+            expect(service.calculatePlayerTilesVisited).toHaveBeenCalled();
+            expect(service.computeDoorsInteractedPercentage).toHaveBeenCalled();
+            expect(service.computeGlobalTilesVisitedPercentage).toHaveBeenCalled();
+            expect(service.calculateUniqueItems).toHaveBeenCalled();
+            expect(service.calculateFlagBearers).toHaveBeenCalled();
         });
     });
 
@@ -312,6 +331,62 @@ describe('PostGameService', () => {
             } as GlobalPostGameStat;
             service.updateExplanationsGlobal(mockStat);
             expect(service.explanations).toEqual(mockStat.explanations);
+        });
+    });
+
+    describe('calculateUniqueItems', () => {
+        it('should correctly count unique items for each player', () => {
+            service['players'] = [
+                { collectedItems: [ObjectType.Armor, ObjectType.Xiphos], postGameStats: { itemsObtained: 0 } } as Player,
+                { collectedItems: [ObjectType.Armor], postGameStats: { itemsObtained: 0 } } as Player,
+                { collectedItems: undefined, postGameStats: { itemsObtained: 0 } } as Player, 
+            ];
+
+            service.calculateUniqueItems();
+
+            expect(service['players'][0].postGameStats.itemsObtained).toBe(2);
+            expect(service['players'][1].postGameStats.itemsObtained).toBe(1);
+            expect(service['players'][2].postGameStats.itemsObtained).toBe(0);
+        });
+    });
+
+    describe('calculateFlagBearers', () => {
+        it('should correctly count players with ObjectType.Kunee items', () => {
+            service['players'] = [
+                { collectedItems: [ObjectType.Lightning, ObjectType.Kunee], postGameStats: {} } as Player,
+                { collectedItems: [ObjectType.Trident, ObjectType.Kunee], postGameStats: {} } as Player,
+                { collectedItems: [ObjectType.Trident], postGameStats: {} } as Player,
+                { collectedItems: undefined, postGameStats: {} } as Player, 
+            ];
+
+            service['globalStats'] = { nbFlagBearers: 0 } as GlobalPostGameStats;
+
+            service.calculateFlagBearers();
+            expect(service['globalStats'].nbFlagBearers).toBe(2); 
+        });
+    });
+
+    describe('findTotalTerrainTiles', () => {
+        it('should correctly count terrain tiles', () => {
+            service['tilesGrid'] = [
+                [0, 1, TileType.Wall, 2],
+                [1, TileType.Wall, 1, 0],
+            ];
+
+            const totalTerrainTiles = service.findTotalTerrainTiles();
+            expect(totalTerrainTiles).toBe(6);
+        });
+    });
+
+    describe('findTotalDoors', () => {
+        it('should correctly count door tiles', () => {
+            service['tilesGrid'] = [
+                [TileType.Wall - 1, TileType.Wall, 0, TileType.Wall + 2],
+                [TileType.Wall - 1, TileType.Wall, TileType.Wall + 1, 0],
+            ];
+
+            const totalDoors = service.findTotalDoors();
+            expect(totalDoors).toBe(2);
         });
     });
 });
