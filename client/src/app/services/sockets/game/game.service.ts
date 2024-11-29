@@ -99,14 +99,14 @@ export class GameService {
             options: [DialogOptions.Close],
         }).subscribe((result) => {
             if (result === DialogResult.Close) {
-                this.router.navigate([PathRoute.HOME]);
+                this.router.navigate([PathRoute.Home]);
             }
         });
     }
 
     onDrawGame() {
         this.socketCommunicationService.disconnect();
-        this.router.navigate([PathRoute.HOME]);
+        this.router.navigate([PathRoute.Home]);
         this.openTempDialog({
             title: DialogTitle.DrawGame,
             message: DialogMessages.DrawGame,
@@ -123,7 +123,7 @@ export class GameService {
             confirm: false,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
-                this.router.navigate([PathRoute.POST_GAME], { queryParams: { roomCode: room.roomId } });
+                this.router.navigate([PathRoute.PostGame], { queryParams: { roomCode: room.roomId } });
             }
         });
     }
@@ -161,7 +161,7 @@ export class GameService {
             confirm: true,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
-                this.router.navigate([PathRoute.HOME]);
+                this.router.navigate([PathRoute.Home]);
                 this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomId);
             }
         });
@@ -175,7 +175,7 @@ export class GameService {
             confirm: false,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
-                this.router.navigate([PathRoute.HOME]);
+                this.router.navigate([PathRoute.Home]);
             }
         });
     }
@@ -183,9 +183,9 @@ export class GameService {
     onLeftRoom() {
         this.socketCommunicationService.on(ServerToClientEvent.LeftRoom, (isAdmin) => {
             if (isAdmin) {
-                this.router.navigate([PathRoute.CREATE]);
+                this.router.navigate([PathRoute.CreateGame]);
             } else {
-                this.router.navigate([PathRoute.HOME]);
+                this.router.navigate([PathRoute.Home]);
             }
         });
     }
@@ -230,5 +230,9 @@ export class GameService {
 
     isTargetPlayer(row: number, col: number) {
         return this.isActionCombatSelected ? this.playersTarget.some((tile) => tile.position.x === row && tile.position.y === col) : false;
+    }
+
+    isActivePlayer(player: Player) {
+        return player.id === this.socketCommunicationService.socket.id;
     }
 }

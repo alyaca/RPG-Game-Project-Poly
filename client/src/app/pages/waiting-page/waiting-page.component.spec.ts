@@ -105,18 +105,18 @@ describe('WaitingPageComponent', () => {
         it('should navigate to /home if no game is selected (refresh page)', () => {
             gameListServiceSpy.chosenGameSubject.next(null);
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
         });
 
         it('should navigate to /home if no game is received', () => {
             component.accessCode = accessCode;
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
         });
 
         it('should navigate to /home if no room is created', () => {
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
         });
 
         it('should set chosenGame when a game is selected', () => {

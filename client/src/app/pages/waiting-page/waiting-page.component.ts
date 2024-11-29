@@ -52,7 +52,7 @@ export class WaitingPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.accessCode || !this.chosenGame) {
-            this.router.navigate([PathRoute.HOME]);
+            this.router.navigate([PathRoute.Home]);
         }
         this.initSocketListeners();
     }

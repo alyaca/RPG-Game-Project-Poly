@@ -180,7 +180,7 @@ describe('JoinGameService', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).not.toHaveBeenCalledWith([PathRoute.HOME]);
+        expect(routerSpy.navigate).not.toHaveBeenCalledWith([PathRoute.Home]);
     });
 
     it('should open the dialog and navigate to /home if confirmed', () => {
@@ -198,7 +198,7 @@ describe('JoinGameService', () => {
                 confirm: true,
             },
         });
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
     });
 
     it('should return undefined if not a known error type', () => {

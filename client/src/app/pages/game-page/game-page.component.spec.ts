@@ -70,7 +70,7 @@ describe('GamePageComponent', () => {
         dialogRefSpy.afterClosed.and.returnValue(of({ action: 'left' }));
         dialogSpy.open.and.returnValue(dialogRefSpy);
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints', 'openTempDialog']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['openDialog', 'hasActionPoints', 'openTempDialog', 'isActivePlayer', 'onDrawGame']);
         navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['checkDoor', 'checkAttack', 'isOnWall']);
 
         combatServiceSpy.combatTurnTime$ = of(ATTACK_TIME);
@@ -151,7 +151,6 @@ describe('GamePageComponent', () => {
                     callback({} as T);
                 }
             });
-            spyOn(gameServiceSpy, 'onDrawGame');
             component.ngOnInit();
             expect(gameServiceSpy.onDrawGame).toHaveBeenCalled();
         });
@@ -220,6 +219,7 @@ describe('GamePageComponent', () => {
         mockSocket.id = '0';
         navigationServiceSpy.players = JSON.parse(JSON.stringify(mockPlayers));
         socketCommunicationServiceSpy.socket.id = mockPlayers[0].id;
+        gameServiceSpy.isActivePlayer.and.returnValue(true);
         spyOn(component, 'timerEvents');
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.ActivePlayer) {
@@ -278,7 +278,7 @@ describe('GamePageComponent', () => {
     it('should navigate to /home if the dialog result is Left', () => {
         gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Left }));
         component.handleExit();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
     });
 
     it('should replenish health for all players', () => {
@@ -287,16 +287,6 @@ describe('GamePageComponent', () => {
         component.allPlayers.forEach((player) => {
             expect(player.attributes.currentHp).toEqual(player.attributes.totalHp);
         });
-    });
-
-    it('should call openDialog with the correct parameters for handleDraw', () => {
-        component.handleDraw();
-        expect(gameServiceSpy.openTempDialog).toHaveBeenCalledWith({
-            title: DialogTitle.DrawGame,
-            message: DialogMessages.DrawGame,
-            duration: INFO_DIALOG_TIME,
-        });
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should call socketCommunicationService.send with "endTurn" for onEndTurn', () => {

@@ -111,7 +111,7 @@ export class MapEditorPageComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'left') {
-                this.router.navigate([PathRoute.ADMIN]);
+                this.router.navigate([PathRoute.Admin]);
             }
         });
     }
@@ -126,7 +126,7 @@ export class MapEditorPageComponent implements OnInit {
 
     ngOnInit() {
         if (!this.mapEditorService.isMapChosen()) {
-            this.router.navigate([PathRoute.ADMIN]);
+            this.router.navigate([PathRoute.Admin]);
         }
 
         if (!this.gameCreationService.isNewGame) {

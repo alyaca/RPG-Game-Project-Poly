@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TemporaryDialogComponent } from '@app/components/temporary-dialog/temporary-dialog.component';
@@ -8,6 +8,7 @@ import {
     DialogOptions,
     DialogResult,
     DialogTitle,
+    INFO_DIALOG_TIME,
     MAX_PLAYER_LARGE_MAP,
     MAX_PLAYER_MEDIUM_MAP,
     MAX_PLAYER_SMALL_MAP,
@@ -31,11 +32,15 @@ describe('GameService', () => {
     let socketCommunicationServiceSpy: jasmine.SpyObj<SocketCommunicationService>;
     let dialogSpy: jasmine.SpyObj<MatDialog>;
     let routerSpy: jasmine.SpyObj<Router>;
+    let dialogRefSpy: jasmine.SpyObj<MatDialogRef<TemporaryDialogComponent>>;
 
     beforeEach(() => {
-        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on', 'once']);
+        socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['send', 'on', 'once', 'disconnect']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+        dialogRefSpy = jasmine.createSpyObj('TemporaryDialogComponent', ['afterClosed', 'close']);
+        dialogRefSpy.afterClosed.and.returnValue(of(undefined));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
 
         TestBed.configureTestingModule({
             providers: [
@@ -96,9 +101,9 @@ describe('GameService', () => {
             options: ['Quitter', 'Rester'],
             confirm: true,
         };
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of('stay'));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
+        const dialogRef = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRef.afterClosed.and.returnValue(of(DialogOptions.Stay));
+        dialogSpy.open.and.returnValue(dialogRef);
 
         service.openDialog(dialogData);
         expect(dialogSpy.open).toHaveBeenCalledWith(SimpleDialogComponent, {
@@ -113,8 +118,8 @@ describe('GameService', () => {
             message: DialogMessages.EndFight,
             duration: WARNING_TIME,
         };
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogSpy.open.and.returnValue(dialogRefSpy);
+        const dialogRef = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogSpy.open.and.returnValue(dialogRef);
 
         service.openTempDialog(dialogData);
         expect(dialogSpy.open).toHaveBeenCalledWith(TemporaryDialogComponent, {
@@ -125,9 +130,9 @@ describe('GameService', () => {
 
     it('should navigate when result is Close onAdminQuit', (done) => {
         const message = 'message';
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
+        const dialogRef = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRef.afterClosed.and.returnValue(of(DialogResult.Close));
+        dialogSpy.open.and.returnValue(dialogRef);
 
         service.onAdminQuit(message);
 
@@ -141,7 +146,7 @@ describe('GameService', () => {
                     options: [DialogOptions.Close],
                 },
             });
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
             done();
         });
     });
@@ -157,9 +162,9 @@ describe('GameService', () => {
     });
 
     it('should send leaveRoom when result is left onPlayerQuit', (done) => {
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Left }));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
+        const dialogRef = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRef.afterClosed.and.returnValue(of({ action: DialogResult.Left }));
+        dialogSpy.open.and.returnValue(dialogRef);
 
         service.onPlayerQuit(mockRoom.roomId);
         setTimeout(() => {
@@ -169,13 +174,13 @@ describe('GameService', () => {
     });
 
     it('should navigate to home when result is close onPlayerKickedOut', (done) => {
-        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
-        dialogSpy.open.and.returnValue(dialogRefSpy);
+        const dialogRef = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRef.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
+        dialogSpy.open.and.returnValue(dialogRef);
 
         service.onPlayerKickedOut();
         setTimeout(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
             done();
         });
     });
@@ -213,7 +218,7 @@ describe('GameService', () => {
         });
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.CREATE]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.CreateGame]);
     });
 
     it('should navigate to home when not admin on leftRoom event', () => {
@@ -224,12 +229,21 @@ describe('GameService', () => {
         });
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
     });
 
     it('should disconnect and navigate /home on drawGame event', () => {
-        spyOn(socketCommunicationServiceSpy, 'disconnect');
         service.onDrawGame();
+
+        expect(dialogSpy.open).toHaveBeenCalledWith(TemporaryDialogComponent, {
+            disableClose: true,
+            data: {
+                title: DialogTitle.DrawGame,
+                message: DialogMessages.DrawGame,
+                duration: INFO_DIALOG_TIME,
+            },
+        });
+
         expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
     });

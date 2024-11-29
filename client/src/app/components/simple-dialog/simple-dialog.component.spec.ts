@@ -80,7 +80,7 @@ describe('SimpleDialogComponent', () => {
             action: 'left',
             input: '',
         });
-        expect(mockRouter.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
+        expect(mockRouter.navigate).toHaveBeenCalledWith([PathRoute.Admin]);
     });
 
     it('should close dialog when close is called', () => {

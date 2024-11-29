@@ -186,7 +186,7 @@ describe('MapEditorPageComponent', () => {
         component.handleExit();
         expect(dialogSpy.open).toHaveBeenCalled();
         tick();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Admin]);
     }));
 
     it('should update the map name when updateMapName is called', () => {

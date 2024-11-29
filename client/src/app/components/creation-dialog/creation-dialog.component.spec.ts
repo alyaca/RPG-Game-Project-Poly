@@ -88,6 +88,6 @@ describe('CreationDialogComponent', () => {
         component.selectMode(GameMode.Classic);
         component.changePage();
         expect(dialogRefSpy.close).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.EDIT]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.EditGame]);
     });
 });

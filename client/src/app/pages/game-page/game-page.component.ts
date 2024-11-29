@@ -77,7 +77,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit() {
         if (!this.mapDimensions || !this.mapName) {
-            this.router.navigate([PathRoute.HOME]);
+            this.router.navigate([PathRoute.Home]);
         }
 
         this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
@@ -168,7 +168,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     ngAfterViewInit() {
         this.socketCommunicationService.on(ServerToClientEvent.ActivePlayer, (activePlayer: Player) => {
             this.activePlayer = activePlayer;
-            this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
+            this.isActivePlayer = this.gameService.isActivePlayer(activePlayer);
             this.isTurnStartShowed = this.isActivePlayer;
         });
         this.timerEvents();
@@ -295,7 +295,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
                     }
                     this.socketCommunicationService.disconnect();
-                    this.router.navigate([PathRoute.HOME]);
+                    this.router.navigate([PathRoute.Home]);
                 }
             });
     }
