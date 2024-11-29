@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
+import { PathRoute } from '@common/interfaces/route';
 import { SimpleDialogComponent } from './simple-dialog.component';
 
 describe('SimpleDialogComponent', () => {
@@ -79,7 +80,7 @@ describe('SimpleDialogComponent', () => {
             action: 'left',
             input: '',
         });
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/administration']);
+        expect(mockRouter.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
     });
 
     it('should close dialog when close is called', () => {

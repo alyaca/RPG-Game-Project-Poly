@@ -3,7 +3,7 @@ import { gameObjects } from '@common/objects-info';
 
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
-import { GameTile } from '@common/game-tile';
+import { GameTile } from '@common/interfaces/game-tile';
 @Injectable({
     providedIn: 'root',
 })
@@ -46,10 +46,7 @@ export class GameTileInfoService {
     ) {}
 
     getItem() {
-        if (this.itemId > 0) {
-            return gameObjects[this.itemId - 1];
-        }
-        return null;
+        return this.itemId > 0 ? gameObjects[this.itemId - 1] : null;
     }
 
     getTile() {

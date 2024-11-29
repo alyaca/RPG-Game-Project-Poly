@@ -1,8 +1,8 @@
 import { avatars } from '@common/avatars-info';
-import { GameStatus, Room } from '@common/room';
+import { GameStatus, Room } from '@common/interfaces/room';
+import { defaultGlobalStats } from './default-global-stats';
 import { mockGames } from './mock-game';
 import { mockLobbyPlayers } from './mock-lobby-players';
-import { defaultGlobalStats } from './default-global-stats';
 
 export const mockRoom: Room = {
     gameMap: mockGames[0],

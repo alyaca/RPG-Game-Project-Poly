@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, ErrorMessages, HIGH_ATTRIBUTE } from '@app/constants';
 import { defaultAttributes } from '@app/default-attributes';
-import { Attributes } from '@common/player';
+import { Attributes } from '@common/interfaces/player';
 
 @Injectable({
     providedIn: 'root',

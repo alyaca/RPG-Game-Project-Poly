@@ -6,9 +6,9 @@ import { TimerComponent } from '@app/components/timer/timer.component';
 import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 import { Subscription } from 'rxjs';
-
 @Component({
     selector: 'app-combat-modal',
     standalone: true,
@@ -30,8 +30,9 @@ export class CombatModalComponent implements OnInit, OnDestroy {
     private subscription: Subscription = new Subscription();
 
     constructor(
+        // Used in html
         public combatService: CombatService,
-        public socketCommunicationService: SocketCommunicationService,
+        private socketCommunicationService: SocketCommunicationService,
     ) {}
 
     ngOnInit() {
@@ -45,7 +46,7 @@ export class CombatModalComponent implements OnInit, OnDestroy {
         );
         this.combatService.initSocketListeners();
 
-        this.socketCommunicationService.on('attackValues', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.AttackValues, () => {
             this.dice1?.rollDice();
             this.dice2?.rollDice();
         });
@@ -65,14 +66,14 @@ export class CombatModalComponent implements OnInit, OnDestroy {
 
     triggerAttack() {
         if (this.combatService.canAttackOrEvade) {
-            this.socketCommunicationService.send('attackPlayer');
+            this.socketCommunicationService.send(ClientToServerEvent.AttackPlayer);
         }
         this.combatService.canAttackOrEvade = false;
     }
 
     triggerEvade() {
         if (this.combatService.canAttackOrEvade) {
-            this.socketCommunicationService.send('evadeCombat');
+            this.socketCommunicationService.send(ClientToServerEvent.EvadeCombat);
         }
         this.combatService.canAttackOrEvade = false;
     }

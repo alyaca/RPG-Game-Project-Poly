@@ -1,6 +1,6 @@
 import { avatars } from '@common/avatars-info';
-import { Player, Status } from '@common/player';
-import { GameStatus, Room } from '@common/room';
+import { Player, Status } from '@common/interfaces/player';
+import { GameStatus, Room } from '@common/interfaces/room';
 import { defaultGlobalStats } from './default-global-stats';
 import { mockGame, mockGameDebug } from './mock-game';
 import { mockNavigation } from './mock-navigation';
