@@ -434,4 +434,13 @@ describe('SocketGateway', () => {
         expect(mockRoom.navigation.findFastestPath).toHaveBeenCalledWith(mockPlayer, position, mockRoom);
         expect(server.to(roomId).emit).toHaveBeenCalledWith('pathFound', path);
     });
+
+    describe('getRoom', () => {
+        it('should call roomService.getRoom and emit the room data to the client', () => {
+            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+            gateway.handleGetRoom(socket);
+            expect(roomService.getRoom).toHaveBeenCalled();
+            expect(socket.emit).toBeTruthy();
+        });
+    });
 });
