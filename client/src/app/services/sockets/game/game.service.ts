@@ -22,6 +22,7 @@ import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Injectable({
     providedIn: 'root',
@@ -47,9 +48,9 @@ export class GameService {
     }
 
     joinRoom(roomCode: string) {
-        this.socketCommunicationService.send('joinRoom', roomCode);
+        this.socketCommunicationService.send(ClientToServerEvent.JoinRoom, roomCode);
 
-        this.socketCommunicationService.on('joinedRoom', (roomInfo: Room) => {
+        this.socketCommunicationService.on(ServerToClientEvent.JoinedRoom, (roomInfo: Room) => {
             this.isJoined = true;
             this.roomId = roomInfo.roomId;
             this.selectedGame = roomInfo.gameMap;
@@ -118,7 +119,7 @@ export class GameService {
             confirm: true,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
-                this.socketCommunicationService.send('leaveRoom', roomId);
+                this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomId);
             }
         });
     }
@@ -132,7 +133,7 @@ export class GameService {
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
                 this.router.navigate([PathRoute.HOME]);
-                this.socketCommunicationService.send('leaveRoom', roomId);
+                this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomId);
             }
         });
     }
@@ -151,7 +152,7 @@ export class GameService {
     }
 
     onLeftRoom() {
-        this.socketCommunicationService.on('leftRoom', (isAdmin) => {
+        this.socketCommunicationService.on(ServerToClientEvent.LeftRoom, (isAdmin) => {
             if (isAdmin) {
                 this.router.navigate([PathRoute.CREATE]);
             } else {

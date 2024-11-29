@@ -6,6 +6,7 @@ import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
 import { Game } from '@common/interfaces/game';
 import { GameStatus, Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
@@ -75,7 +76,7 @@ export class RoomService {
     }
 
     deleteRoom(roomId: string, socket: Socket) {
-        socket.to(roomId).emit('roomDeleted', 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
+        socket.to(roomId).emit(ServerToClientEvent.RoomDeleted, 'La partie a été annulée. Vous serez redirigés vers le menu principal.');
         if (this.isPlayerAdmin(socket)) {
             this.removeAdmin(socket);
         }

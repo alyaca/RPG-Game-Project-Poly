@@ -7,6 +7,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Injectable({
     providedIn: 'root',
@@ -42,19 +43,19 @@ export class JoinGameService {
     }
 
     joinLobby(player: Player) {
-        this.socketCommunicationService.send('isLocked', this.gameService.roomId);
-        this.socketCommunicationService.once('isRoomLocked', (isLocked: boolean) => {
+        this.socketCommunicationService.send(ClientToServerEvent.IsLocked, this.gameService.roomId);
+        this.socketCommunicationService.once(ServerToClientEvent.IsRoomLocked, (isLocked: boolean) => {
             this.onIsRoomLocked(player, isLocked);
         });
     }
 
     handleJoinGame(accessCode: string, callback: (roomInfo: Room | null, message: string) => void) {
-        this.socketCommunicationService.send('joinRoom', accessCode);
-        this.socketCommunicationService.on<Room>('joinedRoom', (roomInfo: Room) => {
+        this.socketCommunicationService.send(ClientToServerEvent.JoinRoom, accessCode);
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.JoinedRoom, (roomInfo: Room) => {
             this.onJoinGame(roomInfo);
             callback(roomInfo, '');
         });
-        this.socketCommunicationService.on('joinError', (res: string) => {
+        this.socketCommunicationService.on(ServerToClientEvent.JoinError, (res: string) => {
             const errorMessage = this.getErrorMessage(res) ?? '';
             callback(null, errorMessage);
         });
@@ -64,7 +65,7 @@ export class JoinGameService {
         if (isLocked) {
             this.handleLockedRoom();
         } else {
-            this.socketCommunicationService.send('createPlayer', player);
+            this.socketCommunicationService.send(ClientToServerEvent.CreatePlayer, player);
             this.router.navigate([PathRoute.WAIT], { queryParams: { roomCode: this.gameService.roomId } });
         }
     }
@@ -82,7 +83,7 @@ export class JoinGameService {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'left') {
-                this.socketCommunicationService.send('leaveRoom', this.gameService.roomId);
+                this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, this.gameService.roomId);
                 this.router.navigate([PathRoute.HOME]);
             }
         });

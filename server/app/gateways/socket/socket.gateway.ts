@@ -6,7 +6,7 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/interfaces/game';
 import { Avatar, Behavior, Player, Position } from '@common/interfaces/player';
-import { ClientToServerEvent } from '@common/socket.events';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -28,7 +28,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.CreateRoom)
     handleCreateRoom(client: Socket, game: Game): void {
         const room = this.roomService.createRoom(client, game);
-        client.emit('roomCreated', room);
+        client.emit(ServerToClientEvent.RoomCreated, room);
         this.logger.log(`Room ${room.roomId} created by admin: ${client.id}`);
     }
 
@@ -61,7 +61,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.IsLocked)
     handleIsRoomLocked(client: Socket) {
         const room = this.roomService.getRoom(client);
-        client.emit('isRoomLocked', room.isLocked);
+        client.emit(ServerToClientEvent.IsRoomLocked, room.isLocked);
     }
 
     @SubscribeMessage(ClientToServerEvent.CreatePlayer)
@@ -69,8 +69,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         const isAdmin = this.roomService.isPlayerAdmin(client);
         this.gameService.createPlayer(room, player, client);
-        this.server.to(room.roomId).emit('updatedPlayer', room);
-        client.emit('isPlayerAdmin', isAdmin);
+        this.server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
+        client.emit(ServerToClientEvent.IsPlayerAdmin, isAdmin);
         this.logger.debug(`Player created with client ${client.id} in room ${room.roomId}`);
     }
 
@@ -107,7 +107,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);
         const path = room.navigation.findFastestPath(activePlayer, destination, room);
-        this.server.to(room.roomId).emit('pathFound', path);
+        this.server.to(room.roomId).emit(ServerToClientEvent.PathFound, path);
     }
 
     @SubscribeMessage(ClientToServerEvent.StartFight)
@@ -166,7 +166,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         const room = this.roomService.getRoom(client);
         room.isDebug = debugMode;
         this.gameService.updateLogsDebugMode(debugMode, this.server, client);
-        this.server.to(room.roomId).emit('debugMode', debugMode);
+        this.server.to(room.roomId).emit(ServerToClientEvent.DebugMode, debugMode);
     }
 
     @SubscribeMessage(ClientToServerEvent.PlayerNavigation)
@@ -197,10 +197,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         try {
             const savedMessage = await this.chatService.saveMessage(message);
             this.logger.log(`Message saved: ${savedMessage.message} from ${savedMessage.username}`);
-            this.server.to(message.roomId).emit('messageReceived', savedMessage);
+            this.server.to(message.roomId).emit(ServerToClientEvent.MessageReceived, savedMessage);
         } catch (error) {
             this.logger.error(`Failed to save message: ${error.message}`);
-            client.emit('errorMessage', 'Failed to send message.');
+            client.emit(ServerToClientEvent.ErrorMessage, 'Failed to send message.');
         }
     }
 

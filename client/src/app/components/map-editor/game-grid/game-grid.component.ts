@@ -30,6 +30,7 @@ import { ObjectType } from '@common/avatars-info';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
     selector: 'app-game-grid',
@@ -99,7 +100,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
-        this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.ReachableTiles, (reachability: Position[]) => {
             this.navigationService.reachableTiles = reachability;
         });
 
@@ -110,17 +111,17 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.loadExistingGame();
         }
 
-        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
 
-        this.socketCommunicationService.on('doorClicked', (tiles: number[][]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, (tiles: number[][]) => {
             this.tilesGrid = tiles;
             this.gameService.isActionDoorSelected = false;
         });
 
-        this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+        this.socketCommunicationService.on(ServerToClientEvent.ActivePlayer, (activePlayer: Player) => {
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
             this.activePlayer = activePlayer;
             if (this.activePlayer && this.isActivePlayer) {
@@ -128,11 +129,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on<Position>('playerNavigation', (tile) => {
+        this.socketCommunicationService.on<Position>(ServerToClientEvent.PlayerNavigation, (tile) => {
             this.navigateToTile(tile);
         });
 
-        this.socketCommunicationService.on('respawnPlayer', (data: { oldPosition: Position; playerToReplace: Player }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.RespawnPlayer, (data: { oldPosition: Position; playerToReplace: Player }) => {
             const { oldPosition, playerToReplace } = data;
             if (this.activePlayer?.id === playerToReplace.id) {
                 this.navigateToTile(playerToReplace.position);
@@ -141,7 +142,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.TeleportPlayer, (data: { position: Position; playerId: string }) => {
             const { position, playerId } = data;
             const playerToTeleport = this.navigationService.players.find((p) => p.id === playerId);
             if (playerToTeleport) {
@@ -149,25 +150,25 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('endMovement', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.EndMovement, () => {
             this.isMoving = false;
         });
 
-        this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
+        this.socketCommunicationService.on(ServerToClientEvent.PlayerDisconnected, (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
 
-        this.socketCommunicationService.on('pathFound', (path: Position[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.PathFound, (path: Position[]) => {
             this.fastestPath = path;
         });
 
-        this.socketCommunicationService.on('combatEnd', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.CombatEnd, () => {
             if (this.activePlayer) {
                 this.activePlayer.attributes.actionPoints -= 1;
             }
         });
 
-        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+        this.socketCommunicationService.on<Player>(ServerToClientEvent.UpdatedInventory, (playerToUpdate: Player) => {
             const index = this.navigationService.players.findIndex((players) => players.name === playerToUpdate.name);
             if (this.activePlayer) {
                 this.activePlayer.inventory = playerToUpdate.inventory;
@@ -178,11 +179,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.players[index].inventory = playerToUpdate.inventory;
         });
 
-        this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
+        this.socketCommunicationService.on<number[][]>(ServerToClientEvent.UpdateObjects, (items) => {
             this.navigationService.updateObjects(items);
         });
 
-        this.socketCommunicationService.on('updateObjectsAfterCombat', (data: { newGrid: number[][]; position: Position }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateObjectsAfterCombat, (data: { newGrid: number[][]; position: Position }) => {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
@@ -302,7 +303,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
             if (!this.isMoving) {
                 this.isMoving = true;
-                this.socketCommunicationService.send('teleportPlayer', position);
+                this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
             }
         }
     }
@@ -382,7 +383,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         if (this.isReachableTile(row, col) && this.isActivePlayer) {
-            this.socketCommunicationService.send('findPath', { x: row, y: col });
+            this.socketCommunicationService.send(ClientToServerEvent.FindPath, { x: row, y: col });
         }
     }
 
@@ -393,7 +394,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     handleTileClick(row: number, col: number) {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             const position: Position = { x: row, y: col };
-            this.socketCommunicationService.send('doorAction', { clickedPosition: position, player: this.activePlayer });
+            this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: this.activePlayer });
             return;
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleFightAction(row, col);
@@ -415,7 +416,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
             const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
             const isActivePlayerAttacker = player1.id === attacker.id;
-            this.socketCommunicationService.send('startFight', { player1: attacker, player2: defender, isPlayer1Active: isActivePlayerAttacker });
+            this.socketCommunicationService.send(ClientToServerEvent.StartFight, {
+                player1: attacker,
+                player2: defender,
+                isPlayer1Active: isActivePlayerAttacker,
+            });
         }
     }
 
@@ -434,7 +439,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (!this.isMoving) {
                 this.isMoving = true;
                 const path = this.fastestPath;
-                this.socketCommunicationService.send('playerNavigation', path);
+                this.socketCommunicationService.send(ClientToServerEvent.PlayerNavigation, path);
                 this.fastestPath = [];
             }
         }

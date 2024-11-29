@@ -5,6 +5,7 @@ import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dial
 import { Status } from '@app/interfaces/player-object';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Behavior, Player } from '@common/interfaces/player';
+import { ClientToServerEvent } from '@common/socket.events';
 @Component({
     selector: 'app-lobby-player',
     standalone: true,
@@ -35,9 +36,9 @@ export class LobbyPlayerComponent {
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'right') {
                 if (this.lobbyPlayer.status === Status.Bot) {
-                    this.socketCommunicationService.send('kickBot', this.lobbyPlayer.id);
+                    this.socketCommunicationService.send(ClientToServerEvent.KickBot, this.lobbyPlayer.id);
                 } else {
-                    this.socketCommunicationService.send('kickPlayer', this.lobbyPlayer.id);
+                    this.socketCommunicationService.send(ClientToServerEvent.KickPlayer, this.lobbyPlayer.id);
                 }
             }
         });

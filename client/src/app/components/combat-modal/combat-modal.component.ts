@@ -7,7 +7,7 @@ import { COMBAT_TURN_LENGTH } from '@app/constants';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/interfaces/player';
-import { ClientToServerEvent } from '@common/socket.events';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 import { Subscription } from 'rxjs';
 @Component({
     selector: 'app-combat-modal',
@@ -45,7 +45,7 @@ export class CombatModalComponent implements OnInit, OnDestroy {
         );
         this.combatService.initSocketListeners();
 
-        this.socketCommunicationService.on('attackValues', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.AttackValues, () => {
             this.dice1?.rollDice();
             this.dice2?.rollDice();
         });

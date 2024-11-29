@@ -6,6 +6,7 @@ import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { CombatPlayers, CombatResult, CombatResultDetails } from '@common/interfaces/combat-info';
 import { Player } from '@common/interfaces/player';
+import { ServerToClientEvent } from '@common/socket.events';
 import { BehaviorSubject } from 'rxjs';
 @Injectable({
     providedIn: 'root',
@@ -53,45 +54,45 @@ export class CombatService {
     }
 
     initSocketListeners() {
-        this.socketCommunicationService.on('combatTime', (timeRemaining: number) => {
+        this.socketCommunicationService.on(ServerToClientEvent.CombatTime, (timeRemaining: number) => {
             this.combatTurnTimeSource.next(timeRemaining);
         });
 
-        this.socketCommunicationService.on('attackValues', (combatResultDetails: CombatResultDetails) => {
+        this.socketCommunicationService.on(ServerToClientEvent.AttackValues, (combatResultDetails: CombatResultDetails) => {
             this.onAttackValues(combatResultDetails);
         });
 
-        this.socketCommunicationService.on('attackSuccess', (player: Player) => {
+        this.socketCommunicationService.on(ServerToClientEvent.AttackSuccess, (player: Player) => {
             this.onAttackSuccess(player);
         });
 
-        this.socketCommunicationService.on('attackFail', (data: { attacker: Player; shouldDamageSelf: boolean }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.AttackFail, (data: { attacker: Player; shouldDamageSelf: boolean }) => {
             this.combatStatus = data.attacker.name + ' a échoué son attaque.';
             if (data.shouldDamageSelf) {
                 this.onAttackFailWithArmor();
             }
         });
 
-        this.socketCommunicationService.on('evasionSuccess', (data: { listPlayers: Player[]; player: Player }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.EvasionSuccess, (data: { listPlayers: Player[]; player: Player }) => {
             this.onEvasion(data.player);
         });
 
-        this.socketCommunicationService.on('evasionFail', (player: Player) => {
+        this.socketCommunicationService.on(ServerToClientEvent.EvasionFail, (player: Player) => {
             this.combatStatus = player.name + " n'a pas réussi à s'évader.";
             const evasionsLeft = this.isAttacker(this.activePlayer) ? this.evasionsActivePlayer : this.evasionsOpponent;
             evasionsLeft.pop();
         });
 
-        this.socketCommunicationService.on('combatTurnEnded', (data: { combatPlayers: CombatPlayers; failEvasion: boolean }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.CombatTurnEnded, (data: { combatPlayers: CombatPlayers; failEvasion: boolean }) => {
             this.onCombatTurnEnded(data.combatPlayers, data.failEvasion);
         });
 
-        this.socketCommunicationService.on('defaultWin', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.DefaultCombatWin, () => {
             this.onPlayerDisconnected();
             this.isInCombat = false;
         });
 
-        this.socketCommunicationService.on('updateStats', (combatPlayers: CombatPlayers) => {
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateStats, (combatPlayers: CombatPlayers) => {
             if (this.isAttacker(this.activePlayer)) {
                 this.activePlayer.attributes.attack = combatPlayers.attacker.attributes.attack;
                 this.opponent.attributes.defense = combatPlayers.defender.attributes.defense;
@@ -103,13 +104,13 @@ export class CombatService {
     }
 
     removeListeners() {
-        this.socketCommunicationService.off('combatTime');
-        this.socketCommunicationService.off('attackValues');
-        this.socketCommunicationService.off('attackSuccess');
-        this.socketCommunicationService.off('attackFail');
-        this.socketCommunicationService.off('evasionFail');
-        this.socketCommunicationService.off('combatTurnEnded');
-        this.socketCommunicationService.off('defaultWin');
+        this.socketCommunicationService.off(ServerToClientEvent.CombatTime);
+        this.socketCommunicationService.off(ServerToClientEvent.AttackValues);
+        this.socketCommunicationService.off(ServerToClientEvent.AttackSuccess);
+        this.socketCommunicationService.off(ServerToClientEvent.AttackFail);
+        this.socketCommunicationService.off(ServerToClientEvent.EvasionFail);
+        this.socketCommunicationService.off(ServerToClientEvent.CombatTurnEnded);
+        this.socketCommunicationService.off(ServerToClientEvent.DefaultCombatWin);
     }
 
     evasionLeft() {

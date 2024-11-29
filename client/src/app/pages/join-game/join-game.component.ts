@@ -6,6 +6,7 @@ import { JoinGameService } from '@app/services/sockets/join-game/join-game.servi
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Avatar, Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 @Component({
     selector: 'app-join-game',
     standalone: true,
@@ -25,7 +26,7 @@ export class JoinGameComponent {
         private joinGameService: JoinGameService,
     ) {
         this.joinGameService.connect();
-        this.socketCommunicationService.on('characterSelected', (availableAvatars: Avatar[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.CharacterSelected, (availableAvatars: Avatar[]) => {
             this.availableAvatars = availableAvatars;
         });
     }
@@ -48,12 +49,12 @@ export class JoinGameComponent {
     }
 
     selectedAvatar(avatar: Avatar) {
-        this.socketCommunicationService.send('selectCharacter', avatar);
+        this.socketCommunicationService.send(ClientToServerEvent.SelectCharacter, avatar);
     }
 
     leaveGame(roomCode: string) {
         this.isCharacterFormVisible = false;
-        this.socketCommunicationService.send('leaveRoom', roomCode);
+        this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, roomCode);
         this.accessCode = '';
     }
 }

@@ -14,6 +14,7 @@ import { Game } from '@common/interfaces/game';
 import { Behavior, Player, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
     selector: 'app-waiting-page',
@@ -60,16 +61,16 @@ export class WaitingPageComponent implements OnInit {
         this.gameService.onRoomDeleted();
         this.gameService.onLeftRoom();
         this.gameService.onKickPlayer();
-        this.socketCommunicationService.on('updatedPlayer', (room: Room) => {
+        this.socketCommunicationService.on(ServerToClientEvent.UpdatedPlayer, (room: Room) => {
             this.players = room.listPlayers;
             this.onMaxPlayers();
         });
 
-        this.socketCommunicationService.on('isPlayerAdmin', (isPlayerAdmin: boolean) => {
+        this.socketCommunicationService.on(ServerToClientEvent.IsPlayerAdmin, (isPlayerAdmin: boolean) => {
             this.isAdmin = isPlayerAdmin;
         });
 
-        this.socketCommunicationService.on<Room>('startGame', (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.StartGame, (room: Room) => {
             this.chosenGame = room.gameMap;
             this.loadMap();
             this.router.navigate(['/game-page'], { queryParams: { roomCode: this.accessCode } });
@@ -87,7 +88,7 @@ export class WaitingPageComponent implements OnInit {
 
     onLockChange() {
         this.gameService.isRoomLocked = this.isLocked;
-        this.socketCommunicationService.send('changeLockRoom', this.isLocked);
+        this.socketCommunicationService.send(ClientToServerEvent.ChangeLockRoom, this.isLocked);
     }
 
     handleExit(accessCode: string) {
@@ -150,7 +151,7 @@ export class WaitingPageComponent implements OnInit {
         this.isBotProfileVisible = false;
 
         const behavior = isAgressive ? Behavior.Aggressive : Behavior.Defensive;
-        this.socketCommunicationService.send('createBot', behavior);
+        this.socketCommunicationService.send(ClientToServerEvent.CreateBot, behavior);
     }
 
     private confirmStartGame() {
@@ -164,7 +165,7 @@ export class WaitingPageComponent implements OnInit {
             .subscribe((result) => {
                 if (result.action === DialogResult.Right) {
                     this.isLocked = true;
-                    this.socketCommunicationService.send('startGame');
+                    this.socketCommunicationService.send(ClientToServerEvent.StartGame);
                 }
             });
     }

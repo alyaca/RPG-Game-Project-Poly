@@ -13,6 +13,7 @@ import { Game } from '@common/interfaces/game';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -67,7 +68,7 @@ export class CreateGamePageComponent implements OnDestroy {
 
     joinLobby(player: Player) {
         this.createRoom();
-        this.socketCommunicationService.send('createPlayer', player);
+        this.socketCommunicationService.send(ClientToServerEvent.CreatePlayer, player);
     }
 
     hideCharacterForm() {
@@ -76,8 +77,8 @@ export class CreateGamePageComponent implements OnDestroy {
     }
 
     createRoom() {
-        this.socketCommunicationService.send('createRoom', this.selectedGame);
-        this.socketCommunicationService.on('roomCreated', (roomInfo: Room) => {
+        this.socketCommunicationService.send(ClientToServerEvent.CreateRoom, this.selectedGame);
+        this.socketCommunicationService.on(ServerToClientEvent.RoomCreated, (roomInfo: Room) => {
             this.gameService.selectedGame = roomInfo.gameMap;
             this.roomCode = roomInfo.roomId;
             this.gameService.setRoomId(this.roomCode);
