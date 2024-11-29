@@ -1,6 +1,7 @@
 import { LogType, TileType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
 import { CombatPlayers } from '@common/combat-player';
+import { gameObjects } from '@common/objects-info';
 import { Player, Status } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
@@ -48,6 +49,16 @@ export class GameLogsService {
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
     }
 
+    sendItemLog(player: Player, roomId: string, server: Server, itemPickedUp: number) {
+        const message = this.generateItemPickupMessage(player, itemPickedUp);
+        this.sendLog(roomId, server, [player], message);
+    }
+
+    private generateItemPickupMessage(player: Player, item: number) {
+        const fullItem = gameObjects.find((object) => object.id === item);
+        return `${player.name} a ramassé ${fullItem.name}`;
+    }
+
     private createLog(players: Player[], message: string, roomId: string) {
         const date = new Date();
         const newLog = { message, timestamp: date, players };
@@ -63,7 +74,7 @@ export class GameLogsService {
         const { attackValues, defenseValues } = combatResultDetails;
         return (
             `Résultat de l'attaque : ${attacker.attributes.attack} + ${attackValues.diceValue} (dé) = ${attackValues.total}\n` +
-            `Résultat de la défense :  ${defender.attributes.attack} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`
+            `Résultat de la défense :  ${defender.attributes.defense} + ${defenseValues.diceValue} (dé) = ${defenseValues.total}`
         );
     }
 

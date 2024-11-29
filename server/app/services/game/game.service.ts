@@ -4,7 +4,7 @@ import {
     DEFAULT_ATTRIBUTE,
     DISCONNECTED_POSITION,
     EQUAL_ODDS_PROBABILITY,
-    FELLING_PROBABILITY,
+    FALLING_PROBABILITY,
     HIGH_ATTRIBUTE,
     LogType,
     MOVEMENT_TIME,
@@ -14,17 +14,21 @@ import {
     TileType,
     TURN_TIME,
 } from '@app/constants';
+import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { baseBot } from '@app/mocks/mock-players';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
+import { ObjectType } from '@common/avatars-info';
 import { Avatar, Behavior, Player, Position, Status } from '@common/player';
 import { GameStatus, Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 /* eslint-disable max-lines */
+/* eslint-disable max-len */
 @Injectable()
 export class GameService {
     isMoving: boolean = false;
@@ -32,6 +36,7 @@ export class GameService {
 
     constructor(
         private roomService: RoomService,
+        private playerInventoryService: PlayerInventoryService,
         private gameLogsService: GameLogsService,
         private matchService: MatchService,
     ) {}
@@ -69,7 +74,7 @@ export class GameService {
         return room.listPlayers.find((player) => player.isActive === true);
     }
 
-    getGame(roomId) {
+    getGame(roomId: string) {
         return this.roomService.rooms.get(roomId);
     }
 
@@ -138,6 +143,7 @@ export class GameService {
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
+
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
@@ -175,9 +181,8 @@ export class GameService {
 
         if (!this.isMoving) {
             room.globalPostGameStats.turns++;
-            this.updateActivePlayer(client);
+            this.updateActivePlayer(server, room);
             const activePlayer = this.getActivePlayer(room);
-            activePlayer.attributes.actionPoints = activePlayer.attributes.maxActionPoints;
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
             server.to(room.roomId).emit('reachability', activePlayer);
             server.to(room.roomId).emit('isActive', activePlayer);
@@ -276,6 +281,20 @@ export class GameService {
         this.checkActions(room, server);
     }
 
+    startItemSwap(infoSwap: InfoSwap) {
+        const room = this.roomService.getRoom(infoSwap.client);
+        let activePlayer = this.getActivePlayer(room);
+        activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
+
+        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+            if (timeLeft <= 0) {
+                this.onTurnEnded(infoSwap.client, infoSwap.server);
+            }
+            infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+        });
+        infoSwap.client.emit('updateInventory', activePlayer);
+    }
+
     addUniqueTileToHistory(positionList: Position[], tile: Position) {
         if (!positionList.some((pos) => pos.x === tile.x && pos.y === tile.y)) {
             positionList.push(tile);
@@ -299,11 +318,23 @@ export class GameService {
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
         // TODO : refactor this
+        let pickedUpItem = false;
         const player = this.getActivePlayer(room);
         this.initTileHistory(room); // Should maybe call this function elsewhere
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
+            pickedUpItem = false;
+            if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
+                const infoSwap: InfoSwap = {
+                    server,
+                    client,
+                    player,
+                };
+                pickedUpItem = true;
+                this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
+                server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
+            }
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
 
@@ -318,9 +349,8 @@ export class GameService {
                     break;
                 }
             }
-            if (room.gameMap.tiles[tile.x][tile.y] !== TileType.Ice) {
-                player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y]);
-            }
+            player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
+            if (pickedUpItem) break;
         }
 
         this.isMoving = false;
@@ -377,7 +407,7 @@ export class GameService {
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
             this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
-            activePlayer.attributes.actionPoints = 0;
+            activePlayer.attributes.actionPoints--;
             server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit('reachableTiles', reachability);
@@ -385,6 +415,47 @@ export class GameService {
                 this.onTurnEnded(client, server);
             }
         }
+    }
+
+    addActionPoints(player: Player) {
+        // to fix(maybe)
+        if (player.inventory.find((items) => items.id === ObjectType.Trident)) {
+            if (player.attributes.actionPoints === 1) {
+                player.attributes.maxActionPoints = 2;
+                player.attributes.actionPoints += 1;
+            } else {
+                player.attributes.actionPoints = 1;
+            }
+        } else {
+            player.attributes.actionPoints = 1;
+        }
+        return player;
+    }
+
+    placeItemsOnGround(client: Socket, server: Server, player: Player | undefined) {
+        const room = this.roomService.getRoom(client);
+        let playerToDropItems = player;
+        if (!playerToDropItems) {
+            playerToDropItems = room.listPlayers.find((players) => players.id === client.id);
+        }
+        if (playerToDropItems.inventory.length === 0) return;
+        for (const items of playerToDropItems.inventory) {
+            const position = room.navigation.findClosestValidTile(playerToDropItems, room);
+            playerToDropItems = this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
+            room.gameMap.itemPlacement[position.x][position.y] = items.id;
+            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
+        }
+
+        playerToDropItems.inventory = [];
+
+        const index = room.listPlayers.findIndex((players) => players.id === player.id);
+        room.listPlayers[index].inventory = playerToDropItems.inventory;
+        room.listPlayers[index].attributes = playerToDropItems.attributes;
+        server.to(playerToDropItems.id).emit('updateInventory', playerToDropItems);
+    }
+
+    playerInWall(room: Room, player: Player) {
+        return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }
 
     async delay(ms: number) {
@@ -411,11 +482,6 @@ export class GameService {
         }
     }
 
-    private checkFell(): boolean {
-        const randomValue = Math.random();
-        return randomValue > FELLING_PROBABILITY;
-    }
-
     private freeUpAvatar(room: Room, socket: Socket) {
         if (socket.data.clickedAvatar) {
             const previousAvatar = this.getAvatarByName(room, socket.data.clickedAvatar);
@@ -423,6 +489,31 @@ export class GameService {
                 previousAvatar.isTaken = false;
             }
         }
+    }
+
+    private getCost(tileType: number, activePlayer: Player): number {
+        switch (tileType) {
+            case TileType.Ground:
+                return TileCost.Ground;
+            case TileType.Water:
+                return TileCost.Water;
+            case TileType.Ice:
+                return TileCost.Ice;
+            case TileType.OpenDoor:
+                return TileCost.OpenDoor;
+            case TileType.Wall:
+                if (activePlayer.inventory.find((objects) => objects.id === ObjectType.Kunee)) {
+                    return TileCost.Ground;
+                }
+                return Infinity;
+            default:
+                return Infinity;
+        }
+    }
+
+    private checkFell(): boolean {
+        const randomValue = Math.random();
+        return randomValue > FALLING_PROBABILITY;
     }
 
     private generateUniquePlayerName(playerName: string, socket: Socket): string {
@@ -442,21 +533,6 @@ export class GameService {
 
     private getPlayerConnectedInRoom(room: Room) {
         return room.listPlayers.filter((player) => player.status !== Status.Disconnected);
-    }
-
-    private getCost(tileType: number): number {
-        switch (tileType) {
-            case TileType.Ground:
-                return TileCost.Ground;
-            case TileType.Water:
-                return TileCost.Water;
-            case TileType.Ice:
-                return TileCost.Ice;
-            case TileType.OpenDoor:
-                return TileCost.OpenDoor;
-            default:
-                return Infinity;
-        }
     }
 
     private isActivePlayer(socket: Socket) {
@@ -526,10 +602,32 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateActivePlayer(socket: Socket) {
-        const room = this.roomService.getRoom(socket);
+    private updateActivePlayer(server: Server, room: Room) {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
+        let previousActivePlayer = listPlayers[index];
+        // if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
+        previousActivePlayer = this.addActionPoints(previousActivePlayer);
+        // }
+        if (this.playerInWall(room, previousActivePlayer)) {
+            room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
+            server.to(room.roomId).emit('updateObjectsAfterCombat', {
+                newGrid: room.gameMap.itemPlacement,
+                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+            });
+            const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
+            room.navigation.findFastestPath(previousActivePlayer, destination, room);
+
+            previousActivePlayer.position = destination;
+            room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
+            this.processTeleportation(room, server, previousActivePlayer.position);
+            server.to(room.roomId).emit('updateObjectsAfterCombat', {
+                newGrid: room.gameMap.itemPlacement,
+                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+            });
+        }
+        listPlayers[index] = previousActivePlayer;
+
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;

@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { ElementRef } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DEFAULT_ATTRIBUTE } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
+import { mockInventoryPlayer, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
-import { DEFAULT_ATTRIBUTE } from '@app/constants';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
@@ -32,6 +32,14 @@ describe('PlayerInfoInventoryComponent', () => {
         expect(component).toBeTruthy();
     });
 
+    it('should get the good number of empty slots', () => {
+        component.player = mockInventoryPlayer;
+        expect(component.emptySlots).toEqual([]);
+
+        component.player = mockPlayers[0];
+        expect(component.emptySlots).toEqual([0, 0]);
+    });
+
     it('should update the movement value', () => {
         component.player = mockLobbyPlayers[0];
         component.player.attributes.movementPointsLeft = 1;
@@ -40,6 +48,19 @@ describe('PlayerInfoInventoryComponent', () => {
 
         component.decreaseMovement();
         expect(component.player.attributes.movementPointsLeft).toBe(mockLobbyPlayers[0].attributes.movementPointsLeft);
+    });
+
+    it('should set the info on updateInventory', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === 'updateInventory') {
+                callback(mockInventoryPlayer as T);
+            }
+        });
+        component.player = mockInventoryPlayer;
+        component.ngOnInit();
+        expect(component.player.attributes).toEqual(mockInventoryPlayer.attributes);
+        expect(component.player.inventory).toEqual(mockInventoryPlayer.inventory);
+        expect(component.player.attributes.currentHp).toEqual(mockInventoryPlayer.attributes.totalHp);
     });
 
     it('should not update the movement points if you already have max or minimum value for it', () => {

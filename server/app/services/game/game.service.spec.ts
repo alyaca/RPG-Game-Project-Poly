@@ -5,6 +5,7 @@ import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player, Position, Status } from '@common/player';
@@ -43,6 +44,15 @@ describe('GameService', () => {
             { id: 'player4', attributes: { speed: 5 }, status: Status.Disconnected, isActive: false },
         ] as unknown as Player[];
 
+        const playerInventoryServiceMock = {
+            updateInventory: jest.fn(),
+            determineRandomItem: jest.fn(),
+            addStatsFromItem: jest.fn(),
+            removeItemEffects: jest.fn(),
+            updatePlayerWithItem: jest.fn(),
+            updatePlayerAfterSwap: jest.fn(),
+        };
+
         const gameLogsServiceMock = {
             createLog: jest.fn(),
             getGameLog: jest.fn(),
@@ -73,6 +83,7 @@ describe('GameService', () => {
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: GameLogsService, useValue: gameLogsServiceMock },
                 { provide: MatchService, useValue: matchServiceMock },
+                { provide: PlayerInventoryService, useValue: playerInventoryServiceMock },
             ],
         }).compile();
         (mockServer.to as jest.Mock).mockReturnValue({ emit: jest.fn() });
@@ -355,13 +366,10 @@ describe('GameService', () => {
     it('should update the active player correctly', () => {
         room.listPlayers = mockPlayers;
         service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue(mockPlayers);
-
-        service['updateActivePlayer'](mockSocket);
+        service['playerInWall'] = jest.fn().mockReturnValue(false);
+        service['updateActivePlayer'](mockServer, mockRoom);
         expect(mockPlayers[0].isActive).toBe(false);
         expect(mockPlayers[1].isActive).toBe(true);
-
-        expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
-        expect(service['getPlayerConnectedInRoom']).toHaveBeenCalledWith(room);
     });
 
     it('should return only connected players', () => {
@@ -551,13 +559,14 @@ describe('GameService', () => {
     });
 
     describe('checkFell', () => {
-        it('should return true if random value is greater than FELLING_PROBABILITY and debugMode is false', () => {
+        it('should return true if random value is greater than FALLING_PROBABILITY and debugMode is false', () => {
             const value = 0.4;
             jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });
-        it('should return false if random value is less than or equal to FELLING_PROBABILITY and debugMode is false', () => {
+        it('should return false if random value is less than or equal to FALLING_PROBABILITY and debugMode is false', () => {
+            service['isDebugMode'] = false;
             jest.spyOn(Math, 'random').mockReturnValue(0);
             const result = service['checkFell']();
             expect(result).toBe(false);
@@ -577,11 +586,11 @@ describe('GameService', () => {
     });
 
     it('should return the corresponding cost for tile', () => {
-        expect(service['getCost'](TileType.Ground)).toBe(TileCost.Ground);
-        expect(service['getCost'](TileType.Water)).toBe(TileCost.Water);
-        expect(service['getCost'](TileType.Ice)).toBe(TileCost.Ice);
-        expect(service['getCost'](TileType.OpenDoor)).toBe(TileCost.OpenDoor);
-        expect(service['getCost'](0)).toBe(Infinity);
+        expect(service['getCost'](TileType.Ground, mockPlayers[0])).toBe(TileCost.Ground);
+        expect(service['getCost'](TileType.Water, mockPlayers[0])).toBe(TileCost.Water);
+        expect(service['getCost'](TileType.Ice, mockPlayers[0])).toBe(TileCost.Ice);
+        expect(service['getCost'](TileType.OpenDoor, mockPlayers[0])).toBe(TileCost.OpenDoor);
+        expect(service['getCost'](0, mockPlayers[0])).toBe(Infinity);
     });
 
     describe('processNavigation', () => {

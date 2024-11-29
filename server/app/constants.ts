@@ -43,7 +43,7 @@ export const NO_EVASION_TIME = 3;
 export const MILLISECONDS_IN_SECOND = 1000;
 
 export const MOVEMENT_TIME = 150;
-export const FELLING_PROBABILITY = 0.1;
+export const FALLING_PROBABILITY = 0.1;
 
 export const SINGLE_PLAYER = 1;
 export const ROLL_DURATION = 800;
@@ -91,5 +91,7 @@ export const enum LogType {
 }
 
 export const ICE_TILE_PENALTY_VALUE = 2;
+export const XIPHOS_ATTACK_BONUS = 2;
+export const XIPHOS_DEFENSE_PENALTY = 1;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };

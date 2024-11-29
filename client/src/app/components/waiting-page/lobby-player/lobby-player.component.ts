@@ -30,6 +30,7 @@ export class LobbyPlayerComponent {
                 messages: ['Êtes-vous certain de vouloir exclure le joueur?'],
                 options: ['Annuler', 'Exclure'],
                 confirm: true,
+                itemSwap: null,
             },
         });
         dialogRef.afterClosed().subscribe((result) => {

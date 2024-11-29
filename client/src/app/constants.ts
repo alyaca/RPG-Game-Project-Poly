@@ -11,7 +11,11 @@ export enum GameMode {
     Classic = 'classique',
     Ctf = 'ctf',
 }
+
+export const MAX_INVENTORY_ITEMS = 2;
+
 // Constants for the number of items and spawn points for each type of map
+export const MIN_NB_ITEMS = 2;
 export const NB_ITEMS_SMALL_MAP = 2;
 export const NB_ITEMS_MEDIUM_MAP = 4;
 export const NB_ITEMS_LARGE_MAP = 6;
@@ -92,7 +96,7 @@ export const RANDOM_ITEM = 1;
 export const CHECK_BEFORE_SAVING_DELAY = 500;
 export const VALIDATION_DURATION = 500;
 
-export const TEST_VALIDATION_DURATION = 800;
+export const TEST_VALIDATION_DURATION = 1200;
 
 // Constant for the time of the snackbar message
 export const MESSAGE_DURATION_ERROR = 4000;
@@ -195,7 +199,6 @@ export enum TileClass {
     Wall = 'wall',
 }
 
-export const FELLING_PROBABILITY = 0.1;
 export const NAVIGATION_DELAY = 150;
 
 // Maximum number of players in a room
@@ -237,6 +240,7 @@ export enum DialogTitle {
     SuccessEvasion = 'Évasion réussie',
     MaxPlayers = 'Nombre de joueurs maximal atteint',
     AddBotWhenLocked = 'Partie vérrouillée',
+    ItemExchange = 'Échanger un objet',
     QuitPostGameLobby = "Retourner à la page d'accueil",
 }
 

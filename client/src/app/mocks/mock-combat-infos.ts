@@ -1,9 +1,9 @@
+import { defaultPostGameStats } from '@app/default-attributes';
 import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
 import { CombatResultDetails } from '@common/combat-result';
 import { Behavior, Player, Status } from '@common/player';
 import { mockRoom } from './mock-room';
-import { defaultPostGameStats } from '@app/default-attributes';
 
 export const mockCombatResultDetails: CombatResultDetails = {
     attackValues: { diceValue: 0, total: 0 },
@@ -75,4 +75,5 @@ export const mockCombatInfos: CombatInfos = {
     gameTime: 60,
     room: mockRoom,
     failEvasion: false,
+    checkedXiphos: false,
 };
