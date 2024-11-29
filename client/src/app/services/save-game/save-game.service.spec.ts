@@ -13,6 +13,7 @@ import {
 } from '@app/constants';
 import { dummyInfo, dummyMap } from '@app/mocks/mock-map';
 import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
+import { GameMode } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { SaveGameService } from './save-game.service';
@@ -36,7 +37,7 @@ describe('SaveGameService', () => {
         ],
         dimension: 10,
         nbPlayers: 2,
-        mode: 'classique',
+        mode: GameMode.Classic,
         isSelected: false,
         lastModification: new Date(),
     };
@@ -137,6 +138,7 @@ describe('SaveGameService', () => {
             grid: dummyGame.tiles,
             items: dummyGame.itemPlacement,
             height: dummyGame.dimension,
+            mode: dummyGame.mode,
         });
     });
 
@@ -208,6 +210,7 @@ describe('SaveGameService', () => {
                 [0, 0],
             ],
             height: SIZE_MEDIUM_MAP,
+            mode: GameMode.Classic,
         };
 
         spyOn(service, 'isNameAlreadyExists').and.returnValue(of(true));
@@ -249,6 +252,7 @@ describe('SaveGameService', () => {
                 [0, 0],
             ],
             height: SIZE_MEDIUM_MAP,
+            mode: GameMode.Classic,
         };
 
         spyOn(service, 'isNameAlreadyExists').and.returnValue(of(false));
