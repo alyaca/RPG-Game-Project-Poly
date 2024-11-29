@@ -354,9 +354,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onEndTurn() {
-        // if (this.navigationService.isOnWall(this.activePlayer)) {
-        //     this.socketCommunicationService.send('movePlayerFromWall', this.activePlayer);
-        // }
         this.socketCommunicationService.send('endTurn');
     }
 
