@@ -126,7 +126,8 @@ describe('GameService', () => {
     it('should navigate when result is Close onAdminQuit', (done) => {
         const message = 'message';
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(DialogResult.Close));
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Close }));
+
         dialogSpy.open.and.returnValue(dialogRefSpy);
 
         service.onAdminQuit(message);
