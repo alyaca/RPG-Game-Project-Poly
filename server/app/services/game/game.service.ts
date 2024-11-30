@@ -462,6 +462,10 @@ export class GameService {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }
 
+    async delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
     private isObject(room: Room, tile: Position) {
         const isObjectFlag = room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random;
         return room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random || isObjectFlag;
@@ -469,10 +473,6 @@ export class GameService {
 
     private isNotAvatar(room: Room, tile: Position) {
         return room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident;
-    }
-
-    async delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     private checkFlagModeEndGame(player: Player, room: Room, server: Server) {
