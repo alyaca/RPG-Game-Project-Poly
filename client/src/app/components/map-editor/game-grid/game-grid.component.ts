@@ -59,7 +59,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     previousRow: number | null = null;
     previousCol: number | null = null;
-    
+
     private oldMapName: string;
     private activePlayer: Player | undefined;
     private isMouseDown: boolean = false;
@@ -67,7 +67,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     // Used in html
     public navigationService = inject(NavigationService);
-    
+
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
     private gameService = inject(GameService);
@@ -101,7 +101,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.handleMapLoading();
 
         this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
-            this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
+            this.navigationService.initialize(room, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
 
@@ -350,7 +350,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     removeTile(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        this.tilesGrid = this.tileService.removeTile(event, { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray});
+        this.tilesGrid = this.tileService.removeTile(event, { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray });
     }
 
     findPath(row: number, col: number) {
@@ -369,7 +369,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: { x: row, y: col }, player: this.activePlayer });
             return;
         } else if (this.gameService.canStartCombat(this.activePlayer!)) {
-            this.activePlayer = this.gameService.handleFightAction({ position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray}, this.activePlayer!); // could remove handleFightAction and place it elsewhere
+            this.activePlayer = this.gameService.handleFightAction(
+                { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray },
+                this.activePlayer!,
+            ); // could remove handleFightAction and place it elsewhere
             return;
         } else if (this.navigationService.noInteractionPossible({ row, col }, this.tilesGrid, this.activePlayer!)) {
             this.sendNavigation();
@@ -396,7 +399,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position) {
-        const updatedObjectsAndPlayer = this.navigationService.navigateToTile(position, this.activePlayer!, this.objectsArray)
+        const updatedObjectsAndPlayer = this.navigationService.navigateToTile(position, this.activePlayer!, this.objectsArray);
         this.fastestPath = [];
         this.objectsArray = updatedObjectsAndPlayer[0];
         this.activePlayer!.position = updatedObjectsAndPlayer[1].position;

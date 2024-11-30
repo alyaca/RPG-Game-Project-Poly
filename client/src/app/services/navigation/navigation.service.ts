@@ -4,6 +4,7 @@ import { ObjectType } from '@common/avatars-info';
 import { TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -34,11 +35,13 @@ export class NavigationService {
     isDebugMode: boolean = false;
     reachableTiles: Position[];
     objects: number[][];
+    room: Room;
 
-    initialize(game: Game, players: Player[], objects: number[][]): void {
+    initialize(room: Room, objects: number[][]): void {
+        this.room = room;
         this.objects = JSON.parse(JSON.stringify(objects));
-        this.gameMap = game;
-        this.players = players;
+        this.gameMap = room.gameMap;
+        this.players = room.listPlayers;
         this.positions = objects;
         this.initializeObjects(objects);
     }
@@ -113,7 +116,7 @@ export class NavigationService {
         return objects;
     }
 
-    navigateToTile(position: Position, player: Player, objects: number[][]) : [number[][], Player] {
+    navigateToTile(position: Position, player: Player, objects: number[][]): [number[][], Player] {
         this.reachableTiles = [];
         if (player) {
             this.updateTile(player);
@@ -141,9 +144,8 @@ export class NavigationService {
         return player.position.x === position.row && player.position.y === position.col;
     }
 
-    
     noInteractionPossible(position: MapPosition, tiles: number[][], player: Player) {
-        return this.isReachableTile(position) && !this.isTileAClosedDoor(tiles, position)  && !this.isPlayerOnTile(position, player);
+        return this.isReachableTile(position) && !this.isTileAClosedDoor(tiles, position) && !this.isPlayerOnTile(position, player);
     }
 
     isTileAClosedDoor(tiles: number[][], position: MapPosition) {
@@ -151,7 +153,7 @@ export class NavigationService {
     }
 
     findPath(position: MapPosition, activePlayer: Player, defaultPath: Position[]) {
-        if(this.isPlayerOnTile(position, activePlayer)) {
+        if (this.isPlayerOnTile(position, activePlayer)) {
             return [];
         }
         return defaultPath;
