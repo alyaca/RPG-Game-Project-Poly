@@ -309,7 +309,7 @@ export class GameService {
     resetGlobalStats(room: Room) {
         room.globalPostGameStats.globalTilesVisited = [];
         room.globalPostGameStats.doorsInteracted = [];
-        room.globalPostGameStats.turns = 0;
+        room.globalPostGameStats.turns = 1;
         room.globalPostGameStats.nbFlagBearers = 0;
         room.globalPostGameStats.gameDuration = '';
     }

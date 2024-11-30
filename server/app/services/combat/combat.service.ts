@@ -244,6 +244,17 @@ export class CombatService {
         return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
 
+    addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
+        const attacker = room.listPlayers.find((p) => p.id === players.attacker.id);
+        const defender = room.listPlayers.find((p) => p.id === players.defender.id);
+        if (attacker && defender) {
+            attacker.postGameStats[attr1 as keyof Player['postGameStats']]++;
+            defender.postGameStats[attr2 as keyof Player['postGameStats']]++;
+            return attacker;
+        }
+        return null;
+    }
+
     private isEvasionSuccessful() {
         return Math.random() < EVASION_SUCCESS_RATE;
     }
@@ -377,17 +388,6 @@ export class CombatService {
 
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
-    }
-
-    private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
-        const attacker = room.listPlayers.find((p) => p.id === players.attacker.id);
-        const defender = room.listPlayers.find((p) => p.id === players.defender.id);
-        if (attacker && defender) {
-            attacker.postGameStats[attr1 as keyof Player['postGameStats']]++;
-            defender.postGameStats[attr2 as keyof Player['postGameStats']]++;
-            return attacker;
-        }
-        return null;
     }
 
     private replacePlayerOnSpawnPoint(player: Player, socket: Socket, server: Server) {

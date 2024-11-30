@@ -8,8 +8,10 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
+import { CombatPlayers } from '@common/interfaces/combat-info';
 import { TileType } from '@common/constants';
 import { Player } from '@common/interfaces/player';
+import { PlayerStatType } from '@common/interfaces/post-game-stat';
 import { Room } from '@common/interfaces/room';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -648,5 +650,38 @@ describe('CombatService', () => {
         service['handlePlayerOnIce'](playerOnIce, iceTiles, room.listPlayers);
         expect(playerOnIce.attributes.attack).toBe(ICE_TILE_PENALTY_VALUE);
         expect(playerOnIce.attributes.defense).toBe(ICE_TILE_PENALTY_VALUE);
+    });
+
+    it('should increment postGameStats for attacker and defender and return the attacker', () => {
+        room.listPlayers = mockPlayers;
+
+        const players: CombatPlayers = {
+            attacker: mockPlayers[0],
+            defender: mockPlayers[1],
+        };
+
+        const attr1 = PlayerStatType.Victories;
+        const attr2 = PlayerStatType.Defeats;
+        const result = service.addToPostGameStats(room, players, attr1, attr2);
+
+        expect(result).toEqual(mockPlayers[0]);
+        expect(mockPlayers[0].postGameStats.victories).toBe(1);
+        expect(mockPlayers[1].postGameStats.defeats).toBe(1);
+    });
+
+    it('should return null if either attacker or defender is not found', () => {
+        room.listPlayers = mockPlayers;
+
+        const players: CombatPlayers = {
+            attacker: { id: mockPlayers[0].id } as Player,
+            defender: { id: 'nonexistent-defender' } as Player,
+        };
+
+        const attr1 = PlayerStatType.Victories;
+        const attr2 = PlayerStatType.Defeats;
+
+        const result = service.addToPostGameStats(room, players, attr1, attr2);
+
+        expect(result).toBeNull();
     });
 });

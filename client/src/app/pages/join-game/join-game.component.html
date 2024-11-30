@@ -4,11 +4,18 @@
     <div class="page-container">
         <div class="submit-container">
             <p>Entrez le code de la partie</p>
-            <input class="input-box" type="text" placeholder="XXXX" [(ngModel)]="accessCode" maxlength="4" (keyup.enter)="joinGame(accessCode)" />
-            @if(submitForm && errorMessage){
-            <div class="invalid-code">{{ errorMessage }}</div>
-            }
-            <button class="join-game" (click)="joinGame(accessCode)">Joindre</button>
+            <div class="input-container">
+                <input class="input-box" type="text" placeholder="____" [(ngModel)]="accessCode" maxlength="4" (keyup.enter)="joinGame(accessCode)" />
+                <button id="join-game" (click)="joinGame(accessCode)">Joindre</button>
+            </div>
+            <p class="invalid-code">
+                @if(submitForm && errorMessage){
+                    {{ errorMessage }}
+                }
+                @else {
+                    <div class="empty">.</div>
+                }
+            </p>
         </div>
         <button class="button" routerLink="/home">Retour</button>
     </div>
