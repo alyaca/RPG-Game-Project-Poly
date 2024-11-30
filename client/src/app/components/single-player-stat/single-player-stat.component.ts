@@ -21,7 +21,7 @@ export class SinglePlayerStatComponent {
     constructor(public postGameService: PostGameService) {}
 
     getStatValue(): number {
-        return this.player?.postGameStats[this.attribute as keyof Player['postGameStats']] ?? -1;
+        return this.player?.postGameStats[this.attribute as keyof Player['postGameStats']];
     }
 
     formatStatValue() {
