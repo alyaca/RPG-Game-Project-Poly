@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
@@ -173,7 +173,8 @@ describe('MapEditorPageComponent', () => {
         }, 0);
     });
 
-    it('should navigate to /administration if user confirms exit in handleExit', () => {
+    // line 114 not covered by this test for some reason
+    it('should navigate to /administration if user confirms exit in handleExit', fakeAsync(() => {
         const dialogRef: MatDialogRef<SimpleDialogComponent> = {
             afterClosed: () => of({ action: 'left' }),
             close: jasmine.createSpy('close'),
@@ -182,12 +183,10 @@ describe('MapEditorPageComponent', () => {
 
         dialogSpy.open.and.returnValue(dialogRef);
         component.handleExit();
-
         expect(dialogSpy.open).toHaveBeenCalled();
-        dialogRef.afterClosed().subscribe(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
-        });
-    });
+        tick();
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/administration']);
+    }));
 
     it('should update the map name when updateMapName is called', () => {
         const newName = 'New Map Name';

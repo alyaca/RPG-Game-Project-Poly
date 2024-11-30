@@ -21,8 +21,15 @@ export enum SocketEvents {
     EndGame = 'endGame',
     CreateBot = 'createBot',
     KickBot = 'kickBot',
+    BeginItemSwitch = 'beginItemSwitch',
+    EndItemSwitch = 'endItemSwitch',
+    ItemSwapped = 'itemSwapped',
     DoorAction = 'doorAction',
+
+    ForceEndGame = 'forceEndGame', // Temporary
     DebugMode = 'debugMode',
     TeleportPlayer = 'teleportPlayer',
     FindPath = 'findPath',
+    MovePlayerFromWall = 'movePlayerFromWall',
+    LeftGame = 'leftGame',
 }

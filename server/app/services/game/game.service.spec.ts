@@ -1,10 +1,15 @@
 import { Timer } from '@app/classes/timer/timer';
 import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
+<<<<<<< HEAD
 import { baseBot, mockBotPlayers, mockPlayers, mockPlayerStats } from '@app/mocks/mock-players';
+=======
+import { baseBot, mockPlayers, mockAttributes } from '@app/mocks/mock-players';
+>>>>>>> 36ecce6dd0620f3ab1181e1a3fb15e5152e439e0
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
+import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player, Status } from '@common/player';
@@ -43,6 +48,15 @@ describe('GameService', () => {
             { id: 'player4', attributes: { speed: 5 }, status: Status.Disconnected, isActive: false },
         ] as unknown as Player[];
 
+        const playerInventoryServiceMock = {
+            updateInventory: jest.fn(),
+            determineRandomItem: jest.fn(),
+            addStatsFromItem: jest.fn(),
+            removeItemEffects: jest.fn(),
+            updatePlayerWithItem: jest.fn(),
+            updatePlayerAfterSwap: jest.fn(),
+        };
+
         const gameLogsServiceMock = {
             createLog: jest.fn(),
             getGameLog: jest.fn(),
@@ -76,8 +90,9 @@ describe('GameService', () => {
                 GameService,
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: GameLogsService, useValue: gameLogsServiceMock },
-                { provide: MatchService, useValue: matchServiceMock },
+                { provide: MatchService, useValue: matchServiceMock },      
                 { provide: BotService, useValue: botServiceMock },
+                { provide: PlayerInventoryService, useValue: playerInventoryServiceMock },          
             ],
         }).compile();
         (mockServer.to as jest.Mock).mockReturnValue({ emit: jest.fn() });
@@ -361,13 +376,10 @@ describe('GameService', () => {
     it('should update the active player correctly', () => {
         room.listPlayers = mockPlayers;
         service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue(mockPlayers);
-
-        service['updateActivePlayer'](mockSocket);
+        service['playerInWall'] = jest.fn().mockReturnValue(false);
+        service['updateActivePlayer'](mockServer, mockRoom);
         expect(mockPlayers[0].isActive).toBe(false);
         expect(mockPlayers[1].isActive).toBe(true);
-
-        expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
-        expect(service['getPlayerConnectedInRoom']).toHaveBeenCalledWith(room);
     });
 
     it('should return only connected players', () => {
@@ -582,13 +594,14 @@ describe('GameService', () => {
     });
 
     describe('checkFell', () => {
-        it('should return true if random value is greater than FELLING_PROBABILITY and debugMode is false', () => {
+        it('should return true if random value is greater than FALLING_PROBABILITY and debugMode is false', () => {
             const value = 0.4;
             jest.spyOn(Math, 'random').mockReturnValue(value);
             const result = service['checkFell']();
             expect(result).toBe(true);
         });
-        it('should return false if random value is less than or equal to FELLING_PROBABILITY and debugMode is false', () => {
+        it('should return false if random value is less than or equal to FALLING_PROBABILITY and debugMode is false', () => {
+            service['isDebugMode'] = false;
             jest.spyOn(Math, 'random').mockReturnValue(0);
             const result = service['checkFell']();
             expect(result).toBe(false);
@@ -608,11 +621,11 @@ describe('GameService', () => {
     });
 
     it('should return the corresponding cost for tile', () => {
-        expect(service['getCost'](TileType.Ground)).toBe(TileCost.Ground);
-        expect(service['getCost'](TileType.Water)).toBe(TileCost.Water);
-        expect(service['getCost'](TileType.Ice)).toBe(TileCost.Ice);
-        expect(service['getCost'](TileType.OpenDoor)).toBe(TileCost.OpenDoor);
-        expect(service['getCost'](0)).toBe(Infinity);
+        expect(service['getCost'](TileType.Ground, mockPlayers[0])).toBe(TileCost.Ground);
+        expect(service['getCost'](TileType.Water, mockPlayers[0])).toBe(TileCost.Water);
+        expect(service['getCost'](TileType.Ice, mockPlayers[0])).toBe(TileCost.Ice);
+        expect(service['getCost'](TileType.OpenDoor, mockPlayers[0])).toBe(TileCost.OpenDoor);
+        expect(service['getCost'](0, mockPlayers[0])).toBe(Infinity);
     });
 
     describe('processNavigation', () => {
@@ -638,6 +651,7 @@ describe('GameService', () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
             service.checkEndTurn = jest.fn().mockReturnValue(false);
+            service.addUniqueTileToHistory = jest.fn();
             service.checkActions = jest.fn();
             service.isTurnSkipped = false;
             await service.processNavigation(room, server, path, mockSocket);
@@ -656,6 +670,7 @@ describe('GameService', () => {
             ];
             service['checkFell'] = jest.fn().mockReturnValue(false);
             service.checkEndTurn = jest.fn().mockReturnValue(false);
+            service.addUniqueTileToHistory = jest.fn();
 
             await service.processNavigation(room, server, path, mockSocket);
 
@@ -669,6 +684,7 @@ describe('GameService', () => {
             service['checkFell'] = jest.fn().mockReturnValue(true);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
             service.checkEndTurn = jest.fn().mockReturnValue(true);
+            service.addUniqueTileToHistory = jest.fn();
             await service.processNavigation(room, server, path, mockSocket);
 
             expect(service.getActivePlayer).toHaveBeenCalledWith(room);
@@ -727,7 +743,7 @@ describe('GameService', () => {
 
     it('should assign attack and defense stats based on random values', () => {
         const mockPlayerBot = mockPlayers[3];
-        mockPlayerBot.attributes = mockPlayerStats;
+        mockPlayerBot.attributes = mockAttributes;
         jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_SUCCESS).mockReturnValueOnce(EQUAL_ODDS_FAIL);
 
         const result = service.assignStatsToBot(mockPlayerBot);
@@ -739,7 +755,7 @@ describe('GameService', () => {
 
     it('should assign the opposite set of stats if random values are different', () => {
         const mockPlayerBot = mockPlayers[3];
-        mockPlayerBot.attributes = mockPlayerStats;
+        mockPlayerBot.attributes = mockAttributes;
         jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_FAIL).mockReturnValueOnce(EQUAL_ODDS_SUCCESS);
 
         const result = service.assignStatsToBot(mockPlayerBot);

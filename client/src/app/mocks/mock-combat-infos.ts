@@ -1,3 +1,4 @@
+import { defaultPostGameStats } from '@app/default-attributes';
 import { CombatInfos } from '@common/combat-info';
 import { CombatPlayers } from '@common/combat-player';
 import { CombatResultDetails } from '@common/combat-result';
@@ -28,7 +29,8 @@ export const mockAttacker: Player = {
     isActive: true,
     name: 'name',
     status: Status.Player,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
+    positionHistory: [],
     inventory: [],
     position: { x: 0, y: 0 },
     behavior: Behavior.Sentient,
@@ -54,7 +56,8 @@ export const mockDefender: Player = {
     isActive: true,
     name: 'name',
     status: Status.Player,
-    victories: 1,
+    postGameStats: defaultPostGameStats,
+    positionHistory: [],
     inventory: [],
     position: { x: 5, y: 0 },
     behavior: Behavior.Sentient,
@@ -72,4 +75,5 @@ export const mockCombatInfos: CombatInfos = {
     gameTime: 60,
     room: mockRoom,
     failEvasion: false,
+    checkedXiphos: false,
 };

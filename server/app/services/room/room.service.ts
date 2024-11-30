@@ -1,6 +1,7 @@
 import { Timer } from '@app/classes/timer/timer';
 import { ACCESS_CODE_LENGTH, MAX_ACCESS_CODE_VALUE } from '@app/constants';
 import { GameTimers } from '@app/interfaces/game-timers';
+import { defaultGlobalStats } from '@app/mocks/default-global-stats';
 import { ChatService } from '@app/services/chat/chat.service';
 import { avatars } from '@common/avatars-info';
 import { Game } from '@common/game';
@@ -40,6 +41,7 @@ export class RoomService {
             adminId: socket.id,
             isLocked: false,
             gameStatus: GameStatus.Lobby,
+            globalPostGameStats: defaultGlobalStats,
         };
         this.rooms.set(roomCode, room);
         this.setRoomTimers(roomCode);

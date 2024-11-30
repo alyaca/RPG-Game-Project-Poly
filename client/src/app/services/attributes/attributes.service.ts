@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { DEFAULT_ATTRIBUTE, DICE_4, DICE_6, ErrorMessages, HIGH_ATTRIBUTE } from '@app/constants';
 import { defaultAttributes } from '@app/default-attributes';
-import { PlayerStats } from '@common/player';
+import { Attributes } from '@common/player';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AttributesService {
     name: string = '';
-    attributes: PlayerStats = { ...defaultAttributes };
+    attributes: Attributes = { ...defaultAttributes };
 
     setCharacterName(name: string) {
         this.name = name;
@@ -43,7 +43,7 @@ export class AttributesService {
         this.attributes = { ...defaultAttributes };
     }
 
-    getAttributValue(chosenAttribute: keyof PlayerStats) {
+    getAttributValue(chosenAttribute: keyof Attributes) {
         if (chosenAttribute.includes('DiceMax') && this.hasSelectedDice()) {
             return this.getDiceMessage(chosenAttribute);
         }
@@ -60,7 +60,7 @@ export class AttributesService {
         return '';
     }
 
-    getDiceMessage(chosenAttribute: keyof PlayerStats) {
+    getDiceMessage(chosenAttribute: keyof Attributes) {
         const diceValue = this.attributes[chosenAttribute];
         return diceValue === DEFAULT_ATTRIBUTE ? DICE_4 : DICE_6;
     }
@@ -113,7 +113,7 @@ export class AttributesService {
         return !(atkDiceMax === DEFAULT_ATTRIBUTE && defDiceMax === DEFAULT_ATTRIBUTE);
     }
 
-    private setAttribute(highAttribute: keyof PlayerStats, defaultAttribute: keyof PlayerStats) {
+    private setAttribute(highAttribute: keyof Attributes, defaultAttribute: keyof Attributes) {
         this.attributes[highAttribute] = HIGH_ATTRIBUTE;
         this.attributes[defaultAttribute] = DEFAULT_ATTRIBUTE;
     }

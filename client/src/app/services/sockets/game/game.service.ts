@@ -85,13 +85,17 @@ export class GameService {
     }
 
     onAdminQuit(message: string) {
-        this.openDialog({ title: DialogTitle.GameCanceled, messages: [message], confirm: false, options: [DialogOptions.Close] }).subscribe(
-            (result) => {
-                if (result.action === DialogResult.Close) {
-                    this.router.navigate(['/home']);
-                }
-            },
-        );
+        this.openDialog({
+            title: DialogTitle.GameCanceled,
+            messages: [message],
+            confirm: false,
+            options: [DialogOptions.Close],
+            itemSwap: null,
+        }).subscribe((result) => {
+            if (result === DialogResult.Close) {
+                this.router.navigate(['/home']);
+            }
+        });
     }
 
     onRoomDeleted() {
@@ -112,8 +116,24 @@ export class GameService {
             messages: [DialogMessages.QuitGame],
             options: [DialogOptions.Quit, DialogOptions.Stay],
             confirm: true,
+            itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
+                this.socketCommunicationService.send('leaveRoom', roomId);
+            }
+        });
+    }
+
+    onQuitPostGameLobby(roomId: string) {
+        this.openDialog({
+            title: DialogTitle.QuitPostGameLobby,
+            messages: [DialogMessages.QuitPostGameLobby],
+            options: [DialogOptions.Quit, DialogOptions.Stay],
+            confirm: true,
+            itemSwap: null,
+        }).subscribe((result) => {
+            if (result.action === DialogResult.Left) {
+                this.router.navigate(['/home']);
                 this.socketCommunicationService.send('leaveRoom', roomId);
             }
         });
@@ -125,6 +145,7 @@ export class GameService {
             messages: [DialogMessages.KickedOut],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap: null,
         }).subscribe((result) => {
             if (result.action === DialogResult.Close) {
                 this.router.navigate(['/home']);

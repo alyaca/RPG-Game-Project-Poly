@@ -216,6 +216,7 @@ describe('WaitingPageComponent', () => {
                 messages: [DialogMessages.NotEnoughPlayers],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             });
         });
 
@@ -226,6 +227,7 @@ describe('WaitingPageComponent', () => {
                 messages: [DialogMessages.RoomLocked],
                 options: [DialogOptions.Close],
                 confirm: false,
+                itemSwap: null,
             });
         });
 
@@ -264,6 +266,7 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.ConfirmStartGame],
             options: [DialogOptions.Cancel, DialogOptions.Confirm],
             confirm: true,
+            itemSwap: null,
         });
 
         setTimeout(() => {
@@ -292,6 +295,7 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.MaxPlayers],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap: null,
         });
         expect(component.isBotProfileVisible).toBeFalse();
     });
@@ -307,6 +311,7 @@ describe('WaitingPageComponent', () => {
             messages: [DialogMessages.AddBotWhenLocked],
             options: [DialogOptions.Close],
             confirm: false,
+            itemSwap: null,
         });
         expect(component.isBotProfileVisible).toBeFalse();
     });

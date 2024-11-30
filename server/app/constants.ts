@@ -69,6 +69,10 @@ export const EQUAL_ODDS_PROBABILITY = 0.5;
 export const EQUAL_ODDS_FAIL = 0.4;
 
 export const MIN_DICE_VALUE = 1;
+
+export const SECS_IN_HOUR = 3600;
+export const SECS_IN_MIN = 60;
+export const MINS_IN_HOUR = 60;
 export const MAX_GENERATION_VALUE = 1000000000;
 export const DISCONNECTED_POSITION = { x: 100, y: 100 };
 
@@ -87,5 +91,7 @@ export const enum LogType {
 }
 
 export const ICE_TILE_PENALTY_VALUE = 2;
+export const XIPHOS_ATTACK_BONUS = 2;
+export const XIPHOS_DEFENSE_PENALTY = 1;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
