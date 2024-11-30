@@ -1,10 +1,6 @@
 import { Timer } from '@app/classes/timer/timer';
 import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME, TileCost, TileType } from '@app/constants';
-<<<<<<< HEAD
-import { baseBot, mockBotPlayers, mockPlayers, mockPlayerStats } from '@app/mocks/mock-players';
-=======
-import { baseBot, mockPlayers, mockAttributes } from '@app/mocks/mock-players';
->>>>>>> 36ecce6dd0620f3ab1181e1a3fb15e5152e439e0
+import { baseBot, mockAttributes, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
@@ -90,9 +86,9 @@ describe('GameService', () => {
                 GameService,
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: GameLogsService, useValue: gameLogsServiceMock },
-                { provide: MatchService, useValue: matchServiceMock },      
+                { provide: MatchService, useValue: matchServiceMock },
                 { provide: BotService, useValue: botServiceMock },
-                { provide: PlayerInventoryService, useValue: playerInventoryServiceMock },          
+                { provide: PlayerInventoryService, useValue: playerInventoryServiceMock },
             ],
         }).compile();
         (mockServer.to as jest.Mock).mockReturnValue({ emit: jest.fn() });
@@ -451,7 +447,7 @@ describe('GameService', () => {
         service.checkActions = jest.fn();
 
         room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
-        service.onTurnEnded(mockSocket, mockServer);
+        service.onTurnEnded(room, mockServer);
 
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('reachability', players[0]);
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith('isActive', players[0]);
@@ -462,7 +458,7 @@ describe('GameService', () => {
     it('should not update active player if moving', () => {
         service.isMoving = true;
         jest.spyOn(service, 'getActivePlayer').mockReturnValue(listPlayers[0]);
-        service.onTurnEnded(mockSocket, mockServer);
+        service.onTurnEnded(room, mockServer);
         expect(service.isTurnSkipped).toBe(true);
     });
 
@@ -532,7 +528,7 @@ describe('GameService', () => {
 
             jest.spyOn(roomService, 'getTurnTimer').mockReturnValue(turnTimer);
             jest.spyOn(service, 'onTurnEnded').mockImplementation();
-            service['playerTurnTimer'](mockSocket, mockServer);
+            service['playerTurnTimer'](room, mockServer);
             turnTimerCallback(remainingTime);
 
             expect(roomService.getTurnTimer).toHaveBeenCalledWith(room.roomId);
@@ -884,7 +880,7 @@ describe('GameService', () => {
         service.isMoving = false;
         jest.spyOn(roomService, 'getRoom').mockReturnValue(mockRoom);
         jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[2]);
-        service.onTurnEnded(mockSocket, mockServer);
+        service.onTurnEnded(room, mockServer);
         expect(mockRoom.navigation.isBot).toBeTruthy();
     });
 

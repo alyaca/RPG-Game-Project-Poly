@@ -16,61 +16,6 @@ const mockAttributes: Attributes = {
     evasion: 2,
 };
 
-export const mockNoActivePlayers: Player[] = [
-    {
-        id: 'admin1234',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'name',
-        status: Status.Player,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        behavior: Behavior.Sentient,
-        spawnPosition: { x: 0, y: 0 },
-    },
-    {
-        id: '123',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'name',
-        status: Status.Admin,
-        victories: 2,
-        inventory: [],
-        position: { x: 1, y: 1 },
-        behavior: Behavior.Sentient,
-        spawnPosition: { x: 1, y: 1 },
-    },
-    {
-        id: 'id',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'name',
-        status: Status.Player,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        behavior: Behavior.Sentient,
-        spawnPosition: { x: 0, y: 0 },
-    },
-    {
-        id: 'bot',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'name',
-        status: Status.Bot,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        behavior: Behavior.Aggressive,
-        spawnPosition: { x: 0, y: 0 },
-    },
-];
-
 export const mockPlayers: Player[] = [
     {
         id: 'admin1234',

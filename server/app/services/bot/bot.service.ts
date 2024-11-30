@@ -1,3 +1,4 @@
+import { ObjectType } from '@common/avatars-info';
 import { Behavior, Player, Position } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
@@ -9,6 +10,7 @@ export class BotService {
 
     processBotTurn(room: Room, server: Server, activePlayer: Player) {
         if (activePlayer.behavior === Behavior.Aggressive) {
+            console.log('aggressive bot');
             this.processAggressiveBot(room, server, activePlayer);
         } else {
             this.processDefensiveBot(room, server, activePlayer);
@@ -17,7 +19,8 @@ export class BotService {
 
     async processDefensiveBot(room: Room, server: Server, activePlayer: Player) {
         //Magic number
-        await this.delay(this.getRandomInt(3000, 25000));
+        //TODO : remmetre le delai
+        //await this.delay(this.getRandomInt(3000, 25000));
         const players = room.listPlayers;
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         if (this.checkForDefenseItems(room, reachability)) {
@@ -33,9 +36,10 @@ export class BotService {
                 path.pop();
                 server.to(room.roomId).emit('botNavigation', path);
                 //Magic number
-                await this.delay(3000);
+                //TODO : remmetre le delai
+                //await this.delay(1000); // to replace par 3000
                 this.attackPlayer(room, server, target, activePlayer);
-                //server.to(room.roomId).emit('endTurnBot', path);
+                //await server.to(room.roomId).emit('endTurnBot', path);
                 return;
             }
         }
@@ -51,20 +55,23 @@ export class BotService {
 
     async processAggressiveBot(room: Room, server: Server, activePlayer: Player) {
         //Magic number
-        console.log('aggressive bot');
-        await this.delay(this.getRandomInt(3000, 25000));
+        console.log('process aggressive bot');
+        //TODO : remmetre le delai
+        //await this.delay(this.getRandomInt(3000, 25000));
         const players = room.listPlayers;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
 
         if (target) {
+            console.log('target', target);
             //Check if the bot can attack the target
             const path = this.checkForEnemy(room, activePlayer, target);
             if (path.length > 0) {
                 path.pop();
                 server.to(room.roomId).emit('botNavigation', path);
                 //Magic number
-                await this.delay(3000);
+                //TODO : remmetre le delai
+                //await this.delay(3000);
                 this.attackPlayer(room, server, target, activePlayer);
                 //server.to(room.roomId).emit('endTurnBot', path);
                 return;
@@ -72,7 +79,6 @@ export class BotService {
         }
         //check for attack items
         const item = this.checkForAttackItems(room, reachability);
-        console.log('item', item);
         if (item) {
             const path = room.navigation.findFastestPath(activePlayer, item, room);
             server.to(room.roomId).emit('botNavigation', path);
@@ -102,8 +108,12 @@ export class BotService {
         for (const tile of reachability) {
             //TODO : replacer les valeurs par les valeurs des objets qui sont dans client
             //Lightning, Xiphos
-            if (items[tile.x][tile.y] === 4 || items[tile.x][tile.y] === 5 || items[tile.x][tile.y] === 3) {
-                console.log('0');
+            if (
+                items[tile.x][tile.y] === ObjectType.Lightning ||
+                items[tile.x][tile.y] === ObjectType.Xiphos ||
+                items[tile.x][tile.y] === ObjectType.Sandal ||
+                items[tile.x][tile.y] === ObjectType.Armor
+            ) {
                 return tile;
             }
         }
@@ -114,7 +124,7 @@ export class BotService {
         const items = room.gameMap.itemPlacement;
         for (const tile of reachability) {
             //Magic number
-            if (items[tile.x][tile.y] === 6 || items[tile.x][tile.y] === 2) {
+            if (items[tile.x][tile.y] === ObjectType.Kunee || items[tile.x][tile.y] === ObjectType.Trident) {
                 return tile;
             }
         }

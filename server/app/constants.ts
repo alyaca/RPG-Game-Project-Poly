@@ -37,8 +37,8 @@ export const SPAWN_POINT_ID = 8;
 // constants for timer
 export const WARNING_TIME = 3;
 export const STARTING_TIME = 3;
-export const TURN_TIME = 30;
-export const FIGHT_TIME = 5;
+export const TURN_TIME = 3; //30;TODO: change back to 30
+export const FIGHT_TIME = 10;
 export const NO_EVASION_TIME = 3;
 export const MILLISECONDS_IN_SECOND = 1000;
 

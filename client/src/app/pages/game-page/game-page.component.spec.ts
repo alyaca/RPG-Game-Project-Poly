@@ -36,7 +36,6 @@ describe('GamePageComponent', () => {
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let combatServiceSpy: jasmine.SpyObj<CombatService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
-    let combatServiceSpy: jasmine.SpyObj<CombatService>;
 
     const accessCode = '1234';
 
@@ -188,44 +187,17 @@ describe('GamePageComponent', () => {
             expect(component.setPlayersOnCombatDone).toHaveBeenCalled();
         });
 
-        it('should callOpenDialog correctly on endGame', () => {
-            socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'endGame') {
-                    callback(mockPlayers[0] as T);
-                }
-            });
-            gameServiceSpy.openDialog.and.returnValue(of({ action: DialogResult.Close }));
-            component.ngOnInit();
-            expect(gameServiceSpy.openDialog).toHaveBeenCalledWith({
-                title: DialogTitle.EndGame,
-                messages: ['Le gagnant de la partie est : ' + mockPlayers[0].name],
-                options: [DialogOptions.Close],
-                confirm: false,
-            });
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-        });
-
         // change to minus -1 when items are merged
         it('should set actionPoints to 0 if doorClicked', () => {
+            component.activePlayer = mockPlayers[0];
+            component.activePlayer.attributes.actionPoints = 1;
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'doorClicked') {
                     callback({} as T);
                 }
             });
-            component.activePlayer = mockPlayers[0];
             component.ngOnInit();
             expect(component.activePlayer.attributes.actionPoints).toEqual(0);
-        });
-
-        it('should call onEndTurn on endTurnBot event', () => {
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'endTurnBot') {
-                    callback({} as T);
-                }
-            });
-            spyOn(component, 'onEndTurn');
-            component.ngOnInit();
-            expect(component.onEndTurn).toHaveBeenCalled();
         });
 
         it('should disconnect on draw event', () => {

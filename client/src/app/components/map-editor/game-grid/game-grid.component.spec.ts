@@ -336,7 +336,7 @@ describe('GameGridComponent', () => {
         });
 
         it('should listen to combatEnd event and set actionPoints to 0, then call checkEndTurn', () => {
-            component.activePlayer = mockPlayers[0];
+            component.activePlayer = { ...mockPlayers[0] };
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'combatEnd') {
                     callback({} as T);

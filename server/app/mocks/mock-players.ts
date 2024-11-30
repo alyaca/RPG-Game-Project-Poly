@@ -15,48 +15,6 @@ export const mockAttributes: Attributes = {
     evasion: 2,
 };
 
-export const mockBotPlayers: Player[] = [
-    {
-        id: 'admin1234',
-        attributes: mockPlayerStats,
-        avatar: avatars[0],
-        isActive: true,
-        name: 'mobile',
-        status: Status.Bot,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        behavior: Behavior.Sentient,
-        spawnPosition: { x: 0, y: 0 },
-    },
-    {
-        id: 'id',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'joseph',
-        status: Status.Bot,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        spawnPosition: { x: 0, y: 0 },
-        behavior: Behavior.Sentient,
-    },
-    {
-        id: 'bot',
-        attributes: mockPlayerStats,
-        avatar: undefined,
-        isActive: false,
-        name: 'loly',
-        status: Status.Bot,
-        victories: 1,
-        inventory: [],
-        position: { x: 0, y: 0 },
-        spawnPosition: { x: 0, y: 0 },
-        behavior: Behavior.Aggressive,
-    },
-];
-
 export const defaultPostGameStats: PostGameStats = {
     combats: 0,
     victories: 0,

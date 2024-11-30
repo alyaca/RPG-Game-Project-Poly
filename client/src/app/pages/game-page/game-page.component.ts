@@ -365,10 +365,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.gameService.hasActionPoints(this.activePlayer);
     }
 
-    forceEndGame() {
-        this.socketCommunicationService.send('forceEndGame', this.allPlayers[0]);
-    }
-
     isPlayerAdmin(): boolean {
         const admin = this.allPlayers!.find((player) => player.status === Status.Admin);
         const currentPlayer = this.allPlayers!.find((player) => player.id === this.socketCommunicationService.socket.id);

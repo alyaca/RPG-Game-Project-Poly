@@ -172,6 +172,7 @@ export class GameService {
 
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
+            //Todo : remplacer 25 par 0
             if (timeRemaining <= 0) {
                 this.playerTurnTimer(room, server);
             }
@@ -299,7 +300,7 @@ export class GameService {
 
         this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
             if (timeLeft <= 0) {
-                this.onTurnEnded(infoSwap.client, infoSwap.server);
+                this.onTurnEnded(room, infoSwap.server);
             }
             infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
         });
@@ -331,6 +332,8 @@ export class GameService {
         // TODO : refactor this
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
+        console.log('which player is active');
+        console.log(player.name);
         this.initTileHistory(room); // Should maybe call this function elsewhere
         for (const tile of path) {
             this.isMoving = true;

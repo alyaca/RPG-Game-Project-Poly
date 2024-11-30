@@ -2,8 +2,9 @@ import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
+import { GameObject } from '@common/game-object';
 import { gameObjects } from '@common/objects-info';
-import { Player } from '@common/player';
+import { Player, Status } from '@common/player';
 import { Room } from '@common/room';
 import { Injectable } from '@nestjs/common';
 
@@ -21,9 +22,19 @@ export class PlayerInventoryService {
             itemPickedUp = this.determineRandomItem(allItems, room);
         }
         if (info.player.inventory.length === 2) {
-            this.roomService.getTurnTimer(room.roomId).pauseTimer();
-            info.client.emit('openItemSwitchModal', { activePlayer: info.player, itemPickedUp });
-            return;
+            if (info.player.status === Status.Bot) {
+                info.oldInventory = info.player.inventory;
+                info = this.getPrioritizedItem(info, itemPickedUp);
+                //C,est repetee
+                //info.player.inventory = info.modifiedInventory;
+                info.player = this.updatePlayerAfterSwap(info);
+
+                return;
+            } else {
+                this.roomService.getTurnTimer(room.roomId).pauseTimer();
+                info.client.emit('openItemSwitchModal', { activePlayer: info.player, itemPickedUp });
+                return;
+            }
         } else {
             info.player = this.updatePlayerWithItem(info.player, itemPickedUp);
             this.gameLogService.sendItemLog(info.player, room.roomId, info.server, itemPickedUp);
@@ -32,6 +43,7 @@ export class PlayerInventoryService {
         const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
+
         info.client.emit('updateInventory', info.player);
     }
 
@@ -153,7 +165,56 @@ export class PlayerInventoryService {
         room.listPlayers[index].inventory = playerToUpdate.inventory;
 
         infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
-        infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate);
+        infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate); // A voir pour les bots
         return playerToUpdate;
+    }
+
+    private getPrioritizedItem(info: InfoSwap, itemPickedUp: number): InfoSwap {
+        let itemToDrop;
+        if (info.player.behavior === 'aggressive') {
+            itemToDrop = this.determineItemToDropAggressive(info.player.inventory, itemPickedUp);
+        } else {
+            itemToDrop = this.determineItemToDropDefensive(info.player.inventory, itemPickedUp);
+        }
+        // itemToDrop is undefined, make sure to pass it in info when calling the function
+        info.modifiedInventory = info.player.inventory.filter((item) => item.id === itemToDrop.id);
+        if (itemToDrop !== itemPickedUp) {
+            info.modifiedInventory.push(gameObjects.find((object) => object.id === itemPickedUp));
+        }
+        info.droppedItem = itemToDrop.id;
+        return info;
+    }
+
+    private determineItemToDropDefensive(inventory: GameObject[], itemPickedUp: number) {
+        const itemPickedUpObject = gameObjects.find((object) => object.id === itemPickedUp);
+        if (itemPickedUpObject && this.isDefenseItem(itemPickedUpObject)) {
+            if (this.isDefenseItem(inventory[0])) {
+                return inventory[0];
+            } else if (this.isDefenseItem(inventory[1])) {
+                return inventory[1];
+            } else {
+                return itemPickedUp;
+            }
+        }
+    }
+
+    private isDefenseItem(item: GameObject) {
+        return item.id === ObjectType.Trident || item.id === ObjectType.Kunee;
+    }
+
+    private determineItemToDropAggressive(inventory: GameObject[], itemPickedUp: number) {
+        const itemPickedUpObject = gameObjects.find((object) => object.id === itemPickedUp);
+        if (itemPickedUpObject && this.isAttackItem(itemPickedUpObject)) {
+            if (!this.isAttackItem(inventory[0])) {
+                return inventory[0];
+            } else if (!this.isAttackItem(inventory[1])) {
+                return inventory[1];
+            } else {
+                return itemPickedUp;
+            }
+        }
+    }
+    private isAttackItem(item: GameObject) {
+        return item.id === ObjectType.Lightning || item.id === ObjectType.Xiphos || item.id === ObjectType.Sandal || item.id === ObjectType.Armor;
     }
 }
