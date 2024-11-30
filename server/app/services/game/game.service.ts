@@ -467,7 +467,7 @@ export class GameService {
     }
 
     private isObject(room: Room, tile: Position) {
-        const isObjectFlag = room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random;
+        const isObjectFlag = room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag;
         return room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random || isObjectFlag;
     }
 
