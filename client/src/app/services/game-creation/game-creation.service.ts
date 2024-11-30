@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { MapPosition } from '@app/interfaces/map-position';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { MapSize, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
+import { Position } from '@common/interfaces/position';
 import { ClientToServerEvent } from '@common/socket.events';
 import { BehaviorSubject } from 'rxjs';
 import { GameTileInfoService } from '../game-tile-info/game-tile-info.service';
@@ -63,9 +63,10 @@ export class GameCreationService {
         return this.navigationService.isDebugMode && !this.isModifiable && !isMoving;
     }
 
-    rightClick(position: MapPosition, isMoving: boolean) {
+    rightClick(position: Position, isMoving: boolean) {
         const isMovingAndTileInfoVisible = [];
         if (this.canTeleport(isMoving)) {
+            console.log('teleporting');
             this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
             isMovingAndTileInfoVisible[0] = true;
         } else {
@@ -75,11 +76,11 @@ export class GameCreationService {
         return isMovingAndTileInfoVisible;
     }
 
-    showDetails(position: MapPosition) {
+    showDetails(position: Position) {
         if (!this.isModifiable) {
             this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
-            this.gameTileInfoService.selectedRow = position.row;
-            this.gameTileInfoService.selectedCol = position.col;
+            this.gameTileInfoService.selectedRow = position.x;
+            this.gameTileInfoService.selectedCol = position.y;
             return true;
         }
         return false;

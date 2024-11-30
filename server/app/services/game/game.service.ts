@@ -270,7 +270,7 @@ export class GameService {
 
     processTeleportation(room: Room, server: Server, position: Position) {
         const player = this.getActivePlayer(room);
-        const playerId = player.id;
+        // const playerId = player.id;
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
             server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, player });

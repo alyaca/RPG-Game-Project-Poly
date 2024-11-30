@@ -100,6 +100,14 @@ export class NavigationService {
         return objects;
     }
 
+    respawnPlayer(position: Position, player: Player, objects: number[][]) {
+        let playerToPlace = this.players.find((players) => players.id === player.id);
+        if (!playerToPlace) return objects;
+        playerToPlace.position = position;
+        this.updateTile(playerToPlace);
+        return this.placeAvatar(player, objects);
+    }
+
     setInitialPositions(): void {
         for (const player of this.players) {
             this.initialPositions.push({ x: player.position.x, y: player.position.y });

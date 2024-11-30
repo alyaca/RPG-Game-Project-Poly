@@ -240,10 +240,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.objectsArray = this.navigationService.displayPortraitsOnSpawnPoints(players, this.objectsArray);
     }
 
-    placeAvatarOnTile(player: Player) {
-        this.objectsArray = this.navigationService.placeAvatar(player, this.objectsArray);
-    }
-
     onResetTrigger() {
         if (!this.gameCreationService.isNewGame) {
             this.resetNewMap();
@@ -303,13 +299,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        const result = this.gameCreationService.rightClick({ row, col }, this.isMoving);
+        const result = this.gameCreationService.rightClick({ x: row, y: col }, this.isMoving);
         this.isMoving = result[0];
         this.tileInfoVisible = result[1];
     }
 
     showDetails(row: number, col: number) {
-        this.tileInfoVisible = this.gameCreationService.showDetails({ row, col });
+        this.tileInfoVisible = this.gameCreationService.showDetails({ x: row, y: col });
     }
 
     closeTileDescription() {
@@ -397,12 +393,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     // Up to here
     respawnPlayer(position: Position, player: Player) {
-        let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
-        if (!playerToReplace) return;
-        playerToReplace.position = position;
-        this.navigationService.updateTile(playerToReplace);
-        playerToReplace = player;
-        this.placeAvatarOnTile(playerToReplace);
+        this.objectsArray = this.navigationService.respawnPlayer(position, player, this.objectsArray);
     }
 
     navigateToTile(position: Position) {
@@ -411,7 +402,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (this.activePlayer) {
             this.navigationService.updateTile(this.activePlayer);
             this.activePlayer.position = position;
-            this.placeAvatarOnTile(this.activePlayer);
+            this.objectsArray = this.navigationService.placeAvatar(this.activePlayer, this.objectsArray);
         }
     }
 
