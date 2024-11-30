@@ -13,7 +13,7 @@ export enum ClientToServerEvent {
     EvadeCombat = 'evadeCombat',
     FindPath = 'findPath',
     GetMap = 'getMap',
-    GetRoom = "GetRoom", // Temporary
+    GetRoom = 'GetRoom', // Temporary
     IsLocked = 'isLocked',
     ItemSwapped = 'itemSwapped',
     JoinRoom = 'joinRoom',
@@ -48,6 +48,7 @@ export enum ServerToClientEvent {
     CombatTurnEnded = 'combatTurnEnded',
     DebugMode = 'debugMode',
     DefaultCombatWin = 'defaultCombatWin',
+    DisconnectedPlayer = 'disconnectedPlayer',
     PlayerDisconnected = 'playerDisconnected',
     DoorAround = 'doorAround',
     DoorClicked = 'doorClicked',

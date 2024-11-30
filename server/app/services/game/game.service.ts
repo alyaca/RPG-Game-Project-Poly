@@ -561,7 +561,7 @@ export class GameService {
         if (this.isLastPlayer(room)) {
             server.to(room.roomId).emit(ServerToClientEvent.DrawGame);
         }
-        server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
+        server.to(room.roomId).emit(ServerToClientEvent.DisconnectedPlayer, disconnectedPlayer);
         this.sortPlayersBySpeed(room);
     }
 
