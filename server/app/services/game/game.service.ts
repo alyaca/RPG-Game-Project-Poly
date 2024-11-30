@@ -143,7 +143,6 @@ export class GameService {
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
-
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
@@ -270,7 +269,6 @@ export class GameService {
 
     processTeleportation(room: Room, server: Server, position: Position) {
         const player = this.getActivePlayer(room);
-        // const playerId = player.id;
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
             server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, player });

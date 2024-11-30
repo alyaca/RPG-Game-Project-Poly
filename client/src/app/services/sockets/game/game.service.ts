@@ -68,7 +68,7 @@ export class GameService {
     }
 
     canOpenDoor(player: Player) {
-        return this.isActionDoorSelected  && this.hasActionPoints(player);
+        return this.isActionDoorSelected && this.hasActionPoints(player);
     }
 
     canStartCombat(player: Player) {
@@ -81,14 +81,14 @@ export class GameService {
         // return objects[position.x][position.y] > ObjectType.Spawn && objects[position.x][position.y] < ObjectType.Flag;
     }
 
-    handleFightAction({ position, tiles, objects} : GridOperationsInfo, player: Player) {
-        if(this.navigationService.isNeighbor(position, player) && this.tileHasPlayer(position, objects)) {
+    handleFightAction({ position, tiles, objects }: GridOperationsInfo, player: Player) {
+        if (this.navigationService.isNeighbor(position, player) && this.tileHasPlayer(position, objects)) {
             player.attributes.actionPoints--;
             this.isActionCombatSelected = false;
             const player2 = this.getPlayerByAvatarName(this.navigationService.players, objects[position.x][position.y]);
             const [attacker, defender] = player2 && player.attributes.speed < player2.attributes.speed ? [player2, player] : [player, player2];
             const isActivePlayerAttacker = player.id === attacker.id;
-            this.socketCommunicationService.send(ClientToServerEvent.StartFight, { 
+            this.socketCommunicationService.send(ClientToServerEvent.StartFight, {
                 player1: attacker,
                 player2: defender,
                 isPlayer1Active: isActivePlayerAttacker,
@@ -350,6 +350,7 @@ export class GameService {
             messages: [`Quel objet voulez échangé pour celui-ci: ${foundItem?.name}`],
             options: [],
             confirm: false,
+            itemSwap: itemSwap,
         }).subscribe(() => {
             this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
                 inventoryToUndo: oldInventory,

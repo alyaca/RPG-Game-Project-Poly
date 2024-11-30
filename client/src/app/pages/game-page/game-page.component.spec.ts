@@ -134,7 +134,7 @@ describe('GamePageComponent', () => {
             });
             spyOn(component, 'replenishHealth');
             spyOn(component, 'initCombatListeners');
-            spyOn(component, 'initGameListener');
+            spyOn(component, 'initGameListeners');
             spyOn(component, 'onBeforeStartTurn');
 
             component.ngOnInit();
@@ -151,7 +151,7 @@ describe('GamePageComponent', () => {
                     callback({ attackAround: true, targets: [targetPlayer] } as T);
                 }
             });
-            component.initGameListener();
+            component.initGameListeners();
             expect(gameServiceSpy.addGamePageListeners).toHaveBeenCalled();
             expect(component.attackAround).toBe(true);
             expect(gameServiceSpy.playersTarget).toEqual([targetPlayer]);
@@ -164,7 +164,7 @@ describe('GamePageComponent', () => {
                     callback({ doorAround: true, targets: [targetDoor] } as T);
                 }
             });
-            component.initGameListener();
+            component.initGameListeners();
             expect(gameServiceSpy.addGamePageListeners).toHaveBeenCalled();
             expect(component.doorAround).toBe(true);
             expect(gameServiceSpy.doorsTarget).toEqual([targetDoor]);
@@ -177,7 +177,7 @@ describe('GamePageComponent', () => {
                     callback({} as T);
                 }
             });
-            component.initGameListener();
+            component.initGameListeners();
             expect(component.activePlayer.attributes.actionPoints).toBe(0);
         });
 
@@ -187,7 +187,7 @@ describe('GamePageComponent', () => {
                     callback(mockPlayers as T);
                 }
             });
-            component.initGameListener();
+            component.initGameListeners();
             expect(component.allPlayers).toEqual(mockPlayers);
         });
 
@@ -197,7 +197,7 @@ describe('GamePageComponent', () => {
                     callback(mockPlayer.name as T);
                 }
             });
-            component.initGameListener();
+            component.initGameListeners();
             expect(component.activePlayerName).toEqual(mockPlayer.name);
         });
     });
