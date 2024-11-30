@@ -332,8 +332,6 @@ export class GameService {
         // TODO : refactor this
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
-        console.log('which player is active');
-        console.log(player.name);
         this.initTileHistory(room); // Should maybe call this function elsewhere
         for (const tile of path) {
             this.isMoving = true;

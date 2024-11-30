@@ -239,7 +239,9 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
+            // will be deleted because of the item that lets you walk through walls
+            // this.getTileCost is in charge of allowing/not allowing players to go through them
+            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (!this.isBot) {
                 if (this.hasPlayerOnTile(neighbor, this.players)) continue;
             }
@@ -268,7 +270,8 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (!this.isReachableTile(newX, newY) && this.isBot) continue;
-            if (game.tiles[newX][newY] === TileType.Wall) continue;
+            // can't stay because of the item that lets you walk through walls
+            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (!this.isBot) {
                 if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
             }

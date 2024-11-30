@@ -10,7 +10,7 @@ export class BotService {
 
     processBotTurn(room: Room, server: Server, activePlayer: Player) {
         if (activePlayer.behavior === Behavior.Aggressive) {
-            console.log('aggressive bot');
+            // console.log('aggressive bot');
             this.processAggressiveBot(room, server, activePlayer);
         } else {
             this.processDefensiveBot(room, server, activePlayer);
@@ -55,7 +55,7 @@ export class BotService {
 
     async processAggressiveBot(room: Room, server: Server, activePlayer: Player) {
         //Magic number
-        console.log('process aggressive bot');
+        // console.log('process aggressive bot');
         //TODO : remmetre le delai
         //await this.delay(this.getRandomInt(3000, 25000));
         const players = room.listPlayers;
@@ -63,7 +63,7 @@ export class BotService {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
 
         if (target) {
-            console.log('target', target);
+            // console.log('target', target);
             //Check if the bot can attack the target
             const path = this.checkForEnemy(room, activePlayer, target);
             if (path.length > 0) {

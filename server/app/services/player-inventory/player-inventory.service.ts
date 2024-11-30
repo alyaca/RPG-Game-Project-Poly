@@ -25,8 +25,6 @@ export class PlayerInventoryService {
             if (info.player.status === Status.Bot) {
                 info.oldInventory = info.player.inventory;
                 info = this.getPrioritizedItem(info, itemPickedUp);
-                //C,est repetee
-                //info.player.inventory = info.modifiedInventory;
                 info.player = this.updatePlayerAfterSwap(info);
 
                 return;
@@ -145,9 +143,11 @@ export class PlayerInventoryService {
                 break;
             }
         }
-
+        let playerToUpdate = infoSwap.player;
         const room = this.roomService.getRoom(infoSwap.client);
-        let playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
+        if (!playerToUpdate) {
+            playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
+        }
         playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
         playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[1].id);
 
@@ -170,15 +170,14 @@ export class PlayerInventoryService {
     }
 
     private getPrioritizedItem(info: InfoSwap, itemPickedUp: number): InfoSwap {
-        let itemToDrop;
+        let itemToDrop : GameObject;
         if (info.player.behavior === 'aggressive') {
             itemToDrop = this.determineItemToDropAggressive(info.player.inventory, itemPickedUp);
         } else {
             itemToDrop = this.determineItemToDropDefensive(info.player.inventory, itemPickedUp);
         }
-        // itemToDrop is undefined, make sure to pass it in info when calling the function
-        info.modifiedInventory = info.player.inventory.filter((item) => item.id === itemToDrop.id);
-        if (itemToDrop !== itemPickedUp) {
+        info.modifiedInventory = info.player.inventory.filter((item) => item.id !== itemToDrop.id);
+        if (itemToDrop.id !== itemPickedUp) {
             info.modifiedInventory.push(gameObjects.find((object) => object.id === itemPickedUp));
         }
         info.droppedItem = itemToDrop.id;
@@ -193,9 +192,10 @@ export class PlayerInventoryService {
             } else if (this.isDefenseItem(inventory[1])) {
                 return inventory[1];
             } else {
-                return itemPickedUp;
+                return itemPickedUpObject;
             }
         }
+        return itemPickedUpObject;
     }
 
     private isDefenseItem(item: GameObject) {
@@ -210,9 +210,10 @@ export class PlayerInventoryService {
             } else if (!this.isAttackItem(inventory[1])) {
                 return inventory[1];
             } else {
-                return itemPickedUp;
+                return itemPickedUpObject;
             }
         }
+        return itemPickedUpObject;
     }
     private isAttackItem(item: GameObject) {
         return item.id === ObjectType.Lightning || item.id === ObjectType.Xiphos || item.id === ObjectType.Sandal || item.id === ObjectType.Armor;
