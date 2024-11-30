@@ -21,12 +21,15 @@ import { TempDialogData } from '@app/interfaces/temp-dialog-data';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { PostGameService } from '@app/services/post-game/post-game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { ObjectType } from '@common/avatars-info';
 import { Game } from '@common/interfaces/game';
 import { GameObject } from '@common/interfaces/game-object';
+import { GridOperationsInfo } from '@common/interfaces/grid-operations-info';
 import { ItemSwap } from '@common/interfaces/item-swap';
 import { Player, Position, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { PathRoute } from '@common/interfaces/route';
+import { gameObjects } from '@common/objects-info';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Injectable({
@@ -62,6 +65,43 @@ export class GameService {
             this.roomId = roomInfo.roomId;
             this.selectedGame = roomInfo.gameMap;
         });
+    }
+
+    canOpenDoor(player: Player) {
+        return this.isActionDoorSelected  && this.hasActionPoints(player);
+    }
+
+    canStartCombat(player: Player) {
+        return this.isActionCombatSelected && this.hasActionPoints(player);
+    }
+
+    tileHasPlayer(position: Position, objects: number[][]) {
+        return objects[position.x][position.y] > ObjectType.Spawn;
+        // when we have ctf
+        // return objects[position.x][position.y] > ObjectType.Spawn && objects[position.x][position.y] < ObjectType.Flag;
+    }
+
+    handleFightAction({ position, tiles, objects} : GridOperationsInfo, player: Player) {
+        if(this.navigationService.isNeighbor(position, player) && this.tileHasPlayer(position, objects)) {
+            player.attributes.actionPoints--;
+            this.isActionCombatSelected = false;
+            const player2 = this.getPlayerByAvatarName(this.navigationService.players, objects[position.x][position.y]);
+            const [attacker, defender] = player2 && player.attributes.speed < player2.attributes.speed ? [player2, player] : [player, player2];
+            const isActivePlayerAttacker = player.id === attacker.id;
+            this.socketCommunicationService.send(ClientToServerEvent.StartFight, { 
+                player1: attacker,
+                player2: defender,
+                isPlayer1Active: isActivePlayerAttacker,
+            });
+            return player;
+        }
+        return player;
+    }
+
+    getPlayerByAvatarName(players: Player[], id: ObjectType) {
+        const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
+        const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
+        return clickedPlayer;
     }
 
     getPlayerNumber(height: number): number {

@@ -1,6 +1,6 @@
 import { Position } from './position';
 
-export interface TileRemoval {
+export interface GridOperationsInfo {
     position: Position;
     tiles: number[][];
     objects: number[][];

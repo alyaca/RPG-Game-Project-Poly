@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { MapPosition } from '@app/interfaces/map-position';
 import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
 
@@ -104,6 +106,26 @@ export class NavigationService {
         }
     }
 
+    isPlayerOnTile(position: MapPosition, player: Player) {
+        return player.position.x === position.row && player.position.y === position.col;
+    }
+
+    
+    noInteractionPossible(position: MapPosition, tiles: number[][], player: Player) {
+        return this.isReachableTile(position) && !this.isTileAClosedDoor(tiles, position)  && !this.isPlayerOnTile(position, player);
+    }
+
+    isTileAClosedDoor(tiles: number[][], position: MapPosition) {
+        return tiles[position.row][position.col] === TileType.ClosedDoor;
+    }
+
+    findPath(position: MapPosition, activePlayer: Player, defaultPath: Position[]) {
+        if(this.isPlayerOnTile(position, activePlayer)) {
+            return [];
+        }
+        return defaultPath;
+    }
+
     placePlayers(): Position[] {
         return this.players.map((player) => player.position);
     }
@@ -116,13 +138,13 @@ export class NavigationService {
         return godNameToObjectType.get(godName || '') ?? ObjectType.Spawn;
     }
 
-    isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+    isReachableTile(position: MapPosition): boolean {
+        return this.reachableTiles.some((tile) => tile.x === position.row && tile.y === position.col);
     }
 
-    isNeighbor(row: number, col: number, player: Player): boolean {
+    isNeighbor({ x, y }: Position, player: Player): boolean {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
-        return neighbors.some((neighbor) => neighbor.x === row && neighbor.y === col);
+        return neighbors.some((neighbor) => neighbor.x === x && neighbor.y === y);
     }
 
     getNeighbors(position: Position, game: Game): Position[] {

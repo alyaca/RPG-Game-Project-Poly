@@ -14,7 +14,6 @@ import {
     ViewChild,
 } from '@angular/core';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
-import { NO_OBJECT } from '@app/constants';
 import { MapPosition } from '@app/interfaces/map-position';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -25,11 +24,8 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { ObjectType } from '@common/avatars-info';
-import { TileType } from '@common/constants';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
-import { gameObjects } from '@common/objects-info';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 @Component({
     selector: 'app-game-grid',
@@ -61,20 +57,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     tilesGrid: number[][];
     gridSize: number;
 
-    private oldMapName: string;
-
-    private activePlayer: Player | undefined;
-
-    private isMouseDown: boolean = false;
-
     previousRow: number | null = null;
     previousCol: number | null = null;
-
+    
+    private oldMapName: string;
+    private activePlayer: Player | undefined;
+    private isMouseDown: boolean = false;
     private isMoving: boolean = false;
 
+    // Used in html
+    public navigationService = inject(NavigationService);
+    
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
-    private navigationService = inject(NavigationService);
     private gameService = inject(GameService);
 
     constructor(
@@ -292,10 +287,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.sendInfoToMapCreationPage();
     }
 
-    isValidTileForObject(row: number, col: number): boolean {
-        return this.gameObjectService.isValidTileForObject(row, col, this.tilesGrid);
-    }
-
     getObjectImage(id: number): string {
         const gameObject = this.gameObjectService.getObjectById(id);
         return gameObject ? gameObject.image : '';
@@ -337,7 +328,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.sendInfoToMapCreationPage();
     }
 
-    // I'm here on the refactor
     onMouseDown(event: MouseEvent, row: number, col: number) {
         if (event.button === 0) {
             this.isMouseDown = true;
@@ -358,26 +348,18 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy() {
+        // potentially turn off some listeners
         this.toolService.selectedTile = '';
     }
 
     removeTile(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        if (this.tilesGrid[row][col] !== TileType.Ground && this.objectsArray[row][col] === NO_OBJECT) {
-            this.tilesGrid[row][col] = TileType.Ground;
-        }
-    }
-
-    isReachableTile(row: number, col: number): boolean {
-        return this.navigationService.isReachableTile(row, col);
+        this.tilesGrid = this.tileService.removeTile(event, { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray});
     }
 
     findPath(row: number, col: number) {
-        if (this.checkIfPlayerIsOnTile(row, col)) {
-            this.fastestPath = [];
-            return;
-        }
-        if (this.isReachableTile(row, col) && this.isActivePlayer) {
+        this.fastestPath = this.navigationService.findPath({ row, col }, this.activePlayer!, this.fastestPath);
+        if (this.navigationService.isReachableTile({ row, col }) && this.isActivePlayer) {
             this.socketCommunicationService.send(ClientToServerEvent.FindPath, { x: row, y: col });
         }
     }
@@ -387,46 +369,19 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleTileClick(row: number, col: number) {
-        if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
-            const position: Position = { x: row, y: col };
-            this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: this.activePlayer });
+        if (this.gameService.canOpenDoor(this.activePlayer!)) {
+            this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: { x: row, y: col }, player: this.activePlayer });
             return;
-        } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
-            this.handleFightAction(row, col);
+        } else if (this.gameService.canStartCombat(this.activePlayer!)) {
+            this.activePlayer = this.gameService.handleFightAction({ position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray}, this.activePlayer!); // could remove handleFightAction and place it elsewhere
             return;
-        } else if (this.isReachableTile(row, col) && this.tilesGrid[row][col] !== TileType.ClosedDoor && !this.checkIfPlayerIsOnTile(row, col)) {
-            this.sendNavigation();
-        }
-    }
-
-    checkIfPlayerIsOnTile(row: number, col: number): boolean {
-        return this.activePlayer?.position.x === row && this.activePlayer?.position.y === col;
-    }
-
-    handleFightAction(row: number, col: number) {
-        if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && this.objectsArray[row][col] > ObjectType.Spawn) {
-            this.activePlayer.attributes.actionPoints--;
-            this.gameService.isActionCombatSelected = false;
-            const player1 = this.activePlayer;
-            const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
-            const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
-            const isActivePlayerAttacker = player1.id === attacker.id;
-            this.socketCommunicationService.send(ClientToServerEvent.StartFight, {
-                player1: attacker,
-                player2: defender,
-                isPlayer1Active: isActivePlayerAttacker,
-            });
+        } else if (this.navigationService.noInteractionPossible({ row, col }, this.tilesGrid, this.activePlayer!)) {
+            this.sendNavigation(); // idk if that's gonna stay
         }
     }
 
     isActionSelected() {
         return this.gameService.isActionSelected();
-    }
-
-    getPlayerByAvatarName(players: Player[], id: ObjectType) {
-        const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
-        const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
-        return clickedPlayer;
     }
 
     async sendNavigation() {
@@ -440,6 +395,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
+    // Up to here
     respawnPlayer(position: Position, player: Player) {
         let playerToReplace = this.navigationService.players.find((p) => p.id === player.id);
         if (!playerToReplace) return;

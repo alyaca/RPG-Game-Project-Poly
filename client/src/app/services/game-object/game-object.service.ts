@@ -7,8 +7,8 @@ import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
 import { TileType } from '@common/constants';
+import { GridOperationsInfo } from '@common/interfaces/grid-operations-info';
 import { Position } from '@common/interfaces/position';
-import { TileRemoval } from '@common/interfaces/tile-removal';
 import { gameObjects } from '@common/objects-info';
 import { Subscription } from 'rxjs';
 
@@ -58,7 +58,7 @@ export class GameObjectService implements OnDestroy {
         return tiles;
     }
 
-    startDropItem(event: DragEvent, tileInfo: TileRemoval) {
+    startDropItem(event: DragEvent, tileInfo: GridOperationsInfo) {
         this.onDrop(event, tileInfo);
         this.toolService.setSelectedTile('');
         return false;
@@ -72,7 +72,7 @@ export class GameObjectService implements OnDestroy {
         return this.objectsArray;
     }
 
-    removeOnRightClick(event: MouseEvent, tileRemoval: TileRemoval) {
+    removeOnRightClick(event: MouseEvent, tileRemoval: GridOperationsInfo) {
         if (this.gameCreationService.isModifiable) {
             const newGrid = this.tileService.removeTile(event, tileRemoval);
             this.removeObjectByClick(event, { row: tileRemoval.position.x, col: tileRemoval.position.y });
@@ -165,7 +165,7 @@ export class GameObjectService implements OnDestroy {
         return validTileType.includes(tiles[row][col]);
     }
 
-    onDrop(event: DragEvent, { position, tiles, objects }: TileRemoval) {
+    onDrop(event: DragEvent, { position, tiles, objects }: GridOperationsInfo) {
         event.preventDefault();
         if (this.draggedObject && objects[position.x][position.y] === NO_OBJECT && this.isValidTileForObject(position.x, position.y, tiles)) {
             this.updateObjectGridPosition(this.draggedObject, position.x, position.y);

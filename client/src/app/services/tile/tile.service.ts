@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NO_OBJECT, TileId } from '@app/constants';
 import { TileType } from '@common/constants';
-import { TileRemoval } from '@common/interfaces/tile-removal';
+import { GridOperationsInfo } from '@common/interfaces/grid-operations-info';
 @Injectable({
     providedIn: 'root',
 })
@@ -44,7 +44,7 @@ export class TileService {
         }
     }
 
-    removeTile(event: MouseEvent, { position, tiles, objects }: TileRemoval) {
+    removeTile(event: MouseEvent, { position, tiles, objects }: GridOperationsInfo) {
         event.preventDefault();
         if (tiles[position.x][position.y] !== TileType.Ground && objects[position.x][position.y] === NO_OBJECT) {
             tiles[position.x][position.y] = TileType.Ground;
