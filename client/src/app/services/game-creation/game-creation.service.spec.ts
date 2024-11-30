@@ -18,6 +18,23 @@ describe('GameCreationService', () => {
         expect(service).toBeTruthy();
     });
 
+    describe('deepCopyMatrix', () => {
+        it('should return a deep copy of the matrix', () => {
+            const matrix = [
+                [1, 2],
+                [2, 0],
+            ];
+            const result = service.deepCopyMatrix(matrix);
+            expect(result).toEqual(matrix);
+            expect(result).not.toBe(matrix);
+        });
+
+        it('should return an empty array if matrix is undefined', () => {
+            const result = service.deepCopyMatrix(null);
+            expect(result).toEqual([]);
+        });
+    });
+
     it('should select the right size', () => {
         service.setSelectedSize(MapSize.Small);
         expect(service.sizeSubject.getValue()).toEqual(MapSize.Small);

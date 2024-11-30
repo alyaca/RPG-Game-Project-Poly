@@ -45,7 +45,7 @@ describe('GamePageComponent', () => {
 
     beforeEach(async () => {
         sizeSubjectMock = new BehaviorSubject<string | null>(null);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['updateDimensions', 'sizeSubject']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['loadExistingObjects', 'loadExistingTiles', 'updateDimensions', 'sizeSubject']);
         combatServiceSpy = jasmine.createSpyObj(CombatService, ['onEvasion', 'onCombatEnd', 'isInCombat', 'initializeCombat']);
         chatBoxSpy = jasmine.createSpyObj(ChatBoxComponent, ['unsubscribe', 'subscribe']);
         timerSpy = jasmine.createSpyObj(TimerComponent, ['pauseTimer', 'resumeTimer']);

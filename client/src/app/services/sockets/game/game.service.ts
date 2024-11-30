@@ -176,13 +176,13 @@ export class GameService {
     }
 
     handleRoomDeleted() {
-        this.socketCommunicationService.once('roomDeleted', (message: string) => {
+        this.socketCommunicationService.once(ServerToClientEvent.RoomDeleted, (message: string) => {
             this.openAdminQuitDialog(message);
         });
     }
 
     handleKickPlayer() {
-        this.socketCommunicationService.once('kickPlayer', () => {
+        this.socketCommunicationService.once(ServerToClientEvent.KickPlayer, () => {
             this.openPlayerKickoutDialog();
         });
     }

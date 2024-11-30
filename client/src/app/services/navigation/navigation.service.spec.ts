@@ -4,6 +4,7 @@ import { mockMediumItemsMatrice, mockObjectsMatrice } from '@app/mocks/mock-game
 import { mockGameNavigation as mockGame } from '@app/mocks/mock-map';
 import { playerNavigation as player, playerNavigation } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
+import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { ObjectType } from '@common/constants';
 import { NavigationService } from './navigation.service';
@@ -19,7 +20,7 @@ describe('NavigationServiceService', () => {
             providers: [{ provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy }],
         });
         service = TestBed.inject(NavigationService);
-        service.initialize(mockGame, [player], mockGame.tiles);
+        service.initialize(mockRoom, mockRoom.gameMap.itemPlacement);
     });
 
     it('should be created', () => {
@@ -73,24 +74,24 @@ describe('NavigationServiceService', () => {
 
     it('should return false if the tile is not reachable', () => {
         service['reachableTiles'] = [{ x: 1, y: 1 }];
-        const result = service.isReachableTile(2, 2);
+        const result = service.isReachableTile( {row: 2, col: 2 });
         expect(result).toBeFalse();
     });
 
     it('should return true if the tile is reachable', () => {
         service['reachableTiles'] = [{ x: 1, y: 1 }];
-        const result = service.isReachableTile(1, 1);
+        const result = service.isReachableTile( { row: 1, col: 1 });
         expect(result).toBeTrue();
     });
 
     it('should return true if there is neighbor', () => {
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 1 }]);
-        expect(service.isNeighbor(1, 1, playerNavigation)).toBeTrue();
+        expect(service.isNeighbor({ x: 1, y: 1 }, playerNavigation)).toBeTrue();
     });
 
     it('should return false if there is no neighbor', () => {
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 1 }]);
-        expect(service.isNeighbor(0, 0, playerNavigation)).toBeFalse();
+        expect(service.isNeighbor( { x: 0, y: 0 }, playerNavigation)).toBeFalse();
     });
 
     it('should get the neighbors', () => {
@@ -113,15 +114,6 @@ describe('NavigationServiceService', () => {
 
         result = service['isValidTile'](1, 1, 0);
         expect(result).toBeFalse();
-    });
-
-    it('should initialize gameMap and playsers ', () => {
-        expect(service.gameMap).toEqual(mockGame);
-        expect(service.players).toEqual([player]);
-    });
-
-    it('should return true if the position contains an spwan point ', () => {
-        expect(service.isInInitialPosition({ x: 0, y: 0 })).toBeTruthy();
     });
 
     it('should return true if the position contains an object ', () => {
