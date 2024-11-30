@@ -196,6 +196,7 @@ describe('CharacterCreatorComponent', () => {
             spawnPosition: { x: -1, y: -1 },
             postGameStats: defaultPostGameStats,
             positionHistory: [],
+            collectedItems: [],
         });
     });
 
