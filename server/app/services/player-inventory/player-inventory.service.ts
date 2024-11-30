@@ -164,8 +164,6 @@ export class PlayerInventoryService {
 
         infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
         infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);
-        infoSwap.server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
-        infoSwap.client.to(room.roomId).emit('updateInventory', playerToUpdate);
         return playerToUpdate;
     }
 }
