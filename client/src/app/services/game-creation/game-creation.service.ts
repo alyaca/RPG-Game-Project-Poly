@@ -59,14 +59,13 @@ export class GameCreationService {
         return array;
     }
 
-    canTeleport(isMoving: boolean) {
-        return this.navigationService.isDebugMode && !this.isModifiable && !isMoving;
+    canTeleport(isMoving: boolean, isActive: boolean) {
+        return this.navigationService.isDebugMode && !this.isModifiable && !isMoving && isActive;
     }
 
-    rightClick(position: Position, isMoving: boolean) {
+    rightClick(position: Position, isMoving: boolean, isActive: boolean) {
         const isMovingAndTileInfoVisible = [];
-        if (this.canTeleport(isMoving)) {
-            console.log('teleporting');
+        if (this.canTeleport(isMoving, isActive)) {
             this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
             isMovingAndTileInfoVisible[0] = true;
         } else {

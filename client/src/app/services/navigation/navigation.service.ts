@@ -100,6 +100,16 @@ export class NavigationService {
         return objects;
     }
 
+    navigateToTile(position: Position, player: Player, objects: number[][]) : [number[][], Player] {
+        this.reachableTiles = [];
+        if (player) {
+            this.updateTile(player);
+            player.position = position;
+            return [this.placeAvatar(player, objects), player];
+        }
+        return [objects, player];
+    }
+
     respawnPlayer(position: Position, player: Player, objects: number[][]) {
         let playerToPlace = this.players.find((players) => players.id === player.id);
         if (!playerToPlace) return objects;

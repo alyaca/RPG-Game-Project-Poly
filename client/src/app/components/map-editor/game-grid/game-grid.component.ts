@@ -299,7 +299,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        const result = this.gameCreationService.rightClick({ x: row, y: col }, this.isMoving);
+        const result = this.gameCreationService.rightClick({ x: row, y: col }, this.isMoving, this.isActivePlayer);
         this.isMoving = result[0];
         this.tileInfoVisible = result[1];
     }
@@ -391,19 +391,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    // Up to here
     respawnPlayer(position: Position, player: Player) {
         this.objectsArray = this.navigationService.respawnPlayer(position, player, this.objectsArray);
     }
 
     navigateToTile(position: Position) {
-        this.navigationService.reachableTiles = [];
+        const updatedObjectsAndPlayer = this.navigationService.navigateToTile(position, this.activePlayer!, this.objectsArray)
         this.fastestPath = [];
-        if (this.activePlayer) {
-            this.navigationService.updateTile(this.activePlayer);
-            this.activePlayer.position = position;
-            this.objectsArray = this.navigationService.placeAvatar(this.activePlayer, this.objectsArray);
-        }
+        this.objectsArray = updatedObjectsAndPlayer[0];
+        this.activePlayer!.position = updatedObjectsAndPlayer[1].position;
     }
 
     isTarget(row: number, col: number) {
