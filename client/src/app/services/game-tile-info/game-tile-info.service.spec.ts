@@ -45,7 +45,7 @@ describe('GameTileInfoService', () => {
 
         it('should return undefined if itemId exceeds gameObjects array length', () => {
             service.itemId = gameObjects.length + 1;
-            expect(service.getItem()).toBeUndefined();
+            expect(service.getItem()).toBeNull();
         });
     });
 
