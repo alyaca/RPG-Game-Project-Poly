@@ -73,6 +73,19 @@ export class NavigationService {
         return this.objects[position.x][position.y];
     }
 
+    handleInventoryEvent(updatedPlayer: Player, activePlayer: Player | undefined) {
+        const index = this.players.findIndex((players) => players.name === updatedPlayer.name);
+        if (activePlayer) {
+            activePlayer.inventory = updatedPlayer.inventory;
+            activePlayer.attributes = updatedPlayer.attributes;
+            activePlayer.attributes.currentHp = updatedPlayer.attributes.totalHp;
+            return activePlayer;
+        }
+        this.players[index].attributes = updatedPlayer.attributes;
+        this.players[index].inventory = updatedPlayer.inventory;
+        return undefined;
+    }
+
     initializeObjects(objects: number[][]): void {
         for (let i = 0; i < this.objects.length; i++) {
             for (let j = 0; j < this.objects[i].length; j++) {
