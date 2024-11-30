@@ -79,7 +79,7 @@ describe('GameObjectService', () => {
 
             spyOn(service, 'removeObjectFromGrid');
 
-            service.removeObjectByClick(mockEvent, 0, 0);
+            service.removeObjectByClick(mockEvent, { row: 0, col: 0 });
             expect(service.removeObjectFromGrid).toHaveBeenCalled();
         });
     });
@@ -250,7 +250,7 @@ describe('GameObjectService', () => {
             spyOn(service, 'getGameObjectOnTile').and.returnValue(mockGameObject);
             spyOn(service, 'isValidTileForObject').and.returnValue(false);
 
-            service.handleGameObjectOnTile(0, 0, [
+            service.handleGameObjectOnTile({ row: 0, col: 0} , [
                 [1, 1],
                 [1, 1],
             ]);
@@ -260,7 +260,7 @@ describe('GameObjectService', () => {
         it('should not call removeObjectFromGrid if condition is not met', () => {
             spyOn(service, 'getGameObjectOnTile').and.returnValue(undefined);
             spyOn(service, 'isValidTileForObject').and.returnValue(true);
-            service.handleGameObjectOnTile(0, 0, [
+            service.handleGameObjectOnTile({ row: 0, col: 0 },  [
                 [0, 0],
                 [0, 0],
             ]);
@@ -269,7 +269,7 @@ describe('GameObjectService', () => {
 
         it('should not call removeObjectFromGrid if the gameObject.id is 0', () => {
             spyOn(service, 'getGameObjectOnTile').and.returnValue(mockGameObjectZeroId);
-            service.handleGameObjectOnTile(0, 0, [
+            service.handleGameObjectOnTile({ row: 0, col: 0 }, [
                 [1, 1],
                 [1, 1],
             ]);

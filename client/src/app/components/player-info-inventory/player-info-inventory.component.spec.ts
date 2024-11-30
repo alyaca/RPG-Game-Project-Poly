@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DEFAULT_ATTRIBUTE } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
-import { mockInventoryPlayer, mockPlayers } from '@app/mocks/mock-players';
+import { mockInventoryPlayer, mockInventoryPlayerWithXiphos, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
@@ -39,6 +39,11 @@ describe('PlayerInfoInventoryComponent', () => {
         component.player = mockPlayers[0];
         expect(component.emptySlots).toEqual([0, 0]);
     });
+
+    it('should return the correct value for hasXiphos', () => {
+        expect(component.hasXiphos(mockInventoryPlayer)).toBeUndefined();
+        expect(component.hasXiphos(mockInventoryPlayerWithXiphos)).toBeDefined();
+    })
 
     it('should update the movement value', () => {
         component.player = mockLobbyPlayers[0];
