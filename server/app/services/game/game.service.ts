@@ -325,11 +325,7 @@ export class GameService {
             this.isMoving = true;
             player.position = tile;
             pickedUpItem = false;
-            if (
-                (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident &&
-                    room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) ||
-                room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag
-            ) {
+            if (this.isNotAvatar(room, tile) && this.isObject(room, tile)) {
                 const infoSwap: InfoSwap = {
                     server,
                     client,
@@ -464,6 +460,15 @@ export class GameService {
 
     playerInWall(room: Room, player: Player) {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
+    }
+
+    private isObject(room: Room, tile: Position) {
+        const isObjectFlag = room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random;
+        return room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random || isObjectFlag;
+    }
+
+    private isNotAvatar(room: Room, tile: Position) {
+        return room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident;
     }
 
     async delay(ms: number) {

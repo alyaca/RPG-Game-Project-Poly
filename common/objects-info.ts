@@ -63,7 +63,7 @@ export const gameObjects: GameObject[] = [
         id: ObjectType.Flag,
         name: 'Drapeau',
         image: './assets/images/objects/flag.jpg',
-        description: 'Drapeau du mode d mode Capture de Drapeau. Retournez sur votre point de départ avec le drapeau pour gagner!',
+        description: 'Drapeau du mode Capture de Drapeau. Retournez sur votre point de départ avec le drapeau pour gagner!',
         count: ITEM_COUNT,
     },
     {
