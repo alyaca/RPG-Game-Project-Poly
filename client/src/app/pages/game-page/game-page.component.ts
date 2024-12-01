@@ -8,6 +8,7 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { DialogMessages, DialogOptions, DialogResult, DialogTitle, INFO_DIALOG_TIME, STARTING_TIME, TURN_TIME } from '@app/constants';
+import { StartFightData } from '@app/interfaces/event-data';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { PostGameService } from '@app/services/post-game/post-game.service';
@@ -102,9 +103,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.activePlayerName = name;
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.StartFight, (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.StartFight, (startFightData: StartFightData) => {
             this.combatService.isInCombat = true;
-            this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
+            this.activePlayer.attributes.actionPoints--;
+            this.gameService.isActionCombatSelected = false;
+            this.combatService.initializeCombat(startFightData.combatPlayers, startFightData.isActivePlayerAttacker);
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.CombatInProgress, () => {
@@ -136,7 +139,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, () => {
-            this.activePlayer.attributes.actionPoints -= 1;
+            this.activePlayer.attributes.actionPoints--;
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
@@ -328,7 +331,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             })
             .subscribe((result) => {
                 if (result.action === DialogResult.Left) {
-                    this.socketCommunicationService.send(ClientToServerEvent.LeftGame);
                     if (this.isPlayerAdmin()) {
                         this.navigationService.isDebugMode = false;
                         this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);

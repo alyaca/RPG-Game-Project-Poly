@@ -1,11 +1,11 @@
 import { IMessage } from '@app/interfaces/message.interface';
-import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/interfaces/game';
 import { Avatar, Behavior, Player, Position } from '@common/interfaces/player';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -110,12 +110,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.server.to(room.roomId).emit(ServerToClientEvent.PathFound, path);
     }
 
-    @SubscribeMessage(ClientToServerEvent.StartFight)
-    handleStartFight(client: Socket, { player1, player2, isPlayer1Active }) {
-        this.combatService.startFight(client, player1, player2, isPlayer1Active, this.server);
-        this.logger.debug(`Starting a fight between  ${player1.name} and ${player2.name}.`);
-    }
-
     @SubscribeMessage(ClientToServerEvent.AttackPlayer)
     handleAttackPlayer(client: Socket) {
         this.combatService.attackPlayer(client, this.server);
@@ -157,11 +151,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         await this.saveMessage(client, messageWithRoomId);
     }
 
-    @SubscribeMessage(ClientToServerEvent.LeftGame)
-    handleDropItemsOnAbandon(client: Socket) {
-        this.gameService.placeItemsOnGround(client, this.server, undefined);
-    }
-
     @SubscribeMessage(ClientToServerEvent.DebugMode)
     handleDebugMode(client: Socket, debugMode: boolean) {
         const room = this.roomService.getRoom(client);
@@ -183,8 +172,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     }
 
     @SubscribeMessage(ClientToServerEvent.DoorAction)
-    handleDoorAction(client: Socket, doorActionData: DoorActionData) {
+    handleDoorAction(client: Socket, doorActionData: ActionData) {
         this.gameService.handleDoor(client, this.server, doorActionData);
+    }
+
+    @SubscribeMessage(ClientToServerEvent.CombatAction)
+    handleCombatAction(client: Socket, combatActionData: ActionData) {
+        this.combatService.startFight(client, this.server, combatActionData);
     }
 
     @SubscribeMessage(ClientToServerEvent.ForceEndGame) // temporary

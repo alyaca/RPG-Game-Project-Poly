@@ -1,11 +1,11 @@
 import { NO_ITEM } from '@app/constants';
-
 import { ObjectType } from '@common/avatars-info';
 import { TileCost, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
 import { PointWithDistance } from '@common/interfaces/point-distance.interface';
 import { Room } from '@common/interfaces/room';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 
 export class Navigation {
     gameMap: Game;
@@ -120,6 +120,18 @@ export class Navigation {
             return true;
         }
         return false;
+    }
+
+    getCombatOpponent(combatActionData: ActionData) {
+        const neighborPlayers = this.getNeighborPlayers(combatActionData.player, this.players);
+        if (this.hasPlayerOnTile(combatActionData.clickedPosition, neighborPlayers)) {
+            return this.getPlayerWithPosition(combatActionData.clickedPosition, this.players);
+        }
+        return null;
+    }
+
+    getPlayerWithPosition(position: Position, players: Player[]) {
+        return players.find((player) => player.position.x === position.x && player.position.y === position.y);
     }
 
     haveActions(player: Player, players: Player[]): boolean {

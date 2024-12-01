@@ -25,12 +25,10 @@ import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { ObjectType } from '@common/avatars-info';
 import { TileType } from '@common/constants';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { TileRemoval } from '@common/interfaces/tile-removal';
-import { gameObjects } from '@common/objects-info';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
@@ -412,12 +410,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleTileClick(row: number, col: number) {
+        const position: Position = { x: row, y: col };
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
-            const position: Position = { x: row, y: col };
             this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: this.activePlayer });
             return;
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
-            this.handleFightAction(row, col);
+            this.socketCommunicationService.send(ClientToServerEvent.CombatAction, { clickedPosition: position, player: this.activePlayer });
             return;
         } else if (this.isReachableTile(row, col) && this.tilesGrid[row][col] !== TileType.ClosedDoor && !this.checkIfPlayerIsOnTile(row, col)) {
             this.sendNavigation();
@@ -428,30 +426,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         return this.activePlayer?.position.x === row && this.activePlayer?.position.y === col;
     }
 
-    handleFightAction(row: number, col: number) {
-        if (this.activePlayer && this.navigationService.isNeighbor(row, col, this.activePlayer) && this.objectsArray[row][col] > ObjectType.Spawn) {
-            this.activePlayer.attributes.actionPoints--;
-            this.gameService.isActionCombatSelected = false;
-            const player1 = this.activePlayer;
-            const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
-            const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
-            const isActivePlayerAttacker = player1.id === attacker.id;
-            this.socketCommunicationService.send(ClientToServerEvent.StartFight, {
-                player1: attacker,
-                player2: defender,
-                isPlayer1Active: isActivePlayerAttacker,
-            });
-        }
-    }
-
     isActionSelected() {
         return this.gameService.isActionSelected();
-    }
-
-    getPlayerByAvatarName(players: Player[], id: ObjectType) {
-        const avatarName = gameObjects.find((obj) => obj.id === id)?.name;
-        const clickedPlayer = players.find((player) => player.avatar?.name === avatarName);
-        return clickedPlayer;
     }
 
     async sendBotPathToServer() {
