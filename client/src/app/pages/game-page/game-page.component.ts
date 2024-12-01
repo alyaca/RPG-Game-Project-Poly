@@ -290,9 +290,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     replenishHealth() {
-        for (const player of this.allPlayers!) {
+        this.allPlayers?.forEach((player) => {
             player.attributes.currentHp = player.attributes.totalHp;
-        }
+        });
     }
 
     enableClicks() {
@@ -366,8 +366,8 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     isPlayerAdmin(): boolean {
-        const admin = this.allPlayers!.find((player) => player.status === Status.Admin);
-        const currentPlayer = this.allPlayers!.find((player) => player.id === this.socketCommunicationService.socket.id);
+        const admin = this.allPlayers.find((player) => player.status === Status.Admin);
+        const currentPlayer = this.allPlayers.find((player) => player.id === this.socketCommunicationService.socket.id);
         return !!(currentPlayer && admin && currentPlayer.id === admin.id);
     }
 

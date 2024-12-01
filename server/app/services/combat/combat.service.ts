@@ -20,7 +20,7 @@ import { ObjectType } from '@common/avatars-info';
 import { TileType } from '@common/constants';
 import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
 import { Game } from '@common/interfaces/game';
-import { Player, Position, Status } from '@common/interfaces/player';
+import { Behavior, Player, Position, Status } from '@common/interfaces/player';
 import { PlayerStatType } from '@common/interfaces/post-game-stat';
 import { Room } from '@common/interfaces/room';
 import { ServerToClientEvent } from '@common/socket.events';
@@ -85,6 +85,16 @@ export class CombatService {
             turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
         }
 
+        if (
+            combatPlayers.attacker.status === Status.Bot &&
+            combatPlayers.attacker.attributes.currentHp < combatPlayers.attacker.attributes.totalHp &&
+            combatPlayers.attacker.attributes.evasion !== 0 &&
+            combatPlayers.attacker.behavior === Behavior.Defensive
+        ) {
+            this.evadingPlayer(client, server);
+            return;
+        }
+
         const combatInfos = this.combatInfos.get(room.roomId);
         if (!combatInfos.checkedXiphos) {
             this.checkXiphos(combatInfos.combatPlayers, server, room);
@@ -97,9 +107,7 @@ export class CombatService {
             if (timeRemaining <= 0) {
                 this.attackPlayer(client, server);
             }
-            //Added to make the bot attack on random time
-            console.log('timeRemaining', timeToAttack);
-            if (combatPlayers.attacker.status === Status.Bot && timeRemaining == timeToAttack) {
+            if (combatPlayers.attacker.status === Status.Bot && timeRemaining === timeToAttack) {
                 this.attackPlayer(client, server);
                 return;
             }
@@ -113,13 +121,6 @@ export class CombatService {
                 this.attackPlayer(client, server);
             }
         });
-    }
-
-    private isBothPlayersBot(combatPlayers: CombatPlayers): boolean {
-        return combatPlayers.attacker.status === Status.Bot && combatPlayers.defender.status === Status.Bot;
-    }
-    private generateRaondom(max: number): number {
-        return Math.floor(Math.random() * max + 1);
     }
 
     onEndTurn(client: Socket, server: Server, room: Room) {
@@ -225,8 +226,6 @@ export class CombatService {
 
     continueTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
-        const activePlayer = this.gameService.getActivePlayer(room);
-        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         this.resetCombatState(room, this.combatInfos.get(room.roomId).combatPlayers);
         setTimeout(() => {
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
@@ -281,6 +280,13 @@ export class CombatService {
             return attacker;
         }
         return null;
+    }
+
+    private isBothPlayersBot(combatPlayers: CombatPlayers): boolean {
+        return combatPlayers.attacker.status === Status.Bot && combatPlayers.defender.status === Status.Bot;
+    }
+    private generateRaondom(max: number): number {
+        return Math.floor(Math.random() * max + 1);
     }
 
     private isEvasionSuccessful() {

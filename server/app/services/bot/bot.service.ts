@@ -1,17 +1,14 @@
+import { MILLISECONDS_IN_SECOND, NO_ATTACK_TIME, STARTING_TIME } from '@app/constants';
 import { ObjectType } from '@common/avatars-info';
 import { Behavior, Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
-//import { Behavior, Player, Position } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
 @Injectable()
 export class BotService {
-    constructor() {}
-
     processBotTurn(room: Room, server: Server, activePlayer: Player) {
         if (activePlayer.behavior === Behavior.Aggressive) {
-            // console.log('aggressive bot');
             this.processAggressiveBot(room, server, activePlayer);
         } else {
             this.processDefensiveBot(room, server, activePlayer);
@@ -19,66 +16,45 @@ export class BotService {
     }
 
     async processDefensiveBot(room: Room, server: Server, activePlayer: Player) {
-        //Magic number
-        //TODO : remmetre le delai
-        //await this.delay(this.getRandomInt(3000, 25000));
+        await this.delay(this.getRandomInt(STARTING_TIME, NO_ATTACK_TIME));
         const players = room.listPlayers;
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         if (this.checkForDefenseItems(room, reachability)) {
             const path = room.navigation.findFastestPath(activePlayer, this.checkForDefenseItems(room, reachability), room);
             server.to(room.roomId).emit('botNavigation', path);
         }
-
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
         if (target) {
-            //Check if the bot can attack the target
             const path = this.checkForEnemy(room, activePlayer, target);
             if (path.length > 0) {
                 path.pop();
                 server.to(room.roomId).emit('botNavigation', path);
-                //Magic number
-                //TODO : remmetre le delai
-                //await this.delay(1000); // to replace par 3000
+                await this.delay(STARTING_TIME);
                 this.attackPlayer(room, server, target, activePlayer);
-                //await server.to(room.roomId).emit('endTurnBot', path);
                 return;
             }
         }
-
-        // Move to a random tile methode
         if (reachability.length > 0) {
-            const randomIndex = Math.floor(Math.random() * reachability.length);
-            const randomTile = reachability[randomIndex];
-            const path = room.navigation.findFastestPath(activePlayer, randomTile, room);
-            server.to(room.roomId).emit('botNavigation', path);
+            this.navigateToRandomTile(room, server, activePlayer, reachability);
         }
     }
 
     async processAggressiveBot(room: Room, server: Server, activePlayer: Player) {
-        //Magic number
-        // console.log('process aggressive bot');
-        //TODO : remmetre le delai
-        //await this.delay(this.getRandomInt(3000, 25000));
+        await this.delay(this.getRandomInt(STARTING_TIME, NO_ATTACK_TIME));
         const players = room.listPlayers;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
 
         if (target) {
-            // console.log('target', target);
-            //Check if the bot can attack the target
             const path = this.checkForEnemy(room, activePlayer, target);
             if (path.length > 0) {
                 path.pop();
                 server.to(room.roomId).emit('botNavigation', path);
-                //Magic number
-                //TODO : remmetre le delai
-                //await this.delay(3000);
+                await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
                 this.attackPlayer(room, server, target, activePlayer);
-                //server.to(room.roomId).emit('endTurnBot', path);
                 return;
             }
         }
-        //check for attack items
         const item = this.checkForAttackItems(room, reachability);
         if (item) {
             const path = room.navigation.findFastestPath(activePlayer, item, room);
@@ -86,15 +62,16 @@ export class BotService {
             return;
         }
 
-        // Move to a random tile methode
-        //Pour eviter le probleme de 30 secondes, on peut toujours appeler ca a al fin pour pouvoir aller
-        //au plus loin possible et terminer automatiquement le tour
         if (reachability.length > 0) {
-            const randomIndex = Math.floor(Math.random() * reachability.length);
-            const randomTile = reachability[randomIndex];
-            const path = room.navigation.findFastestPath(activePlayer, randomTile, room);
-            server.to(room.roomId).emit('botNavigation', path);
+            this.navigateToRandomTile(room, server, activePlayer, reachability);
         }
+    }
+
+    private navigateToRandomTile(room: Room, server: Server, activePlayer: Player, reachability: Position[]) {
+        const randomIndex = Math.floor(Math.random() * reachability.length);
+        const randomTile = reachability[randomIndex];
+        const path = room.navigation.findFastestPath(activePlayer, randomTile, room);
+        server.to(room.roomId).emit('botNavigation', path);
     }
 
     private attackPlayer(room: Room, server: Server, target: Player, activePlayer: Player) {
@@ -107,8 +84,6 @@ export class BotService {
     private checkForAttackItems(room: Room, reachability: Position[]) {
         const items = room.gameMap.itemPlacement;
         for (const tile of reachability) {
-            //TODO : replacer les valeurs par les valeurs des objets qui sont dans client
-            //Lightning, Xiphos
             if (
                 items[tile.x][tile.y] === ObjectType.Lightning ||
                 items[tile.x][tile.y] === ObjectType.Xiphos ||
@@ -124,7 +99,6 @@ export class BotService {
     private checkForDefenseItems(room: Room, reachability: Position[]) {
         const items = room.gameMap.itemPlacement;
         for (const tile of reachability) {
-            //Magic number
             if (items[tile.x][tile.y] === ObjectType.Kunee || items[tile.x][tile.y] === ObjectType.Trident) {
                 return tile;
             }
@@ -134,8 +108,7 @@ export class BotService {
 
     private checkForAnyItems(room: Room, reachability: Position[]) {
         for (const tile of reachability) {
-            //TODO : magic number
-            if (room.gameMap.itemPlacement[tile.x][tile.y] !== 0 && room.gameMap.itemPlacement[tile.x][tile.y] !== 8) {
+            if (room.gameMap.itemPlacement[tile.x][tile.y] !== 0 && room.gameMap.itemPlacement[tile.x][tile.y] !== ObjectType.Spawn) {
                 return tile;
             }
         }
@@ -146,6 +119,6 @@ export class BotService {
     }
 
     private getRandomInt(min: number, max: number) {
-        return Math.floor(Math.random() * (max - min + 1) + min);
+        return Math.floor(Math.random() * (max - min + 1) + min) * MILLISECONDS_IN_SECOND;
     }
 }

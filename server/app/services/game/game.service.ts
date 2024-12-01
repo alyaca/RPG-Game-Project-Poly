@@ -15,6 +15,7 @@ import {
 import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { baseBot } from '@app/mocks/mock-players';
+import { BotService } from '@app/services/bot/bot.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
@@ -26,7 +27,6 @@ import { GameStatus, Room } from '@common/interfaces/room';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { BotService } from '../bot/bot.service';
 
 /* eslint-disable max-lines */
 /* eslint-disable max-len */
@@ -176,12 +176,12 @@ export class GameService {
                 this.playerTurnTimer(room, server);
             }
         });
-        //////
+        /// ///
         if (activePlayer.status === Status.Bot) {
             this.botService.processBotTurn(room, server, activePlayer);
             return;
         }
-        /////
+        /// //
     }
 
     onTurnEnded(room: Room, server: Server) {

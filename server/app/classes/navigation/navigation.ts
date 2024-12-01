@@ -202,7 +202,7 @@ export class Navigation {
 
     findClosestPlayer(player: Player, players: Player[], room: Room): Player | undefined {
         const reachability = this.findReachableTiles(player, room);
-        let playerOnTile: Player | undefined = undefined;
+        let playerOnTile: Player | undefined;
         for (const tile of reachability) {
             for (const pl of players) {
                 if (pl.position.x === tile.x && pl.position.y === tile.y) {

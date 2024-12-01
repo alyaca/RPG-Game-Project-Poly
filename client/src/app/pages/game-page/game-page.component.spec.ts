@@ -320,7 +320,7 @@ describe('GamePageComponent', () => {
     it('should replenish health for all players', () => {
         expect(mockPlayer.attributes.currentHp).not.toEqual(mockPlayer.attributes.totalHp);
         component.replenishHealth();
-        component.allPlayers!.forEach((player) => {
+        component.allPlayers.forEach((player) => {
             expect(player.attributes.currentHp).toEqual(player.attributes.totalHp);
         });
     });
