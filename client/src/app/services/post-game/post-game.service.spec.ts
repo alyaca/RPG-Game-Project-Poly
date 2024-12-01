@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { PostGameService } from './post-game.service';
-import { Player } from '@common/interfaces/player';
 import { SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
-import { PostGameStat } from '@common/interfaces/post-game-stat';
 import { mockRoom } from '@app/mocks/mock-room';
+import { ObjectType, TileType } from '@common/constants';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/interfaces/global-post-game-stats';
-import { TileType, ObjectType } from '@common/constants';
+import { Player } from '@common/interfaces/player';
+import { PostGameStat } from '@common/interfaces/post-game-stat';
+import { PostGameService } from './post-game.service';
 describe('PostGameService', () => {
     let service: PostGameService;
 
@@ -230,7 +230,7 @@ describe('PostGameService', () => {
             spyOn(service, 'computeGlobalTilesVisitedPercentage');
             spyOn(service, 'calculateUniqueItems');
 
-            service.isCTFMode = false;
+            service.isFlagMode = false;
             service.computeStats();
 
             expect(service.calculatePlayerTilesVisited).toHaveBeenCalled();
@@ -245,7 +245,7 @@ describe('PostGameService', () => {
             spyOn(service, 'calculateUniqueItems');
             spyOn(service, 'calculateFlagBearers');
 
-            service.isCTFMode = true;
+            service.isFlagMode = true;
             service.computeStats();
 
             expect(service.calculatePlayerTilesVisited).toHaveBeenCalled();

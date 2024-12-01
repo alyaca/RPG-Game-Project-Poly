@@ -16,12 +16,14 @@
         }
     </div>
     <div class="icon">
-        @if(sidebarPlayer.status === "admin"){
-        <img src="./assets/images/icones/admin.png" alt="admin-img" />
+        @if(isFlagInInventory()){
+            <img src="./assets/images/icones/flag.png" alt="admin-img" />
+        } @else if(sidebarPlayer.status === "admin"){
+            <img src="./assets/images/icones/admin.png" alt="admin-img" />
         } @else if(sidebarPlayer.status === "bot"){
-        <img src="./assets/images/icones/bot.png" alt="admin-img" />
+            <img src="./assets/images/icones/bot.png" alt="admin-img" />
         } @else if(sidebarPlayer.status === "disconnected"){
-        <img src="./assets/images/icones/disconnected.png" alt="admin-img" />
+            <img src="./assets/images/icones/disconnected.png" alt="admin-img" />
         }
     </div>
 </div>

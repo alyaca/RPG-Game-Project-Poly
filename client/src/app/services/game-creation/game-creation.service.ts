@@ -26,6 +26,10 @@ export class GameCreationService {
         this.gameMode = mode;
     }
 
+    getGameMode(): string {
+        return this.gameMode;
+    }
+
     getStoredSize(): string | null {
         return this.sizeSubject.value;
     }

@@ -8,7 +8,7 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { TileType } from '@common/constants';
+import { GameMode, TileType } from '@common/constants';
 import { CombatPlayers } from '@common/interfaces/combat-info';
 import { Player } from '@common/interfaces/player';
 import { PlayerStatType } from '@common/interfaces/post-game-stat';
@@ -361,11 +361,18 @@ describe('CombatService', () => {
         });
 
         it('should emit endGame if player has reached the victory threshold', () => {
+            room.gameMap.mode = GameMode.Classic;
+            const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
+            service['checkEndGame'](winner, room, mockServer);
+            expect(mockGameService.onEndGame).toHaveBeenCalled();
+            expect(mockLogsService.sendEndGameLog).toHaveBeenCalled();
+        });
+        it('should not emit endGame if player has reached the victory threshold and is in CTF mode', () => {
             const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
             service['checkEndGame'](winner, room, mockServer);
 
-            expect(mockGameService.onEndGame).toHaveBeenCalled();
-            expect(mockLogsService.sendEndGameLog).toHaveBeenCalled();
+            expect(mockGameService.onEndGame).not.toHaveBeenCalled();
+            expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
         });
     });
 

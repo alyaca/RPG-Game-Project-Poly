@@ -11,8 +11,10 @@ import {
     SIZE_SMALL_MAP,
     TEST_INVALID_SIZE,
 } from '@app/constants';
+import { Info } from '@app/interfaces/info';
 import { dummyInfo, dummyMap } from '@app/mocks/mock-map';
 import { GameImportValidatorService } from '@app/services/game-import-validor/game-import-validator.service';
+import { GameMode } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { SaveGameService } from './save-game.service';
@@ -20,6 +22,7 @@ import { SaveGameService } from './save-game.service';
 describe('SaveGameService', () => {
     let service: SaveGameService;
     let httpMock: HttpTestingController;
+    let dummyInfoCopy: Info;
     let gameImportValidatorServiceSpy: jasmine.SpyObj<GameImportValidatorService>;
     const dummyGame: Game = {
         _id: 'Test ID',
@@ -36,12 +39,13 @@ describe('SaveGameService', () => {
         ],
         dimension: 10,
         nbPlayers: 2,
-        mode: 'classique',
+        mode: GameMode.Classic,
         isSelected: false,
         lastModification: new Date(),
     };
 
     beforeEach(async () => {
+        dummyInfoCopy = JSON.parse(JSON.stringify(dummyInfo));
         gameImportValidatorServiceSpy = jasmine.createSpyObj('GameImportValidatorService', ['validateMap']);
 
         TestBed.configureTestingModule({
@@ -64,7 +68,7 @@ describe('SaveGameService', () => {
     });
 
     it('should create a POST request if the selected game is null', () => {
-        dummyInfo.height = SIZE_MEDIUM_MAP;
+        dummyInfoCopy.height = SIZE_MEDIUM_MAP;
         const infos = JSON.parse(JSON.stringify(dummyInfo));
         service.saveNewGame(infos);
 
@@ -86,21 +90,21 @@ describe('SaveGameService', () => {
     });
 
     it('should create a PUT request', () => {
-        dummyInfo.height = SIZE_MEDIUM_MAP;
-        service.replaceMap(dummyInfo, 'id');
+        dummyInfoCopy.height = SIZE_MEDIUM_MAP;
+        service.replaceMap(dummyInfoCopy, 'id');
         const request = httpMock.expectOne(`${service.apiURL}`);
         expect(request.request.method).toBe('PUT');
         expect(request.request.body).toEqual({
             _id: 'id',
-            name: dummyInfo.name,
-            description: dummyInfo.description,
+            name: dummyInfoCopy.name,
+            description: dummyInfoCopy.description,
             visible: false,
-            mode: 'classique',
+            mode: GameMode.Classic,
             nbPlayers: NB_ITEMS_MEDIUM_MAP,
-            image: dummyInfo.image,
-            tiles: dummyInfo.grid,
+            image: dummyInfoCopy.image,
+            tiles: dummyInfoCopy.grid,
             dimension: dummyMap.dimension,
-            itemPlacement: dummyInfo.items,
+            itemPlacement: dummyInfoCopy.items,
             isSelected: false,
             lastModification: jasmine.any(Date),
         });
@@ -115,14 +119,14 @@ describe('SaveGameService', () => {
     });
 
     it('should have the correct number of players', () => {
-        dummyInfo.height = SIZE_SMALL_MAP;
-        service.saveNewGame(dummyInfo);
+        dummyInfoCopy.height = SIZE_SMALL_MAP;
+        service.saveNewGame(dummyInfoCopy);
         const request = httpMock.expectOne(`${service.apiURL}`);
         expect(request.request.method).toBe('POST');
         expect(request.request.body.nbPlayers).toEqual(NB_ITEMS_SMALL_MAP);
 
-        dummyInfo.height = SIZE_LARGE_MAP;
-        service.saveNewGame(dummyInfo);
+        dummyInfoCopy.height = SIZE_LARGE_MAP;
+        service.saveNewGame(dummyInfoCopy);
         const secondRequest = httpMock.expectOne(`${service.apiURL}`);
         expect(secondRequest.request.method).toBe('POST');
         expect(secondRequest.request.body.nbPlayers).toEqual(NB_ITEMS_LARGE_MAP);
@@ -138,6 +142,7 @@ describe('SaveGameService', () => {
             grid: dummyGame.tiles,
             items: dummyGame.itemPlacement,
             height: dummyGame.dimension,
+            mode: dummyGame.mode,
         });
     });
 
@@ -152,7 +157,7 @@ describe('SaveGameService', () => {
                 itemPlacement: [],
                 dimension: SIZE_MEDIUM_MAP,
                 nbPlayers: 4,
-                mode: 'classique',
+                mode: GameMode.Classic,
                 isSelected: false,
                 lastModification: new Date(),
             },
@@ -178,7 +183,7 @@ describe('SaveGameService', () => {
                 itemPlacement: [],
                 dimension: SIZE_MEDIUM_MAP,
                 nbPlayers: 4,
-                mode: 'classique',
+                mode: GameMode.Classic,
                 isSelected: false,
                 lastModification: new Date(),
             },
@@ -209,6 +214,7 @@ describe('SaveGameService', () => {
                 [0, 0],
             ],
             height: SIZE_MEDIUM_MAP,
+            mode: GameMode.Classic,
         };
 
         spyOn(service, 'isNameAlreadyExists').and.returnValue(of(true));
@@ -250,6 +256,7 @@ describe('SaveGameService', () => {
                 [0, 0],
             ],
             height: SIZE_MEDIUM_MAP,
+            mode: GameMode.Classic,
         };
 
         spyOn(service, 'isNameAlreadyExists').and.returnValue(of(false));
@@ -266,20 +273,20 @@ describe('SaveGameService', () => {
     });
 
     it('should create a POST request in saveImportedGame', () => {
-        service.saveImportedGame(dummyInfo).subscribe();
+        service.saveImportedGame(dummyInfoCopy).subscribe();
 
         const req = httpMock.expectOne(`${service.apiURL}`);
         expect(req.request.method).toBe('POST');
         expect(req.request.body).toEqual({
-            name: dummyInfo.name,
-            description: dummyInfo.description,
+            name: dummyInfoCopy.name,
+            description: dummyInfoCopy.description,
             visible: false,
-            mode: 'classique',
+            mode: GameMode.Classic,
             nbPlayers: NB_ITEMS_MEDIUM_MAP,
-            image: dummyInfo.image,
-            tiles: dummyInfo.grid,
-            dimension: dummyInfo.height,
-            itemPlacement: dummyInfo.items,
+            image: dummyInfoCopy.image,
+            tiles: dummyInfoCopy.grid,
+            dimension: dummyInfoCopy.height,
+            itemPlacement: dummyInfoCopy.items,
             isSelected: false,
             lastModification: jasmine.any(Date),
         });

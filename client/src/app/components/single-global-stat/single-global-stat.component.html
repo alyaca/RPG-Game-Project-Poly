@@ -1,9 +1,9 @@
-@if(globalStat.key !== globalStatType.NbFlagBearers || postGameService.isCTFMode){
-    <p
-    class="global-attribute"                 
+@if(globalStat.key !== globalStatType.NbFlagBearers || postGameService.isFlagMode){
+<p
+    class="global-attribute"
     (mouseenter)="postGameService.updateExplanationsGlobal(globalStat)"
-    (mouseleave)="postGameService.updateExplanations('')">
-    <span class="label"> {{ globalStat.displayText }}:</span> 
-    <span class="value">{{ formatStatValue() }}</span>
+    (mouseleave)="postGameService.updateExplanations('')"
+></p>
+<span class="label"> {{ globalStat.displayText }}:</span>
+<span class="value">{{ formatStatValue() }}</span>
 }
-

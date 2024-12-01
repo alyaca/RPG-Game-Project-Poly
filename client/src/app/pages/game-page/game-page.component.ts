@@ -149,6 +149,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.socketCommunicationService.once(ServerToClientEvent.EndGame, (data: { winner: Player; room: Room }) => {
+            if (this.navigationService.isDebugMode) {
+                this.navigationService.isDebugMode = false;
+                this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
+            }
             this.removeListeners();
             this.postGameService.transferRoomStats(data.room);
 

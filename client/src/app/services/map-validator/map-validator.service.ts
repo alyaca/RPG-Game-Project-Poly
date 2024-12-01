@@ -20,7 +20,7 @@ import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ObjectType } from '@common/avatars-info';
-import { TileType } from '@common/constants';
+import { GameMode, TileType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -43,6 +43,11 @@ export class MapValidatorService {
         if (validationInfo.isNewMap || validationInfo.oldMapName !== validationInfo.title) {
             this.validateName(validationInfo.title);
         }
+
+        if (this.gameObjectService.getGameMode() === GameMode.CaptureTheFlag) {
+            this.validateFlag();
+        }
+
         this.validateSufficientTerrainTiles(validationInfo.tiles);
         this.validateAllDoors(validationInfo.tiles);
         this.validateAllSpawnPointsPlaced();
@@ -68,23 +73,22 @@ export class MapValidatorService {
         return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
-    private validateNumberItems(objects: number[][]) {
-        let maxNbItems: number;
-        let currentNumberItems = 0;
+    private getMaxItems(objects: number[][]) {
         switch (objects.length) {
             case SIZE_SMALL_MAP:
-                maxNbItems = NB_ITEMS_SMALL_MAP;
-                break;
+                return NB_ITEMS_SMALL_MAP;
             case SIZE_MEDIUM_MAP:
-                maxNbItems = NB_ITEMS_MEDIUM_MAP;
-                break;
+                return NB_ITEMS_MEDIUM_MAP;
             case SIZE_LARGE_MAP:
-                maxNbItems = NB_ITEMS_LARGE_MAP;
-                break;
+                return NB_ITEMS_LARGE_MAP;
             default:
-                maxNbItems = NB_ITEMS_MEDIUM_MAP;
-                break;
+                return NB_ITEMS_MEDIUM_MAP;
         }
+    }
+
+    private validateNumberItems(objects: number[][]) {
+        const maxNbItems = this.getMaxItems(objects);
+        let currentNumberItems = 0;
 
         for (const objectsRows of objects) {
             for (const individualItem of objectsRows) {
@@ -164,6 +168,15 @@ export class MapValidatorService {
         }
         if (!this.allTilesAccessible(array, visited)) {
             this.errorMessages.push('- Pas toutes les tuiles de terrain sont accessibles');
+        }
+    }
+
+    private validateFlag() {
+        this.mapObjects = this.gameObjectService.objectsArray;
+        const mapHasFlag = this.mapObjects.some((row) => row.includes(ObjectType.Flag));
+
+        if (!mapHasFlag) {
+            this.errorMessages.push('- Le drapeau doit être placé sur la carte lors du mode CTF.');
         }
     }
 

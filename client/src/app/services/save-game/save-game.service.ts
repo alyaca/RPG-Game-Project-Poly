@@ -79,6 +79,7 @@ export class SaveGameService {
             grid: game.tiles,
             items: game.itemPlacement,
             height: game.dimension,
+            mode: game.mode,
         };
         return info;
     }
@@ -133,7 +134,7 @@ export class SaveGameService {
                 name: informations.name,
                 description: informations.description,
                 visible: false,
-                mode: 'classique',
+                mode: informations.mode,
                 nbPlayers: playerNumber,
                 image: informations.image,
                 tiles: informations.grid,
@@ -147,7 +148,7 @@ export class SaveGameService {
             name: informations.name,
             description: informations.description,
             visible: false,
-            mode: 'classique',
+            mode: informations.mode,
             nbPlayers: playerNumber,
             image: informations.image,
             tiles: informations.grid,

@@ -7,7 +7,7 @@ export enum MapSize {
 
 export enum GameMode {
     Classic = 'classique',
-    Ctf = 'ctf',
+    CaptureTheFlag = 'captureTheFlag',
 }
 
 export enum TileType {
@@ -40,6 +40,7 @@ export enum ObjectType {
     Apollo = 18,
     Ares = 19,
     Aphrodite = 20,
+    Flag = 21,
 }
 
 // constants for tile cost

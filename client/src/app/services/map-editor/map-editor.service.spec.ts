@@ -81,7 +81,7 @@ describe('MapEditorService', () => {
             expect(result).toBe(dummyMap);
         });
 
-        it('shouold return the sizeSubject value if it is defined', () => {
+        it('should return the sizeSubject value if it is defined', () => {
             gameCreationServiceSpy.sizeSubject = new BehaviorSubject<string | null>('map size');
             const result = service.isMapChosen();
             expect(result).toBe('map size');

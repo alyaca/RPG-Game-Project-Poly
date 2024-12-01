@@ -38,6 +38,30 @@ export const OBJECT_COUNT_MAP: { [key: string]: number } = {
 // Constants for initial count of game objects
 export const ITEM_COUNT = 1;
 
+export enum ObjectType {
+    Trident = 1,
+    Armor = 2,
+    Sandal = 3,
+    Lightning = 4,
+    Xiphos = 5,
+    Kunee = 6,
+    Random = 7,
+    Spawn = 8,
+    Hestia = 9,
+    Zeus = 10,
+    Hera = 11,
+    Poseidon = 12,
+    Artemis = 13,
+    Demeter = 14,
+    Hermes = 15,
+    Athena = 16,
+    Hephaestus = 17,
+    Apollo = 18,
+    Ares = 19,
+    Aphrodite = 20,
+    Flag = 21,
+}
+
 // For no object in grid
 export const NO_OBJECT = 0;
 
@@ -89,6 +113,7 @@ export enum ErrorMessages {
     InvalidDimension = '- Les dimensions de la carte sont invalides',
     InvalidTileType = '- Un ou plusieurs types de tuiles sont invalides',
     InvalidObjectType = "- Un ou plusieurs types d'objets sont invalides",
+    InvalidNbFlags = '- Il doit y avoir exactement un drapeau sur la carte',
     FileTooLarge = '- Le fichier est trop volumineux',
     InvalidMode = '- Le mode de jeu est invalide',
     InvalidNbPlayers = '- Le nombre de joueurs est invalide pour la taille de la carte sélectionnée',

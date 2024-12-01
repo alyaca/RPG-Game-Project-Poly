@@ -5,6 +5,7 @@ import { mockObjects } from '@app/mocks/mock-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
+import { GameMode } from '@common/constants';
 import { GameObjectsContainerComponent } from './game-objects-container.component';
 
 describe('GameObjectsContainerComponent', () => {
@@ -29,7 +30,7 @@ describe('GameObjectsContainerComponent', () => {
             'ngOnDestroy',
         ]);
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'getGameMode']);
         await TestBed.configureTestingModule({
             providers: [
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
@@ -59,7 +60,7 @@ describe('GameObjectsContainerComponent', () => {
             expect(component.isDraggingFromContainer).toBeTrue();
         });
 
-        it('should prevent default behavioour when gameObject count is 0', () => {
+        it('should prevent default behaviour when gameObject count is 0', () => {
             const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
             const mockObject = mockObjects[1];
             mockObject.count = NO_OBJECT;
@@ -121,5 +122,21 @@ describe('GameObjectsContainerComponent', () => {
         component.ngOnInit();
         expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
         expect(gameObjectManagerServiceSpy.loadMapObjectCount).toHaveBeenCalled();
+    });
+
+    it('should load a new game with a flag object if the game mode is capture the flag', () => {
+        gameCreationServiceSpy.isNewGame = true;
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
+        gameObjectManagerServiceSpy.objects = mockObjects;
+        component.ngOnInit();
+        expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
+    });
+
+    it('should load a new game without a flag object if the game mode is not capture ther flag', () => {
+        gameCreationServiceSpy.isNewGame = true;
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.Classic);
+        gameObjectManagerServiceSpy.objects = mockObjects;
+        component.ngOnInit();
+        expect(gameObjectManagerServiceSpy.resetObjectsCount).toHaveBeenCalled();
     });
 });

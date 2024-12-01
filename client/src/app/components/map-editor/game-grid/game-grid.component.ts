@@ -340,7 +340,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     onTileClick(row: number, col: number) {
-        if (this.isMouseDown && this.previousRow === row && this.previousCol === col) {
+        if ((this.isMouseDown && this.previousRow === row && this.previousCol === col) || !this.gameCreationService.isModifiable) {
             return;
         }
         this.tileService.setTile(this.getSelectedTile(), row, col, this.tilesGrid);

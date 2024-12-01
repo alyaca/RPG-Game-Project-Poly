@@ -93,7 +93,7 @@ export class GameService {
             confirm: false,
             options: [DialogOptions.Close],
         }).subscribe((result) => {
-            if (result === DialogResult.Close) {
+            if (result.action === DialogResult.Close) {
                 this.router.navigate([PathRoute.HOME]);
             }
         });
