@@ -1,4 +1,5 @@
 import { IMessage } from '@app/interfaces/message.interface';
+import { mockAttacker } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
@@ -9,6 +10,7 @@ import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player } from '@common/interfaces/player';
 import { ActionData } from '@common/interfaces/socket-data.interface';
+import { gameObjects } from '@common/objects-info';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -396,14 +398,12 @@ describe('SocketGateway', () => {
         expect(server.to(roomId).emit).toHaveBeenCalledWith('debugMode', debugMode);
     });
 
-    // it('should call startFight startFight event', () => {
-    //     const player1 = { id: '1', attributes: { attack: 10, atkDiceMax: 6, currentHp: 10 } } as Player;
-    //     const player2 = { id: '2', attributes: { defense: 5, defDiceMax: 6, currentHp: 5 } } as Player;
-    //     const isPlayer1Active = true;
-    //     combatService.startFight = jest.fn();
-    //     gateway.handleStartFight(mockClient, { player1, player2, isPlayer1Active });
-    //     expect(combatService.startFight).toHaveBeenCalled();
-    // });
+    it('should call startFight startFight event', () => {
+        const combatActionData = { clickedPosition: { x: 1, y: 2 }, player: mockAttacker } as ActionData;
+        combatService.startFight = jest.fn();
+        gateway.handleCombatAction(mockClient, combatActionData);
+        expect(combatService.startFight).toHaveBeenCalled();
+    });
 
     it('should call attackPlayer attackPlayer event', () => {
         combatService.attackPlayer = jest.fn();
@@ -442,5 +442,14 @@ describe('SocketGateway', () => {
             expect(roomService.getRoom).toHaveBeenCalled();
             expect(socket.emit).toBeTruthy();
         });
+    });
+
+    it('should call start item swap on ItemSwapped event', () => {
+        const inventoryToUndo = [gameObjects[0], gameObjects[1]];
+        const newInventory = [gameObjects[2], gameObjects[1]];
+        const droppedItem = gameObjects[0];
+        gameService.startItemSwap = jest.fn();
+        gateway.handleItemSwapped(mockClient, { inventoryToUndo, newInventory, droppedItem });
+        expect(gameService.startItemSwap).toHaveBeenCalled();
     });
 });

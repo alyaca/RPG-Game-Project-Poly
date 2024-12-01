@@ -286,8 +286,7 @@ export class CombatService {
             if (player.name === combatPlayers.defender.name) {
                 player.attributes.defense += XiphosEffect.Defense;
             }
-        }
-        if (this.isPlayerAffectedByXiphos(combatPlayers.defender, checkedXiphos)) {
+        } else if (this.isPlayerAffectedByXiphos(combatPlayers.defender, checkedXiphos)) {
             if (player.name === combatPlayers.attacker.name) {
                 player.attributes.defense += XiphosEffect.Defense;
             }
