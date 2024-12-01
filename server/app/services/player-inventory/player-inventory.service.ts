@@ -25,19 +25,6 @@ export class PlayerInventoryService {
         if (info.player.inventory.length === 2) {
             this.handleItemSwap(room, info, itemPickedUp);
             return;
-            /*
-            if (info.player.status === Status.Bot) {
-                info.oldInventory = info.player.inventory;
-                info = this.getPrioritizedItem(info, itemPickedUp);
-                info.player = this.updatePlayerAfterSwap(info);
-
-                return;
-            } else {
-                this.roomService.getTurnTimer(room.roomId).pauseTimer();
-                info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
-                return;
-                
-            }*/
         } else {
             info.player = this.updatePlayerWithItem(info.player, itemPickedUp);
             this.gameLogService.sendItemLog(info.player, room.roomId, info.server, itemPickedUp);
@@ -47,20 +34,6 @@ export class PlayerInventoryService {
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
         info.client.emit(ServerToClientEvent.UpdatedInventory, info.player);
-    }
-
-    private handleItemSwap(room: Room, info: InfoSwap, itemPickedUp: number) {
-        if (info.player.status === Status.Bot) {
-            info.oldInventory = info.player.inventory;
-            info = this.getPrioritizedItem(info, itemPickedUp);
-            info.player = this.updatePlayerAfterSwap(info);
-
-            return;
-        } else {
-            this.roomService.getTurnTimer(room.roomId).pauseTimer();
-            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
-            return;
-        }
     }
 
     determineRandomItem(allObjects: number[][], room: Room): number {
@@ -209,6 +182,20 @@ export class PlayerInventoryService {
         }
         info.droppedItem = itemToDrop.id;
         return info;
+    }
+
+    private handleItemSwap(room: Room, info: InfoSwap, itemPickedUp: number) {
+        if (info.player.status === Status.Bot) {
+            info.oldInventory = info.player.inventory;
+            info = this.getPrioritizedItem(info, itemPickedUp);
+            info.player = this.updatePlayerAfterSwap(info);
+
+            return;
+        } else {
+            this.roomService.getTurnTimer(room.roomId).pauseTimer();
+            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
+            return;
+        }
     }
 
     private determineItemToDropDefensive(inventory: GameObject[], itemPickedUp: number) {
