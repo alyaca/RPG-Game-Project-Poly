@@ -46,7 +46,7 @@ export class Navigation {
 
     isReachableTile(row: number, col: number): boolean {
         if (this.destination.x === row && this.destination.y === col) return true;
-        return !this.players.some((player) => player.position.x === row && player.position.y === col);
+        return !this.hasPlayerOnTile({ x: row, y: col }, this.players);
     }
 
     initializeDistances(player: Player, game: Game): void {
