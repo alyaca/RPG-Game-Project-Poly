@@ -171,7 +171,7 @@ export class PlayerInventoryService {
     }
 
     private getPrioritizedItem(info: InfoSwap, itemPickedUp: number): InfoSwap {
-        let itemToDrop = this.determineItemToDrop(info.player.inventory, itemPickedUp, info.player);
+        const itemToDrop = this.determineItemToDrop(info.player.inventory, itemPickedUp, info.player);
         info.modifiedInventory = info.player.inventory.filter((item) => item.id !== itemToDrop.id);
         if (itemToDrop.id !== itemPickedUp) {
             info.modifiedInventory.push(gameObjects.find((object) => object.id === itemPickedUp));
