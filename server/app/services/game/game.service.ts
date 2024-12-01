@@ -252,6 +252,7 @@ export class GameService {
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         let newBot = this.assignAvatarToBot(room, behavior);
         newBot = this.assignStatsToBot(newBot);
+        newBot.collectedItems = [];
         this.createPlayer(room, newBot, client);
         this.updateAvatarsForAllClients(server, room.roomId);
         server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);

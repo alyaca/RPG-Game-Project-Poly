@@ -131,7 +131,7 @@ export class PlayerInventoryService {
         if (fullItem) {
             player.inventory.push(fullItem);
             player = this.addStatsFromItem(player, fullItem?.id);
-            // this.addUniqueItemToHistory(player, fullItem?.id);
+            this.addUniqueItemToHistory(player, fullItem?.id);
         }
         return player;
     }
@@ -171,7 +171,7 @@ export class PlayerInventoryService {
         room.listPlayers[index].attributes = playerToUpdate.attributes;
         room.listPlayers[index].inventory = playerToUpdate.inventory;
 
-        // this.addUniqueItemToHistory(playerToUpdate, newItem);
+        this.addUniqueItemToHistory(playerToUpdate, newItem);
 
         infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
         infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);
