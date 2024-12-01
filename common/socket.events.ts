@@ -12,6 +12,7 @@ export enum ClientToServerEvent {
     EndTurn = 'endTurn',
     EvadeCombat = 'evadeCombat',
     FindPath = 'findPath',
+    GameGridMapInfo = 'gameGridMapInfo',
     GetMap = 'getMap',
     GetRoom = 'GetRoom', // Temporary
     IsLocked = 'isLocked',
@@ -88,4 +89,5 @@ export enum ServerToClientEvent {
     UpdateObjectsAfterCombat = 'updateObjectsAfterCombat',
     UpdatedPlayer = 'updatedPlayer',
     UpdateStats = 'updateStats',
+    GameGridMapInfo = "GameGridMapInfo",
 }

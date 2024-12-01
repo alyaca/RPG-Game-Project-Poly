@@ -43,7 +43,7 @@ describe('GameGridComponent', () => {
     let gameTileInfoServiceSpy: jasmine.SpyObj<GameTileInfoService>;
 
     beforeEach(async () => {
-        gameTileInfoServiceSpy = jasmine.createSpyObj('GameTileInfoService', ['tileId', 'itemId', 'selectedRow', 'selectedCol']);
+        gameTileInfoServiceSpy = jasmine.createSpyObj('GameTileInfoService', ['transferRoomData', 'tileId', 'itemId', 'selectedRow', 'selectedCol']);
         mockSocket = { data: { roomCode: '1234' }, id: 'admin' } as unknown as Socket;
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'resetGrid', 'removeTile']);
         gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
@@ -87,6 +87,8 @@ describe('GameGridComponent', () => {
             'updateTile',
             'isOnWall',
             'respawnPlayer',
+            'handleInventoryEvent',
+            'updateObjects',
         ]);
         gameServiceSpy = jasmine.createSpyObj('GameService', ['hasActionPoints']);
         socketCommunicationServiceSpy.socket = mockSocket;
@@ -149,11 +151,33 @@ describe('GameGridComponent', () => {
         expect(component['tileInfoVisible']).toBeFalse();
     });
 
+    it('should call transferRoomData', () => {
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === ServerToClientEvent.ObtainRoomInfo) {
+                callback(mockRoom as T);
+            }
+        });
+        component.ngOnInit();
+        expect(gameTileInfoServiceSpy.transferRoomData).toHaveBeenCalledWith(mockRoom);
+    });
+
+    it('should call handleTeleport on TeleportPlayer event', () => {
+        const data = { position: { x: 0, y: 0 }, player: { ...mockPlayers[0] }};
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === ServerToClientEvent.TeleportPlayer) {
+                callback(data as T);
+            }
+        });
+        spyOn(component, 'handleTeleport');
+        component.initMovementListeners();
+        expect(component.handleTeleport).toHaveBeenCalled();
+    });
+
     describe('socket listener', () => {
         it('should listen to mapInformation event onInit', () => {
             spyOn(component, 'displayPortraitOnSpawnPoints');
             socketCommunicationServiceSpy.on.and.callFake(<Room>(event: string, callback: (data: Room) => void) => {
-                if (event === 'mapInformation') {
+                if (event === ServerToClientEvent.GameGridMapInfo) {
                     callback(mockRoom as Room);
                 }
             });
@@ -161,6 +185,63 @@ describe('GameGridComponent', () => {
             component.ngOnInit();
             expect(component.displayPortraitOnSpawnPoints).toHaveBeenCalled();
             expect(navigationServiceSpy.initialize).toHaveBeenCalled();
+        });
+
+        it('should decrease action points on combatEnd', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.CombatEnd) {
+                    callback({} as T);
+                }
+            });
+            component['activePlayer'] = { ...mockPlayers[0] };
+            component['activePlayer'].attributes.actionPoints = 1;
+            component.initGameListeners();
+            expect(component['activePlayer'].attributes.actionPoints).toEqual(0);
+        });
+
+        it('should set fastestPath', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.PathFound) {
+                    callback([ { x: 0, y: 0 }] as T);
+                }
+            });
+            component.initMovementListeners();
+            expect(component.fastestPath).toEqual([ { x: 0, y: 0 }]);
+        });
+
+        it('should set activePlayer if handleInventoryEvent is defined', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.UpdatedInventory) {
+                    callback({ ...mockPlayers[0]} as T);
+                }
+            });
+            navigationServiceSpy.handleInventoryEvent.and.returnValue({ ...mockPlayers[0]});
+            component.initObjectsListeners();
+            expect(component['activePlayer']).toEqual(mockPlayers[0]);
+        });
+
+        it('should call updateObjects on UpdateObjects event', () => {
+            const items = [[1,0]];
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.UpdateObjects) {
+                    callback(items as T);
+                }
+            });
+            component.initObjectsListeners();
+            expect(navigationServiceSpy.updateObjects).toHaveBeenCalledWith(items);
+        });
+
+        it('should call updateObjects and modify this.objectsArray on UpdateObjectsAfterCombat', () => {
+            component.objectsArray = [[0, 0]];
+            const data = { newGrid: [[1,1]], position: { x: 0, y: 0 }};
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.UpdateObjectsAfterCombat) {
+                    callback(data as T);
+                }
+            });
+            component.initObjectsListeners();
+            expect(navigationServiceSpy.updateObjects).toHaveBeenCalledWith(data.newGrid);
+            expect(component.objectsArray[data.position.x][data.position.y]).toEqual(data.newGrid[data.position.x][data.position.y]);
         });
 
         it('should set reachableTiles on reachableTiles event', () => {
@@ -264,18 +345,6 @@ describe('GameGridComponent', () => {
 
             component.ngOnInit();
             expect(component.respawnPlayer).toHaveBeenCalled();
-        });
-
-        it('should listen to combatEnd event and set actionPoints to 0, then call checkEndTurn', () => {
-            component['activePlayer'] = mockPlayers[0];
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'combatEnd') {
-                    callback({} as T);
-                }
-            });
-
-            component.ngOnInit();
-            expect(component['activePlayer'].attributes.actionPoints).toBe(0);
         });
     });
 

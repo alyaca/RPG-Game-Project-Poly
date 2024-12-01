@@ -3,7 +3,6 @@ import {
     Component,
     ElementRef,
     EventEmitter,
-    HostListener,
     inject,
     Input,
     OnChanges,
@@ -11,7 +10,7 @@ import {
     OnInit,
     Output,
     SimpleChanges,
-    ViewChild,
+    ViewChild
 } from '@angular/core';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { MapPosition } from '@app/interfaces/map-position';
@@ -80,12 +79,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private gameTileInfoService: GameTileInfoService,
     ) {}
 
-    @HostListener('document:click', ['$event'])
-    onMapClick(event: MouseEvent) {
-        if (!this.entireMap.nativeElement.contains(event.target)) {
-            this.tileInfoVisible = false;
-        }
-    }
+    // @HostListener('document:click', ['$event'])
+    // onMapClick(event: MouseEvent) {
+    //     if (!this.entireMap.nativeElement.contains(event.target)) {
+    //         this.tileInfoVisible = false;
+    //     }
+    // }
 
     getSelectedTile(): string {
         return this.toolService.getSelectedTile();
@@ -93,21 +92,23 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
-        this.socketCommunicationService.on(ServerToClientEvent.ReachableTiles, (reachability: Position[]) => {
-            this.navigationService.reachableTiles = reachability;
-        });
-
-        this.gridSize = this.gameCreationService.updateDimensions() as number;
-        this.handleMapLoading();
-
-        this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.GameGridMapInfo, (room: Room) => {
             this.navigationService.initialize(room, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
 
+        this.socketCommunicationService.on(ServerToClientEvent.ReachableTiles, (reachability: Position[]) => {
+            this.navigationService.reachableTiles = reachability;
+        });
+
+        
+        this.gridSize = this.gameCreationService.updateDimensions() as number;
+        this.handleMapLoading();
+        
+
         this.initGameListeners();
-        this.initMovementListeners();
         this.initObjectsListeners();
+        this.initMovementListeners();
 
         this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
             this.gameTileInfoService.transferRoomData(room);
@@ -164,7 +165,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activePlayer = result;
         });
 
-        this.socketCommunicationService.on<number[][]>(ServerToClientEvent.UpdateObjects, (items) => {
+        this.socketCommunicationService.on<number[][]>(ServerToClientEvent.UpdateObjects, (items: number[][]) => {
             this.navigationService.updateObjects(items);
         });
 

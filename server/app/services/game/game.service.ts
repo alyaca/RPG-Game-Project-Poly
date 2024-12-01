@@ -154,6 +154,7 @@ export class GameService {
         const activePlayer = this.getActivePlayer(room);
         server.to(room.roomId).emit(ServerToClientEvent.StartGame, room);
         server.to(room.roomId).emit(ServerToClientEvent.MapInformation, room);
+        server.to(room.roomId).emit(ServerToClientEvent.GameGridMapInfo, room);
         server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
