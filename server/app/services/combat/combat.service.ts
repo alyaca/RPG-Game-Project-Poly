@@ -94,7 +94,7 @@ export class CombatService {
             this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.AttackSuccess, combatPlayers.attacker);
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackSuccess);
         } else {
-            const shouldDamageSelf = this.checkAchillesArmor(combatPlayers);
+            const shouldDamageSelf = this.checkAchillesArmor(combatPlayers.attacker);
             this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.AttackFail, { attacker: combatPlayers.attacker, shouldDamageSelf });
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
@@ -148,6 +148,7 @@ export class CombatService {
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         server.to(room.roomId).emit(ServerToClientEvent.CombatOver);
         this.continueTurn(server, room);
+        this.resetCombatState(room);
         this.combatInfos.delete(room.roomId);
     }
 
@@ -164,7 +165,6 @@ export class CombatService {
     continueTurn(server: Server, room: Room) {
         const activePlayer = this.gameService.getActivePlayer(room);
         const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
-        this.resetCombatState(room);
         setTimeout(() => {
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
                 if (timeRemaining <= 0) {
@@ -183,7 +183,6 @@ export class CombatService {
             const reachability = room.navigation.findReachableTiles(winner, room);
             server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         } else {
-            this.resetCombatState(room);
             setTimeout(() => {
                 this.gameService.onTurnEnded(activePlayerSocket, server);
             }, END_COMBAT_DELAY);
@@ -272,28 +271,24 @@ export class CombatService {
     private resetCombatState(room: Room) {
         const { combatPlayers, checkedXiphos } = this.combatInfos.get(room.roomId);
         this.roomService.getFightTimer(room.roomId).stopTimer();
+        this.removeXiphosEffect(combatPlayers, checkedXiphos);
         room.listPlayers.forEach((player) => {
-            this.removeXiphosEffect(player, combatPlayers, checkedXiphos);
             this.resetPlayerHealth(player);
         });
     }
 
-    private removeXiphosEffect(player: Player, combatPlayers: CombatPlayers, checkedXiphos: boolean) {
-        if (this.isPlayerAffectedByXiphos(combatPlayers.attacker, checkedXiphos)) {
-            if (player.name === combatPlayers.attacker.name) {
-                player.attributes.attack -= XiphosEffect.Attack;
-            }
-            if (player.name === combatPlayers.defender.name) {
-                player.attributes.defense += XiphosEffect.Defense;
-            }
-        } else if (this.isPlayerAffectedByXiphos(combatPlayers.defender, checkedXiphos)) {
-            if (player.name === combatPlayers.attacker.name) {
-                player.attributes.defense += XiphosEffect.Defense;
-            }
-            if (player.name === combatPlayers.defender.name) {
-                player.attributes.attack -= XiphosEffect.Attack;
-            }
+    private removeXiphosEffect(combatPlayers: CombatPlayers, checkedXiphos: boolean) {
+        const { attacker, defender } = combatPlayers;
+        if (this.isPlayerAffectedByXiphos(attacker, checkedXiphos)) {
+            this.updateXiphosAttributes(attacker, defender);
+        } else if (this.isPlayerAffectedByXiphos(defender, checkedXiphos)) {
+            this.updateXiphosAttributes(defender, attacker);
         }
+    }
+
+    private updateXiphosAttributes(playerAffected: Player, opponent: Player) {
+        playerAffected.attributes.attack -= XiphosEffect.Attack;
+        opponent.attributes.defense += XiphosEffect.Defense;
     }
 
     private resetPlayerHealth(player) {
@@ -353,12 +348,16 @@ export class CombatService {
         }
     }
 
-    private checkAchillesArmor(combatPlayers: CombatPlayers) {
-        if (combatPlayers.attacker.inventory.find((objects) => objects.id === ObjectType.Armor)) {
-            combatPlayers.attacker.attributes.currentHp--;
+    private checkAchillesArmor(player: Player) {
+        if (this.hasAchillesArmor(player)) {
+            player.attributes.currentHp--;
             return true;
         }
         return false;
+    }
+
+    private hasAchillesArmor(player: Player) {
+        return player.inventory.find((items) => items.id === ObjectType.Armor);
     }
 
     private addStatsForWinLoss(room: Room, combatPlayers: CombatPlayers, attackerWon: boolean) {

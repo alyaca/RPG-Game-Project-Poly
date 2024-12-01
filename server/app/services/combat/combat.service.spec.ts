@@ -315,12 +315,10 @@ describe('CombatService', () => {
             mockGameService.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue([]);
             mockGameService.onTurnEnded = jest.fn();
-            service['resetCombatState'] = jest.fn();
 
             service.manageTurnAfterCombat(mockDefender, mockServer, room);
             jest.advanceTimersByTime(END_COMBAT_DELAY);
 
-            expect(service['resetCombatState']).toHaveBeenCalled();
             expect(mockServer.to(room.roomId).emit).not.toHaveBeenCalledWith('reachableTiles', []);
             expect(mockGameService.onTurnEnded).toHaveBeenCalled();
         });
