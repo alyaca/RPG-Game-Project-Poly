@@ -399,6 +399,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     navigateToTile(position: Position) {
+        if (!this.activePlayer) return;
         const updatedObjectsAndPlayer = this.navigationService.navigateToTile(position, this.activePlayer!, this.objectsArray);
         this.fastestPath = [];
         this.objectsArray = updatedObjectsAndPlayer[0];

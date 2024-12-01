@@ -67,7 +67,6 @@ export class GameCreationService {
         const isMovingAndTileInfoVisible = [];
         if (this.canTeleport(isMoving, isActive)) {
             this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
-            isMovingAndTileInfoVisible[0] = true;
         } else {
             isMovingAndTileInfoVisible[1] = this.showDetails(position);
         }

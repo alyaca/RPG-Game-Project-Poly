@@ -440,4 +440,12 @@ describe('GamePageComponent', () => {
         component.onEndTurn();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.EndTurn);
     });
+
+    it('should return allPlayers or -1', () => {
+        component.allPlayers = mockPlayers;
+        expect(component.getPlayerCount()).toEqual(mockPlayers.length);
+
+        component.allPlayers = [];
+        expect(component.getPlayerCount()).toEqual(0);
+    });
 });
