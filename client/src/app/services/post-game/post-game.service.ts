@@ -185,25 +185,10 @@ export class PostGameService {
     isAttributeVictories(selectedAttribute: keyof Player['postGameStats']) {
         return selectedAttribute === PlayerStatType.Victories;
     }
-
-    // calculateFlagBearers(){
-    //     let nbFlagBearers = 0;
-    //     for (const player of this.players){
-    //         if(player.collectedItems){
-    //             for(const itemId of player.collectedItems){
-    //                 if(itemId === ObjectType.Random){
-    //                     nbFlagBearers++;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     this.globalStats.nbFlagBearers = nbFlagBearers;
-    // }
-
-    // Replace ObjectType.Kunee by ObjectType.Flag
+    
     calculateFlagBearers() {
         this.globalStats.nbFlagBearers = this.players.reduce(
-            (count, player) => count + (player.collectedItems?.filter((itemId) => itemId === ObjectType.Kunee).length || 0),
+            (count, player) => count + (player.collectedItems?.filter((itemId) => itemId === ObjectType.Flag).length || 0),
             0,
         );
     }

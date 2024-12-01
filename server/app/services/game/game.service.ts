@@ -273,8 +273,10 @@ export class GameService {
         const playerId = player.id;
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
+            this.addUniqueTileToHistory(player.positionHistory, position);
             server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
+        
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit(ServerToClientEvent.EndMovement);
         server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
