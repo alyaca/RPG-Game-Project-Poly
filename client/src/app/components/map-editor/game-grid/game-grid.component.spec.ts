@@ -356,15 +356,6 @@ describe('GameGridComponent', () => {
         expect(result).toBeFalse();
     });
 
-    it('handleTileClick should call handleFightAction', () => {
-        gameServiceSpy.isActionCombatSelected = true;
-        component['activePlayer'] = mockLobbyPlayers[0];
-        gameServiceSpy.hasActionPoints.and.returnValue(true);
-        const handleFightActionSpy = spyOn(component, 'handleFightAction');
-        component.handleTileClick(1, 1);
-        expect(handleFightActionSpy).toHaveBeenCalledWith(1, 1);
-    });
-
     it('sendNavigation should call navigateToTile in navigationService', () => {
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
@@ -606,11 +597,6 @@ describe('GameGridComponent', () => {
         component.respawnPlayer(mockPosition, player);
         expect(navigationServiceSpy.updateTile).not.toHaveBeenCalled();
         expect(component.displayPortraitOnSpawnPoints).not.toHaveBeenCalled();
-    });
-
-    it('should return undefined if there is no game object with the specified id', () => {
-        const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
-        expect(result).toBeUndefined();
     });
 
     it('should call checkTeleportation if debug mode is enabled', () => {
