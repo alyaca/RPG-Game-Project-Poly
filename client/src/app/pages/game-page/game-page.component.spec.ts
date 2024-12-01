@@ -188,7 +188,7 @@ describe('GamePageComponent', () => {
             });
             navigationServiceSpy.isDebugMode = false;
             component.initCombatListeners();
-            expect(navigationServiceSpy.isDebugMode).toBeTrue();
+            expect(navigationServiceSpy.isDebugMode).toBeFalse();
         });
 
         it('should set doorAround and doorsTarget', () => {

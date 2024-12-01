@@ -218,6 +218,11 @@ describe('GameGridComponent', () => {
         spyOn(component, 'sendNavigation');
         component.handleTileClick(0, 0);
         expect(component.sendNavigation).toHaveBeenCalled();
+
+        component['activePlayer'] = undefined;
+        expect(gameServiceSpy.canOpenDoor).not.toHaveBeenCalled();
+        expect(gameServiceSpy.canStartCombat).not.toHaveBeenCalled();
+        expect(navigationServiceSpy.isInteractionPossible).not.toHaveBeenCalled();
     });
 
     describe('socket listener', () => {
