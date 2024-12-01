@@ -1,6 +1,6 @@
 import { MILLISECONDS_IN_SECOND, NO_ATTACK_TIME, STARTING_TIME } from '@app/constants';
 import { ObjectType } from '@common/avatars-info';
-import { Behavior, Player, Position } from '@common/interfaces/player';
+import { Behavior, Player, Position, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
@@ -11,7 +11,6 @@ export class BotService {
     async processBotTurn(room: Room, server: Server, activePlayer: Player) {
         const isAggressive = activePlayer.behavior === Behavior.Aggressive;
         await this.delay(this.getRandomInt(STARTING_TIME, NO_ATTACK_TIME));
-
         if (isAggressive) {
             await this.processAggressiveBehavior(room, server, activePlayer);
         } else {
@@ -22,35 +21,28 @@ export class BotService {
     private async processAggressiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const players = room.listPlayers;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
-
         if (target && this.attackEnemyIfPossible(room, server, activePlayer, target)) return;
-
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         const item = this.checkForAttackItems(room, reachability);
-
         if (item && this.navigateToItem(server, room, activePlayer, item)) return;
-
         this.navigateToRandomTile(room, server, activePlayer, reachability);
     }
 
     private async processDefensiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         const defenseItem = this.checkForDefenseItems(room, reachability);
-
         if (defenseItem && this.navigateToItem(server, room, activePlayer, defenseItem)) return;
-
         const players = room.listPlayers;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
-
         if (target && this.attackEnemyIfPossible(room, server, activePlayer, target)) return;
-
         this.navigateToRandomTile(room, server, activePlayer, reachability);
     }
 
     private attackEnemyIfPossible(room: Room, server: Server, activePlayer: Player, target: Player): boolean {
         const path = this.checkForEnemy(room, activePlayer, target);
         if (path) {
-            this.attackPlayer(room, server, target, activePlayer, path);
+            const combatInfo = { target: target, activePlayer: activePlayer, path: path };
+            this.attackPlayer(room, server, combatInfo);
             return true;
         }
         return false;
@@ -72,18 +64,25 @@ export class BotService {
         server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
     }
 
-    private async attackPlayer(room: Room, server: Server, target: Player, activePlayer: Player, path: Position[] = []) {
-        if (path.length > 0) {
-            path.pop();
-            server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
-            await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
+    private async attackPlayer(room: Room, server: Server, { target, activePlayer, path }) {
+        path.pop();
+        server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
+        await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
+        if (target.status !== Status.Bot) {
             server.to(target.id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
+        } else {
+            server.to(this.getEventHost(room).id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
         }
+    }
+
+    private getEventHost(room: Room): Player {
+        return room.listPlayers.find((player) => player.status !== Status.Disconnected && player.status !== Status.Bot);
     }
 
     private checkForEnemy(room: Room, activePlayer: Player, target: Player) {
         return room.navigation.findFastestPath(activePlayer, target.position, room);
     }
+
     private checkForAttackItems(room: Room, reachability: Position[]) {
         const items = room.gameMap.itemPlacement;
         for (const tile of reachability) {

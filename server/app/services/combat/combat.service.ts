@@ -76,11 +76,11 @@ export class CombatService {
         }
         this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
             this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.CombatTime, timeRemaining);
-            const timeToAttack = this.generateRandom(turnTime);
+            const timeToAttack = this.generateRandom(turnTime - 1);
             if (timeRemaining <= 0) {
                 this.attackPlayer(room, server);
             }
-            if (combatPlayers.attacker.status === Status.Bot && timeRemaining === timeToAttack) {
+            if (combatPlayers.attacker.status === Status.Bot && timeRemaining === timeToAttack && !this.isBothPlayersBot(combatPlayers)) {
                 this.attackPlayer(room, server);
                 return;
             }
