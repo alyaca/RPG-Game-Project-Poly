@@ -13,7 +13,7 @@ export enum ClientToServerEvent {
     EvadeCombat = 'evadeCombat',
     FindPath = 'findPath',
     GetMap = 'getMap',
-    GetRoom = "GetRoom", // Temporary
+    GetRoom = 'GetRoom', // Temporary
     IsLocked = 'isLocked',
     ItemSwapped = 'itemSwapped',
     JoinRoom = 'joinRoom',
@@ -29,7 +29,6 @@ export enum ClientToServerEvent {
     StartFight = 'startFight',
     StartTurn = 'startTurn',
     TeleportPlayer = 'teleportPlayer',
-
     ForceEndGame = 'forceEndGame',
 }
 
@@ -40,6 +39,8 @@ export enum ServerToClientEvent {
     AttackSuccess = 'attackSuccess',
     AttackValues = 'attackValues',
     BeforeStartTurnTimer = 'beforeStartTurnTimer',
+    BotNavigation = 'botNavigation',
+    BotAttack = 'botAttack',
     CharacterSelected = 'characterSelected',
     CombatEnd = 'combatEnd',
     CombatInProgress = 'combatInProgress',

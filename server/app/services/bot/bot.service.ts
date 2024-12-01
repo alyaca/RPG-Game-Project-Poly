@@ -2,6 +2,7 @@ import { MILLISECONDS_IN_SECOND, NO_ATTACK_TIME, STARTING_TIME } from '@app/cons
 import { ObjectType } from '@common/avatars-info';
 import { Behavior, Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
@@ -26,13 +27,8 @@ export class BotService {
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
         if (target) {
             const path = this.checkForEnemy(room, activePlayer, target);
-            if (path.length > 0) {
-                path.pop();
-                server.to(room.roomId).emit('botNavigation', path);
-                await this.delay(STARTING_TIME);
-                this.attackPlayer(room, server, target, activePlayer);
-                return;
-            }
+            this.attackPlayer(room, server, target, activePlayer, path);
+            return;
         }
         if (reachability.length > 0) {
             this.navigateToRandomTile(room, server, activePlayer, reachability);
@@ -47,18 +43,13 @@ export class BotService {
 
         if (target) {
             const path = this.checkForEnemy(room, activePlayer, target);
-            if (path.length > 0) {
-                path.pop();
-                server.to(room.roomId).emit('botNavigation', path);
-                await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
-                this.attackPlayer(room, server, target, activePlayer);
-                return;
-            }
+            this.attackPlayer(room, server, target, activePlayer, path);
+            return;
         }
         const item = this.checkForAttackItems(room, reachability);
         if (item) {
             const path = room.navigation.findFastestPath(activePlayer, item, room);
-            server.to(room.roomId).emit('botNavigation', path);
+            server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
             return;
         }
 
@@ -71,15 +62,20 @@ export class BotService {
         const randomIndex = Math.floor(Math.random() * reachability.length);
         const randomTile = reachability[randomIndex];
         const path = room.navigation.findFastestPath(activePlayer, randomTile, room);
-        server.to(room.roomId).emit('botNavigation', path);
+        server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
     }
 
-    private attackPlayer(room: Room, server: Server, target: Player, activePlayer: Player) {
-        server.to(room.roomId).emit('botAttack', { position: target.position, player: activePlayer });
+    private async attackPlayer(room: Room, server: Server, target: Player, activePlayer: Player, path: Position[] = []) {
+        if (path.length > 0) {
+            path.pop();
+            server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
+            await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
+            server.to(room.roomId).emit(ServerToClientEvent.BotAttack, { position: target.position, player: activePlayer });
+        }
     }
+
     private checkForEnemy(room: Room, activePlayer: Player, target: Player) {
-        const path = room.navigation.findFastestPath(activePlayer, target.position, room);
-        return path;
+        return room.navigation.findFastestPath(activePlayer, target.position, room);
     }
     private checkForAttackItems(room: Room, reachability: Position[]) {
         const items = room.gameMap.itemPlacement;

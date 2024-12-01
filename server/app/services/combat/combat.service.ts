@@ -99,7 +99,7 @@ export class CombatService {
         if (!combatInfos.checkedXiphos) {
             this.checkXiphos(combatInfos.combatPlayers, server, room);
         }
-        const timeToAttack = this.generateRaondom(turnTime);
+        const timeToAttack = this.generateRandom(turnTime);
         this.setFightTimer(client, server, combatInfos);
 
         this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
@@ -240,7 +240,6 @@ export class CombatService {
     manageTurnAfterCombat(client: Socket, defender: Player, attacker: Player, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.gameService.getActivePlayer(room);
-        // const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         if (activePlayer.id !== defender.id) {
             this.continueTurn(client, server);
             const reachability = room.navigation.findReachableTiles(attacker, room);
@@ -285,7 +284,7 @@ export class CombatService {
     private isBothPlayersBot(combatPlayers: CombatPlayers): boolean {
         return combatPlayers.attacker.status === Status.Bot && combatPlayers.defender.status === Status.Bot;
     }
-    private generateRaondom(max: number): number {
+    private generateRandom(max: number): number {
         return Math.floor(Math.random() * max + 1);
     }
 

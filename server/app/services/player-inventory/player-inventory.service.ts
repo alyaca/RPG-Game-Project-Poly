@@ -3,7 +3,7 @@ import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
 import { GameObject } from '@common/interfaces/game-object';
-import { Player, Status } from '@common/interfaces/player';
+import { Behavior, Player, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
 import { ServerToClientEvent } from '@common/socket.events';
@@ -23,6 +23,9 @@ export class PlayerInventoryService {
             itemPickedUp = this.determineRandomItem(allItems, room);
         }
         if (info.player.inventory.length === 2) {
+            this.handleItemSwap(room, info, itemPickedUp);
+            return;
+            /*
             if (info.player.status === Status.Bot) {
                 info.oldInventory = info.player.inventory;
                 info = this.getPrioritizedItem(info, itemPickedUp);
@@ -33,7 +36,8 @@ export class PlayerInventoryService {
                 this.roomService.getTurnTimer(room.roomId).pauseTimer();
                 info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
                 return;
-            }
+                
+            }*/
         } else {
             info.player = this.updatePlayerWithItem(info.player, itemPickedUp);
             this.gameLogService.sendItemLog(info.player, room.roomId, info.server, itemPickedUp);
@@ -43,6 +47,20 @@ export class PlayerInventoryService {
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
         info.client.emit(ServerToClientEvent.UpdatedInventory, info.player);
+    }
+
+    private handleItemSwap(room: Room, info: InfoSwap, itemPickedUp: number) {
+        if (info.player.status === Status.Bot) {
+            info.oldInventory = info.player.inventory;
+            info = this.getPrioritizedItem(info, itemPickedUp);
+            info.player = this.updatePlayerAfterSwap(info);
+
+            return;
+        } else {
+            this.roomService.getTurnTimer(room.roomId).pauseTimer();
+            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
+            return;
+        }
     }
 
     determineRandomItem(allObjects: number[][], room: Room): number {
@@ -180,7 +198,7 @@ export class PlayerInventoryService {
 
     private getPrioritizedItem(info: InfoSwap, itemPickedUp: number): InfoSwap {
         let itemToDrop: GameObject;
-        if (info.player.behavior === 'aggressive') {
+        if (info.player.behavior === Behavior.Aggressive) {
             itemToDrop = this.determineItemToDropAggressive(info.player.inventory, itemPickedUp);
         } else {
             itemToDrop = this.determineItemToDropDefensive(info.player.inventory, itemPickedUp);

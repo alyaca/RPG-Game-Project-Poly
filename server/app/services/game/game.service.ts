@@ -176,12 +176,10 @@ export class GameService {
                 this.playerTurnTimer(room, server);
             }
         });
-        /// ///
         if (activePlayer.status === Status.Bot) {
             this.botService.processBotTurn(room, server, activePlayer);
             return;
         }
-        /// //
     }
 
     onTurnEnded(room: Room, server: Server) {
@@ -330,10 +328,9 @@ export class GameService {
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
-        // TODO : refactor this
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
-        this.initTileHistory(room); // Should maybe call this function elsewhere
+        this.initTileHistory(room);
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
@@ -431,7 +428,6 @@ export class GameService {
     }
 
     addActionPoints(player: Player) {
-        // to fix(maybe)
         if (player.inventory.find((items) => items.id === ObjectType.Trident)) {
             if (player.attributes.actionPoints === 1) {
                 player.attributes.maxActionPoints = 2;
@@ -579,16 +575,6 @@ export class GameService {
         server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
         this.sortPlayersBySpeed(room);
     }
-
-    // private playerTurnTimer(client: Socket, server: Server) {
-    //     const room = this.roomService.getRoom(client);
-    //     this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
-    //         server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
-    //         if (timeRemaining <= 0) {
-    //             this.onTurnEnded(client, server);
-    //         }
-    //     });
-    // }
 
     private playerTurnTimer(room: Room, server: Server) {
         this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
