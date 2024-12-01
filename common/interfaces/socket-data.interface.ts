@@ -1,6 +1,6 @@
 import { Player, Position } from '@common/interfaces/player';
 
-export interface DoorActionData {
+export interface ActionData {
     clickedPosition: Position;
     player: Player;
 }

@@ -13,7 +13,6 @@ import {
     TURN_TIME,
 } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
-import { DoorActionData } from '@app/interfaces/socket-data.interface';
 import { baseBot } from '@app/mocks/mock-players';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { MatchService } from '@app/services/match/match.service';
@@ -23,12 +22,12 @@ import { ObjectType } from '@common/avatars-info';
 import { TileCost, TileType } from '@common/constants';
 import { Avatar, Behavior, Player, Position, Status } from '@common/interfaces/player';
 import { GameStatus, Room } from '@common/interfaces/room';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 /* eslint-disable max-lines */
-/* eslint-disable max-len */
 @Injectable()
 export class GameService {
     isMoving: boolean = false;
@@ -399,7 +398,7 @@ export class GameService {
         this.stopGameTimers(room);
     }
 
-    handleDoor(client: Socket, server: Server, doorActionData: DoorActionData) {
+    handleDoor(client: Socket, server: Server, doorActionData: ActionData) {
         const { clickedPosition, player } = doorActionData;
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);

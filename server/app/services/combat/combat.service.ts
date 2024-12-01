@@ -23,6 +23,7 @@ import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
 import { PlayerStatType } from '@common/interfaces/post-game-stat';
 import { Room } from '@common/interfaces/room';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
@@ -43,10 +44,13 @@ export class CombatService {
         server.to(players.defender.id).emit(event, data);
     }
 
-    startFight(client: Socket, player1: Player, player2: Player, isPlayer1Active: boolean, server: Server) {
-        const room = this.roomService.getRoom(client);
+    initializeCombatInfos(combatActionData: ActionData, room: Room) {
+        const { player } = combatActionData;
+        const opponent = room.navigation.getCombatOpponent(combatActionData);
+        if (!opponent) return;
         const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
-        const combatPlayers = { attacker: player1, defender: player2, combatResultDetails: DEFAULT_COMBAT_RESULT };
+        const [attacker, defender] = opponent && player.attributes.speed < opponent.attributes.speed ? [opponent, player] : [player, opponent];
+        const combatPlayers = { attacker, defender, combatResultDetails: DEFAULT_COMBAT_RESULT };
         const combatInfos: CombatInfos = {
             combatPlayers,
             gameTime,
@@ -56,11 +60,17 @@ export class CombatService {
         };
         this.handlePlayerOnIce(combatPlayers.attacker, room.gameMap.tiles, room.listPlayers);
         this.handlePlayerOnIce(combatPlayers.defender, room.gameMap.tiles, room.listPlayers);
-
-        this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
         this.combatInfos.set(room.roomId, combatInfos);
+        return combatInfos;
+    }
+
+    startFight(client: Socket, server: Server, combatActionData: ActionData) {
+        const room = this.roomService.getRoom(client);
+        const { combatPlayers } = this.initializeCombatInfos(combatActionData, room);
+        this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.StartFight, { player1, player2, isPlayer1Active });
+        const isActivePlayerAttacker = this.isAttacker(combatActionData.player, combatPlayers);
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.StartFight, { combatPlayers, isActivePlayerAttacker });
         server.to(room.roomId).emit(ServerToClientEvent.CombatInProgress);
         this.onStartTurn(client, server, room);
     }

@@ -3,6 +3,7 @@ export enum ClientToServerEvent {
     BeforeStartTurn = 'beforeStartTurn',
     BeginItemSwitch = 'beginItemSwitch',
     ChangeLockRoom = 'changeLockRoom',
+    CombatAction = 'combatAction',
     CreateBot = 'createBot',
     CreatePlayer = 'createPlayer',
     CreateRoom = 'createRoom',
@@ -13,7 +14,7 @@ export enum ClientToServerEvent {
     EvadeCombat = 'evadeCombat',
     FindPath = 'findPath',
     GetMap = 'getMap',
-    GetRoom = "GetRoom", // Temporary
+    GetRoom = 'GetRoom', // Temporary
     IsLocked = 'isLocked',
     ItemSwapped = 'itemSwapped',
     JoinRoom = 'joinRoom',
