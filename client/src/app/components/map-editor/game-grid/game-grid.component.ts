@@ -28,6 +28,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { TileType } from '@common/constants';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { TileRemoval } from '@common/interfaces/tile-removal';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
@@ -191,10 +192,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.sendBotPathToServer();
         });
 
-        this.socketCommunicationService.on('botAttack', (data: { position: Position; player: Player }) => {
-            const { position, player } = data;
-            this.activePlayer = player;
-            this.handleFightAction(position.x, position.y);
+        this.socketCommunicationService.on('botAttack', (actionData: ActionData) => {
+            this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {

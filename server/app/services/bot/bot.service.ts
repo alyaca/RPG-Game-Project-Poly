@@ -70,7 +70,7 @@ export class BotService {
             path.pop();
             server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
             await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
-            server.to(room.roomId).emit(ServerToClientEvent.BotAttack, { position: target.position, player: activePlayer });
+            server.to(target.id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
         }
     }
 

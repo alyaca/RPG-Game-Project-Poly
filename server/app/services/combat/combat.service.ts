@@ -44,75 +44,65 @@ export class CombatService {
         server.to(players.defender.id).emit(event, data);
     }
 
-    startFight(client: Socket, server: Server, combatActionData: ActionData) {
-        const room = this.roomService.getRoom(client);
+    startFight(room: Room, server: Server, combatActionData: ActionData) {
         const { combatPlayers } = this.initializeCombatInfos(combatActionData, room);
         this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         const isActivePlayerAttacker = this.isAttacker(combatActionData.player, combatPlayers);
         this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.StartFight, { combatPlayers, isActivePlayerAttacker });
         server.to(room.roomId).emit(ServerToClientEvent.CombatInProgress);
-        this.onStartTurn(client, server, room);
+        this.onStartTurn(server, room);
     }
 
-    onStartTurn(client: Socket, server: Server, room: Room) {
-        const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
+    onStartTurn(server: Server, room: Room) {
+        const combatInfos = this.combatInfos.get(room.roomId);
+        const combatPlayers = combatInfos.combatPlayers;
+        if (
+            // TODO : add a function
+            combatPlayers.attacker.status === Status.Bot &&
+            combatPlayers.attacker.attributes.currentHp < combatPlayers.attacker.attributes.totalHp &&
+            combatPlayers.attacker.attributes.evasion !== 0 &&
+            combatPlayers.attacker.behavior === Behavior.Defensive
+        ) {
+            this.evadingPlayer(room, server);
+            return;
+        }
+        if (!combatInfos.checkedXiphos) {
+            this.checkXiphos(combatInfos.combatPlayers, server, room);
+        }
+        this.setFightTimer(room, server, combatPlayers);
+    }
+
+    setFightTimer(room: Room, server: Server, combatPlayers: CombatPlayers) {
         let turnTime = 0;
         if (this.isBothPlayersBot(combatPlayers)) {
             turnTime = 1;
         } else {
             turnTime = combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
         }
-
-        if (
-            combatPlayers.attacker.status === Status.Bot &&
-            combatPlayers.attacker.attributes.currentHp < combatPlayers.attacker.attributes.totalHp &&
-            combatPlayers.attacker.attributes.evasion !== 0 &&
-            combatPlayers.attacker.behavior === Behavior.Defensive
-        ) {
-            this.evadingPlayer(client, server);
-            return;
-        }
-
-        const combatInfos = this.combatInfos.get(room.roomId);
-        if (!combatInfos.checkedXiphos) {
-            this.checkXiphos(combatInfos.combatPlayers, server, room);
-        }
-        const timeToAttack = this.generateRandom(turnTime);
-        this.setFightTimer(client, server, combatInfos);
-
         this.roomService.getFightTimer(room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
-            this.emitToCombatPlayers(server, combatPlayers, 'combatTime', timeRemaining);
+            this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.CombatTime, timeRemaining);
+            const timeToAttack = this.generateRandom(turnTime);
             if (timeRemaining <= 0) {
-                this.attackPlayer(client, server);
+                this.attackPlayer(room, server);
             }
             if (combatPlayers.attacker.status === Status.Bot && timeRemaining === timeToAttack) {
-                this.attackPlayer(client, server);
+                this.attackPlayer(room, server);
                 return;
             }
         });
     }
-    setFightTimer(client: Socket, server: Server, combatInfos: CombatInfos) {
-        const turnTime = combatInfos.combatPlayers.attacker.attributes.evasion === 0 ? NO_EVASION_TIME : FIGHT_TIME;
-        this.roomService.getFightTimer(combatInfos.room.roomId).resetTimer(turnTime, (timeRemaining: number) => {
-            this.emitToCombatPlayers(server, combatInfos.combatPlayers, ServerToClientEvent.CombatTime, timeRemaining);
-            if (timeRemaining <= 0) {
-                this.attackPlayer(client, server);
-            }
-        });
-    }
 
-    onEndTurn(client: Socket, server: Server, room: Room) {
+    onEndTurn(server: Server, room: Room) {
         const combatInfos = this.combatInfos.get(room.roomId);
         const combatPlayers = combatInfos.combatPlayers;
         [combatPlayers.attacker, combatPlayers.defender] = [combatPlayers.defender, combatPlayers.attacker];
         this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.CombatTurnEnded, { combatPlayers, failEvasion: combatInfos.failEvasion });
         combatInfos.failEvasion = false;
-        this.onStartTurn(client, server, room);
+        this.onStartTurn(server, room);
     }
 
-    attackPlayer(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
+    attackPlayer(room: Room, server: Server) {
         const combatPlayers = this.combatInfos.get(room.roomId).combatPlayers;
         const debugMode = room.isDebug;
         const { attackValues, defenseValues } = this.getCombatValues(combatPlayers, debugMode);
@@ -128,7 +118,7 @@ export class CombatService {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.AttackFail);
         }
         this.logService.sendCombatResultLog(room.roomId, server, combatPlayers);
-        this.checkCombatOutcome(client, combatPlayers, server);
+        this.checkCombatOutcome(room, combatPlayers, server);
     }
 
     getCombatValues(combatPlayers: CombatPlayers, debugMode: boolean) {
@@ -148,23 +138,21 @@ export class CombatService {
         return { attackValues, defenseValues };
     }
 
-    evadingPlayer(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
+    evadingPlayer(room: Room, server: Server) {
         const combatInfos = this.combatInfos.get(room.roomId);
         const combatPlayers = combatInfos.combatPlayers;
         combatPlayers.attacker.attributes.evasion--;
         if (this.isEvasionSuccessful()) {
-            this.handleEvasionSuccess(client, server);
+            this.handleEvasionSuccess(room, server);
         } else {
             this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatFail);
             this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.EvasionFail, combatPlayers.attacker);
             combatInfos.failEvasion = true;
-            this.onEndTurn(client, server, room);
+            this.onEndTurn(server, room);
         }
     }
 
-    handleEvasionSuccess(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
+    handleEvasionSuccess(room: Room, server: Server) {
         const combatInfos = this.combatInfos.get(room.roomId);
         const combatPlayers = combatInfos.combatPlayers;
         this.logService.sendCombatActionLog(room.roomId, server, combatPlayers, LogType.EvadeCombatSuccess);
@@ -192,8 +180,6 @@ export class CombatService {
     }
 
     continueTurn(server: Server, room: Room) {
-        const activePlayer = this.gameService.getActivePlayer(room);
-        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         setTimeout(() => {
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
                 if (timeRemaining <= 0) {
@@ -206,7 +192,6 @@ export class CombatService {
 
     manageTurnAfterCombat(winner: Player, server: Server, room: Room) {
         const activePlayer = this.gameService.getActivePlayer(room);
-        const activePlayerSocket = server.sockets.sockets.get(activePlayer.id);
         if (activePlayer.id === winner.id) {
             this.continueTurn(server, room);
             const reachability = room.navigation.findReachableTiles(winner, room);
@@ -254,11 +239,13 @@ export class CombatService {
     }
 
     private initializeCombatInfos(combatActionData: ActionData, room: Room) {
-        const { player } = combatActionData;
         const opponent = room.navigation.getCombatOpponent(combatActionData);
         if (!opponent) return;
         const gameTime = this.roomService.getTurnTimer(room.roomId).getTimeRemaining();
-        const [attacker, defender] = opponent && player.attributes.speed < opponent.attributes.speed ? [opponent, player] : [player, opponent];
+        const [attacker, defender] =
+            opponent && combatActionData.player.attributes.speed < opponent.attributes.speed
+                ? [opponent, combatActionData.player]
+                : [combatActionData.player, opponent];
         const combatPlayers = { attacker, defender, combatResultDetails: DEFAULT_COMBAT_RESULT };
         const combatInfos: CombatInfos = {
             combatPlayers,
@@ -338,8 +325,7 @@ export class CombatService {
         }
     }
 
-    private managePlayerDeath(client: Socket, winner: Player, loser: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
+    private managePlayerDeath(room: Room, winner: Player, loser: Player, server: Server) {
         this.gameService.placeItemsOnGround(room, server, loser);
         this.replacePlayerOnSpawnPoint(loser, server, room);
         this.manageTurnAfterCombat(winner, server, room);
@@ -349,18 +335,17 @@ export class CombatService {
         this.emitToCombatPlayers(server, { attacker: winner, defender: loser }, ServerToClientEvent.UpdateStats, { winner, loser });
     }
 
-    private checkCombatOutcome(client: Socket, combatPlayers: CombatPlayers, server: Server) {
-        const room = this.roomService.getRoom(client);
+    private checkCombatOutcome(room: Room, combatPlayers: CombatPlayers, server: Server) {
         const { attacker, defender } = combatPlayers;
         if (defender.attributes.currentHp <= 0) {
-            this.managePlayerDeath(client, attacker, defender, server);
+            this.managePlayerDeath(room, attacker, defender, server);
             return;
         } else if (attacker.attributes.currentHp <= 0) {
-            this.managePlayerDeath(client, defender, attacker, server);
+            this.managePlayerDeath(room, defender, attacker, server);
             return;
         }
         setTimeout(() => {
-            this.onEndTurn(client, server, room);
+            this.onEndTurn(server, room);
         }, ROLL_DURATION);
     }
 

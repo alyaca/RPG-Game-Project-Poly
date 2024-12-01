@@ -112,7 +112,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.AttackPlayer)
     handleAttackPlayer(client: Socket) {
-        this.combatService.attackPlayer(client, this.server);
+        const room = this.roomService.getRoom(client);
+        this.combatService.attackPlayer(room, this.server);
     }
 
     @SubscribeMessage(ClientToServerEvent.ItemSwapped)
@@ -122,7 +123,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.EvadeCombat)
     handleEvadeCombat(client: Socket) {
-        this.combatService.evadingPlayer(client, this.server);
+        const room = this.roomService.getRoom(client);
+        this.combatService.evadingPlayer(room, this.server);
     }
 
     @SubscribeMessage(ClientToServerEvent.EndTurn)
@@ -178,10 +180,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.CombatAction)
     handleCombatAction(client: Socket, combatActionData: ActionData) {
-        this.combatService.startFight(client, this.server, combatActionData);
+        const room = this.roomService.getRoom(client);
+        this.combatService.startFight(room, this.server, combatActionData);
     }
 
-    @SubscribeMessage(ClientToServerEvent.ForceEndGame) // temporary
+    @SubscribeMessage(ClientToServerEvent.ForceEndGame)
     handleForceEndGame(client: Socket, winner: Player) {
         this.logger.log('end of game has been forced');
         const room = this.roomService.getRoom(client);
