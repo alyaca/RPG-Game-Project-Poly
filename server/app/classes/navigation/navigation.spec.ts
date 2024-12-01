@@ -165,7 +165,7 @@ describe('Navigation', () => {
                 { x: 2, y: 0 },
             ];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
-
+            navigation.isBot = true;
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
 
             expect(navigation['distances'][0][2]).toBe(Infinity);
@@ -242,6 +242,8 @@ describe('Navigation', () => {
 
     describe('exploreNeighbors', () => {
         beforeEach(() => {
+            navigation.isReachableTile = jest.fn().mockReturnValue(true);
+            navigation.isBot = true;
             navigation['distances'] = [
                 [Infinity, Infinity, Infinity],
                 [Infinity, Infinity, Infinity],
@@ -303,7 +305,7 @@ describe('Navigation', () => {
                 { x: 1, y: 0 },
                 { x: 1, y: 2 },
             ];
-
+            navigation.isBot = true;
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
