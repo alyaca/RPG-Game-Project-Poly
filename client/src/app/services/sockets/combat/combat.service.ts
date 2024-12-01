@@ -40,9 +40,9 @@ export class CombatService {
         this.opponentResult = { total: 0, diceValue: 1 };
     }
 
-    initializeCombat(combatPlayers: CombatPlayers, isPlayer1Active: boolean) {
-        this.activePlayer = isPlayer1Active ? combatPlayers.attacker : combatPlayers.defender;
-        this.opponent = isPlayer1Active ? combatPlayers.defender : combatPlayers.attacker;
+    initializeCombat(combatPlayers: CombatPlayers, isActivePlayerAttacker: boolean) {
+        this.activePlayer = isActivePlayerAttacker ? combatPlayers.attacker : combatPlayers.defender;
+        this.opponent = isActivePlayerAttacker ? combatPlayers.defender : combatPlayers.attacker;
         this.attacker = combatPlayers.attacker;
         this.defender = combatPlayers.defender;
         this.isInCombat = true;

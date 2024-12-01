@@ -8,7 +8,7 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player } from '@common/interfaces/player';
-import { DoorActionData } from '@common/interfaces/socket-data.interface';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -365,7 +365,7 @@ describe('SocketGateway', () => {
 
     it('should call set tiles doorAction event', () => {
         jest.spyOn(gameService, 'handleDoor');
-        const doorActionData: DoorActionData = { clickedPosition: { x: 0, y: 0 }, player: mockPlayer };
+        const doorActionData: ActionData = { clickedPosition: { x: 0, y: 0 }, player: mockPlayer };
 
         gateway.handleDoorAction(mockClient, doorActionData);
         expect(gameService.handleDoor).toHaveBeenCalledWith(mockClient, server, doorActionData);
