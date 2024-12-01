@@ -1,9 +1,11 @@
-import { NO_ITEM, TileCost, TileType } from '@app/constants';
+import { NO_ITEM } from '@app/constants';
+
 import { ObjectType } from '@common/avatars-info';
-import { Game } from '@common/game';
-import { Player, Position } from '@common/player';
-import { PointWithDistance } from '@common/point-distance.interface';
-import { Room } from '@common/room';
+import { TileCost, TileType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
+import { Player, Position } from '@common/interfaces/player';
+import { PointWithDistance } from '@common/interfaces/point-distance.interface';
+import { Room } from '@common/interfaces/room';
 
 export class Navigation {
     gameMap: Game;
@@ -121,14 +123,10 @@ export class Navigation {
     }
 
     haveActions(player: Player, players: Player[]): boolean {
-        if (!this.hasActionPoints(player)) return false;
-        if (this.checkAttack(player, players) || this.checkDoor(player, players)) {
-            return true;
-        }
-        return false;
+        return this.hasActionPoints(player) && (this.checkAttack(player, players) || this.checkDoor(player, players));
     }
 
-    checkAttack(player: Player, players: Player[]) {
+    checkAttack(player: Player, players: Player[]): boolean {
         return this.getNeighborPlayers(player, players).length > 0;
     }
 
@@ -157,7 +155,7 @@ export class Navigation {
         return doors;
     }
 
-    checkDoor(player: Player, players: Player[]) {
+    checkDoor(player: Player, players: Player[]): boolean {
         return this.getNeighborDoors(player, players).length > 0;
     }
 

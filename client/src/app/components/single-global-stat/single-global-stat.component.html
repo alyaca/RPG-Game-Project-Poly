@@ -1,4 +1,4 @@
-@if(globalStat.key !== globalStatType.NbFlagBearers){
+@if(globalStat.key !== globalStatType.NbFlagBearers || postGameService.isCTFMode){
     <p
     class="global-attribute"                 
     (mouseenter)="postGameService.updateExplanationsGlobal(globalStat)"

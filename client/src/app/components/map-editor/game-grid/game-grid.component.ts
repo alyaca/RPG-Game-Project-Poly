@@ -13,9 +13,8 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
-import { NO_OBJECT, TileType } from '@app/constants';
+import { NO_OBJECT } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
@@ -27,9 +26,12 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
+import { Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
+import { TileRemoval } from '@common/interfaces/tile-removal';
 import { gameObjects } from '@common/objects-info';
-import { Player, Position } from '@common/player';
-import { Room } from '@common/room';
+import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
 @Component({
     selector: 'app-game-grid',
@@ -52,26 +54,25 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     @Output() itemsChange = new EventEmitter<number[][]>();
     @Output() heightChange = new EventEmitter<number>();
 
-    oldMapName: string;
-
-    tilesGrid: number[][];
-    objectsArray: number[][];
-    gridSize: number;
-    currentPlayer: Player;
-    activePlayer: Player | undefined;
-
-    selectedRow: number = 0;
-    selectedCol: number = 0;
-
-    isMouseDown: boolean = false;
-
-    previousRow: number | null = null;
-    previousCol: number | null = null;
-
-    fastestPath: Position[] = [];
-    isMoving: boolean = false;
+    // Used in html
     isActivePlayer: boolean = false;
     isPopupVisible: boolean = false;
+    fastestPath: Position[] = [];
+    currentPlayer: Player;
+    objectsArray: number[][];
+    tilesGrid: number[][];
+    gridSize: number;
+
+    private oldMapName: string;
+
+    private activePlayer: Player | undefined;
+
+    private isMouseDown: boolean = false;
+
+    private previousRow: number | null = null;
+    private previousCol: number | null = null;
+
+    private isMoving: boolean = false;
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
@@ -80,10 +81,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     constructor(
         private mapValidatorService: MapValidatorService,
-        public tileService: TileService,
-        public gameObjectService: GameObjectService,
-        public gameCreationService: GameCreationService,
-        public gameTileInfoService: GameTileInfoService,
+        private tileService: TileService,
+        private gameObjectService: GameObjectService,
+        private gameCreationService: GameCreationService,
+        private gameTileInfoService: GameTileInfoService,
     ) {}
 
     @HostListener('document:click', ['$event'])
@@ -99,7 +100,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
-        this.socketCommunicationService.on('reachableTiles', (reachability: Position[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.ReachableTiles, (reachability: Position[]) => {
             this.navigationService.reachableTiles = reachability;
         });
 
@@ -110,17 +111,17 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.loadExistingGame();
         }
 
-        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
 
-        this.socketCommunicationService.on('doorClicked', (tiles: number[][]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, (tiles: number[][]) => {
             this.tilesGrid = tiles;
             this.gameService.isActionDoorSelected = false;
         });
 
-        this.socketCommunicationService.on('isActive', (activePlayer: Player) => {
+        this.socketCommunicationService.on(ServerToClientEvent.ActivePlayer, (activePlayer: Player) => {
             this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
             this.activePlayer = activePlayer;
             if (this.activePlayer && this.isActivePlayer) {
@@ -128,11 +129,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on<Position>('playerNavigation', (tile) => {
+        this.socketCommunicationService.on<Position>(ServerToClientEvent.PlayerNavigation, (tile) => {
             this.navigateToTile(tile);
         });
 
-        this.socketCommunicationService.on('respawnPlayer', (data: { oldPosition: Position; playerToReplace: Player }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.RespawnPlayer, (data: { oldPosition: Position; playerToReplace: Player }) => {
             const { oldPosition, playerToReplace } = data;
             if (this.activePlayer?.id === playerToReplace.id) {
                 this.navigateToTile(playerToReplace.position);
@@ -141,7 +142,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('teleportPlayer', (data: { position: Position; playerId: string }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.TeleportPlayer, (data: { position: Position; playerId: string }) => {
             const { position, playerId } = data;
             const playerToTeleport = this.navigationService.players.find((p) => p.id === playerId);
             if (playerToTeleport) {
@@ -149,25 +150,25 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             }
         });
 
-        this.socketCommunicationService.on('endMovement', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.EndMovement, () => {
             this.isMoving = false;
         });
 
-        this.socketCommunicationService.on('playerDisconnected', (disconnectedPlayer: Player) => {
+        this.socketCommunicationService.on(ServerToClientEvent.PlayerDisconnected, (disconnectedPlayer: Player) => {
             this.navigationService.removePlayer(disconnectedPlayer);
         });
 
-        this.socketCommunicationService.on('pathFound', (path: Position[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.PathFound, (path: Position[]) => {
             this.fastestPath = path;
         });
 
-        this.socketCommunicationService.on('combatEnd', () => {
+        this.socketCommunicationService.on(ServerToClientEvent.CombatEnd, () => {
             if (this.activePlayer) {
                 this.activePlayer.attributes.actionPoints -= 1;
             }
         });
 
-        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+        this.socketCommunicationService.on<Player>(ServerToClientEvent.UpdatedInventory, (playerToUpdate: Player) => {
             const index = this.navigationService.players.findIndex((players) => players.name === playerToUpdate.name);
             if (this.activePlayer) {
                 this.activePlayer.inventory = playerToUpdate.inventory;
@@ -178,11 +179,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.players[index].inventory = playerToUpdate.inventory;
         });
 
-        this.socketCommunicationService.on<number[][]>('updateObjects', (items) => {
+        this.socketCommunicationService.on<number[][]>(ServerToClientEvent.UpdateObjects, (items) => {
             this.navigationService.updateObjects(items);
         });
 
-        this.socketCommunicationService.on('updateObjectsAfterCombat', (data: { newGrid: number[][]; position: Position }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateObjectsAfterCombat, (data: { newGrid: number[][]; position: Position }) => {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
@@ -197,6 +198,14 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activePlayer = player;
             this.handleFightAction(position.x, position.y);
         });
+
+        this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
+            this.gameTileInfoService.transferRoomData(room);
+        });
+    }
+
+    getTileImage(col: number) {
+        return this.tileService.getTileImage(col);
     }
 
     loadNewGame() {
@@ -212,10 +221,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     deepCopyMatrix(matrix: number[][] | null): number[][] {
-        if (!matrix) {
-            return [];
-        }
-        return JSON.parse(JSON.stringify(matrix));
+        return matrix ? JSON.parse(JSON.stringify(matrix)) : [];
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -289,7 +295,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     onDrop(event: DragEvent, row: number, col: number) {
-        this.gameObjectService.onDrop(event, row, col, this.objectsArray, this.tilesGrid);
+        this.gameObjectService.onDrop(event, { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray });
         this.isMouseDown = false;
         this.toolService.setSelectedTile('');
         this.sendInfoToMapCreationPage();
@@ -306,7 +312,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     removeOnRightClick(event: MouseEvent, row: number, col: number) {
         if (this.gameCreationService.isModifiable) {
-            this.tilesGrid = this.tileService.removeTile(event, row, col, this.tilesGrid, this.objectsArray);
+            const tileRemovalInfo: TileRemoval = { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray };
+            this.tilesGrid = this.tileService.removeTile(event, tileRemovalInfo);
             this.gameObjectService.removeObjectByClick(event, row, col);
             this.sendInfoToMapCreationPage();
         }
@@ -316,7 +323,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
             if (!this.isMoving) {
                 this.isMoving = true;
-                this.socketCommunicationService.send('teleportPlayer', position);
+                this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
             }
         }
     }
@@ -332,10 +339,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     showDetails(row: number, col: number) {
-        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
+        if (!this.gameCreationService.isModifiable) {
+            this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
             this.isPopupVisible = true;
-            this.gameTileInfoService.tileId = this.tilesGrid[row][col];
-            this.gameTileInfoService.itemId = this.objectsArray[row][col];
+
             this.gameTileInfoService.selectedRow = row;
             this.gameTileInfoService.selectedCol = col;
         }
@@ -396,7 +403,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         if (this.isReachableTile(row, col) && this.isActivePlayer) {
-            this.socketCommunicationService.send('findPath', { x: row, y: col });
+            this.socketCommunicationService.send(ClientToServerEvent.FindPath, { x: row, y: col });
         }
     }
 
@@ -407,7 +414,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     handleTileClick(row: number, col: number) {
         if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             const position: Position = { x: row, y: col };
-            this.socketCommunicationService.send('doorAction', { clickedPosition: position, player: this.activePlayer });
+            this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: this.activePlayer });
             return;
         } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
             this.handleFightAction(row, col);
@@ -430,7 +437,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             const player2 = this.getPlayerByAvatarName(this.navigationService.players, this.objectsArray[row][col]);
             const [attacker, defender] = player2 && player1.attributes.speed < player2.attributes.speed ? [player2, player1] : [player1, player2];
             const isActivePlayerAttacker = player1.id === attacker.id;
-            this.socketCommunicationService.send('startFight', { player1: attacker, player2: defender, isPlayer1Active: isActivePlayerAttacker });
+            this.socketCommunicationService.send(ClientToServerEvent.StartFight, {
+                player1: attacker,
+                player2: defender,
+                isPlayer1Active: isActivePlayerAttacker,
+            });
         }
     }
 
@@ -456,7 +467,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             if (!this.isMoving) {
                 this.isMoving = true;
                 const path = this.fastestPath;
-                this.socketCommunicationService.send('playerNavigation', path);
+                this.socketCommunicationService.send(ClientToServerEvent.PlayerNavigation, path);
                 this.fastestPath = [];
             }
         }

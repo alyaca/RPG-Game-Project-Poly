@@ -1,8 +1,10 @@
-import { LogType, TileType } from '@app/constants';
+import { LogType } from '@app/constants';
 import { ILogMessage } from '@app/interfaces/log.interface';
-import { CombatPlayers } from '@common/combat-player';
+import { TileType } from '@common/constants';
+import { CombatPlayers } from '@common/interfaces/combat-info';
+import { Player, Status } from '@common/interfaces/player';
 import { gameObjects } from '@common/objects-info';
-import { Player, Status } from '@common/player';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 @Injectable()
@@ -44,7 +46,7 @@ export class GameLogsService {
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
     }
 
-    sendCombatCombatResultLog(roomId: string, server: Server, combatPlayers: CombatPlayers) {
+    sendCombatResultLog(roomId: string, server: Server, combatPlayers: CombatPlayers) {
         const message = this.generateCombatResultMessage(combatPlayers);
         this.sendLogToCombatPlayers(roomId, server, combatPlayers, message);
     }
@@ -121,13 +123,13 @@ export class GameLogsService {
         if (currentLog !== message) {
             this.lastLog.set(roomId, message);
             const log = this.createLog(players, message, roomId);
-            server.to(roomId).emit('logReceived', log);
+            server.to(roomId).emit(ServerToClientEvent.LogReceived, log);
         }
     }
 
     private sendLogToCombatPlayers(roomId: string, server: Server, players: CombatPlayers, message: string) {
         const log = this.createLog([players.attacker, players.defender], message, roomId);
-        server.to(players.attacker.id).emit('logReceived', log);
-        server.to(players.defender.id).emit('logReceived', log);
+        server.to(players.attacker.id).emit(ServerToClientEvent.LogReceived, log);
+        server.to(players.defender.id).emit(ServerToClientEvent.LogReceived, log);
     }
 }

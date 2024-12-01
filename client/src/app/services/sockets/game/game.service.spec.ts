@@ -20,7 +20,9 @@ import { mockPlayers } from '@app/mocks/mock-players';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
+import { PathRoute } from '@common/interfaces/route';
+import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
 
@@ -93,7 +95,6 @@ describe('GameService', () => {
             messages: ['Veuillez réessayer plus tard ou retourner au menu principal '],
             options: ['Quitter', 'Rester'],
             confirm: true,
-            itemSwap: null,
         };
         const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of('stay'));
@@ -138,10 +139,9 @@ describe('GameService', () => {
                     messages: [message],
                     confirm: false,
                     options: [DialogOptions.Close],
-                    itemSwap: null,
                 },
             });
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
             done();
         });
     });
@@ -175,7 +175,7 @@ describe('GameService', () => {
 
         service.onPlayerKickedOut();
         setTimeout(() => {
-            expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
             done();
         });
     });
@@ -207,24 +207,24 @@ describe('GameService', () => {
 
     it('should navigate to game-creation when admin on leftRoom event', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'leftRoom') {
+            if (event === ServerToClientEvent.LeftRoom) {
                 callback(true as T);
             }
         });
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/game-creation']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.CREATE]);
     });
 
     it('should navigate to home when not admin on leftRoom event', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === 'leftRoom') {
+            if (event === ServerToClientEvent.LeftRoom) {
                 callback(false as T);
             }
         });
         service.onLeftRoom();
         expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
     it('should return true if player has action points', () => {
@@ -290,5 +290,17 @@ describe('GameService', () => {
         service.playersTarget = [player];
         service.isActionCombatSelected = true;
         expect(service.isTargetPlayer(MOCK_ROW, MOCK_COLUMN)).toBe(true);
+    });
+
+    it('should send leaveRoom when result is left onQuitPostGameLobby', (done) => {
+        const dialogRefSpy = jasmine.createSpyObj('DialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of({ action: DialogResult.Left }));
+        dialogSpy.open.and.returnValue(dialogRefSpy);
+
+        service.onQuitPostGameLobby(mockRoom.roomId);
+        setTimeout(() => {
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith('leaveRoom', mockRoom.roomId);
+            done();
+        });
     });
 });

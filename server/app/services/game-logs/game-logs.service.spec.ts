@@ -1,10 +1,11 @@
-import { LogType, TileType } from '@app/constants';
+import { LogType } from '@app/constants';
 import { mockAttacker, mockCombatPlayers, mockCombatResultDetails, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockPlayers, playerDisconnected } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ObjectType } from '@common/avatars-info';
-import { Player } from '@common/player';
+import { TileType } from '@common/constants';
+import { Player } from '@common/interfaces/player';
 import { Test, TestingModule } from '@nestjs/testing';
 import { GameLogsService } from './game-logs.service';
 
@@ -117,7 +118,7 @@ describe('GameLogsService', () => {
     it('should call sendLogToCombatPlayers and generateCombatResultMessage with dice result', () => {
         service['generateCombatResultMessage'] = jest.fn().mockReturnValue('test');
         service['sendLogToCombatPlayers'] = jest.fn();
-        service.sendCombatCombatResultLog(roomId, mockServer, mockCombatPlayers);
+        service.sendCombatResultLog(roomId, mockServer, mockCombatPlayers);
 
         expect(service['generateCombatResultMessage']).toHaveBeenCalledWith(mockCombatPlayers);
         expect(service['sendLogToCombatPlayers']).toHaveBeenCalledWith(roomId, mockServer, mockCombatPlayers, 'test');

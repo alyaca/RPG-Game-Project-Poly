@@ -15,9 +15,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     @Output() startTimer = new EventEmitter<void>();
     @Output() closeTimer = new EventEmitter<void>();
 
-    intervalId: ReturnType<typeof setInterval> | null = null;
-    isPaused: boolean = false;
     isTimerRunning: boolean = true;
+    intervalId: ReturnType<typeof setInterval> | null = null;
     warningTime: number = WARNING_TIME;
     radius = TIMER_RADIUS;
     circumference = 2 * Math.PI * this.radius;

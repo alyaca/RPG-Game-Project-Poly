@@ -8,7 +8,7 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
-import { Behavior, Player } from '@common/player';
+import { Behavior, Player } from '@common/interfaces/player';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -433,5 +433,14 @@ describe('SocketGateway', () => {
         expect(roomService.getRoom).toHaveBeenCalledWith(socket);
         expect(mockRoom.navigation.findFastestPath).toHaveBeenCalledWith(mockPlayer, position, mockRoom);
         expect(server.to(roomId).emit).toHaveBeenCalledWith('pathFound', path);
+    });
+
+    describe('getRoom', () => {
+        it('should call roomService.getRoom and emit the room data to the client', () => {
+            (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
+            gateway.handleGetRoom(socket);
+            expect(roomService.getRoom).toHaveBeenCalled();
+            expect(socket.emit).toBeTruthy();
+        });
     });
 });

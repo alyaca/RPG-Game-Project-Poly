@@ -1,6 +1,6 @@
 import { defaultAttributes, defaultPostGameStats } from '@app/default-attributes';
+import { Attributes, Behavior, Player, Status } from '@common/interfaces/player';
 import { gameObjects } from '@common/objects-info';
-import { Attributes, Behavior, Player, Status } from '@common/player';
 
 const mockAttributes: Attributes = {
     totalHp: 4,

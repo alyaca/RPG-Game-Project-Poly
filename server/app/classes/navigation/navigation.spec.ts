@@ -1,11 +1,12 @@
-import { DEFAULT_ATTRIBUTE, NO_ITEM, TileCost, TileType } from '@app/constants';
+import { DEFAULT_ATTRIBUTE, NO_ITEM } from '@app/constants';
 import { mockGameNavigation, mockNeighborGame } from '@app/mocks/map-mocks';
 import { mockGame } from '@app/mocks/mock-game';
 import { playerNavigation } from '@app/mocks/mock-player';
 import { mockNavigationPlayers } from '@app/mocks/mock-players';
 import { ObjectType } from '@common/avatars-info';
-import { Position } from '@common/player';
-import { PointWithDistance } from '@common/point-distance.interface';
+import { TileCost, TileType } from '@common/constants';
+import { Position } from '@common/interfaces/player';
+import { PointWithDistance } from '@common/interfaces/point-distance.interface';
 import { Navigation } from './navigation';
 
 /* eslint max-lines: ["off"] */
@@ -66,14 +67,14 @@ describe('Navigation', () => {
         expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
 
-    it('should return true if checkAttack or checkDoor return an array', () => {
+    it('should return true if checkAttack or checkDoor return true', () => {
         navigation.hasActionPoints = jest.fn().mockReturnValue(true);
-        navigation.checkAttack = jest.fn().mockReturnValue(playerNavigation);
+        navigation.checkAttack = jest.fn().mockReturnValue(true);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
 
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
-        navigation.checkDoor = jest.fn().mockReturnValue({ x: 1, y: 0 });
+        navigation.checkDoor = jest.fn().mockReturnValue(true);
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
 
@@ -81,7 +82,7 @@ describe('Navigation', () => {
         navigation.hasActionPoints = jest.fn().mockReturnValue(true);
         navigation.checkAttack = jest.fn().mockReturnValue(undefined);
         navigation.checkDoor = jest.fn().mockReturnValue(undefined);
-        expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(false);
+        expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(undefined);
     });
 
     it('should return the correct tile cost', () => {

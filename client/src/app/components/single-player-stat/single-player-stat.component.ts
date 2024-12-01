@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TOTAL_PERCENTAGE } from '@app/constants';
 import { PostGameService } from '@app/services/post-game/post-game.service';
-import { Player, PostGameStats } from '@common/player';
-import { PlayerStatType } from '@common/post-game-stat';
+import { Player, PostGameStats } from '@common/interfaces/player';
+import { PlayerStatType } from '@common/interfaces/post-game-stat';
 
 @Component({
     selector: 'app-single-player-stat',
@@ -17,10 +17,11 @@ export class SinglePlayerStatComponent {
     @Input() selectedAttribute: string;
     @Input() attribute: string;
 
+    // Used in html to access its attributes/functions
     constructor(public postGameService: PostGameService) {}
 
     getStatValue(): number {
-        return this.player?.postGameStats[this.attribute as keyof Player['postGameStats']] ?? -1;
+        return this.player?.postGameStats[this.attribute as keyof Player['postGameStats']];
     }
 
     formatStatValue() {

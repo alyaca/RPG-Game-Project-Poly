@@ -1,21 +1,13 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import {
-    GameMode,
-    MAX_LEN_MAP_DESCRIPTION,
-    MAX_LEN_MAP_TITLE,
-    NB_ITEMS_MEDIUM_MAP,
-    NO_OBJECT,
-    ObjectType,
-    TileType,
-    VALIDATION_DURATION,
-} from '@app/constants';
+import { MAX_LEN_MAP_DESCRIPTION, MAX_LEN_MAP_TITLE, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, VALIDATION_DURATION } from '@app/constants';
 import { mockInvalidItemsMatrice, mockLargeItemsMatrice, mockMediumItemsMatrice } from '@app/mocks/mock-game';
 import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
-import { Game } from '@common/game';
+import { GameMode, ObjectType, TileType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { MapValidatorService } from './map-validator.service';
 

@@ -1,23 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import {
     ErrorMessages,
-    GameMode,
     INVALID_TILES_TYPE,
     MAX_PLAYER_LARGE_MAP,
     MAX_PLAYER_MEDIUM_MAP,
     MAX_PLAYER_SMALL_MAP,
     NO_OBJECT,
-    ObjectType,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
     TEST_INVALID_SIZE,
-    TileType,
 } from '@app/constants';
 import { mockGames } from '@app/mocks/mock-game';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
-import { Game } from '@common/game';
+import { GameMode, ObjectType, TileType } from '@common/constants';
+import { Game } from '@common/interfaces/game';
 import { of } from 'rxjs';
 import { GameImportValidatorService } from './game-import-validator.service';
 

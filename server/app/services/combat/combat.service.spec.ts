@@ -1,5 +1,5 @@
 import { Timer } from '@app/classes/timer/timer';
-import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, ROLL_DURATION, TileType, TURN_TIME } from '@app/constants';
+import { END_COMBAT_DELAY, EVASION_SUCCESS_RATE, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, ROLL_DURATION, TURN_TIME } from '@app/constants';
 import { mockAttacker, mockCombatInfos, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -8,8 +8,12 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { Player } from '@common/player';
-import { Room } from '@common/room';
+import { CombatPlayers } from '@common/interfaces/combat-info';
+import { TileType } from '@common/constants';
+import { Player } from '@common/interfaces/player';
+import { PlayerStatType } from '@common/interfaces/post-game-stat';
+import { Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 
@@ -52,7 +56,7 @@ describe('CombatService', () => {
             sendEndGameLog: jest.fn(),
             sendGlobalCombatLog: jest.fn(),
             sendCombatActionLog: jest.fn(),
-            sendCombatCombatResultLog: jest.fn(),
+            sendCombatResultLog: jest.fn(),
         } as unknown as jest.Mocked<GameLogsService>;
 
         mockServer = {
@@ -111,6 +115,8 @@ describe('CombatService', () => {
             service.emitToCombatPlayers = jest.fn();
             service.onStartTurn = jest.fn();
             service['handlePlayerOnIce'] = jest.fn();
+            mockLogsService.sendGlobalCombatLog = jest.fn();
+            mockRoomService.getFightTimer = jest.fn();
 
             service.startFight(mockClient, mockCombatPlayers.attacker, mockCombatPlayers.defender, isPlayer1Active, mockServer);
 
@@ -185,6 +191,8 @@ describe('CombatService', () => {
             service['checkIfPlayerIsDead'] = jest.fn().mockReturnValue(false);
             service.onEndTurn = jest.fn();
             service['addToPostGameStats'] = jest.fn();
+            mockLogsService.sendCombatActionLog = jest.fn();
+            mockLogsService.sendCombatResultLog = jest.fn();
 
             service.attackPlayer(mockClient, mockServer);
             jest.advanceTimersByTime(ROLL_DURATION);
@@ -383,7 +391,6 @@ describe('CombatService', () => {
             service.emitToCombatPlayers = jest.fn();
             service.onEndTurn = jest.fn();
             service['isEvasionSuccessful'] = jest.fn().mockReturnValue(false);
-            service['addToPostGameStats'] = jest.fn();
 
             service.evadingPlayer(mockClient, mockServer);
 
@@ -599,7 +606,7 @@ describe('CombatService', () => {
     it('should add victory on default win', () => {
         service['combatWon'] = jest.fn();
         service['defaultCombatWin'](mockClient, mockPlayers[0], mockServer);
-        expect(mockServer.to(mockPlayers[0].id).emit).toHaveBeenCalledWith('defaultWin');
+        expect(mockServer.to(mockPlayers[0].id).emit).toHaveBeenCalledWith(ServerToClientEvent.DefaultCombatWin);
         expect(service['combatWon']).toHaveBeenLastCalledWith(mockClient, mockPlayers[0], mockServer, true);
     });
 
@@ -643,5 +650,38 @@ describe('CombatService', () => {
         service['handlePlayerOnIce'](playerOnIce, iceTiles, room.listPlayers);
         expect(playerOnIce.attributes.attack).toBe(ICE_TILE_PENALTY_VALUE);
         expect(playerOnIce.attributes.defense).toBe(ICE_TILE_PENALTY_VALUE);
+    });
+
+    it('should increment postGameStats for attacker and defender and return the attacker', () => {
+        room.listPlayers = mockPlayers;
+
+        const players: CombatPlayers = {
+            attacker: mockPlayers[0],
+            defender: mockPlayers[1],
+        };
+
+        const attr1 = PlayerStatType.Victories;
+        const attr2 = PlayerStatType.Defeats;
+        const result = service.addToPostGameStats(room, players, attr1, attr2);
+
+        expect(result).toEqual(mockPlayers[0]);
+        expect(mockPlayers[0].postGameStats.victories).toBe(1);
+        expect(mockPlayers[1].postGameStats.defeats).toBe(1);
+    });
+
+    it('should return null if either attacker or defender is not found', () => {
+        room.listPlayers = mockPlayers;
+
+        const players: CombatPlayers = {
+            attacker: { id: mockPlayers[0].id } as Player,
+            defender: { id: 'nonexistent-defender' } as Player,
+        };
+
+        const attr1 = PlayerStatType.Victories;
+        const attr2 = PlayerStatType.Defeats;
+
+        const result = service.addToPostGameStats(room, players, attr1, attr2);
+
+        expect(result).toBeNull();
     });
 });

@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ITEM_COUNT, ObjectType } from '@app/constants';
+import { ITEM_COUNT } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
+import { ObjectType } from '@common/constants';
 import { TilePlayerInfoComponent } from './tile-player-info.component';
 
 describe('TilePlayerInfoComponent', () => {
@@ -25,7 +26,7 @@ describe('TilePlayerInfoComponent', () => {
             description: 'Modifie le dé du joueur qui équipe cet objet : les valeurs équiprobables possibles sont 1, 2, 3, 5, 6, 6',
             count: ITEM_COUNT,
         });
-        gameTileInfoServiceSpy.getTile.and.returnValue({ id: 1, name: 'Ice', image: 'image', description: 'it makes you fall' });
+        gameTileInfoServiceSpy.getTile.and.returnValue({ id: 1, name: 'Ice', image: 'image', descriptions: ['it makes you fall'] });
         fixture.detectChanges();
     });
 

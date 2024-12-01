@@ -11,16 +11,16 @@ import {
     NB_ITEMS_LARGE_MAP,
     NB_ITEMS_MEDIUM_MAP,
     NB_ITEMS_SMALL_MAP,
-    ObjectType,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
-    TileType,
     VALIDATION_DURATION,
 } from '@app/constants';
 import { ValidatingMapInfo } from '@app/interfaces/validating-map-info';
 import { GameListService } from '@app/services/game-list/game-list.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',

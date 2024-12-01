@@ -1,10 +1,12 @@
 <div id="pop-up">
     <div class="dialog-content">
         <div class="title">Choisir un mode de jeu :</div>
-        <div class="button" class="options">
-            <button [class.select]="selectedMode === gameMode.Classic" (click)="selectMode(gameMode.Classic)">Classique</button>
-            <button [attr.disabled]="selectedMode === gameMode.Ctf" (click)="selectMode(gameMode.Ctf)">CTF</button>
+        <div class="game-mode-container">
+            <button class="game-mode" [class.select]="selectedMode === gameMode.Classic" (click)="selectMode(gameMode.Classic)">Classique</button>
+            <button class="game-mode" [attr.disabled]="selectedMode === gameMode.Ctf" (click)="selectMode(gameMode.Ctf)">CTF</button>
         </div>
+    </div>
+    <div class="dialog-content">
         <div class="title">Choisir la taille du jeu :</div>
         <div class="size-container">
             <div class="game-size">
@@ -20,9 +22,11 @@
                 (2 à 6 joueurs)
             </div>
         </div>
+    </div>
+    <div>
         <div class="options">
-            <button mat-button (click)="close()">Annuler</button>
-            <button mat-button (click)="changePage()">Création</button>
+            <button class="option-button" mat-button (click)="close()">Annuler</button>
+            <button class="option-button" mat-button (click)="changePage()">Création</button>
         </div>
     </div>
 </div>

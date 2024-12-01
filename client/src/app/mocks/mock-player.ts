@@ -1,7 +1,7 @@
-import { ObjectType } from '@app/constants';
 import { defaultPostGameStats } from '@app/default-attributes';
 import { PlayerObjects, Status } from '@app/interfaces/player-object';
-import { Behavior, Player } from '@common/player';
+import { ObjectType } from '@common/constants';
+import { Behavior, Player } from '@common/interfaces/player';
 
 export const mockPlayer: PlayerObjects = {
     id: 0,

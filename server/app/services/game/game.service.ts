@@ -10,8 +10,6 @@ import {
     MOVEMENT_TIME,
     SINGLE_PLAYER,
     STARTING_TIME,
-    TileCost,
-    TileType,
     TURN_TIME,
 } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
@@ -22,8 +20,10 @@ import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { Avatar, Behavior, Player, Position, Status } from '@common/player';
-import { GameStatus, Room } from '@common/room';
+import { TileCost, TileType } from '@common/constants';
+import { Avatar, Behavior, Player, Position, Status } from '@common/interfaces/player';
+import { GameStatus, Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { BotService } from '../bot/bot.service';
@@ -73,7 +73,7 @@ export class GameService {
     }
 
     getActivePlayer(room: Room): Player {
-        return room.listPlayers.find((player) => player.isActive === true);
+        return room.listPlayers.find((player) => player.isActive);
     }
 
     getGame(roomId: string) {
@@ -87,28 +87,28 @@ export class GameService {
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.roomService.getRoom(socket);
-        socket.emit('leftRoom', isAdmin);
+        socket.emit(ServerToClientEvent.LeftRoom, isAdmin);
         const player = this.getPlayerById(room, socket);
         this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUp);
 
         if (isAdmin && room.isDebug) {
             room.isDebug = false;
-            server.to(roomId).emit('debugMode', false);
+            server.to(roomId).emit(ServerToClientEvent.DebugMode, false);
         }
         if (isAdmin && room.gameStatus === GameStatus.Lobby) {
             this.roomService.deleteRoom(roomId, socket);
         } else if (room.gameStatus === GameStatus.Started) {
             this.playerDisconnected(room, socket, server);
-            socket.to(roomId).emit('disconnectedPlayer', room.listPlayers);
+            socket.to(roomId).emit(ServerToClientEvent.PlayerDisconnected, room.listPlayers);
             const activePlayer = this.getActivePlayer(room);
             player.position = DISCONNECTED_POSITION;
             if (activePlayer.id !== player.id) {
                 const reachability = room.navigation.findReachableTiles(activePlayer, room);
-                server.to(room.roomId).emit('reachableTiles', reachability);
+                server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
             }
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
-            socket.to(roomId).emit('updatedPlayer', room);
+            socket.to(roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
         }
     }
 
@@ -155,11 +155,11 @@ export class GameService {
 
     emitStartGameEvents(room: Room, server: Server) {
         const activePlayer = this.getActivePlayer(room);
-        server.to(room.roomId).emit('startGame', room);
-        server.to(room.roomId).emit('mapInformation', room);
-        server.to(room.roomId).emit('isActive', activePlayer);
+        server.to(room.roomId).emit(ServerToClientEvent.StartGame, room);
+        server.to(room.roomId).emit(ServerToClientEvent.MapInformation, room);
+        server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
-        server.to(room.roomId).emit('reachableTiles', reachability);
+        server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         this.checkActions(room, server);
     }
 
@@ -167,12 +167,11 @@ export class GameService {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
 
-        server.to(room.roomId).emit('otherPlayerTurn', activePlayer.name);
+        server.to(room.roomId).emit(ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, server, activePlayer, LogType.StartTurn);
 
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
-            server.to(activePlayer.id).emit('beforeStartTurnTimer', timeRemaining);
-            //Todo : remplacer 25 par 0
+            server.to(activePlayer.id).emit(ServerToClientEvent.BeforeStartTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
                 this.playerTurnTimer(room, server);
             }
@@ -191,16 +190,17 @@ export class GameService {
             this.updateActivePlayer(server, room);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
-            server.to(room.roomId).emit('reachability', activePlayer);
-            server.to(room.roomId).emit('isActive', activePlayer);
-            server.to(room.roomId).emit('turnEnded', room.listPlayers);
+            server.to(room.roomId).emit(ServerToClientEvent.Reachability, activePlayer);
+            server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
+            server.to(room.roomId).emit(ServerToClientEvent.TurnEnded, room.listPlayers);
+
             if (activePlayer.status === Status.Bot) {
                 room.navigation.isBot = true;
             } else {
                 room.navigation.isBot = false;
             }
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit('reachableTiles', reachability);
+            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
             this.checkActions(room, server);
         } else {
             this.isTurnSkipped = true;
@@ -254,25 +254,25 @@ export class GameService {
         newBot = this.assignStatsToBot(newBot);
         this.createPlayer(room, newBot, client);
         this.updateAvatarsForAllClients(server, room.roomId);
-        server.to(room.roomId).emit('updatedPlayer', room);
+        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
     }
 
     onKickBot(socket: Socket, botId: string, server: Server) {
         const room = this.roomService.getRoom(socket);
-        server.to(botId).emit('kickPlayer', botId);
+        server.to(botId).emit(ServerToClientEvent.KickPlayer, botId);
         const botPlayer = room.listPlayers.find((player) => player.id === botId);
         botPlayer.avatar.isTaken = false;
         room.listPlayers = room.listPlayers.filter((player) => player.id !== botId);
-        server.to(room.roomId).emit('updatedPlayer', room);
+        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
         this.updateAvatarsForAllClients(server, room.roomId);
     }
 
     onKickPlayer(socket: Socket, server: Server, playerId: string) {
         const room = this.roomService.getRoom(socket);
-        server.to(playerId).emit('kickPlayer', playerId);
+        server.to(playerId).emit(ServerToClientEvent.KickPlayer, playerId);
         const playerSocket = server.sockets.sockets.get(playerId);
         this.removePlayerFromRoom(room.roomId, playerSocket, server);
-        server.to(room.roomId).emit('updatedPlayer', room);
+        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
     }
 
     updateLogsDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
@@ -285,11 +285,11 @@ export class GameService {
         const playerId = player.id;
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
-            server.to(room.roomId).emit('teleportPlayer', { position, playerId });
+            server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
         const reachability = room.navigation.findReachableTiles(player, room);
-        server.to(room.roomId).emit('endMovement');
-        server.to(room.roomId).emit('reachableTiles', reachability);
+        server.to(room.roomId).emit(ServerToClientEvent.EndMovement);
+        server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         this.checkActions(room, server);
     }
 
@@ -302,9 +302,9 @@ export class GameService {
             if (timeLeft <= 0) {
                 this.onTurnEnded(room, infoSwap.server);
             }
-            infoSwap.server.to(room.roomId).emit('startedTurnTimer', timeLeft);
+            infoSwap.server.to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeLeft);
         });
-        infoSwap.client.emit('updateInventory', activePlayer);
+        infoSwap.client.emit(ServerToClientEvent.UpdatedInventory, activePlayer);
     }
 
     addUniqueTileToHistory(positionList: Position[], tile: Position) {
@@ -323,7 +323,7 @@ export class GameService {
     resetGlobalStats(room: Room) {
         room.globalPostGameStats.globalTilesVisited = [];
         room.globalPostGameStats.doorsInteracted = [];
-        room.globalPostGameStats.turns = 0;
+        room.globalPostGameStats.turns = 1;
         room.globalPostGameStats.nbFlagBearers = 0;
         room.globalPostGameStats.gameDuration = '';
     }
@@ -345,7 +345,7 @@ export class GameService {
                 };
                 pickedUpItem = true;
                 this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
-                server.to(room.roomId).emit('updateObjects', room.gameMap.itemPlacement);
+                server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
             }
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
@@ -353,11 +353,11 @@ export class GameService {
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
-            server.to(room.roomId).emit('playerNavigation', tile);
+            server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
             if (!room.isDebug) {
                 if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
                     this.stopGameTimers(room);
-                    client.emit('playerFell');
+                    client.emit(ServerToClientEvent.PlayerFell);
                     break;
                 }
             }
@@ -367,8 +367,8 @@ export class GameService {
 
         this.isMoving = false;
         const reachability = room.navigation.findReachableTiles(player, room);
-        server.to(room.roomId).emit('endMovement');
-        server.to(room.roomId).emit('reachableTiles', reachability);
+        server.to(room.roomId).emit(ServerToClientEvent.EndMovement);
+        server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         if (this.checkEndTurn(client, player)) {
             this.onTurnEnded(room, server);
             return;
@@ -406,7 +406,7 @@ export class GameService {
         room.gameStatus = GameStatus.Ended;
         room.stopwatch.stop();
         room.globalPostGameStats.gameDuration = room.stopwatch.getTime();
-        server.to(room.roomId).emit('endGame', { winner, room });
+        server.to(room.roomId).emit(ServerToClientEvent.EndGame, { winner, room });
         this.resetGlobalStats(room);
         this.stopGameTimers(room);
     }
@@ -420,9 +420,9 @@ export class GameService {
             this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
             activePlayer.attributes.actionPoints--;
-            server.to(room.roomId).emit('doorClicked', room.navigation.gameMap.tiles);
+            server.to(room.roomId).emit(ServerToClientEvent.DoorClicked, room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit('reachableTiles', reachability);
+            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
             if (this.checkEndTurn(client, activePlayer)) {
                 this.onTurnEnded(room, server);
             }
@@ -455,7 +455,7 @@ export class GameService {
             const position = room.navigation.findClosestValidTile(playerToDropItems, room);
             playerToDropItems = this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
-            server.to(room.roomId).emit('updateObjectsAfterCombat', { newGrid: room.gameMap.itemPlacement, position });
+            server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, { newGrid: room.gameMap.itemPlacement, position });
         }
 
         playerToDropItems.inventory = [];
@@ -463,7 +463,7 @@ export class GameService {
         const index = room.listPlayers.findIndex((players) => players.id === player.id);
         room.listPlayers[index].inventory = playerToDropItems.inventory;
         room.listPlayers[index].attributes = playerToDropItems.attributes;
-        server.to(playerToDropItems.id).emit('updateInventory', playerToDropItems);
+        server.to(playerToDropItems.id).emit(ServerToClientEvent.UpdatedInventory, playerToDropItems);
     }
 
     playerInWall(room: Room, player: Player) {
@@ -478,9 +478,9 @@ export class GameService {
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkAttack(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
             const targets = room.navigation.getNeighborPlayers(activePlayer, room.listPlayers);
-            server.to(room.roomId).emit('attackAround', { attackAround: true, targets });
+            server.to(room.roomId).emit(ServerToClientEvent.AttackAround, { attackAround: true, targets });
         } else {
-            server.to(room.roomId).emit('attackAround', false);
+            server.to(room.roomId).emit(ServerToClientEvent.AttackAround, false);
         }
     }
 
@@ -488,9 +488,9 @@ export class GameService {
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkDoor(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
             const targets = room.navigation.getNeighborDoors(activePlayer, room.listPlayers);
-            server.to(room.roomId).emit('doorAround', { doorAround: true, targets });
+            server.to(room.roomId).emit(ServerToClientEvent.DoorAround, { doorAround: true, targets });
         } else {
-            server.to(room.roomId).emit('doorAround', false);
+            server.to(room.roomId).emit(ServerToClientEvent.DoorAround, false);
         }
     }
 
@@ -573,9 +573,9 @@ export class GameService {
         }
         disconnectedPlayer.status = Status.Disconnected;
         if (this.isLastPlayer(room)) {
-            server.to(room.roomId).emit('draw');
+            server.to(room.roomId).emit(ServerToClientEvent.DrawGame);
         }
-        server.to(room.roomId).emit('playerDisconnected', disconnectedPlayer);
+        server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
         this.sortPlayersBySpeed(room);
     }
 
@@ -591,7 +591,7 @@ export class GameService {
 
     private playerTurnTimer(room: Room, server: Server) {
         this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
-            server.to(room.roomId).emit('startedTurnTimer', timeRemaining);
+            server.to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
                 this.onTurnEnded(room, server);
             }
@@ -608,7 +608,7 @@ export class GameService {
                 isSelected: isSelectedByClient,
             };
         });
-        socket.emit('characterSelected', customizedAvatarsList);
+        socket.emit(ServerToClientEvent.CharacterSelected, customizedAvatarsList);
     }
 
     private sortPlayersBySpeed(room: Room) {
@@ -627,12 +627,11 @@ export class GameService {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         let previousActivePlayer = listPlayers[index];
-        // if (previousActivePlayer.inventory.find((object) => object.id === ObjectType.Trident)) {
         previousActivePlayer = this.addActionPoints(previousActivePlayer);
-        // }
+
         if (this.playerInWall(room, previousActivePlayer)) {
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
-            server.to(room.roomId).emit('updateObjectsAfterCombat', {
+            server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
                 newGrid: room.gameMap.itemPlacement,
                 position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
             });
@@ -642,7 +641,7 @@ export class GameService {
             previousActivePlayer.position = destination;
             room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
             this.processTeleportation(room, server, previousActivePlayer.position);
-            server.to(room.roomId).emit('updateObjectsAfterCombat', {
+            server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
                 newGrid: room.gameMap.itemPlacement,
                 position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
             });

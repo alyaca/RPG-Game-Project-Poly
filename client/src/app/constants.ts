@@ -1,16 +1,5 @@
-import { GlobalPostGameStat, GlobalStatType } from '@common/global-post-game-stats';
-import { PlayerStatType, PostGameStat } from '@common/post-game-stat';
-
-export enum MapSize {
-    Small = 'small',
-    Medium = 'medium',
-    Large = 'large',
-}
-
-export enum GameMode {
-    Classic = 'classique',
-    Ctf = 'ctf',
-}
+import { GlobalPostGameStat, GlobalStatType } from '@common/interfaces/global-post-game-stats';
+import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
 
 export const MAX_INVENTORY_ITEMS = 2;
 
@@ -32,15 +21,6 @@ export const MAX_LEN_MAP_TITLE = 30;
 export const MIN_LEN_MAP_DESCRIPTION = 10;
 export const MAX_LEN_MAP_DESCRIPTION = 128;
 
-export enum TileType {
-    Ground = 1,
-    Ice = 2,
-    Water = 3,
-    Wall = 4,
-    ClosedDoor = 5,
-    OpenDoor = 6,
-}
-
 // To validate a door position on a map
 export const DIRECTIONS = [
     { x: 0, y: 1 },
@@ -57,29 +37,6 @@ export const OBJECT_COUNT_MAP: { [key: string]: number } = {
 
 // Constants for initial count of game objects
 export const ITEM_COUNT = 1;
-
-export enum ObjectType {
-    Trident = 1,
-    Armor = 2,
-    Sandal = 3,
-    Lightning = 4,
-    Xiphos = 5,
-    Kunee = 6,
-    Random = 7,
-    Spawn = 8,
-    Hestia = 9,
-    Zeus = 10,
-    Hera = 11,
-    Poseidon = 12,
-    Artemis = 13,
-    Demeter = 14,
-    Hermes = 15,
-    Athena = 16,
-    Hephaestus = 17,
-    Apollo = 18,
-    Ares = 19,
-    Aphrodite = 20,
-}
 
 // For no object in grid
 export const NO_OBJECT = 0;
@@ -264,14 +221,6 @@ export enum DialogResult {
     Close = 'close',
 }
 
-// constants for tile cost
-export enum TileCost {
-    Ground = 1,
-    Water = 2,
-    Ice = 0,
-    OpenDoor = 1,
-}
-
 export const INVALID_TILES_TYPE = 999;
 
 export const INFO_DIALOG_TIME = 2500;
@@ -361,3 +310,26 @@ export enum SortOrder {
     Ascending = 'ascending',
     Descending = 'descending',
 }
+
+export const TILE_DESCRIPTIONS = [
+    ['Tuile par défaut du jeu (tuile de terrain)', 'Les joueurs et les objects peuvent y être posés dessus', 'coût: 1'],
+    [
+        'Un joueur qui y marche dessus à 10% de chance de perdre pied et tomber, terminant instantanément le tour du joueur',
+        'tant que le joueur se trouve sur de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.',
+        'coût: 0',
+    ],
+    ['Tuile de terrain', 'Coût: 2'],
+    [
+        'Obstacles infranchissables par les joueurs à moins que le joueur obtienne un item spécial',
+        'Aucun objet y est placé dessus',
+        'Pas considée comme une tuile de terrain',
+    ],
+
+    [
+        "Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire y passer à travers.",
+        'Sinon il agit comme un obstacle infranchissable comme une tuile de mur.',
+    ],
+    ['Une porte ouverte agit comme une tuile de gazon', "Elle peut être fermée par le joueur en interagissant avec le bouton 'Porte'."],
+];
+
+export const TILE_NAMES = ['Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'];

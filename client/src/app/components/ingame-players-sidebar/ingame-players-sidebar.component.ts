@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { Player } from '@common/player';
+import { Player } from '@common/interfaces/player';
 @Component({
     selector: 'app-ingame-players-sidebar',
     standalone: true,

@@ -1,5 +1,5 @@
 import { avatars } from '@common/avatars-info';
-import { Attributes, Behavior, Player, PostGameStats, Status } from '@common/player';
+import { Attributes, Behavior, Player, PostGameStats, Status } from '@common/interfaces/player';
 
 export const mockAttributes: Attributes = {
     totalHp: 4,

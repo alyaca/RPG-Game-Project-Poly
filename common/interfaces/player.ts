@@ -1,4 +1,4 @@
-import { GameObject } from '@common/game-object';
+import { GameObject } from '@common/interfaces/game-object';
 
 export interface Avatar {
     id?: number;
@@ -32,6 +32,7 @@ export interface Player {
     inventory: GameObject[];
     position: Position;
     positionHistory: Position[];
+    collectedItems?: number[];
     spawnPosition: Position;
     behavior: Behavior;
 }
