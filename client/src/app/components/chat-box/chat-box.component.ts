@@ -33,6 +33,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     toggleIconImage: string = './assets/images/icones/chat-message.png';
     roomCode: string;
     private routeSub: Subscription;
+    private isAtBottom = true;
 
     constructor(
         private chatService: ChatService,
@@ -52,16 +53,17 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.chatFocusChange.emit(false);
     }
 
-    scrollToBottom(): void {
-        if (this.messageContainer) {
-            this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
-        }
-        if (this.logContainer) {
-            this.logContainer.nativeElement.scrollTop = this.logContainer.nativeElement.scrollHeight;
-        }
+    getActiveContainer() {
+        return this.areLogsVisible ? this.logContainer : this.messageContainer;
     }
 
-    ngOnInit(): void {
+    onScroll() {
+        const container = this.getActiveContainer();
+        const element = container.nativeElement;
+        this.isAtBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
+    }
+
+    ngOnInit() {
         this.routeSub = this.route.queryParams.subscribe((params) => {
             this.roomCode = params['roomCode'];
             this.loadMessages();
@@ -81,30 +83,18 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.chatType = this.areLogsVisible ? 'Journal de jeu non filtré' : 'Messagerie';
     }
 
-    isPlayerInLog(message: LogMessage): boolean {
-        return message.players.some((player) => player.id === this.socketCommunicationService.socket.id);
-    }
-
-    loadMessages(): void {
-        this.chatService.getMessagesByRoom(this.roomCode).subscribe((messages) => {
-            if (messages.length !== 0) {
-                this.messages = messages;
-            }
-        });
-    }
-
-    ngAfterViewChecked(): void {
+    ngAfterViewChecked() {
         this.scrollToBottom();
     }
 
-    sendMessage(): void {
+    sendMessage() {
         if (this.newMessage.trim() && !this.areLogsVisible) {
             this.chatService.sendMessage(this.newMessage);
             this.newMessage = '';
         }
     }
 
-    ngOnDestroy(): void {
+    ngOnDestroy() {
         if (this.routeSub) {
             this.routeSub.unsubscribe();
         }
@@ -120,5 +110,24 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     toggleLogsFilter() {
         this.areLogsFiltered = !this.areLogsFiltered;
         this.chatType = this.areLogsFiltered ? 'Journal de jeu filtré' : 'Journal de jeu non filtré';
+    }
+
+    private isPlayerInLog(message: LogMessage) {
+        return message.players.some((player) => player.id === this.socketCommunicationService.socket.id);
+    }
+
+    private loadMessages() {
+        this.chatService.getMessagesByRoom(this.roomCode).subscribe((messages) => {
+            if (messages.length !== 0) {
+                this.messages = messages;
+            }
+        });
+    }
+
+    private scrollToBottom() {
+        const container = this.getActiveContainer();
+        if (container && this.isAtBottom) {
+            container.nativeElement.scrollTop = container.nativeElement.scrollHeight;
+        }
     }
 }

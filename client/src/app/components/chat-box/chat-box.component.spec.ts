@@ -61,10 +61,11 @@ describe('ChatBoxComponent', () => {
     });
 
     it('should load messages', () => {
-        spyOn(component, 'loadMessages').and.callThrough();
+        // eslint-disable-next-line -- loadMessages is private and we want to spyOn
+        spyOn<any>(component, 'loadMessages').and.callThrough();
         component.ngOnInit();
 
-        expect(component.loadMessages).toHaveBeenCalled();
+        expect(component['loadMessages']).toHaveBeenCalled();
         expect(chatServiceSpy.getMessagesByRoom).toHaveBeenCalledWith('1234');
         expect(component.messages).toEqual(mockMessages);
     });
@@ -128,7 +129,7 @@ describe('ChatBoxComponent', () => {
             players: [{ id: '123', username: 'Goku' } as unknown as Player],
             timestamp: new Date(),
         };
-        const result = component.isPlayerInLog(logMessage);
+        const result = component['isPlayerInLog'](logMessage);
         expect(result).toBe(true);
     });
 
@@ -139,7 +140,7 @@ describe('ChatBoxComponent', () => {
             players: [{ id: '456', username: 'Vegeta' } as unknown as Player],
             timestamp: new Date(),
         };
-        const result = component.isPlayerInLog(logMessage);
+        const result = component['isPlayerInLog'](logMessage);
         expect(result).toBe(false);
     });
 
@@ -147,17 +148,13 @@ describe('ChatBoxComponent', () => {
         const messageContainer = document.createElement('div');
         const scrollHeight = 100;
 
-        // Simule `scrollHeight`
         Object.defineProperty(messageContainer, 'scrollHeight', { value: scrollHeight, configurable: true });
 
-        // Définit `scrollTop` sur 0 au départ
         messageContainer.scrollTop = 0;
         component.messageContainer = new ElementRef(messageContainer);
 
-        // Appelle `scrollToBottom`
-        component.scrollToBottom();
+        component['scrollToBottom']();
 
-        // Simule la mise à jour de `scrollTop`
         Object.defineProperty(messageContainer, 'scrollTop', { value: scrollHeight, writable: true });
 
         expect(messageContainer.scrollTop).toBe(scrollHeight);
@@ -189,7 +186,7 @@ describe('ChatBoxComponent', () => {
     });
 
     it('should toggle areLogsFiltered and update chatType to "Journal de jeu filtré" when areLogsFiltered is false', () => {
-        component.scrollToBottom();
+        component['scrollToBottom']();
         component.areLogsFiltered = false;
         component.toggleLogsFilter();
         expect(component.areLogsFiltered).toBe(true);
