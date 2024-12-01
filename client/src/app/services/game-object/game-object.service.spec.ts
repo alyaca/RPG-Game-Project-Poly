@@ -4,16 +4,28 @@ import { MapPosition } from '@app/interfaces/map-position';
 import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
-import { MapSize, ObjectType, TileType } from '@common/constants';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameMode, MapSize, ObjectType, TileType } from '@common/constants';
+import { BehaviorSubject } from 'rxjs';
 import { GameObjectService } from './game-object.service';
 
 describe('GameObjectService', () => {
     let service: GameObjectService;
     const mockGameObject = mockObjects[0];
     const mockGameObject2 = mockObjects[2];
+    let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+    let sizeSubjectMock: BehaviorSubject<string | null>;
 
     beforeEach(() => {
-        TestBed.configureTestingModule({});
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['getGameMode', 'getStoredSize', 'updateDimensions']);
+        sizeSubjectMock = new BehaviorSubject<string | null>(null);
+
+        TestBed.configureTestingModule({
+            declarations: [],
+            providers: [{ provide: GameCreationService, useValue: gameCreationServiceSpy }],
+        }).compileComponents();
+
+        gameCreationServiceSpy.sizeSubject = sizeSubjectMock;
         service = TestBed.inject(GameObjectService);
         service.objects = mockObjects;
         service.objectsArray = [
@@ -285,5 +297,10 @@ describe('GameObjectService', () => {
         expect(service.selectedTile).toBeNull();
         expect(service.dragStartPosition).toEqual(mockMapPosition);
         expect(service.checkGameObject).toHaveBeenCalled();
+    });
+
+    it('should return the game mode', () => {
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
+        expect(service.getGameMode()).toBe(GameMode.CaptureTheFlag);
     });
 });

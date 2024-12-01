@@ -2,7 +2,7 @@ import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 import { Timer } from '@app/classes/timer/timer';
 import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME } from '@app/constants';
 import { mockGlobalStats } from '@app/mocks/default-global-stats';
-import { baseBot, mockAttributes, mockPlayers } from '@app/mocks/mock-players';
+import { baseBot, mockAttributes, mockPlayerInventory, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
@@ -1058,6 +1058,30 @@ describe('GameService', () => {
                 expect(positionList).toContainEqual(newTile);
                 expect(positionList.length).toBe(1);
             });
+        });
+
+        it('should end the game if the player is on his spawn with the flag on capture the flag mode', () => {
+            const player = mockPlayerInventory[0];
+            player.position = player.spawnPosition;
+            service.onEndGame = jest.fn();
+            gameLogsService.sendEndGameLog = jest.fn();
+
+            service['checkFlagModeEndGame'](player, room, mockServer);
+
+            expect(service.onEndGame).toHaveBeenCalledWith(player, room, mockServer);
+            expect(gameLogsService.sendEndGameLog).toHaveBeenCalledWith(room.listPlayers, room.roomId, mockServer);
+        });
+
+        it('should end the game if the player is on his spawn with the flag on capture the flag mode', () => {
+            const player = mockPlayerInventory[0];
+            player.position = player.spawnPosition;
+            service.onEndGame = jest.fn();
+            gameLogsService.sendEndGameLog = jest.fn();
+
+            service['checkFlagModeEndGame'](player, room, mockServer);
+
+            expect(service.onEndGame).toHaveBeenCalledWith(player, room, mockServer);
+            expect(gameLogsService.sendEndGameLog).toHaveBeenCalledWith(room.listPlayers, room.roomId, mockServer);
         });
     });
 });

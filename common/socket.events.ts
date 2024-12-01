@@ -29,7 +29,8 @@ export enum ClientToServerEvent {
     StartFight = 'startFight',
     StartTurn = 'startTurn',
     TeleportPlayer = 'teleportPlayer',
-    ForceEndGame = 'forceEndGame',
+
+    ForceEndGame = 'forceEndGame', // Temporary
 }
 
 export enum ServerToClientEvent {

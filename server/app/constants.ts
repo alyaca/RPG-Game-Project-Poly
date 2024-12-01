@@ -2,6 +2,16 @@
 export const ACCESS_CODE_LENGTH = 4;
 export const MAX_ACCESS_CODE_VALUE = 10000;
 
+// Constants for map-mocks
+export enum TileType {
+    Ground = 1,
+    Ice = 2,
+    Water = 3,
+    Wall = 4,
+    ClosedDoor = 5,
+    OpenDoor = 6,
+}
+
 export const GENERATE_COUNT = 5;
 export const BASE_36 = 36;
 export const TILE_COUNT = 6;
@@ -80,4 +90,4 @@ export const MIN_OBJECT_EFFECT = 1;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
 
-export const MODES = ['ctf', 'classique'];
+export const MODES = ['CaptureDeDrapeau', 'classique'];

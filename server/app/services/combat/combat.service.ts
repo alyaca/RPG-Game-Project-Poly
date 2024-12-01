@@ -17,7 +17,7 @@ import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { TileType, XiphosEffect } from '@common/constants';
+import { GameMode, TileType, XiphosEffect } from '@common/constants';
 import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
 import { Game } from '@common/interfaces/game';
 import { Behavior, Player, Position, Status } from '@common/interfaces/player';
@@ -350,7 +350,7 @@ export class CombatService {
     }
 
     private checkEndGame(player: Player, room: Room, server: Server) {
-        if (player.postGameStats.victories >= VICTORIES) {
+        if (player.postGameStats.victories >= VICTORIES && room.gameMap.mode === GameMode.Classic) {
             this.gameService.onEndGame(player, room, server);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         } else {
@@ -399,7 +399,6 @@ export class CombatService {
 
     private addVictory(combatPlayers: CombatPlayers, room: Room, server: Server, attackerWon: boolean) {
         const playerWinner = this.addStatsForWinLoss(room, combatPlayers, attackerWon);
-
         this.addToPostGameStats(room, combatPlayers, PlayerStatType.Combats, PlayerStatType.Combats);
         this.checkEndGame(playerWinner, room, server);
     }

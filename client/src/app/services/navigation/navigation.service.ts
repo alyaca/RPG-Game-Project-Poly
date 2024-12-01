@@ -64,7 +64,10 @@ export class NavigationService {
     }
 
     isObject(position: Position): boolean {
-        return this.objects[position.x][position.y] >= ObjectType.Trident && this.objects[position.x][position.y] <= ObjectType.Spawn;
+        return (
+            this.objects[position.x][position.y] >= ObjectType.Trident &&
+            (this.objects[position.x][position.y] <= ObjectType.Spawn || this.objects[position.x][position.y] === ObjectType.Flag)
+        );
     }
 
     getObject(position: Position): number {

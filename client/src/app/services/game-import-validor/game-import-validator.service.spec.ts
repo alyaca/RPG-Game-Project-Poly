@@ -65,6 +65,7 @@ describe('GameImportValidatorService', () => {
             mockGame.itemPlacement[1][0] = ObjectType.Sandal;
             mockGame.itemPlacement[1][1] = ObjectType.Trident;
             mockGame.nbPlayers = 2;
+            mockGame.mode = GameMode.Classic;
 
             mockGame.dimension = validDimension;
 
@@ -159,7 +160,8 @@ describe('GameImportValidatorService', () => {
             expect(errors).toContain(ErrorMessages.InvalidTileType);
         });
 
-        it('should validate object types', async () => {
+        it('should validate object types for classic mode', async () => {
+            mockGame.mode = GameMode.Classic;
             mockGame.itemPlacement = [
                 [INVALID_TILES_TYPE, NO_OBJECT],
                 [NO_OBJECT, ObjectType.Spawn],
@@ -167,6 +169,29 @@ describe('GameImportValidatorService', () => {
 
             const errors = await service.validateMap(mockGame);
             expect(errors).toContain(ErrorMessages.InvalidObjectType);
+        });
+
+        it('should contain errors if there is no flags for capture the flag', async () => {
+            mockGame.mode = GameMode.CaptureTheFlag;
+            mockGame.itemPlacement = [
+                [ObjectType.Armor, NO_OBJECT],
+                [INVALID_TILES_TYPE, ObjectType.Spawn],
+            ];
+
+            const errors = await service.validateMap(mockGame);
+            expect(errors).toContain(ErrorMessages.InvalidNbFlags);
+            expect(errors).toContain(ErrorMessages.InvalidObjectType);
+        });
+
+        it('should validate object types for capture the flag', async () => {
+            mockGame.mode = GameMode.CaptureTheFlag;
+            mockGame.itemPlacement = [
+                [ObjectType.Armor, ObjectType.Flag],
+                [NO_OBJECT, ObjectType.Spawn],
+            ];
+
+            const errors = await service.validateMap(mockGame);
+            expect(errors).not.toContain(ErrorMessages.InvalidNbFlags);
         });
 
         it('should validate the number of objects for a small map', async () => {

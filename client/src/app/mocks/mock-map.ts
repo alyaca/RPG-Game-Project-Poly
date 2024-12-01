@@ -1,6 +1,6 @@
 import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP } from '@app/constants';
 import { Info } from '@app/interfaces/info';
-import { TileType } from '@common/constants';
+import { GameMode, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { Position } from '@common/interfaces/player';
 
@@ -11,6 +11,7 @@ export const dummyInfo: Info = {
     grid: [[TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground]],
     items: [[NO_ITEM, NO_ITEM, RANDOM_ITEM, NO_ITEM, NO_ITEM, NO_ITEM]],
     height: SIZE_MEDIUM_MAP,
+    mode: GameMode.Classic,
 };
 
 export const mockPositions: Position[] = [{ x: 1, y: 1 }];
@@ -20,7 +21,7 @@ export const dummyMap: Game = {
     name: 'map name',
     description: 'description',
     visible: true,
-    mode: 'classique',
+    mode: GameMode.Classic,
     image: 'image source',
     nbPlayers: NB_ITEMS_MEDIUM_MAP,
     tiles: [[TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground, TileType.Ground]],
@@ -58,7 +59,7 @@ export const mockNeighborGame: Game = {
     name: 'map name',
     description: 'description for map',
     visible: true,
-    mode: 'classique',
+    mode: GameMode.Classic,
     nbPlayers: 1,
     image: 'image for map',
     tiles: [

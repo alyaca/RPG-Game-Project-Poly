@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PLAYER_STAT_TYPES, SortOrder, TOTAL_PERCENTAGE } from '@app/constants';
-import { GameMode, TileType, ObjectType } from '@common/constants';
+import { GameMode, ObjectType, TileType } from '@common/constants';
 import { GlobalPostGameStat, GlobalPostGameStats } from '@common/interfaces/global-post-game-stats';
 import { Player, Position } from '@common/interfaces/player';
 import { PlayerStatType, PostGameStat } from '@common/interfaces/post-game-stat';
@@ -39,7 +39,7 @@ export class PostGameService {
 
     players: Player[];
     tilesGrid: number[][];
-    isCTFMode: boolean;
+    isFlagMode: boolean;
     postGameStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
     resetOtherAttributes(attribute: keyof Player['postGameStats']) {
@@ -137,7 +137,7 @@ export class PostGameService {
         this.tilesGrid = room.gameMap.tiles;
         this.players = room.listPlayers;
         this.globalStats = room.globalPostGameStats;
-        this.isCTFMode = room.gameMap.mode === GameMode.Ctf;
+        this.isFlagMode = room.gameMap.mode === GameMode.CaptureTheFlag;
 
         for (const player of this.players) {
             const matchingPlayer = room.listPlayers.find((p) => p.id === player.id);
@@ -154,7 +154,7 @@ export class PostGameService {
         this.computeGlobalTilesVisitedPercentage();
         this.calculateUniqueItems();
 
-        if (this.isCTFMode) {
+        if (this.isFlagMode) {
             this.calculateFlagBearers();
         }
     }
