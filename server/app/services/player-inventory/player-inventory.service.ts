@@ -1,3 +1,4 @@
+import { MAX_OBJECT_EFFECT, MIN_OBJECT_EFFECT } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -95,22 +96,22 @@ export class PlayerInventoryService {
     removeItemEffects(player: Player, itemToUndo: number) {
         switch (itemToUndo) {
             case ObjectType.Armor:
-                player.attributes.attack -= 2;
+                player.attributes.attack -= MAX_OBJECT_EFFECT;
                 break;
             case ObjectType.Sandal:
-                player.attributes.speed /= 2;
-                player.attributes.totalHp += 1;
-                player.attributes.currentHp += 1;
+                player.attributes.speed /= MAX_OBJECT_EFFECT;
+                player.attributes.totalHp += MIN_OBJECT_EFFECT;
+                player.attributes.currentHp += MIN_OBJECT_EFFECT;
                 break;
             case ObjectType.Lightning:
-                player.attributes.attack /= 2;
-                player.attributes.defense += 2;
-                player.attributes.totalHp += 1;
-                player.attributes.currentHp += 1;
+                player.attributes.attack /= MAX_OBJECT_EFFECT;
+                player.attributes.defense += MAX_OBJECT_EFFECT;
+                player.attributes.totalHp += MIN_OBJECT_EFFECT;
+                player.attributes.currentHp += MIN_OBJECT_EFFECT;
                 break;
             case ObjectType.Trident:
-                player.attributes.actionPoints -= 1;
-                player.attributes.maxActionPoints = 1;
+                player.attributes.actionPoints -= MIN_OBJECT_EFFECT;
+                player.attributes.maxActionPoints = MIN_OBJECT_EFFECT;
                 break;
             default:
                 break;

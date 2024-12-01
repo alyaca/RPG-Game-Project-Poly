@@ -65,20 +65,21 @@ describe('SaveGameService', () => {
 
     it('should create a POST request if the selected game is null', () => {
         dummyInfo.height = SIZE_MEDIUM_MAP;
-        service.saveNewGame(dummyInfo);
+        const infos = JSON.parse(JSON.stringify(dummyInfo));
+        service.saveNewGame(infos);
 
         const request = httpMock.expectOne(`${service.apiURL}`);
         expect(request.request.method).toBe('POST');
         expect(request.request.body).toEqual({
-            name: dummyInfo.name,
-            description: dummyInfo.description,
+            name: infos.name,
+            description: infos.description,
             visible: false,
             mode: 'classique',
             nbPlayers: NB_ITEMS_MEDIUM_MAP,
-            image: dummyInfo.image,
-            tiles: dummyInfo.grid,
+            image: infos.image,
+            tiles: infos.grid,
             dimension: dummyMap.dimension,
-            itemPlacement: dummyInfo.items,
+            itemPlacement: infos.items,
             isSelected: false,
             lastModification: jasmine.any(Date),
         });

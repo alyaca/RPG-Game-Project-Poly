@@ -41,7 +41,7 @@ describe('CombatService', () => {
 
     it('should initialize combat', () => {
         spyOn(service, 'setTurnMessage');
-        service.initializeCombat(mockAttacker, mockDefender, true);
+        service.initializeCombat(mockCombatPlayers, true);
         expect(service.activePlayer).toEqual(mockAttacker);
         expect(service.opponent).toEqual(mockDefender);
         expect(service.attacker).toEqual(mockAttacker);
@@ -53,7 +53,7 @@ describe('CombatService', () => {
 
     it('should initialize combat', () => {
         spyOn(service, 'setTurnMessage');
-        service.initializeCombat(mockAttacker, mockDefender, false);
+        service.initializeCombat(mockCombatPlayers, false);
         expect(service.activePlayer).toEqual(mockDefender);
         expect(service.opponent).toEqual(mockAttacker);
         expect(service.attacker).toEqual(mockAttacker);

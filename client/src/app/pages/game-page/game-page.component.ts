@@ -7,6 +7,7 @@ import { GameGridComponent } from '@app/components/map-editor/game-grid/game-gri
 import { PlayerInfoInventoryComponent } from '@app/components/player-info-inventory/player-info-inventory.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { STARTING_TIME, TURN_TIME } from '@app/constants';
+import { StartFightData } from '@app/interfaces/event-data';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { CombatService } from '@app/services/sockets/combat/combat.service';
@@ -123,9 +124,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     initCombatListeners() {
-        this.socketCommunicationService.on(ServerToClientEvent.StartFight, (data: { player1: Player; player2: Player; isPlayer1Active: boolean }) => {
+        this.socketCommunicationService.on(ServerToClientEvent.StartFight, (startFightData: StartFightData) => {
             this.combatService.isInCombat = true;
-            this.combatService.initializeCombat(data.player1, data.player2, data.isPlayer1Active);
+            this.activePlayer.attributes.actionPoints--;
+            this.gameService.isActionCombatSelected = false;
+            this.combatService.initializeCombat(startFightData.combatPlayers, startFightData.isActivePlayerAttacker);
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.CombatInProgress, () => {
@@ -145,6 +148,75 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.EvasionSuccess, (data: { listPlayers: Player[]; player: Player }) => {
             this.setPlayersOnCombatDone(data.listPlayers);
             this.combatService.onEvasion(data.player);
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.PlayerFell, () => {
+            this.onPlayerFell();
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.DoorAround, (data: { doorAround: boolean; targets: Position[] }) => {
+            this.doorAround = data.doorAround;
+            this.gameService.doorsTarget = data.targets;
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, () => {
+            this.activePlayer.attributes.actionPoints--;
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
+            this.attackAround = data.attackAround;
+            this.gameService.playersTarget = data.targets;
+        });
+
+        this.socketCommunicationService.once(ServerToClientEvent.EndGame, (data: { winner: Player; room: Room }) => {
+            this.removeListeners();
+            this.postGameService.transferRoomStats(data.room);
+
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.EndGame,
+                    messages: ['Le gagnant de la partie est : ' + data.winner.name],
+                    options: [DialogOptions.Close],
+                    confirm: false,
+                })
+                .subscribe((result) => {
+                    if (result.action === DialogResult.Close) {
+                        this.router.navigate(['/post-game-lobby'], { queryParams: { roomCode: data.room.roomId } });
+                    }
+                });
+        });
+
+        this.toggleDebugMode();
+        document.addEventListener('keydown', this.keyDownListener);
+
+        this.socketCommunicationService.on(ServerToClientEvent.DebugMode, (debugMode: boolean) => {
+            this.navigationService.isDebugMode = debugMode;
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; itemPickedUp: number }) => {
+            const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
+            const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
+            if (!fullItem) return;
+            const itemSwap: ItemSwap = {
+                currentItem1: data.activePlayer.inventory[0],
+                currentItem2: data.activePlayer.inventory[1],
+                pickedUpItem: fullItem,
+            };
+            this.gameService
+                .openDialog({
+                    title: DialogTitle.ItemExchange,
+                    messages: [`Quel objet voulez échangé pour celui-ci: ${fullItem?.name}`],
+                    options: [],
+                    confirm: false,
+                    itemSwap,
+                })
+                .subscribe(() => {
+                    this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
+                        inventoryToUndo: oldInventory,
+                        newInventory: data.activePlayer.inventory,
+                        droppedItem: itemSwap.pickedUpItem.id,
+                    });
+                });
         });
     }
 
@@ -246,7 +318,32 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     handleExit() {
-        this.gameService.handleExit(this.allPlayers);
+        this.gameService
+            .openDialog({
+                title: DialogTitle.QuitGame,
+                messages: [DialogMessages.QuitGame],
+                options: [DialogOptions.Quit, DialogOptions.Stay],
+                confirm: true,
+            })
+            .subscribe((result) => {
+                if (result.action === DialogResult.Left) {
+                    if (this.isPlayerAdmin()) {
+                        this.navigationService.isDebugMode = false;
+                        this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
+                    }
+                    this.socketCommunicationService.disconnect();
+                    this.router.navigate([PathRoute.HOME]);
+                }
+            });
+    }
+
+    handleDraw() {
+        this.router.navigate([PathRoute.HOME]);
+        this.gameService.openTempDialog({
+            title: DialogTitle.DrawGame,
+            message: DialogMessages.DrawGame,
+            duration: INFO_DIALOG_TIME,
+        });
     }
 
     onEndTurn() {
