@@ -21,7 +21,6 @@ export enum ClientToServerEvent {
     KickBot = 'kickBot',
     KickPlayer = 'kickPlayer',
     LeaveRoom = 'leaveRoom',
-    LeftGame = 'leftGame',
     MovePlayerFromWall = 'movePlayerFromWall',
     PlayerNavigation = 'playerNavigation',
     SelectCharacter = 'selectCharacter',

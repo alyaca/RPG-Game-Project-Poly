@@ -150,11 +150,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         await this.saveMessage(client, messageWithRoomId);
     }
 
-    @SubscribeMessage(ClientToServerEvent.LeftGame)
-    handleDropItemsOnAbandon(client: Socket) {
-        this.gameService.placeItemsOnGround(client, this.server, undefined);
-    }
-
     @SubscribeMessage(ClientToServerEvent.DebugMode)
     handleDebugMode(client: Socket, debugMode: boolean) {
         const room = this.roomService.getRoom(client);
