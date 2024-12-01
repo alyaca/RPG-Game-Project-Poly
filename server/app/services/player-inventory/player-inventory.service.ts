@@ -171,18 +171,23 @@ export class PlayerInventoryService {
     }
 
     private getPrioritizedItem(info: InfoSwap, itemPickedUp: number): InfoSwap {
-        let itemToDrop: GameObject;
-        if (info.player.behavior === Behavior.Aggressive) {
-            itemToDrop = this.determineItemToDropAggressive(info.player.inventory, itemPickedUp);
-        } else {
-            itemToDrop = this.determineItemToDropDefensive(info.player.inventory, itemPickedUp);
-        }
+        let itemToDrop = this.determineItemToDrop(info.player.inventory, itemPickedUp, info.player);
         info.modifiedInventory = info.player.inventory.filter((item) => item.id !== itemToDrop.id);
         if (itemToDrop.id !== itemPickedUp) {
             info.modifiedInventory.push(gameObjects.find((object) => object.id === itemPickedUp));
         }
         info.droppedItem = itemToDrop.id;
         return info;
+    }
+
+    private determineItemToDrop(inventory: GameObject[], itemPickedUp: number, player: Player): GameObject {
+        const itemPickedUpObject = gameObjects.find((object) => object.id === itemPickedUp);
+        if (itemPickedUpObject && this.isDefenseItem(itemPickedUpObject) && player.behavior === Behavior.Defensive) {
+            return this.determineItemToDropDefensive(inventory, itemPickedUpObject);
+        } else if (itemPickedUpObject && this.isAttackItem(itemPickedUpObject) && player.behavior === Behavior.Aggressive) {
+            return this.determineItemToDropAggressive(inventory, itemPickedUpObject);
+        }
+        return itemPickedUpObject;
     }
 
     private handleItemSwap(room: Room, info: InfoSwap, itemPickedUp: number) {
@@ -199,36 +204,28 @@ export class PlayerInventoryService {
         }
     }
 
-    private determineItemToDropDefensive(inventory: GameObject[], itemPickedUp: number) {
-        const itemPickedUpObject = gameObjects.find((object) => object.id === itemPickedUp);
-        if (itemPickedUpObject && this.isDefenseItem(itemPickedUpObject)) {
-            if (this.isDefenseItem(inventory[0])) {
-                return inventory[0];
-            } else if (this.isDefenseItem(inventory[1])) {
-                return inventory[1];
-            } else {
-                return itemPickedUpObject;
-            }
+    private determineItemToDropDefensive(inventory: GameObject[], itemPickedUpObject: GameObject) {
+        if (this.isDefenseItem(inventory[0])) {
+            return inventory[0];
+        } else if (this.isDefenseItem(inventory[1])) {
+            return inventory[1];
+        } else {
+            return itemPickedUpObject;
         }
-        return itemPickedUpObject;
     }
 
     private isDefenseItem(item: GameObject) {
         return item.id === ObjectType.Trident || item.id === ObjectType.Kunee;
     }
 
-    private determineItemToDropAggressive(inventory: GameObject[], itemPickedUp: number) {
-        const itemPickedUpObject = gameObjects.find((object) => object.id === itemPickedUp);
-        if (itemPickedUpObject && this.isAttackItem(itemPickedUpObject)) {
-            if (!this.isAttackItem(inventory[0])) {
-                return inventory[0];
-            } else if (!this.isAttackItem(inventory[1])) {
-                return inventory[1];
-            } else {
-                return itemPickedUpObject;
-            }
+    private determineItemToDropAggressive(inventory: GameObject[], itemPickedUpObject: GameObject) {
+        if (!this.isAttackItem(inventory[0])) {
+            return inventory[0];
+        } else if (!this.isAttackItem(inventory[1])) {
+            return inventory[1];
+        } else {
+            return itemPickedUpObject;
         }
-        return itemPickedUpObject;
     }
     private isAttackItem(item: GameObject) {
         return item.id === ObjectType.Lightning || item.id === ObjectType.Xiphos || item.id === ObjectType.Sandal || item.id === ObjectType.Armor;
