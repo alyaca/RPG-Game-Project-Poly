@@ -93,7 +93,7 @@ export class GameService {
             confirm: false,
             options: [DialogOptions.Close],
         }).subscribe((result) => {
-            if (result === DialogResult.Close) {
+            if (result.action === DialogResult.Close) {
                 this.router.navigate([PathRoute.HOME]);
             }
         });
@@ -179,5 +179,9 @@ export class GameService {
 
     isTargetPlayer(row: number, col: number) {
         return this.isActionCombatSelected ? this.playersTarget.some((tile) => tile.position.x === row && tile.position.y === col) : false;
+    }
+
+    getCurrentPlayer(players: Player[]) {
+        return players.find((player) => player.id === this.socketCommunicationService.socket.id);
     }
 }

@@ -4,6 +4,10 @@
     justify-items: center;
 }
 
+.empty {
+    visibility: hidden;
+}
+
 .submit-container {
     display: grid;
     height: 40vh;
@@ -42,27 +46,28 @@
     margin-bottom: 3rem;
 }
 
-.join-game {
-    margin-top: 10%;
-}
 .invalid-code {
     margin-top: 5%;
     color: red;
-    font-size: 100%;
     text-align: center;
+    font-size: 1.2rem;
 }
 
 .join-game {
+    border: none;
+    margin: 0;
+    margin-top: 2%;
+    width: 50%;
     font-family: 'Papyrus';
-    font-size: 110%;
-    font-weight: 900;
-    margin-right: 8%;
-    margin-bottom: 5%;
-    background: linear-gradient(to right, rgb(164, 156, 113), rgb(224, 216, 173));
-    color: black;
-    border: 1px solid black;
-    border-radius: 3 rem;
-    cursor: pointer;
+    font-size: 1.2rem;
+    border-radius: 2rem;
+    transition: ease 0.2s;
+    background-image: linear-gradient(to right, rgb(186, 186, 186), rgb(235, 235, 235), rgb(224, 224, 224), rgb(168, 168, 168));
+}
+
+.join-game:hover {
+    transform: scale(1.1);
+    background: linear-gradient(to right, rgb(110, 105, 45), rgb(221, 201, 104) 35%, rgba(222, 207, 129, 1) 65%, rgb(107, 102, 43) 100%);
 }
 
 .input-box {
@@ -74,7 +79,9 @@
     margin: 0;
     font-family: Papyrus;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 2rem;
+    width: 55%;
+    letter-spacing: 1.5rem;
 }
 
 .input-box:hover {

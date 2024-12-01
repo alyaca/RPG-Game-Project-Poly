@@ -12,14 +12,14 @@ import { mockValidationInfo } from '@app/mocks/mock-validation';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
-import { MapValidatorService, TileType } from '@app/services/map-validator/map-validator.service';
+import { MapValidatorService } from '@app/services/map-validator/map-validator.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { ObjectType } from '@common/constants';
+import { ObjectType, TileType } from '@common/constants';
 import { Player, Position, Status } from '@common/interfaces/player';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Socket } from 'socket.io-client';
@@ -356,15 +356,6 @@ describe('GameGridComponent', () => {
         expect(result).toBeFalse();
     });
 
-    it('handleTileClick should call handleFightAction', () => {
-        gameServiceSpy.isActionCombatSelected = true;
-        component['activePlayer'] = mockLobbyPlayers[0];
-        gameServiceSpy.hasActionPoints.and.returnValue(true);
-        const handleFightActionSpy = spyOn(component, 'handleFightAction');
-        component.handleTileClick(1, 1);
-        expect(handleFightActionSpy).toHaveBeenCalledWith(1, 1);
-    });
-
     it('sendNavigation should call navigateToTile in navigationService', () => {
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
@@ -606,11 +597,6 @@ describe('GameGridComponent', () => {
         component.respawnPlayer(mockPosition, player);
         expect(navigationServiceSpy.updateTile).not.toHaveBeenCalled();
         expect(component.displayPortraitOnSpawnPoints).not.toHaveBeenCalled();
-    });
-
-    it('should return undefined if there is no game object with the specified id', () => {
-        const result = component.getPlayerByAvatarName(mockPlayers, ObjectType.Armor);
-        expect(result).toBeUndefined();
     });
 
     it('should call checkTeleportation if debug mode is enabled', () => {

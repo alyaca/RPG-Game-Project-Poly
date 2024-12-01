@@ -84,6 +84,8 @@ export const enum LogType {
 export const ICE_TILE_PENALTY_VALUE = 2;
 export const XIPHOS_ATTACK_BONUS = 2;
 export const XIPHOS_DEFENSE_PENALTY = 1;
+export const MAX_OBJECT_EFFECT = 2;
+export const MIN_OBJECT_EFFECT = 1;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
 

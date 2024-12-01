@@ -73,23 +73,22 @@ export class MapValidatorService {
         return (isWallBelow && isWallAbove && isTerrainLeft && isTerrainRight) || (isWallLeft && isWallRight && isTerrainAbove && isTerrainBelow);
     }
 
-    private validateNumberItems(objects: number[][]) {
-        let maxNbItems: number;
-        let currentNumberItems = 0;
+    private getMaxItems(objects: number[][]) {
         switch (objects.length) {
             case SIZE_SMALL_MAP:
-                maxNbItems = NB_ITEMS_SMALL_MAP;
-                break;
+                return NB_ITEMS_SMALL_MAP;
             case SIZE_MEDIUM_MAP:
-                maxNbItems = NB_ITEMS_MEDIUM_MAP;
-                break;
+                return NB_ITEMS_MEDIUM_MAP;
             case SIZE_LARGE_MAP:
-                maxNbItems = NB_ITEMS_LARGE_MAP;
-                break;
+                return NB_ITEMS_LARGE_MAP;
             default:
-                maxNbItems = NB_ITEMS_MEDIUM_MAP;
-                break;
+                return NB_ITEMS_MEDIUM_MAP;
         }
+    }
+
+    private validateNumberItems(objects: number[][]) {
+        const maxNbItems = this.getMaxItems(objects);
+        let currentNumberItems = 0;
 
         for (const objectsRows of objects) {
             for (const individualItem of objectsRows) {

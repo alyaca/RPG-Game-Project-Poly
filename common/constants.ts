@@ -50,3 +50,8 @@ export enum TileCost {
     Ice = 0,
     OpenDoor = 1,
 }
+
+export const enum XiphosEffect {
+    Attack = 2,
+    Defense = 1,
+}
