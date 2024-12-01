@@ -422,7 +422,6 @@ describe('GameService', () => {
         const isCurrentPlayerAdminSpy = spyOn(service, 'isCurrentPlayerAdmin');
         isCurrentPlayerAdminSpy.and.returnValue(true);
         service.handleExit({ ...mockPlayers });
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.LeftGame);
         expect(navigationServiceSpy.isDebugMode).toBeFalse();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.DebugMode, navigationServiceSpy.isDebugMode);
         expect(socketCommunicationServiceSpy.disconnect).toHaveBeenCalled();

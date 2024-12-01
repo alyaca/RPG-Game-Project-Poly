@@ -343,11 +343,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleTileClick(row: number, col: number) {
+        if (!this.activePlayer) return;
         const position: Position = { x: row, y: col };
-        if (this.gameService.isActionDoorSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
+        if (this.gameService.canOpenDoor(this.activePlayer)) {
             this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: this.activePlayer });
             return;
-        } else if (this.gameService.isActionCombatSelected && this.activePlayer && this.gameService.hasActionPoints(this.activePlayer)) {
+        } else if (this.gameService.canStartCombat(this.activePlayer)) {
             this.socketCommunicationService.send(ClientToServerEvent.CombatAction, { clickedPosition: position, player: this.activePlayer });
             return;
         } else if (!this.navigationService.isInteractionPossible({ row, col }, this.tilesGrid, this.activePlayer!)) {

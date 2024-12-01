@@ -150,10 +150,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.combatService.onEvasion(data.player);
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.PlayerFell, () => {
-            this.onPlayerFell();
-        });
-
         this.socketCommunicationService.on(ServerToClientEvent.DoorAround, (data: { doorAround: boolean; targets: Position[] }) => {
             this.doorAround = data.doorAround;
             this.gameService.doorsTarget = data.targets;
@@ -166,57 +162,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
             this.attackAround = data.attackAround;
             this.gameService.playersTarget = data.targets;
-        });
-
-        this.socketCommunicationService.once(ServerToClientEvent.EndGame, (data: { winner: Player; room: Room }) => {
-            this.removeListeners();
-            this.postGameService.transferRoomStats(data.room);
-
-            this.gameService
-                .openDialog({
-                    title: DialogTitle.EndGame,
-                    messages: ['Le gagnant de la partie est : ' + data.winner.name],
-                    options: [DialogOptions.Close],
-                    confirm: false,
-                })
-                .subscribe((result) => {
-                    if (result.action === DialogResult.Close) {
-                        this.router.navigate(['/post-game-lobby'], { queryParams: { roomCode: data.room.roomId } });
-                    }
-                });
-        });
-
-        this.toggleDebugMode();
-        document.addEventListener('keydown', this.keyDownListener);
-
-        this.socketCommunicationService.on(ServerToClientEvent.DebugMode, (debugMode: boolean) => {
-            this.navigationService.isDebugMode = debugMode;
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; itemPickedUp: number }) => {
-            const oldInventory = JSON.parse(JSON.stringify(data.activePlayer.inventory));
-            const fullItem = gameObjects.find((items) => items.id === data.itemPickedUp);
-            if (!fullItem) return;
-            const itemSwap: ItemSwap = {
-                currentItem1: data.activePlayer.inventory[0],
-                currentItem2: data.activePlayer.inventory[1],
-                pickedUpItem: fullItem,
-            };
-            this.gameService
-                .openDialog({
-                    title: DialogTitle.ItemExchange,
-                    messages: [`Quel objet voulez échangé pour celui-ci: ${fullItem?.name}`],
-                    options: [],
-                    confirm: false,
-                    itemSwap,
-                })
-                .subscribe(() => {
-                    this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
-                        inventoryToUndo: oldInventory,
-                        newInventory: data.activePlayer.inventory,
-                        droppedItem: itemSwap.pickedUpItem.id,
-                    });
-                });
         });
     }
 
@@ -318,32 +263,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     handleExit() {
-        this.gameService
-            .openDialog({
-                title: DialogTitle.QuitGame,
-                messages: [DialogMessages.QuitGame],
-                options: [DialogOptions.Quit, DialogOptions.Stay],
-                confirm: true,
-            })
-            .subscribe((result) => {
-                if (result.action === DialogResult.Left) {
-                    if (this.isPlayerAdmin()) {
-                        this.navigationService.isDebugMode = false;
-                        this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
-                    }
-                    this.socketCommunicationService.disconnect();
-                    this.router.navigate([PathRoute.HOME]);
-                }
-            });
-    }
-
-    handleDraw() {
-        this.router.navigate([PathRoute.HOME]);
-        this.gameService.openTempDialog({
-            title: DialogTitle.DrawGame,
-            message: DialogMessages.DrawGame,
-            duration: INFO_DIALOG_TIME,
-        });
+        this.gameService.handleExit(this.allPlayers);
     }
 
     onEndTurn() {

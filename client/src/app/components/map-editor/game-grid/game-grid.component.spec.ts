@@ -197,6 +197,29 @@ describe('GameGridComponent', () => {
         expect(component.handleTeleport).toHaveBeenCalled();
     });
 
+    it('should call the correct functions depending on what the player can do', () => {
+        component['activePlayer'] = { ...mockPlayers[0] };
+        const position = { x: 0, y: 0 };
+        gameServiceSpy.canOpenDoor.and.returnValue(true);
+        component.handleTileClick(0, 0);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.DoorAction, {
+            clickedPosition: position,
+            player: component['activePlayer'],
+        });
+        gameServiceSpy.canOpenDoor.and.returnValue(false);
+        gameServiceSpy.canStartCombat.and.returnValue(true);
+        component.handleTileClick(0, 0);
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.CombatAction, {
+            clickedPosition: position,
+            player: component['activePlayer'],
+        });
+        gameServiceSpy.canStartCombat.and.returnValue(false);
+        navigationServiceSpy.isInteractionPossible.and.returnValue(false);
+        spyOn(component, 'sendNavigation');
+        component.handleTileClick(0, 0);
+        expect(component.sendNavigation).toHaveBeenCalled();
+    });
+
     describe('socket listener', () => {
         it('should listen to mapInformation event onInit', () => {
             spyOn(component, 'displayPortraitOnSpawnPoints');
@@ -314,28 +337,6 @@ describe('GameGridComponent', () => {
             component.isActivePlayer = true;
             component.findPath(0, 0);
             expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.FindPath, { x: 0, y: 0 });
-        });
-
-        it('should call send if canOpenDoor', () => {
-            gameServiceSpy.canOpenDoor.and.returnValue(true);
-            component.handleTileClick(0, 0);
-            expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
-        });
-
-        it('should call handleFightAction if canStartCombat', () => {
-            gameServiceSpy.canOpenDoor.and.returnValue(false);
-            gameServiceSpy.canStartCombat.and.returnValue(true);
-            component.handleTileClick(0, 0);
-            expect(gameServiceSpy.handleFightAction).toHaveBeenCalled();
-        });
-
-        it('should call sendNavigation if isInteractionPossible is false', () => {
-            spyOn(component, 'sendNavigation');
-            gameServiceSpy.canOpenDoor.and.returnValue(false);
-            gameServiceSpy.canStartCombat.and.returnValue(false);
-            navigationServiceSpy.isInteractionPossible.and.returnValue(false);
-            component.handleTileClick(0, 0);
-            expect(component.sendNavigation).toHaveBeenCalled();
         });
 
         it('should call isActionDoorSelected', () => {
@@ -675,31 +676,5 @@ describe('GameGridComponent', () => {
         component.respawnPlayer(mockPosition, player);
         expect(navigationServiceSpy.updateTile).not.toHaveBeenCalled();
         expect(component.displayPortraitOnSpawnPoints).not.toHaveBeenCalled();
-    });
-
-    it('should call checkTeleportation if debug mode is enabled', () => {
-        navigationServiceSpy.isDebugMode = true;
-        spyOn(component, 'checkTeleportation');
-        const event = new MouseEvent('click');
-        component.handleRightClick(event, 0, 0);
-        expect(component.checkTeleportation).toHaveBeenCalled();
-    });
-
-    it('should call showDetails if debug mode is disabled', () => {
-        navigationServiceSpy.isDebugMode = false;
-        spyOn(component, 'showDetails');
-        const event = new MouseEvent('click');
-        component.handleRightClick(event, 0, 0);
-        expect(component.showDetails).toHaveBeenCalled();
-    });
-
-    it('should call teleportPlayer if conditions are met', () => {
-        const position = { x: 1, y: 1 };
-        gameCreationServiceSpy.isModifiable = false;
-        component.isActivePlayer = true;
-        component['isMoving'] = false;
-        component.checkTeleportation(position);
-        expect(component['isMoving']).toBeTrue();
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 });

@@ -8,8 +8,9 @@ import { ChatBoxComponent } from '@app/components/chat-box/chat-box.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
 import { TimerComponent } from '@app/components/timer/timer.component';
 import { ATTACK_TIME, DEFAULT_ACTION_POINT, STARTING_TIME, TURN_TIME } from '@app/constants';
-import { mockAttacker, mockDefender } from '@app/mocks/mock-combat-infos';
+import { mockCombatPlayers } from '@app/mocks/mock-combat-infos';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
+import { mockPositions } from '@app/mocks/mock-map';
 import { mockPlayer } from '@app/mocks/mock-player';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -146,6 +147,75 @@ describe('GamePageComponent', () => {
             expect(component.allPlayers).toEqual(mockRoom.listPlayers);
             expect(component.replenishHealth).toHaveBeenCalled();
         });
+
+        it('should call the correct functions on StartFight', () => {
+            const data = { combatPlayers: mockCombatPlayers, isActivePlayerAttacker: true };
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.StartFight) {
+                    callback(data as T);
+                }
+            });
+            component.isInCombat = false;
+            component.activePlayer = { ...mockPlayers[0] };
+            component.activePlayer.attributes.actionPoints = 1;
+            gameServiceSpy.isActionCombatSelected = true;
+            component.initCombatListeners();
+            expect(combatServiceSpy.isInCombat).toBeTrue();
+            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
+            expect(gameServiceSpy.isActionCombatSelected).toBeFalse();
+            expect(combatServiceSpy.initializeCombat).toHaveBeenCalled();
+        });
+
+        it('should set attackAround gameService.playersTarget', () => {
+            const data = { attackAround: true, targets: [{ ...mockPlayers[0] }] };
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.AttackAround) {
+                    callback(data as T);
+                }
+            });
+            component.attackAround = false;
+            gameServiceSpy.playersTarget = [{ ...mockPlayers[0] }];
+            component.initCombatListeners();
+            expect(component.attackAround).toBeTrue();
+            expect(gameServiceSpy.playersTarget).toEqual([mockPlayers[0]]);
+        });
+
+        it('should set isDebugMode in navigationService', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.DebugMode) {
+                    callback(true as T);
+                }
+            });
+            navigationServiceSpy.isDebugMode = false;
+            component.initCombatListeners();
+            expect(navigationServiceSpy.isDebugMode).toBeTrue();
+        });
+
+        it('should set doorAround and doorsTarget', () => {
+            const data = { doorAround: true, targets: mockPositions };
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.DoorAround) {
+                    callback(data as T);
+                }
+            });
+            component.doorAround = false;
+            gameServiceSpy.doorsTarget = [mockPositions[0]];
+            component.initCombatListeners();
+            expect(component.doorAround).toBeTrue();
+            expect(gameServiceSpy.doorsTarget).toEqual(mockPositions);
+        });
+
+        it('shpuld decrease action points by 1 on DoorClicked', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.DoorClicked) {
+                    callback({} as T);
+                }
+            });
+            component.activePlayer = { ...mockPlayers[0] };
+            component.activePlayer.attributes.actionPoints = 1;
+            component.initCombatListeners();
+            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
+        });
     });
 
     describe('initGameListener', () => {
@@ -265,16 +335,6 @@ describe('GamePageComponent', () => {
             component.initCombatListeners();
             expect(component.setPlayersOnCombatDone).toHaveBeenCalledWith(mockPlayers);
             expect(combatServiceSpy.onEvasion).toHaveBeenCalledWith(mockPlayers[0]);
-        });
-
-        it('should set initializeCombat to true on StartFight event', () => {
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === ServerToClientEvent.StartFight) {
-                    callback({ player1: mockAttacker, player2: mockDefender, isPlayer1Active: true } as T);
-                }
-            });
-            component.initCombatListeners();
-            expect(combatServiceSpy.initializeCombat).toHaveBeenCalledWith(mockAttacker, mockDefender, true);
         });
     });
 

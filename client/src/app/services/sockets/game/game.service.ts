@@ -251,7 +251,6 @@ export class GameService {
             confirm: true,
         }).subscribe((result) => {
             if (result.action === DialogResult.Left) {
-                this.socketCommunicationService.send(ClientToServerEvent.LeftGame);
                 if (this.isCurrentPlayerAdmin(players)) {
                     this.navigationService.isDebugMode = false;
                     this.socketCommunicationService.send(ClientToServerEvent.DebugMode, this.navigationService.isDebugMode);
