@@ -2,11 +2,11 @@ import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { GameObject } from '@common/game-object';
-import { Player } from '@common/interfaces/player';
+import { GameObject } from '@common/interfaces/game-object';
+import { Player, Status } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
-import { ServerToClientEvent, Status } from '@common/socket.events';
+import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -131,7 +131,7 @@ export class PlayerInventoryService {
         if (fullItem) {
             player.inventory.push(fullItem);
             player = this.addStatsFromItem(player, fullItem?.id);
-            this.addUniqueItemToHistory(player, fullItem?.id);
+            // this.addUniqueItemToHistory(player, fullItem?.id);
         }
         return player;
     }
@@ -171,7 +171,7 @@ export class PlayerInventoryService {
         room.listPlayers[index].attributes = playerToUpdate.attributes;
         room.listPlayers[index].inventory = playerToUpdate.inventory;
 
-        this.addUniqueItemToHistory(playerToUpdate, newItem);
+        //this.addUniqueItemToHistory(playerToUpdate, newItem);
 
         infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
         infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);

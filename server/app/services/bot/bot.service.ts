@@ -1,6 +1,7 @@
 import { ObjectType } from '@common/avatars-info';
-import { Behavior, Player, Position } from '@common/player';
-import { Room } from '@common/room';
+import { Behavior, Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
+//import { Behavior, Player, Position } from '@common/player';
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
