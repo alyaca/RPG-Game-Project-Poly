@@ -57,13 +57,7 @@ export class CombatService {
     onStartTurn(server: Server, room: Room) {
         const combatInfos = this.combatInfos.get(room.roomId);
         const combatPlayers = combatInfos.combatPlayers;
-        if (
-            // TODO : add a function
-            combatPlayers.attacker.status === Status.Bot &&
-            combatPlayers.attacker.attributes.currentHp < combatPlayers.attacker.attributes.totalHp &&
-            combatPlayers.attacker.attributes.evasion !== 0 &&
-            combatPlayers.attacker.behavior === Behavior.Defensive
-        ) {
+        if (this.isBotDameged(combatPlayers.attacker)) {
             this.evadingPlayer(room, server);
             return;
         }
@@ -218,6 +212,15 @@ export class CombatService {
         if (!this.combatInfos.has(client.data?.roomCode)) return false;
         const combatPlayers = this.combatInfos.get(client.data.roomCode).combatPlayers;
         return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
+    }
+
+    private isBotDameged(player: Player) {
+        return (
+            player.status === Status.Bot &&
+            player.attributes.currentHp < player.attributes.totalHp &&
+            player.attributes.evasion !== 0 &&
+            player.behavior === Behavior.Defensive
+        );
     }
 
     private addToPostGameStats(room: Room, players: CombatPlayers, attr1: string, attr2: string): Player | null {
