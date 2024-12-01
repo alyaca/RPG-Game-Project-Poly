@@ -1,17 +1,6 @@
 /* eslint max-lines: ["off"] */
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    inject,
-    Input,
-    OnChanges,
-    OnDestroy,
-    OnInit,
-    Output,
-    SimpleChanges,
-    ViewChild
-} from '@angular/core';
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
+import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { MapPosition } from '@app/interfaces/map-position';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -58,14 +47,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     previousRow: number | null = null;
     previousCol: number | null = null;
+    navigationService = inject(NavigationService);
 
     private oldMapName: string;
     private activePlayer: Player | undefined;
     private isMouseDown: boolean = false;
     private isMoving: boolean = false;
-
-    // Used in html
-    public navigationService = inject(NavigationService);
 
     private toolService = inject(ToolService);
     private socketCommunicationService = inject(SocketCommunicationService);
@@ -78,13 +65,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private gameCreationService: GameCreationService,
         private gameTileInfoService: GameTileInfoService,
     ) {}
-
-    // @HostListener('document:click', ['$event'])
-    // onMapClick(event: MouseEvent) {
-    //     if (!this.entireMap.nativeElement.contains(event.target)) {
-    //         this.tileInfoVisible = false;
-    //     }
-    // }
 
     getSelectedTile(): string {
         return this.toolService.getSelectedTile();
@@ -101,15 +81,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.reachableTiles = reachability;
         });
 
-        
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         this.handleMapLoading();
-        
 
         this.initGameListeners();
         this.initObjectsListeners();
         this.initMovementListeners();
-
         this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
             this.gameTileInfoService.transferRoomData(room);
         });
@@ -373,9 +350,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.activePlayer = this.gameService.handleFightAction(
                 { position: { x: row, y: col }, tiles: this.tilesGrid, objects: this.objectsArray },
                 this.activePlayer!,
-            ); // could remove handleFightAction and place it elsewhere
+            );
             return;
-        } else if (this.navigationService.noInteractionPossible({ row, col }, this.tilesGrid, this.activePlayer!)) {
+        } else if (!this.navigationService.isInteractionPossible({ row, col }, this.tilesGrid, this.activePlayer!)) {
             this.sendNavigation();
         }
     }

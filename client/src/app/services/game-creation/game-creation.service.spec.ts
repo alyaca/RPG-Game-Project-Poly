@@ -3,12 +3,12 @@ import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants'
 import { mockGames } from '@app/mocks/mock-game';
 import { mockSmallGrid } from '@app/mocks/mock-map';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { MapSize } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { ClientToServerEvent } from '@common/socket.events';
-import { GameTileInfoService } from '../game-tile-info/game-tile-info.service';
-import { NavigationService } from '../navigation/navigation.service';
-import { SocketCommunicationService } from '../sockets/socket-communication/socket-communication.service';
 
 describe('GameCreationService', () => {
     let service: GameCreationService;
@@ -22,7 +22,7 @@ describe('GameCreationService', () => {
         navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['isDebugMode']);
 
         TestBed.configureTestingModule({
-            providers: [ 
+            providers: [
                 { provide: NavigationService, useValue: navigationServiceSpy },
                 { provide: SocketCommunicationService, useValue: socketCommunicationServiceSpy },
                 { provide: GameTileInfoService, useValue: gameTileInfoServiceSpy },
@@ -99,11 +99,11 @@ describe('GameCreationService', () => {
 
     it('should return the correct array depending on isnewGame', () => {
         service.isNewGame = false;
-        service.loadedTiles = [[1,1]];
-        expect(service.resetGrid(SIZE_SMALL_MAP, [[1,1]])).toEqual(service.loadedTiles);
+        service.loadedTiles = [[1, 1]];
+        expect(service.resetGrid(SIZE_SMALL_MAP, [[1, 1]])).toEqual(service.loadedTiles);
 
         service.isNewGame = true;
-        expect(service.resetGrid(SIZE_SMALL_MAP, [[1,1]])).toEqual(mockSmallGrid);
+        expect(service.resetGrid(SIZE_SMALL_MAP, [[1, 1]])).toEqual(mockSmallGrid);
     });
 
     it('should return to correct boolean for teleportation', () => {
@@ -124,7 +124,7 @@ describe('GameCreationService', () => {
 
         teleportSpy.and.returnValue(false);
         spyOn(service, 'showDetails').and.returnValue(true);
-        expect(service.rightClick(position, true, true)).toEqual([ false, true ]);
+        expect(service.rightClick(position, true, true)).toEqual([false, true]);
     });
 
     it('showDetails should return the correct boolean', () => {
@@ -135,16 +135,16 @@ describe('GameCreationService', () => {
         expect(gameTileInfoServiceSpy.selectedRow).toEqual(0);
 
         service.isModifiable = true;
-        expect(service.showDetails( { x: 0, y: 0 })).toBeFalse();
+        expect(service.showDetails({ x: 0, y: 0 })).toBeFalse();
     });
 
     it('should return a copy of the tiles', () => {
-        service.loadedTiles = [[1,1]];
+        service.loadedTiles = [[1, 1]];
         expect(service.loadExistingTiles()).toEqual(service.deepCopyMatrix(service.loadedTiles));
     });
 
     it('should return a copy of loadedObjects', () => {
-        service.loadedObjects = [[0, 0 ]];
+        service.loadedObjects = [[0, 0]];
         expect(service.loadExistingObjects()).toEqual(service.deepCopyMatrix(service.loadedObjects));
     });
 });

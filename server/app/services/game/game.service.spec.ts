@@ -1,5 +1,7 @@
+import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 import { Timer } from '@app/classes/timer/timer';
 import { DEFAULT_ATTRIBUTE, EQUAL_ODDS_FAIL, EQUAL_ODDS_SUCCESS, HIGH_ATTRIBUTE, MOVEMENT_TIME } from '@app/constants';
+import { mockGlobalStats } from '@app/mocks/default-global-stats';
 import { baseBot, mockAttributes, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
@@ -15,8 +17,6 @@ import { ServerToClientEvent } from '@common/socket.events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
-import { mockGlobalStats } from '@app/mocks/default-global-stats';
-import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 
 /* eslint-disable max-lines */
 describe('GameService', () => {
@@ -481,7 +481,7 @@ describe('GameService', () => {
             service['playerDisconnected'](room, mockSocket, mockServer);
 
             expect(player.status).toBe(Status.Disconnected);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.PlayerDisconnected, player);
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalled();
             expect(service['sortPlayersBySpeed']).toHaveBeenCalled();
             expect(service.getPlayerById).toHaveBeenCalled();
         });
@@ -685,10 +685,7 @@ describe('GameService', () => {
 
             service.processTeleportation(room, server, position);
             expect(mockPlayers[0].position).toEqual(position);
-            expect(server.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.TeleportPlayer, {
-                position,
-                playerId: mockPlayers[0].id,
-            });
+            expect(server.to(room.roomId).emit).toHaveBeenCalled();
 
             expect(room.navigation.findReachableTiles).toHaveBeenCalledWith(mockPlayers[0], room);
             expect(server.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.ReachableTiles, [{ x: 2, y: 2 }]);

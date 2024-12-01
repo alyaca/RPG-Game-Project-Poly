@@ -75,13 +75,13 @@ describe('NavigationServiceService', () => {
 
     it('should return false if the tile is not reachable', () => {
         service['reachableTiles'] = [{ x: 1, y: 1 }];
-        const result = service.isReachableTile( {row: 2, col: 2 });
+        const result = service.isReachableTile({ row: 2, col: 2 });
         expect(result).toBeFalse();
     });
 
     it('should return true if the tile is reachable', () => {
         service['reachableTiles'] = [{ x: 1, y: 1 }];
-        const result = service.isReachableTile( { row: 1, col: 1 });
+        const result = service.isReachableTile({ row: 1, col: 1 });
         expect(result).toBeTrue();
     });
 
@@ -92,7 +92,7 @@ describe('NavigationServiceService', () => {
 
     it('should return false if there is no neighbor', () => {
         spyOn(service, 'getNeighbors').and.returnValue([{ x: 1, y: 1 }]);
-        expect(service.isNeighbor( { x: 0, y: 0 }, playerNavigation)).toBeFalse();
+        expect(service.isNeighbor({ x: 0, y: 0 }, playerNavigation)).toBeFalse();
     });
 
     it('should get the neighbors', () => {
@@ -145,9 +145,9 @@ describe('NavigationServiceService', () => {
     });
 
     it('should return the correct boolean depending on the position of the player', () => {
-        service.players = mockPlayers ;
-        expect(service.isInInitialPosition({ x: 0, y: 0})).toBeTrue();
-        expect(service.isInInitialPosition({ x: 2, y: 2})).toBeFalse();
+        service.players = mockPlayers;
+        expect(service.isInInitialPosition({ x: 0, y: 0 })).toBeTrue();
+        expect(service.isInInitialPosition({ x: 2, y: 2 })).toBeFalse();
     });
 
     it('should return the correct thing on handleInventoryEvent', () => {
@@ -158,69 +158,69 @@ describe('NavigationServiceService', () => {
 
     it('should modify objects with the portraits', () => {
         const objects = [[0, 0]];
-        const players = [{ ...mockPlayers[0]}];
+        const players = [{ ...mockPlayers[0] }];
         players[0].position = { x: 0, y: 0 };
         players[0].avatar = avatars[0];
         expect(service.displayPortraitsOnSpawnPoints(players, objects)).toEqual([[ObjectType.Hestia, 0]]);
     });
 
     it('should modify the objects array with the avatar', () => {
-        const player = { ...mockPlayers[0] };
-        player.position = { x: 0, y: 0 };
-        player.avatar = avatars[0];
-        const objects = [[ 0, 0]];
-        expect(service.placeAvatar(player, objects)).toEqual([[ObjectType.Hestia, 0]]);
+        const mockPlayer = { ...mockPlayers[0] };
+        mockPlayer.position = { x: 0, y: 0 };
+        mockPlayer.avatar = avatars[0];
+        const objects = [[0, 0]];
+        expect(service.placeAvatar(mockPlayer, objects)).toEqual([[ObjectType.Hestia, 0]]);
     });
 
     it('should return the array of modified objects and player', () => {
         const position = { x: 0, y: 0 };
-        const player = { ...mockPlayers[0] };
+        const mockPlayer = { ...mockPlayers[0] };
         const objects = [[0, 0]];
-        const result = service.navigateToTile(position, player, objects);
+        const result = service.navigateToTile(position, mockPlayer, objects);
         expect(service.reachableTiles).toEqual([]);
-        expect(result).toEqual([service.placeAvatar(player, objects), player]);
+        expect(result).toEqual([service.placeAvatar(mockPlayer, objects), mockPlayer]);
     });
 
     it('should call the necessary functions when respawning a player', () => {
-        service.players = [{ ...mockPlayers[0]}];
-        const player = { ...mockPlayers[0] };
-        player.avatar = avatars[0];
-        player.position = { x: 0, y: 0 };
+        service.players = [{ ...mockPlayers[0] }];
+        const mockPlayer = { ...mockPlayers[0] };
+        mockPlayer.avatar = avatars[0];
+        mockPlayer.position = { x: 0, y: 0 };
         const position = { x: 0, y: 0 };
-        const objects = [[ 0, 0 ]];
-        expect(service.respawnPlayer(position, player, objects)).toEqual(service.placeAvatar(player, objects));
+        const objects = [[0, 0]];
+        expect(service.respawnPlayer(position, mockPlayer, objects)).toEqual(service.placeAvatar(mockPlayer, objects));
     });
 
     it('should return the correct boolean depending on the position of the player', () => {
         const position = { row: 0, col: 0 };
-        const player = { ...mockPlayers[0] };
-        player.position = { x: 0, y: 0 };
-        expect(service.isPlayerOnTile(position, player)).toBeTrue();
+        const mockPlayer = { ...mockPlayers[0] };
+        mockPlayer.position = { x: 0, y: 0 };
+        expect(service.isPlayerOnTile(position, mockPlayer)).toBeTrue();
 
-        player.position = { x: 1, y: 1 };
-        expect(service.isPlayerOnTile(position, player)).toBeFalse();
+        mockPlayer.position = { x: 1, y: 1 };
+        expect(service.isPlayerOnTile(position, mockPlayer)).toBeFalse();
     });
 
     it('should return the correct boolean for the possibility of interaction', () => {
         const reachableTileSpy = spyOn(service, 'isReachableTile');
         reachableTileSpy.and.returnValue(true);
         const isTileADoorSpy = spyOn(service, 'isTileAClosedDoor');
-        isTileADoorSpy.and.returnValue(false);
+        isTileADoorSpy.and.returnValue(true);
         const isPlayerOnTileSpy = spyOn(service, 'isPlayerOnTile');
-        isPlayerOnTileSpy.and.returnValue(false);
+        isPlayerOnTileSpy.and.returnValue(true);
         const position = { row: 0, col: 0 };
-        expect(service.noInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeTrue();
+        expect(service.isInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeTrue();
 
         reachableTileSpy.and.returnValue(false);
-        expect(service.noInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeFalse();
+        expect(service.isInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeFalse();
 
         isTileADoorSpy.and.returnValue(true);
-        expect(service.noInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeFalse();
+        expect(service.isInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeFalse();
 
         reachableTileSpy.and.returnValue(true);
         isTileADoorSpy.and.returnValue(false);
         isPlayerOnTileSpy.and.returnValue(true);
-        expect(service.noInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeFalse();
+        expect(service.isInteractionPossible(position, mockGame.tiles, { ...mockPlayers[0] })).toBeFalse();
     });
 
     it('should return the correct boolean depending on if the tile is a closed door or not', () => {
@@ -233,8 +233,8 @@ describe('NavigationServiceService', () => {
     });
 
     it('should return the correct path depending on where the player is', () => {
-        const position = { row: 0, col: 0};
-        const defaultPath = [ { x: 0, y: 1 }];
+        const position = { row: 0, col: 0 };
+        const defaultPath = [{ x: 0, y: 1 }];
         const isPlayerOnTileSpy = spyOn(service, 'isPlayerOnTile');
         isPlayerOnTileSpy.and.returnValue(true);
         expect(service.findPath(position, player, defaultPath)).toEqual([]);

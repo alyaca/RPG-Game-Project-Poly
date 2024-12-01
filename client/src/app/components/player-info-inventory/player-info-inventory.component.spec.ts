@@ -43,7 +43,7 @@ describe('PlayerInfoInventoryComponent', () => {
     it('should return the correct value for hasXiphos', () => {
         expect(component.hasXiphos(mockInventoryPlayer)).toBeUndefined();
         expect(component.hasXiphos(mockInventoryPlayerWithXiphos)).toBeDefined();
-    })
+    });
 
     it('should update the movement value', () => {
         component.player = mockLobbyPlayers[0];

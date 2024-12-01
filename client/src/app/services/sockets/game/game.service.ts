@@ -81,7 +81,7 @@ export class GameService {
         // return objects[position.x][position.y] > ObjectType.Spawn && objects[position.x][position.y] < ObjectType.Flag;
     }
 
-    handleFightAction({ position, tiles, objects }: GridOperationsInfo, player: Player) {
+    handleFightAction({ position, objects }: GridOperationsInfo, player: Player) {
         if (this.navigationService.isNeighbor(position, player) && this.tileHasPlayer(position, objects)) {
             player.attributes.actionPoints--;
             this.isActionCombatSelected = false;
@@ -338,6 +338,10 @@ export class GameService {
         this.isActionDoorSelected = false;
     }
 
+    navigateToHome() {
+        this.router.navigate([PathRoute.Home]);
+    }
+
     private openSwitchItemDialog(activePlayer: Player, foundItem: GameObject) {
         const oldInventory = JSON.parse(JSON.stringify(activePlayer.inventory));
         const itemSwap: ItemSwap = {
@@ -350,7 +354,7 @@ export class GameService {
             messages: [`Quel objet voulez échangé pour celui-ci: ${foundItem?.name}`],
             options: [],
             confirm: false,
-            itemSwap: itemSwap,
+            itemSwap,
         }).subscribe(() => {
             this.socketCommunicationService.send(ClientToServerEvent.ItemSwapped, {
                 inventoryToUndo: oldInventory,
@@ -358,9 +362,5 @@ export class GameService {
                 droppedItem: itemSwap.pickedUpItem.id,
             });
         });
-    }
-
-    navigateToHome() {
-        this.router.navigate([PathRoute.Home]);
     }
 }

@@ -77,12 +77,12 @@ describe('CombatService', () => {
     });
 
     it('should update the stats', () => {
-        service.activePlayer = { ...mockCombatPlayers.attacker} ;
+        service.activePlayer = { ...mockCombatPlayers.attacker };
         service.opponent = { ...mockCombatPlayers.defender };
         spyOn(service, 'isAttacker').and.returnValue(true);
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.UpdateStats) {
-                callback(mockCombatPlayers as  T);
+                callback(mockCombatPlayers as T);
             }
         });
         service.initSocketListeners();
@@ -91,7 +91,7 @@ describe('CombatService', () => {
     });
 
     it('should update the stats the other way around if activePlayer is the defender', () => {
-        service.activePlayer = { ...mockCombatPlayers.defender};
+        service.activePlayer = { ...mockCombatPlayers.defender };
         service.opponent = { ...mockCombatPlayers.attacker };
         spyOn(service, 'isAttacker').and.returnValue(false);
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
@@ -102,7 +102,7 @@ describe('CombatService', () => {
         service.initSocketListeners();
         expect(service.activePlayer.attributes.defense).toEqual(mockCombatPlayers.defender.attributes.defense);
         expect(service.opponent.attributes.attack).toEqual(mockCombatPlayers.attacker.attributes.attack);
-    })
+    });
 
     it('should decrease the correct hp', () => {
         const currentHp = mockPlayers[0].attributes.currentHp;
@@ -110,7 +110,7 @@ describe('CombatService', () => {
         service.activePlayer = { ...mockPlayers[0] };
         service.onAttackFailWithArmor();
         expect(service.activePlayer.attributes.currentHp).toEqual(currentHp - 1);
-    })
+    });
 
     it('should subscribe to "attackValues" event and call onAttackValues', () => {
         spyOn(service, 'onAttackValues');

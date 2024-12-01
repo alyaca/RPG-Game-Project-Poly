@@ -1,3 +1,5 @@
+/* eslint max-lines: ["off"] */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -207,16 +209,26 @@ describe('GameService', () => {
     });
 
     it('tileHasPlayer should return true if tile does not contain a spawn', () => {
-        const objects = [[ObjectType.Hestia,0]];
+        const objects = [[ObjectType.Hestia, 0]];
         expect(service.tileHasPlayer({ x: 0, y: 0 }, objects)).toBeTrue();
 
         objects[0][0] = NO_OBJECT;
-        expect(service.tileHasPlayer({x: 0, y: 0 }, objects)).toBeFalse();
+        expect(service.tileHasPlayer({ x: 0, y: 0 }, objects)).toBeFalse();
     });
 
     it('should call the correct methods on handleFightAction', () => {
         navigationServiceSpy.players = mockPlayers;
-        const info : GridOperationsInfo = { position: { x: 0, y: 0 }, tiles: [[ 1,1 ],[ 1,1 ]], objects: [[ 15,0 ], [ 3, 0 ]]};
+        const info: GridOperationsInfo = {
+            position: { x: 0, y: 0 },
+            tiles: [
+                [1, 1],
+                [1, 1],
+            ],
+            objects: [
+                [ObjectType.Hermes, 0],
+                [ObjectType.Sandal, 0],
+            ],
+        };
         navigationServiceSpy.isNeighbor.and.returnValue(false);
         expect(service.handleFightAction(info, { ...mockPlayers[0] })).toEqual({ ...mockPlayers[0] });
 
@@ -224,7 +236,7 @@ describe('GameService', () => {
         spyOn(service, 'tileHasPlayer').and.returnValue(true);
         service.handleFightAction(info, { ...mockPlayers[0] });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
-    })
+    });
 
     it('should disconnect and navigate /home on drawGame event', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
@@ -313,19 +325,19 @@ describe('GameService', () => {
     });
 
     it('handleEndGame should call the correct functions on EndGame event', () => {
-        const data = { winner: { ...mockPlayers[0]} , room: mockRoom};
+        const data = { winner: { ...mockPlayers[0] }, room: mockRoom };
         socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.EndGame) {
                 callback(data as T);
             }
         });
-        spyOn(service, 'openDialog').and.returnValue(of ({ action: DialogResult.Close }));
+        spyOn(service, 'openDialog').and.returnValue(of({ action: DialogResult.Close }));
         spyOn(service, 'removeGamePageListeners');
         service.handleEndGame();
         expect(service.removeGamePageListeners).toHaveBeenCalled();
         expect(postGameServiceSpy.transferRoomStats).toHaveBeenCalled();
         expect(service.openDialog).toHaveBeenCalled();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.PostGame], { queryParams: { roomCode: data.room.roomId}});
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.PostGame], { queryParams: { roomCode: data.room.roomId } });
     });
 
     it('should open the admin quit dialog on roomDeleted', () => {
@@ -341,7 +353,7 @@ describe('GameService', () => {
 
     it('should call openplayerKickoutDialog on kickPlayer', () => {
         socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event === ServerToClientEvent.KickPlayer) { 
+            if (event === ServerToClientEvent.KickPlayer) {
                 callback({} as T);
             }
         });
@@ -351,21 +363,21 @@ describe('GameService', () => {
     });
 
     it('should send leave room if a player quits', () => {
-        spyOn(service, 'openDialog').and.returnValue(of ({ action: DialogResult.Left}));
+        spyOn(service, 'openDialog').and.returnValue(of({ action: DialogResult.Left }));
         service.openPlayerQuitDialog(mockRoom.roomId);
         expect(service.openDialog).toHaveBeenCalled();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 
     it('should send the LeaveRoom event when a player leaves the post game', () => {
-        spyOn(service, 'openDialog').and.returnValue(of ({ action: DialogResult.Left }));
+        spyOn(service, 'openDialog').and.returnValue(of({ action: DialogResult.Left }));
         service.openQuitPostGameLobby(mockRoom.roomId);
         expect(service.openDialog).toHaveBeenCalled();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.LeaveRoom, mockRoom.roomId);
     });
 
     it('should call navigateToHome if the player gets kicked out', () => {
-        spyOn(service, 'openDialog').and.returnValue(of ({ action: DialogResult.Close}));
+        spyOn(service, 'openDialog').and.returnValue(of({ action: DialogResult.Close }));
         spyOn(service, 'navigateToHome');
         service.openPlayerKickoutDialog();
         expect(service.openDialog).toHaveBeenCalled();
@@ -374,8 +386,8 @@ describe('GameService', () => {
 
     it('should call the correct functions depending on isAdmin on LeftRoom event', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-            if (event = ServerToClientEvent.LeftRoom) {
-                callback(true as  T);
+            if (event === ServerToClientEvent.LeftRoom) {
+                callback(true as T);
             }
         });
         spyOn(service, 'navigateToHome');
@@ -392,10 +404,10 @@ describe('GameService', () => {
     });
 
     it('should open the item switch modal', () => {
-        const data = { activePlayer: { ...mockPlayers[0] }, foundItem: gameObjects[0]};
+        const data = { activePlayer: { ...mockPlayers[0] }, foundItem: gameObjects[0] };
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.OpenItemSwitchModal) {
-                callback( data as T);
+                callback(data as T);
             }
         });
         spyOn<any>(service, 'openSwitchItemDialog');
@@ -406,8 +418,8 @@ describe('GameService', () => {
     it('should open dialog for handleExit', () => {
         navigationServiceSpy.isDebugMode = true;
         spyOn(service, 'navigateToHome');
-        spyOn(service, 'openDialog').and.returnValue(of({action: DialogResult.Left}));
-        let isCurrentPlayerAdminSpy = spyOn(service, 'isCurrentPlayerAdmin');
+        spyOn(service, 'openDialog').and.returnValue(of({ action: DialogResult.Left }));
+        const isCurrentPlayerAdminSpy = spyOn(service, 'isCurrentPlayerAdmin');
         isCurrentPlayerAdminSpy.and.returnValue(true);
         service.handleExit({ ...mockPlayers });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.LeftGame);
@@ -431,7 +443,7 @@ describe('GameService', () => {
         });
         spyOn(service, 'openTempDialog').and.returnValue(of(null));
         service.handlePlayerFell();
-        expect(service.openTempDialog).toHaveBeenCalledWith({title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME });
+        expect(service.openTempDialog).toHaveBeenCalledWith({ title: DialogTitle.EndTurn, message: DialogMessages.Fell, duration: INFO_DIALOG_TIME });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.EndTurn);
     });
 
@@ -513,8 +525,8 @@ describe('GameService', () => {
     });
 
     it('should send ItemSwapped after opening the dialog to swap items', () => {
-        spyOn(service, 'openDialog').and.returnValue(of (null));
+        spyOn(service, 'openDialog').and.returnValue(of(null));
         service['openSwitchItemDialog']({ ...mockPlayers[0] }, gameObjects[0]);
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
-    })
+    });
 });

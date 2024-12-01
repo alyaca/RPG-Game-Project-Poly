@@ -5,11 +5,11 @@ import { mockGameObjectZeroId } from '@app/mocks/mock-game';
 import { mockPositions } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { TileService } from '@app/services/tile/tile.service';
+import { ToolService } from '@app/services/tool/tool.service';
 import { MapSize, ObjectType, TileType } from '@common/constants';
 import { BehaviorSubject } from 'rxjs';
-import { GameCreationService } from '../game-creation/game-creation.service';
-import { TileService } from '../tile/tile.service';
-import { ToolService } from '../tool/tool.service';
 import { GameObjectService } from './game-object.service';
 
 describe('GameObjectService', () => {
@@ -27,11 +27,13 @@ describe('GameObjectService', () => {
         gameCreationServiceSpy.sizeSubject = new BehaviorSubject<string | null>(null);
         gameCreationServiceSpy.getStoredSize.and.returnValue('size');
         gameCreationServiceSpy.updateDimensions.and.returnValue(SIZE_SMALL_MAP);
-        TestBed.configureTestingModule({ providers: [ 
-            { provide: GameCreationService, useValue: gameCreationServiceSpy },
-            { provide: ToolService, useValue: toolServiceSpy },
-            { provide: TileService, useValue: tileServiceSpy },
-        ]});
+        TestBed.configureTestingModule({
+            providers: [
+                { provide: GameCreationService, useValue: gameCreationServiceSpy },
+                { provide: ToolService, useValue: toolServiceSpy },
+                { provide: TileService, useValue: tileServiceSpy },
+            ],
+        });
         service = TestBed.inject(GameObjectService);
         service.objects = mockObjects;
         service.objectsArray = [
@@ -267,8 +269,7 @@ describe('GameObjectService', () => {
         it('should call removeObjectFromGrid if condition is met', () => {
             spyOn(service, 'getGameObjectOnTile').and.returnValue(mockGameObject);
             spyOn(service, 'isValidTileForObject').and.returnValue(false);
-
-            service.handleGameObjectOnTile({ row: 0, col: 0} , [
+            service.handleGameObjectOnTile({ row: 0, col: 0 }, [
                 [1, 1],
                 [1, 1],
             ]);
@@ -278,7 +279,7 @@ describe('GameObjectService', () => {
         it('should not call removeObjectFromGrid if condition is not met', () => {
             spyOn(service, 'getGameObjectOnTile').and.returnValue(undefined);
             spyOn(service, 'isValidTileForObject').and.returnValue(true);
-            service.handleGameObjectOnTile({ row: 0, col: 0 },  [
+            service.handleGameObjectOnTile({ row: 0, col: 0 }, [
                 [0, 0],
                 [0, 0],
             ]);
@@ -317,7 +318,7 @@ describe('GameObjectService', () => {
 
     it('should return the tiles nad handleTileClick', () => {
         spyOn(service, 'handleGameObjectOnTile');
-        const tiles = [[1,1 ]];
+        const tiles = [[1, 1]];
         expect(service.handleTileClick({ row: 0, col: 0 }, tiles, '1')).toEqual(tiles);
         expect(service.handleGameObjectOnTile).toHaveBeenCalled();
     });
@@ -325,23 +326,22 @@ describe('GameObjectService', () => {
     it('should return false on startDropItem and call the methods', () => {
         spyOn(service, 'onDrop');
         const mockEvent = jasmine.createSpyObj('DragEvent', ['preventDefault']);
-        const tileInfo = { position: { x: 0, y: 0 }, tiles: [[1,1]], objects: [[0,0]]};
+        const tileInfo = { position: { x: 0, y: 0 }, tiles: [[1, 1]], objects: [[0, 0]] };
         expect(service.startDropItem(mockEvent, tileInfo)).toBeFalse();
         expect(service.onDrop).toHaveBeenCalled();
         expect(toolServiceSpy.setSelectedTile).toHaveBeenCalledWith('');
     });
 
     it('should return the correct matrix depending on isModifiable', () => {
-        tileServiceSpy.removeTile.and.returnValue([[1,1]]);
+        tileServiceSpy.removeTile.and.returnValue([[1, 1]]);
         gameCreationServiceSpy.isModifiable = true;
-        const tileInfo = { position: {x: 0, y: 0 }, tiles: [[2, 1]], objects: [[0, 0]]};
+        const tileInfo = { position: { x: 0, y: 0 }, tiles: [[2, 1]], objects: [[0, 0]] };
         const mockEvent = new MouseEvent('Click', { button: 1 });
         spyOn(service, 'removeObjectByClick');
-        expect(service.removeOnRightClick(mockEvent, tileInfo)).toEqual([[1,1]]);
+        expect(service.removeOnRightClick(mockEvent, tileInfo)).toEqual([[1, 1]]);
         expect(service.removeObjectByClick).toHaveBeenCalled();
 
         gameCreationServiceSpy.isModifiable = false;
         expect(service.removeOnRightClick(mockEvent, tileInfo)).toEqual(tileInfo.tiles);
     });
-
 });

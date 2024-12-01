@@ -124,7 +124,7 @@ export class NavigationService {
     }
 
     respawnPlayer(position: Position, player: Player, objects: number[][]) {
-        let playerToPlace = this.players.find((players) => players.id === player.id);
+        const playerToPlace = this.players.find((players) => players.id === player.id);
         if (!playerToPlace) return objects;
         playerToPlace.position = position;
         this.updateTile(playerToPlace);
@@ -141,8 +141,8 @@ export class NavigationService {
         return player.position.x === position.row && player.position.y === position.col;
     }
 
-    noInteractionPossible(position: MapPosition, tiles: number[][], player: Player) {
-        return this.isReachableTile(position) && !this.isTileAClosedDoor(tiles, position) && !this.isPlayerOnTile(position, player);
+    isInteractionPossible(position: MapPosition, tiles: number[][], player: Player) {
+        return this.isReachableTile(position) && this.isTileAClosedDoor(tiles, position) && this.isPlayerOnTile(position, player);
     }
 
     isTileAClosedDoor(tiles: number[][], position: MapPosition) {

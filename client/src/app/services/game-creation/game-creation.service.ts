@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { MapSize, TileType } from '@common/constants';
@@ -7,19 +8,12 @@ import { Game } from '@common/interfaces/game';
 import { Position } from '@common/interfaces/position';
 import { ClientToServerEvent } from '@common/socket.events';
 import { BehaviorSubject } from 'rxjs';
-import { GameTileInfoService } from '../game-tile-info/game-tile-info.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameCreationService {
-    constructor(
-        private socketCommunicationService: SocketCommunicationService,
-        private navigationService: NavigationService,
-        private gameTileInfoService: GameTileInfoService,
-    ) {}
     sizeSubject = new BehaviorSubject<string | null>(null);
-
     isNewGame: boolean = true;
     isModifiable: boolean = true;
     loadedTiles: number[][] = [];
@@ -27,6 +21,11 @@ export class GameCreationService {
     loadedMapName: string = '';
     loadedMapDescription: string = '';
     gameMode: string = '';
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+        private navigationService: NavigationService,
+        private gameTileInfoService: GameTileInfoService,
+    ) {}
 
     setSelectedSize(size: string) {
         this.sizeSubject.next(size);

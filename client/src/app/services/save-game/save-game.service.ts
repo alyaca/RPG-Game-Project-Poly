@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {

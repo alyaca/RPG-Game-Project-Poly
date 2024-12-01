@@ -140,7 +140,6 @@ describe('SimpleDialogComponent', () => {
     it('should return either the itemSwap structure or null on swapItems', () => {
         const itemSwap = { currentItem1: gameObjects[0], currentItem2: gameObjects[1], pickedUpItem: gameObjects[2] };
         expect(component.swapItems(true, itemSwap)).toBeNull();
-        
         component.data.itemSwap = itemSwap;
         expect(component.swapItems(true, itemSwap)).toEqual(component.data.itemSwap);
     });
