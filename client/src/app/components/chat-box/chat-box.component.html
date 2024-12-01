@@ -1,12 +1,12 @@
 <div class="chat-box">
     @if(!areLogsVisible){
-    <div class="past-messages" #messageContainer>
+    <div class="past-messages" #messageContainer (scroll)="onScroll()">
         @for(message of messages; track message.id;){
         <app-chat-message [timestamp]="message.timestamp" [username]="message.username" [message]="message.message"> </app-chat-message>
         }
     </div>
     } @else {
-    <div class="past-messages" #logContainer>
+    <div class="past-messages" #logContainer (scroll)="onScroll()">
         @if(!areLogsFiltered){ @for(log of logs; track log.id;){
         <app-chat-message [timestamp]="log.timestamp" [message]="log.message"> </app-chat-message>
         } } @else { @for(log of filteredLogs; track log.id;){
