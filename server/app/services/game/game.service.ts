@@ -442,7 +442,6 @@ export class GameService {
         } else {
             player.attributes.actionPoints = 1;
         }
-        return player;
     }
 
     placeItemsOnGround(room: Room, server: Server, player: Player) {
@@ -632,30 +631,34 @@ export class GameService {
     private updateActivePlayer(server: Server, room: Room) {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
-        let previousActivePlayer = listPlayers[index];
-        previousActivePlayer = this.addActionPoints(previousActivePlayer);
+        const previousActivePlayer = listPlayers[index];
+        this.addActionPoints(previousActivePlayer);
 
         if (this.playerInWall(room, previousActivePlayer)) {
-            room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
-            server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
-                newGrid: room.gameMap.itemPlacement,
-                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
-            });
-            const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
-            room.navigation.findFastestPath(previousActivePlayer, destination, room);
-
-            previousActivePlayer.position = destination;
-            room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
-            this.processTeleportation(room, server, previousActivePlayer.position);
-            server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
-                newGrid: room.gameMap.itemPlacement,
-                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
-            });
+            this.removePlayerFromWall(server, room, previousActivePlayer);
         }
         listPlayers[index] = previousActivePlayer;
-
         const nextIndex = (index + 1) % listPlayers.length;
         listPlayers[index].isActive = false;
         listPlayers[nextIndex].isActive = true;
+    }
+
+    private removePlayerFromWall(server: Server, room: Room, previousActivePlayer: Player) {
+        room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
+        server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
+            newGrid: room.gameMap.itemPlacement,
+            position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+        });
+
+        const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
+        room.navigation.findFastestPath(previousActivePlayer, destination, room);
+
+        previousActivePlayer.position = destination;
+        room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
+        this.processTeleportation(room, server, previousActivePlayer.position);
+        server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
+            newGrid: room.gameMap.itemPlacement,
+            position: previousActivePlayer.position,
+        });
     }
 }

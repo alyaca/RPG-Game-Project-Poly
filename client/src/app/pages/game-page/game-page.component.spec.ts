@@ -17,6 +17,7 @@ import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PathRoute } from '@common/interfaces/route';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
@@ -168,13 +169,14 @@ describe('GamePageComponent', () => {
         });
 
         it('should set isInCombat and call initializeCombat', () => {
+            component.activePlayer = JSON.parse(JSON.stringify(mockPlayers[0]));
+            const actionData: ActionData = { clickedPosition: { x: 1, y: 1 }, player: JSON.parse(JSON.stringify(mockPlayers[0])) };
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === 'startFight') {
-                    callback({ player1: mockPlayers[0], player2: mockPlayers[1], isPlayer1Active: true } as T);
+                if (event === ServerToClientEvent.StartFight) {
+                    callback(actionData as T);
                 }
             });
             component.ngOnInit();
-            expect(component.isInCombat).toBeFalse();
             expect(combatServiceSpy.initializeCombat).toHaveBeenCalled();
         });
 

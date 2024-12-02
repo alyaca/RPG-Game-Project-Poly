@@ -69,7 +69,7 @@ export class BotService {
     private attackEnemyIfPossible(room: Room, server: Server, activePlayer: Player, target: Player): boolean {
         const path = this.checkForEnemy(room, activePlayer, target);
         if (path) {
-            const combatInfo = { target: target, activePlayer: activePlayer, path: path };
+            const combatInfo = { target, activePlayer, path };
             this.attackPlayer(room, server, combatInfo);
             return true;
         }
