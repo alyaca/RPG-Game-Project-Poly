@@ -224,9 +224,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.BeforeStartTurnTimer, (timeRemaining: number) => {
             this.timeRemainingBeforeStartTurn = timeRemaining;
         });
-        this.socketCommunicationService.on(ServerToClientEvent.TurnEnded, (listPlayers: Player[]) => {
-            this.allPlayers = listPlayers;
+        this.socketCommunicationService.on(ServerToClientEvent.TurnEnded, () => {
             this.onBeforeStartTurn();
+        });
+        this.socketCommunicationService.on('updateVisual', (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
         });
         this.socketCommunicationService.on(ServerToClientEvent.StartedTurnTimer, (timeRemaining: number) => {
             this.closeTurnStartPopUp();
@@ -269,7 +271,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
+        //if (this.activePlayer.id === this.socketCommunicationService.socket.id) {
         this.socketCommunicationService.send(ClientToServerEvent.StartTurn);
+        //}
     }
 
     isDebugMode(): boolean {

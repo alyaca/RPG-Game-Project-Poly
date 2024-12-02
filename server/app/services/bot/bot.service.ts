@@ -21,8 +21,9 @@ export class BotService {
     private async processAggressiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const players = room.listPlayers;
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
-        if (this.checkEndGame(room, activePlayer, reachability)) {
+        if (this.checkEndGame(activePlayer, reachability)) {
             this.navigateToItem(server, room, activePlayer, this.checkForSpawn(reachability, activePlayer));
+            return;
         }
         const flag = this.findFlag(room, reachability);
         if (flag) {
@@ -44,8 +45,9 @@ export class BotService {
 
     private async processDefensiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
-        if (this.checkEndGame(room, activePlayer, reachability)) {
+        if (this.checkEndGame(activePlayer, reachability)) {
             this.navigateToItem(server, room, activePlayer, this.checkForSpawn(reachability, activePlayer));
+            return;
         }
         const flag = this.findFlag(room, reachability);
         if (flag) {
@@ -85,7 +87,7 @@ export class BotService {
         return false;
     }
 
-    private checkEndGame(room: Room, activePlayer: Player, reachability: Position[]): boolean {
+    private checkEndGame(activePlayer: Player, reachability: Position[]): boolean {
         const isHavingFlag = activePlayer.inventory.some((item) => item.id === ObjectType.Flag);
         if (isHavingFlag && this.checkForSpawn(reachability, activePlayer)) {
             return true;
