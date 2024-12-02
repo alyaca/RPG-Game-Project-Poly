@@ -357,7 +357,8 @@ export class GameService {
             }
             server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
             if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
-                this.handleFallingOnIce(room, client);
+                console.log('Player fell on ice', tile);
+                this.handleFallingOnIce(room, client, server);
                 break;
             }
 
@@ -469,12 +470,13 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    private handleFallingOnIce(room: Room, client: Socket) {
+    private handleFallingOnIce(room: Room, client: Socket, server: Server) {
         if (!room.navigation.isBot) {
             this.stopGameTimers(room);
             client.emit(ServerToClientEvent.PlayerFell);
         } else {
-            client.emit(ServerToClientEvent.BotFell);
+            this.onTurnEnded(room, server);
+            console.log('Bot fell');
         }
     }
 
