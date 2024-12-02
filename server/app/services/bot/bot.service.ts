@@ -21,6 +21,9 @@ export class BotService {
     private async processAggressiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const players = room.listPlayers;
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        if (this.checkEndGame(room, activePlayer, reachability)) {
+            this.navigateToItem(server, room, activePlayer, this.checkForSpawn(room, reachability, activePlayer));
+        }
         const flag = this.findFlag(room, reachability);
         if (flag && this.navigateToItem(server, room, activePlayer, flag)) return;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
@@ -32,6 +35,9 @@ export class BotService {
 
     private async processDefensiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        if (this.checkEndGame(room, activePlayer, reachability)) {
+            this.navigateToItem(server, room, activePlayer, this.checkForSpawn(room, reachability, activePlayer));
+        }
         const flag = this.findFlag(room, reachability);
         if (flag && this.navigateToItem(server, room, activePlayer, flag)) return;
         const defenseItem = this.checkForDefenseItems(room, reachability);
@@ -56,6 +62,14 @@ export class BotService {
         const path = room.navigation.findFastestPath(activePlayer, item, room);
         if (path) {
             server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
+            return true;
+        }
+        return false;
+    }
+
+    private checkEndGame(room: Room, activePlayer: Player, reachability: Position[]): boolean {
+        const isHavingFlag = activePlayer.inventory.some((item) => item.id === ObjectType.Flag);
+        if (isHavingFlag && this.checkForSpawn(room, reachability, activePlayer)) {
             return true;
         }
         return false;
@@ -109,6 +123,14 @@ export class BotService {
             }
         }
         return this.checkForAnyItems(room, reachability);
+    }
+
+    private checkForSpawn(room: Room, reachability: Position[], player: Player) {
+        for (const tile of reachability) {
+            if (player.spawnPosition.x === tile.x && player.spawnPosition.y === tile.y) {
+                return tile;
+            }
+        }
     }
 
     private checkForDefenseItems(room: Room, reachability: Position[]) {
