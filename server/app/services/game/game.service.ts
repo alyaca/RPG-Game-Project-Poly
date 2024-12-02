@@ -356,9 +356,8 @@ export class GameService {
                 await this.delay(MOVEMENT_TIME);
             }
             server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
-            if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell() && !room.navigation.isBot) {
-                this.stopGameTimers(room);
-                client.emit(ServerToClientEvent.PlayerFell);
+            if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
+                this.handleFallingOnIce(room, client);
                 break;
             }
 
@@ -466,12 +465,21 @@ export class GameService {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }
 
-    isTileIce(room: Room, tile: Position) {
-        return room.gameMap.tiles[tile.x][tile.y] === TileType.Ice;
-    }
-
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private handleFallingOnIce(room: Room, client: Socket) {
+        if (!room.navigation.isBot) {
+            this.stopGameTimers(room);
+            client.emit(ServerToClientEvent.PlayerFell);
+        } else {
+            client.emit(ServerToClientEvent.BotFell);
+        }
+    }
+
+    private isTileIce(room: Room, tile: Position) {
+        return room.gameMap.tiles[tile.x][tile.y] === TileType.Ice;
     }
 
     private isObject(room: Room, tile: Position) {

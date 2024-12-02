@@ -180,6 +180,7 @@ export class CombatService {
     }
 
     onAttackValues(combatResultDetails: CombatResultDetails) {
+        this.canAttackOrEvade = false;
         this.attackResult = combatResultDetails.attackValues;
         this.defenseResult = combatResultDetails.defenseValues;
     }
