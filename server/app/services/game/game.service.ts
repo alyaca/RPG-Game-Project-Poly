@@ -357,7 +357,6 @@ export class GameService {
             }
             server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
             if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
-                console.log('Player fell on ice', tile);
                 this.handleFallingOnIce(room, client, server);
                 break;
             }
@@ -476,7 +475,6 @@ export class GameService {
             client.emit(ServerToClientEvent.PlayerFell);
         } else {
             this.onTurnEnded(room, server);
-            console.log('Bot fell');
         }
     }
 
