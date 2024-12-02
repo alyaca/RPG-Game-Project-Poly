@@ -103,7 +103,7 @@ export class BotService {
     }
 
     private navigateToRandomTile(room: Room, server: Server, activePlayer: Player, reachability: Position[]) {
-        const randomIndex = Math.floor(Math.random() * reachability.length);
+        const randomIndex = Math.floor(Math.random() * reachability.length - 1);
         const randomTile = reachability[randomIndex];
         const path = room.navigation.findFastestPath(activePlayer, randomTile, room);
         server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
