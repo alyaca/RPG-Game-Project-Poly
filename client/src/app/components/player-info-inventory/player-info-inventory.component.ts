@@ -22,9 +22,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
     actionPointsArray: number[];
     movementPointsArray: number[];
     descriptionPosition: string = 'bottom';
-    constructor(
-        private socketCommunicationService: SocketCommunicationService,
-    ) {}
+    constructor(private socketCommunicationService: SocketCommunicationService) {}
 
     get emptySlots(): number[] {
         const emptySlotsCount = MAX_INVENTORY_ITEMS - (this.player?.inventory?.length || 0);
@@ -32,7 +30,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
             const foundPlayer = room.listPlayers.find((player) => player.id === this.playerId);
             if (foundPlayer) {
                 this.player = foundPlayer;
@@ -41,7 +39,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
             }
         });
 
-        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+        this.socketCommunicationService.on<Player>(ServerToClientEvent.UpdatedInventory, (playerToUpdate: Player) => {
             if (this.player.name === playerToUpdate.name) {
                 this.player.attributes = playerToUpdate.attributes;
                 this.player.inventory = playerToUpdate.inventory;
