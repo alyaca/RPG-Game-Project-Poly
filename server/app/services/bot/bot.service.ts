@@ -20,9 +20,11 @@ export class BotService {
 
     private async processAggressiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const players = room.listPlayers;
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        const flag = this.findFlag(room, reachability);
+        if (flag && this.navigateToItem(server, room, activePlayer, flag)) return;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
         if (target && this.attackEnemyIfPossible(room, server, activePlayer, target)) return;
-        const reachability = room.navigation.findReachableTiles(activePlayer, room);
         const item = this.checkForAttackItems(room, reachability);
         if (item && this.navigateToItem(server, room, activePlayer, item)) return;
         this.navigateToRandomTile(room, server, activePlayer, reachability);
@@ -30,6 +32,8 @@ export class BotService {
 
     private async processDefensiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        const flag = this.findFlag(room, reachability);
+        if (flag && this.navigateToItem(server, room, activePlayer, flag)) return;
         const defenseItem = this.checkForDefenseItems(room, reachability);
         if (defenseItem && this.navigateToItem(server, room, activePlayer, defenseItem)) return;
         const players = room.listPlayers;
@@ -55,6 +59,15 @@ export class BotService {
             return true;
         }
         return false;
+    }
+
+    private findFlag(room: Room, reachability: Position[]) {
+        const items = room.gameMap.itemPlacement;
+        for (const tile of reachability) {
+            if (items[tile.x][tile.y] === ObjectType.Flag) {
+                return tile;
+            }
+        }
     }
 
     private navigateToRandomTile(room: Room, server: Server, activePlayer: Player, reachability: Position[]) {
