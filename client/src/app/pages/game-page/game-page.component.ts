@@ -162,6 +162,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: ['Le gagnant de la partie est : ' + data.winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    image: data.winner.avatar?.src,
                 })
                 .subscribe((result) => {
                     if (result.action === DialogResult.Close) {

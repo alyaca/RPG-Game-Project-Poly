@@ -131,3 +131,25 @@
     margin-left: 1rem;
     margin-right: 1rem;
 }
+
+.winner-image-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.winner-image {
+    height: 15rem;
+    width: 15rem;
+    border-radius: 5rem;
+    border: 0.2rem solid rgb(255, 238, 142);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.decoration {
+    height: 15rem;
+}
