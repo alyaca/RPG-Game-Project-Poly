@@ -7,7 +7,7 @@ import { GameTile } from '@common/interfaces/game-tile';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { gameTiles } from '@common/tile-info';
-// import { TILE_DESCRIPTIONS, TILE_NAMES } from '@app/constants';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -23,10 +23,6 @@ export class GameTileInfoService {
         descriptions: [],
         image: '',
     };
-
-    // tileDescriptions = TILE_DESCRIPTIONS;
-
-    // tileNames = TILE_NAMES;
 
     constructor(
         public tileService: TileService,
