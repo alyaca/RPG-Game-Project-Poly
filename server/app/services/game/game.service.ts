@@ -356,13 +356,12 @@ export class GameService {
                 await this.delay(MOVEMENT_TIME);
             }
             server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
-            if (!room.isDebug) {
-                if (room.gameMap.tiles[tile.x][tile.y] === TileType.Ice && !this.checkFell()) {
-                    this.stopGameTimers(room);
-                    client.emit(ServerToClientEvent.PlayerFell);
-                    break;
-                }
+            if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell() && !room.navigation.isBot) {
+                this.stopGameTimers(room);
+                client.emit(ServerToClientEvent.PlayerFell);
+                break;
             }
+
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
             if (pickedUpItem) break;
         }
@@ -465,6 +464,10 @@ export class GameService {
 
     playerInWall(room: Room, player: Player) {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
+    }
+
+    isTileIce(room: Room, tile: Position) {
+        return room.gameMap.tiles[tile.x][tile.y] === TileType.Ice;
     }
 
     async delay(ms: number) {
