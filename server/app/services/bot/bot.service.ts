@@ -25,11 +25,20 @@ export class BotService {
             this.navigateToItem(server, room, activePlayer, this.checkForSpawn(room, reachability, activePlayer));
         }
         const flag = this.findFlag(room, reachability);
-        if (flag && this.navigateToItem(server, room, activePlayer, flag)) return;
+        if (flag) {
+            this.navigateToItem(server, room, activePlayer, flag);
+            return;
+        }
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
-        if (target && this.attackEnemyIfPossible(room, server, activePlayer, target)) return;
+        if (target) {
+            this.attackEnemyIfPossible(room, server, activePlayer, target);
+            return;
+        }
         const item = this.checkForAttackItems(room, reachability);
-        if (item && this.navigateToItem(server, room, activePlayer, item)) return;
+        if (item) {
+            this.navigateToItem(server, room, activePlayer, item);
+            return;
+        }
         this.navigateToRandomTile(room, server, activePlayer, reachability);
     }
 
@@ -39,12 +48,21 @@ export class BotService {
             this.navigateToItem(server, room, activePlayer, this.checkForSpawn(room, reachability, activePlayer));
         }
         const flag = this.findFlag(room, reachability);
-        if (flag && this.navigateToItem(server, room, activePlayer, flag)) return;
+        if (flag) {
+            this.navigateToItem(server, room, activePlayer, flag);
+            return;
+        }
         const defenseItem = this.checkForDefenseItems(room, reachability);
-        if (defenseItem && this.navigateToItem(server, room, activePlayer, defenseItem)) return;
+        if (defenseItem) {
+            this.navigateToItem(server, room, activePlayer, defenseItem);
+            return;
+        }
         const players = room.listPlayers;
         const target = room.navigation.findClosestPlayer(activePlayer, players, room);
-        if (target && this.attackEnemyIfPossible(room, server, activePlayer, target)) return;
+        if (target) {
+            this.attackEnemyIfPossible(room, server, activePlayer, target);
+            return;
+        }
         this.navigateToRandomTile(room, server, activePlayer, reachability);
     }
 
@@ -95,11 +113,18 @@ export class BotService {
         path.pop();
         server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
         await this.delay(STARTING_TIME * MILLISECONDS_IN_SECOND);
+        console.log('Bot attack 0');
+        if (!this.isNeighbour(activePlayer, target)) return;
+        console.log('Bot attack 1');
         if (target.status !== Status.Bot) {
             server.to(target.id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
         } else {
             server.to(this.getEventHost(room).id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
         }
+    }
+
+    private isNeighbour(player: Player, target: Player) {
+        return Math.abs(player.position.x - target.position.x) <= 1 && Math.abs(player.position.y - target.position.y) <= 1;
     }
 
     private getEventHost(room: Room): Player {
