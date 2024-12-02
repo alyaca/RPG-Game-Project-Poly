@@ -23,6 +23,7 @@ export class BotService {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         if (this.checkEndGame(room, activePlayer, reachability)) {
             this.navigateToItem(server, room, activePlayer, this.checkForSpawn(reachability, activePlayer));
+            return;
         }
         const flag = this.findFlag(room, reachability);
         if (flag) {
@@ -46,6 +47,7 @@ export class BotService {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         if (this.checkEndGame(room, activePlayer, reachability)) {
             this.navigateToItem(server, room, activePlayer, this.checkForSpawn(reachability, activePlayer));
+            return;
         }
         const flag = this.findFlag(room, reachability);
         if (flag) {

@@ -88,4 +88,5 @@ export enum ServerToClientEvent {
     UpdateObjectsAfterCombat = 'updateObjectsAfterCombat',
     UpdatedPlayer = 'updatedPlayer',
     UpdateStats = 'updateStats',
+    UpdateVisual = 'updateVisual',
 }

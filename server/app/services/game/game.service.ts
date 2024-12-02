@@ -190,7 +190,10 @@ export class GameService {
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
             server.to(room.roomId).emit(ServerToClientEvent.Reachability, activePlayer);
             server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
-            server.to(room.roomId).emit(ServerToClientEvent.TurnEnded, room.listPlayers);
+
+            const host = room.listPlayers.find((player) => player.status !== Status.Disconnected && player.status !== Status.Bot);
+            server.to(host.id).emit(ServerToClientEvent.TurnEnded, room.listPlayers);
+            server.to(room.roomId).emit('updateVisual', room.listPlayers);
 
             room.navigation.isBot = activePlayer.status === Status.Bot;
 
