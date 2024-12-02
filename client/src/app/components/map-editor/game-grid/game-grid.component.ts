@@ -193,7 +193,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on('botAttack', (actionData: ActionData) => {
-            this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
+            if (this.activePlayer?.id === actionData.player.id) {
+                this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
+            }
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
