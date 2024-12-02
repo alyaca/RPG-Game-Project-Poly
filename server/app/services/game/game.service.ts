@@ -192,11 +192,8 @@ export class GameService {
             server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
             server.to(room.roomId).emit(ServerToClientEvent.TurnEnded, room.listPlayers);
 
-            if (activePlayer.status === Status.Bot) {
-                room.navigation.isBot = true;
-            } else {
-                room.navigation.isBot = false;
-            }
+            room.navigation.isBot = activePlayer.status === Status.Bot;
+
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
             this.checkActions(room, server);

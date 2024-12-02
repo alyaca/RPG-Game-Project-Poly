@@ -22,7 +22,7 @@ export class BotService {
         const players = room.listPlayers;
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         if (this.checkEndGame(room, activePlayer, reachability)) {
-            this.navigateToItem(server, room, activePlayer, this.checkForSpawn(room, reachability, activePlayer));
+            this.navigateToItem(server, room, activePlayer, this.checkForSpawn(reachability, activePlayer));
         }
         const flag = this.findFlag(room, reachability);
         if (flag) {
@@ -45,7 +45,7 @@ export class BotService {
     private async processDefensiveBehavior(room: Room, server: Server, activePlayer: Player) {
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         if (this.checkEndGame(room, activePlayer, reachability)) {
-            this.navigateToItem(server, room, activePlayer, this.checkForSpawn(room, reachability, activePlayer));
+            this.navigateToItem(server, room, activePlayer, this.checkForSpawn(reachability, activePlayer));
         }
         const flag = this.findFlag(room, reachability);
         if (flag) {
@@ -87,7 +87,7 @@ export class BotService {
 
     private checkEndGame(room: Room, activePlayer: Player, reachability: Position[]): boolean {
         const isHavingFlag = activePlayer.inventory.some((item) => item.id === ObjectType.Flag);
-        if (isHavingFlag && this.checkForSpawn(room, reachability, activePlayer)) {
+        if (isHavingFlag && this.checkForSpawn(reachability, activePlayer)) {
             return true;
         }
         return false;
@@ -136,19 +136,18 @@ export class BotService {
     private checkForAttackItems(room: Room, reachability: Position[]) {
         const items = room.gameMap.itemPlacement;
         for (const tile of reachability) {
-            if (
-                items[tile.x][tile.y] === ObjectType.Lightning ||
-                items[tile.x][tile.y] === ObjectType.Xiphos ||
-                items[tile.x][tile.y] === ObjectType.Sandal ||
-                items[tile.x][tile.y] === ObjectType.Armor
-            ) {
+            if (this.isAttackItem(items[tile.x][tile.y])) {
                 return tile;
             }
         }
         return this.checkForAnyItems(room, reachability);
     }
 
-    private checkForSpawn(room: Room, reachability: Position[], player: Player) {
+    private isAttackItem(item: ObjectType) {
+        return item === ObjectType.Lightning || item === ObjectType.Xiphos || item === ObjectType.Sandal || item === ObjectType.Armor;
+    }
+
+    private checkForSpawn(reachability: Position[], player: Player) {
         for (const tile of reachability) {
             if (player.spawnPosition.x === tile.x && player.spawnPosition.y === tile.y) {
                 return tile;

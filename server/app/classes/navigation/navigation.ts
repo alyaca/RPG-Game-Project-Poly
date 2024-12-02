@@ -45,8 +45,7 @@ export class Navigation {
     }
 
     isReachableTile(row: number, col: number): boolean {
-        if (this.destination.x === row && this.destination.y === col) return true;
-        return !this.hasPlayerOnTile({ x: row, y: col }, this.players);
+        return (this.destination.x === row && this.destination.y === col) || !this.hasPlayerOnTile({ x: row, y: col }, this.players);
     }
 
     initializeDistances(player: Player, game: Game): void {
@@ -247,9 +246,7 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            if (!this.isBot) {
-                if (this.hasPlayerOnTile(neighbor, this.players)) continue;
-            }
+            if (!this.isBot && this.hasPlayerOnTile(neighbor, this.players)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
 
@@ -275,12 +272,9 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (!this.isReachableTile(newX, newY) && this.isBot) continue;
-            if (!this.isBot) {
-                if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
-            }
+            if (!this.isBot && this.hasPlayerOnTile(neighbor, this.players)) continue;
             const tileCost = this.getTileCost(game.tiles[newX][newY]);
             const newDistance = currentDistance + tileCost;
-
             if (newDistance < this.distances[newX][newY]) {
                 this.distances[newX][newY] = newDistance;
                 this.previous[newX][newY] = { x: currentX, y: currentY };

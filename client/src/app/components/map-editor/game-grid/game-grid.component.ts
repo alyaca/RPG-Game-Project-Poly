@@ -187,12 +187,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
 
-        this.socketCommunicationService.on('botNavigation', (path: Position[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.BotNavigation, (path: Position[]) => {
             this.fastestPath = path;
             this.sendBotPathToServer();
         });
-
-        this.socketCommunicationService.on('botAttack', (actionData: ActionData) => {
+        this.socketCommunicationService.on(ServerToClientEvent.BotAttack, (actionData: ActionData) => {
             if (this.activePlayer?.id === actionData.player.id) {
                 this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
             }
@@ -433,7 +432,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     async sendBotPathToServer() {
         if (this.fastestPath.length > 0) {
-            this.socketCommunicationService.send('playerNavigation', this.fastestPath);
+            this.socketCommunicationService.send(ServerToClientEvent.PlayerNavigation, this.fastestPath);
             this.fastestPath = [];
         }
     }

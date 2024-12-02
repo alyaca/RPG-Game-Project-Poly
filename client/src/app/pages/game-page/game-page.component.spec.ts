@@ -64,7 +64,6 @@ describe('GamePageComponent', () => {
             'connect',
             'disconnect',
             'off',
-            'off',
         ]);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         dialogRefSpy = jasmine.createSpyObj('SimpleDialogComponent', ['open', 'afterClosed', 'close']);
@@ -90,7 +89,6 @@ describe('GamePageComponent', () => {
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
-                { provide: CombatService, useValue: combatServiceSpy },
                 { provide: CombatService, useValue: combatServiceSpy },
                 { provide: ChatBoxComponent, useValue: chatBoxSpy },
                 { provide: TimerComponent, useValue: timerSpy },
