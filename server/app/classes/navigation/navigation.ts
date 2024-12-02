@@ -33,7 +33,6 @@ export class Navigation {
 
         while (priorityQueue.length > 0) {
             const nextNode = this.getNextNode(priorityQueue);
-
             if (!nextNode || this.isDestinationReached(nextNode, destination)) break;
 
             const neighbors = this.getNeighbors(nextNode, game);
@@ -264,6 +263,7 @@ export class Navigation {
     }
 
     private isDestinationReached(position: PointWithDistance, destination: Position): boolean {
+        if (!destination.x || destination.y || !position) return true;
         return position.x === destination.x && position.y === destination.y;
     }
 
