@@ -274,6 +274,7 @@ export class GameService {
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
             this.addUniqueTileToHistory(player.positionHistory, position);
+            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, position);
             server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
         
