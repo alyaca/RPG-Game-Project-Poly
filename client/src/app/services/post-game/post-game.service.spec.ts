@@ -351,7 +351,7 @@ describe('PostGameService', () => {
     });
 
     describe('calculateFlagBearers', () => {
-        it('should correctly count players with ObjectType.Kunee items', () => {
+        it('should correctly count players with ObjectType.Flag items', () => {
             service['players'] = [
                 { collectedItems: [ObjectType.Lightning, ObjectType.Flag], postGameStats: {} } as Player,
                 { collectedItems: [ObjectType.Trident, ObjectType.Flag], postGameStats: {} } as Player,
