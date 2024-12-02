@@ -164,7 +164,7 @@ export class GameService {
     onStartTurn(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const activePlayer = this.getActivePlayer(room);
-
+        server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         server.to(room.roomId).emit(ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, server, activePlayer, LogType.StartTurn);
 
@@ -357,6 +357,7 @@ export class GameService {
                 }
             }
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
+            server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
             if (pickedUpItem) break;
         }
 
@@ -414,7 +415,7 @@ export class GameService {
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
             this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
             this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
-            activePlayer.attributes.actionPoints--;
+
             server.to(room.roomId).emit(ServerToClientEvent.DoorClicked, room.navigation.gameMap.tiles);
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
             server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);

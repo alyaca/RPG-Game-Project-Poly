@@ -95,6 +95,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.allPlayers = listPlayers;
         });
 
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateAllPlayers, (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
+        });
+
         this.socketCommunicationService.on(ServerToClientEvent.DrawGame, () => {
             this.socketCommunicationService.disconnect();
             this.handleDraw();

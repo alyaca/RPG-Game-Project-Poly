@@ -5,6 +5,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { ObjectType } from '@common/constants';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 
 @Component({
     selector: 'app-player-info-inventory',
@@ -15,12 +16,15 @@ import { Room } from '@common/interfaces/room';
 })
 export class PlayerInfoInventoryComponent implements OnInit {
     @Input() playerId: string | undefined;
+    @Input() activePlayer: Player;
     @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
     player: Player;
     actionPointsArray: number[];
     movementPointsArray: number[];
     descriptionPosition: string = 'bottom';
-    constructor(private socketCommunicationService: SocketCommunicationService) {}
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+    ) {}
 
     get emptySlots(): number[] {
         const emptySlotsCount = MAX_INVENTORY_ITEMS - (this.player?.inventory?.length || 0);
@@ -44,6 +48,15 @@ export class PlayerInfoInventoryComponent implements OnInit {
                 this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
             }
         });
+
+        this.socketCommunicationService.on<Player[]>(ServerToClientEvent.UpdateAllPlayers, (playerList: Player[]) => {
+            const foundPlayer = playerList.find((player) => player.id === this.player.id);
+            this.movementPointsArray = Array(foundPlayer?.attributes.movementPointsLeft);
+        });
+    }
+
+    getActionArray() {
+        return this.activePlayer.id === this.playerId ? Array(this.activePlayer.attributes.actionPoints) : Array(this.player.attributes.actionPoints);
     }
 
     hasXiphos(player: Player) {

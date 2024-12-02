@@ -34,8 +34,8 @@ export class PlayerInventoryService {
         const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
-        // All PlayerDisconnected does is update the players list, which is essential to display the flag icon in real time
-        info.server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, room.listPlayers);
+
+        info.server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         info.client.emit(ServerToClientEvent.UpdatedInventory, info.player);
     }
 
@@ -165,7 +165,7 @@ export class PlayerInventoryService {
 
         this.addUniqueItemToHistory(playerToUpdate, newItem);
 
-        infoSwap.server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, room.listPlayers);
+        infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
         infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);
         return playerToUpdate;
