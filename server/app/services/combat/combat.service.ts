@@ -187,6 +187,10 @@ export class CombatService {
     manageTurnAfterCombat(winner: Player, server: Server, room: Room) {
         const activePlayer = this.gameService.getActivePlayer(room);
         if (activePlayer.id === winner.id) {
+            if (winner.status === Status.Bot) {
+                this.gameService.onTurnEnded(room, server);
+                return;
+            }
             this.continueTurn(server, room);
             const reachability = room.navigation.findReachableTiles(winner, room);
             server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
