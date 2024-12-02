@@ -24,7 +24,7 @@ export const mockGames: Game[] = [
         name: 'Map1',
         description: 'Description1',
         visible: true,
-        mode: GameMode.Ctf,
+        mode: GameMode.CaptureTheFlag,
         nbPlayers: 6,
         image: 'img1',
         tiles: [

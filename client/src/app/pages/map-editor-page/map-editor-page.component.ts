@@ -147,6 +147,7 @@ export class MapEditorPageComponent implements OnInit {
                 grid: this.tiles,
                 items: this.items,
                 height: this.height,
+                mode: this.gameCreationService.getGameMode(),
             };
             if (this.gameCreationService.isNewGame) {
                 setTimeout(() => {

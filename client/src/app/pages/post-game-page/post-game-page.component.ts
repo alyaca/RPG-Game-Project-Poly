@@ -43,8 +43,8 @@ export class PostGamePageComponent implements OnInit, OnDestroy {
         return this.postGameService.players;
     }
 
-    getCtfMode() {
-        return this.postGameService.isCTFMode;
+    isFlagMode() {
+        return this.postGameService.isFlagMode;
     }
 
     getSelectedAttribute() {

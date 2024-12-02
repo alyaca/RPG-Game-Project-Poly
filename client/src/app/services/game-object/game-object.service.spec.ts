@@ -8,7 +8,7 @@ import { mockSelectedTile } from '@app/mocks/mock-selected-tile';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
-import { MapSize, ObjectType, TileType } from '@common/constants';
+import { GameMode, MapSize, ObjectType, TileType } from '@common/constants';
 import { BehaviorSubject } from 'rxjs';
 import { GameObjectService } from './game-object.service';
 
@@ -23,7 +23,13 @@ describe('GameObjectService', () => {
     beforeEach(() => {
         tileServiceSpy = jasmine.createSpyObj('TileService', ['setTile', 'removeTile']);
         toolServiceSpy = jasmine.createSpyObj('ToolService', ['deactivateTileApplicator', 'setSelectedTile']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['getStoredSize', 'updateDimensions', 'isModifiable', 'sizeSubject']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', [
+            'getStoredSize',
+            'updateDimensions',
+            'isModifiable',
+            'sizeSubject',
+            'getGameMode',
+        ]);
         gameCreationServiceSpy.sizeSubject = new BehaviorSubject<string | null>(null);
         gameCreationServiceSpy.getStoredSize.and.returnValue('size');
         gameCreationServiceSpy.updateDimensions.and.returnValue(SIZE_SMALL_MAP);
@@ -304,6 +310,11 @@ describe('GameObjectService', () => {
         expect(service.selectedTile).toBeNull();
         expect(service.dragStartPosition).toEqual(mockMapPosition);
         expect(service.checkGameObject).toHaveBeenCalled();
+    });
+
+    it('should return the game mode', () => {
+        gameCreationServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
+        expect(service.getGameMode()).toBe(GameMode.CaptureTheFlag);
     });
 
     it('should return the correct boolean', () => {

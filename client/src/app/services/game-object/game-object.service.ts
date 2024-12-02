@@ -20,7 +20,7 @@ export class GameObjectService implements OnDestroy {
     dragStartPosition: MapPosition | null = null;
     isDraggingFromContainer: boolean = false;
     maxCount: number;
-    objects: GameObject[] = [...gameObjects];
+    objects: GameObject[] = JSON.parse(JSON.stringify(gameObjects));
     objectsArray: number[][];
     selectedTile: MapPosition | null = null;
     private countableObjects = [ObjectType.Random, ObjectType.Spawn];
@@ -184,6 +184,10 @@ export class GameObjectService implements OnDestroy {
         this.selectedTile = null;
         this.dragStartPosition = { row, col };
         this.checkGameObject(row, col);
+    }
+
+    getGameMode() {
+        return this.gameCreationService.getGameMode();
     }
 
     private resetDrag() {

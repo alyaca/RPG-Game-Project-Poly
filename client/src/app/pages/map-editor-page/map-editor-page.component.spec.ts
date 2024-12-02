@@ -33,7 +33,13 @@ describe('MapEditorPageComponent', () => {
     beforeEach(async () => {
         gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
         saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveNewGame', 'replaceMap']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions', 'sizeSubject', 'resetGrid']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', [
+            'isNewGame',
+            'updateDimensions',
+            'sizeSubject',
+            'resetGrid',
+            'getGameMode',
+        ]);
         gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', [
             'initObjectsArray',
             'resetObjectsCount',

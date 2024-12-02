@@ -21,7 +21,7 @@ describe('MapValidatorService', () => {
 
     beforeEach(() => {
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray']);
+        gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', ['initObjectsArray', 'getGameMode']);
         gameListServiceSpy = jasmine.createSpyObj('GameListService', ['getAllGames']);
         gameListServiceSpy.getAllGames.and.returnValue(of([]));
 
@@ -102,7 +102,7 @@ describe('MapValidatorService', () => {
                 name: 'Map1',
                 description: 'Description1',
                 visible: true,
-                mode: GameMode.Ctf,
+                mode: GameMode.CaptureTheFlag,
                 nbPlayers: 6,
                 image: 'img1',
                 tiles: [[0, 1]],
@@ -115,6 +115,13 @@ describe('MapValidatorService', () => {
         gameListServiceSpy.getAllGames.and.returnValue(of(mockMaps));
         service['validateName']('Map1');
         expect(service['errorMessages']).toContain('- Une carte avec le même nom existe déjà');
+    });
+
+    it('should call validateFlag if in capture the flag mode', () => {
+        spyOn<any>(service, 'validateFlag');
+        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
+        service.validateMap(mockValidationInfo);
+        expect(service['validateFlag']).toHaveBeenCalled();
     });
 
     describe('isDoorPlacementValid', () => {
@@ -210,6 +217,13 @@ describe('MapValidatorService', () => {
             service['validateTileAccessibility'](mockMap);
             expect(service['errorMessages'].length).toBeGreaterThan(0);
         });
+    });
+
+    it('should add an error message if the map does not have a flag object in capture the flag mode', () => {
+        gameObjectServiceSpy.getGameMode.and.returnValue(GameMode.CaptureTheFlag);
+        service['mapObjects'] = gameObjectServiceSpy.objectsArray;
+        service['validateFlag']();
+        expect(service['errorMessages']).toContain('- Le drapeau doit être placé sur la carte lors du mode CTF.');
     });
 
     describe('validateMap', () => {

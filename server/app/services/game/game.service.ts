@@ -19,7 +19,7 @@ import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
-import { TileCost, TileType } from '@common/constants';
+import { GameMode, TileCost, TileType } from '@common/constants';
 import { Avatar, Behavior, Player, Position, Status } from '@common/interfaces/player';
 import { GameStatus, Room } from '@common/interfaces/room';
 import { ActionData } from '@common/interfaces/socket-data.interface';
@@ -324,7 +324,7 @@ export class GameService {
             this.isMoving = true;
             player.position = tile;
             pickedUpItem = false;
-            if (room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident && room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random) {
+            if (this.isNotAvatar(room, tile) && this.isObject(room, tile)) {
                 const infoSwap: InfoSwap = {
                     server,
                     client,
@@ -336,6 +336,10 @@ export class GameService {
             }
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
+
+            if (room.gameMap.mode === GameMode.CaptureTheFlag) {
+                this.checkFlagModeEndGame(player, room, server);
+            }
 
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
@@ -456,6 +460,24 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private isObject(room: Room, tile: Position) {
+        const isObjectFlag = room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag;
+        return room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random || isObjectFlag;
+    }
+
+    private isNotAvatar(room: Room, tile: Position) {
+        return room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident;
+    }
+
+    private checkFlagModeEndGame(player: Player, room: Room, server: Server) {
+        const hasPlayerFlag = player.inventory.find((object) => object.id === ObjectType.Flag);
+        const isPlayerOnSpawn = player.position.x === player.spawnPosition.x && player.position.y === player.spawnPosition.y;
+        if (isPlayerOnSpawn && hasPlayerFlag) {
+            this.onEndGame(player, room, server);
+            this.gameLogsService.sendEndGameLog(room.listPlayers, room.roomId, server);
+        }
     }
 
     private checkAttack(room: Room, server: Server) {

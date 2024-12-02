@@ -14,12 +14,7 @@
     >
         <img class="tile-image" [src]="getTileImage(col)" (mouseover)="findPath(rowIndex, colIndex)" draggable="false" />
         @if(objectsArray[rowIndex][colIndex] > 8){
-        <img
-            class="player-on-spawn-points"
-            [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
-            draggable="true"
-            (dragstart)="onDragStart(rowIndex, colIndex)"
-        />
+        <img class="player-on-spawn-points" [src]="getObjectImage(objectsArray[rowIndex][colIndex])" draggable="false" />
         } @else if(objectsArray[rowIndex][colIndex] < 9) {
         <img
             class="overlay-object"

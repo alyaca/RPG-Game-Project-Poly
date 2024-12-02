@@ -6,7 +6,7 @@ import { GameCreationService } from '@app/services/game-creation/game-creation.s
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { MapSize } from '@common/constants';
+import { GameMode, MapSize } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { ClientToServerEvent } from '@common/socket.events';
 
@@ -56,6 +56,11 @@ describe('GameCreationService', () => {
     it('should select the right size', () => {
         service.setSelectedSize(MapSize.Small);
         expect(service.sizeSubject.getValue()).toEqual(MapSize.Small);
+    });
+
+    it('should return the right game mode', () => {
+        service.gameMode = GameMode.Classic;
+        expect(service.getGameMode()).toEqual(GameMode.Classic);
     });
 
     it('should update map dimensions when size is small', () => {

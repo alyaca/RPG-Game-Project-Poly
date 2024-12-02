@@ -5,4 +5,5 @@ export interface Info {
     grid?: number[][];
     items?: number[][];
     height?: number;
+    mode: string;
 }

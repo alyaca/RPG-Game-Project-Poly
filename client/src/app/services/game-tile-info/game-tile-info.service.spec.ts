@@ -1,13 +1,14 @@
 import { TestBed } from '@angular/core/testing';
+import { ObjectType } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
+import { mockRoom } from '@app/mocks/mock-room';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/interfaces/game-tile';
-import { mockRoom } from '@app/mocks/mock-room';
+import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
-import { Player } from '@common/interfaces/player';
 
 describe('GameTileInfoService', () => {
     let service: GameTileInfoService;
@@ -38,14 +39,14 @@ describe('GameTileInfoService', () => {
             expect(service.getItem()).toBeNull();
         });
 
-        it('should return the correct game object if itemId is greater than 0', () => {
-            service.itemId = 1;
+        it('should get the item', () => {
+            service.itemId = ObjectType.Trident;
             expect(service.getItem()).toEqual(gameObjects[0]);
         });
 
         it('should return undefined if itemId exceeds gameObjects array length', () => {
             service.itemId = gameObjects.length + 1;
-            expect(service.getItem()).toBeUndefined();
+            expect(service.getItem()).toBeNull();
         });
     });
 

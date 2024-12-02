@@ -29,7 +29,11 @@ export class GameTileInfoService {
     constructor(public tileService: TileService) {}
 
     getItem() {
-        return this.itemId > 0 ? gameObjects[this.itemId - 1] : null;
+        const foundItem = gameObjects.find((item) => item.id === this.itemId);
+        if (foundItem) {
+            return foundItem;
+        }
+        return null;
     }
 
     getTile() {

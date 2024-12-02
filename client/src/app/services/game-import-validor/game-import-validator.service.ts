@@ -40,7 +40,7 @@ export class GameImportValidatorService {
         this.validateAllDoors(game.tiles);
         this.validateAllSpawnPointsPlaced(game);
         this.validateTiles(game.tiles);
-        this.validateObjects(game.itemPlacement, game.dimension);
+        this.validateObjects(game.itemPlacement, game.dimension, game.mode);
         this.validateTileAccessibility(game.tiles);
         this.validateTitle(game.name.trim());
         this.validateDimensions(game.tiles, game.itemPlacement, game.dimension);
@@ -95,19 +95,40 @@ export class GameImportValidatorService {
         });
     }
 
-    private validateObjects(itemPlacement: number[][], dimension: number) {
+    private validateObjects(itemPlacement: number[][], dimension: number, mode: string) {
         let objectCount = 0;
-        itemPlacement.forEach((row) => {
-            row.forEach((item) => {
-                if (item < NO_OBJECT || item > ObjectType.Spawn) {
-                    this.errorMessages.push(ErrorMessages.InvalidObjectType);
-                    return;
-                }
-                if (item > NO_OBJECT && item < ObjectType.Spawn) {
-                    objectCount++;
-                }
+        let flagCount = 0;
+        if (mode === GameMode.Classic) {
+            itemPlacement.forEach((row) => {
+                row.forEach((item) => {
+                    if (item < NO_OBJECT || item > ObjectType.Spawn) {
+                        this.errorMessages.push(ErrorMessages.InvalidObjectType);
+                        return;
+                    }
+                    if (item > NO_OBJECT && item < ObjectType.Spawn) {
+                        objectCount++;
+                    }
+                });
             });
-        });
+        } else if (mode === GameMode.CaptureTheFlag) {
+            itemPlacement.forEach((row) => {
+                row.forEach((item) => {
+                    if (item < NO_OBJECT || (item > ObjectType.Spawn && item !== ObjectType.Flag)) {
+                        this.errorMessages.push(ErrorMessages.InvalidObjectType);
+                        return;
+                    }
+                    if (item > NO_OBJECT && item < ObjectType.Spawn && item !== ObjectType.Flag) {
+                        objectCount++;
+                    }
+                    if (item === ObjectType.Flag) {
+                        flagCount++;
+                    }
+                });
+            });
+            if (flagCount !== 1) {
+                this.errorMessages.push(ErrorMessages.InvalidNbFlags);
+            }
+        }
 
         if (dimension === SIZE_SMALL_MAP) {
             if (objectCount !== OBJECT_COUNT_MAP.small) {
@@ -261,7 +282,7 @@ export class GameImportValidatorService {
     }
 
     private validateMode(mode: string) {
-        if (mode !== GameMode.Classic && mode !== GameMode.Ctf) {
+        if (mode !== GameMode.Classic && mode !== GameMode.CaptureTheFlag) {
             this.errorMessages.push(ErrorMessages.InvalidMode);
         }
     }
