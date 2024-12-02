@@ -133,10 +133,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onPlayerFell();
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.BotFell, () => {
-            this.onEndTurn();
-        });
-
         this.socketCommunicationService.on(ServerToClientEvent.DoorAround, (data: { doorAround: boolean; targets: Position[] }) => {
             this.doorAround = data.doorAround;
             this.gameService.doorsTarget = data.targets;
