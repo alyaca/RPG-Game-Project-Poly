@@ -214,16 +214,14 @@ export class Navigation {
 
     findClosestPlayer(player: Player, players: Player[], room: Room): Player | undefined {
         const reachability = this.findReachableTiles(player, room);
-        let playerOnTile: Player | undefined;
         for (const tile of reachability) {
             for (const pl of players) {
                 if (pl.position.x === tile.x && pl.position.y === tile.y) {
-                    playerOnTile = pl;
-                    break;
+                    return pl;
                 }
             }
         }
-        return playerOnTile;
+        return undefined;
     }
 
     hasMovementPoints(player: Player) {
@@ -249,9 +247,6 @@ export class Navigation {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
-            // will be deleted because of the item that lets you walk through walls
-            // this.getTileCost is in charge of allowing/not allowing players to go through them
-            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (!this.isBot) {
                 if (this.hasPlayerOnTile(neighbor, this.players)) continue;
             }
@@ -280,8 +275,6 @@ export class Navigation {
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
             if (!this.isReachableTile(newX, newY) && this.isBot) continue;
-            // can't stay because of the item that lets you walk through walls
-            // if (game.tiles[newX][newY] === TileType.Wall) continue;
             if (!this.isBot) {
                 if (this.players.some((player) => player.position.x === newX && player.position.y === newY)) continue;
             }
