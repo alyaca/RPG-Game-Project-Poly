@@ -185,7 +185,7 @@ export class PostGameService {
     isAttributeVictories(selectedAttribute: keyof Player['postGameStats']) {
         return selectedAttribute === PlayerStatType.Victories;
     }
-    
+
     calculateFlagBearers() {
         this.globalStats.nbFlagBearers = this.players.reduce(
             (count, player) => count + (player.collectedItems?.filter((itemId) => itemId === ObjectType.Flag).length || 0),

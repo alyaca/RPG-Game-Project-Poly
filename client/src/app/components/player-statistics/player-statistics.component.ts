@@ -18,10 +18,13 @@ export class PlayerStatisticsComponent {
     @Input() selectedAttribute: string;
     playerStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
-    constructor(private socketCommunicationService: SocketCommunicationService, private postGameService: PostGameService) {}
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+        private postGameService: PostGameService,
+    ) {}
 
     isWinner() {
-        if(this.postGameService.isFlagMode){
+        if (this.postGameService.isFlagMode) {
             return this.player.inventory.find((item) => item.id === ObjectType.Flag);
         }
         return this.player.postGameStats.victories === VICTORIES_FOR_WIN;
