@@ -40,7 +40,6 @@ export enum ServerToClientEvent {
     AttackValues = 'attackValues',
     BeforeStartTurnTimer = 'beforeStartTurnTimer',
     BotAttack = 'botAttack',
-    BotFell = 'botFell',
     BotNavigation = 'botNavigation',
     CharacterSelected = 'characterSelected',
     CombatEnd = 'combatEnd',
