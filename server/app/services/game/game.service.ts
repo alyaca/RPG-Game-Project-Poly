@@ -277,7 +277,7 @@ export class GameService {
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, position);
             server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
-        
+
         const reachability = room.navigation.findReachableTiles(player, room);
         server.to(room.roomId).emit(ServerToClientEvent.EndMovement);
         server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
