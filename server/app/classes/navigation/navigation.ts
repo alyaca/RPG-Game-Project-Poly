@@ -263,7 +263,6 @@ export class Navigation {
     }
 
     private isDestinationReached(position: PointWithDistance, destination: Position): boolean {
-        if (!destination.x || destination.y || !position) return true;
         return position.x === destination.x && position.y === destination.y;
     }
 
