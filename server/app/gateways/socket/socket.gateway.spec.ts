@@ -245,7 +245,7 @@ describe('SocketGateway', () => {
         it('should call processMapObjects and onStartGame startGame event', () => {
             jest.spyOn(gameService, 'onStartGame');
             gateway.handleStartGame(socket);
-            expect(gameService.onStartGame).toHaveBeenCalledWith(socket, server);
+            expect(gameService.onStartGame).toHaveBeenCalledWith(socket);
         });
     });
 
@@ -342,14 +342,14 @@ describe('SocketGateway', () => {
         const doorActionData: ActionData = { clickedPosition: { x: 0, y: 0 }, player: mockPlayer };
 
         gateway.handleDoorAction(mockClient, doorActionData);
-        expect(gameService.handleDoor).toHaveBeenCalledWith(mockClient, server, doorActionData);
+        expect(gameService.handleDoor).toHaveBeenCalledWith(mockClient, doorActionData);
     });
 
     it('should create and assign a bot with an avatar and stats, then notify clients', () => {
         const behavior = Behavior.Aggressive;
         gameService.createBot = jest.fn();
         gateway.handleCreateBot(mockClient, behavior);
-        expect(gameService.createBot).toHaveBeenCalledWith(behavior, mockClient, server);
+        expect(gameService.createBot).toHaveBeenCalledWith(behavior, mockClient);
     });
 
     it('should kick a bot, update avatars, and notify clients', () => {
@@ -358,14 +358,14 @@ describe('SocketGateway', () => {
 
         gateway.handleKickBot(mockClient, botId);
 
-        expect(gameService.onKickBot).toHaveBeenCalledWith(mockClient, botId, server);
+        expect(gameService.onKickBot).toHaveBeenCalledWith(mockClient, botId);
     });
 
     it('should update debugMode in gameService, update logs and emit debugMode', () => {
         const debugMode = true;
         jest.spyOn(gameService, 'handleDebugMode');
         gateway.handleDebugMode(mockClient, debugMode);
-        expect(gameService.handleDebugMode).toHaveBeenCalledWith(debugMode, server, mockClient);
+        expect(gameService.handleDebugMode).toHaveBeenCalledWith(debugMode, mockClient);
     });
 
     it('should call startFight startFight event', () => {

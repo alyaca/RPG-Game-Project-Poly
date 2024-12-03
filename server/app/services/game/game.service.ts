@@ -30,7 +30,7 @@ import { GameStatus, Room } from '@common/interfaces/room';
 import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 
 /* eslint-disable max-lines */
 @Injectable()
@@ -73,7 +73,7 @@ export class GameService {
         }
     }
 
-    handleCreatePlayer(room: Room, player: Player, socket: Socket, server: Server) {
+    handleCreatePlayer(room: Room, player: Player, socket: Socket) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const isBot = player.status === Status.Bot;
         if (!isBot) {
@@ -84,7 +84,7 @@ export class GameService {
         room.listPlayers.push(player);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
         takenAvatar.isTaken = true;
-        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
         socket.emit(ServerToClientEvent.IsPlayerAdmin, isAdmin);
     }
 
@@ -100,31 +100,35 @@ export class GameService {
         return room.listPlayers.find((player) => player.id === socket.id);
     }
 
-    leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
+    getServer() {
+        return this.roomService.getServer();
+    }
+
+    leavePlayerFromGame(roomId: string, socket: Socket) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
         const room = this.getRoomById(roomId);
         socket.emit(ServerToClientEvent.LeftRoom, isAdmin);
         const player = this.getPlayerById(room, socket);
 
         if (isAdmin) {
-            this.handleAdminDisconnection(room, socket, server);
+            this.handleAdminDisconnection(room, socket);
         }
         if (room.gameStatus === GameStatus.Started) {
-            this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUp);
-            this.handleStartedGameDisconnection(room, socket, server, player);
+            this.gameLogsService.sendPlayerLog(roomId, this.getServer(), player, LogType.GiveUp);
+            this.handleStartedGameDisconnection(room, socket, player);
         } else {
-            this.removePlayerFromRoom(roomId, socket, server);
+            this.removePlayerFromRoom(room, socket);
             socket.to(roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
         }
     }
 
-    selectedAvatar(room: Room, avatar: Avatar, socket: Socket, server: Server) {
+    selectedAvatar(room: Room, avatar: Avatar, socket: Socket) {
         this.freeUpAvatar(room, socket);
         const selectedAvatar = this.getAvatarByName(room, avatar);
         if (selectedAvatar && !selectedAvatar.isTaken) {
             selectedAvatar.isTaken = true;
             socket.data.clickedAvatar = selectedAvatar;
-            this.updateAvatarsForAllClients(server, room.roomId);
+            this.updateAvatarsForAllClients(room.roomId);
         }
     }
 
@@ -133,20 +137,12 @@ export class GameService {
         this.roomService.getTurnTimer(room.roomId).stopTimer();
     }
 
-    removePlayerFromRoom(roomId: string, socket: Socket, server: Server) {
-        const room = this.roomService.rooms.get(roomId);
-        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
-        this.freeUpAvatar(room, socket);
-        this.updateAvatarsForAllClients(server, roomId);
-        this.roomService.leaveRoom(roomId, socket);
-    }
-
     toggleLockRoom(roomId: string, isLocked: boolean) {
         const game = this.getRoomById(roomId);
         game.isLocked = isLocked;
     }
 
-    onStartGame(socket: Socket, server: Server) {
+    onStartGame(socket: Socket) {
         const room = this.roomService.getRoom(socket);
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
@@ -156,57 +152,55 @@ export class GameService {
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
         room.listPlayers[0].isActive = true;
-        this.emitStartGameEvents(room, server);
+        this.emitStartGameEvents(room);
     }
 
-    emitStartGameEvents(room: Room, server: Server) {
+    private emitStartGameEvents(room: Room) {
         const activePlayer = this.getActivePlayer(room);
-        server.to(room.roomId).emit(ServerToClientEvent.StartGame, room);
-        server.to(room.roomId).emit(ServerToClientEvent.MapInformation, room);
-        server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.StartGame, room);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.MapInformation, room);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
-        server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
-        this.checkActions(room, server);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+        this.checkActions(room);
     }
 
-    onStartTurn(client: Socket, server: Server) {
-        const room = this.roomService.getRoom(client);
+    onStartTurn(room: Room) {
         const activePlayer = this.getActivePlayer(room);
-
-        server.to(room.roomId).emit(ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
-        this.gameLogsService.sendPlayerLog(room.roomId, server, activePlayer, LogType.StartTurn);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
+        this.gameLogsService.sendPlayerLog(room.roomId, this.getServer(), activePlayer, LogType.StartTurn);
 
         this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
-            server.to(activePlayer.id).emit(ServerToClientEvent.BeforeStartTurnTimer, timeRemaining);
+            this.getServer().to(activePlayer.id).emit(ServerToClientEvent.BeforeStartTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
-                this.playerTurnTimer(room, server);
+                this.playerTurnTimer(room);
             }
         });
         if (activePlayer.status === Status.Bot) {
-            this.botService.processBotTurn(room, server, activePlayer);
+            this.botService.processBotTurn(room, this.getServer(), activePlayer);
             return;
         }
     }
 
-    onTurnEnded(room: Room, server: Server) {
+    onTurnEnded(room: Room) {
         if (!this.isMoving) {
             room.globalPostGameStats.turns++;
-            this.updateActivePlayer(server, room);
+            this.updateActivePlayer(room);
             const activePlayer = this.getActivePlayer(room);
             activePlayer.attributes.movementPointsLeft = activePlayer.attributes.speed;
-            server.to(room.roomId).emit(ServerToClientEvent.Reachability, activePlayer);
-            server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.Reachability, activePlayer);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
 
             const host = room.listPlayers.find((player) => player.status === Status.Player || player.status === Status.Admin);
             if (!host) return;
-            server.to(host.id).emit(ServerToClientEvent.TurnEnded);
-            server.to(room.roomId).emit(ServerToClientEvent.UpdateVisual, room.listPlayers);
+            this.getServer().to(host.id).emit(ServerToClientEvent.TurnEnded);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdateVisual, room.listPlayers);
 
             room.navigation.isBot = activePlayer.status === Status.Bot;
 
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
-            this.checkActions(room, server);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+            this.checkActions(room);
         } else {
             this.isTurnSkipped = true;
         }
@@ -236,8 +230,8 @@ export class GameService {
         return newBot;
     }
 
-    updateAvatarsForAllClients(server: Server, roomId: string) {
-        server.sockets.sockets.forEach((clientSocket: Socket) => {
+    updateAvatarsForAllClients(roomId: string) {
+        this.getServer().sockets.sockets.forEach((clientSocket: Socket) => {
             if (clientSocket.rooms.has(roomId)) {
                 this.sendAvatarListToClient(clientSocket);
             }
@@ -252,53 +246,53 @@ export class GameService {
         }
     }
 
-    createBot(behavior: Behavior, client: Socket, server: Server) {
+    createBot(behavior: Behavior, client: Socket) {
         const room = this.roomService.getRoom(client);
         baseBot.id = (parseInt(baseBot.id, 10) + 1).toString();
         let newBot = this.assignAvatarToBot(room, behavior);
         newBot = this.assignStatsToBot(newBot);
         newBot.collectedItems = [];
-        this.handleCreatePlayer(room, newBot, client, server);
-        this.updateAvatarsForAllClients(server, room.roomId);
-        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
+        this.handleCreatePlayer(room, newBot, client);
+        this.updateAvatarsForAllClients(room.roomId);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
     }
 
-    onKickBot(socket: Socket, botId: string, server: Server) {
+    onKickBot(socket: Socket, botId: string) {
         const room = this.roomService.getRoom(socket);
-        server.to(botId).emit(ServerToClientEvent.KickPlayer, botId);
+        this.getServer().to(botId).emit(ServerToClientEvent.KickPlayer, botId);
         const botPlayer = room.listPlayers.find((player) => player.id === botId);
         botPlayer.avatar.isTaken = false;
         room.listPlayers = room.listPlayers.filter((player) => player.id !== botId);
-        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
-        this.updateAvatarsForAllClients(server, room.roomId);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
+        this.updateAvatarsForAllClients(room.roomId);
     }
 
-    onKickPlayer(socket: Socket, server: Server, playerId: string) {
+    onKickPlayer(socket: Socket, playerId: string) {
         const room = this.roomService.getRoom(socket);
-        server.to(playerId).emit(ServerToClientEvent.KickPlayer, playerId);
-        const playerSocket = server.sockets.sockets.get(playerId);
-        this.removePlayerFromRoom(room.roomId, playerSocket, server);
-        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
+        this.getServer().to(playerId).emit(ServerToClientEvent.KickPlayer, playerId);
+        const playerSocket = this.getServer().sockets.sockets.get(playerId);
+        this.removePlayerFromRoom(room, playerSocket);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
     }
 
-    handleDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
+    handleDebugMode(isDebugMode: boolean, client: Socket) {
         const room = this.roomService.getRoom(client);
         room.isDebug = isDebugMode;
-        this.gameLogsService.sendDebugLog(isDebugMode, room.roomId, server);
-        server.to(room.roomId).emit(ServerToClientEvent.DebugMode, isDebugMode);
+        this.gameLogsService.sendDebugLog(isDebugMode, room.roomId, this.getServer());
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.DebugMode, isDebugMode);
     }
 
-    processTeleportation(room: Room, server: Server, position: Position) {
+    processTeleportation(room: Room, position: Position) {
         const player = this.getActivePlayer(room);
         const playerId = player.id;
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
-            server.to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, playerId });
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
         const reachability = room.navigation.findReachableTiles(player, room);
-        server.to(room.roomId).emit(ServerToClientEvent.EndMovement);
-        server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
-        this.checkActions(room, server);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.EndMovement);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+        this.checkActions(room);
     }
 
     startItemSwap(infoSwap: InfoSwap) {
@@ -308,7 +302,7 @@ export class GameService {
 
         this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
             if (timeLeft <= 0) {
-                this.onTurnEnded(room, infoSwap.server);
+                this.onTurnEnded(room);
             }
             infoSwap.server.to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeLeft);
         });
@@ -336,7 +330,7 @@ export class GameService {
         room.globalPostGameStats.gameDuration = '';
     }
 
-    async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+    async processNavigation(room: Room, path: Position[], client: Socket) {
         this.isPlayerFell = false;
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
@@ -347,27 +341,27 @@ export class GameService {
             pickedUpItem = false;
             if (this.isObject(room, tile)) {
                 const infoSwap: InfoSwap = {
-                    server,
+                    server: this.getServer(),
                     client,
                     player,
                 };
                 pickedUpItem = true;
                 this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
-                server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
+                this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
             }
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
 
             if (room.gameMap.mode === GameMode.CaptureTheFlag) {
-                this.checkFlagModeEndGame(player, room, server);
+                this.checkFlagModeEndGame(player, room);
             }
 
             if (this.isMoving) {
                 await this.delay(MOVEMENT_TIME);
             }
-            server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
             if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
-                this.handleFallingOnIce(room, client, server);
+                this.handleFallingOnIce(room, client);
                 this.isPlayerFell = true;
                 this.isMoving = false;
                 break;
@@ -378,23 +372,23 @@ export class GameService {
 
         this.isMoving = false;
         const reachability = room.navigation.findReachableTiles(player, room);
-        server.to(room.roomId).emit(ServerToClientEvent.EndMovement);
-        server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.EndMovement);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         if (this.checkEndTurn(client, player)) {
-            this.onTurnEnded(room, server);
+            this.onTurnEnded(room);
             return;
         }
         if (this.isTurnSkipped && !this.isPlayerFell) {
-            this.onTurnEnded(room, server);
+            this.onTurnEnded(room);
             this.isTurnSkipped = false;
             return;
         }
-        this.checkActions(room, server);
+        this.checkActions(room);
     }
 
-    checkActions(room: Room, server: Server) {
-        this.checkDoors(room, server);
-        this.checkAttack(room, server);
+    checkActions(room: Room) {
+        this.checkDoors(room);
+        this.checkAttack(room);
     }
 
     checkEndTurn(client: Socket, activePlayer: Player): boolean {
@@ -413,61 +407,67 @@ export class GameService {
         return false;
     }
 
-    onEndGame(winner: Player, room: Room, server: Server) {
+    onEndGame(winner: Player, room: Room) {
         room.gameStatus = GameStatus.Ended;
         room.stopwatch.stop();
         room.globalPostGameStats.gameDuration = room.stopwatch.getTime();
-        server.to(room.roomId).emit(ServerToClientEvent.EndGame, { winner, room });
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.EndGame, { winner, room });
         this.resetGlobalStats(room);
         this.stopGameTimers(room);
     }
 
-    handleDoor(client: Socket, server: Server, doorActionData: ActionData) {
+    handleDoor(client: Socket, doorActionData: ActionData) {
         const { clickedPosition, player } = doorActionData;
         const room = this.roomService.getRoom(client);
-        const activePlayer = this.getActivePlayer(room);
-
         if (room.navigation.hasHandleDoorAction(clickedPosition.x, clickedPosition.y, player)) {
-            this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
-            this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, server);
-            activePlayer.attributes.actionPoints--;
-            server.to(room.roomId).emit(ServerToClientEvent.DoorClicked, room.navigation.gameMap.tiles);
-            const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
-            if (this.checkEndTurn(client, activePlayer)) {
-                this.onTurnEnded(room, server);
-            }
+            this.handleToggleDoor(client, room, clickedPosition);
         }
     }
 
-    addActionPoints(player: Player) {
-        if (player.inventory.find((items) => items.id === ObjectType.Trident)) {
+    placeItemsOnGround(room: Room, player: Player) {
+        const playerToDropItems = room.listPlayers.find((p) => p.id === player.id);
+        if (playerToDropItems.inventory.length === 0) return;
+        for (const items of playerToDropItems.inventory) {
+            const position = room.navigation.findClosestValidTile(playerToDropItems, room);
+            this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
+            room.gameMap.itemPlacement[position.x][position.y] = items.id;
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, { newGrid: room.gameMap.itemPlacement, position });
+        }
+        playerToDropItems.inventory = [];
+        this.getServer().to(playerToDropItems.id).emit(ServerToClientEvent.UpdatedInventory, playerToDropItems);
+    }
+
+    async delay(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private handleToggleDoor(client: Socket, room: Room, clickedPosition: Position) {
+        const activePlayer = this.getActivePlayer(room);
+        this.addUniqueTileToHistory(room.globalPostGameStats.doorsInteracted, clickedPosition);
+        this.gameLogsService.sendDoorLog(room.gameMap.tiles[clickedPosition.x][clickedPosition.y], activePlayer, room.roomId, this.getServer());
+        activePlayer.attributes.actionPoints--;
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.DoorClicked, room.navigation.gameMap.tiles);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+        if (this.checkEndTurn(client, activePlayer)) {
+            this.onTurnEnded(room);
+        }
+    }
+
+    private addActionPoints(player: Player) {
+        if (this.hasTridentObject(player)) {
             this.updateTridentEffect(player);
         } else {
             player.attributes.actionPoints = DEFAULT_ACTION_POINT;
         }
     }
 
-    placeItemsOnGround(room: Room, server: Server, player: Player) {
-        const playerToDropItems = room.listPlayers.find((p) => p.id === player.id);
-        if (playerToDropItems.inventory.length === 0) return;
-        console.log('placeItemsOnGround');
-        for (const items of playerToDropItems.inventory) {
-            const position = room.navigation.findClosestValidTile(playerToDropItems, room);
-            this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
-            room.gameMap.itemPlacement[position.x][position.y] = items.id;
-            server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, { newGrid: room.gameMap.itemPlacement, position });
-        }
-        playerToDropItems.inventory = [];
-        server.to(playerToDropItems.id).emit(ServerToClientEvent.UpdatedInventory, playerToDropItems);
-    }
-
-    playerInWall(room: Room, player: Player) {
+    private playerInWall(room: Room, player: Player) {
         return room.gameMap.tiles[player.position.x][player.position.y] === TileType.Wall;
     }
 
-    async delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    private hasTridentObject(player: Player) {
+        return player.inventory.find((items) => items.id === ObjectType.Trident);
     }
 
     private updateTridentEffect(player: Player) {
@@ -479,13 +479,13 @@ export class GameService {
         }
     }
 
-    private async handleFallingOnIce(room: Room, client: Socket, server: Server) {
+    private async handleFallingOnIce(room: Room, client: Socket) {
         if (!room.navigation.isBot) {
             this.stopGameTimers(room);
             client.emit(ServerToClientEvent.PlayerFell);
         } else {
             await this.delay(PLAYER_FELL_DELAY);
-            this.onTurnEnded(room, server);
+            this.onTurnEnded(room);
         }
     }
 
@@ -502,32 +502,32 @@ export class GameService {
         return room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag;
     }
 
-    private checkFlagModeEndGame(player: Player, room: Room, server: Server) {
+    private checkFlagModeEndGame(player: Player, room: Room) {
         const hasPlayerFlag = player.inventory.find((object) => object.id === ObjectType.Flag);
         const isPlayerOnSpawn = player.position.x === player.spawnPosition.x && player.position.y === player.spawnPosition.y;
         if (isPlayerOnSpawn && hasPlayerFlag) {
-            this.onEndGame(player, room, server);
-            this.gameLogsService.sendEndGameLog(room.listPlayers, room.roomId, server);
+            this.onEndGame(player, room);
+            this.gameLogsService.sendEndGameLog(room.listPlayers, room.roomId, this.getServer());
         }
     }
 
-    private checkAttack(room: Room, server: Server) {
+    private checkAttack(room: Room) {
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkAttack(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
             const targets = room.navigation.getNeighborPlayers(activePlayer, room.listPlayers);
-            server.to(room.roomId).emit(ServerToClientEvent.AttackAround, { attackAround: true, targets });
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.AttackAround, { attackAround: true, targets });
         } else {
-            server.to(room.roomId).emit(ServerToClientEvent.AttackAround, false);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.AttackAround, false);
         }
     }
 
-    private checkDoors(room: Room, server: Server) {
+    private checkDoors(room: Room) {
         const activePlayer = this.getActivePlayer(room);
         if (room.navigation.checkDoor(activePlayer, room.listPlayers) && room.navigation.hasActionPoints(activePlayer)) {
             const targets = room.navigation.getNeighborDoors(activePlayer, room.listPlayers);
-            server.to(room.roomId).emit(ServerToClientEvent.DoorAround, { doorAround: true, targets });
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.DoorAround, { doorAround: true, targets });
         } else {
-            server.to(room.roomId).emit(ServerToClientEvent.DoorAround, false);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.DoorAround, false);
         }
     }
 
@@ -607,11 +607,11 @@ export class GameService {
         return playersList.some((player) => player.name === name);
     }
 
-    private playerTurnTimer(room: Room, server: Server) {
+    private playerTurnTimer(room: Room) {
         this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
-            server.to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeRemaining);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
-                this.onTurnEnded(room, server);
+                this.onTurnEnded(room);
             }
         });
     }
@@ -641,14 +641,14 @@ export class GameService {
         room.listPlayers = listPlayers;
     }
 
-    private updateActivePlayer(server: Server, room: Room) {
+    private updateActivePlayer(room: Room) {
         const listPlayers = this.getPlayerConnectedInRoom(room);
         const index = listPlayers.findIndex((item) => item.id === this.getActivePlayer(room).id);
         const previousActivePlayer = listPlayers[index];
         this.addActionPoints(previousActivePlayer);
 
         if (this.playerInWall(room, previousActivePlayer)) {
-            this.removePlayerFromWall(server, room, previousActivePlayer);
+            this.removePlayerFromWall(room, previousActivePlayer);
         }
         listPlayers[index] = previousActivePlayer;
         const nextIndex = (index + 1) % listPlayers.length;
@@ -656,77 +656,72 @@ export class GameService {
         listPlayers[nextIndex].isActive = true;
     }
 
-    private removePlayerFromWall(server: Server, room: Room, previousActivePlayer: Player) {
+    private removePlayerFromWall(room: Room, previousActivePlayer: Player) {
         room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
-        server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
-            newGrid: room.gameMap.itemPlacement,
-            position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
-        });
+        this.getServer()
+            .to(room.roomId)
+            .emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
+                newGrid: room.gameMap.itemPlacement,
+                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+            });
 
         const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
         room.navigation.findFastestPath(previousActivePlayer, destination, room);
 
         previousActivePlayer.position = destination;
         room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = previousActivePlayer.avatar.id;
-        this.processTeleportation(room, server, previousActivePlayer.position);
-        server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
+        this.processTeleportation(room, previousActivePlayer.position);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
             newGrid: room.gameMap.itemPlacement,
             position: previousActivePlayer.position,
         });
     }
 
-    private handleAdminDisconnection(room: Room, socket: Socket, server: Server) {
-        console.log(' handleAdminDisconnection');
+    private handleAdminDisconnection(room: Room, socket: Socket) {
         if (room.isDebug && room.gameStatus === GameStatus.Started) {
-            console.log('debug mode');
             room.isDebug = false;
-            server.to(room.roomId).emit(ServerToClientEvent.DebugMode, false);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.DebugMode, false);
         } else if (room.gameStatus === GameStatus.Lobby) {
-            console.log('lobby admin');
-
             this.roomService.deleteRoom(room.roomId, socket);
         }
     }
 
-    private handleStartedGameDisconnection(room: Room, socket: Socket, server: Server, player: Player) {
-        console.log(' handleStartedGameDisconnection');
-        this.handlePlayerDisconnection(room, socket, server);
+    private handleStartedGameDisconnection(room: Room, socket: Socket, player: Player) {
+        this.handlePlayerDisconnection(room, socket);
         socket.to(room.roomId).emit(ServerToClientEvent.UpdatePlayerList, room.listPlayers);
         const activePlayer = this.getActivePlayer(room);
         player.position = DISCONNECTED_POSITION;
         if (activePlayer.id !== player.id) {
-            console.log('not active');
-
             const reachability = room.navigation.findReachableTiles(activePlayer, room);
-            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
         }
     }
 
-    private handlePlayerDisconnection(room: Room, socket: Socket, server: Server) {
-        console.log(' handlePlayerDisconnection');
+    private handlePlayerDisconnection(room: Room, socket: Socket) {
         const disconnectedPlayer = this.getPlayerById(room, socket);
-
-        this.placeItemsOnGround(room, server, disconnectedPlayer);
-        this.handleTurnAfterDisconnection(room, socket, server, disconnectedPlayer);
+        this.placeItemsOnGround(room, disconnectedPlayer);
+        this.handleTurnAfterDisconnection(room, socket, disconnectedPlayer);
         disconnectedPlayer.status = Status.Disconnected;
 
         if (this.isLastPlayer(room)) {
-            console.log(' isLastPlayer');
-
-            server.to(room.roomId).emit(ServerToClientEvent.DrawGame);
+            this.getServer().to(room.roomId).emit(ServerToClientEvent.DrawGame);
             return;
         }
-        server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
+        this.getServer().to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
         this.sortPlayersBySpeed(room);
     }
 
-    private handleTurnAfterDisconnection(room: Room, socket: Socket, server: Server, disconnectedPlayer: Player) {
-        console.log(' handleTurnAfterDisconnection');
+    private handleTurnAfterDisconnection(room: Room, socket: Socket, disconnectedPlayer: Player) {
         if (this.isActivePlayer(socket)) {
-            console.log(' active');
-
             disconnectedPlayer.status = Status.PendingDisconnection;
-            this.onTurnEnded(room, server);
+            this.onTurnEnded(room);
         }
+    }
+
+    private removePlayerFromRoom(room: Room, socket: Socket) {
+        room.listPlayers = room.listPlayers.filter((player) => player.id !== socket.id);
+        this.freeUpAvatar(room, socket);
+        this.updateAvatarsForAllClients(room.roomId);
+        this.roomService.leaveRoom(room.roomId, socket);
     }
 }

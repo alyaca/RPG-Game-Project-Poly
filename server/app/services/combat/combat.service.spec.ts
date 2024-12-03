@@ -617,7 +617,7 @@ describe('CombatService', () => {
         service['continuePlayerTurn'](mockServer, room);
         jest.advanceTimersByTime(END_COMBAT_DELAY);
 
-        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(room, mockServer);
+        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(room);
     });
 
     it('should add victory', () => {

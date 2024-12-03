@@ -41,7 +41,9 @@ export class CombatService {
     ) {}
 
     startFight(room: Room, server: Server, combatActionData: ActionData) {
-        const { combatPlayers } = this.initializeCombatInfos(combatActionData, room);
+        const combatInfos = this.initializeCombatInfos(combatActionData, room);
+        if (!combatInfos) return;
+        const combatPlayers = combatInfos.combatPlayers;
         this.logService.sendGlobalCombatLog(room.roomId, server, combatPlayers, LogType.StartCombat);
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
         const isActivePlayerAttacker = this.isAttacker(combatActionData.player, combatPlayers);
@@ -184,7 +186,7 @@ export class CombatService {
         setTimeout(() => {
             this.roomService.getTurnTimer(room.roomId).resumeTimer((timeRemaining) => {
                 if (timeRemaining <= 0) {
-                    this.gameService.onTurnEnded(room, server);
+                    this.gameService.onTurnEnded(room);
                 }
                 server.to(room.roomId).emit(ServerToClientEvent.StartedTurnTimer, timeRemaining);
             });
@@ -197,7 +199,7 @@ export class CombatService {
             this.handleWinnerTurn(winner, server, room);
         } else {
             setTimeout(() => {
-                this.gameService.onTurnEnded(room, server);
+                this.gameService.onTurnEnded(room);
             }, END_COMBAT_DELAY);
         }
     }
@@ -217,7 +219,7 @@ export class CombatService {
 
     private handleWinnerTurn(winner: Player, server: Server, room: Room) {
         if (this.isPlayerBot(winner)) {
-            this.gameService.onTurnEnded(room, server);
+            this.gameService.onTurnEnded(room);
         } else {
             this.continuePlayerTurn(server, room);
             const reachability = room.navigation.findReachableTiles(winner, room);
@@ -378,7 +380,7 @@ export class CombatService {
     }
 
     private managePlayerDeath(room: Room, winner: Player, loser: Player, server: Server) {
-        this.gameService.placeItemsOnGround(room, server, loser);
+        this.gameService.placeItemsOnGround(room, loser);
         this.replacePlayerOnSpawnPoint(loser, server, room);
         this.handleTurnAfterCombat(winner, server, room);
         this.handleCombatWon(winner, server, room);
@@ -403,7 +405,7 @@ export class CombatService {
 
     private checkEndGame(player: Player, room: Room, server: Server) {
         if (player.postGameStats.victories >= VICTORIES && room.gameMap.mode === GameMode.Classic) {
-            this.gameService.onEndGame(player, room, server);
+            this.gameService.onEndGame(player, room);
             this.logService.sendEndGameLog(room.listPlayers, room.roomId, server);
         } else {
             server.to(room.roomId).emit(ServerToClientEvent.CombatEnd, { listPlayers: room.listPlayers, player });

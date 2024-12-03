@@ -41,7 +41,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`);
-        this.gameService.leavePlayerFromGame(roomId, client, this.server);
+        this.gameService.leavePlayerFromGame(roomId, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.ChangeLockRoom)
@@ -59,36 +59,36 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
-        this.gameService.handleCreatePlayer(room, player, client, this.server);
+        this.gameService.handleCreatePlayer(room, player, client);
         this.logger.debug(`Player created with client ${client.id} in room ${room.roomId}`);
     }
 
     @SubscribeMessage(ClientToServerEvent.CreateBot)
     handleCreateBot(client: Socket, behavior: Behavior) {
-        this.gameService.createBot(behavior, client, this.server);
+        this.gameService.createBot(behavior, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
-        this.gameService.selectedAvatar(room, avatar, client, this.server);
+        this.gameService.selectedAvatar(room, avatar, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.KickPlayer)
     handleKickPlayer(client: Socket, playerId: string) {
-        this.gameService.onKickPlayer(client, this.server, playerId);
+        this.gameService.onKickPlayer(client, playerId);
         this.logger.debug(`client ${playerId} was kicked out of room`);
     }
 
     @SubscribeMessage(ClientToServerEvent.KickBot)
     handleKickBot(client: Socket, botId: string) {
-        this.gameService.onKickBot(client, botId, this.server);
+        this.gameService.onKickBot(client, botId);
         this.logger.debug(`bot ${botId} was kicked out of room`);
     }
 
     @SubscribeMessage(ClientToServerEvent.StartGame)
     handleStartGame(client: Socket) {
-        this.gameService.onStartGame(client, this.server);
+        this.gameService.onStartGame(client);
     }
 
     @SubscribeMessage(ClientToServerEvent.FindPath)
@@ -119,13 +119,14 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.EndTurn)
     handleEndTurn(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.gameService.onTurnEnded(room, this.server);
+        this.gameService.onTurnEnded(room);
         this.logger.debug(`client ${client.id} turn is over`);
     }
 
     @SubscribeMessage(ClientToServerEvent.StartTurn)
     handleBeforeStartTurn(client: Socket) {
-        this.gameService.onStartTurn(client, this.server);
+        const room = this.roomService.getRoom(client);
+        this.gameService.onStartTurn(room);
     }
 
     @SubscribeMessage(ClientToServerEvent.SendMessage)
@@ -144,24 +145,24 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.DebugMode)
     handleDebugMode(client: Socket, debugMode: boolean) {
-        this.gameService.handleDebugMode(debugMode, this.server, client);
+        this.gameService.handleDebugMode(debugMode, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        this.gameService.processNavigation(room, this.server, path, client);
+        this.gameService.processNavigation(room, path, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.TeleportPlayer)
     handleTeleportPlayer(client: Socket, position: Position) {
         const room = this.roomService.getRoom(client);
-        this.gameService.processTeleportation(room, this.server, position);
+        this.gameService.processTeleportation(room, position);
     }
 
     @SubscribeMessage(ClientToServerEvent.DoorAction)
     handleDoorAction(client: Socket, doorActionData: ActionData) {
-        this.gameService.handleDoor(client, this.server, doorActionData);
+        this.gameService.handleDoor(client, doorActionData);
     }
 
     @SubscribeMessage(ClientToServerEvent.CombatAction)
@@ -207,7 +208,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         if (this.combatService.isInCombat(client)) {
             this.combatService.handleDisconnectedPlayer(client, this.server);
         }
-        this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
+        this.gameService.leavePlayerFromGame(room.roomId, client);
 
         if (!this.server.sockets.adapter.rooms.get(room.roomId)) {
             this.gameService.stopGameTimers(room);
