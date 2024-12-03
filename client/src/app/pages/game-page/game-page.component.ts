@@ -271,9 +271,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     onBeforeStartTurn() {
         this.gameService.isActionCombatSelected = false;
         this.gameService.isActionDoorSelected = false;
-        //if (this.activePlayer.id === this.socketCommunicationService.socket.id) {
         this.socketCommunicationService.send(ClientToServerEvent.StartTurn);
-        //}
     }
 
     isDebugMode(): boolean {

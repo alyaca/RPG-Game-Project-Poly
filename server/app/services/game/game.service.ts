@@ -1,12 +1,14 @@
 import { Navigation } from '@app/classes/navigation/navigation';
 import { Stopwatch } from '@app/classes/stopwatch/stopwatch';
 import {
+    DEFAULT_ACTION_POINT,
     DEFAULT_ATTRIBUTE,
     DISCONNECTED_POSITION,
     EQUAL_ODDS_PROBABILITY,
     FALLING_PROBABILITY,
     HIGH_ATTRIBUTE,
     LogType,
+    MAX_ACTION_POINT,
     MOVEMENT_TIME,
     SINGLE_PLAYER,
     STARTING_TIME,
@@ -435,33 +437,23 @@ export class GameService {
 
     addActionPoints(player: Player) {
         if (player.inventory.find((items) => items.id === ObjectType.Trident)) {
-            if (player.attributes.actionPoints === 1) {
-                player.attributes.maxActionPoints = 2;
-                player.attributes.actionPoints += 1;
-            } else {
-                player.attributes.actionPoints = 1;
-            }
+            this.updateTridentEffect(player);
         } else {
-            player.attributes.actionPoints = 1;
+            player.attributes.actionPoints = DEFAULT_ACTION_POINT;
         }
     }
 
     placeItemsOnGround(room: Room, server: Server, player: Player) {
-        let playerToDropItems = room.listPlayers.find((players) => players.id === player.id);
-
+        const playerToDropItems = room.listPlayers.find((p) => p.id === player.id);
         if (playerToDropItems.inventory.length === 0) return;
+
         for (const items of playerToDropItems.inventory) {
             const position = room.navigation.findClosestValidTile(playerToDropItems, room);
             this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
             server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, { newGrid: room.gameMap.itemPlacement, position });
         }
-
         playerToDropItems.inventory = [];
-
-        const index = room.listPlayers.findIndex((players) => players.id === player.id);
-        room.listPlayers[index].inventory = playerToDropItems.inventory;
-        room.listPlayers[index].attributes = playerToDropItems.attributes;
         server.to(playerToDropItems.id).emit(ServerToClientEvent.UpdatedInventory, playerToDropItems);
     }
 
@@ -471,6 +463,15 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private updateTridentEffect(player: Player) {
+        if (player.attributes.actionPoints === DEFAULT_ACTION_POINT) {
+            player.attributes.maxActionPoints = MAX_ACTION_POINT;
+            player.attributes.actionPoints += DEFAULT_ACTION_POINT;
+        } else {
+            player.attributes.actionPoints = DEFAULT_ACTION_POINT;
+        }
     }
 
     private handleFallingOnIce(room: Room, client: Socket, server: Server) {
