@@ -140,6 +140,11 @@ describe('NavigationServiceService', () => {
         expect(service.getPortraitId('Hestia')).toBe(ObjectType.Hestia);
     });
 
+    it('should return an the Spawn if the god string is empty', () => {
+        const result = service.getPortraitId('');
+        expect(result).toEqual(ObjectType.Spawn);
+    });
+
     it('should return the spawn for unknown names', () => {
         expect(service.getPortraitId('')).toBe(ObjectType.Spawn);
     });

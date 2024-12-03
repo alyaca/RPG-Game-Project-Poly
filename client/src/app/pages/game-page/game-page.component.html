@@ -6,7 +6,6 @@
         <div class="player-bar">
             <app-player-info-inventory class="player-bar" [playerId]="getSocketId()"></app-player-info-inventory>
         </div>
-        <!-- <button (click)="forceEndGame()">Terminer la partie (temp)</button>  -->
         <div class="chat">
             <app-chat-box [isToggleable]="true" [areLogsVisible]="true" (chatFocusChange)="onChatFocus($event)"></app-chat-box>
         </div>

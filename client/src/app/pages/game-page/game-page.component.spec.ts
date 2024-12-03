@@ -37,6 +37,7 @@ describe('GamePageComponent', () => {
     let httpMock: HttpTestingController;
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let combatServiceSpy: jasmine.SpyObj<CombatService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
     let combatServiceSpy: jasmine.SpyObj<CombatService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;

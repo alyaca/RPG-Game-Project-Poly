@@ -30,7 +30,6 @@ export enum ClientToServerEvent {
     StartFight = 'startFight',
     StartTurn = 'startTurn',
     TeleportPlayer = 'teleportPlayer',
-
     ForceEndGame = 'forceEndGame', // Temporary
 }
 
@@ -41,6 +40,8 @@ export enum ServerToClientEvent {
     AttackSuccess = 'attackSuccess',
     AttackValues = 'attackValues',
     BeforeStartTurnTimer = 'beforeStartTurnTimer',
+    BotAttack = 'botAttack',
+    BotNavigation = 'botNavigation',
     CharacterSelected = 'characterSelected',
     CombatEnd = 'combatEnd',
     CombatInProgress = 'combatInProgress',
@@ -49,8 +50,6 @@ export enum ServerToClientEvent {
     CombatTurnEnded = 'combatTurnEnded',
     DebugMode = 'debugMode',
     DefaultCombatWin = 'defaultCombatWin',
-    DisconnectedPlayer = 'disconnectedPlayer',
-    PlayerDisconnected = 'playerDisconnected',
     DoorAround = 'doorAround',
     DoorClicked = 'doorClicked',
     DrawGame = 'drawGame',
@@ -70,6 +69,7 @@ export enum ServerToClientEvent {
     MessageReceived = 'messageReceived',
     OpenItemSwitchModal = 'openItemSwitchModal',
     OtherPlayerTurn = 'otherPlayerTurn',
+    PlayerDisconnected = 'playerDisconnected',
     PathFound = 'pathFound',
     PlayerFell = 'playerFell',
     PlayerNavigation = 'playerNavigation',
@@ -89,5 +89,6 @@ export enum ServerToClientEvent {
     UpdateObjectsAfterCombat = 'updateObjectsAfterCombat',
     UpdatedPlayer = 'updatedPlayer',
     UpdateStats = 'updateStats',
+    UpdateVisual = 'updateVisual',
     GameGridMapInfo = "GameGridMapInfo",
 }

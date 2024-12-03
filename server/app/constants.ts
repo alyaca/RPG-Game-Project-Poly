@@ -22,6 +22,8 @@ export const ROW_LENGTH = 2;
 
 export const NO_ITEM = 0;
 export const RANDOM_ITEM = 1;
+export const DEFAULT_ACTION_POINT = 1;
+export const MAX_ACTION_POINT = 2;
 
 export const SMALL_MAP_PLAYERS = 2;
 export const MEDIUM_MAP_PLAYERS = 4;
@@ -39,6 +41,7 @@ export const STARTING_TIME = 3;
 export const TURN_TIME = 30;
 export const FIGHT_TIME = 5;
 export const NO_EVASION_TIME = 3;
+export const NO_ATTACK_TIME = 25;
 export const MILLISECONDS_IN_SECOND = 1000;
 
 export const MOVEMENT_TIME = 150;
@@ -52,6 +55,7 @@ export const FOWARD_TIME = 1000;
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
 export const END_COMBAT_DELAY = 2500;
+export const PLAYER_FELL_DELAY = 2500;
 
 export const DEFAULT_ATTRIBUTE = 4;
 export const HIGH_ATTRIBUTE = 6;
@@ -86,6 +90,9 @@ export const XIPHOS_ATTACK_BONUS = 2;
 export const XIPHOS_DEFENSE_PENALTY = 1;
 export const MAX_OBJECT_EFFECT = 2;
 export const MIN_OBJECT_EFFECT = 1;
+export const ADD_OBEJCT_EFFECT_FACTOR = 1;
+export const REMOVE_OBEJECT_EFFECT_FACTOR = -1;
+export const INVENTORY_SIZE = 2;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
 

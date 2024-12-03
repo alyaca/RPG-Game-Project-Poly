@@ -59,7 +59,7 @@ export const mockPlayers: Player[] = [
     {
         id: 'bot',
         attributes: mockAttributes,
-        avatar: undefined,
+        avatar: avatars[0],
         isActive: false,
         name: 'loly',
         status: Status.Bot,

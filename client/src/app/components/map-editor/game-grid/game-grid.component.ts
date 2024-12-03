@@ -14,6 +14,7 @@ import { TileService } from '@app/services/tile/tile.service';
 import { ToolService } from '@app/services/tool/tool.service';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 @Component({
     selector: 'app-game-grid',
@@ -72,10 +73,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnInit() {
         this.socketCommunicationService.connect();
-        this.socketCommunicationService.on<Room>(ServerToClientEvent.GameGridMapInfo, (room: Room) => {
-            this.navigationService.initialize(room, this.objectsArray);
-            this.displayPortraitOnSpawnPoints(room.listPlayers);
-        });
 
         this.socketCommunicationService.on(ServerToClientEvent.ReachableTiles, (reachability: Position[]) => {
             this.navigationService.reachableTiles = reachability;
@@ -83,6 +80,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         this.handleMapLoading();
+
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.GameGridMapInfo, (room: Room) => {
+            this.gameCreationService.isModifiable = false;
+            this.navigationService.initialize(room, this.objectsArray);
+            this.displayPortraitOnSpawnPoints(room.listPlayers);
+        });
 
         this.initGameListeners();
         this.initObjectsListeners();
@@ -104,6 +107,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.PlayerDisconnected, (disconnectedPlayer: Player) => {
+            this.gameCreationService.isModifiable = false;
             this.navigationService.removePlayer(disconnectedPlayer);
         });
 
@@ -150,6 +154,16 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
         });
+
+        this.socketCommunicationService.on(ServerToClientEvent.BotNavigation, (path: Position[]) => {
+            this.fastestPath = path;
+            this.sendBotPathToServer();
+        });
+        this.socketCommunicationService.on(ServerToClientEvent.BotAttack, (actionData: ActionData) => {
+            if (this.activePlayer?.id === actionData.player.id) {
+                this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
+            }
+        });
     }
 
     handleTeleport(position: Position, player: Player) {
@@ -168,8 +182,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleMapLoading() {
         if (this.gameCreationService.isNewGame) {
+            this.gameCreationService.isModifiable = true;
             this.loadNewGame();
         } else {
+            this.gameCreationService.isModifiable = true;
             this.loadExistingGame();
         }
     }
@@ -287,6 +303,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.tileInfoVisible = this.gameCreationService.showDetails({ x: row, y: col });
     }
 
+    // tileInfo popup not closing
     closeTileDescription() {
         this.tileInfoVisible = false;
     }
@@ -358,6 +375,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     isActionSelected() {
         return this.gameService.isActionSelected();
+    }
+
+    async sendBotPathToServer() {
+        if (this.fastestPath.length > 0) {
+            this.socketCommunicationService.send(ServerToClientEvent.PlayerNavigation, this.fastestPath);
+            this.fastestPath = [];
+        }
     }
 
     async sendNavigation() {
