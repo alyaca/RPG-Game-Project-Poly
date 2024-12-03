@@ -60,19 +60,31 @@ export class GameService {
         return { event: 'joinedRoom' };
     }
 
-    createPlayer(room: Room, player: Player, socket: Socket) {
-        if (player.status !== Status.Bot) {
-            player.id = socket.id;
-            if (this.roomService.isPlayerAdmin(socket)) {
-                player.status = Status.Admin;
-            }
-            this.setUniquePlayerName(player, socket, true);
+    handleJoinGame(client: Socket, roomId: string) {
+        const connectionRes = this.connectPlayerToGame(roomId);
+        const room = this.roomService.rooms.get(roomId);
+        this.roomService.joinRoom(client, roomId);
+        if (connectionRes.errorType) {
+            this.roomService.leaveRoom(roomId, client);
+            client.emit(connectionRes.event, connectionRes.errorType);
         } else {
-            this.setUniquePlayerName(player, socket, false);
+            client.emit(connectionRes.event, room);
         }
+    }
+
+    handleCreatePlayer(room: Room, player: Player, socket: Socket, server: Server) {
+        const isAdmin = this.roomService.isPlayerAdmin(socket);
+        const isBot = player.status === Status.Bot;
+        if (!isBot) {
+            player.id = socket.id;
+            player.status = isAdmin ? Status.Admin : player.status;
+        }
+        this.setUniquePlayerName(player, socket, !isBot);
         room.listPlayers.push(player);
         const takenAvatar = this.getAvatarByName(room, player.avatar);
         takenAvatar.isTaken = true;
+        server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
+        socket.emit(ServerToClientEvent.IsPlayerAdmin, isAdmin);
     }
 
     getActivePlayer(room: Room): Player {
@@ -256,7 +268,7 @@ export class GameService {
         let newBot = this.assignAvatarToBot(room, behavior);
         newBot = this.assignStatsToBot(newBot);
         newBot.collectedItems = [];
-        this.createPlayer(room, newBot, client);
+        this.handleCreatePlayer(room, newBot, client, server);
         this.updateAvatarsForAllClients(server, room.roomId);
         server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
     }
@@ -279,9 +291,11 @@ export class GameService {
         server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
     }
 
-    updateLogsDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
+    handleDebugMode(isDebugMode: boolean, server: Server, client: Socket) {
         const room = this.roomService.getRoom(client);
+        room.isDebug = isDebugMode;
         this.gameLogsService.sendDebugLog(isDebugMode, room.roomId, server);
+        server.to(room.roomId).emit(ServerToClientEvent.DebugMode, isDebugMode);
     }
 
     processTeleportation(room: Room, server: Server, position: Position) {

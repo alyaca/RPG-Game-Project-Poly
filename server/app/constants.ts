@@ -40,6 +40,7 @@ export const WARNING_TIME = 3;
 export const STARTING_TIME = 3;
 export const TURN_TIME = 30;
 export const FIGHT_TIME = 5;
+export const TWO_BOTS_FIGHT_TIME = 1;
 export const NO_EVASION_TIME = 3;
 export const NO_ATTACK_TIME = 25;
 export const MILLISECONDS_IN_SECOND = 1000;

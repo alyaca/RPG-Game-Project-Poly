@@ -1,5 +1,15 @@
 import { Timer } from '@app/classes/timer/timer';
-import { END_COMBAT_DELAY, ICE_TILE_PENALTY_VALUE, MIN_DICE_VALUE, ROLL_DURATION, TURN_TIME } from '@app/constants';
+import {
+    END_COMBAT_DELAY,
+    EVASION_SUCCESS_RATE,
+    FIGHT_TIME,
+    ICE_TILE_PENALTY_VALUE,
+    MIN_DICE_VALUE,
+    NO_EVASION_TIME,
+    ROLL_DURATION,
+    TURN_TIME,
+    TWO_BOTS_FIGHT_TIME,
+} from '@app/constants';
 import { mockAttacker, mockCombatInfos, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -10,7 +20,7 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
 import { GameMode, TileType } from '@common/constants';
 import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
-import { Player } from '@common/interfaces/player';
+import { Behavior, Player, Status } from '@common/interfaces/player';
 import { PlayerStatType } from '@common/interfaces/post-game-stat';
 import { Room } from '@common/interfaces/room';
 import { ActionData } from '@common/interfaces/socket-data.interface';
@@ -107,378 +117,67 @@ describe('CombatService', () => {
         expect(service).toBeDefined();
     });
 
-    describe('emitToCombatPlayers', () => {
-        it('should emit the event to both activePlayer and defensePlayer', () => {
-            const event = 'testEvent';
-            const data = { key: 'value' };
-            service.emitToCombatPlayers(mockServer, combatPlayers, event, data);
-
-            expect(mockServer.to).toHaveBeenCalledWith(combatPlayers.attacker.id);
-            expect(mockServer.to).toHaveBeenCalledWith(combatPlayers.defender.id);
-            expect(mockServer.to(combatPlayers.attacker.id).emit).toHaveBeenCalledWith(event, data);
-            expect(mockServer.to(combatPlayers.defender.id).emit).toHaveBeenCalledWith(event, data);
-        });
-    });
-
-    describe('initializeCombatInfos', () => {
-        it('should initialize players and emit startFight event', () => {
-            const combatActionData: ActionData = { clickedPosition: { x: 0, y: 1 }, player: attacker };
-            room.navigation.getCombatOpponent = jest.fn().mockReturnValue(defender);
-            service['handlePlayerOnIce'] = jest.fn();
-
-            service['initializeCombatInfos'](combatActionData, room);
-
-            expect(service['handlePlayerOnIce']).toHaveBeenCalled();
-        });
-    });
-
     describe('startFight', () => {
         it('should initialize players and emit startFight event', () => {
             const combatActionData: ActionData = { clickedPosition: { x: 0, y: 1 }, player: attacker };
             service['initializeCombatInfos'] = jest.fn().mockReturnValue(combatPlayers);
             mockLogsService.sendGlobalCombatLog = jest.fn();
             service['isAttacker'] = jest.fn().mockReturnValue(true);
-            service.emitToCombatPlayers = jest.fn();
-            service.onStartTurn = jest.fn();
+            service['emitToCombatPlayers'] = jest.fn();
+            service['onStartTurn'] = jest.fn();
 
             service.startFight(room, mockServer, combatActionData);
 
             expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
-            expect(service.emitToCombatPlayers).toHaveBeenCalled();
-            expect(service.onStartTurn).toHaveBeenCalledWith(mockServer, room);
+            expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+            expect(service['onStartTurn']).toHaveBeenCalledWith(mockServer, room);
         });
-    });
-
-    it('should reset timer and emit to players setFightTimer', () => {
-        service['isBothPlayersBot'] = jest.fn().mockReturnValue(false);
-        const remainingTime = 2;
-        const fightTimerCallback = jest.fn();
-        const resetTimerMock = jest.fn((time, callback) => {
-            fightTimerCallback.mockImplementation(callback);
-        });
-        const fightTimer = {
-            resetTimer: resetTimerMock,
-        } as unknown as Timer;
-        jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
-        service.emitToCombatPlayers = jest.fn();
-        service.attackPlayer = jest.fn();
-        room.listPlayers.push(mockPlayers[0]);
-
-        service.setFightTimer(room, mockServer, combatPlayers);
-        fightTimerCallback(remainingTime);
-        expect(service.emitToCombatPlayers).toHaveBeenCalled();
-        fightTimerCallback(0);
-    });
-
-    it('should reset timer to 3 seconds and emit to players setFightTimer', () => {
-        service['isBothPlayersBot'] = jest.fn().mockReturnValue(false);
-        const player = service.combatInfos.get(room.roomId).combatPlayers.attacker;
-        player.attributes.evasion = 0;
-        const remainingTime = 2;
-        const fightTimerCallback = jest.fn();
-        const resetTimerMock = jest.fn((time, callback) => {
-            fightTimerCallback.mockImplementation(callback);
-        });
-        const fightTimer = {
-            resetTimer: resetTimerMock,
-        } as unknown as Timer;
-        jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
-        service.emitToCombatPlayers = jest.fn();
-        service.attackPlayer = jest.fn();
-        room.listPlayers.push(mockPlayers[0]);
-
-        service.setFightTimer(room, mockServer, combatPlayers);
-        fightTimerCallback(remainingTime);
-        expect(service.emitToCombatPlayers).toHaveBeenCalled();
-        fightTimerCallback(0);
-    });
-
-    it('should switch attacker onEndTurn', () => {
-        service.emitToCombatPlayers = jest.fn();
-        service.onStartTurn = jest.fn();
-
-        service.onEndTurn(mockServer, room);
-
-        expect(service.combatInfos.get(room.roomId)).toBe(combatInfos);
-        expect(service.emitToCombatPlayers).toHaveBeenCalled();
-        expect(service.onStartTurn).toHaveBeenCalledWith(mockServer, room);
     });
 
     describe('attackPlayer', () => {
         it('should decrease defensePlayer HP when attack is successful', () => {
             const combatValue = { attackValues: { total: 10, diceValue: 4 }, defenseValues: { total: 4, diceValue: 1 } };
-            service.getCombatValues = jest.fn().mockReturnValue(combatValue);
-            service.emitToCombatPlayers = jest.fn();
+            service['getCombatValues'] = jest.fn().mockReturnValue(combatValue);
+            service['handleAttackSuccess'] = jest.fn();
             service['checkCombatOutcome'] = jest.fn();
-            service['addToPostGameStats'] = jest.fn();
-            mockLogsService.sendCombatActionLog = jest.fn();
             mockLogsService.sendCombatResultLog = jest.fn();
 
             service.attackPlayer(room, mockServer);
             expect(service['checkCombatOutcome']).toHaveBeenCalled();
-            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+            expect(mockLogsService.sendCombatResultLog).toHaveBeenCalled();
+            expect(service['handleAttackSuccess']).toHaveBeenCalled();
         });
     });
 
-    it('should decrease activePlayer HP when defense is successful', () => {
-        const combatValue = { attackValues: 3, defenseValues: 10 };
-        service.getCombatValues = jest.fn().mockReturnValue(combatValue);
-        service.emitToCombatPlayers = jest.fn();
-        service['checkCombatOutcome'] = jest.fn();
-        service.onEndTurn = jest.fn();
-        service['addToPostGameStats'] = jest.fn();
+    describe('handleDisconnectedPlayer', () => {
+        it('should reset combat state when a player disconnects while in combat', () => {
+            const player = { id: mockClient.id, isActive: true } as unknown as Player;
+            room.listPlayers.push(player);
+            mockServer.sockets.sockets.set(mockClient.id, mockClient);
+            const sockets = new Set([mockClient.id, 'socket2', 'socket3']);
+            mockServer.sockets.adapter.rooms.set(room.roomId, sockets);
 
-        service.attackPlayer(room, mockServer);
-        expect(service.emitToCombatPlayers).toHaveBeenCalledWith(mockServer, combatPlayers, 'attackValues', combatValue);
-        expect(service.emitToCombatPlayers).toHaveBeenCalled();
-    });
+            service['getOpponent'] = jest.fn().mockReturnValue(player);
+            mockLogsService.sendPlayerLog = jest.fn();
+            service['handleDefaultCombatWin'] = jest.fn();
+            service['resetCombatState'] = jest.fn();
+            service['hasValidActivePlayers'] = jest.fn().mockReturnValue(true);
+            service['continuePlayerTurn'] = jest.fn();
 
-    describe('getCombatValues', () => {
-        it('should set attack to max dice value and defense to min dice value on debug mode', () => {
-            const players = service.combatInfos.get(room.roomId).combatPlayers;
-            const attackDice = players.attacker.attributes.atkDiceMax;
-            const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
-            const expectedDefenseValues = { total: players.defender.attributes.defense + MIN_DICE_VALUE, diceValue: MIN_DICE_VALUE };
-            const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
-
-            const result = service.getCombatValues(players, true);
-            expect(result).toEqual(expectedResult);
-            expect(players.combatResultDetails).toEqual(expectedResult);
+            service.handleDisconnectedPlayer(mockClient, mockServer);
+            expect(service['continuePlayerTurn']).toHaveBeenCalled();
         });
 
-        it('should calculate dice value and set result in combatPlayers not in debug mode', () => {
-            const attackDice = 2;
-            const defenseDice = 5;
-            const players = service.combatInfos.get(room.roomId).combatPlayers;
-            const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
-            const expectedDefenseValues = { total: players.defender.attributes.defense + defenseDice, diceValue: defenseDice };
-            const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
-            service['getRandomValue'] = jest.fn().mockReturnValueOnce(attackDice).mockReturnValue(defenseDice);
+        it('should return if no player left to play with', () => {
+            const player = { id: mockClient.id, isActive: true } as unknown as Player;
+            service['getOpponent'] = jest.fn().mockReturnValue(player);
+            service['resetCombatState'] = jest.fn();
+            service['hasValidActivePlayers'] = jest.fn().mockReturnValue(false);
+            service['handleDefaultCombatWin'] = jest.fn();
 
-            const result = service.getCombatValues(players, false);
-            expect(result).toEqual(expectedResult);
-            expect(players.combatResultDetails).toEqual(expectedResult);
+            service.handleDisconnectedPlayer(mockClient, mockServer);
+            expect(service['handleDefaultCombatWin']).not.toHaveBeenCalled();
         });
-    });
-
-    describe('managePlayerDeath', () => {
-        it('should manage player death', () => {
-            service['replacePlayerOnSpawnPoint'] = jest.fn();
-            service['manageTurnAfterCombat'] = jest.fn();
-            service['handleCombatWon'] = jest.fn();
-            service['resetPlayerIcePenalty'] = jest.fn();
-            service['emitToCombatPlayers'] = jest.fn();
-
-            service['managePlayerDeath'](room, attacker, defender, mockServer);
-
-            expect(service['replacePlayerOnSpawnPoint']).toHaveBeenCalledWith(defender, mockServer, room);
-            expect(service['manageTurnAfterCombat']).toHaveBeenCalledWith(attacker, mockServer, room);
-            expect(service['handleCombatWon']).toHaveBeenCalledWith(attacker, mockServer, room);
-            expect(service['resetPlayerIcePenalty']).toHaveBeenCalled();
-            expect(service['emitToCombatPlayers']).toHaveBeenCalled();
-        });
-    });
-
-    describe('checkCombatOutcome', () => {
-        it('should return manage defender death if player dies', () => {
-            combatPlayers.defender.attributes.currentHp = 0;
-            service['managePlayerDeath'] = jest.fn();
-
-            service['checkCombatOutcome'](room, combatPlayers, mockServer);
-            expect(service['managePlayerDeath']).toHaveBeenCalledWith(room, combatPlayers.attacker, combatPlayers.defender, mockServer);
-        });
-
-        it('should return manage attacker death if player die', () => {
-            combatPlayers.attacker.attributes.currentHp = 0;
-            service['managePlayerDeath'] = jest.fn();
-
-            service['checkCombatOutcome'](room, combatPlayers, mockServer);
-            expect(service['managePlayerDeath']).toHaveBeenCalledWith(room, combatPlayers.defender, combatPlayers.attacker, mockServer);
-        });
-
-        it('should end turn', () => {
-            jest.useFakeTimers();
-            service['onEndTurn'] = jest.fn();
-
-            service['checkCombatOutcome'](room, combatPlayers, mockServer);
-            jest.advanceTimersByTime(ROLL_DURATION);
-            expect(service.onEndTurn).toHaveBeenCalledWith(mockServer, room);
-        });
-    });
-
-    describe('manageTurnAfterCombat', () => {
-        it('should continue turn if active player wins combat', () => {
-            service['continueTurn'] = jest.fn();
-            mockGameService.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
-            room.navigation.findReachableTiles = jest.fn().mockReturnValue([]);
-
-            service.manageTurnAfterCombat(mockPlayers[0], mockServer, room);
-
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('reachableTiles', []);
-            expect(service['continueTurn']).toHaveBeenCalled();
-        });
-
-        it('should end turn if active player loses combat', () => {
-            jest.useFakeTimers();
-            mockGameService.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
-            room.navigation.findReachableTiles = jest.fn().mockReturnValue([]);
-            mockGameService.onTurnEnded = jest.fn();
-
-            service.manageTurnAfterCombat(defender, mockServer, room);
-            jest.advanceTimersByTime(END_COMBAT_DELAY);
-
-            expect(mockServer.to(room.roomId).emit).not.toHaveBeenCalledWith('reachableTiles', []);
-            expect(mockGameService.onTurnEnded).toHaveBeenCalled();
-        });
-    });
-
-    describe('getRandom', () => {
-        it('should return a random number between 1 and max', () => {
-            const max = 10;
-            const randomValue = service['getRandomValue'](max);
-            expect(randomValue).toBeGreaterThanOrEqual(1);
-            expect(randomValue).toBeLessThanOrEqual(max);
-        });
-    });
-
-    // describe('isEvasionSuccessful', () => {
-    //     it('should return true when Math.random() is less than EVASION_SUCCESS_RATE', () => {
-    //         const successRate = EVASION_SUCCESS_RATE - 1;
-    //         jest.spyOn(Math, 'random').mockReturnValue(successRate);
-
-    //         const result = service['isEvasionSuccessful']();
-    //         expect(result).toBe(true);
-    //     });
-
-    //     it('should return false when Math.random() is equal to or greater than EVASION_SUCCESS_RATE', () => {
-    //         const successRate = EVASION_SUCCESS_RATE + 1;
-    //         jest.spyOn(Math, 'random').mockReturnValue(successRate);
-
-    //         const result = service['isEvasionSuccessful']();
-    //         expect(result).toBe(false);
-    //     });
-    // });
-
-    describe('checkEndGame', () => {
-        it('should not emit endGame if no player has reached the victory threshold', () => {
-            const player1 = { id: '1', postGameStats: { victories: 2 } } as Player;
-            service['checkEndGame'](player1, room, mockServer);
-
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('combatEnd', { listPlayers: room.listPlayers, player: player1 });
-            expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
-        });
-
-        it('should emit endGame if player has reached the victory threshold', () => {
-            room.gameMap.mode = GameMode.Classic;
-            const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
-            service['checkEndGame'](winner, room, mockServer);
-            expect(mockGameService.onEndGame).toHaveBeenCalled();
-            expect(mockLogsService.sendEndGameLog).toHaveBeenCalled();
-        });
-        it('should not emit endGame if player has reached the victory threshold and is in CTF mode', () => {
-            const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
-            service['checkEndGame'](winner, room, mockServer);
-
-            expect(mockGameService.onEndGame).not.toHaveBeenCalled();
-            expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
-        });
-    });
-
-    it('should evade when evasion sucessfull', () => {
-        service.emitToCombatPlayers = jest.fn();
-        service.continueTurn = jest.fn();
-        service['addToPostGameStats'] = jest.fn();
-
-        service.handleEvasionSuccess(room, mockServer);
-
-        expect(service.emitToCombatPlayers).toHaveBeenCalled();
-        expect(service.continueTurn).toHaveBeenCalledWith(mockServer, room);
-        expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
-        expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
-    });
-
-    describe('evadingPlayer', () => {
-        it('should continue turn if evasion is successful', () => {
-            service['isEvasionSuccessful'] = jest.fn().mockReturnValue(true);
-            service.handleEvasionSuccess = jest.fn();
-            service.evadingPlayer(room, mockServer);
-            expect(service.handleEvasionSuccess).toHaveBeenCalledWith(room, mockServer);
-        });
-
-        it('should end turn if evasion is not successful', () => {
-            service.emitToCombatPlayers = jest.fn();
-            service.onEndTurn = jest.fn();
-            service['isEvasionSuccessful'] = jest.fn().mockReturnValue(false);
-
-            service.evadingPlayer(room, mockServer);
-
-            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
-            expect(service.emitToCombatPlayers).toHaveBeenCalled();
-            expect(service.onEndTurn).toHaveBeenCalledWith(mockServer, room);
-        });
-    });
-
-    it('should addVictory combat finish', () => {
-        mockClient.data.roomCode = room.roomId;
-        service['isAttacker'] = jest.fn().mockReturnValue(true);
-        service['resetCombatState'] = jest.fn();
-        service['addVictory'] = jest.fn();
-        mockLogsService.sendPlayerLog = jest.fn();
-
-        service.handleCombatWon(attacker, mockServer, room);
-        expect(service['resetCombatState']).toHaveBeenCalled();
-    });
-
-    it('should stop the fight timer and reset each player hp', () => {
-        const player1 = { id: '1', attributes: { currentHp: 0 } } as Player;
-        const player2 = { id: '2', attributes: { currentHp: 3 } } as Player;
-        room.listPlayers.push(player1);
-        room.listPlayers.push(player2);
-        service['removeXiphosEffect'] = jest.fn();
-        service['resetPlayerHealth'] = jest.fn();
-
-        service['resetCombatState'](room);
-        expect(mockRoomService.getFightTimer).toHaveBeenCalledWith(room.roomId);
-        expect(mockRoomService.getFightTimer(room.roomId).stopTimer).toHaveBeenCalled();
-        expect(service['removeXiphosEffect']).toHaveBeenCalled();
-        expect(service['resetPlayerHealth']).toHaveBeenCalled();
-    });
-
-    it('should call onTurnEnded if time remaining is 0 or less', () => {
-        jest.useFakeTimers();
-        const player = mockPlayers[0];
-        mockGameService.getActivePlayer.mockReturnValue(player);
-        const mockSocket = { id: player.id } as Socket;
-        mockServer.sockets.sockets.set(player.id, mockSocket);
-        mockRoomService.getTurnTimer.mockReturnValue({
-            resumeTimer: jest.fn((callback: (timeRemaining: number) => void) => {
-                callback(0);
-            }),
-        } as unknown as Timer);
-        service['resetCombatState'] = jest.fn();
-
-        service.continueTurn(mockServer, room);
-        jest.advanceTimersByTime(END_COMBAT_DELAY);
-
-        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(room, mockServer);
-    });
-
-    it('should reset combat state when a player disconnects while in combat', () => {
-        const player = { id: mockClient.id, isActive: true } as unknown as Player;
-        room.listPlayers.push(player);
-        mockServer.sockets.sockets.set(mockClient.id, mockClient);
-        const sockets = new Set([mockClient.id, 'socket2', 'socket3']);
-        mockServer.sockets.adapter.rooms.set(room.roomId, sockets);
-
-        service['getOpponent'] = jest.fn().mockReturnValue(player);
-        mockLogsService.sendPlayerLog = jest.fn();
-        service['handleDefaultCombatWin'] = jest.fn();
-        service['resetCombatState'] = jest.fn();
-        service['hasValidActivePlayers'] = jest.fn().mockReturnValue(true);
-        service.continueTurn = jest.fn();
-
-        service.disconnectedPlayer(mockClient, mockServer);
-        expect(service.continueTurn).toHaveBeenCalled();
     });
 
     describe('isInCombat', () => {
@@ -529,6 +228,379 @@ describe('CombatService', () => {
             const result = service.isInCombat(mockClient);
             expect(result).toBe(true);
         });
+    });
+
+    describe('emitToCombatPlayers', () => {
+        it('should emit the event to both activePlayer and defensePlayer', () => {
+            const event = 'testEvent';
+            const data = { key: 'value' };
+            service['emitToCombatPlayers'](mockServer, combatPlayers, event, data);
+
+            expect(mockServer.to).toHaveBeenCalledWith(combatPlayers.attacker.id);
+            expect(mockServer.to).toHaveBeenCalledWith(combatPlayers.defender.id);
+            expect(mockServer.to(combatPlayers.attacker.id).emit).toHaveBeenCalledWith(event, data);
+            expect(mockServer.to(combatPlayers.defender.id).emit).toHaveBeenCalledWith(event, data);
+        });
+    });
+
+    describe('setFightTimer', () => {
+        it('should reset timer and emit to players setFightTimer', () => {
+            service['canBotAttack'] = jest.fn().mockReturnValue(false);
+            const remainingTime = 2;
+            const fightTimerCallback = jest.fn();
+            const resetTimerMock = jest.fn((time, callback) => {
+                fightTimerCallback.mockImplementation(callback);
+            });
+            const fightTimer = {
+                resetTimer: resetTimerMock,
+            } as unknown as Timer;
+            jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
+            service['emitToCombatPlayers'] = jest.fn();
+            service.attackPlayer = jest.fn();
+            room.listPlayers.push(mockPlayers[0]);
+
+            service['setFightTimer'](room, mockServer, combatPlayers);
+            fightTimerCallback(remainingTime);
+            expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+            fightTimerCallback(0);
+        });
+
+        it('should reset timer to 3 seconds and emit to players setFightTimer', () => {
+            const player = service.combatInfos.get(room.roomId).combatPlayers.attacker;
+            player.attributes.evasion = 0;
+            const remainingTime = 2;
+            const fightTimerCallback = jest.fn();
+            const resetTimerMock = jest.fn((time, callback) => {
+                fightTimerCallback.mockImplementation(callback);
+            });
+            const fightTimer = {
+                resetTimer: resetTimerMock,
+            } as unknown as Timer;
+            jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
+            service['emitToCombatPlayers'] = jest.fn();
+            service.attackPlayer = jest.fn();
+            room.listPlayers.push(mockPlayers[0]);
+
+            service['setFightTimer'](room, mockServer, combatPlayers);
+            fightTimerCallback(remainingTime);
+            service['canBotAttack'] = jest.fn().mockReturnValue(true);
+
+            expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+            fightTimerCallback(0);
+        });
+    });
+
+    it('should switch attacker onEndTurn', () => {
+        service['emitToCombatPlayers'] = jest.fn();
+        service['onStartTurn'] = jest.fn();
+
+        service['onEndTurn'](mockServer, room);
+
+        expect(service.combatInfos.get(room.roomId)).toBe(combatInfos);
+        expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+        expect(service['onStartTurn']).toHaveBeenCalledWith(mockServer, room);
+    });
+
+    describe('onStartTurn', () => {
+        it('should checkXiphos and set timer', () => {
+            service['isDefensiveBotDamaged'] = jest.fn().mockReturnValue(false);
+            service['checkXiphos'] = jest.fn();
+            service['setFightTimer'] = jest.fn();
+
+            service['onStartTurn'](mockServer, room);
+
+            expect(service['checkXiphos']).toHaveBeenCalled();
+            expect(service['setFightTimer']).toHaveBeenCalled();
+        });
+
+        it('should try evading player and if defensive bot is damaged', () => {
+            service['isDefensiveBotDamaged'] = jest.fn().mockReturnValue(true);
+            service['evadingPlayer'] = jest.fn();
+            service['setFightTimer'] = jest.fn();
+
+            service['onStartTurn'](mockServer, room);
+
+            expect(service['evadingPlayer']).toHaveBeenCalled();
+            expect(service['setFightTimer']).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('evadingPlayer', () => {
+        it('should continue turn if evasion is successful', () => {
+            service['isEvasionSuccessful'] = jest.fn().mockReturnValue(true);
+            service['handleEvasionSuccess'] = jest.fn();
+            service.evadingPlayer(room, mockServer);
+            expect(service['handleEvasionSuccess']).toHaveBeenCalledWith(room, mockServer);
+        });
+
+        it('should end turn if evasion is not successful', () => {
+            service['emitToCombatPlayers'] = jest.fn();
+            service['onEndTurn'] = jest.fn();
+            service['isEvasionSuccessful'] = jest.fn().mockReturnValue(false);
+
+            service.evadingPlayer(room, mockServer);
+
+            expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+            expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+            expect(service['onEndTurn']).toHaveBeenCalledWith(mockServer, room);
+        });
+    });
+
+    describe('initializeCombatInfos', () => {
+        it('should initialize players and emit startFight event', () => {
+            const combatActionData: ActionData = { clickedPosition: { x: 0, y: 1 }, player: attacker };
+            room.navigation.getCombatOpponent = jest.fn().mockReturnValue(defender);
+            service['handlePlayerOnIce'] = jest.fn();
+
+            service['initializeCombatInfos'](combatActionData, room);
+
+            expect(service['handlePlayerOnIce']).toHaveBeenCalled();
+        });
+
+        it('should return if no opponent', () => {
+            const combatActionData: ActionData = { clickedPosition: { x: 0, y: 1 }, player: attacker };
+            room.navigation.getCombatOpponent = jest.fn().mockReturnValue(undefined);
+            service['handlePlayerOnIce'] = jest.fn();
+
+            service['initializeCombatInfos'](combatActionData, room);
+
+            expect(service['handlePlayerOnIce']).not.toHaveBeenCalled();
+        });
+    });
+
+    it('should decrease activePlayer HP when attack is successful', () => {
+        service['addToPostGameStats'] = jest.fn();
+        service['emitToCombatPlayers'] = jest.fn();
+
+        service['handleAttackSuccess'](combatPlayers, room, mockServer);
+        expect(service['addToPostGameStats']).toHaveBeenCalled();
+        expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+        expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+    });
+
+    it('should handleFailAttack', () => {
+        service['checkAchillesArmor'] = jest.fn().mockReturnValue(true);
+        service['emitToCombatPlayers'] = jest.fn();
+
+        service['handleFailAttack'](combatPlayers, room, mockServer);
+        expect(service['checkAchillesArmor']).toHaveBeenCalled();
+        expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+        expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+    });
+
+    it('should end game turn if winner is a bot', () => {
+        service['isPlayerBot'] = jest.fn().mockReturnValue(true);
+        service['handleWinnerTurn'](mockAttacker, mockServer, room);
+        expect(mockGameService.onTurnEnded).toHaveBeenCalled();
+    });
+
+    describe('getCombatValues', () => {
+        it('should set attack to max dice value and defense to min dice value on debug mode', () => {
+            const players = service.combatInfos.get(room.roomId).combatPlayers;
+            const attackDice = players.attacker.attributes.atkDiceMax;
+            const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
+            const expectedDefenseValues = { total: players.defender.attributes.defense + MIN_DICE_VALUE, diceValue: MIN_DICE_VALUE };
+            const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
+
+            const result = service['getCombatValues'](players, true);
+            expect(result).toEqual(expectedResult);
+            expect(players.combatResultDetails).toEqual(expectedResult);
+        });
+
+        it('should calculate dice value and set result in combatPlayers not in debug mode', () => {
+            const attackDice = 2;
+            const defenseDice = 5;
+            const players = service.combatInfos.get(room.roomId).combatPlayers;
+            const expectedAttackValues = { total: players.attacker.attributes.attack + attackDice, diceValue: attackDice };
+            const expectedDefenseValues = { total: players.defender.attributes.defense + defenseDice, diceValue: defenseDice };
+            const expectedResult = { attackValues: expectedAttackValues, defenseValues: expectedDefenseValues };
+            service['getRandomValue'] = jest.fn().mockReturnValueOnce(attackDice).mockReturnValue(defenseDice);
+
+            const result = service['getCombatValues'](players, false);
+            expect(result).toEqual(expectedResult);
+            expect(players.combatResultDetails).toEqual(expectedResult);
+        });
+    });
+
+    describe('managePlayerDeath', () => {
+        it('should manage player death', () => {
+            service['replacePlayerOnSpawnPoint'] = jest.fn();
+            service['handleTurnAfterCombat'] = jest.fn();
+            service['handleCombatWon'] = jest.fn();
+            service['resetPlayerIcePenalty'] = jest.fn();
+            service['emitToCombatPlayers'] = jest.fn();
+
+            service['managePlayerDeath'](room, attacker, defender, mockServer);
+
+            expect(service['replacePlayerOnSpawnPoint']).toHaveBeenCalledWith(defender, mockServer, room);
+            expect(service['handleTurnAfterCombat']).toHaveBeenCalledWith(attacker, mockServer, room);
+            expect(service['handleCombatWon']).toHaveBeenCalledWith(attacker, mockServer, room);
+            expect(service['resetPlayerIcePenalty']).toHaveBeenCalled();
+            expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+        });
+    });
+
+    describe('checkCombatOutcome', () => {
+        it('should return manage defender death if player dies', () => {
+            combatPlayers.defender.attributes.currentHp = 0;
+            service['managePlayerDeath'] = jest.fn();
+
+            service['checkCombatOutcome'](room, combatPlayers, mockServer);
+            expect(service['managePlayerDeath']).toHaveBeenCalledWith(room, combatPlayers.attacker, combatPlayers.defender, mockServer);
+        });
+
+        it('should return manage attacker death if player die', () => {
+            combatPlayers.attacker.attributes.currentHp = 0;
+            service['managePlayerDeath'] = jest.fn();
+
+            service['checkCombatOutcome'](room, combatPlayers, mockServer);
+            expect(service['managePlayerDeath']).toHaveBeenCalledWith(room, combatPlayers.defender, combatPlayers.attacker, mockServer);
+        });
+
+        it('should end turn', () => {
+            jest.useFakeTimers();
+            service['onEndTurn'] = jest.fn();
+
+            service['checkCombatOutcome'](room, combatPlayers, mockServer);
+            jest.advanceTimersByTime(ROLL_DURATION);
+            expect(service['onEndTurn']).toHaveBeenCalledWith(mockServer, room);
+        });
+    });
+
+    describe('handleTurnAfterCombat', () => {
+        it('should continue turn if active player wins combat', () => {
+            service['continuePlayerTurn'] = jest.fn();
+            mockGameService.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
+            room.navigation.findReachableTiles = jest.fn().mockReturnValue([]);
+
+            service['handleTurnAfterCombat'](mockPlayers[0], mockServer, room);
+
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('reachableTiles', []);
+            expect(service['continuePlayerTurn']).toHaveBeenCalled();
+        });
+
+        it('should end turn if active player loses combat', () => {
+            jest.useFakeTimers();
+            mockGameService.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
+            room.navigation.findReachableTiles = jest.fn().mockReturnValue([]);
+            mockGameService.onTurnEnded = jest.fn();
+
+            service['handleTurnAfterCombat'](defender, mockServer, room);
+            jest.advanceTimersByTime(END_COMBAT_DELAY);
+
+            expect(mockServer.to(room.roomId).emit).not.toHaveBeenCalledWith('reachableTiles', []);
+            expect(mockGameService.onTurnEnded).toHaveBeenCalled();
+        });
+    });
+
+    describe('getRandom', () => {
+        it('should return a random number between 1 and max', () => {
+            const max = 10;
+            const randomValue = service['getRandomValue'](max);
+            expect(randomValue).toBeGreaterThanOrEqual(1);
+            expect(randomValue).toBeLessThanOrEqual(max);
+        });
+    });
+
+    describe('isEvasionSuccessful', () => {
+        it('should return true when Math.random() is less than EVASION_SUCCESS_RATE', () => {
+            const successRate = EVASION_SUCCESS_RATE - 1;
+            jest.spyOn(Math, 'random').mockReturnValue(successRate);
+
+            const result = service['isEvasionSuccessful']();
+            expect(result).toBe(true);
+        });
+
+        it('should return false when Math.random() is equal to or greater than EVASION_SUCCESS_RATE', () => {
+            const successRate = EVASION_SUCCESS_RATE + 1;
+            jest.spyOn(Math, 'random').mockReturnValue(successRate);
+
+            const result = service['isEvasionSuccessful']();
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('checkEndGame', () => {
+        it('should not emit endGame if no player has reached the victory threshold', () => {
+            const player1 = { id: '1', postGameStats: { victories: 2 } } as Player;
+            service['checkEndGame'](player1, room, mockServer);
+
+            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith('combatEnd', { listPlayers: room.listPlayers, player: player1 });
+            expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
+        });
+
+        it('should emit endGame if player has reached the victory threshold', () => {
+            room.gameMap.mode = GameMode.Classic;
+            const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
+            service['checkEndGame'](winner, room, mockServer);
+            expect(mockGameService.onEndGame).toHaveBeenCalled();
+            expect(mockLogsService.sendEndGameLog).toHaveBeenCalled();
+        });
+        it('should not emit endGame if player has reached the victory threshold and is in CTF mode', () => {
+            const winner = { id: '1', postGameStats: { victories: 3 } } as Player;
+            service['checkEndGame'](winner, room, mockServer);
+
+            expect(mockGameService.onEndGame).not.toHaveBeenCalled();
+            expect(mockLogsService.sendEndGameLog).not.toHaveBeenCalled();
+        });
+    });
+
+    it('should evade when evasion sucessfull', () => {
+        service['emitToCombatPlayers'] = jest.fn();
+        service['continuePlayerTurn'] = jest.fn();
+        service['addToPostGameStats'] = jest.fn();
+
+        service['handleEvasionSuccess'](room, mockServer);
+
+        expect(service['emitToCombatPlayers']).toHaveBeenCalled();
+        expect(service['continuePlayerTurn']).toHaveBeenCalledWith(mockServer, room);
+        expect(mockLogsService.sendCombatActionLog).toHaveBeenCalled();
+        expect(mockLogsService.sendGlobalCombatLog).toHaveBeenCalled();
+    });
+
+    it('should addVictory combat finish', () => {
+        mockClient.data.roomCode = room.roomId;
+        service['isAttacker'] = jest.fn().mockReturnValue(true);
+        service['resetCombatState'] = jest.fn();
+        service['addVictory'] = jest.fn();
+        mockLogsService.sendPlayerLog = jest.fn();
+
+        service['handleCombatWon'](attacker, mockServer, room);
+        expect(service['resetCombatState']).toHaveBeenCalled();
+    });
+
+    it('should stop the fight timer and reset each player hp', () => {
+        const player1 = { id: '1', attributes: { currentHp: 0 } } as Player;
+        const player2 = { id: '2', attributes: { currentHp: 3 } } as Player;
+        room.listPlayers.push(player1);
+        room.listPlayers.push(player2);
+        service['removeXiphosEffect'] = jest.fn();
+        service['resetPlayerHealth'] = jest.fn();
+
+        service['resetCombatState'](room);
+        expect(mockRoomService.getFightTimer).toHaveBeenCalledWith(room.roomId);
+        expect(mockRoomService.getFightTimer(room.roomId).stopTimer).toHaveBeenCalled();
+        expect(service['removeXiphosEffect']).toHaveBeenCalled();
+        expect(service['resetPlayerHealth']).toHaveBeenCalled();
+    });
+
+    it('should call onTurnEnded if time remaining is 0 or less', () => {
+        jest.useFakeTimers();
+        const player = mockPlayers[0];
+        mockGameService.getActivePlayer.mockReturnValue(player);
+        const mockSocket = { id: player.id } as Socket;
+        mockServer.sockets.sockets.set(player.id, mockSocket);
+        mockRoomService.getTurnTimer.mockReturnValue({
+            resumeTimer: jest.fn((callback: (timeRemaining: number) => void) => {
+                callback(0);
+            }),
+        } as unknown as Timer);
+        service['resetCombatState'] = jest.fn();
+
+        service['continuePlayerTurn'](mockServer, room);
+        jest.advanceTimersByTime(END_COMBAT_DELAY);
+
+        expect(mockGameService.onTurnEnded).toHaveBeenCalledWith(room, mockServer);
     });
 
     it('should add victory', () => {
@@ -707,5 +779,96 @@ describe('CombatService', () => {
         const result = service['addToPostGameStats'](room, players, attr1, attr2);
 
         expect(result).toBeNull();
+    });
+
+    describe('canBotAttack', () => {
+        it('should return false if player not bot', () => {
+            service['generateRandom'] = jest.fn().mockReturnValue(FIGHT_TIME);
+            service['isPlayerBot'] = jest.fn().mockReturnValue(true);
+            const result = service['canBotAttack'](FIGHT_TIME, FIGHT_TIME, combatPlayers);
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('getTurnTime', () => {
+        it('should return 1 if both players are bots', () => {
+            service['isBothPlayersBot'] = jest.fn().mockReturnValue(true);
+            const result = service['getTurnTime'](combatPlayers);
+            expect(result).toBe(TWO_BOTS_FIGHT_TIME);
+        });
+
+        it('should return 3 if no more evasion', () => {
+            service['isBothPlayersBot'] = jest.fn().mockReturnValue(false);
+            service['hasEvasionLeft'] = jest.fn().mockReturnValue(false);
+
+            const result = service['getTurnTime'](combatPlayers);
+            expect(result).toBe(NO_EVASION_TIME);
+        });
+    });
+
+    describe('hasValidActivePlayers', () => {
+        it('should return false if no socket exists for the room', () => {
+            const result = service['hasValidActivePlayers'](room, mockServer);
+            expect(result).toBe(false);
+        });
+
+        it('should return true if bot and player', () => {
+            mockServer.sockets.adapter.rooms.set(room.roomId, new Set([mockClient.id]));
+            service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue([]);
+            service['hasBotInPlayers'] = jest.fn().mockReturnValue(true);
+
+            const result = service['hasValidActivePlayers'](room, mockServer);
+            expect(result).toBe(true);
+        });
+
+        it('should return true if more than one player', () => {
+            const player2 = { id: 'second' };
+            mockServer.sockets.adapter.rooms.set(room.roomId, new Set([mockClient.id, player2.id]));
+            service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue([]);
+            service['hasBotInPlayers'] = jest.fn().mockReturnValue(false);
+
+            const result = service['hasValidActivePlayers'](room, mockServer);
+            expect(result).toBe(true);
+        });
+    });
+
+    it('should return only connected players', () => {
+        const player1 = { status: Status.Disconnected } as Player;
+        const player2 = { status: Status.Player } as Player;
+        room.listPlayers = [player1, player2];
+
+        const result = service['getPlayerConnectedInRoom'](room);
+        expect(result).toEqual([player2]);
+    });
+
+    describe('hasBotInPlayers', () => {
+        it('should return true if there is a bot', () => {
+            const player1 = { status: Status.Disconnected } as Player;
+            const player2 = { status: Status.Bot } as Player;
+            const players = [player1, player2];
+
+            const result = service['hasBotInPlayers'](players);
+            expect(result).toEqual(true);
+        });
+
+        it('should return false if there is no bot', () => {
+            const player1 = { status: Status.Disconnected } as Player;
+            const player2 = { status: Status.PendingDisconnection } as Player;
+            const players = [player1, player2];
+
+            const result = service['hasBotInPlayers'](players);
+            expect(result).toEqual(false);
+        });
+    });
+
+    describe('isDefensiveBotDamaged', () => {
+        it('should return true if the player is a bot, damaged, has evasion left, and is defensive', () => {
+            const player = { attributes: { currentHp: 1, totalHp: 3 }, behavior: Behavior.Defensive } as Player;
+            service['isPlayerBot'] = jest.fn().mockReturnValue(true);
+            service['hasEvasionLeft'] = jest.fn().mockReturnValue(true);
+
+            const result = service['isDefensiveBotDamaged'](player);
+            expect(result).toBe(true);
+        });
     });
 });

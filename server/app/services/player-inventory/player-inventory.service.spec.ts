@@ -272,11 +272,11 @@ describe('PlayerInventoryService', () => {
 
     it('should return available items excluding those already in inventory', () => {
         service['getItemsInInventories'] = jest.fn().mockReturnValue(new Set([ObjectType.Xiphos, ObjectType.Sandal]));
-        service['getItemsFromGrid'] = jest.fn().mockReturnValue(new Set([ObjectType.Xiphos, ObjectType.Lightning]));
+        service['getItemsFromGrid'] = jest.fn().mockReturnValue(new Set([ObjectType.Lightning, ObjectType.Armor]));
 
         const result = service['getAvailableItems'](itemPlacement, room);
 
-        expect(result.length).toBe(3);
+        expect(result.length).toBe(INVENTORY_SIZE);
         expect(result).toContain(ObjectType.Trident);
     });
 
@@ -303,7 +303,7 @@ describe('PlayerInventoryService', () => {
 
     it('should update the inventory when the dropped item is not the same as the picked up item', () => {
         service['determineItemToDrop'] = jest.fn().mockReturnValue(gameObjects[0]);
-        const result = service['getPrioritizedItem'](mockInfoSwap, ObjectType.Armor);
+        service['getPrioritizedItem'](mockInfoSwap, ObjectType.Armor);
         expect(mockInfoSwap.modifiedInventory).toEqual([gameObjects[3], gameObjects[1]]);
     });
 

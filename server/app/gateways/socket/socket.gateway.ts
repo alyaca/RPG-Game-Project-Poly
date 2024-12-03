@@ -34,16 +34,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
-        const connectionRes = this.gameService.connectPlayerToGame(roomId);
-        const room = this.roomService.rooms.get(roomId);
-        this.roomService.joinRoom(client, roomId);
-        if (connectionRes.errorType) {
-            this.roomService.leaveRoom(roomId, client);
-            client.emit(connectionRes.event, connectionRes.errorType);
-        } else {
-            client.emit(connectionRes.event, room);
-            this.logger.debug(`client ${client.id} joined room ${roomId}`);
-        }
+        this.gameService.handleJoinGame(client, roomId);
+        this.logger.debug(`client ${client.id} joined room ${roomId}`);
     }
 
     @SubscribeMessage(ClientToServerEvent.LeaveRoom)
@@ -67,10 +59,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
-        const isAdmin = this.roomService.isPlayerAdmin(client);
-        this.gameService.createPlayer(room, player, client);
-        this.server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
-        client.emit(ServerToClientEvent.IsPlayerAdmin, isAdmin);
+        this.gameService.handleCreatePlayer(room, player, client, this.server);
         this.logger.debug(`Player created with client ${client.id} in room ${room.roomId}`);
     }
 
@@ -155,10 +144,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.DebugMode)
     handleDebugMode(client: Socket, debugMode: boolean) {
-        const room = this.roomService.getRoom(client);
-        room.isDebug = debugMode;
-        this.gameService.updateLogsDebugMode(debugMode, this.server, client);
-        this.server.to(room.roomId).emit(ServerToClientEvent.DebugMode, debugMode);
+        this.gameService.handleDebugMode(debugMode, this.server, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.PlayerNavigation)
@@ -184,19 +170,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         this.combatService.startFight(room, this.server, combatActionData);
     }
 
-    @SubscribeMessage(ClientToServerEvent.ForceEndGame)
-    handleForceEndGame(client: Socket, winner: Player) {
-        this.logger.log('end of game has been forced');
-        const room = this.roomService.getRoom(client);
-        this.gameService.onEndGame(winner, room, this.server);
-    }
-
     @SubscribeMessage(ClientToServerEvent.GetRoom)
     handleGetRoom(client: Socket) {
         const room = this.roomService.getRoom(client);
         this.server.to(room.roomId).emit(ServerToClientEvent.ObtainRoomInfo, room);
     }
 
+    // TODO: move it to service !
     async saveMessage(client: Socket, message: IMessage): Promise<void> {
         try {
             const savedMessage = await this.chatService.saveMessage(message);
@@ -225,7 +205,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
 
         if (this.combatService.isInCombat(client)) {
-            this.combatService.disconnectedPlayer(client, this.server);
+            this.combatService.handleDisconnectedPlayer(client, this.server);
         }
         this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
 
