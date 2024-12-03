@@ -33,6 +33,7 @@ import { Server, Socket } from 'socket.io';
 export class GameService {
     isMoving: boolean = false;
     isTurnSkipped: boolean = false;
+    isPlayerFell: boolean = false;
 
     constructor(
         private roomService: RoomService,
@@ -328,6 +329,7 @@ export class GameService {
     }
 
     async processNavigation(room: Room, server: Server, path: Position[], client: Socket) {
+        this.isPlayerFell = false;
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
         this.initTileHistory(room);
@@ -358,9 +360,10 @@ export class GameService {
             server.to(room.roomId).emit(ServerToClientEvent.PlayerNavigation, tile);
             if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
                 this.handleFallingOnIce(room, client, server);
+                this.isPlayerFell = true;
+                this.isMoving = false;
                 break;
             }
-
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
             if (pickedUpItem) break;
         }
@@ -373,7 +376,7 @@ export class GameService {
             this.onTurnEnded(room, server);
             return;
         }
-        if (this.isTurnSkipped) {
+        if (this.isTurnSkipped && !this.isPlayerFell) {
             this.onTurnEnded(room, server);
             this.isTurnSkipped = false;
             return;
