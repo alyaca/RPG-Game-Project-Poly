@@ -207,24 +207,24 @@ describe('GameService', () => {
     });
 
     it('should navigate to game-creation when admin on leftRoom event', () => {
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+        socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.LeftRoom) {
                 callback(true as T);
             }
         });
         service.onLeftRoom();
-        expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
+        expect(socketCommunicationServiceSpy.once).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.CREATE]);
     });
 
     it('should navigate to home when not admin on leftRoom event', () => {
-        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+        socketCommunicationServiceSpy.once.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.LeftRoom) {
                 callback(false as T);
             }
         });
         service.onLeftRoom();
-        expect(socketCommunicationServiceSpy.on).toHaveBeenCalled();
+        expect(socketCommunicationServiceSpy.once).toHaveBeenCalled();
         expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
     });
 
