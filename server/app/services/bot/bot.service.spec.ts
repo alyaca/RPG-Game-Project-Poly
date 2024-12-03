@@ -295,18 +295,6 @@ describe('BotService', () => {
             clickedPosition: mockTargetId.position,
             player: mockActivePlayer,
         });
-
-        // for line 132
-        // mockTargetId.status = Status.Bot;
-        // await (service as any).attackPlayer(mockRoomName, mockServer, {
-        //     target: mockTargetId,
-        //     activePlayer: mockActivePlayer,
-        //     path: [...mockPath],
-        // });
-        // expect(mockServer.to((service as any).getEventHost(mockRoomName.roomId).emit)).toHaveBeenCalledWith(ServerToClientEvent.BotAttack, {
-        //     clickedPosition: mockTargetId.position,
-        //     player: mockActivePlayer,
-        // });
     });
 
     it('should return true if players are neighbors', () => {
