@@ -321,11 +321,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     checkTeleportation(position: Position) {
-        if (!this.gameCreationService.isModifiable && this.isActivePlayer) {
-            if (!this.isMoving) {
-                this.isMoving = true;
-                this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
-            }
+        if (!this.gameCreationService.isModifiable && this.isActivePlayer && this.hasStarted) {
+            this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
         }
     }
 
