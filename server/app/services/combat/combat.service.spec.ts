@@ -20,7 +20,6 @@ import { mockRooms } from '@app/mocks/mock-room';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
-import { RoomService } from '@app/services/room/room.service';
 import { ObjectType } from '@common/avatars-info';
 import { GameMode, TileType, XiphosEffect } from '@common/constants';
 import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
@@ -35,7 +34,6 @@ import { Server, Socket } from 'socket.io';
 /* eslint-disable max-lines */
 describe('CombatService', () => {
     let service: CombatService;
-    let mockRoomService: jest.Mocked<RoomService>;
     let mockGameService: jest.Mocked<GameService>;
     let mockLogsService: jest.Mocked<GameLogsService>;
     let mockServer: Server;
@@ -47,8 +45,16 @@ describe('CombatService', () => {
     let defender: Player;
 
     beforeEach(async () => {
-        mockRoomService = {
-            getRoom: jest.fn(),
+        mockGameService = {
+            onTurnEnded: jest.fn(),
+            stopGameTimers: jest.fn(),
+            getActivePlayer: jest.fn(),
+            placeItemsOnGround: jest.fn(),
+            resetGlobalStats: jest.fn(),
+            onEndGame: jest.fn(),
+            getServer: jest.fn().mockReturnValue(mockServer),
+            emitEventToRoom: jest.fn(),
+            leavePlayerFromGame: jest.fn(),
             getTurnTimer: jest.fn().mockReturnValue({
                 getTimeRemaining: jest.fn().mockReturnValue(TURN_TIME),
                 pauseTimer: jest.fn(),
@@ -58,17 +64,6 @@ describe('CombatService', () => {
                 resetTimer: jest.fn(),
                 stopTimer: jest.fn(),
             }),
-        } as unknown as jest.Mocked<RoomService>;
-
-        mockGameService = {
-            onTurnEnded: jest.fn(),
-            stopGameTimers: jest.fn(),
-            getActivePlayer: jest.fn(),
-            placeItemsOnGround: jest.fn(),
-            resetGlobalStats: jest.fn(),
-            onEndGame: jest.fn(),
-            getServer: jest.fn(),
-            emitEventToRoom: jest.fn(),
         } as unknown as jest.Mocked<GameService>;
 
         mockLogsService = {
@@ -100,19 +95,13 @@ describe('CombatService', () => {
         defender = JSON.parse(JSON.stringify(mockDefender));
 
         const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                CombatService,
-                { provide: RoomService, useValue: mockRoomService },
-                { provide: GameService, useValue: mockGameService },
-                { provide: GameLogsService, useValue: mockLogsService },
-            ],
+            providers: [CombatService, { provide: GameService, useValue: mockGameService }, { provide: GameLogsService, useValue: mockLogsService }],
         }).compile();
 
         service = module.get<CombatService>(CombatService);
         service.combatInfos.set(room.roomId, combatInfos);
         room.listPlayers = [mockPlayers[0]];
-        mockRoomService.getRoom = jest.fn().mockReturnValue(room);
-        service.getServer = jest.fn().mockReturnValue(mockServer);
+        service['getServer'] = jest.fn().mockReturnValue(mockServer);
     });
 
     afterEach(() => {
@@ -169,7 +158,7 @@ describe('CombatService', () => {
         });
     });
 
-    describe('handleDisconnectedPlayer', () => {
+    describe('manageCombatPlayerDisconnection', () => {
         it('should reset combat state when a player disconnects while in combat', () => {
             const player = { id: mockClient.id, isActive: true } as unknown as Player;
             room.listPlayers.push(player);
@@ -184,7 +173,7 @@ describe('CombatService', () => {
             service['hasValidActivePlayers'] = jest.fn().mockReturnValue(true);
             service['continuePlayerTurn'] = jest.fn();
 
-            service.handleDisconnectedPlayer(mockClient);
+            service['manageCombatPlayerDisconnection'](mockClient, room);
             expect(service['continuePlayerTurn']).toHaveBeenCalled();
         });
 
@@ -195,9 +184,16 @@ describe('CombatService', () => {
             service['hasValidActivePlayers'] = jest.fn().mockReturnValue(false);
             service['handleDefaultCombatWin'] = jest.fn();
 
-            service.handleDisconnectedPlayer(mockClient);
+            service['manageCombatPlayerDisconnection'](mockClient, room);
             expect(service['handleDefaultCombatWin']).not.toHaveBeenCalled();
         });
+    });
+
+    it('should handle disconnection', () => {
+        service['isInCombat'] = jest.fn().mockReturnValue(true);
+        service['manageCombatPlayerDisconnection'] = jest.fn();
+
+        service.handleDisconnectedPlayer(mockClient, room);
     });
 
     describe('isInCombat', () => {
@@ -209,27 +205,27 @@ describe('CombatService', () => {
 
         it('should return false if data is undefined', () => {
             mockClient.data = undefined;
-            const result = service.isInCombat(mockClient);
+            const result = service['isInCombat'](mockClient);
             expect(result).toBe(false);
         });
 
         it('should return false if no combat in room', () => {
             mockClient.data.roomCode = 'noCode';
-            const result = service.isInCombat(mockClient);
+            const result = service['isInCombat'](mockClient);
             expect(result).toBe(false);
         });
 
         it('should return false if attacker undefined', () => {
             players.defender = defender;
             players.attacker = undefined;
-            const result = service.isInCombat(mockClient);
+            const result = service['isInCombat'](mockClient);
             expect(result).toBe(false);
         });
 
         it('should return false if defender undefined', () => {
             players.attacker = attacker;
             players.defender = undefined;
-            const result = service.isInCombat(mockClient);
+            const result = service['isInCombat'](mockClient);
             expect(result).toBe(false);
         });
 
@@ -237,7 +233,7 @@ describe('CombatService', () => {
             players.attacker = attacker;
             players.defender = defender;
             players.attacker.id = mockClient.id;
-            const result = service.isInCombat(mockClient);
+            const result = service['isInCombat'](mockClient);
             expect(result).toBe(true);
         });
 
@@ -245,7 +241,7 @@ describe('CombatService', () => {
             players.attacker = attacker;
             players.defender = defender;
             players.defender.id = mockClient.id;
-            const result = service.isInCombat(mockClient);
+            const result = service['isInCombat'](mockClient);
             expect(result).toBe(true);
         });
     });
@@ -274,7 +270,7 @@ describe('CombatService', () => {
             const fightTimer = {
                 resetTimer: resetTimerMock,
             } as unknown as Timer;
-            jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
+            jest.spyOn(mockGameService, 'getFightTimer').mockReturnValue(fightTimer);
             service['emitToCombatPlayers'] = jest.fn();
             service.attackPlayer = jest.fn();
             room.listPlayers.push(mockPlayers[0]);
@@ -296,7 +292,7 @@ describe('CombatService', () => {
             const fightTimer = {
                 resetTimer: resetTimerMock,
             } as unknown as Timer;
-            jest.spyOn(mockRoomService, 'getFightTimer').mockReturnValue(fightTimer);
+            jest.spyOn(mockGameService, 'getFightTimer').mockReturnValue(fightTimer);
             service['emitToCombatPlayers'] = jest.fn();
             service.attackPlayer = jest.fn();
             room.listPlayers.push(mockPlayers[0]);
@@ -603,8 +599,8 @@ describe('CombatService', () => {
         service['resetPlayerHealth'] = jest.fn();
 
         service['resetCombatState'](room);
-        expect(mockRoomService.getFightTimer).toHaveBeenCalledWith(room.roomId);
-        expect(mockRoomService.getFightTimer(room.roomId).stopTimer).toHaveBeenCalled();
+        expect(mockGameService.getFightTimer).toHaveBeenCalledWith(room.roomId);
+        expect(mockGameService.getFightTimer(room.roomId).stopTimer).toHaveBeenCalled();
         expect(service['removeXiphosEffect']).toHaveBeenCalled();
         expect(service['resetPlayerHealth']).toHaveBeenCalled();
     });
@@ -615,7 +611,7 @@ describe('CombatService', () => {
         mockGameService.getActivePlayer.mockReturnValue(player);
         const mockSocket = { id: player.id } as Socket;
         mockServer.sockets.sockets.set(player.id, mockSocket);
-        mockRoomService.getTurnTimer.mockReturnValue({
+        mockGameService.getTurnTimer.mockReturnValue({
             resumeTimer: jest.fn((callback: (timeRemaining: number) => void) => {
                 callback(0);
             }),
@@ -1039,5 +1035,11 @@ describe('CombatService', () => {
 
         const result = service['setFirstAttacker'](combatActionData, opponent);
         expect(result).toEqual([opponent, combatActionData.player]);
+    });
+
+    it('should call emitEventToRoom', () => {
+        mockGameService.emitEventToRoom = jest.fn();
+        service['emitEventToRoom'](room.roomId, ServerToClientEvent.ActivePlayer);
+        expect(mockGameService.emitEventToRoom).toHaveBeenCalled();
     });
 });

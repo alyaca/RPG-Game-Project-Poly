@@ -104,6 +104,14 @@ export class GameService {
         return this.roomService.getServer();
     }
 
+    getTurnTimer(roomId: string) {
+        return this.roomService.getTurnTimer(roomId);
+    }
+
+    getFightTimer(roomId: string) {
+        return this.roomService.getFightTimer(roomId);
+    }
+
     emitEventToRoom(roomId: string, event: string, data?) {
         this.getServer().to(roomId).emit(event, data);
     }
@@ -137,8 +145,8 @@ export class GameService {
     }
 
     stopGameTimers(room: Room) {
-        this.roomService.getFightTimer(room.roomId).stopTimer();
-        this.roomService.getTurnTimer(room.roomId).stopTimer();
+        this.getFightTimer(room.roomId).stopTimer();
+        this.getTurnTimer(room.roomId).stopTimer();
     }
 
     toggleLockRoom(roomId: string, isLocked: boolean) {
@@ -174,7 +182,7 @@ export class GameService {
         this.emitEventToRoom(room.roomId, ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, this.getServer(), activePlayer, LogType.StartTurn);
 
-        this.roomService.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
+        this.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             this.emitEventToRoom(room.roomId, ServerToClientEvent.BeforeStartTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
                 this.playerTurnTimer(room);
@@ -305,7 +313,7 @@ export class GameService {
         let activePlayer = this.getActivePlayer(room);
         activePlayer = this.playerInventoryService.updatePlayerAfterSwap(infoSwap);
 
-        this.roomService.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
+        this.getTurnTimer(room.roomId).resumeTimer((timeLeft) => {
             if (timeLeft <= 0) {
                 this.onTurnEnded(room);
             }
@@ -613,7 +621,7 @@ export class GameService {
     }
 
     private playerTurnTimer(room: Room) {
-        this.roomService.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
+        this.getTurnTimer(room.roomId).resetTimer(TURN_TIME, (timeRemaining) => {
             this.emitEventToRoom(room.roomId, ServerToClientEvent.StartedTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
                 this.onTurnEnded(room);

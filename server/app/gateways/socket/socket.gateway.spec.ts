@@ -152,12 +152,10 @@ describe('SocketGateway', () => {
     describe('disconnect', () => {
         it('should log when a client disconnects', () => {
             (roomService.getRoom as jest.Mock).mockReturnValue(mockRooms[0]);
-            (combatService.isInCombat as jest.Mock).mockReturnValue(true);
             jest.spyOn(combatService, 'handleDisconnectedPlayer');
-            jest.spyOn(gameService, 'leavePlayerFromGame');
             jest.spyOn(logger, 'log');
             gateway.handleDisconnect(socket);
-            expect(gameService.leavePlayerFromGame).toHaveBeenCalled();
+            expect(combatService.handleDisconnectedPlayer).toHaveBeenCalled();
             expect(logger.log).toHaveBeenCalled();
         });
         it('should log when a client disconnects and is not in a room', () => {
