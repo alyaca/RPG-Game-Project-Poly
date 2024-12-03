@@ -48,6 +48,13 @@ describe('PlayerInfoInventoryComponent', () => {
     });
 
     describe('getActionArray', () => {
+        it('should return empty array if actionPoints is negative', () => {
+            component.activePlayer = { id: 'matchingId', attributes: { actionPoints: -1 } } as Player;
+            component.player.attributes = { actionPoints: 0 } as Attributes;
+            component.player.id = 'matchingId';
+            const result = component.getActionArray();
+            expect(result).toEqual([]);
+        });
         it('should return the correct action array for the current player', () => {
             component.activePlayer = { id: 'someOtherId', attributes: { actionPoints: 2 } } as Player;
             component.player.attributes = { actionPoints: 2 } as Attributes;
