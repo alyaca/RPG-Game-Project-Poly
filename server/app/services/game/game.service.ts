@@ -35,9 +35,9 @@ import { Socket } from 'socket.io';
 /* eslint-disable max-lines */
 @Injectable()
 export class GameService {
-    isMoving: boolean = false;
-    isTurnSkipped: boolean = false;
-    isPlayerFell: boolean = false;
+    private isMoving: boolean = false;
+    private isTurnSkipped: boolean = false;
+    private isPlayerFell: boolean = false;
 
     constructor(
         private roomService: RoomService,
@@ -46,20 +46,6 @@ export class GameService {
         private matchService: MatchService,
         private botService: BotService,
     ) {}
-
-    connectPlayerToGame(roomId: string) {
-        const game = this.getRoomById(roomId);
-        if (!this.isCodeFormatValid(roomId)) {
-            return { event: 'joinError', errorType: 'invalidFormat' };
-        }
-        if (!this.roomService.isRoomActive(roomId)) {
-            return { event: 'joinError', errorType: 'roomNotFound' };
-        }
-        if (game.isLocked) {
-            return { event: 'joinError', errorType: 'roomLocked' };
-        }
-        return { event: 'joinedRoom' };
-    }
 
     handleJoinGame(client: Socket, roomId: string) {
         const connectionRes = this.connectPlayerToGame(roomId);
@@ -165,16 +151,6 @@ export class GameService {
         this.sortPlayersBySpeed(room);
         room.listPlayers[0].isActive = true;
         this.emitStartGameEvents(room);
-    }
-
-    private emitStartGameEvents(room: Room) {
-        const activePlayer = this.getActivePlayer(room);
-        this.emitEventToRoom(room.roomId, ServerToClientEvent.StartGame, room);
-        this.emitEventToRoom(room.roomId, ServerToClientEvent.MapInformation, room);
-        this.emitEventToRoom(room.roomId, ServerToClientEvent.ActivePlayer, activePlayer);
-        const reachability = room.navigation.findReachableTiles(activePlayer, room);
-        this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);
-        this.checkActions(room);
     }
 
     onStartTurn(room: Room) {
@@ -452,6 +428,30 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private emitStartGameEvents(room: Room) {
+        const activePlayer = this.getActivePlayer(room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.StartGame, room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.MapInformation, room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.ActivePlayer, activePlayer);
+        const reachability = room.navigation.findReachableTiles(activePlayer, room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);
+        this.checkActions(room);
+    }
+
+    private connectPlayerToGame(roomId: string) {
+        const game = this.getRoomById(roomId);
+        if (!this.isCodeFormatValid(roomId)) {
+            return { event: 'joinError', errorType: 'invalidFormat' };
+        }
+        if (!this.roomService.isRoomActive(roomId)) {
+            return { event: 'joinError', errorType: 'roomNotFound' };
+        }
+        if (game.isLocked) {
+            return { event: 'joinError', errorType: 'roomLocked' };
+        }
+        return { event: 'joinedRoom' };
     }
 
     private handleToggleDoor(client: Socket, room: Room, clickedPosition: Position) {
