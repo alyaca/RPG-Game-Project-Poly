@@ -1,5 +1,6 @@
 import { Timer } from '@app/classes/timer/timer';
 import {
+    DEFAULT_ATTRIBUTE,
     END_COMBAT_DELAY,
     EVASION_SUCCESS_RATE,
     FIGHT_TIME,
@@ -9,6 +10,8 @@ import {
     ROLL_DURATION,
     TURN_TIME,
     TWO_BOTS_FIGHT_TIME,
+    XIPHOS_ATTACK_BONUS,
+    XIPHOS_DEFENSE_PENALTY,
 } from '@app/constants';
 import { mockAttacker, mockCombatInfos, mockCombatPlayers, mockDefender } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
@@ -18,7 +21,8 @@ import { CombatService } from '@app/services/combat/combat.service';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { GameService } from '@app/services/game/game.service';
 import { RoomService } from '@app/services/room/room.service';
-import { GameMode, TileType } from '@common/constants';
+import { ObjectType } from '@common/avatars-info';
+import { GameMode, TileType, XiphosEffect } from '@common/constants';
 import { CombatInfos, CombatPlayers } from '@common/interfaces/combat-info';
 import { Behavior, Player, Status } from '@common/interfaces/player';
 import { PlayerStatType } from '@common/interfaces/post-game-stat';
@@ -146,6 +150,19 @@ describe('CombatService', () => {
             expect(service['checkCombatOutcome']).toHaveBeenCalled();
             expect(mockLogsService.sendCombatResultLog).toHaveBeenCalled();
             expect(service['handleAttackSuccess']).toHaveBeenCalled();
+        });
+
+        it('should call handleFailAttack', () => {
+            const combatValue = { attackValues: { total: 5, diceValue: 4 }, defenseValues: { total: 10, diceValue: 1 } };
+            service['getCombatValues'] = jest.fn().mockReturnValue(combatValue);
+            service['handleFailAttack'] = jest.fn();
+            service['checkCombatOutcome'] = jest.fn();
+            mockLogsService.sendCombatResultLog = jest.fn();
+
+            service.attackPlayer(room, mockServer);
+            expect(service['checkCombatOutcome']).toHaveBeenCalled();
+            expect(mockLogsService.sendCombatResultLog).toHaveBeenCalled();
+            expect(service['handleFailAttack']).toHaveBeenCalled();
         });
     });
 
@@ -870,5 +887,147 @@ describe('CombatService', () => {
             const result = service['isDefensiveBotDamaged'](player);
             expect(result).toBe(true);
         });
+    });
+
+    describe('hasXiphos', () => {
+        it('should return true if the player has Xiphos in inventory', () => {
+            const player = { inventory: [{ id: ObjectType.Xiphos }] } as Player;
+            const result = service['hasXiphos'](player);
+            expect(result).toBeTruthy();
+        });
+
+        it('should return false if the player does not have Xiphos in inventory', () => {
+            const player = { inventory: [{ id: ObjectType.Trident }] } as Player;
+            const result = service['hasXiphos'](player);
+            expect(result).toBeFalsy();
+        });
+    });
+
+    it('should return true if the player has Xiphos and half health', () => {
+        service['hasXiphos'] = jest.fn().mockReturnValue(true);
+        service['hasHealthBelowHalf'] = jest.fn().mockReturnValue(true);
+        const result = service['isXiphosActive'](attacker);
+        expect(result).toBe(true);
+    });
+
+    it('should return true if the player has half health', () => {
+        const player = { attributes: { currentHp: 3, totalHp: 7 } } as Player;
+        const result = service['hasHealthBelowHalf'](player);
+        expect(result).toBe(true);
+    });
+
+    it('should return true if the player is attacker', () => {
+        const result = service['isAttacker'](attacker, combatPlayers);
+        expect(result).toBe(true);
+    });
+
+    it('should apply xiphos effect', () => {
+        attacker.attributes.attack = DEFAULT_ATTRIBUTE;
+        defender.attributes.defense = DEFAULT_ATTRIBUTE;
+        service['applyXiphosEffect'](attacker, defender, room.roomId);
+        expect(attacker.attributes.attack).toBe(DEFAULT_ATTRIBUTE + XIPHOS_ATTACK_BONUS);
+        expect(defender.attributes.defense).toBe(DEFAULT_ATTRIBUTE - XIPHOS_DEFENSE_PENALTY);
+    });
+
+    it('should return true if affected by xiphos', () => {
+        service['hasXiphos'] = jest.fn().mockReturnValue(true);
+        const result = service['isPlayerAffectedByXiphos'](attacker, true);
+        expect(result).toBe(true);
+    });
+
+    describe('removeXiphosEffect', () => {
+        it('should call updateXiphosAttributes if attacker affected', () => {
+            service['isPlayerAffectedByXiphos'] = jest.fn().mockReturnValue(true);
+            service['updateXiphosAttributes'] = jest.fn();
+
+            service['removeXiphosEffect'](combatPlayers, true);
+            expect(service['updateXiphosAttributes']).toHaveBeenCalledWith(attacker, defender);
+            expect(service['isPlayerAffectedByXiphos']).toHaveBeenCalledWith(attacker, true);
+        });
+        it('should call updateXiphosAttributes if defender affected', () => {
+            service['isPlayerAffectedByXiphos'] = jest.fn().mockReturnValueOnce(false).mockReturnValue(true);
+            service['updateXiphosAttributes'] = jest.fn();
+
+            service['removeXiphosEffect'](combatPlayers, true);
+            expect(service['updateXiphosAttributes']).toHaveBeenCalledWith(defender, attacker);
+            expect(service['isPlayerAffectedByXiphos']).toHaveBeenCalledWith(defender, true);
+        });
+    });
+
+    it('should update xiphos attributes', () => {
+        attacker.attributes.attack = DEFAULT_ATTRIBUTE;
+        defender.attributes.defense = DEFAULT_ATTRIBUTE;
+        service['updateXiphosAttributes'](attacker, defender);
+        expect(attacker.attributes.attack).toBe(DEFAULT_ATTRIBUTE - XiphosEffect.Attack);
+        expect(defender.attributes.defense).toBe(DEFAULT_ATTRIBUTE + XiphosEffect.Defense);
+    });
+
+    it('should reset ice penalty on ice tile', () => {
+        attacker.attributes.attack = DEFAULT_ATTRIBUTE;
+        attacker.attributes.defense = DEFAULT_ATTRIBUTE;
+        room.gameMap.tiles = [[TileType.Ice, TileType.Ice]];
+        service['resetPlayerIcePenalty'](room, attacker);
+        expect(attacker.attributes.attack).toBe(DEFAULT_ATTRIBUTE + ICE_TILE_PENALTY_VALUE);
+        expect(attacker.attributes.defense).toBe(DEFAULT_ATTRIBUTE + ICE_TILE_PENALTY_VALUE);
+    });
+
+    it('should apply xiphos effect', () => {
+        service['isXiphosActive'] = jest.fn().mockReturnValue(true);
+        service['applyXiphosEffect'] = jest.fn();
+
+        service['checkXiphos'](combatPlayers, mockServer, room);
+        expect(service['applyXiphosEffect']).toHaveBeenCalled();
+    });
+
+    describe('checkAchillesArmor', () => {
+        it('should return true and reduce hp', () => {
+            service['hasAchillesArmor'] = jest.fn().mockReturnValue(true);
+            expect(service['checkAchillesArmor'](attacker)).toBe(true);
+        });
+
+        it('should return true and reduce hp', () => {
+            service['hasAchillesArmor'] = jest.fn().mockReturnValue(false);
+            expect(service['checkAchillesArmor'](attacker)).toBe(false);
+        });
+    });
+
+    describe('hasAchillesArmor', () => {
+        it('should return true if the player has Achilles Armor in inventory', () => {
+            const player = { inventory: [{ id: ObjectType.Armor }] } as Player;
+            const result = service['hasAchillesArmor'](player);
+            expect(result).toBeTruthy();
+        });
+
+        it('should return false if the player does not have Achilles Armor in inventory', () => {
+            const player = { inventory: [{ id: ObjectType.Trident }] } as Player;
+            const result = service['hasAchillesArmor'](player);
+            expect(result).toBeFalsy();
+        });
+    });
+
+    describe('addStatsForWinLoss', () => {
+        it('should return attacker if attacker wins', () => {
+            room.listPlayers = [attacker, defender];
+            const result = service['addStatsForWinLoss'](room, combatPlayers, true);
+            expect(result).toBe(attacker);
+        });
+
+        it('should return defender if defender win', () => {
+            room.listPlayers = [attacker, defender];
+            const result = service['addStatsForWinLoss'](room, combatPlayers, false);
+            expect(result).toBe(defender);
+        });
+    });
+
+    it('should return defender if defender wins', () => {
+        const player = { attributes: { speed: 1 } } as Player;
+        const opponent = { attributes: { speed: 10 } } as Player;
+        const combatActionData = {
+            clickedPosition: { x: 0, y: 1 },
+            player,
+        };
+
+        const result = service['setFirstAttacker'](combatActionData, opponent);
+        expect(result).toEqual([opponent, combatActionData.player]);
     });
 });

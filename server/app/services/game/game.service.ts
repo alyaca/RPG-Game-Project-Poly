@@ -355,7 +355,7 @@ export class GameService {
             this.isMoving = true;
             player.position = tile;
             pickedUpItem = false;
-            if (!this.isAvatar(room, tile) && this.isObject(room, tile)) {
+            if (this.isNotAvatar(room, tile) && this.isObject(room, tile)) {
                 const infoSwap: InfoSwap = {
                     server,
                     client,
@@ -511,8 +511,8 @@ export class GameService {
         return room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag;
     }
 
-    private isAvatar(room: Room, tile: Position) {
-        return room.gameMap.itemPlacement[tile.x][tile.y] > ObjectType.Spawn || this.isOjectFlag(room, tile);
+    private isNotAvatar(room: Room, tile: Position) {
+        return room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident;
     }
 
     private checkFlagModeEndGame(player: Player, room: Room, server: Server) {

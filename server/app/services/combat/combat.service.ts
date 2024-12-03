@@ -329,11 +329,10 @@ export class CombatService {
         return player.attributes.currentHp <= player.attributes.totalHp / 2;
     }
 
-    private applyXiphosEffect(player: Player, opponent: Player, combatPlayers: CombatPlayers, roomId: string, server: Server) {
+    private applyXiphosEffect(player: Player, opponent: Player, roomId: string) {
         player.attributes.attack += XIPHOS_ATTACK_BONUS;
         opponent.attributes.defense -= XIPHOS_DEFENSE_PENALTY;
         this.combatInfos.get(roomId).checkedXiphos = true;
-        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.UpdateStats, combatPlayers);
     }
 
     private isAttacker(player: Player, combatPlayers: CombatPlayers) {
@@ -414,12 +413,13 @@ export class CombatService {
     private checkXiphos(combatPlayers: CombatPlayers, server: Server, room: Room) {
         const { attacker, defender } = combatPlayers;
         if (this.isXiphosActive(attacker)) {
-            this.applyXiphosEffect(attacker, defender, combatPlayers, room.roomId, server);
+            this.applyXiphosEffect(attacker, defender, room.roomId);
         }
 
         if (this.isXiphosActive(defender)) {
-            this.applyXiphosEffect(defender, attacker, combatPlayers, room.roomId, server);
+            this.applyXiphosEffect(defender, attacker, room.roomId);
         }
+        this.emitToCombatPlayers(server, combatPlayers, ServerToClientEvent.UpdateStats, combatPlayers);
     }
 
     private checkAchillesArmor(player: Player) {
