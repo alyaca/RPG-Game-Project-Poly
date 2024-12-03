@@ -177,7 +177,7 @@ describe('GameService', () => {
 
     describe('handleCreatePlayer', () => {
         it('should create a player and emit updatedPlayer events', () => {
-            service.setUniquePlayerName = jest.fn();
+            service['setUniquePlayerName'] = jest.fn();
             service['getAvatarByName'] = jest.fn().mockReturnValue(avatars[0]);
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
             room.listPlayers.push(mockPlayer);
@@ -190,7 +190,7 @@ describe('GameService', () => {
         });
 
         it('should create a player if not admin or bot', () => {
-            service.setUniquePlayerName = jest.fn();
+            service['setUniquePlayerName'] = jest.fn();
             service['getAvatarByName'] = jest.fn().mockReturnValue(avatars[0]);
             (roomService.getRoom as jest.Mock).mockReturnValue(room);
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
@@ -225,7 +225,6 @@ describe('GameService', () => {
 
             expect(mockSocket.emit).toHaveBeenCalledWith(ServerToClientEvent.LeftRoom, false);
             expect(service['removePlayerFromRoom']).toHaveBeenCalledWith(room, mockSocket);
-            expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.UpdatedPlayer, room);
         });
 
         it('should emit debugMode false when player is admin and room is in started mode', () => {
@@ -474,7 +473,7 @@ describe('GameService', () => {
         room.listPlayers = players;
         service['updateActivePlayer'] = jest.fn();
         jest.spyOn(service, 'getActivePlayer').mockReturnValue(players[0]);
-        service.checkActions = jest.fn();
+        service['checkActions'] = jest.fn();
 
         room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
         service.onTurnEnded(room);
@@ -621,7 +620,7 @@ describe('GameService', () => {
     it('should resolve after the specified delay', async () => {
         const ms = 100;
         const startTime = Date.now();
-        await service.delay(ms);
+        await service['delay'](ms);
         const elapsedTime = Date.now() - startTime;
 
         expect(elapsedTime).toBeGreaterThanOrEqual(ms);
@@ -715,7 +714,7 @@ describe('GameService', () => {
             } as unknown as Server;
 
             jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[0]);
-            service.checkActions = jest.fn();
+            service['checkActions'] = jest.fn();
 
             room.navigation.findReachableTiles = jest.fn().mockReturnValue([{ x: 2, y: 2 }]);
         });
@@ -735,7 +734,7 @@ describe('GameService', () => {
             expect(room.navigation.findReachableTiles).toHaveBeenCalledWith(mockPlayers[0], room);
             expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.ReachableTiles, [{ x: 2, y: 2 }]);
             expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.EndMovement);
-            expect(service.checkActions).toHaveBeenCalledWith(room);
+            expect(service['checkActions']).toHaveBeenCalledWith(room);
         });
     });
 
@@ -744,7 +743,7 @@ describe('GameService', () => {
         mockPlayerBot.attributes = mockAttributes;
         jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_SUCCESS).mockReturnValueOnce(EQUAL_ODDS_FAIL);
 
-        const result = service.assignStatsToBot(mockPlayerBot);
+        const result = service['assignStatsToBot'](mockPlayerBot);
         expect(result.attributes.currentHp).toBe(HIGH_ATTRIBUTE);
         expect(result.attributes.speed).toBe(DEFAULT_ATTRIBUTE);
         expect(result.attributes.atkDiceMax).toBe(DEFAULT_ATTRIBUTE);
@@ -756,7 +755,7 @@ describe('GameService', () => {
         mockPlayerBot.attributes = mockAttributes;
         jest.spyOn(Math, 'random').mockReturnValueOnce(EQUAL_ODDS_FAIL).mockReturnValueOnce(EQUAL_ODDS_SUCCESS);
 
-        const result = service.assignStatsToBot(mockPlayerBot);
+        const result = service['assignStatsToBot'](mockPlayerBot);
         expect(result.attributes.currentHp).toBe(DEFAULT_ATTRIBUTE);
         expect(result.attributes.speed).toBe(HIGH_ATTRIBUTE);
         expect(result.attributes.atkDiceMax).toBe(HIGH_ATTRIBUTE);
@@ -765,7 +764,7 @@ describe('GameService', () => {
 
     it('should assign an available avatar to an aggressive bot and mark it as taken', () => {
         const behavior = Behavior.Aggressive;
-        const result = service.assignAvatarToBot(room, behavior);
+        const result = service['assignAvatarToBot'](room, behavior);
 
         expect(result.avatar).toBeDefined();
         expect(result.avatar.isTaken).toBe(true);
@@ -777,7 +776,7 @@ describe('GameService', () => {
 
     it('should assign an available avatar to a defensive bot and mark it as taken', () => {
         const behavior = Behavior.Defensive;
-        const result = service.assignAvatarToBot(room, behavior);
+        const result = service['assignAvatarToBot'](room, behavior);
 
         expect(result.avatar).toBeDefined();
         expect(result.avatar.isTaken).toBe(true);
@@ -791,7 +790,7 @@ describe('GameService', () => {
         room.availableAvatars.forEach((avatar) => (avatar.isTaken = true));
 
         const behavior = Behavior.Defensive;
-        const result = service.assignAvatarToBot(room, behavior);
+        const result = service['assignAvatarToBot'](room, behavior);
 
         expect(result.avatar).toEqual(avatars[0]);
         expect(room.availableAvatars.every((avatar) => avatar.isTaken)).toBe(true);
@@ -815,12 +814,12 @@ describe('GameService', () => {
             room.listPlayers = mockPlayers;
         });
         it('should return early if no active player', () => {
-            service.checkEndTurn(mockSocket, undefined);
+            service['checkEndTurn'](mockSocket, undefined);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
         });
         it('should return early if not active player', () => {
             service['isActivePlayer'] = jest.fn().mockReturnValue(false);
-            service.checkEndTurn(mockSocket, mockPlayer);
+            service['checkEndTurn'](mockSocket, mockPlayer);
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
         });
         it('should return true when no reachable tiles and no actions', () => {
@@ -828,7 +827,7 @@ describe('GameService', () => {
             room.navigation.haveActions = jest.fn().mockReturnValue(false);
             room.navigation.hasMovementPoints = jest.fn().mockReturnValue(true);
 
-            const result = service.checkEndTurn(mockSocket, mockPlayer);
+            const result = service['checkEndTurn'](mockSocket, mockPlayer);
             expect(result).toBe(true);
         });
         it('should return true when no movement points and no actions', () => {
@@ -836,7 +835,7 @@ describe('GameService', () => {
             room.navigation.haveActions = jest.fn().mockReturnValue(false);
             room.navigation.hasMovementPoints = jest.fn().mockReturnValue(false);
 
-            const result = service.checkEndTurn(mockSocket, mockPlayer);
+            const result = service['checkEndTurn'](mockSocket, mockPlayer);
             expect(result).toBe(true);
         });
 
@@ -846,7 +845,7 @@ describe('GameService', () => {
             room.navigation.hasMovementPoints = jest.fn().mockReturnValue(false);
             room.navigation.hasActionPoints = jest.fn().mockReturnValue(false);
 
-            const result = service.checkEndTurn(mockSocket, mockPlayer);
+            const result = service['checkEndTurn'](mockSocket, mockPlayer);
             expect(result).toBe(true);
         });
         it('should return true when no movement points and no actions points', () => {
@@ -855,7 +854,7 @@ describe('GameService', () => {
             room.navigation.hasMovementPoints = jest.fn().mockReturnValue(true);
             room.navigation.hasActionPoints = jest.fn().mockReturnValue(true);
 
-            const result = service.checkEndTurn(mockSocket, mockPlayer);
+            const result = service['checkEndTurn'](mockSocket, mockPlayer);
             expect(result).toBe(false);
         });
     });
@@ -863,17 +862,17 @@ describe('GameService', () => {
     it('should create and assign a bot with an avatar and stats, then notify clients', () => {
         const behavior = Behavior.Aggressive;
         jest.spyOn(roomService, 'getRoom').mockReturnValue(room);
-        service.assignAvatarToBot = jest.fn().mockReturnValue(avatars[0]);
-        service.assignStatsToBot = jest.fn().mockReturnValue(baseBot);
-        service.handleCreatePlayer = jest.fn();
-        service.updateAvatarsForAllClients = jest.fn();
+        service['assignAvatarToBot'] = jest.fn().mockReturnValue(avatars[0]);
+        service['assignStatsToBot'] = jest.fn().mockReturnValue(baseBot);
+        service['handleCreatePlayer'] = jest.fn();
+        service['updateAvatarsForAllClients'] = jest.fn();
 
         service.createBot(behavior, mockSocket);
 
-        expect(service.assignAvatarToBot).toHaveBeenCalledWith(room, behavior);
-        expect(service.assignStatsToBot).toHaveBeenCalled();
-        expect(service.handleCreatePlayer).toHaveBeenCalledWith(room, baseBot, mockSocket);
-        expect(service.updateAvatarsForAllClients).toHaveBeenCalledWith(roomId);
+        expect(service['assignAvatarToBot']).toHaveBeenCalledWith(room, behavior);
+        expect(service['assignStatsToBot']).toHaveBeenCalled();
+        expect(service['handleCreatePlayer']).toHaveBeenCalledWith(room, baseBot, mockSocket);
+        expect(service['updateAvatarsForAllClients']).toHaveBeenCalledWith(roomId);
         expect(roomService.getRoom).toHaveBeenCalledWith(mockSocket);
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.UpdatedPlayer, room);
     });
@@ -882,7 +881,7 @@ describe('GameService', () => {
         const mockTiles = [{ x: 1, y: 1 }];
         service['isMoving'] = false;
         service['updateActivePlayer'] = jest.fn();
-        service.checkActions = jest.fn();
+        service['checkActions'] = jest.fn();
         jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[2]);
         room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
 
@@ -894,7 +893,7 @@ describe('GameService', () => {
         const mockTiles = [{ x: 1, y: 1 }];
         service['isMoving'] = false;
         service['updateActivePlayer'] = jest.fn();
-        service.checkActions = jest.fn();
+        service['checkActions'] = jest.fn();
         jest.spyOn(service, 'getActivePlayer').mockReturnValue(mockPlayers[2]);
         room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
 
@@ -923,7 +922,7 @@ describe('GameService', () => {
             botPlayer.avatar.isTaken = true;
         }
         jest.spyOn(roomService, 'getRoom').mockReturnValue(botRoom);
-        service.updateAvatarsForAllClients = jest.fn();
+        service['updateAvatarsForAllClients'] = jest.fn();
 
         service.onKickBot(mockSocket, botId);
 
@@ -932,7 +931,7 @@ describe('GameService', () => {
         expect(botRoom.listPlayers.find((player) => player.id === botId)).toBeUndefined();
         expect(mockServer.to(botId).emit).toHaveBeenCalledWith(ServerToClientEvent.KickPlayer, botId);
         expect(mockServer.to(botRoom.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.UpdatedPlayer, botRoom);
-        expect(service.updateAvatarsForAllClients).toHaveBeenCalledWith(botRoom.roomId);
+        expect(service['updateAvatarsForAllClients']).toHaveBeenCalledWith(botRoom.roomId);
     });
 
     it('should emit to client on emitStartGameEvents', () => {
@@ -943,7 +942,7 @@ describe('GameService', () => {
         (mockServer.to as jest.Mock).mockReturnValue({ emit: jest.fn() });
         service.getActivePlayer = jest.fn().mockReturnValue(mockPlayer);
         room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
-        service.checkActions = jest.fn();
+        service['checkActions'] = jest.fn();
 
         service['emitStartGameEvents'](room);
 
@@ -951,14 +950,14 @@ describe('GameService', () => {
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.MapInformation, room);
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.ActivePlayer, mockPlayer);
         expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.ReachableTiles, mockTiles);
-        expect(service.checkActions).toHaveBeenCalled();
+        expect(service['checkActions']).toHaveBeenCalled();
     });
 
     it('should call checkDoors and checkAttack around player', () => {
         service['checkDoors'] = jest.fn();
         service['checkAttack'] = jest.fn();
 
-        service.checkActions(room);
+        service['checkActions'](room);
         expect(service['checkDoors']).toHaveBeenCalledWith(room);
         expect(service['checkAttack']).toHaveBeenCalledWith(room);
     });
@@ -1025,7 +1024,7 @@ describe('GameService', () => {
         room.navigation.hasHandleDoorAction = jest.fn().mockReturnValue(true);
         room.navigation.findReachableTiles = jest.fn().mockReturnValue(mockTiles);
         service.getActivePlayer = jest.fn().mockReturnValue(mockPlayer);
-        service.checkEndTurn = jest.fn().mockReturnValue(true);
+        service['checkEndTurn'] = jest.fn().mockReturnValue(true);
         service.onTurnEnded = jest.fn();
         gameLogsService.sendDoorLog = jest.fn();
 
@@ -1039,7 +1038,7 @@ describe('GameService', () => {
 
     it('should reset globalPostGameStats in the room', () => {
         room.globalPostGameStats = mockGlobalStats;
-        service.resetGlobalStats(room);
+        service['resetGlobalStats'](room);
         expect(room.globalPostGameStats.globalTilesVisited).toEqual([]);
         expect(room.globalPostGameStats.doorsInteracted).toEqual([]);
         expect(room.globalPostGameStats.turns).toBe(1);
@@ -1054,7 +1053,7 @@ describe('GameService', () => {
             getTime: jest.fn().mockReturnValue('15:32'),
         } as unknown as Stopwatch;
 
-        jest.spyOn(service, 'resetGlobalStats');
+        service['resetGlobalStats'] = jest.fn();
         jest.spyOn(service, 'stopGameTimers');
 
         service.onEndGame(mockWinner, room);
@@ -1063,7 +1062,7 @@ describe('GameService', () => {
         expect(room.stopwatch.stop).toHaveBeenCalled();
         expect(mockServer.to).toHaveBeenCalledWith(room.roomId);
 
-        expect(service.resetGlobalStats).toHaveBeenCalledWith(room);
+        expect(service['resetGlobalStats']).toHaveBeenCalledWith(room);
         expect(service.stopGameTimers).toHaveBeenCalledWith(room);
     });
 
@@ -1071,7 +1070,7 @@ describe('GameService', () => {
         it('should add a tile to the position list if it does not already exist', () => {
             const positionList = [{ x: 0, y: 0 }];
             const newTile = { x: 1, y: 1 };
-            service.addUniqueTileToHistory(positionList, newTile);
+            service['addUniqueTileToHistory'](positionList, newTile);
 
             expect(positionList).toContainEqual(newTile);
             expect(positionList.length).toBe(2);
@@ -1084,7 +1083,7 @@ describe('GameService', () => {
             ];
             const duplicateTile = { x: 1, y: 1 };
 
-            service.addUniqueTileToHistory(positionList, duplicateTile);
+            service['addUniqueTileToHistory'](positionList, duplicateTile);
 
             expect(positionList).toContainEqual(duplicateTile);
             expect(positionList.length).toBe(2);
@@ -1094,7 +1093,7 @@ describe('GameService', () => {
             const positionList: Position[] = [];
             const newTile = { x: 1, y: 2 };
 
-            service.addUniqueTileToHistory(positionList, newTile);
+            service['addUniqueTileToHistory'](positionList, newTile);
 
             expect(positionList).toContainEqual(newTile);
             expect(positionList.length).toBe(1);
