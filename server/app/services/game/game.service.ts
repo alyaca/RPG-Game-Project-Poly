@@ -10,6 +10,7 @@ import {
     LogType,
     MAX_ACTION_POINT,
     MOVEMENT_TIME,
+    NO_ITEM,
     PLAYER_FELL_DELAY,
     SINGLE_PLAYER,
     STARTING_TIME,
@@ -47,7 +48,7 @@ export class GameService {
     ) {}
 
     connectPlayerToGame(roomId: string) {
-        const game = this.getGame(roomId);
+        const game = this.getRoomById(roomId);
         if (!this.isCodeFormatValid(roomId)) {
             return { event: 'joinError', errorType: 'invalidFormat' };
         }
@@ -91,7 +92,7 @@ export class GameService {
         return room.listPlayers.find((player) => player.isActive);
     }
 
-    getGame(roomId: string) {
+    getRoomById(roomId: string) {
         return this.roomService.rooms.get(roomId);
     }
 
@@ -101,27 +102,16 @@ export class GameService {
 
     leavePlayerFromGame(roomId: string, socket: Socket, server: Server) {
         const isAdmin = this.roomService.isPlayerAdmin(socket);
-        const room = this.roomService.getRoom(socket);
+        const room = this.getRoomById(roomId);
         socket.emit(ServerToClientEvent.LeftRoom, isAdmin);
         const player = this.getPlayerById(room, socket);
-        this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUp);
 
-        if (isAdmin && room.isDebug) {
-            room.isDebug = false;
-            server.to(roomId).emit(ServerToClientEvent.DebugMode, false);
+        if (isAdmin) {
+            this.handleAdminDisconnection(room, socket, server);
         }
-        if (isAdmin && room.gameStatus === GameStatus.Lobby) {
-            this.roomService.deleteRoom(roomId, socket);
-        } else if (room.gameStatus === GameStatus.Started) {
-            this.placeItemsOnGround(room, server, player);
-            this.playerDisconnected(room, socket, server);
-            socket.to(roomId).emit(ServerToClientEvent.PlayerDisconnected, room.listPlayers);
-            const activePlayer = this.getActivePlayer(room);
-            player.position = DISCONNECTED_POSITION;
-            if (activePlayer.id !== player.id) {
-                const reachability = room.navigation.findReachableTiles(activePlayer, room);
-                server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
-            }
+        if (room.gameStatus === GameStatus.Started) {
+            this.gameLogsService.sendPlayerLog(roomId, server, player, LogType.GiveUp);
+            this.handleStartedGameDisconnection(room, socket, server, player);
         } else {
             this.removePlayerFromRoom(roomId, socket, server);
             socket.to(roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
@@ -152,7 +142,7 @@ export class GameService {
     }
 
     toggleLockRoom(roomId: string, isLocked: boolean) {
-        const game = this.getGame(roomId);
+        const game = this.getRoomById(roomId);
         game.isLocked = isLocked;
     }
 
@@ -355,7 +345,7 @@ export class GameService {
             this.isMoving = true;
             player.position = tile;
             pickedUpItem = false;
-            if (this.isNotAvatar(room, tile) && this.isObject(room, tile)) {
+            if (this.isObject(room, tile)) {
                 const infoSwap: InfoSwap = {
                     server,
                     client,
@@ -461,7 +451,7 @@ export class GameService {
     placeItemsOnGround(room: Room, server: Server, player: Player) {
         const playerToDropItems = room.listPlayers.find((p) => p.id === player.id);
         if (playerToDropItems.inventory.length === 0) return;
-
+        console.log('placeItemsOnGround');
         for (const items of playerToDropItems.inventory) {
             const position = room.navigation.findClosestValidTile(playerToDropItems, room);
             this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
@@ -504,15 +494,12 @@ export class GameService {
     }
 
     private isObject(room: Room, tile: Position) {
-        return room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random || this.isOjectFlag(room, tile);
+        const objectId = room.gameMap.itemPlacement[tile.x][tile.y];
+        return (objectId > NO_ITEM && objectId <= ObjectType.Random) || this.isOjectFlag(room, tile);
     }
 
     private isOjectFlag(room: Room, tile: Position) {
         return room.gameMap.itemPlacement[tile.x][tile.y] === ObjectType.Flag;
-    }
-
-    private isNotAvatar(room: Room, tile: Position) {
-        return room.gameMap.itemPlacement[tile.x][tile.y] >= ObjectType.Trident;
     }
 
     private checkFlagModeEndGame(player: Player, room: Room, server: Server) {
@@ -564,13 +551,17 @@ export class GameService {
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
             case TileType.Wall:
-                if (activePlayer.inventory.find((objects) => objects.id === ObjectType.Kunee)) {
+                if (this.hasKuneeItem(activePlayer)) {
                     return TileCost.Ground;
                 }
                 return Infinity;
             default:
                 return Infinity;
         }
+    }
+
+    private hasKuneeItem(player: Player) {
+        return player.inventory.find((objects) => objects.id === ObjectType.Kunee);
     }
 
     private checkFell(): boolean {
@@ -614,21 +605,6 @@ export class GameService {
     private isPlayerNameTaken(name: string, socket: Socket) {
         const playersList = this.roomService.getRoom(socket).listPlayers;
         return playersList.some((player) => player.name === name);
-    }
-
-    private playerDisconnected(room: Room, socket: Socket, server: Server) {
-        const disconnectedPlayer = this.getPlayerById(room, socket);
-        if (this.isActivePlayer(socket)) {
-            disconnectedPlayer.status = Status.PendingDisconnection;
-            this.onTurnEnded(room, server);
-        }
-        disconnectedPlayer.status = Status.Disconnected;
-
-        if (this.isLastPlayer(room)) {
-            server.to(room.roomId).emit(ServerToClientEvent.DrawGame);
-        }
-        server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
-        this.sortPlayersBySpeed(room);
     }
 
     private playerTurnTimer(room: Room, server: Server) {
@@ -697,5 +673,60 @@ export class GameService {
             newGrid: room.gameMap.itemPlacement,
             position: previousActivePlayer.position,
         });
+    }
+
+    private handleAdminDisconnection(room: Room, socket: Socket, server: Server) {
+        console.log(' handleAdminDisconnection');
+        if (room.isDebug && room.gameStatus === GameStatus.Started) {
+            console.log('debug mode');
+            room.isDebug = false;
+            server.to(room.roomId).emit(ServerToClientEvent.DebugMode, false);
+        } else if (room.gameStatus === GameStatus.Lobby) {
+            console.log('lobby admin');
+
+            this.roomService.deleteRoom(room.roomId, socket);
+        }
+    }
+
+    private handleStartedGameDisconnection(room: Room, socket: Socket, server: Server, player: Player) {
+        console.log(' handleStartedGameDisconnection');
+        this.handlePlayerDisconnection(room, socket, server);
+        socket.to(room.roomId).emit(ServerToClientEvent.UpdatePlayerList, room.listPlayers);
+        const activePlayer = this.getActivePlayer(room);
+        player.position = DISCONNECTED_POSITION;
+        if (activePlayer.id !== player.id) {
+            console.log('not active');
+
+            const reachability = room.navigation.findReachableTiles(activePlayer, room);
+            server.to(room.roomId).emit(ServerToClientEvent.ReachableTiles, reachability);
+        }
+    }
+
+    private handlePlayerDisconnection(room: Room, socket: Socket, server: Server) {
+        console.log(' handlePlayerDisconnection');
+        const disconnectedPlayer = this.getPlayerById(room, socket);
+
+        this.placeItemsOnGround(room, server, disconnectedPlayer);
+        this.handleTurnAfterDisconnection(room, socket, server, disconnectedPlayer);
+        disconnectedPlayer.status = Status.Disconnected;
+
+        if (this.isLastPlayer(room)) {
+            console.log(' isLastPlayer');
+
+            server.to(room.roomId).emit(ServerToClientEvent.DrawGame);
+            return;
+        }
+        server.to(room.roomId).emit(ServerToClientEvent.PlayerDisconnected, disconnectedPlayer);
+        this.sortPlayersBySpeed(room);
+    }
+
+    private handleTurnAfterDisconnection(room: Room, socket: Socket, server: Server, disconnectedPlayer: Player) {
+        console.log(' handleTurnAfterDisconnection');
+        if (this.isActivePlayer(socket)) {
+            console.log(' active');
+
+            disconnectedPlayer.status = Status.PendingDisconnection;
+            this.onTurnEnded(room, server);
+        }
     }
 }

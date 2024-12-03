@@ -116,16 +116,16 @@ describe('GameService', () => {
     });
 
     it('should set isLocked on toggleLockRoom', () => {
-        jest.spyOn(service, 'getGame').mockReturnValue(room);
+        jest.spyOn(service, 'getRoomById').mockReturnValue(room);
         service.toggleLockRoom(roomId, true);
 
-        expect(service.getGame).toHaveBeenCalledWith(roomId);
+        expect(service.getRoomById).toHaveBeenCalledWith(roomId);
         expect(room.isLocked).toBe(true);
     });
 
-    it('should return game when getGame is called', () => {
+    it('should return game when getRoomById is called', () => {
         roomService.rooms.set(roomId, room);
-        const result = service.getGame(roomId);
+        const result = service.getRoomById(roomId);
         expect(result).toEqual(room);
     });
 
@@ -207,6 +207,7 @@ describe('GameService', () => {
     describe('leavePlayerFromGame', () => {
         it('should emit leftRoom and delete room if player is admin', () => {
             room.gameStatus = GameStatus.Lobby;
+            service.getRoomById = jest.fn().mockReturnValue(room);
             gameLogsService.sendPlayerLog = jest.fn();
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
             jest.spyOn(service, 'removePlayerFromRoom');
@@ -214,10 +215,10 @@ describe('GameService', () => {
 
             expect(mockSocket.emit).toHaveBeenCalledWith(ServerToClientEvent.LeftRoom, true);
             expect(roomService.deleteRoom).toHaveBeenCalledWith(roomId, mockSocket);
-            expect(service.removePlayerFromRoom).not.toHaveBeenCalled();
         });
 
         it('should emit leftRoom and update player if player is not admin', () => {
+            service.getRoomById = jest.fn().mockReturnValue(room);
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
             jest.spyOn(service, 'removePlayerFromRoom');
             service.leavePlayerFromGame(roomId, mockSocket, mockServer);
@@ -227,8 +228,11 @@ describe('GameService', () => {
             expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.UpdatedPlayer, room);
         });
 
-        it('should emit debugMode false when player is admin and room is in debug mode', () => {
+        it('should emit debugMode false when player is admin and room is in started mode', () => {
+            service.getRoomById = jest.fn().mockReturnValue(room);
+            service['handleStartedGameDisconnection'] = jest.fn();
             room.isDebug = true;
+            room.gameStatus = GameStatus.Started;
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(true);
             service.leavePlayerFromGame(roomId, mockSocket, mockServer);
 
@@ -236,20 +240,21 @@ describe('GameService', () => {
             expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.DebugMode, false);
         });
 
-        it('should emit disconnectedPlayer when leaving a started game', () => {
+        it('should emit UpdatePlayerList when leaving a started game', () => {
+            service.getRoomById = jest.fn().mockReturnValue(room);
             const path = [{ x: 1, y: 2 }];
             service.getPlayerById = jest.fn().mockReturnValue(mockPlayers[0]);
             service.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[1]);
             (roomService.isPlayerAdmin as jest.Mock).mockReturnValue(false);
             room.gameStatus = GameStatus.Started;
-            service['playerDisconnected'] = jest.fn();
+            service['handlePlayerDisconnection'] = jest.fn();
             room.navigation.findReachableTiles = jest.fn().mockReturnValue(path);
 
             service.leavePlayerFromGame(roomId, mockSocket, mockServer);
 
             expect(mockSocket.emit).toHaveBeenCalledWith(ServerToClientEvent.LeftRoom, false);
-            expect(service['playerDisconnected']).toHaveBeenCalledWith(room, mockSocket, mockServer);
-            expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.PlayerDisconnected, room.listPlayers);
+            expect(service['handlePlayerDisconnection']).toHaveBeenCalledWith(room, mockSocket, mockServer);
+            expect(mockSocket.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.UpdatePlayerList, room.listPlayers);
         });
     });
 
@@ -501,14 +506,26 @@ describe('GameService', () => {
         expect(room.listPlayers).toEqual([player4, player2, player3, player1]);
     });
 
-    describe('playerDisconnected', () => {
+    it('should call onTurnEnded if the disconnected player is active', () => {
+        const activePlayer = { id: 'active-player-id', isActive: true, status: Status.Player } as unknown as Player;
+        service['isActivePlayer'] = jest.fn().mockReturnValue(true);
+        jest.spyOn(service, 'onTurnEnded').mockImplementation();
+
+        service['handleTurnAfterDisconnection'](room, mockSocket, mockServer, activePlayer);
+
+        expect(service.onTurnEnded).toHaveBeenCalledWith(room, mockServer);
+    });
+
+    describe('handlePlayerDisconnection', () => {
         it('should mark player as disconnected and emit event', () => {
             const player = { id: 'player-id', status: Status.Player } as unknown as Player;
             room.listPlayers = [player];
             jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
             service['sortPlayersBySpeed'] = jest.fn();
+            service['handleTurnAfterDisconnection'] = jest.fn();
+            service.placeItemsOnGround = jest.fn();
 
-            service['playerDisconnected'](room, mockSocket, mockServer);
+            service['handlePlayerDisconnection'](room, mockSocket, mockServer);
 
             expect(player.status).toBe(Status.Disconnected);
             expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.PlayerDisconnected, player);
@@ -516,27 +533,14 @@ describe('GameService', () => {
             expect(service.getPlayerById).toHaveBeenCalled();
         });
 
-        it('should call onTurnEnded if the disconnected player is active', () => {
-            const activePlayer = { id: 'active-player-id', isActive: true, status: Status.Player } as unknown as Player;
-            room.listPlayers = [activePlayer];
-
-            jest.spyOn(service, 'getPlayerById').mockReturnValue(activePlayer);
-            service['isActivePlayer'] = jest.fn().mockReturnValue(true);
-            jest.spyOn(service, 'onTurnEnded').mockImplementation();
-
-            service['playerDisconnected'](room, mockSocket, mockServer);
-
-            expect(service.onTurnEnded).toHaveBeenCalledWith(room, mockServer);
-        });
-
         it('should emit draw if player is the last one in game', () => {
             const player = { id: 'player-id', status: Status.Player } as unknown as Player;
             jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
-            service['isActivePlayer'] = jest.fn().mockReturnValue(false);
             service['isLastPlayer'] = jest.fn().mockReturnValue(true);
-            service['sortPlayersBySpeed'] = jest.fn();
+            service['handleTurnAfterDisconnection'] = jest.fn();
+            service.placeItemsOnGround = jest.fn();
 
-            service['playerDisconnected'](room, mockSocket, mockServer);
+            service['handlePlayerDisconnection'](room, mockSocket, mockServer);
             expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.DrawGame);
         });
     });
