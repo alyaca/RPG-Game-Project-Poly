@@ -524,6 +524,7 @@ describe('GameService', () => {
             const player = { id: 'player-id', status: Status.Player } as unknown as Player;
             room.listPlayers = [player];
             jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
+            jest.spyOn(service, 'emitEventToRoom');
             service['sortPlayersBySpeed'] = jest.fn();
             service['handleTurnAfterDisconnection'] = jest.fn();
             service.placeItemsOnGround = jest.fn();
@@ -531,7 +532,7 @@ describe('GameService', () => {
             service['handlePlayerDisconnection'](room, mockSocket);
 
             expect(player.status).toBe(Status.Disconnected);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.PlayerDisconnected, player);
+            expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.PlayerDisconnected, player);
             expect(service['sortPlayersBySpeed']).toHaveBeenCalled();
             expect(service.getPlayerById).toHaveBeenCalled();
         });
@@ -540,11 +541,12 @@ describe('GameService', () => {
             const player = { id: 'player-id', status: Status.Player } as unknown as Player;
             jest.spyOn(service, 'getPlayerById').mockReturnValue(player);
             service['isLastPlayer'] = jest.fn().mockReturnValue(true);
+            jest.spyOn(service, 'emitEventToRoom');
             service['handleTurnAfterDisconnection'] = jest.fn();
             service.placeItemsOnGround = jest.fn();
 
             service['handlePlayerDisconnection'](room, mockSocket);
-            expect(mockServer.to(roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.DrawGame);
+            expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.DrawGame);
         });
     });
 
@@ -724,17 +726,18 @@ describe('GameService', () => {
         it('should teleport the player and emit the correct events', () => {
             server.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
             room.navigation.isTileValid = jest.fn().mockReturnValue(true);
+            service.emitEventToRoom = jest.fn();
 
             service.processTeleportation(room, position);
             expect(mockPlayers[0].position).toEqual(position);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.TeleportPlayer, {
+            expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.TeleportPlayer, {
                 position,
                 playerId: mockPlayers[0].id,
             });
 
             expect(room.navigation.findReachableTiles).toHaveBeenCalledWith(mockPlayers[0], room);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.ReachableTiles, [{ x: 2, y: 2 }]);
-            expect(mockServer.to(room.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.EndMovement);
+            expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.ReachableTiles, [{ x: 2, y: 2 }]);
+            expect(service.emitEventToRoom).toHaveBeenCalledWith(room.roomId, ServerToClientEvent.EndMovement);
             expect(service.checkActions).toHaveBeenCalledWith(room);
         });
     });

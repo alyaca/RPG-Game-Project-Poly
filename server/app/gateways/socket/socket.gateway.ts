@@ -102,7 +102,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.AttackPlayer)
     handleAttackPlayer(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.combatService.attackPlayer(room, this.server);
+        this.combatService.attackPlayer(room);
     }
 
     @SubscribeMessage(ClientToServerEvent.ItemSwapped)
@@ -113,7 +113,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.EvadeCombat)
     handleEvadeCombat(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.combatService.evadingPlayer(room, this.server);
+        this.combatService.evadingPlayer(room);
     }
 
     @SubscribeMessage(ClientToServerEvent.EndTurn)
@@ -168,7 +168,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.CombatAction)
     handleCombatAction(client: Socket, combatActionData: ActionData) {
         const room = this.roomService.getRoom(client);
-        this.combatService.startFight(room, this.server, combatActionData);
+        this.combatService.startFight(room, combatActionData);
     }
 
     @SubscribeMessage(ClientToServerEvent.GetRoom)
@@ -206,7 +206,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
         }
 
         if (this.combatService.isInCombat(client)) {
-            this.combatService.handleDisconnectedPlayer(client, this.server);
+            this.combatService.handleDisconnectedPlayer(client);
         }
         this.gameService.leavePlayerFromGame(room.roomId, client);
 
