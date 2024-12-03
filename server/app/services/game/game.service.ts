@@ -158,7 +158,7 @@ export class GameService {
         this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, this.getServer(), activePlayer, LogType.StartTurn);
-        
+
         this.getTurnTimer(room.roomId).startTimer(STARTING_TIME, (timeRemaining) => {
             this.emitEventToRoom(room.roomId, ServerToClientEvent.BeforeStartTurnTimer, timeRemaining);
             if (timeRemaining <= 0) {
