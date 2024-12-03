@@ -43,7 +43,6 @@ export class PlayerInventoryService {
         room.listPlayers[index].inventory = info.player.inventory;
 
         info.server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
-
         info.client.emit(ServerToClientEvent.UpdatedInventory, info.player);
     }
 
@@ -230,7 +229,7 @@ export class PlayerInventoryService {
             return;
         }
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
+        info.server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
     }
 
