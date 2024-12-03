@@ -328,15 +328,8 @@ export class GameService {
             this.isMoving = true;
             player.position = tile;
             pickedUpItem = false;
-            if (this.isObject(room, tile)) {
-                const infoSwap: InfoSwap = {
-                    server: this.getServer(),
-                    client,
-                    player,
-                };
+            if (this.checkPickUpItem(room, client, player, tile)) {
                 pickedUpItem = true;
-                this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
-                this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
             }
             this.addUniqueTileToHistory(player.positionHistory, tile);
             this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
@@ -428,6 +421,20 @@ export class GameService {
 
     async delay(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private checkPickUpItem(room: Room, client: Socket, player: Player, tile: Position) {
+        if (this.isObject(room, tile)) {
+            const infoSwap: InfoSwap = {
+                server: this.getServer(),
+                client,
+                player,
+            };
+            this.playerInventoryService.updateInventory(infoSwap, room.gameMap.itemPlacement);
+            this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
+            return true;
+        }
+        return false;
     }
 
     private emitStartGameEvents(room: Room) {

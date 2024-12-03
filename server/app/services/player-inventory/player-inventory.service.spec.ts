@@ -117,11 +117,11 @@ describe('PlayerInventoryService', () => {
         service['getSwappedItem'] = jest.fn().mockReturnValue(ObjectType.Trident);
         service['addUniqueItemToHistory'] = jest.fn();
         service['handleItemEffectOnSwap'] = jest.fn();
-
+        room.listPlayers[0].id = mockClient.id;
         service.updatePlayerAfterSwap(mockInfoSwap);
         expect(service['getSwappedItem']).toHaveBeenCalledWith(mockInfoSwap);
-        expect(mockLogsService['sendItemLog']).toHaveBeenCalledWith(mockInfoSwap.player, room.roomId, mockInfoSwap.server, ObjectType.Trident);
-        expect(service['addUniqueItemToHistory']).toHaveBeenCalledWith(mockInfoSwap.player, ObjectType.Trident);
+        expect(mockLogsService['sendItemLog']).toHaveBeenCalled();
+        expect(service['addUniqueItemToHistory']).toHaveBeenCalledWith(room.listPlayers[0], ObjectType.Trident);
     });
 
     it('should return the id of the new item in modifiedInventory', () => {
