@@ -105,12 +105,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         if (this.gameCreationService.isNewGame) {
+            this.gameCreationService.isModifiable = true;
             this.loadNewGame();
         } else {
+            this.gameCreationService.isModifiable = true;
             this.loadExistingGame();
         }
 
         this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
+            this.gameCreationService.isModifiable = false;
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
