@@ -321,51 +321,17 @@ export class GameService {
 
     async processNavigation(room: Room, path: Position[], client: Socket) {
         this.isPlayerFell = false;
-        let pickedUpItem = false;
         const player = this.getActivePlayer(room);
         this.initTileHistory(room);
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
-            pickedUpItem = false;
-            if (this.checkPickUpItem(room, client, player, tile)) {
-                pickedUpItem = true;
-            }
-            this.addUniqueTileToHistory(player.positionHistory, tile);
-            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
 
-            if (room.gameMap.mode === GameMode.CaptureTheFlag) {
-                this.checkFlagModeEndGame(player, room);
-            }
-
-            if (this.isMoving) {
-                await this.delay(MOVEMENT_TIME);
-            }
-            this.emitEventToRoom(room.roomId, ServerToClientEvent.PlayerNavigation, tile);
-            if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
-                this.handleFallingOnIce(room, client);
-                this.isPlayerFell = true;
-                this.isMoving = false;
+            if (await this.handleTileActions(room, client, player, tile)) {
                 break;
             }
-            player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
-            if (pickedUpItem) break;
         }
-
-        this.isMoving = false;
-        const reachability = room.navigation.findReachableTiles(player, room);
-        this.emitEventToRoom(room.roomId, ServerToClientEvent.EndMovement);
-        this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);
-        if (this.checkEndTurn(client, player)) {
-            this.onTurnEnded(room);
-            return;
-        }
-        if (this.isTurnSkipped && !this.isPlayerFell) {
-            this.onTurnEnded(room);
-            this.isTurnSkipped = false;
-            return;
-        }
-        this.checkActions(room);
+        this.handleEndNavigation(room, player, client);
     }
 
     checkActions(room: Room) {
@@ -423,7 +389,61 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    private checkPickUpItem(room: Room, client: Socket, player: Player, tile: Position) {
+    private async handleTileActions(room: Room, client: Socket, player: Player, tile: Position): Promise<boolean> {
+        const hasPickUpItem = this.handleItemPickup(room, client, player, tile);
+
+        await this.processTileNavigation(room, tile);
+
+        if (this.checkPlayerFell(room, tile, client)) {
+            return true;
+        }
+        player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
+        return hasPickUpItem;
+    }
+
+    private async processTileNavigation(room: Room, tile: Position) {
+        const player = this.getActivePlayer(room);
+        this.addUniqueTileToHistory(player.positionHistory, tile);
+        this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, tile);
+
+        if (room.gameMap.mode === GameMode.CaptureTheFlag) {
+            this.checkFlagModeEndGame(player, room);
+        }
+
+        if (this.isMoving) {
+            await this.delay(MOVEMENT_TIME);
+        }
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.PlayerNavigation, tile);
+    }
+
+    private checkPlayerFell(room: Room, tile: Position, client: Socket): boolean {
+        if (!room.isDebug && this.isTileIce(room, tile) && !this.checkFell()) {
+            this.handleFallingOnIce(room, client);
+            this.isPlayerFell = true;
+            this.isMoving = false;
+            return true;
+        }
+        return false;
+    }
+
+    private handleEndNavigation(room: Room, player: Player, client: Socket) {
+        this.isMoving = false;
+        const reachability = room.navigation.findReachableTiles(player, room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.EndMovement);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);
+        if (this.checkEndTurn(client, player)) {
+            this.onTurnEnded(room);
+            return;
+        }
+        if (this.isTurnSkipped && !this.isPlayerFell) {
+            this.onTurnEnded(room);
+            this.isTurnSkipped = false;
+            return;
+        }
+        this.checkActions(room);
+    }
+
+    private handleItemPickup(room: Room, client: Socket, player: Player, tile: Position): boolean {
         if (this.isObject(room, tile)) {
             const infoSwap: InfoSwap = {
                 server: this.getServer(),
