@@ -1,7 +1,7 @@
 import { IMessage } from '@app/interfaces/message.interface';
-import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
+import { MessageService } from '@app/services/message/message.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/interfaces/game';
 import { Avatar, Behavior, Player, Position } from '@common/interfaces/player';
@@ -20,7 +20,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     constructor(
         private roomService: RoomService,
         private logger: Logger,
-        private chatService: ChatService,
+        private messageService: MessageService,
         private combatService: CombatService,
         private gameService: GameService,
     ) {}
@@ -141,16 +141,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
-        const roomId = this.roomService.getRoomId(client);
-        this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);
-
-        const messageWithRoomId: IMessage = {
-            roomId,
-            username: client.data.username,
-            message: message.message,
-            timestamp: message.timestamp,
-        };
-        await this.saveMessage(client, messageWithRoomId);
+        await this.messageService.onMessageReceived(client, this.server, message);
     }
 
     @SubscribeMessage(ClientToServerEvent.DebugMode)
@@ -195,17 +186,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     handleGetRoom(client: Socket) {
         const room = this.roomService.getRoom(client);
         this.server.to(room.roomId).emit(ServerToClientEvent.ObtainRoomInfo, room);
-    }
-
-    async saveMessage(client: Socket, message: IMessage): Promise<void> {
-        try {
-            const savedMessage = await this.chatService.saveMessage(message);
-            this.logger.log(`Message saved: ${savedMessage.message} from ${savedMessage.username}`);
-            this.server.to(message.roomId).emit(ServerToClientEvent.MessageReceived, savedMessage);
-        } catch (error) {
-            this.logger.error(`Failed to save message: ${error.message}`);
-            client.emit(ServerToClientEvent.ErrorMessage, 'Failed to send message.');
-        }
     }
 
     onModuleInit() {
