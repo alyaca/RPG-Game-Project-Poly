@@ -142,6 +142,7 @@ export class GameService {
 
     onStartGame(socket: Socket) {
         const room = this.roomService.getRoom(socket);
+        this.initTileHistory(room);
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
@@ -327,7 +328,6 @@ export class GameService {
         this.isPlayerFell = false;
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
-        this.initTileHistory(room);
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
