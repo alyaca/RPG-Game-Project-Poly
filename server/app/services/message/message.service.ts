@@ -1,9 +1,9 @@
 import { IMessage } from '@app/interfaces/message.interface';
 import { ChatService } from '@app/services/chat/chat.service';
+import { RoomService } from '@app/services/room/room.service';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class MessageService {
