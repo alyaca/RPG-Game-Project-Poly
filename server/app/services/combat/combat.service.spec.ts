@@ -101,7 +101,6 @@ describe('CombatService', () => {
         service = module.get<CombatService>(CombatService);
         service.combatInfos.set(room.roomId, combatInfos);
         room.listPlayers = [mockPlayers[0]];
-        service['getServer'] = jest.fn().mockReturnValue(mockServer);
     });
 
     afterEach(() => {
@@ -250,6 +249,8 @@ describe('CombatService', () => {
         it('should emit the event to both activePlayer and defensePlayer', () => {
             const event = 'testEvent';
             const data = { key: 'value' };
+            service['getServer'] = jest.fn().mockReturnValue(mockServer);
+
             service['emitToCombatPlayers'](combatPlayers, event, data);
 
             expect(mockServer.to).toHaveBeenCalledWith(combatPlayers.attacker.id);
@@ -723,6 +724,7 @@ describe('CombatService', () => {
     });
 
     it('should handle combat won on default win', () => {
+        service['getServer'] = jest.fn().mockReturnValue(mockServer);
         service['handleCombatWon'] = jest.fn();
         service['handleDefaultCombatWin'](room, mockPlayers[0]);
         expect(mockServer.to(mockPlayers[0].id).emit).toHaveBeenCalledWith(ServerToClientEvent.DefaultCombatWin);
@@ -836,6 +838,7 @@ describe('CombatService', () => {
         });
 
         it('should return true if bot and player', () => {
+            service['getServer'] = jest.fn().mockReturnValue(mockServer);
             mockServer.sockets.adapter.rooms.set(room.roomId, new Set([mockClient.id]));
             service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue([]);
             service['hasBotInPlayers'] = jest.fn().mockReturnValue(true);
@@ -845,6 +848,7 @@ describe('CombatService', () => {
         });
 
         it('should return true if more than one player', () => {
+            service['getServer'] = jest.fn().mockReturnValue(mockServer);
             const player2 = { id: 'second' };
             mockServer.sockets.adapter.rooms.set(room.roomId, new Set([mockClient.id, player2.id]));
             service['getPlayerConnectedInRoom'] = jest.fn().mockReturnValue([]);
