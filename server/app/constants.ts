@@ -87,6 +87,9 @@ export const XIPHOS_ATTACK_BONUS = 2;
 export const XIPHOS_DEFENSE_PENALTY = 1;
 export const MAX_OBJECT_EFFECT = 2;
 export const MIN_OBJECT_EFFECT = 1;
+export const ADD_OBEJCT_EFFECT_FACTOR = 1;
+export const REMOVE_OBEJECT_EFFECT_FACTOR = -1;
+export const INVENTORY_SIZE = 2;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
 

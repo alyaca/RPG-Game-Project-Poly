@@ -227,7 +227,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.TurnEnded, () => {
             this.onBeforeStartTurn();
         });
-        this.socketCommunicationService.on('updateVisual', (listPlayers: Player[]) => {
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateVisual, (listPlayers: Player[]) => {
             this.allPlayers = listPlayers;
         });
         this.socketCommunicationService.on(ServerToClientEvent.StartedTurnTimer, (timeRemaining: number) => {

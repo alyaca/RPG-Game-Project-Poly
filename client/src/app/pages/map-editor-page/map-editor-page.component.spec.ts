@@ -6,13 +6,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GameGridComponent } from '@app/components/map-editor/game-grid/game-grid.component';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { SimpleDialogComponent } from '@app/components/simple-dialog/simple-dialog.component';
-import { NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION } from '@app/constants';
+import { NB_ITEMS_MEDIUM_MAP, NO_ITEM, RANDOM_ITEM, SIZE_MEDIUM_MAP, TEST_VALIDATION_DURATION } from '@app/constants';
 import { dummyMap } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
 import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { SaveGameService } from '@app/services/save-game/save-game.service';
+import { GameMode } from '@common/constants';
 import { PathRoute } from '@common/interfaces/route';
 import { of } from 'rxjs';
 import { MapEditorPageComponent } from './map-editor-page.component';
@@ -51,6 +52,25 @@ describe('MapEditorPageComponent', () => {
             'isMapValid',
             'removeObjectFromGrid',
         ]);
+        mapEditorServiceSpy.mapToEdit = {
+            _id: 'map',
+            mode: GameMode.Classic,
+            name: 'Test Map',
+            description: 'Test Description',
+            tiles: [
+                [0, 0],
+                [1, 1],
+            ],
+            itemPlacement: [
+                [0, 1],
+                [1, 0],
+            ],
+            dimension: SIZE_MEDIUM_MAP,
+            nbPlayers: NB_ITEMS_MEDIUM_MAP,
+            image: '',
+            isSelected: false,
+            lastModification: new Date(),
+        };
 
         await TestBed.configureTestingModule({
             declarations: [],

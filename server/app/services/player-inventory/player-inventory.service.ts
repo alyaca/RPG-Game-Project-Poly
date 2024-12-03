@@ -1,4 +1,4 @@
-import { MAX_OBJECT_EFFECT, MIN_OBJECT_EFFECT } from '@app/constants';
+import { ADD_OBEJCT_EFFECT_FACTOR, INVENTORY_SIZE, MAX_OBJECT_EFFECT, MIN_OBJECT_EFFECT, REMOVE_OBEJECT_EFFECT_FACTOR } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -23,7 +23,7 @@ export class PlayerInventoryService {
         if (itemPickedUp === ObjectType.Random) {
             itemPickedUp = this.determineRandomItem(allItems, room);
         }
-        if (info.player.inventory.length === 2) {
+        if (info.player.inventory.length === INVENTORY_SIZE) {
             this.handleItemSwap(room, info, itemPickedUp);
             return;
         } else {
@@ -71,58 +71,64 @@ export class PlayerInventoryService {
     }
 
     addStatsFromItem(playerToBuff: Player, itemId: number) {
-        switch (itemId) {
-            case ObjectType.Armor:
-                playerToBuff.attributes.attack += 2;
-                break;
-            case ObjectType.Sandal:
-                playerToBuff.attributes.speed *= 2;
-                playerToBuff.attributes.currentHp -= 1;
-                playerToBuff.attributes.totalHp -= 1;
-                break;
-            case ObjectType.Lightning:
-                playerToBuff.attributes.attack *= 2;
-                playerToBuff.attributes.defense -= 2;
-                playerToBuff.attributes.totalHp -= 1;
-                playerToBuff.attributes.currentHp -= 1;
-                break;
-            default:
-                break;
-        }
-        return playerToBuff;
+        this.updateItemEffects(playerToBuff, itemId, true);
     }
 
     removeItemEffects(player: Player, itemToUndo: number) {
-        switch (itemToUndo) {
+        this.updateItemEffects(player, itemToUndo, false);
+    }
+
+    private updateArmorEffect(player: Player, isApplied: boolean) {
+        const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
+        player.attributes.attack += factor * MAX_OBJECT_EFFECT;
+    }
+
+    private updateSandalEffects(player: Player, isApplied: boolean) {
+        const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
+        player.attributes.speed *= isApplied ? MAX_OBJECT_EFFECT : 1 / MAX_OBJECT_EFFECT;
+        player.attributes.currentHp += factor * MIN_OBJECT_EFFECT;
+        player.attributes.totalHp += factor * MIN_OBJECT_EFFECT;
+    }
+
+    private updateLightningEffects(player: Player, isApplied: boolean) {
+        const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
+        player.attributes.attack *= isApplied ? MAX_OBJECT_EFFECT : 1 / MAX_OBJECT_EFFECT;
+        player.attributes.defense += factor * MAX_OBJECT_EFFECT;
+        player.attributes.currentHp += factor * MIN_OBJECT_EFFECT;
+        player.attributes.totalHp += factor * MIN_OBJECT_EFFECT;
+    }
+
+    private removeTridentEffects(player: Player, isApplied: boolean) {
+        if (isApplied) {
+            player.attributes.actionPoints -= MIN_OBJECT_EFFECT;
+            player.attributes.maxActionPoints = MIN_OBJECT_EFFECT;
+        }
+    }
+
+    private updateItemEffects(player: Player, itemId: number, isApplied: boolean) {
+        switch (itemId) {
             case ObjectType.Armor:
-                player.attributes.attack -= MAX_OBJECT_EFFECT;
+                this.updateArmorEffect(player, isApplied);
                 break;
             case ObjectType.Sandal:
-                player.attributes.speed /= MAX_OBJECT_EFFECT;
-                player.attributes.totalHp += MIN_OBJECT_EFFECT;
-                player.attributes.currentHp += MIN_OBJECT_EFFECT;
+                this.updateSandalEffects(player, isApplied);
                 break;
             case ObjectType.Lightning:
-                player.attributes.attack /= MAX_OBJECT_EFFECT;
-                player.attributes.defense += MAX_OBJECT_EFFECT;
-                player.attributes.totalHp += MIN_OBJECT_EFFECT;
-                player.attributes.currentHp += MIN_OBJECT_EFFECT;
+                this.updateLightningEffects(player, isApplied);
                 break;
             case ObjectType.Trident:
-                player.attributes.actionPoints -= MIN_OBJECT_EFFECT;
-                player.attributes.maxActionPoints = MIN_OBJECT_EFFECT;
+                this.removeTridentEffects(player, isApplied);
                 break;
             default:
                 break;
         }
-        return player;
     }
 
     updatePlayerWithItem(player: Player, item: number) {
         const fullItem = gameObjects.find((object) => object.id === item);
         if (fullItem) {
             player.inventory.push(fullItem);
-            player = this.addStatsFromItem(player, fullItem?.id);
+            this.addStatsFromItem(player, fullItem?.id);
             this.addUniqueItemToHistory(player, fullItem?.id);
         }
         return player;
@@ -147,12 +153,12 @@ export class PlayerInventoryService {
         if (!playerToUpdate) {
             playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
         }
-        playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
-        playerToUpdate = this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[1].id);
+        this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
+        this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[1].id);
 
         playerToUpdate.inventory = infoSwap.modifiedInventory;
-        playerToUpdate = this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[0].id);
-        playerToUpdate = this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[1].id);
+        this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[0].id);
+        this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[1].id);
 
         if (newItem > 0) {
             this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, newItem);
