@@ -1,7 +1,7 @@
 import { IMessage } from '@app/interfaces/message.interface';
-import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
+import { MessageService } from '@app/services/message/message.service';
 import { RoomService } from '@app/services/room/room.service';
 import { Game } from '@common/interfaces/game';
 import { Avatar, Behavior, Player, Position } from '@common/interfaces/player';
@@ -20,7 +20,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     constructor(
         private roomService: RoomService,
         private logger: Logger,
-        private chatService: ChatService,
+        private messageService: MessageService,
         private combatService: CombatService,
         private gameService: GameService,
     ) {}
@@ -34,22 +34,14 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     @SubscribeMessage(ClientToServerEvent.JoinRoom)
     handleJoinRoom(client: Socket, roomId: string): void {
-        const connectionRes = this.gameService.connectPlayerToGame(roomId);
-        const room = this.roomService.rooms.get(roomId);
-        this.roomService.joinRoom(client, roomId);
-        if (connectionRes.errorType) {
-            this.roomService.leaveRoom(roomId, client);
-            client.emit(connectionRes.event, connectionRes.errorType);
-        } else {
-            client.emit(connectionRes.event, room);
-            this.logger.debug(`client ${client.id} joined room ${roomId}`);
-        }
+        this.gameService.handleJoinGame(client, roomId);
+        this.logger.debug(`client ${client.id} joined room ${roomId}`);
     }
 
     @SubscribeMessage(ClientToServerEvent.LeaveRoom)
     handleLeaveRoom(client: Socket, roomId: string): void {
         this.logger.debug(`client ${client.id} left room ${roomId}`);
-        this.gameService.leavePlayerFromGame(roomId, client, this.server);
+        this.gameService.leavePlayerFromGame(roomId, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.ChangeLockRoom)
@@ -67,39 +59,36 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.CreatePlayer)
     handleCreatePlayer(client: Socket, player: Player) {
         const room = this.roomService.getRoom(client);
-        const isAdmin = this.roomService.isPlayerAdmin(client);
-        this.gameService.createPlayer(room, player, client);
-        this.server.to(room.roomId).emit(ServerToClientEvent.UpdatedPlayer, room);
-        client.emit(ServerToClientEvent.IsPlayerAdmin, isAdmin);
+        this.gameService.handleCreatePlayer(room, player, client);
         this.logger.debug(`Player created with client ${client.id} in room ${room.roomId}`);
     }
 
     @SubscribeMessage(ClientToServerEvent.CreateBot)
     handleCreateBot(client: Socket, behavior: Behavior) {
-        this.gameService.createBot(behavior, client, this.server);
+        this.gameService.createBot(behavior, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.SelectCharacter)
     handleSelectCharacter(client: Socket, avatar: Avatar) {
         const room = this.roomService.getRoom(client);
-        this.gameService.selectedAvatar(room, avatar, client, this.server);
+        this.gameService.selectedAvatar(room, avatar, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.KickPlayer)
     handleKickPlayer(client: Socket, playerId: string) {
-        this.gameService.onKickPlayer(client, this.server, playerId);
+        this.gameService.onKickPlayer(client, playerId);
         this.logger.debug(`client ${playerId} was kicked out of room`);
     }
 
     @SubscribeMessage(ClientToServerEvent.KickBot)
     handleKickBot(client: Socket, botId: string) {
-        this.gameService.onKickBot(client, botId, this.server);
+        this.gameService.onKickBot(client, botId);
         this.logger.debug(`bot ${botId} was kicked out of room`);
     }
 
     @SubscribeMessage(ClientToServerEvent.StartGame)
     handleStartGame(client: Socket) {
-        this.gameService.onStartGame(client, this.server);
+        this.gameService.onStartGame(client);
     }
 
     @SubscribeMessage(ClientToServerEvent.FindPath)
@@ -113,7 +102,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.AttackPlayer)
     handleAttackPlayer(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.combatService.attackPlayer(room, this.server);
+        this.combatService.attackPlayer(room);
     }
 
     @SubscribeMessage(ClientToServerEvent.ItemSwapped)
@@ -124,88 +113,59 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     @SubscribeMessage(ClientToServerEvent.EvadeCombat)
     handleEvadeCombat(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.combatService.evadingPlayer(room, this.server);
+        this.combatService.evadingPlayer(room);
     }
 
     @SubscribeMessage(ClientToServerEvent.EndTurn)
     handleEndTurn(client: Socket) {
         const room = this.roomService.getRoom(client);
-        this.gameService.onTurnEnded(room, this.server);
+        this.gameService.onTurnEnded(room);
         this.logger.debug(`client ${client.id} turn is over`);
     }
 
     @SubscribeMessage(ClientToServerEvent.StartTurn)
     handleBeforeStartTurn(client: Socket) {
-        this.gameService.onStartTurn(client, this.server);
+        const room = this.roomService.getRoom(client);
+        this.gameService.onStartTurn(room);
     }
 
     @SubscribeMessage(ClientToServerEvent.SendMessage)
     async handleMessage(client: Socket, message: IMessage): Promise<void> {
-        const roomId = this.roomService.getRoomId(client);
-        this.logger.log(`Message received: ${message.message} from ${message.username} with roomCode: ${client.data.roomCode}`);
-
-        const messageWithRoomId: IMessage = {
-            roomId,
-            username: client.data.username,
-            message: message.message,
-            timestamp: message.timestamp,
-        };
-        await this.saveMessage(client, messageWithRoomId);
+        await this.messageService.onMessageReceived(client, this.server, message);
     }
 
     @SubscribeMessage(ClientToServerEvent.DebugMode)
     handleDebugMode(client: Socket, debugMode: boolean) {
-        const room = this.roomService.getRoom(client);
-        room.isDebug = debugMode;
-        this.gameService.updateLogsDebugMode(debugMode, this.server, client);
-        this.server.to(room.roomId).emit(ServerToClientEvent.DebugMode, debugMode);
+        this.gameService.handleDebugMode(debugMode, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.PlayerNavigation)
     handlePlayerNavigation(client: Socket, path: Position[]) {
         const room = this.roomService.getRoom(client);
-        this.gameService.processNavigation(room, this.server, path, client);
+        this.gameService.processNavigation(room, path, client);
     }
 
     @SubscribeMessage(ClientToServerEvent.TeleportPlayer)
     handleTeleportPlayer(client: Socket, position: Position) {
         const room = this.roomService.getRoom(client);
-        this.gameService.processTeleportation(room, this.server, position);
+        this.gameService.processTeleportation(room, position);
     }
 
     @SubscribeMessage(ClientToServerEvent.DoorAction)
     handleDoorAction(client: Socket, doorActionData: ActionData) {
-        this.gameService.handleDoor(client, this.server, doorActionData);
+        this.gameService.handleDoor(client, doorActionData);
     }
 
     @SubscribeMessage(ClientToServerEvent.CombatAction)
     handleCombatAction(client: Socket, combatActionData: ActionData) {
         const room = this.roomService.getRoom(client);
-        this.combatService.startFight(room, this.server, combatActionData);
-    }
-
-    @SubscribeMessage(ClientToServerEvent.ForceEndGame)
-    handleForceEndGame(client: Socket, winner: Player) {
-        this.logger.log('end of game has been forced');
-        const room = this.roomService.getRoom(client);
-        this.gameService.onEndGame(winner, room, this.server);
+        this.combatService.startFight(room, combatActionData);
     }
 
     @SubscribeMessage(ClientToServerEvent.GetRoom)
     handleGetRoom(client: Socket) {
         const room = this.roomService.getRoom(client);
         this.server.to(room.roomId).emit(ServerToClientEvent.ObtainRoomInfo, room);
-    }
-
-    async saveMessage(client: Socket, message: IMessage): Promise<void> {
-        try {
-            const savedMessage = await this.chatService.saveMessage(message);
-            this.logger.log(`Message saved: ${savedMessage.message} from ${savedMessage.username}`);
-            this.server.to(message.roomId).emit(ServerToClientEvent.MessageReceived, savedMessage);
-        } catch (error) {
-            this.logger.error(`Failed to save message: ${error.message}`);
-            client.emit(ServerToClientEvent.ErrorMessage, 'Failed to send message.');
-        }
     }
 
     onModuleInit() {
@@ -218,20 +178,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
     handleDisconnect(client: Socket) {
         const room = this.roomService.getRoom(client);
-
         if (!room) {
             this.logger.log(`Client disconnected but was not in a room: ${client.id}`);
             return;
         }
-
-        if (this.combatService.isInCombat(client)) {
-            this.combatService.disconnectedPlayer(client, this.server);
-        }
-        this.gameService.leavePlayerFromGame(room.roomId, client, this.server);
-
-        if (!this.server.sockets.adapter.rooms.get(room.roomId)) {
-            this.gameService.stopGameTimers(room);
-        }
+        this.combatService.handleDisconnectedPlayer(client, room);
         this.logger.log(`Client disconnected: ${client.id}`);
     }
 }

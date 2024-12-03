@@ -152,8 +152,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigateToTile(tile);
         });
 
-        this.socketCommunicationService.on(ServerToClientEvent.TeleportPlayer, (data: { position: Position; player: Player }) => {
-            this.handleTeleport(data.position, data.player);
+        this.socketCommunicationService.on(ServerToClientEvent.TeleportPlayer, (data: { position: Position; playerId: string }) => {
+            this.handleTeleport(data.position, data.playerId);
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.EndMovement, () => {
@@ -187,8 +187,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
-    handleTeleport(position: Position, player: Player) {
-        if (player) {
+    handleTeleport(position: Position, playerId: string) {
+        const playerToTeleport = this.navigationService.players.find((player) => player.id === playerId);
+        if (playerToTeleport) {
             this.navigateToTile(position);
         }
     }
@@ -373,16 +374,8 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleTileClick(row: number, col: number) {
         if (!this.activePlayer) return;
-        const position: Position = { x: row, y: col };
-        if (this.gameService.canOpenDoor(this.activePlayer)) {
-            this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: this.activePlayer });
-            return;
-        } else if (this.gameService.canStartCombat(this.activePlayer)) {
-            this.socketCommunicationService.send(ClientToServerEvent.CombatAction, { clickedPosition: position, player: this.activePlayer });
-            return;
-        } else if (!this.navigationService.isInteractionPossible({ row, col }, this.tilesGrid, this.activePlayer!)) {
-            this.sendNavigation();
-        }
+        if (!this.gameService.handleTileClick({ x: row, y: col }, this.activePlayer, this.tilesGrid)) return;
+        this.sendNavigation();
     }
 
     isActionSelected() {

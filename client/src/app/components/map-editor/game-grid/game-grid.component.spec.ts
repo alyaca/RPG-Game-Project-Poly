@@ -114,6 +114,7 @@ describe('GameGridComponent', () => {
             'canOpenDoor',
             'canStartCombat',
             'handleFightAction',
+            'handleTileClick',
         ]);
         socketCommunicationServiceSpy.socket = mockSocket;
 
@@ -170,11 +171,6 @@ describe('GameGridComponent', () => {
         });
     });
 
-    it('closeTileDescription should set isPopUpVisible to false', () => {
-        component.closeTileDescription();
-        expect(component['tileInfoVisible']).toBeFalse();
-    });
-
     it('should call transferRoomData', () => {
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.ObtainRoomInfo) {
@@ -197,29 +193,16 @@ describe('GameGridComponent', () => {
         expect(component.handleTeleport).toHaveBeenCalled();
     });
 
-    it('should call the correct functions depending on what the player can do', () => {
+    it('should call the correct function on handleTileClick', () => {
         component['activePlayer'] = { ...mockPlayers[0] };
-        const position = { x: 0, y: 0 };
-        gameServiceSpy.canOpenDoor.and.returnValue(true);
-        component.handleTileClick(0, 0);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.DoorAction, {
-            clickedPosition: position,
-            player: component['activePlayer'],
-        });
-        gameServiceSpy.canOpenDoor.and.returnValue(false);
-        gameServiceSpy.canStartCombat.and.returnValue(true);
-        component.handleTileClick(0, 0);
-        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.CombatAction, {
-            clickedPosition: position,
-            player: component['activePlayer'],
-        });
-        gameServiceSpy.canStartCombat.and.returnValue(false);
-        navigationServiceSpy.isInteractionPossible.and.returnValue(false);
+        gameServiceSpy.handleTileClick.and.returnValue(false);
         spyOn(component, 'sendNavigation');
         component.handleTileClick(0, 0);
-        expect(component.sendNavigation).toHaveBeenCalled();
+        expect(component.sendNavigation).not.toHaveBeenCalled();
 
-        component['activePlayer'] = undefined;
+        gameServiceSpy.handleTileClick.and.returnValue(true);
+        component.handleTileClick(0, 0);
+        expect(component.sendNavigation).toHaveBeenCalled();
     });
 
     describe('socket listener', () => {
@@ -284,8 +267,9 @@ describe('GameGridComponent', () => {
         });
 
         it('should call navigateToTile on handleTeleport', () => {
+            navigationServiceSpy.players = [{ ...mockPlayers[0] }];
             spyOn(component, 'navigateToTile');
-            component.handleTeleport({ x: 0, y: 0 }, { ...mockPlayers[0] });
+            component.handleTeleport({ x: 0, y: 0 }, { ...mockPlayers[0] }.id);
             expect(component.navigateToTile).toHaveBeenCalled();
         });
 

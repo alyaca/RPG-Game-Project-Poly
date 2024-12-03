@@ -20,6 +20,7 @@ import {
     SIZE_SMALL_MAP,
     WARNING_TIME,
 } from '@app/constants';
+import { mockSmallGrid } from '@app/mocks/mock-map';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { MOCK_COLUMN, MOCK_ROW } from '@app/mocks/mock-position';
 import { mockRoom } from '@app/mocks/mock-room';
@@ -48,7 +49,7 @@ describe('GameService', () => {
 
     beforeEach(() => {
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
-        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['isNeighbor']);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['isNeighbor', 'isInteractionPossible']);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['off', 'send', 'on', 'once', 'disconnect']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -214,6 +215,37 @@ describe('GameService', () => {
 
         objects[0][0] = NO_OBJECT;
         expect(service.tileHasPlayer({ x: 0, y: 0 }, objects)).toBeFalse();
+    });
+
+    it('should call the correct function on handleTileClick', () => {
+        const canOpenDoorSpy = spyOn(service, 'canOpenDoor');
+        const canStartCombatSpy = spyOn(service, 'canStartCombat');
+        canOpenDoorSpy.and.returnValue(true);
+        const mockPlayer = { ...mockPlayers[0] };
+        const position = { x: 0, y: 0 };
+        const tiles = mockSmallGrid;
+        expect(service.handleTileClick(position, mockPlayer, tiles)).toBeFalse();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.DoorAction, {
+            clickedPosition: position,
+            player: mockPlayer,
+        });
+
+        canOpenDoorSpy.and.returnValue(false);
+        canStartCombatSpy.and.returnValue(true);
+        expect(service.handleTileClick(position, mockPlayer, tiles)).toBeFalse();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.CombatAction, {
+            clickedPosition: position,
+            player: mockPlayer,
+        });
+
+        canStartCombatSpy.and.returnValue(false);
+        navigationServiceSpy.isInteractionPossible.and.returnValue(false);
+        expect(service.handleTileClick(position, mockPlayer, tiles)).toBeTrue();
+
+        canOpenDoorSpy.and.returnValue(false);
+        canStartCombatSpy.and.returnValue(false);
+        navigationServiceSpy.isInteractionPossible.and.returnValue(true);
+        expect(service.handleTileClick(position, mockPlayer, tiles)).toBeFalse();
     });
 
     it('should call the correct methods on handleFightAction', () => {

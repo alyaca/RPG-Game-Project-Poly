@@ -83,6 +83,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.onBeforeStartTurn();
         });
 
+        this.gameService.addGamePageListeners();
         this.initDebugModeListener();
         this.initCombatListeners();
         this.initGameListeners();

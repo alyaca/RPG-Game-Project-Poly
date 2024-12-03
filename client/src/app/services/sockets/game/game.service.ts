@@ -75,10 +75,22 @@ export class GameService {
         return this.isActionCombatSelected && this.hasActionPoints(player);
     }
 
+    // need to check if this can go
     tileHasPlayer(position: Position, objects: number[][]) {
         return objects[position.x][position.y] > ObjectType.Spawn;
-        // when we have ctf
-        // return objects[position.x][position.y] > ObjectType.Spawn && objects[position.x][position.y] < ObjectType.Flag;
+    }
+
+    handleTileClick(position: Position, activePlayer: Player, tiles: number[][]) {
+        if (this.canOpenDoor(activePlayer)) {
+            this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: activePlayer });
+            return false;
+        } else if (this.canStartCombat(activePlayer)) {
+            this.socketCommunicationService.send(ClientToServerEvent.CombatAction, { clickedPosition: position, player: activePlayer });
+            return false;
+        } else if (!this.navigationService.isInteractionPossible({ row: position.x, col: position.y }, tiles, activePlayer)) {
+            return true;
+        }
+        return false;
     }
 
     handleFightAction({ position, objects }: GridOperationsInfo, player: Player) {
