@@ -57,7 +57,7 @@ export class CombatService {
     onStartTurn(server: Server, room: Room) {
         const combatInfos = this.combatInfos.get(room.roomId);
         const combatPlayers = combatInfos.combatPlayers;
-        if (this.isBotDameged(combatPlayers.attacker)) {
+        if (this.isBotDamaged(combatPlayers.attacker)) {
             this.evadingPlayer(room, server);
             return;
         }
@@ -204,10 +204,11 @@ export class CombatService {
     disconnectedPlayer(client: Socket, server: Server) {
         const room = this.roomService.getRoom(client);
         const winner = this.getOpponent(client);
-        const nbSockets = server.sockets.adapter.rooms.get(room.roomId).size;
+        this.resetCombatState(room);
+        if (!this.hasValidActivePlayers(room, server)) return;
         this.logService.sendPlayerLog(room.roomId, server, winner, LogType.WinCombat);
-        this.handleDefaultCombatWin(client, winner, server);
-        if (winner.isActive && nbSockets > SINGLE_PLAYER) {
+        this.handleDefaultCombatWin(room, winner, server);
+        if (winner.isActive) {
             this.continueTurn(server, room);
         }
     }
@@ -218,7 +219,22 @@ export class CombatService {
         return client.id === combatPlayers.attacker?.id || client.id === combatPlayers.defender?.id;
     }
 
-    private isBotDameged(player: Player) {
+    private hasValidActivePlayers(room: Room, server: Server) {
+        const socket = server.sockets.adapter.rooms.get(room.roomId);
+        if (!socket) return false;
+        const connectedPlayers = this.getPlayerConnectedInRoom(room);
+        return this.hasBotInPlayers(connectedPlayers) || socket.size > SINGLE_PLAYER;
+    }
+
+    private getPlayerConnectedInRoom(room: Room) {
+        return room.listPlayers.filter((player) => player.status !== Status.Disconnected && player.status !== Status.PendingDisconnection);
+    }
+
+    private hasBotInPlayers(players: Player[]) {
+        return players.some((player) => player.status === Status.Bot);
+    }
+
+    private isBotDamaged(player: Player) {
         return (
             player.status === Status.Bot &&
             player.attributes.currentHp < player.attributes.totalHp &&
@@ -468,8 +484,7 @@ export class CombatService {
         return x >= 0 && y >= 0 && x < dimension && y < dimension;
     }
 
-    private handleDefaultCombatWin(client: Socket, player: Player, server: Server) {
-        const room = this.roomService.getRoom(client);
+    private handleDefaultCombatWin(room: Room, player: Player, server: Server) {
         server.to(player.id).emit(ServerToClientEvent.DefaultCombatWin);
         this.handleCombatWon(player, server, room);
     }

@@ -13,6 +13,7 @@ export enum Status {
     Admin = 'admin',
     Bot = 'bot',
     Disconnected = 'disconnected',
+    PendingDisconnection = 'pendingDisconnection',
 }
 
 export enum Behavior {

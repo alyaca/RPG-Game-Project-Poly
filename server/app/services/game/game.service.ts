@@ -191,9 +191,10 @@ export class GameService {
             server.to(room.roomId).emit(ServerToClientEvent.Reachability, activePlayer);
             server.to(room.roomId).emit(ServerToClientEvent.ActivePlayer, activePlayer);
 
-            const host = room.listPlayers.find((player) => player.status !== Status.Disconnected && player.status !== Status.Bot);
-            server.to(host.id).emit(ServerToClientEvent.TurnEnded, room.listPlayers);
-            server.to(room.roomId).emit('updateVisual', room.listPlayers);
+            const host = room.listPlayers.find((player) => player.status === Status.Player || player.status === Status.Admin);
+            if (!host) return;
+            server.to(host.id).emit(ServerToClientEvent.TurnEnded);
+            server.to(room.roomId).emit(ServerToClientEvent.UpdateVisual, room.listPlayers);
 
             room.navigation.isBot = activePlayer.status === Status.Bot;
 
@@ -448,7 +449,7 @@ export class GameService {
         if (playerToDropItems.inventory.length === 0) return;
         for (const items of playerToDropItems.inventory) {
             const position = room.navigation.findClosestValidTile(playerToDropItems, room);
-            playerToDropItems = this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
+            this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
             server.to(room.roomId).emit(ServerToClientEvent.UpdateObjectsAfterCombat, { newGrid: room.gameMap.itemPlacement, position });
         }
@@ -595,9 +596,11 @@ export class GameService {
     private playerDisconnected(room: Room, socket: Socket, server: Server) {
         const disconnectedPlayer = this.getPlayerById(room, socket);
         if (this.isActivePlayer(socket)) {
+            disconnectedPlayer.status = Status.PendingDisconnection;
             this.onTurnEnded(room, server);
         }
         disconnectedPlayer.status = Status.Disconnected;
+
         if (this.isLastPlayer(room)) {
             server.to(room.roomId).emit(ServerToClientEvent.DrawGame);
         }
