@@ -244,6 +244,10 @@ body {
     filter: grayscale(70%) brightness(50%);
 }
 
+#debug-mode {
+    color: rgb(190, 31, 31);
+}
+
 .combat {
     position: absolute;
     width: 40%;

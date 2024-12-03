@@ -28,6 +28,7 @@ import { ToolService } from '@app/services/tool/tool.service';
 import { TileType } from '@common/constants';
 import { Player, Position } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { TileRemoval } from '@common/interfaces/tile-removal';
 import { ClientToServerEvent, ServerToClientEvent } from '@common/socket.events';
 
@@ -104,12 +105,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         if (this.gameCreationService.isNewGame) {
+            this.gameCreationService.isModifiable = true;
             this.loadNewGame();
         } else {
+            this.gameCreationService.isModifiable = true;
             this.loadExistingGame();
         }
 
         this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
+            this.gameCreationService.isModifiable = false;
             this.navigationService.initialize(room.gameMap, room.listPlayers, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
@@ -184,6 +188,16 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.UpdateObjectsAfterCombat, (data: { newGrid: number[][]; position: Position }) => {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
+        });
+
+        this.socketCommunicationService.on(ServerToClientEvent.BotNavigation, (path: Position[]) => {
+            this.fastestPath = path;
+            this.sendBotPathToServer();
+        });
+        this.socketCommunicationService.on(ServerToClientEvent.BotAttack, (actionData: ActionData) => {
+            if (this.activePlayer?.id === actionData.player.id) {
+                this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
+            }
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.ObtainRoomInfo, (room: Room) => {
@@ -417,6 +431,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     isActionSelected() {
         return this.gameService.isActionSelected();
+    }
+
+    async sendBotPathToServer() {
+        if (this.fastestPath.length > 0) {
+            this.socketCommunicationService.send(ServerToClientEvent.PlayerNavigation, this.fastestPath);
+            this.fastestPath = [];
+        }
     }
 
     async sendNavigation() {

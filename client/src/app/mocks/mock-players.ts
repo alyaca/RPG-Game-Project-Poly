@@ -35,7 +35,7 @@ export const mockPlayers: Player[] = [
         id: '123',
         attributes: mockAttributes,
         avatar: undefined,
-        isActive: true,
+        isActive: false,
         name: 'name',
         status: Status.Admin,
         postGameStats: defaultPostGameStats,

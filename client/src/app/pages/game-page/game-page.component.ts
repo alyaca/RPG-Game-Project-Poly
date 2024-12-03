@@ -42,7 +42,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChildren('pageElement') pageDiv: QueryList<ElementRef<HTMLDivElement>>;
     @ViewChild('turnTimer') turnTimer!: TimerComponent;
 
-    // Used in html
     allPlayers: Player[];
     mapName: string;
     mapDimensions: string;
@@ -230,9 +229,11 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.BeforeStartTurnTimer, (timeRemaining: number) => {
             this.timeRemainingBeforeStartTurn = timeRemaining;
         });
-        this.socketCommunicationService.on(ServerToClientEvent.TurnEnded, (listPlayers: Player[]) => {
-            this.allPlayers = listPlayers;
+        this.socketCommunicationService.on(ServerToClientEvent.TurnEnded, () => {
             this.onBeforeStartTurn();
+        });
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateVisual, (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
         });
         this.socketCommunicationService.on(ServerToClientEvent.StartedTurnTimer, (timeRemaining: number) => {
             this.closeTurnStartPopUp();
@@ -303,9 +304,9 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     replenishHealth() {
-        for (const player of this.allPlayers) {
+        this.allPlayers?.forEach((player) => {
             player.attributes.currentHp = player.attributes.totalHp;
-        }
+        });
     }
 
     enableClicks() {
