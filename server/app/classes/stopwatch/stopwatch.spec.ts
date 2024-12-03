@@ -1,5 +1,5 @@
+import { FORWARD_TIME, MILLISECONDS_IN_SECOND, SECS_IN_HOUR } from '@app/constants';
 import { Stopwatch } from './stopwatch';
-import { FOWARD_TIME, MILLISECONDS_IN_SECOND, SECS_IN_HOUR } from '@app/constants';
 
 jest.useFakeTimers();
 
@@ -23,14 +23,14 @@ describe('Stopwatch', () => {
     it('should not reset startTime if called multiple times', () => {
         stopwatch.start();
         const initialStartTime = stopwatch['startTime'];
-        jest.advanceTimersByTime(FOWARD_TIME);
+        jest.advanceTimersByTime(FORWARD_TIME);
         stopwatch.start();
         expect(stopwatch['startTime']).toBe(initialStartTime);
     });
 
     it('should stop the stopwatch and record elapsed time', () => {
         stopwatch.start();
-        jest.advanceTimersByTime(FOWARD_TIME);
+        jest.advanceTimersByTime(FORWARD_TIME);
         stopwatch.stop();
         expect(stopwatch['startTime']).toBeNull();
         expect(stopwatch['elapsedTime']).toBe(1);
@@ -38,10 +38,10 @@ describe('Stopwatch', () => {
 
     it('should not modify elapsedTime if stopped multiple times', () => {
         stopwatch.start();
-        jest.advanceTimersByTime(FOWARD_TIME);
+        jest.advanceTimersByTime(FORWARD_TIME);
         stopwatch.stop();
         const firstElapsedTime = stopwatch['elapsedTime'];
-        jest.advanceTimersByTime(FOWARD_TIME);
+        jest.advanceTimersByTime(FORWARD_TIME);
         stopwatch.stop();
         expect(stopwatch['elapsedTime']).toBe(firstElapsedTime);
     });
