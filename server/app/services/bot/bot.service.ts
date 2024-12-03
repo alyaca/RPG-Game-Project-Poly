@@ -108,7 +108,7 @@ export class BotService {
         if (reachability.length === 0) {
             return;
         }
-        let randomIndex = Math.floor(Math.random() * reachability.length);
+        const randomIndex = Math.floor(Math.random() * reachability.length);
         const randomTile = reachability[randomIndex];
         if (!this.isValidPosition(randomTile, room)) {
             return;
