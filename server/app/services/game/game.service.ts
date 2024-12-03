@@ -155,6 +155,7 @@ export class GameService {
 
     onStartTurn(room: Room) {
         const activePlayer = this.getActivePlayer(room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, this.getServer(), activePlayer, LogType.StartTurn);
         
@@ -352,7 +353,7 @@ export class GameService {
                 break;
             }
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
-            server.to(room.roomId).emit(ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
+            this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
             if (pickedUpItem) break;
         }
 
