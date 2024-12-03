@@ -269,13 +269,13 @@ export const PLAYER_STAT_TYPES: PostGameStat[] = [
     {
         id: 1,
         key: PlayerStatType.Victories,
-        displayText: 'W/D/L',
+        displayText: 'V/É/D',
         explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
     },
     {
         id: 2,
         key: PlayerStatType.DamageDealt,
-        displayText: 'Dég. infligés',
+        displayText: 'Dégats infligés',
         explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
     },
     {
@@ -287,7 +287,7 @@ export const PLAYER_STAT_TYPES: PostGameStat[] = [
     {
         id: 4,
         key: PlayerStatType.ItemsObtained,
-        displayText: 'Obj. récup.',
+        displayText: 'Objets ramassés',
         explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
     },
     {
