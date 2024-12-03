@@ -3,9 +3,9 @@ import { mockAttacker } from '@app/mocks/mock-combat-infos';
 import { mockGame } from '@app/mocks/mock-game';
 import { mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom, mockRooms } from '@app/mocks/mock-room';
-import { ChatService } from '@app/services/chat/chat.service';
 import { CombatService } from '@app/services/combat/combat.service';
 import { GameService } from '@app/services/game/game.service';
+import { MessageService } from '@app/services/message/message.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars } from '@common/avatars-info';
 import { Behavior, Player } from '@common/interfaces/player';
@@ -24,7 +24,7 @@ describe('SocketGateway', () => {
     let server: jest.Mocked<Server>;
     let roomService: RoomService;
     let gameService: GameService;
-    let chatService: ChatService;
+    let messageService: MessageService;
     let logger: SinonStubbedInstance<Logger>;
     let roomId: string;
     let mockClient: Socket;
@@ -32,16 +32,16 @@ describe('SocketGateway', () => {
     let combatService: CombatService;
 
     beforeEach(async () => {
-        const chatServiceMock = {
-            saveMessage: jest.fn(),
-            getMessagesByRoom: jest.fn(),
-        };
-
         const combatServiceMock = {
             startFight: jest.fn(),
             attackPlayer: jest.fn(),
             isInCombat: jest.fn(),
             disconnectedPlayer: jest.fn(),
+        };
+
+        const messageServiceMock = {
+            onMessageReceived: jest.fn(),
+            saveMessage: jest.fn(),
         };
 
         const roomServiceMock = {
@@ -117,16 +117,16 @@ describe('SocketGateway', () => {
                 { provide: RoomService, useValue: roomServiceMock },
                 { provide: Logger, useValue: logger },
                 { provide: GameService, useValue: gameServiceMock },
-                { provide: ChatService, useValue: chatServiceMock },
                 { provide: CombatService, useValue: combatServiceMock },
+                { provide: MessageService, useValue: messageServiceMock },
             ],
         }).compile();
 
         gateway = module.get<SocketGateway>(SocketGateway);
         roomService = module.get<RoomService>(RoomService);
         gameService = module.get<GameService>(GameService);
-        chatService = module.get<ChatService>(ChatService);
         combatService = module.get<CombatService>(CombatService);
+        messageService = module.get<MessageService>(MessageService);
         gateway['server'] = server;
     });
     afterEach(() => {
@@ -269,6 +269,21 @@ describe('SocketGateway', () => {
         });
     });
 
+    describe('handleMessage', () => {
+        it('should call onMessageReceived on message event', () => {
+            const mockMessageData: IMessage = {
+                roomId,
+                username: socket.data.username,
+                message: 'I am the prince of all Saiyans!',
+                timestamp: new Date(),
+            };
+
+            gateway.handleMessage(socket, mockMessageData);
+
+            expect(messageService.onMessageReceived).toHaveBeenCalled();
+        });
+    });
+
     describe('handleStartGame', () => {
         it('should call processMapObjects and onStartGame startGame event', () => {
             jest.spyOn(gameService, 'onStartGame');
@@ -290,63 +305,6 @@ describe('SocketGateway', () => {
         jest.spyOn(gameService, 'onStartTurn');
         gateway.handleBeforeStartTurn(socket);
         expect(gameService.onStartTurn).toHaveBeenCalled();
-    });
-
-    describe('handleMessage', () => {
-        it('should handle sending and saving a message successfully', async () => {
-            const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
-            jest.spyOn(logger, 'log');
-
-            socket.data.username = 'Luffy';
-            socket.data.roomCode = roomId;
-
-            const mockMessageData: IMessage = {
-                roomId,
-                username: socket.data.username,
-                message: 'I am going to be the Pirate King!',
-                timestamp: new Date(),
-            };
-
-            (chatService.saveMessage as jest.Mock).mockResolvedValue(mockMessageData);
-            (roomService.getRoomId as jest.Mock).mockReturnValue(roomId);
-
-            await gateway.handleMessage(socket, mockMessageData);
-
-            expect(logger.log).toHaveBeenCalled();
-            expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
-            expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
-            expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
-            expect(server.to).toHaveBeenCalledWith(roomId);
-
-            const broadcastOperator = server.to(roomId);
-            expect(broadcastOperator.emit).toHaveBeenCalledWith('messageReceived', mockMessageData);
-        });
-
-        it('should emit an errorMessage on saveMessage failure', async () => {
-            const spyOnSaveMessage = jest.spyOn(gateway, 'saveMessage');
-            jest.spyOn(logger, 'error');
-
-            socket.data.username = 'Vegeta';
-            socket.data.roomCode = roomId;
-            const mockMessageData: IMessage = {
-                roomId,
-                username: socket.data.username,
-                message: 'I am the prince of all Saiyans!',
-                timestamp: new Date(),
-            };
-
-            const failedMessage = 'Save failed';
-            (roomService.getRoomId as jest.Mock).mockReturnValue(roomId);
-            (chatService.saveMessage as jest.Mock).mockRejectedValue(new Error(failedMessage));
-
-            await gateway.handleMessage(socket, mockMessageData);
-
-            expect(roomService.getRoomId).toHaveBeenCalledWith(socket);
-            expect(spyOnSaveMessage).toHaveBeenCalledWith(socket, mockMessageData);
-            expect(chatService.saveMessage).toHaveBeenCalledWith(mockMessageData);
-            expect(logger.error).toHaveBeenCalled();
-            expect(socket.emit).toHaveBeenCalledWith('errorMessage', 'Failed to send message.');
-        });
     });
 
     it('should call processNavigation playerNavigation event', () => {

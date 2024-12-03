@@ -11,6 +11,7 @@ import { CombatService } from './services/combat/combat.service';
 import { GameLogsService } from './services/game-logs/game-logs.service';
 import { GameService } from './services/game/game.service';
 import { MatchService } from './services/match/match.service';
+import { MessageService } from './services/message/message.service';
 import { PlayerInventoryService } from './services/player-inventory/player-inventory.service';
 import { RoomService } from './services/room/room.service';
 
@@ -29,6 +30,17 @@ import { RoomService } from './services/room/room.service';
         RoomModule,
         LoggerModule,
     ],
-    providers: [MatchService, RoomService, SocketGateway, Logger, GameService, GameLogsService, CombatService, BotService, PlayerInventoryService],
+    providers: [
+        MatchService,
+        RoomService,
+        SocketGateway,
+        Logger,
+        GameService,
+        GameLogsService,
+        CombatService,
+        BotService,
+        PlayerInventoryService,
+        MessageService,
+    ],
 })
 export class AppModule {}
