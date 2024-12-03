@@ -75,10 +75,6 @@ export class GameService {
         return this.isActionCombatSelected && this.hasActionPoints(player);
     }
 
-    tileHasPlayer(position: Position, objects: number[][]) {
-        return objects[position.x][position.y] > ObjectType.Spawn && objects[position.x][position.y] < ObjectType.Flag;
-    }
-
     handleTileClick(position: Position, activePlayer: Player, tiles: number[][]) {
         if (this.canOpenDoor(activePlayer)) {
             this.socketCommunicationService.send(ClientToServerEvent.DoorAction, { clickedPosition: position, player: activePlayer });
@@ -93,7 +89,7 @@ export class GameService {
     }
 
     handleFightAction({ position, objects }: GridOperationsInfo, player: Player) {
-        if (this.navigationService.isNeighbor(position, player) && this.tileHasPlayer(position, objects)) {
+        if (this.navigationService.isNeighbor(position, player) && !this.navigationService.isObject(position)) {
             player.attributes.actionPoints--;
             this.isActionCombatSelected = false;
             const player2 = this.getPlayerByAvatarName(this.navigationService.players, objects[position.x][position.y]);

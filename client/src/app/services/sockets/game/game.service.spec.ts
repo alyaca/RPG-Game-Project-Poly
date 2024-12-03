@@ -14,7 +14,6 @@ import {
     MAX_PLAYER_LARGE_MAP,
     MAX_PLAYER_MEDIUM_MAP,
     MAX_PLAYER_SMALL_MAP,
-    NO_OBJECT,
     SIZE_LARGE_MAP,
     SIZE_MEDIUM_MAP,
     SIZE_SMALL_MAP,
@@ -49,7 +48,7 @@ describe('GameService', () => {
 
     beforeEach(() => {
         mockSocket = { data: { roomCode: '1234' }, id: 'player' } as unknown as Socket;
-        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['isNeighbor', 'isInteractionPossible']);
+        navigationServiceSpy = jasmine.createSpyObj('NavigationService', ['isNeighbor', 'isInteractionPossible', 'isObject']);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['off', 'send', 'on', 'once', 'disconnect']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
         routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -209,14 +208,6 @@ describe('GameService', () => {
         expect(service.canStartCombat(player)).toBeFalse();
     });
 
-    it('tileHasPlayer should return true if tile does not contain a spawn', () => {
-        const objects = [[ObjectType.Hestia, 0]];
-        expect(service.tileHasPlayer({ x: 0, y: 0 }, objects)).toBeTrue();
-
-        objects[0][0] = NO_OBJECT;
-        expect(service.tileHasPlayer({ x: 0, y: 0 }, objects)).toBeFalse();
-    });
-
     it('should call the correct function on handleTileClick', () => {
         const canOpenDoorSpy = spyOn(service, 'canOpenDoor');
         const canStartCombatSpy = spyOn(service, 'canStartCombat');
@@ -265,7 +256,7 @@ describe('GameService', () => {
         expect(service.handleFightAction(info, { ...mockPlayers[0] })).toEqual({ ...mockPlayers[0] });
 
         navigationServiceSpy.isNeighbor.and.returnValue(true);
-        spyOn(service, 'tileHasPlayer').and.returnValue(true);
+        navigationServiceSpy.isObject.and.returnValue(false);
         service.handleFightAction(info, { ...mockPlayers[0] });
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
