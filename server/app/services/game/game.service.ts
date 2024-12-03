@@ -278,6 +278,11 @@ export class GameService {
             player.position = position;
             this.emitEventToRoom(room.roomId, ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
+
+        if (room.gameMap.mode === GameMode.CaptureTheFlag) {
+            this.checkFlagModeEndGame(player, room);
+        }
+
         const reachability = room.navigation.findReachableTiles(player, room);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.EndMovement);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);
