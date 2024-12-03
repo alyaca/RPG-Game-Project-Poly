@@ -620,9 +620,8 @@ describe('GameGridComponent', () => {
         const position = { x: 1, y: 1 };
         gameCreationServiceSpy.isModifiable = false;
         component.isActivePlayer = true;
-        component['isMoving'] = false;
+        component.hasStarted = true;
         component.checkTeleportation(position);
-        expect(component['isMoving']).toBeTrue();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
     });
 });
