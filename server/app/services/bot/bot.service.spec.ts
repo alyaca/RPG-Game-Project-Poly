@@ -1,4 +1,4 @@
-import { BOT_NAVIGATION_RANDOM, FORWARD_TIME, MAX_RANGE, RANDOM_INT } from '@app/constants';
+import { BOT_NAVIGATION_RANDOM, FORWARD_TIME, MAX_RANGE, RANDOM_INT, SIZE_SMALL_MAP } from '@app/constants';
 import { mockRoom } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ObjectType } from '@common/avatars-info';
@@ -7,6 +7,7 @@ import { Room } from '@common/interfaces/room';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
+import { SIZE_LARGE_MAP } from '../../../../client/src/app/constants';
 import { BotService } from './bot.service';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
@@ -153,21 +154,11 @@ describe('BotService', () => {
         const attackPlayerMock = jest.spyOn(service as any, 'attackPlayer').mockResolvedValue(true);
         await (service as any).attackEnemyIfPossible(mockRoom, mockServer, mockPlayer[0], mockTarget[0]);
         expect(attackPlayerMock).toHaveBeenCalledWith(mockRoom, mockServer, { target: mockTarget[0], activePlayer: mockPlayer[0], path });
-    });
 
-    /*
-    it('should navigate to item', async () => {
-        const navigateToTileMock = jest.spyOn(mockRoom.navigation as any, 'navigateToTile').mockResolvedValue(true);
-        await (service as any).navigateToItem(mockServer, mockRoom, mockPlayer[0], { x: 1, y: 1 });
-        expect(navigateToTileMock).toHaveBeenCalledWith(mockServer, mockPlayer[0], { x: 1, y: 1 });
+        jest.spyOn(service as any, 'checkForEnemy').mockReturnValue(null);
+        const result = await (service as any).attackEnemyIfPossible(mockRoom, mockServer, mockPlayer[0], mockTarget[0]);
+        expect(result).toBe(false);
     });
-
-    it('should not navigate to item', async () => {
-        const navigateToTileMock = jest.spyOn(mockRoom.navigation as any, 'navigateToTile').mockResolvedValue(false);
-        await (service as any).navigateToItem(mockServer, mockRoom, mockPlayer[0], { x: 1, y: 1 });
-        expect(navigateToTileMock).toHaveBeenCalledWith(mockServer, mockPlayer[0], { x: 1, y: 1 });
-    });
-    */
 
     it('should return true if player has a flag and can spawn', () => {
         jest.spyOn(service as any, 'checkForSpawn').mockReturnValue(true);
@@ -254,6 +245,21 @@ describe('BotService', () => {
         expect(emitMock).not.toHaveBeenCalled();
     });
 
+    it('should return the correct boolean for the validPosition', () => {
+        const mockRoomGameTiles = {
+            gameMap: {
+                dimension: SIZE_SMALL_MAP,
+            },
+        } as unknown as Room;
+        let mockPosition = { x: 1, y: 1 };
+        const result = (service as any).isValidPosition(mockPosition, mockRoomGameTiles);
+        expect(result).toBe(true);
+
+        mockPosition.x = SIZE_LARGE_MAP;
+        const falseResult = (service as any).isValidPosition(mockPosition, mockRoomGameTiles);
+        expect(falseResult).toBe(false);
+    });
+
     it('should not emit a BotNavigation event for an invalid position', () => {
         const mockReachability: Position[] = [{ x: 1, y: 1 }];
         jest.spyOn(service as any, 'isValidPosition').mockReturnValue(false);
@@ -266,7 +272,10 @@ describe('BotService', () => {
 
     it('should emit BotNavigation and BotAttack events for a non-bot target', async () => {
         jest.spyOn(service as any, 'delay').mockResolvedValue(undefined);
-        const mockRoomName = { roomId: 'room-1' } as unknown as Room;
+        const mockRoomName = {
+            roomId: 'room-1',
+        } as unknown as Room;
+
         const mockPath = [
             { x: 1, y: 1 },
             { x: 2, y: 2 },
@@ -287,6 +296,18 @@ describe('BotService', () => {
             clickedPosition: mockTargetId.position,
             player: mockActivePlayer,
         });
+
+        // for line 132
+        // mockTargetId.status = Status.Bot;
+        // await (service as any).attackPlayer(mockRoomName, mockServer, {
+        //     target: mockTargetId,
+        //     activePlayer: mockActivePlayer,
+        //     path: [...mockPath],
+        // });
+        // expect(mockServer.to((service as any).getEventHost(mockRoomName.roomId).emit)).toHaveBeenCalledWith(ServerToClientEvent.BotAttack, {
+        //     clickedPosition: mockTargetId.position,
+        //     player: mockActivePlayer,
+        // });
     });
 
     it('should return true if players are neighbors', () => {
@@ -478,5 +499,14 @@ describe('BotService', () => {
             { x: 2, y: 2 },
         ]);
         expect(result).toBe(true);
+
+        const mockRoomEmptyPath = {
+            roomId: 'room-1',
+            navigation: {
+                findFastestPath: jest.fn().mockReturnValue(null),
+            },
+        } as unknown as Room;
+        const resultEmptyPath = (service as any).navigateToItem(mockServer2, mockRoomEmptyPath, mockActivePlayer, mockItem);
+        expect(resultEmptyPath).toBe(false);
     });
 });
