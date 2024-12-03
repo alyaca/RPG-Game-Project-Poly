@@ -48,10 +48,15 @@ export const MILLISECONDS_IN_SECOND = 1000;
 export const MOVEMENT_TIME = 150;
 export const FALLING_PROBABILITY = 0.1;
 
+export const BOT_NAVIGATION_RANDOM = 0.5;
+
 export const SINGLE_PLAYER = 1;
 export const ROLL_DURATION = 800;
-// constant for tests
-export const FOWARD_TIME = 1000;
+
+// constants for tests
+export const FORWARD_TIME = 1000;
+export const RANDOM_INT = 5;
+export const MAX_RANGE = 3000;
 
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;

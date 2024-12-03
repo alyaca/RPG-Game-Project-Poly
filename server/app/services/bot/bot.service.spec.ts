@@ -1,3 +1,4 @@
+import { BOT_NAVIGATION_RANDOM, FORWARD_TIME, MAX_RANGE, RANDOM_INT } from '@app/constants';
 import { mockRoom } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ObjectType } from '@common/avatars-info';
@@ -8,6 +9,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
 import { BotService } from './bot.service';
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-lines */
 describe('BotService', () => {
     let service: BotService;
     let mockPlayer: Player[];
@@ -228,7 +230,7 @@ describe('BotService', () => {
             { x: 1, y: 1 },
             { x: 2, y: 2 },
         ];
-        jest.spyOn(global.Math, 'random').mockReturnValue(0.5);
+        jest.spyOn(global.Math, 'random').mockReturnValue(BOT_NAVIGATION_RANDOM);
         jest.spyOn(service as any, 'isValidPosition').mockReturnValue(true);
         const mockPath = [
             { x: 2, y: 2 },
@@ -289,32 +291,32 @@ describe('BotService', () => {
 
     it('should return true if players are neighbors', () => {
         const mockPlayerPos = { position: { x: 1, y: 1 } } as Player;
-        const mockTarget = { position: { x: 2, y: 2 } } as Player;
-        const result = (service as any).isNeighbour(mockPlayerPos, mockTarget);
+        const mockTargetPosition = { position: { x: 2, y: 2 } } as Player;
+        const result = (service as any).isNeighbour(mockPlayerPos, mockTargetPosition);
         expect(result).toBe(true);
     });
 
     it('should return false if players are not neighbors', () => {
-        const mockPlayer = { position: { x: 1, y: 1 } } as Player;
-        const mockTarget = { position: { x: 3, y: 3 } } as Player;
-        const result = (service as any).isNeighbour(mockPlayer, mockTarget);
+        const mockPlayerPosition = { position: { x: 1, y: 1 } } as Player;
+        const mockTargetPosition = { position: { x: 3, y: 3 } } as Player;
+        const result = (service as any).isNeighbour(mockPlayerPosition, mockTargetPosition);
         expect(result).toBe(false);
     });
 
     it('should return the first active player in the room', () => {
-        const mockRoom = {
+        const mockRoomList = {
             listPlayers: [
                 { id: '1', status: Status.Disconnected },
                 { id: '2', status: Status.Bot },
                 { id: '3', status: 'Active' },
             ],
         } as unknown as Room;
-        const result = (service as any).getEventHost(mockRoom);
+        const result = (service as any).getEventHost(mockRoomList);
         expect(result).toEqual({ id: '3', status: 'Active' });
     });
 
     it('should return the fastest path between active player and target', () => {
-        const mockRoom = {
+        const mockRoomPath = {
             navigation: {
                 findFastestPath: jest.fn().mockReturnValue([
                     { x: 1, y: 1 },
@@ -323,9 +325,9 @@ describe('BotService', () => {
             },
         } as unknown as Room;
         const mockActivePlayer = { position: { x: 0, y: 0 } } as Player;
-        const mockTarget = { position: { x: 2, y: 2 } } as Player;
-        const result = (service as any).checkForEnemy(mockRoom, mockActivePlayer, mockTarget);
-        expect(mockRoom.navigation.findFastestPath).toHaveBeenCalledWith(mockActivePlayer, mockTarget.position, mockRoom);
+        const mockTargetPosition = { position: { x: 2, y: 2 } } as Player;
+        const result = (service as any).checkForEnemy(mockRoomPath, mockActivePlayer, mockTargetPosition);
+        expect(mockRoomPath.navigation.findFastestPath).toHaveBeenCalledWith(mockActivePlayer, mockTargetPosition.position, mockRoomPath);
         expect(result).toEqual([
             { x: 1, y: 1 },
             { x: 2, y: 2 },
@@ -333,7 +335,7 @@ describe('BotService', () => {
     });
 
     it('should return the position of the first attack item', () => {
-        const mockRoom = {
+        const mockRoomGameItems = {
             gameMap: {
                 itemPlacement: [
                     [0, 0, ObjectType.Lightning],
@@ -347,12 +349,12 @@ describe('BotService', () => {
             { x: 1, y: 1 },
         ];
         jest.spyOn(service as any, 'isAttackItem').mockImplementation((item) => item === ObjectType.Lightning);
-        const result = (service as any).checkForAttackItems(mockRoom, mockReachability);
+        const result = (service as any).checkForAttackItems(mockRoomGameItems, mockReachability);
         expect(result).toEqual({ x: 0, y: 2 });
     });
 
     it('should fall back to checkForAnyItems if no attack items are found', () => {
-        const mockRoom = {
+        const mockRoomItems = {
             gameMap: {
                 itemPlacement: [
                     [0, 0, 0],
@@ -367,7 +369,7 @@ describe('BotService', () => {
         jest.spyOn(service as any, 'isAttackItem').mockReturnValue(false);
         jest.spyOn(service as any, 'checkForAnyItems').mockReturnValue({ x: 2, y: 2 });
 
-        const result = (service as any).checkForAttackItems(mockRoom, mockReachability);
+        const result = (service as any).checkForAttackItems(mockRoomItems, mockReachability);
 
         expect(result).toEqual({ x: 2, y: 2 });
     });
@@ -378,19 +380,19 @@ describe('BotService', () => {
     });
 
     it('should return the spawn position if it is in reachability', () => {
-        const mockPlayer = {
+        const mockPlayerSpawnPosition = {
             spawnPosition: { x: 1, y: 1 },
         } as Player;
         const mockReachability: Position[] = [
             { x: 1, y: 1 },
             { x: 2, y: 2 },
         ];
-        const result = (service as any).checkForSpawn(mockReachability, mockPlayer);
+        const result = (service as any).checkForSpawn(mockReachability, mockPlayerSpawnPosition);
         expect(result).toEqual({ x: 1, y: 1 });
     });
 
     it('should return the position of the first defense item', () => {
-        const mockRoom = {
+        const mockRoomItems = {
             gameMap: {
                 itemPlacement: [
                     [0, 0, ObjectType.Kunee],
@@ -403,12 +405,12 @@ describe('BotService', () => {
             { x: 0, y: 2 },
             { x: 2, y: 1 },
         ];
-        const result = (service as any).checkForDefenseItems(mockRoom, mockReachability);
+        const result = (service as any).checkForDefenseItems(mockRoomItems, mockReachability);
         expect(result).toEqual({ x: 0, y: 2 });
     });
 
     it('should fall back to checkForAnyItems if no defense items are found', () => {
-        const mockRoom = {
+        const mockRoomItems = {
             gameMap: {
                 itemPlacement: [
                     [0, 0, 0],
@@ -419,12 +421,12 @@ describe('BotService', () => {
         } as unknown as Room;
         const mockReachability: Position[] = [{ x: 2, y: 2 }];
         jest.spyOn(service as any, 'checkForAnyItems').mockReturnValue({ x: 2, y: 2 });
-        const result = (service as any).checkForDefenseItems(mockRoom, mockReachability);
+        const result = (service as any).checkForDefenseItems(mockRoomItems, mockReachability);
         expect(result).toEqual({ x: 2, y: 2 });
     });
 
     it('should return the position of the first non-spawn item', () => {
-        const mockRoom = {
+        const mockRoomItems = {
             gameMap: {
                 itemPlacement: [
                     [0, ObjectType.Spawn, 0],
@@ -437,22 +439,22 @@ describe('BotService', () => {
             { x: 1, y: 1 },
             { x: 0, y: 1 },
         ];
-        const result = (service as any).checkForAnyItems(mockRoom, mockReachability);
+        const result = (service as any).checkForAnyItems(mockRoomItems, mockReachability);
         expect(result).toEqual({ x: 1, y: 1 });
     });
 
     it('should resolve after the specified time', async () => {
         jest.useFakeTimers();
-        const delayPromise = (service as any).delay(1000);
-        jest.advanceTimersByTime(1000);
+        const delayPromise = (service as any).delay(FORWARD_TIME);
+        jest.advanceTimersByTime(FORWARD_TIME);
         await expect(delayPromise).resolves.toBeUndefined();
         jest.useRealTimers();
     });
 
     it('should return a random integer within the range', () => {
-        jest.spyOn(global.Math, 'random').mockReturnValue(0.5);
-        const result = (service as any).getRandomInt(1, 5);
-        expect(result).toBe(3000);
+        jest.spyOn(global.Math, 'random').mockReturnValue(BOT_NAVIGATION_RANDOM);
+        const result = (service as any).getRandomInt(1, RANDOM_INT);
+        expect(result).toBe(MAX_RANGE);
     });
 
     it('should emit BotNavigation event and return true when a path is found', () => {
@@ -465,13 +467,13 @@ describe('BotService', () => {
                 ]),
             },
         } as unknown as Room;
-        const mockServer = { to: jest.fn().mockReturnValue({ emit: jest.fn() }) } as unknown as Server;
+        const mockServer2 = { to: jest.fn().mockReturnValue({ emit: jest.fn() }) } as unknown as Server;
         const mockActivePlayer = { position: { x: 0, y: 0 } } as Player;
         const mockItem = { x: 2, y: 2 } as Position;
-        const result = (service as any).navigateToItem(mockServer, mockRoomPath, mockActivePlayer, mockItem);
+        const result = (service as any).navigateToItem(mockServer2, mockRoomPath, mockActivePlayer, mockItem);
         expect(mockRoomPath.navigation.findFastestPath).toHaveBeenCalledWith(mockActivePlayer, mockItem, mockRoomPath);
-        expect(mockServer.to).toHaveBeenCalledWith(mockRoomPath.roomId);
-        expect(mockServer.to(mockRoomPath.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.BotNavigation, [
+        expect(mockServer2.to).toHaveBeenCalledWith(mockRoomPath.roomId);
+        expect(mockServer2.to(mockRoomPath.roomId).emit).toHaveBeenCalledWith(ServerToClientEvent.BotNavigation, [
             { x: 1, y: 1 },
             { x: 2, y: 2 },
         ]);
