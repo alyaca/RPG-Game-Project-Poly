@@ -221,7 +221,7 @@ export class GameService {
     processTeleportation(room: Room, position: Position) {
         const player = this.getActivePlayer(room);
         const playerId = player.id;
-        if (room.navigation.isTileValid(position.x, position.y)) {
+        if (room.navigation.isTileValidTeleport(position.x, position.y)) {
             player.position = position;
             this.emitEventToRoom(room.roomId, ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
@@ -590,10 +590,7 @@ export class GameService {
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
             case TileType.Wall:
-                if (this.hasKuneeItem(activePlayer)) {
-                    return TileCost.Ground;
-                }
-                return Infinity;
+                return this.hasKuneeItem(activePlayer) ? TileCost.Ground : Infinity;
             default:
                 return Infinity;
         }

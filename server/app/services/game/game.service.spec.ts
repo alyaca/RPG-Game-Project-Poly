@@ -721,7 +721,7 @@ describe('GameService', () => {
 
         it('should teleport the player and emit the correct events', () => {
             server.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
-            room.navigation.isTileValid = jest.fn().mockReturnValue(true);
+            room.navigation.isTileValidTeleport = jest.fn().mockReturnValue(true);
             service.emitEventToRoom = jest.fn();
 
             service.processTeleportation(room, position);

@@ -48,7 +48,7 @@ describe('Navigation', () => {
     });
 
     it('should initialize all the attributes', () => {
-        navigation.initializeDistances(playerNavigation, mockGame);
+        navigation['initializeDistances'](playerNavigation, mockGame);
         expect(navigation['distances'].length).toEqual(mockGame.dimension);
         expect(navigation['previous'].length).toEqual(mockGame.dimension);
         expect(navigation['distances'][playerNavigation.position.x][playerNavigation.position.y]).toEqual(0);
@@ -63,7 +63,7 @@ describe('Navigation', () => {
     it('should return true if a player is adjacent to the active one', () => {
         navigation.players = [playerNavigation];
         navigation.getNeighborPlayers = jest.fn().mockReturnValue([{ x: 0, y: 0 }]);
-        navigation.hasPlayerOnTile = jest.fn().mockReturnValue(true);
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(true);
         expect(navigation.checkAttack(playerNavigation, mockNavigationPlayers)).toBe(true);
     });
 
@@ -86,11 +86,11 @@ describe('Navigation', () => {
     });
 
     it('should return the correct tile cost', () => {
-        expect(navigation.getTileCost(TileType.Ground)).toEqual(TileCost.Ground);
-        expect(navigation.getTileCost(TileType.Water)).toEqual(TileCost.Water);
-        expect(navigation.getTileCost(TileType.Ice)).toEqual(TileCost.Ice);
-        expect(navigation.getTileCost(TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
-        expect(navigation.getTileCost(TileType.Wall)).toEqual(Infinity);
+        expect(navigation['getTileCost'](TileType.Ground)).toEqual(TileCost.Ground);
+        expect(navigation['getTileCost'](TileType.Water)).toEqual(TileCost.Water);
+        expect(navigation['getTileCost'](TileType.Ice)).toEqual(TileCost.Ice);
+        expect(navigation['getTileCost'](TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
+        expect(navigation['getTileCost'](TileType.Wall)).toEqual(Infinity);
     });
 
     it('should call getTileCost', () => {
@@ -109,8 +109,8 @@ describe('Navigation', () => {
             [1, 1, 1],
             [1, 1, 1],
         ];
-        navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ice);
-        navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
+        navigation['getTileCost'] = jest.fn().mockReturnValue(TileCost.Ice);
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
         navigation['exploreNeighborsForReachableTiles'](
             [{ x: 1, y: 2 }],
             { x: 0, y: 0, distance: 0 },
@@ -118,7 +118,7 @@ describe('Navigation', () => {
             DEFAULT_ATTRIBUTE,
             mockGameNavigation,
         );
-        expect(navigation.getTileCost).toHaveBeenCalled();
+        expect(navigation['getTileCost']).toHaveBeenCalled();
     });
 
     describe('exploreNeighborsForReachableTiles', () => {
@@ -186,7 +186,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
-            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
+            navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
             const expectedDistance = 1;
 
@@ -199,7 +199,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
-            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
+            navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, maxMovementPoints, mockNeighborGame);
             expect(navigation['distances'][1][0]).toBe(Infinity);
             expect(priorityQueue).not.toContain({ x: 1, y: 0, distance: Infinity });
@@ -209,7 +209,7 @@ describe('Navigation', () => {
             const neighbors = [{ x: 1, y: 0 }];
             const current: PointWithDistance = { x: 1, y: 1, distance: 0 };
 
-            navigation.hasPlayerOnTile = jest.fn().mockReturnValue(false);
+            navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
             navigation['exploreNeighborsForReachableTiles'](neighbors, current, priorityQueue, DEFAULT_ATTRIBUTE, mockNeighborGame);
 
             expect(navigation['distances'][1][0]).toBe(1);
@@ -242,7 +242,7 @@ describe('Navigation', () => {
 
     describe('exploreNeighbors', () => {
         beforeEach(() => {
-            navigation.isReachableTile = jest.fn().mockReturnValue(true);
+            navigation['isReachableTile'] = jest.fn().mockReturnValue(true);
             navigation.isBot = true;
             navigation['distances'] = [
                 [Infinity, Infinity, Infinity],
@@ -293,7 +293,7 @@ describe('Navigation', () => {
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
-            navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
+            navigation['getTileCost'] = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
             expect(navigation['distances'][2][0]).toBe(1);
@@ -309,7 +309,7 @@ describe('Navigation', () => {
             const current = { x: 1, y: 1, distance: 0 };
             const priorityQueue = [{ x: 1, y: 1, distance: 0 }];
 
-            navigation.getTileCost = jest.fn().mockReturnValue(TileCost.Ground);
+            navigation['getTileCost'] = jest.fn().mockReturnValue(TileCost.Ground);
             navigation['exploreNeighbors'](neighbors, current, priorityQueue, mockNeighborGame);
 
             expect(navigation['distances'][1][0]).toBe(TileCost.Ground);
@@ -348,7 +348,7 @@ describe('Navigation', () => {
         ];
 
         navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
-        const isValid = navigation['isTileValid'](position.x, position.y);
+        const isValid = navigation['isTileValidTeleport'](position.x, position.y);
         expect(isValid).toBe(true);
     });
 
@@ -365,7 +365,7 @@ describe('Navigation', () => {
         ];
 
         navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
-        const isValid = navigation['isTileValid'](position.x, position.y);
+        const isValid = navigation['isTileValidTeleport'](position.x, position.y);
         expect(isValid).toBe(false);
     });
 
@@ -381,7 +381,7 @@ describe('Navigation', () => {
         ];
 
         navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
-        const isValid = navigation['isTileValid'](position.x, position.y);
+        const isValid = navigation['isTileValidTeleport'](position.x, position.y);
         expect(isValid).toBe(true);
     });
     // TODO : Tests from navigation client to fix (to adapt to server)

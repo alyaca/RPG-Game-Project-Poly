@@ -43,17 +43,6 @@ export class Navigation {
         return path;
     }
 
-    isReachableTile(row: number, col: number): boolean {
-        return (this.destination.x === row && this.destination.y === col) || !this.hasPlayerOnTile({ x: row, y: col }, this.players);
-    }
-
-    initializeDistances(player: Player, game: Game): void {
-        const dimension = game.dimension;
-        this.distances = Array.from({ length: dimension }, () => Array(dimension).fill(Infinity));
-        this.previous = Array.from({ length: dimension }, () => Array(dimension).fill(null));
-        this.distances[player.position.x][player.position.y] = 0;
-    }
-
     findReachableTiles(player: Player, room: Room): Position[] {
         const game = room.gameMap;
         this.initializeDistances(player, game);
@@ -74,44 +63,6 @@ export class Navigation {
         return reachableTiles;
     }
 
-    getTileCost(tileType: number): number {
-        const player = this.players.find((players) => players.isActive);
-        switch (tileType) {
-            case TileType.Ground:
-                return TileCost.Ground;
-            case TileType.Water:
-                return TileCost.Water;
-            case TileType.Ice:
-                return TileCost.Ice;
-            case TileType.OpenDoor:
-                return TileCost.OpenDoor;
-            case TileType.Wall:
-                if (player?.inventory.find((object) => object.id === ObjectType.Kunee)) {
-                    return TileCost.Ground;
-                }
-                return Infinity;
-            default:
-                return Infinity;
-        }
-    }
-
-    isNeighbor(row: number, col: number, player: Player): boolean {
-        const neighbors = this.getNeighbors(player.position, this.gameMap);
-        return neighbors.some((neighbor) => neighbor.x === row && neighbor.y === col);
-    }
-
-    getNeighbors(position: Position, game: Game): Position[] {
-        const directions = [
-            { dx: 0, dy: 1 },
-            { dx: 0, dy: -1 },
-            { dx: 1, dy: 0 },
-            { dx: -1, dy: 0 },
-        ];
-        return directions
-            .map(({ dx, dy }) => ({ x: position.x + dx, y: position.y + dy }))
-            .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
-    }
-
     hasHandleDoorAction(row: number, col: number, player: Player) {
         if (this.isNeighbor(row, col, player) && this.isTileDoor({ x: row, y: col })) {
             this.gameMap.tiles[row][col] = this.toggleDoorState(this.gameMap.tiles[row][col]);
@@ -127,11 +78,6 @@ export class Navigation {
         }
         return null;
     }
-
-    getPlayerWithPosition(position: Position, players: Player[]) {
-        return players.find((player) => player.position.x === position.x && player.position.y === position.y);
-    }
-
     haveActions(player: Player, players: Player[]): boolean {
         return this.hasActionPoints(player) && (this.checkAttack(player, players) || this.checkDoor(player, players));
     }
@@ -169,10 +115,6 @@ export class Navigation {
         return this.getNeighborDoors(player, players).length > 0;
     }
 
-    hasPlayerOnTile(position: Position, players: Player[]) {
-        return players.some((player) => player.position.x === position.x && player.position.y === position.y);
-    }
-
     hasActionPoints(player: Player) {
         return player?.attributes.actionPoints > 0;
     }
@@ -201,15 +143,6 @@ export class Navigation {
         return player.position;
     }
 
-    isTileValidForPlayer(row: number, col: number): boolean {
-        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
-        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
-        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
-        if (this.hasPlayerOnTile({ x: row, y: col }, this.players)) return false;
-        if (this.gameMap.itemPlacement[row][col] !== NO_ITEM) return false;
-        return true;
-    }
-
     findClosestPlayer(player: Player, players: Player[], room: Room): Player | undefined {
         const reachability = this.findReachableTiles(player, room);
         for (const tile of reachability) {
@@ -226,13 +159,73 @@ export class Navigation {
         return player?.attributes.movementPointsLeft > 0;
     }
 
-    isTileValid(row: number, col: number): boolean {
+    isTileValidTeleport(row: number, col: number): boolean {
+        if (this.isTileDoor({ x: row, y: col })) return false;
         if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
-        if (this.gameMap.tiles[row][col] === TileType.ClosedDoor) return false;
-        if (this.gameMap.tiles[row][col] === TileType.OpenDoor) return false;
         if (this.hasPlayerOnTile({ x: row, y: col }, this.players)) return false;
         if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn) return true;
         return false;
+    }
+
+    private isTileValidForPlayer(row: number, col: number): boolean {
+        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
+        if (this.isTileDoor({ x: row, y: col }) || this.hasPlayerOnTile({ x: row, y: col }, this.players)) return false;
+        if (this.gameMap.itemPlacement[row][col] !== NO_ITEM) return false;
+        return true;
+    }
+
+    private isReachableTile(row: number, col: number): boolean {
+        return (this.destination.x === row && this.destination.y === col) || !this.hasPlayerOnTile({ x: row, y: col }, this.players);
+    }
+
+    private initializeDistances(player: Player, game: Game): void {
+        const dimension = game.dimension;
+        this.distances = Array.from({ length: dimension }, () => Array(dimension).fill(Infinity));
+        this.previous = Array.from({ length: dimension }, () => Array(dimension).fill(null));
+        this.distances[player.position.x][player.position.y] = 0;
+    }
+
+    private getTileCost(tileType: number): number {
+        const player = this.players.find((players) => players.isActive);
+        switch (tileType) {
+            case TileType.Ground:
+                return TileCost.Ground;
+            case TileType.Water:
+                return TileCost.Water;
+            case TileType.Ice:
+                return TileCost.Ice;
+            case TileType.OpenDoor:
+                return TileCost.OpenDoor;
+            case TileType.Wall:
+                return player?.inventory.find((objects) => objects.id === ObjectType.Kunee) ? TileCost.Ground : Infinity;
+            default:
+                return Infinity;
+        }
+    }
+
+    private isNeighbor(row: number, col: number, player: Player): boolean {
+        const neighbors = this.getNeighbors(player.position, this.gameMap);
+        return neighbors.some((neighbor) => neighbor.x === row && neighbor.y === col);
+    }
+
+    private getNeighbors(position: Position, game: Game): Position[] {
+        const directions = [
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 },
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+        ];
+        return directions
+            .map(({ dx, dy }) => ({ x: position.x + dx, y: position.y + dy }))
+            .filter(({ x, y }) => this.isValidTile(x, y, game.dimension));
+    }
+
+    private getPlayerWithPosition(position: Position, players: Player[]) {
+        return players.find((player) => player.position.x === position.x && player.position.y === position.y);
+    }
+
+    private hasPlayerOnTile(position: Position, players: Player[]) {
+        return players.some((player) => player.position.x === position.x && player.position.y === position.y);
     }
 
     private exploreNeighborsForReachableTiles(
@@ -241,7 +234,7 @@ export class Navigation {
         priorityQueue: PointWithDistance[],
         maxMovementPoints: number,
         game: Game,
-    ): void {
+    ) {
         const { x: currentX, y: currentY, distance: currentDistance } = current;
         for (const neighbor of neighbors) {
             const { x: newX, y: newY } = neighbor;
