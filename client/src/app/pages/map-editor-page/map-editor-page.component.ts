@@ -140,22 +140,31 @@ export class MapEditorPageComponent implements OnInit {
         let baseImage: string;
         html2canvas(this.canvas.nativeElement, { scale: 0.2 }).then((canvas) => {
             baseImage = canvas.toDataURL();
-            infoTransferred = {
-                image: baseImage,
-                name: this.mapName.trim(),
-                description: this.mapDescription,
-                grid: this.tiles,
-                items: this.items,
-                height: this.height,
-                mode: this.gameCreationService.getGameMode(),
-            };
             if (this.gameCreationService.isNewGame) {
+                infoTransferred = {
+                    image: baseImage,
+                    name: this.mapName.trim(),
+                    description: this.mapDescription,
+                    grid: this.tiles,
+                    items: this.items,
+                    height: this.height,
+                    mode: this.gameCreationService.getGameMode(),
+                };
                 setTimeout(() => {
                     if (this.mapEditorService.isMapValid()) {
                         this.saveGameService.saveNewGame(infoTransferred);
                     }
                 }, CHECK_BEFORE_SAVING_DELAY);
             } else {
+                infoTransferred = {
+                    image: baseImage,
+                    name: this.mapName.trim(),
+                    description: this.mapDescription,
+                    grid: this.tiles,
+                    items: this.items,
+                    height: this.height,
+                    mode: this.mapEditorService.mapToEdit.mode,
+                };
                 setTimeout(() => {
                     if (this.mapEditorService.isMapValid()) {
                         this.saveGameService.replaceMap(infoTransferred, this.mapEditorService.mapToEdit._id);

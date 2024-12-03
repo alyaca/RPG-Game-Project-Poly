@@ -60,7 +60,7 @@ export class ChatBoxComponent implements OnInit, AfterViewChecked, OnDestroy {
     onScroll() {
         const container = this.getActiveContainer();
         const element = container.nativeElement;
-        this.isAtBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
+        this.isAtBottom = element.scrollHeight - element.scrollTop - element.clientHeight <= 1;
     }
 
     ngOnInit() {

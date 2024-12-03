@@ -17,6 +17,7 @@ import { CombatService } from '@app/services/sockets/combat/combat.service';
 import { GameService } from '@app/services/sockets/game/game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PathRoute } from '@common/interfaces/route';
+import { ActionData } from '@common/interfaces/socket-data.interface';
 import { ServerToClientEvent } from '@common/socket.events';
 import { of } from 'rxjs';
 import { Socket } from 'socket.io-client';
@@ -36,8 +37,8 @@ describe('GamePageComponent', () => {
     let httpMock: HttpTestingController;
     let mockSocket: Socket;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
-    let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
     let combatServiceSpy: jasmine.SpyObj<CombatService>;
+    let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
 
     const accessCode = '1234';
 
@@ -163,6 +164,42 @@ describe('GamePageComponent', () => {
             });
             component.ngOnInit();
             expect(component.activePlayerName).toEqual(mockPlayer.name);
+        });
+
+        it('should set isInCombat and call initializeCombat', () => {
+            component.activePlayer = JSON.parse(JSON.stringify(mockPlayers[0]));
+            const actionData: ActionData = { clickedPosition: { x: 1, y: 1 }, player: JSON.parse(JSON.stringify(mockPlayers[0])) };
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.StartFight) {
+                    callback(actionData as T);
+                }
+            });
+            component.ngOnInit();
+            expect(combatServiceSpy.initializeCombat).toHaveBeenCalled();
+        });
+
+        it('should set isInCombat to false on combatEnd', () => {
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'combatEnd') {
+                    callback(mockPlayers as T);
+                }
+            });
+            spyOn(component, 'setPlayersOnCombatDone');
+            component.ngOnInit();
+            expect(component.setPlayersOnCombatDone).toHaveBeenCalled();
+        });
+
+        // change to minus -1 when items are merged
+        it('should set actionPoints to 0 if doorClicked', () => {
+            component.activePlayer = mockPlayers[0];
+            component.activePlayer.attributes.actionPoints = 1;
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === 'doorClicked') {
+                    callback({} as T);
+                }
+            });
+            component.ngOnInit();
+            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
         });
 
         it('should disconnect on draw event', () => {
