@@ -119,6 +119,12 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.tilesGrid = tiles;
             this.gameService.isActionDoorSelected = false;
         });
+
+        this.socketCommunicationService.on(ServerToClientEvent.BotAttack, (actionData: ActionData) => {
+            if (this.activePlayer?.id === actionData.player.id) {
+                this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
+            }
+        });
     }
 
     initMovementListeners() {
@@ -137,6 +143,11 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.PathFound, (path: Position[]) => {
             this.fastestPath = path;
         });
+
+        this.socketCommunicationService.on(ServerToClientEvent.BotNavigation, (path: Position[]) => {
+            this.fastestPath = path;
+            this.sendBotPathToServer();
+        });
     }
 
     initObjectsListeners() {
@@ -153,16 +164,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.UpdateObjectsAfterCombat, (data: { newGrid: number[][]; position: Position }) => {
             this.navigationService.updateObjects(data.newGrid);
             this.objectsArray[data.position.x][data.position.y] = data.newGrid[data.position.x][data.position.y];
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.BotNavigation, (path: Position[]) => {
-            this.fastestPath = path;
-            this.sendBotPathToServer();
-        });
-        this.socketCommunicationService.on(ServerToClientEvent.BotAttack, (actionData: ActionData) => {
-            if (this.activePlayer?.id === actionData.player.id) {
-                this.socketCommunicationService.send(ClientToServerEvent.CombatAction, actionData);
-            }
         });
     }
 
@@ -292,20 +293,16 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         this.sendInfoToMapCreationPage();
     }
 
+    closeTileDescription() {
+        // doesn't go here
+        this.tileInfoVisible = false;
+    }
+
     handleRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
         const result = this.gameCreationService.rightClick({ x: row, y: col }, this.isMoving, this.isActivePlayer);
         this.isMoving = result[0];
         this.tileInfoVisible = result[1];
-    }
-
-    showDetails(row: number, col: number) {
-        this.tileInfoVisible = this.gameCreationService.showDetails({ x: row, y: col });
-    }
-
-    // tileInfo popup not closing
-    closeTileDescription() {
-        this.tileInfoVisible = false;
     }
 
     previousTileCheck(position: MapPosition) {

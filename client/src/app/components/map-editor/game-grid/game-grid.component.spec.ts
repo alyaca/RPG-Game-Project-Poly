@@ -236,6 +236,31 @@ describe('GameGridComponent', () => {
             expect(navigationServiceSpy.initialize).toHaveBeenCalled();
         });
 
+        it('should call sendBothPathToServer on BotNavigation event', () => {
+            const mockPath = [{ x: 0, y: 0 }];
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.BotNavigation) {
+                    callback(mockPath as T);
+                }
+            });
+            spyOn(component, 'sendBotPathToServer');
+            component.initMovementListeners();
+            expect(component.fastestPath).toEqual(mockPath);
+            expect(component.sendBotPathToServer).toHaveBeenCalled();
+        });
+
+        it('should call send event CombatAction on BotAttack event', () => {
+            const data = { clickedPosition: { x: 0, y: 0 }, player: { ...mockPlayers[0] } };
+            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+                if (event === ServerToClientEvent.BotAttack) {
+                    callback(data as T);
+                }
+            });
+            component['activePlayer'] = { ...mockPlayers[0] };
+            component.initGameListeners();
+            expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ClientToServerEvent.CombatAction, data);
+        });
+
         it('should decrease action points on combatEnd', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === ServerToClientEvent.CombatEnd) {
@@ -317,14 +342,6 @@ describe('GameGridComponent', () => {
             expect(gameCreationServiceSpy.rightClick).toHaveBeenCalled();
             expect(component['isMoving']).toBeTrue();
             expect(component.tileInfoVisible).toBeFalse();
-        });
-
-        it('should call showDetails from gameCreationService', () => {
-            component.tileInfoVisible = false;
-            gameCreationServiceSpy.showDetails.and.returnValue(true);
-            component.showDetails(0, 0);
-            expect(component.tileInfoVisible).toBeTrue();
-            expect(gameCreationServiceSpy.showDetails).toHaveBeenCalled();
         });
 
         it('should call findPath if tile is not reachable', () => {
@@ -535,6 +552,13 @@ describe('GameGridComponent', () => {
         component.sendNavigation();
         expect(component['isMoving']).toBeTrue();
         expect(socketCommunicationServiceSpy.send).toHaveBeenCalled();
+    });
+
+    it('should send PlayerNavigation with sendBotPathToServer', () => {
+        component.fastestPath = [{ x: 0, y: 0 }];
+        component.sendBotPathToServer();
+        expect(socketCommunicationServiceSpy.send).toHaveBeenCalledWith(ServerToClientEvent.PlayerNavigation, [{ x: 0, y: 0 }]);
+        expect(component.fastestPath).toEqual([]);
     });
 
     describe('ngOnChanges', () => {

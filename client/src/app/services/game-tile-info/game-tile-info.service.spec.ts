@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 import { TestBed } from '@angular/core/testing';
 import { ObjectType } from '@app/constants';
 import { mockPlayers } from '@app/mocks/mock-players';
@@ -40,8 +41,9 @@ describe('GameTileInfoService', () => {
         });
 
         it('should get the item', () => {
+            const trident = gameObjects.find((items) => items.id === ObjectType.Trident);
             service.itemId = ObjectType.Trident;
-            expect(service.getItem()).toEqual(gameObjects[0]);
+            expect(service.getItem()).toEqual(trident!);
         });
 
         it('should return undefined if itemId exceeds gameObjects array length', () => {
