@@ -54,10 +54,12 @@ export class PlayerInfoInventoryComponent implements OnInit {
     }
 
     getActionArray() {
-        if(this.activePlayer.attributes.actionPoints < 0){
+        if (this.activePlayer.attributes.actionPoints < 0) {
             this.activePlayer.attributes.actionPoints = 0;
         }
-        return this.activePlayer.id === this.player.id ? Array(this.activePlayer.attributes.actionPoints) :  Array(this.player.attributes.actionPoints);
+        return this.activePlayer.id === this.player.id
+            ? Array(this.activePlayer.attributes.actionPoints)
+            : Array(this.player.attributes.actionPoints);
     }
 
     hasXiphos(player: Player) {
