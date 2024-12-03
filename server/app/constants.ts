@@ -57,6 +57,7 @@ export const ROLL_DURATION = 800;
 export const FORWARD_TIME = 1000;
 export const RANDOM_INT = 5;
 export const MAX_RANGE = 3000;
+export const SIZE_LARGE_MAP = 20;
 
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;

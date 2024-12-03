@@ -1,4 +1,4 @@
-import { BOT_NAVIGATION_RANDOM, FORWARD_TIME, MAX_RANGE, RANDOM_INT, SIZE_SMALL_MAP } from '@app/constants';
+import { BOT_NAVIGATION_RANDOM, FORWARD_TIME, MAX_RANGE, RANDOM_INT, SIZE_LARGE_MAP, SIZE_SMALL_MAP } from '@app/constants';
 import { mockRoom } from '@app/mocks/mock-room';
 import { mockServer } from '@app/mocks/mock-server';
 import { ObjectType } from '@common/avatars-info';
@@ -7,7 +7,6 @@ import { Room } from '@common/interfaces/room';
 import { ServerToClientEvent } from '@common/socket.events';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Server } from 'socket.io';
-import { SIZE_LARGE_MAP } from '../../../../client/src/app/constants';
 import { BotService } from './bot.service';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-lines */
@@ -251,7 +250,7 @@ describe('BotService', () => {
                 dimension: SIZE_SMALL_MAP,
             },
         } as unknown as Room;
-        let mockPosition = { x: 1, y: 1 };
+        const mockPosition = { x: 1, y: 1 };
         const result = (service as any).isValidPosition(mockPosition, mockRoomGameTiles);
         expect(result).toBe(true);
 
