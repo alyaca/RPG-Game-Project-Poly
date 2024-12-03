@@ -8,6 +8,7 @@ import {
     HIGH_ATTRIBUTE,
     LogType,
     MOVEMENT_TIME,
+    PLAYER_FELL_DELAY,
     SINGLE_PLAYER,
     STARTING_TIME,
     TURN_TIME,
@@ -473,11 +474,12 @@ export class GameService {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
-    private handleFallingOnIce(room: Room, client: Socket, server: Server) {
+    private async handleFallingOnIce(room: Room, client: Socket, server: Server) {
         if (!room.navigation.isBot) {
             this.stopGameTimers(room);
             client.emit(ServerToClientEvent.PlayerFell);
         } else {
+            await this.delay(PLAYER_FELL_DELAY);
             this.onTurnEnded(room, server);
         }
     }

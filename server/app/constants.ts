@@ -53,6 +53,7 @@ export const FOWARD_TIME = 1000;
 export const VICTORIES = 3;
 export const EVASION_SUCCESS_RATE = 0.4;
 export const END_COMBAT_DELAY = 2500;
+export const PLAYER_FELL_DELAY = 2500;
 
 export const DEFAULT_ATTRIBUTE = 4;
 export const HIGH_ATTRIBUTE = 6;
