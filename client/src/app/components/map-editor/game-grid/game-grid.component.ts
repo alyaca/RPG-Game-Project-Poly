@@ -1,6 +1,19 @@
 /* eslint max-lines: ["off"] */
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
-import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    inject,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    ViewChild,
+} from '@angular/core';
 import { TilePlayerInfoComponent } from '@app/components/tile-player-info/tile-player-info.component';
 import { MapPosition } from '@app/interfaces/map-position';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -66,6 +79,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
         private gameCreationService: GameCreationService,
         private gameTileInfoService: GameTileInfoService,
     ) {}
+
+    @HostListener('document:click', ['$event'])
+    onMapClick(event: MouseEvent) {
+        if (!this.entireMap.nativeElement.contains(event.target)) {
+            this.tileInfoVisible = false;
+        }
+    }
 
     getSelectedTile(): string {
         return this.toolService.getSelectedTile();
@@ -291,11 +311,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             objects: this.objectsArray,
         });
         this.sendInfoToMapCreationPage();
-    }
-
-    closeTileDescription() {
-        // doesn't go here
-        this.tileInfoVisible = false;
     }
 
     handleRightClick(event: MouseEvent, row: number, col: number) {

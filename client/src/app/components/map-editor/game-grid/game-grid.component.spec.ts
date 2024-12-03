@@ -477,11 +477,6 @@ describe('GameGridComponent', () => {
             expect(component['currentPlayer']).toEqual(mockLobbyPlayers[0]);
         });
 
-        it('closeTileDescription should set isPopUpVisible to false', () => {
-            component.closeTileDescription();
-            expect(component['tileInfoVisible']).toBeFalse();
-        });
-
         it('should listen to endMovement event onInit', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === 'endMovement') {
