@@ -182,8 +182,8 @@ export class PlayerInventoryService {
         const fullItem = gameObjects.find((object) => object.id === item);
         if (fullItem) {
             player.inventory.push(fullItem);
-            this.addStatsFromItem(player, fullItem?.id);
-            this.addUniqueItemToHistory(player, fullItem?.id);
+            this.addStatsFromItem(player, fullItem.id);
+            this.addUniqueItemToHistory(player, fullItem.id);
         }
         return player;
     }
