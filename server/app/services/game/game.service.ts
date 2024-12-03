@@ -144,10 +144,10 @@ export class GameService {
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
-
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
+        room.navigation.removeUnusedSpawnPoints();
         room.listPlayers[0].isActive = true;
         this.emitStartGameEvents(room);
     }

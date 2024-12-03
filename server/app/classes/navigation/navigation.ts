@@ -24,6 +24,18 @@ export class Navigation {
         this.players = players;
     }
 
+    removeUnusedSpawnPoints() {
+        for (let position of this.positions) {
+            if (position.includes(ObjectType.Spawn)) {
+                position.fill(0);
+            }
+        }
+        this.players.forEach((player) => {
+            const { x, y } = player.position;
+            this.positions[x][y] = ObjectType.Spawn;
+        });
+    }
+
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
         this.destination = destination;
         const game = room.gameMap;
