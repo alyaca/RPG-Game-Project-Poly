@@ -489,7 +489,10 @@ export class GameService {
     }
 
     private isObject(room: Room, tile: Position) {
-        return room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random || this.isOjectFlag(room, tile);
+        return (
+            (room.gameMap.itemPlacement[tile.x][tile.y] <= ObjectType.Random && room.gameMap.itemPlacement[tile.x][tile.y] > 0) ||
+            this.isOjectFlag(room, tile)
+        );
     }
 
     private isOjectFlag(room: Room, tile: Position) {

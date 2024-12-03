@@ -39,7 +39,6 @@ describe('GamePageComponent', () => {
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let combatServiceSpy: jasmine.SpyObj<CombatService>;
     let navigationServiceSpy: jasmine.SpyObj<NavigationService>;
-    let combatServiceSpy: jasmine.SpyObj<CombatService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let sizeSubjectMock: BehaviorSubject<string | null>;
 
