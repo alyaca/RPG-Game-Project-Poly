@@ -108,11 +108,17 @@ export class BotService {
         if (reachability.length === 0) {
             return;
         }
-        let randomIndex = Math.floor(Math.random() * (reachability.length - 1));
-
+        let randomIndex = Math.floor(Math.random() * reachability.length);
         const randomTile = reachability[randomIndex];
+        if (!this.isValidPosition(randomTile, room)) {
+            return;
+        }
         const path = room.navigation.findFastestPath(activePlayer, randomTile, room);
         server.to(room.roomId).emit(ServerToClientEvent.BotNavigation, path);
+    }
+
+    private isValidPosition(position: Position, room: Room) {
+        return position.x >= 0 && position.x < room.gameMap.dimension && position.y >= 0 && position.y < room.gameMap.dimension;
     }
 
     private async attackPlayer(room: Room, server: Server, { target, activePlayer, path }) {
