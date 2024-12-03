@@ -136,9 +136,9 @@ describe('GamePageComponent', () => {
             expect(component.replenishHealth).toHaveBeenCalled();
         });
 
-        it('should set players on PlayerDisconnected event', () => {
+        it('should set players on UpdatePlayerList event', () => {
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === ServerToClientEvent.PlayerDisconnected) {
+                if (event === ServerToClientEvent.UpdatePlayerList) {
                     callback(mockLobbyPlayers as T);
                 }
             });

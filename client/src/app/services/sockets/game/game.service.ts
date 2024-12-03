@@ -152,7 +152,7 @@ export class GameService {
     }
 
     onLeftRoom() {
-        this.socketCommunicationService.on(ServerToClientEvent.LeftRoom, (isAdmin) => {
+        this.socketCommunicationService.once(ServerToClientEvent.LeftRoom, (isAdmin) => {
             if (isAdmin) {
                 this.router.navigate([PathRoute.CREATE]);
             } else {
