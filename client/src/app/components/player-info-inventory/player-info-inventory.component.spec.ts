@@ -49,9 +49,9 @@ describe('PlayerInfoInventoryComponent', () => {
 
     describe('getActionArray', () => {
         it('should return the correct action array for active player', () => {
-            component.activePlayer = { id: component.playerId, attributes: { actionPoints: 1 } } as Player;
+            component.activePlayer = { id: component.playerId, attributes: { actionPoints: 2 } } as Player;
             const result = component.getActionArray();
-            expect(result).toEqual(Array(1));
+            expect(result).toEqual(Array(2));
         });
 
         it('should return the correct action array for the current player', () => {
