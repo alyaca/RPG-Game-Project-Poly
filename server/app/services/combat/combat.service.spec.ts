@@ -473,6 +473,8 @@ describe('CombatService', () => {
         service['getOpponent'] = jest.fn().mockReturnValue(player);
         mockLogsService.sendPlayerLog = jest.fn();
         service['handleDefaultCombatWin'] = jest.fn();
+        service['resetCombatState'] = jest.fn();
+        service['hasValidActivePlayers'] = jest.fn().mockReturnValue(true);
         service.continueTurn = jest.fn();
 
         service.disconnectedPlayer(mockClient, mockServer);
@@ -627,7 +629,7 @@ describe('CombatService', () => {
 
     it('should handle combat won on default win', () => {
         service['handleCombatWon'] = jest.fn();
-        service['handleDefaultCombatWin'](mockClient, mockPlayers[0], mockServer);
+        service['handleDefaultCombatWin'](room, mockPlayers[0], mockServer);
         expect(mockServer.to(mockPlayers[0].id).emit).toHaveBeenCalledWith(ServerToClientEvent.DefaultCombatWin);
         expect(service['handleCombatWon']).toHaveBeenLastCalledWith(mockPlayers[0], mockServer, room);
     });

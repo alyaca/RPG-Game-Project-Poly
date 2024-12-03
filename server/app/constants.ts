@@ -22,6 +22,8 @@ export const ROW_LENGTH = 2;
 
 export const NO_ITEM = 0;
 export const RANDOM_ITEM = 1;
+export const DEFAULT_ACTION_POINT = 1;
+export const MAX_ACTION_POINT = 2;
 
 export const SMALL_MAP_PLAYERS = 2;
 export const MEDIUM_MAP_PLAYERS = 4;

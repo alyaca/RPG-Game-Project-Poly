@@ -1,4 +1,11 @@
-import { ADD_OBEJCT_EFFECT_FACTOR, INVENTORY_SIZE, MAX_OBJECT_EFFECT, MIN_OBJECT_EFFECT, REMOVE_OBEJECT_EFFECT_FACTOR } from '@app/constants';
+import {
+    ADD_OBEJCT_EFFECT_FACTOR,
+    INVENTORY_SIZE,
+    MAX_OBJECT_EFFECT,
+    MIN_OBJECT_EFFECT,
+    NO_ITEM,
+    REMOVE_OBEJECT_EFFECT_FACTOR,
+} from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -31,43 +38,11 @@ export class PlayerInventoryService {
             this.gameLogService.sendItemLog(info.player, room.roomId, info.server, itemPickedUp);
             room.gameMap.itemPlacement[info.player.position.x][info.player.position.y] = 0;
         }
-        const index = room.listPlayers.findIndex((players) => players.name === info.player.name);
+        const index = room.listPlayers.findIndex((players) => players.id === info.player.id);
         room.listPlayers[index].attributes = info.player.attributes;
         room.listPlayers[index].inventory = info.player.inventory;
+
         info.client.emit(ServerToClientEvent.UpdatedInventory, info.player);
-    }
-
-    determineRandomItem(allObjects: number[][], room: Room): number {
-        const itemsNotAvailable: number[] = [];
-        const itemsAvailable: number[] = [];
-
-        for (const players of room.listPlayers) {
-            if (players.inventory.length > 0) {
-                for (const items of players.inventory) {
-                    itemsNotAvailable.push(items.id);
-                }
-            }
-        }
-
-        for (const objectRows of allObjects) {
-            for (const objects of objectRows) {
-                if (objects !== 0) {
-                    itemsNotAvailable.push(objects);
-                }
-            }
-        }
-
-        for (const objects of gameObjects) {
-            if (!itemsNotAvailable.find((object) => object === objects.id)) {
-                if (objects.id < ObjectType.Random) {
-                    itemsAvailable.push(objects.id);
-                }
-            }
-        }
-
-        const itemToUse = Math.floor(Math.random() * itemsAvailable.length) + 1;
-        const realItem = itemsAvailable[itemToUse - 1];
-        return realItem;
     }
 
     addStatsFromItem(playerToBuff: Player, itemId: number) {
@@ -78,6 +53,42 @@ export class PlayerInventoryService {
         this.updateItemEffects(player, itemToUndo, false);
     }
 
+    updatePlayerAfterSwap(infoSwap: InfoSwap) {
+        const room = this.roomService.getRoom(infoSwap.client);
+        const playerToUpdate = room.listPlayers.find((player) => player.id === infoSwap.player.id);
+        const newItem = this.getSwappedItem(infoSwap);
+        this.handleItemEffectOnSwap(playerToUpdate, infoSwap);
+        if (newItem > 0) {
+            this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, newItem);
+        }
+
+        room.gameMap.itemPlacement[playerToUpdate.position.x][playerToUpdate.position.y] = infoSwap.droppedItem;
+        const index = room.listPlayers.findIndex((players) => players.name === playerToUpdate.name);
+        room.listPlayers[index].attributes = playerToUpdate.attributes;
+        room.listPlayers[index].inventory = playerToUpdate.inventory;
+
+        this.addUniqueItemToHistory(playerToUpdate, newItem);
+        infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
+        infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);
+        return playerToUpdate;
+    }
+
+    private getSwappedItem(infoSwap: InfoSwap) {
+        for (const items of infoSwap.modifiedInventory) {
+            if (!infoSwap.oldInventory.find((oldItems) => oldItems.id === items.id)) {
+                return items.id;
+            }
+        }
+    }
+
+    private handleItemEffectOnSwap(playerToUpdate: Player, infoSwap: InfoSwap) {
+        this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
+        this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[1].id);
+        playerToUpdate.inventory = infoSwap.modifiedInventory;
+        this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[0].id);
+        this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[1].id);
+    }
+
     private updateArmorEffect(player: Player, isApplied: boolean) {
         const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
         player.attributes.attack += factor * MAX_OBJECT_EFFECT;
@@ -86,22 +97,24 @@ export class PlayerInventoryService {
     private updateSandalEffects(player: Player, isApplied: boolean) {
         const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
         player.attributes.speed *= isApplied ? MAX_OBJECT_EFFECT : 1 / MAX_OBJECT_EFFECT;
-        player.attributes.currentHp += factor * MIN_OBJECT_EFFECT;
-        player.attributes.totalHp += factor * MIN_OBJECT_EFFECT;
+        player.attributes.currentHp -= factor * MIN_OBJECT_EFFECT;
+        player.attributes.totalHp -= factor * MIN_OBJECT_EFFECT;
     }
 
     private updateLightningEffects(player: Player, isApplied: boolean) {
         const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
         player.attributes.attack *= isApplied ? MAX_OBJECT_EFFECT : 1 / MAX_OBJECT_EFFECT;
-        player.attributes.defense += factor * MAX_OBJECT_EFFECT;
-        player.attributes.currentHp += factor * MIN_OBJECT_EFFECT;
-        player.attributes.totalHp += factor * MIN_OBJECT_EFFECT;
+        player.attributes.defense -= factor * MAX_OBJECT_EFFECT;
+        player.attributes.currentHp -= factor * MIN_OBJECT_EFFECT;
+        player.attributes.totalHp -= factor * MIN_OBJECT_EFFECT;
     }
 
     private removeTridentEffects(player: Player, isApplied: boolean) {
         if (isApplied) {
+            player.attributes.maxActionPoints += MIN_OBJECT_EFFECT;
+        } else {
             player.attributes.actionPoints -= MIN_OBJECT_EFFECT;
-            player.attributes.maxActionPoints = MIN_OBJECT_EFFECT;
+            player.attributes.maxActionPoints -= MIN_OBJECT_EFFECT;
         }
     }
 
@@ -124,7 +137,48 @@ export class PlayerInventoryService {
         }
     }
 
-    updatePlayerWithItem(player: Player, item: number) {
+    private getItemsInInventories(players: Player[]) {
+        const items = new Set<number>();
+        for (const player of players) {
+            if (player.inventory.length > 0) {
+                for (const item of player.inventory) {
+                    items.add(item.id);
+                }
+            }
+        }
+        return items;
+    }
+
+    private getItemsFromGrid(allObjects: number[][]): Set<number> {
+        const items = new Set<number>();
+        for (const objectRows of allObjects) {
+            for (const object of objectRows) {
+                if (object !== NO_ITEM) {
+                    items.add(object);
+                }
+            }
+        }
+        return items;
+    }
+
+    private getAvailableItems(allObjects: number[][], room: Room): number[] {
+        const itemsNotAvailable: Set<number> = this.getItemsInInventories(room.listPlayers);
+        const gridItems = this.getItemsFromGrid(allObjects);
+        const availableItems: number[] = [];
+
+        for (const item of gridItems) {
+            itemsNotAvailable.add(item);
+        }
+
+        for (const object of gameObjects) {
+            if (!itemsNotAvailable.has(object.id) && object.id < ObjectType.Random) {
+                availableItems.push(object.id);
+            }
+        }
+        return availableItems;
+    }
+
+    private updatePlayerWithItem(player: Player, item: number) {
         const fullItem = gameObjects.find((object) => object.id === item);
         if (fullItem) {
             player.inventory.push(fullItem);
@@ -134,46 +188,16 @@ export class PlayerInventoryService {
         return player;
     }
 
-    addUniqueItemToHistory(player: Player, newItemId: number) {
+    private determineRandomItem(allObjects: number[][], room: Room): number {
+        const itemsAvailable = this.getAvailableItems(allObjects, room);
+        const index = Math.floor(Math.random() * itemsAvailable.length);
+        return itemsAvailable[index];
+    }
+
+    private addUniqueItemToHistory(player: Player, newItemId: number) {
         if (!player.collectedItems.some((item) => item === newItemId)) {
             player.collectedItems.push(newItemId);
         }
-    }
-
-    updatePlayerAfterSwap(infoSwap: InfoSwap) {
-        let newItem = 0;
-        for (const items of infoSwap.modifiedInventory) {
-            if (!infoSwap.oldInventory.find((oldItems) => oldItems.id === items.id)) {
-                newItem = items.id;
-                break;
-            }
-        }
-        let playerToUpdate = infoSwap.player;
-        const room = this.roomService.getRoom(infoSwap.client);
-        if (!playerToUpdate) {
-            playerToUpdate = room.listPlayers.find((players) => players.id === infoSwap.client.id);
-        }
-        this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[0].id);
-        this.removeItemEffects(playerToUpdate, infoSwap.oldInventory[1].id);
-
-        playerToUpdate.inventory = infoSwap.modifiedInventory;
-        this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[0].id);
-        this.addStatsFromItem(playerToUpdate, infoSwap.modifiedInventory[1].id);
-
-        if (newItem > 0) {
-            this.gameLogService.sendItemLog(playerToUpdate, room.roomId, infoSwap.server, newItem);
-        }
-        room.gameMap.itemPlacement[playerToUpdate.position.x][playerToUpdate.position.y] = infoSwap.droppedItem;
-
-        const index = room.listPlayers.findIndex((players) => players.name === playerToUpdate.name);
-        room.listPlayers[index].attributes = playerToUpdate.attributes;
-        room.listPlayers[index].inventory = playerToUpdate.inventory;
-
-        this.addUniqueItemToHistory(playerToUpdate, newItem);
-
-        infoSwap.server.to(room.roomId).emit(ServerToClientEvent.UpdateObjects, room.gameMap.itemPlacement);
-        infoSwap.client.to(room.roomId).emit(ServerToClientEvent.UpdatedInventory, playerToUpdate);
-        return playerToUpdate;
     }
 
     private getPrioritizedItem(info: InfoSwap, itemPickedUp: number): InfoSwap {
@@ -201,13 +225,10 @@ export class PlayerInventoryService {
             info.oldInventory = info.player.inventory;
             info = this.getPrioritizedItem(info, itemPickedUp);
             info.player = this.updatePlayerAfterSwap(info);
-
-            return;
-        } else {
-            this.roomService.getTurnTimer(room.roomId).pauseTimer();
-            info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
             return;
         }
+        this.roomService.getTurnTimer(room.roomId).pauseTimer();
+        info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
     }
 
     private determineItemToDropDefensive(inventory: GameObject[], itemPickedUpObject: GameObject) {
