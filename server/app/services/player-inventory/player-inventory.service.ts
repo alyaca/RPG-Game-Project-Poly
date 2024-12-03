@@ -86,22 +86,24 @@ export class PlayerInventoryService {
     private updateSandalEffects(player: Player, isApplied: boolean) {
         const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
         player.attributes.speed *= isApplied ? MAX_OBJECT_EFFECT : 1 / MAX_OBJECT_EFFECT;
-        player.attributes.currentHp += factor * MIN_OBJECT_EFFECT;
-        player.attributes.totalHp += factor * MIN_OBJECT_EFFECT;
+        player.attributes.currentHp -= factor * MIN_OBJECT_EFFECT;
+        player.attributes.totalHp -= factor * MIN_OBJECT_EFFECT;
     }
 
     private updateLightningEffects(player: Player, isApplied: boolean) {
         const factor = isApplied ? ADD_OBEJCT_EFFECT_FACTOR : REMOVE_OBEJECT_EFFECT_FACTOR;
         player.attributes.attack *= isApplied ? MAX_OBJECT_EFFECT : 1 / MAX_OBJECT_EFFECT;
-        player.attributes.defense += factor * MAX_OBJECT_EFFECT;
-        player.attributes.currentHp += factor * MIN_OBJECT_EFFECT;
-        player.attributes.totalHp += factor * MIN_OBJECT_EFFECT;
+        player.attributes.defense -= factor * MAX_OBJECT_EFFECT;
+        player.attributes.currentHp -= factor * MIN_OBJECT_EFFECT;
+        player.attributes.totalHp -= factor * MIN_OBJECT_EFFECT;
     }
 
     private removeTridentEffects(player: Player, isApplied: boolean) {
         if (isApplied) {
+            player.attributes.maxActionPoints += MIN_OBJECT_EFFECT;
+        } else {
             player.attributes.actionPoints -= MIN_OBJECT_EFFECT;
-            player.attributes.maxActionPoints = MIN_OBJECT_EFFECT;
+            player.attributes.maxActionPoints -= MIN_OBJECT_EFFECT;
         }
     }
 
