@@ -75,9 +75,8 @@ export class GameService {
         return this.isActionCombatSelected && this.hasActionPoints(player);
     }
 
-    // need to check if this can go
     tileHasPlayer(position: Position, objects: number[][]) {
-        return objects[position.x][position.y] > ObjectType.Spawn;
+        return objects[position.x][position.y] > ObjectType.Spawn && objects[position.x][position.y] < ObjectType.Flag;
     }
 
     handleTileClick(position: Position, activePlayer: Player, tiles: number[][]) {
