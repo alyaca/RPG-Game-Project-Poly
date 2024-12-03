@@ -94,6 +94,8 @@ describe('Navigation', () => {
     });
 
     it('should call getTileCost', () => {
+        navigation['isReachableTile'] = jest.fn().mockReturnValue(false);
+        navigation.isBot = false;
         navigation['previous'] = [
             [
                 { x: 1, y: 0 },
@@ -111,6 +113,7 @@ describe('Navigation', () => {
         ];
         navigation['getTileCost'] = jest.fn().mockReturnValue(TileCost.Ice);
         navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
+
         navigation['exploreNeighborsForReachableTiles'](
             [{ x: 1, y: 2 }],
             { x: 0, y: 0, distance: 0 },
@@ -173,6 +176,8 @@ describe('Navigation', () => {
         });
 
         it('should skip tiles occupied by player', () => {
+            navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(true);
+            navigation.isBot = false;
             navigation.positions[2][0] = ObjectType.Hestia;
 
             const neighbors = [{ x: 2, y: 0 }];

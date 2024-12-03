@@ -160,18 +160,22 @@ export class Navigation {
     }
 
     isTileValidTeleport(row: number, col: number): boolean {
-        if (this.isTileDoor({ x: row, y: col })) return false;
-        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
-        if (this.hasPlayerOnTile({ x: row, y: col }, this.players)) return false;
-        if (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn) return true;
-        return false;
+        return (
+            this.isTileAccessible(row, col) &&
+            (this.gameMap.itemPlacement[row][col] === NO_ITEM || this.gameMap.itemPlacement[row][col] === ObjectType.Spawn)
+        );
+    }
+
+    private isTileAccessible(row: number, col: number) {
+        return !(
+            this.isTileDoor({ x: row, y: col }) ||
+            this.gameMap.tiles[row][col] === TileType.Wall ||
+            this.hasPlayerOnTile({ x: row, y: col }, this.players)
+        );
     }
 
     private isTileValidForPlayer(row: number, col: number): boolean {
-        if (this.gameMap.tiles[row][col] === TileType.Wall) return false;
-        if (this.isTileDoor({ x: row, y: col }) || this.hasPlayerOnTile({ x: row, y: col }, this.players)) return false;
-        if (this.gameMap.itemPlacement[row][col] !== NO_ITEM) return false;
-        return true;
+        return this.isTileAccessible(row, col) && this.gameMap.itemPlacement[row][col] === NO_ITEM;
     }
 
     private isReachableTile(row: number, col: number): boolean {
