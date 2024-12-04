@@ -245,8 +245,10 @@ export class GameService {
     }
 
     handleOpenItemSwitchModal() {
-        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; foundItem: GameObject }) => {
-            this.openSwitchItemDialog(data.activePlayer, data.foundItem);
+        this.socketCommunicationService.on(ServerToClientEvent.OpenItemSwitchModal, (data: { activePlayer: Player; foundItem: number }) => {
+            const itemObject = gameObjects.find((items) => items.id === data.foundItem);
+            if (!itemObject) return;
+            this.openSwitchItemDialog(data.activePlayer, itemObject);
         });
     }
 

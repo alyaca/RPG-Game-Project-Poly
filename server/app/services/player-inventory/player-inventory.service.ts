@@ -228,7 +228,7 @@ export class PlayerInventoryService {
             return;
         }
         this.roomService.getTurnTimer(room.roomId).pauseTimer();
-        info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, itemPickedUp });
+        info.client.emit(ServerToClientEvent.OpenItemSwitchModal, { activePlayer: info.player, foundItem: itemPickedUp });
     }
 
     private determineItemToDropDefensive(inventory: GameObject[], itemPickedUpObject: GameObject) {
