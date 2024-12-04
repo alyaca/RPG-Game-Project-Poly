@@ -9,6 +9,7 @@ import { Player, Position } from '@common/interfaces/player';
 import { PointWithDistance } from '@common/interfaces/point-distance.interface';
 import { Room } from '@common/interfaces/room';
 import { ActionData } from '@common/interfaces/socket-data.interface';
+import { gameObjects } from '@common/objects-info';
 import { Navigation } from './navigation';
 
 /* eslint max-lines: ["off"] */
@@ -117,12 +118,25 @@ describe('Navigation', () => {
         expect(navigation.haveActions(playerNavigation, mockNavigationPlayers)).toBe(undefined);
     });
 
-    it('should return the correct tile cost', () => {
-        expect(navigation['getTileCost'](TileType.Ground)).toEqual(TileCost.Ground);
-        expect(navigation['getTileCost'](TileType.Water)).toEqual(TileCost.Water);
-        expect(navigation['getTileCost'](TileType.Ice)).toEqual(TileCost.Ice);
-        expect(navigation['getTileCost'](TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
-        expect(navigation['getTileCost'](TileType.Wall)).toEqual(Infinity);
+    describe('getTileCost', () => {
+        it('should return the correct tile cost', () => {
+            expect(navigation['getTileCost'](TileType.Ground)).toEqual(TileCost.Ground);
+            expect(navigation['getTileCost'](TileType.Water)).toEqual(TileCost.Water);
+            expect(navigation['getTileCost'](TileType.Ice)).toEqual(TileCost.Ice);
+            expect(navigation['getTileCost'](TileType.OpenDoor)).toEqual(TileCost.OpenDoor);
+            expect(navigation['getTileCost'](TileType.Wall)).toEqual(Infinity);
+        });
+
+        it('should return infinity if wall and player not active', () => {
+            navigation.players = [];
+            expect(navigation['getTileCost'](TileType.Wall)).toEqual(Infinity);
+        });
+
+        it('should return ground if wall and player has kunee', () => {
+            const playerKunee = { inventory: [gameObjects[ObjectType.Kunee - 1]], isActive: true } as Player;
+            navigation.players = [playerKunee];
+            expect(navigation['getTileCost'](TileType.Wall)).toEqual(TileCost.Ground);
+        });
     });
 
     it('should call getTileCost', () => {
@@ -447,42 +461,22 @@ describe('Navigation', () => {
         ];
         expect(result).toEqual(reachability);
     });
-    /*
-    it('should toggle the door state and return true if the player is a neighbor', () => {
-        const result = navigation.hasHandleDoorAction(1, 1, mockPlayer);
 
-        expect(result).toBe(true);
-        expect(mockGame.tiles[1][1]).toBe(TileType.OpenDoor);
-    });
-*/
-    /*
-    it('should return false if the tile is not a door', () => {
-        const result = navigation.hasHandleDoorAction(3, 3, mockPlayer);
-        expect(result).toBe(false);
-    });
-    */
-
-    /*
-    it('should return the opponent if the clicked position is occupied by a neighbor', () => {
-        const getNeighborPlayersSpy = jest.spyOn(navigation, 'getNeighborPlayers').mockReturnValue([mockPlayers[1]]);
-        const hasPlayerOnTileSpy = jest.spyOn(navigation as any, 'hasPlayerOnTile').mockReturnValue(true);
-        const getPlayerWithPositionSpy = jest.spyOn(navigation as any, 'getPlayerWithPosition').mockReturnValue(mockPlayers[1]);
-        const result = navigation.getCombatOpponent(combatActionData);
-        expect(getNeighborPlayersSpy).toHaveBeenCalledWith(combatActionData.player, mockPlayers);
-        expect(hasPlayerOnTileSpy).toHaveBeenCalledWith(combatActionData.clickedPosition, [mockPlayers[1]]);
-        expect(getPlayerWithPositionSpy).toHaveBeenCalledWith(combatActionData.clickedPosition, mockPlayers);
-        expect(result).toEqual(mockPlayers[1]);
+    it('should find all reachable tiles and contnue', () => {
+        const player = JSON.parse(JSON.stringify(playerNavigation));
+        const result = navigation.findReachableTiles(player, mockRoom);
+        const reachability: Position[] = [
+            { x: 1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 2, y: 0 },
+            { x: 0, y: 2 },
+            { x: 2, y: 1 },
+            { x: 1, y: 2 },
+            { x: 2, y: 2 },
+        ];
+        expect(result).toEqual(reachability);
     });
 
-    it('should return null if the clicked position is not occupied by a neighbor', () => {
-        const getNeighborPlayersSpy = jest.spyOn(navigation, 'getNeighborPlayers').mockReturnValue([]);
-        const hasPlayerOnTileSpy = jest.spyOn(navigation as any, 'hasPlayerOnTile').mockReturnValue(false);
-        const result = navigation.getCombatOpponent(combatActionData);
-        expect(getNeighborPlayersSpy).toHaveBeenCalledWith(combatActionData.player, mockPlayers);
-        expect(hasPlayerOnTileSpy).toHaveBeenCalledWith(combatActionData.clickedPosition, []);
-        expect(result).toBeNull();
-    });
-    */
     it('should initialize distances with Infinity and set the player’s position to 0', () => {
         navigation['initializeDistances'](mockPlayer, mockGame);
         expect(navigation['distances'].length).toBe(3);
@@ -513,6 +507,172 @@ describe('Navigation', () => {
         const result = navigation.findClosestPlayer(mockPlayer, [], mockRoom);
         expect(navigation.findReachableTiles).toHaveBeenCalledWith(mockPlayer, mockRoom);
         expect(result).toBeUndefined();
+    });
+
+    describe('hasHandleDoorAction', () => {
+        it('should return true if door neighbor', () => {
+            const row = 1;
+            const col = 0;
+            navigation['isNeighbor'] = jest.fn().mockReturnValue(true);
+            navigation['isTileDoor'] = jest.fn().mockReturnValue(true);
+            navigation['toggleDoorState'] = jest.fn();
+
+            const result = navigation['hasHandleDoorAction'](row, col, playerNavigation);
+            expect(result).toBe(true);
+        });
+
+        it('should return false if door not neighbor', () => {
+            const row = 1;
+            const col = 0;
+            navigation['isNeighbor'] = jest.fn().mockReturnValue(false);
+            navigation['isTileDoor'] = jest.fn().mockReturnValue(true);
+            navigation['toggleDoorState'] = jest.fn();
+
+            const result = navigation['hasHandleDoorAction'](row, col, playerNavigation);
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('getCombatOpponent', () => {
+        it('should return opponent if is player', () => {
+            const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
+            navigation['getNeighborPlayers'] = jest.fn().mockReturnValue([playerNavigation]);
+            navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(true);
+            navigation['getPlayerWithPosition'] = jest.fn().mockReturnValue(playerNavigation);
+
+            const result = navigation['getCombatOpponent'](combatActionData);
+            expect(result).toBe(playerNavigation);
+        });
+
+        it('should return null if no target found', () => {
+            const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
+            navigation['getNeighborPlayers'] = jest.fn().mockReturnValue([playerNavigation]);
+            navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
+
+            const result = navigation['getCombatOpponent'](combatActionData);
+            expect(result).toBeNull();
+        });
+    });
+
+    it('should return neighboring players for the given player', () => {
+        const neighbors = [{ x: 0, y: 1 }];
+        const neighborPlayer = { position: { x: 0, y: 1 } } as Player;
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValueOnce(true);
+        navigation['getNeighbors'] = jest.fn().mockReturnValue(neighbors);
+
+        const result = navigation.getNeighborPlayers(neighborPlayer, [neighborPlayer]);
+        expect(result).toEqual([neighborPlayer]);
+    });
+
+    it('should return neighboring door position for the given player', () => {
+        const neighbor = { x: 0, y: 1 };
+        navigation['isTileDoor'] = jest.fn().mockReturnValueOnce(true);
+        navigation['hasPlayerOnTile'] = jest.fn().mockReturnValueOnce(false);
+        navigation['getNeighbors'] = jest.fn().mockReturnValue([neighbor]);
+
+        const result = navigation.getNeighborDoors(playerNavigation, [playerNavigation]);
+        expect(result).toEqual([neighbor]);
+    });
+
+    it('should return true if there is door around', () => {
+        const neighbors = [{ x: 0, y: 1 }];
+        navigation['getNeighborDoors'] = jest.fn().mockReturnValueOnce(neighbors);
+        const result = navigation.checkDoor(playerNavigation, [playerNavigation]);
+        expect(result).toBe(true);
+    });
+
+    describe('hasActionPoints', () => {
+        it('should return true if there is action points', () => {
+            const player = { attributes: { actionPoints: 1 } } as Player;
+            const result = navigation.hasActionPoints(player);
+            expect(result).toBe(true);
+        });
+
+        it('should return false if there no player', () => {
+            const player = undefined as Player;
+            const result = navigation.hasActionPoints(player);
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('hasMovementPoints', () => {
+        it('should return true if there is movement points', () => {
+            const player = { attributes: { movementPointsLeft: 1 } } as Player;
+            const result = navigation.hasMovementPoints(player);
+            expect(result).toBe(true);
+        });
+
+        it('should return false if there noplayer', () => {
+            const player = undefined as Player;
+            const result = navigation.hasMovementPoints(player);
+            expect(result).toBe(false);
+        });
+    });
+
+    it('should call findClosestValidTile to move player from wall', () => {
+        const postion = { x: 0, y: 0 };
+        navigation['findClosestValidTile'] = jest.fn().mockReturnValue(postion);
+
+        const result = navigation.movePlayerFromWall(mockRoom, playerNavigation);
+        expect(result).toBe(postion);
+    });
+
+    it('should return trus if neighbor', () => {
+        const row = 0;
+        const col = 1;
+        const neighbor = { x: 0, y: 1 };
+        navigation['getNeighbors'] = jest.fn().mockReturnValue([neighbor]);
+
+        const result = navigation['isNeighbor'](row, col, playerNavigation);
+        expect(result).toBe(true);
+    });
+
+    it('should return true if valid tile', () => {
+        navigation.gameMap.itemPlacement = [[NO_ITEM]];
+        navigation['isTileAccessible'] = jest.fn().mockReturnValue(true);
+        const result = navigation['isTileValidForPlayer'](0, 0);
+        expect(result).toBe(true);
+    });
+
+    describe('findClosestValidTile', () => {
+        let neighbors;
+        beforeEach(() => {
+            neighbors = [
+                { x: 0, y: 1 },
+                { x: 1, y: 1 },
+            ];
+            navigation['initializeDistances'] = jest.fn();
+            navigation['exploreNeighbors'] = jest.fn();
+            navigation['getNeighbors'] = jest.fn().mockReturnValue(neighbors);
+        });
+        it('should return the closest valid tile', () => {
+            navigation['isTileValidForPlayer'] = jest.fn().mockReturnValue(true);
+            navigation['getNextNode'] = jest.fn().mockReturnValueOnce(true);
+            const closestTile = navigation.findClosestValidTile(mockPlayer, mockRoom);
+
+            expect(closestTile).toEqual({ x: 0, y: 1 });
+            expect(navigation['initializeDistances']).toHaveBeenCalledWith(mockPlayer, mockRoom.gameMap);
+            expect(navigation['getNextNode']).toHaveBeenCalled();
+            expect(navigation['getNeighbors']).toHaveBeenCalled();
+        });
+
+        it('should break if no next node', () => {
+            navigation['getNextNode'] = jest.fn().mockReturnValue(false);
+            navigation.findClosestValidTile(mockPlayer, mockRoom);
+
+            expect(navigation['initializeDistances']).toHaveBeenCalledWith(mockPlayer, mockRoom.gameMap);
+            expect(navigation['getNextNode']).toHaveBeenCalled();
+        });
+
+        it('should call explore neighbors', () => {
+            navigation['getNextNode'] = jest.fn().mockReturnValueOnce(true);
+            navigation['isTileValidForPlayer'] = jest.fn().mockReturnValue(false);
+
+            navigation.findClosestValidTile(mockPlayer, mockRoom);
+
+            expect(navigation['initializeDistances']).toHaveBeenCalledWith(mockPlayer, mockRoom.gameMap);
+            expect(navigation['exploreNeighbors']).toHaveBeenCalled();
+        });
     });
 });
 

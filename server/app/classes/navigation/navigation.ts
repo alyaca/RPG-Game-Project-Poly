@@ -103,7 +103,7 @@ export class Navigation {
         const neighboringPlayers: Player[] = [];
         for (const neighbor of neighbors) {
             if (this.hasPlayerOnTile(neighbor, players)) {
-                const foundPlayer = players.find((p) => p.position.x === neighbor.x && p.position.y === neighbor.y);
+                const foundPlayer = this.getPlayerWithPosition(neighbor, players);
                 if (foundPlayer) {
                     neighboringPlayers.push(foundPlayer);
                 }
@@ -213,7 +213,7 @@ export class Navigation {
             case TileType.OpenDoor:
                 return TileCost.OpenDoor;
             case TileType.Wall:
-                return player?.inventory.find((objects) => objects.id === ObjectType.Kunee) ? TileCost.Ground : Infinity;
+                return player?.inventory.find((object) => object.id === ObjectType.Kunee) ? TileCost.Ground : Infinity;
             default:
                 return Infinity;
         }
