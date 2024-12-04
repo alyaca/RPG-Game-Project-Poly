@@ -94,6 +94,10 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
             this.allPlayers = listPlayers;
         });
 
+        this.socketCommunicationService.on(ServerToClientEvent.UpdateAllPlayers, (listPlayers: Player[]) => {
+            this.allPlayers = listPlayers;
+        });
+
         this.socketCommunicationService.on(ServerToClientEvent.DrawGame, () => {
             this.socketCommunicationService.disconnect();
             this.handleDraw();
@@ -161,6 +165,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
                     messages: ['Le gagnant de la partie est : ' + data.winner.name],
                     options: [DialogOptions.Close],
                     confirm: false,
+                    image: data.winner.avatar?.src,
                 })
                 .subscribe((result) => {
                     if (result.action === DialogResult.Close) {

@@ -5,6 +5,7 @@ import { SocketCommunicationService } from '@app/services/sockets/socket-communi
 import { ObjectType } from '@common/constants';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { ServerToClientEvent } from '@common/socket.events';
 
 @Component({
     selector: 'app-player-info-inventory',
@@ -15,6 +16,7 @@ import { Room } from '@common/interfaces/room';
 })
 export class PlayerInfoInventoryComponent implements OnInit {
     @Input() playerId: string | undefined;
+    @Input() activePlayer: Player;
     @ViewChild('hpBar') healthBar: ElementRef<HTMLProgressElement>;
     player: Player;
     actionPointsArray: number[];
@@ -28,7 +30,7 @@ export class PlayerInfoInventoryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.socketCommunicationService.on<Room>('mapInformation', (room: Room) => {
+        this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
             const foundPlayer = room.listPlayers.find((player) => player.id === this.playerId);
             if (foundPlayer) {
                 this.player = foundPlayer;
@@ -37,13 +39,27 @@ export class PlayerInfoInventoryComponent implements OnInit {
             }
         });
 
-        this.socketCommunicationService.on<Player>('updateInventory', (playerToUpdate: Player) => {
+        this.socketCommunicationService.on<Player>(ServerToClientEvent.UpdatedInventory, (playerToUpdate: Player) => {
             if (this.player.name === playerToUpdate.name) {
                 this.player.attributes = playerToUpdate.attributes;
                 this.player.inventory = playerToUpdate.inventory;
                 this.player.attributes.currentHp = playerToUpdate.attributes.totalHp;
             }
         });
+
+        this.socketCommunicationService.on<Player[]>(ServerToClientEvent.UpdateAllPlayers, (playerList: Player[]) => {
+            const foundPlayer = playerList.find((player) => player.id === this.player.id);
+            this.movementPointsArray = Array(foundPlayer?.attributes.movementPointsLeft);
+        });
+    }
+
+    getActionArray() {
+        if (this.activePlayer.attributes.actionPoints < 0) {
+            this.activePlayer.attributes.actionPoints = 0;
+        }
+        return this.activePlayer.id === this.player.id
+            ? Array(this.activePlayer.attributes.actionPoints)
+            : Array(this.player.attributes.actionPoints);
     }
 
     hasXiphos(player: Player) {

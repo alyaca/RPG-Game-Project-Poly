@@ -17,14 +17,14 @@
     }   
     @else {
         <div class="info">
-            <h4> {{ gameTileInfoService.getTile().name}}</h4>
+            <h4> {{ gameTileInfoService.getTile()?.name}}</h4>
             <ul>
-                @for(description of gameTileInfoService.getTile().descriptions; let i = $index; track description){
+                @for(description of gameTileInfoService.getTile()?.descriptions; let i = $index; track description){
                     <li class="small-text"> {{ description }}</li>
                 }
             </ul>
             <div class="img-container">
-                <img [ngClass]="{'big-image': !gameTileInfoService.getItem(), 'small-image': gameTileInfoService.getItem()}"  [src]="gameTileInfoService.getTile().image" alt="tile image"> 
+                <img [ngClass]="{'big-image': !gameTileInfoService.getItem(), 'small-image': gameTileInfoService.getItem()}"  [src]="gameTileInfoService.getTile()?.image" alt="tile image"> 
                 @if(gameTileInfoService.getItem()){
                     <img class="small-image" [src]="gameTileInfoService.getItem()?.image" alt="item image">
                 }

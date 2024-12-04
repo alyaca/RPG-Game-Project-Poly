@@ -42,7 +42,7 @@
         </div>
         <div id="action-points">
             <p class="points-text">Action:</p>
-            @for (actions of actionPointsArray; track $index) {
+            @for (actions of getActionArray(); track $index) {
             <div class="action-point"></div>
             }
         </div>
