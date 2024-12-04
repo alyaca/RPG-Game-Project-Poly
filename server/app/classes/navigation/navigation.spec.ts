@@ -536,7 +536,6 @@ describe('Navigation', () => {
 
     describe('getCombatOpponent', () => {
         it('should return opponent if is player', () => {
-            // const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
             navigation['getNeighborPlayers'] = jest.fn().mockReturnValue([playerNavigation]);
             navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(true);
             navigation['getPlayerWithPosition'] = jest.fn().mockReturnValue(playerNavigation);
@@ -546,7 +545,6 @@ describe('Navigation', () => {
         });
 
         it('should return null if no target found', () => {
-            // const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
             navigation['getNeighborPlayers'] = jest.fn().mockReturnValue([playerNavigation]);
             navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
 
@@ -676,79 +674,3 @@ describe('Navigation', () => {
         });
     });
 });
-
-// TODO : Tests from navigation client to fix (to adapt to server)
-
-// it('should call everything with findReachableTiles', () => {
-//     const getNeighborsSpy = spyOn<any>(navigation, 'getNeighbors');
-//     const exploreNeighborsForReachableTilesSpy = spyOn<any>(navigation, 'exploreNeighborsForReachableTiles');
-//     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
-//     getNextNodeSpy.and.callFake(() => {
-//         const callCounter = getNextNodeSpy.calls.count();
-//         if (callCounter === 1) {
-//             return { x: 1, y: 1, distance: 1 };
-//         } else {
-//             return undefined;
-//         }
-//     });
-
-//     getNeighborsSpy.and.callFake(() => {
-//         const callCounter = getNeighborsSpy.calls.count();
-//         if (callCounter === 1) {
-//             return [{ x: 1, y: 1 }];
-//         } else {
-//             return [];
-//         }
-//     });
-
-//     const result = navigation.findReachableTiles(playerNavigation, mockRoom);
-//     expect(result).toBeDefined();
-//     expect(getNextNodeSpy).toHaveBeenCalled();
-//     expect(getNeighborsSpy).toHaveBeenCalled();
-//     expect(exploreNeighborsForReachableTilesSpy).toHaveBeenCalled();
-// });
-
-// it('should call everything', () => {
-//     const getNextNodeSpy = spyOn<any>(navigation, 'getNextNode');
-//     const isDestinationReachedSpy = spyOn<any>(navigation, 'isDestinationReached');
-//     navigation['previous'] = [
-//         [
-//             { x: 1, y: 1 },
-//             { x: 1, y: 1 },
-//         ],
-//         [
-//             { x: 1, y: 1 },
-//             { x: 1, y: 1 },
-//         ],
-//     ];
-//     getNextNodeSpy.and.callFake(() => {
-//         const callCounter = getNextNodeSpy.calls.count();
-//         if (callCounter === 1) {
-//             return { x: 1, y: 1, distance: 1 };
-//         } else {
-//             return undefined;
-//         }
-//     });
-
-//     isDestinationReachedSpy.and.callFake(() => {
-//         const callCounter = isDestinationReachedSpy.calls.count();
-//         if (callCounter === 1) {
-//             return false;
-//         } else {
-//             return true;
-//         }
-//     });
-
-//     navigation['previous'][1][1] = { x: 1, y: 1 };
-//     const initDistancesSpy = spyOn(navigation, 'initializeDistances');
-//     const getNeighborsSpy = spyOn(navigation, 'getNeighbors');
-//     const exploreNeighborsSpy = spyOn<any>(navigation, 'exploreNeighbors');
-//     const reconstructPathSpy = spyOn<any>(navigation, 'reconstructPath');
-//     navigation.findFastestPath(playerNavigation, { x: 1, y: 1 }, mockRoom);
-//     expect(initDistancesSpy).toHaveBeenCalledWith(playerNavigation, mockGame);
-//     expect(getNextNodeSpy).toHaveBeenCalled();
-//     expect(isDestinationReachedSpy).toHaveBeenCalled();
-//     expect(exploreNeighborsSpy).toHaveBeenCalled();
-//     expect(getNeighborsSpy).toHaveBeenCalled();
-//     expect(reconstructPathSpy).toHaveBeenCalledWith({ x: 1, y: 1 });
-// });
