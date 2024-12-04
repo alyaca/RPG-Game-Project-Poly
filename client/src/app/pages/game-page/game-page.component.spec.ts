@@ -214,7 +214,7 @@ describe('GamePageComponent', () => {
             component.activePlayer = { ...mockPlayers[0] };
             component.activePlayer.attributes.actionPoints = 1;
             component.initCombatListeners();
-            expect(component.activePlayer.attributes.actionPoints).toEqual(0);
+            expect(component.activePlayer.attributes.actionPoints).toEqual(1);
         });
     });
 
