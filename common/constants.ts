@@ -7,7 +7,7 @@ export enum MapSize {
 
 export enum GameMode {
     Classic = 'classique',
-    CaptureTheFlag = 'captureTheFlag',
+    CaptureTheFlag = 'CTF',
 }
 
 export enum TileType {
