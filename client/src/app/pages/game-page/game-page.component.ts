@@ -118,6 +118,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, () => {
             this.activePlayer.attributes.actionPoints -= 1;
+            console.log(this.activePlayer.attributes.actionPoints);
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
@@ -156,10 +157,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.socketCommunicationService.on(ServerToClientEvent.DoorAround, (data: { doorAround: boolean; targets: Position[] }) => {
             this.doorAround = data.doorAround;
             this.gameService.doorsTarget = data.targets;
-        });
-
-        this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, () => {
-            this.activePlayer.attributes.actionPoints--;
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
