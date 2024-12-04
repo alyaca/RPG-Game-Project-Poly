@@ -312,7 +312,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
 
     handleRightClick(event: MouseEvent, row: number, col: number) {
         event.preventDefault();
-        const result = this.gameCreationService.rightClick({ x: row, y: col }, this.isMoving, this.isActivePlayer);
+        const result = this.gameCreationService.rightClick({ x: row, y: col }, this.hasStarted, this.isActivePlayer);
         this.isMoving = result[0];
         this.tileInfoVisible = result[1];
     }

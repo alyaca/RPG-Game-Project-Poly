@@ -103,4 +103,4 @@ export const INVENTORY_SIZE = 2;
 
 export const DEFAULT_COMBAT_RESULT = { attackValues: { diceValue: 0, total: 0 }, defenseValues: { diceValue: 0, total: 0 } };
 
-export const MODES = ['CaptureDeDrapeau', 'classique'];
+export const MODES = ['CTF', 'classique'];

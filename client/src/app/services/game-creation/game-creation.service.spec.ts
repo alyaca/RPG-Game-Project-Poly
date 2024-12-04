@@ -114,7 +114,7 @@ describe('GameCreationService', () => {
     it('should return to correct boolean for teleportation', () => {
         service.isModifiable = false;
         navigationServiceSpy.isDebugMode = true;
-        expect(service.canTeleport(false, true)).toBeTrue();
+        expect(service.canTeleport(true, true)).toBeTrue();
 
         service.isModifiable = true;
         expect(service.canTeleport(false, true)).toBeFalse();
