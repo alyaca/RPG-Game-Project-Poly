@@ -77,6 +77,7 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.socketCommunicationService.on<Room>(ServerToClientEvent.MapInformation, (room: Room) => {
+            this.navigationService.isDebugMode = false;
             this.allPlayers = room.listPlayers;
             this.activePlayer = this.allPlayers[0];
             this.replenishHealth();
@@ -118,7 +119,6 @@ export class GamePageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.socketCommunicationService.on(ServerToClientEvent.DoorClicked, () => {
             this.activePlayer.attributes.actionPoints -= 1;
-            console.log(this.activePlayer.attributes.actionPoints);
         });
 
         this.socketCommunicationService.on(ServerToClientEvent.AttackAround, (data: { attackAround: boolean; targets: Player[] }) => {
