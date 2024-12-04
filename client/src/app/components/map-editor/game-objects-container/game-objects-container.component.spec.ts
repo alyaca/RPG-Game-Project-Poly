@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToolButtonComponent } from '@app/components/map-editor/tool-button/tool-button.component';
-import { ITEM_COUNT, NO_OBJECT } from '@app/constants';
+import { ITEM_COUNT, NB_ITEMS_MEDIUM_MAP, NO_OBJECT, SIZE_MEDIUM_MAP } from '@app/constants';
 import { mockObjects } from '@app/mocks/mock-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { GameMode } from '@common/constants';
 import { GameObjectsContainerComponent } from './game-objects-container.component';
@@ -14,6 +15,7 @@ describe('GameObjectsContainerComponent', () => {
     let gameObjectManagerServiceSpy: jasmine.SpyObj<GameObjectService>;
     let toolButtonServiceSpy: jasmine.SpyObj<ToolButtonService>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+    let mapEditorServiceSpy: jasmine.SpyObj<MapEditorService>;
 
     beforeEach(async () => {
         gameObjectManagerServiceSpy = jasmine.createSpyObj('GameObjectService', [
@@ -29,6 +31,34 @@ describe('GameObjectsContainerComponent', () => {
             'loadMapObjectCount',
             'ngOnDestroy',
         ]);
+        mapEditorServiceSpy = jasmine.createSpyObj('MapEditorService', [
+            'getGridSize',
+            'isMapChosen',
+            'onDragEnd',
+            'getDraggedObject',
+            'isDraggingFromContainer',
+            'isMapValid',
+            'removeObjectFromGrid',
+        ]);
+        mapEditorServiceSpy.mapToEdit = {
+            _id: 'map',
+            mode: GameMode.Classic,
+            name: 'Test Map',
+            description: 'Test Description',
+            tiles: [
+                [0, 0],
+                [1, 1],
+            ],
+            itemPlacement: [
+                [0, 1],
+                [1, 0],
+            ],
+            dimension: SIZE_MEDIUM_MAP,
+            nbPlayers: NB_ITEMS_MEDIUM_MAP,
+            image: '',
+            isSelected: false,
+            lastModification: new Date(),
+        };
         toolButtonServiceSpy = jasmine.createSpyObj('ToolButtonService', ['toggleButton']);
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'getGameMode']);
         await TestBed.configureTestingModule({
@@ -36,10 +66,10 @@ describe('GameObjectsContainerComponent', () => {
                 { provide: GameObjectService, useValue: gameObjectManagerServiceSpy },
                 { provide: ToolButtonService, useValue: toolButtonServiceSpy },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
+                { provide: MapEditorService, useValue: mapEditorServiceSpy },
             ],
         }).compileComponents();
         gameObjectManagerServiceSpy.objects = mockObjects;
-
         fixture = TestBed.createComponent(GameObjectsContainerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
