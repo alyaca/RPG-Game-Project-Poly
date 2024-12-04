@@ -98,14 +98,15 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.reachableTiles = reachability;
         });
 
-        this.gridSize = this.gameCreationService.updateDimensions() as number;
-        this.handleMapLoading();
-
         this.socketCommunicationService.on<Room>(ServerToClientEvent.GameGridMapInfo, (room: Room) => {
             this.gameCreationService.isModifiable = false;
             this.navigationService.initialize(room, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
+        
+        this.gridSize = this.gameCreationService.updateDimensions() as number;
+        this.handleMapLoading();
+
 
         this.initGameListeners();
         this.initObjectsListeners();
