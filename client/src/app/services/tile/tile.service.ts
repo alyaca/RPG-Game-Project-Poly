@@ -2,27 +2,17 @@ import { Injectable } from '@angular/core';
 import { NO_OBJECT, TileId } from '@app/constants';
 import { TileType } from '@common/constants';
 import { GridOperationsInfo } from '@common/interfaces/grid-operations-info';
+import { gameTiles } from '@common/tile-info';
 @Injectable({
     providedIn: 'root',
 })
 export class TileService {
     getTileImage(value: number): string {
-        switch (value) {
-            case TileType.Ground:
-                return './assets/images/tiles/grass.jpg';
-            case TileType.Ice:
-                return './assets/images/tiles/ice.jpg';
-            case TileType.Wall:
-                return './assets/images/tiles/wall.jpg';
-            case TileType.Water:
-                return './assets/images/tiles/water.jpg';
-            case TileType.ClosedDoor:
-                return './assets/images/tiles/closed-door.jpg';
-            case TileType.OpenDoor:
-                return './assets/images/tiles/open-door.jpg';
-            default:
-                return '';
+        const gameTile = gameTiles.find((tile) => tile.id === value);
+        if (gameTile) {
+            return gameTile.image;
         }
+        return '';
     }
 
     setTile(selectedTile: string, row: number, col: number, array: number[][]) {

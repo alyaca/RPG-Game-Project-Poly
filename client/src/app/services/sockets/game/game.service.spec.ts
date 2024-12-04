@@ -427,7 +427,7 @@ describe('GameService', () => {
     });
 
     it('should open the item switch modal', () => {
-        const data = { activePlayer: { ...mockPlayers[0] }, foundItem: gameObjects[0] };
+        const data = { activePlayer: { ...mockPlayers[0] }, foundItem: ObjectType.Trident };
         socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
             if (event === ServerToClientEvent.OpenItemSwitchModal) {
                 callback(data as T);
@@ -435,7 +435,7 @@ describe('GameService', () => {
         });
         spyOn<any>(service, 'openSwitchItemDialog');
         service.handleOpenItemSwitchModal();
-        expect(service['openSwitchItemDialog']).toHaveBeenCalledWith(data.activePlayer, data.foundItem);
+        expect(service['openSwitchItemDialog']).toHaveBeenCalledWith(data.activePlayer, gameObjects[0]);
     });
 
     it('should open dialog for handleExit', () => {

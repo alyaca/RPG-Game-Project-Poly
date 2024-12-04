@@ -84,6 +84,7 @@ export enum ServerToClientEvent {
     StartedTurnTimer = 'startedTurnTimer',
     TeleportPlayer = 'teleportPlayer',
     TurnEnded = 'turnEnded',
+    UpdateAllPlayers = 'updateAllPlayers',
     UpdatedInventory = 'updateInventory',
     UpdateObjects = 'updateObjects',
     UpdateObjectsAfterCombat = 'updateObjectsAfterCombat',

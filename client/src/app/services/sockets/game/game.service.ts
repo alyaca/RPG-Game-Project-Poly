@@ -174,6 +174,7 @@ export class GameService {
                 messages: ['Le gagnant de la partie est : ' + data.winner.name],
                 options: [DialogOptions.Close],
                 confirm: false,
+                image: data.winner.avatar?.src,
             }).subscribe((result) => {
                 if (result.action === DialogResult.Close) {
                     this.router.navigate([PathRoute.PostGame], { queryParams: { roomCode: data.room.roomId } });

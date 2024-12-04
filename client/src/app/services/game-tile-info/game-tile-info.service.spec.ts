@@ -6,10 +6,10 @@ import { mockRoom } from '@app/mocks/mock-room';
 import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
 import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
-import { GameTile } from '@common/interfaces/game-tile';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
+import { gameTiles } from '@common/tile-info';
 
 describe('GameTileInfoService', () => {
     let service: GameTileInfoService;
@@ -53,18 +53,14 @@ describe('GameTileInfoService', () => {
     });
 
     describe('getTile', () => {
-        it('should return a valid game tile with the correct name, description, and image', () => {
-            const tileId = 1;
-            service.tileId = tileId;
-            tileServiceSpy.getTileImage.and.returnValue('image-path');
+        it('should return the correct game tile if tileId is valid', () => {
+            service.tileId = 1;
+            expect(service.getTile()).toEqual(gameTiles[0]);
+        });
 
-            const result: GameTile = service.getTile();
-
-            expect(result.id).toBe(tileId);
-            expect(result.name).toBe(service.tileNames[tileId - 1]);
-            expect(result.descriptions).toBe(service.tileDescriptions[tileId - 1]);
-            expect(result.image).toBe('image-path');
-            expect(tileServiceSpy.getTileImage).toHaveBeenCalledWith(tileId);
+        it('should return null if tileId exceeds gameTiles array length', () => {
+            service.tileId = gameTiles.length + 1;
+            expect(service.getTile()).toBeNull();
         });
     });
 
