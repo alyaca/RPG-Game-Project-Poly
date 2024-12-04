@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { SinglePlayerStatComponent } from '@app/components/single-player-stat/single-player-stat.component';
-import { PLAYER_STAT_TYPES, VICTORIES_FOR_WIN } from '@app/constants';
+import { ObjectType, PLAYER_STAT_TYPES, VICTORIES_FOR_WIN } from '@app/constants';
+import { PostGameService } from '@app/services/post-game/post-game.service';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { Player } from '@common/interfaces/player';
 import { PostGameStat } from '@common/interfaces/post-game-stat';
@@ -17,9 +18,15 @@ export class PlayerStatisticsComponent {
     @Input() selectedAttribute: string;
     playerStatTypes: PostGameStat[] = PLAYER_STAT_TYPES;
 
-    constructor(private socketCommunicationService: SocketCommunicationService) {}
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+        private postGameService: PostGameService,
+    ) {}
 
     isWinner() {
+        if (this.postGameService.isFlagMode) {
+            return this.player.inventory.find((item) => item.id === ObjectType.Flag);
+        }
         return this.player.postGameStats.victories === VICTORIES_FOR_WIN;
     }
 

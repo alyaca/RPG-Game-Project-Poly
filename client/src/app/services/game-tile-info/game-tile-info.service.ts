@@ -6,7 +6,8 @@ import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/interfaces/game-tile';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
-import { TILE_DESCRIPTIONS, TILE_NAMES } from '@app/constants';
+import { gameTiles } from '@common/tile-info';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -23,10 +24,6 @@ export class GameTileInfoService {
         image: '',
     };
 
-    tileDescriptions = TILE_DESCRIPTIONS;
-
-    tileNames = TILE_NAMES;
-
     constructor(
         public tileService: TileService,
         public navigationService: NavigationService,
@@ -41,11 +38,11 @@ export class GameTileInfoService {
     }
 
     getTile() {
-        this.gameTile.id = this.tileId;
-        this.gameTile.name = this.tileNames[this.tileId - 1];
-        this.gameTile.image = this.tileService.getTileImage(this.tileId);
-        this.gameTile.descriptions = this.tileDescriptions[this.tileId - 1];
-        return this.gameTile;
+        const foundTile = gameTiles.find((tile) => tile.id === this.tileId);
+        if (foundTile) {
+            return foundTile;
+        }
+        return null;
     }
 
     transferRoomData(room: Room) {

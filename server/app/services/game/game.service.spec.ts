@@ -469,6 +469,8 @@ describe('GameService', () => {
         room.listPlayers = listPlayersInactive;
         service['emitStartGameEvents'] = jest.fn();
         jest.spyOn(matchService, 'processMapObjects');
+
+        service['addUniqueTileToHistory'] = jest.fn();
         service['sortPlayersBySpeed'] = jest.fn();
         room.navigation.removeUnusedSpawnPoints = jest.fn();
 

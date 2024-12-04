@@ -269,13 +269,13 @@ export const PLAYER_STAT_TYPES: PostGameStat[] = [
     {
         id: 1,
         key: PlayerStatType.Victories,
-        displayText: 'W/D/L',
+        displayText: 'V/É/D',
         explanations: 'Résultats des combats du joueur sous la forme victoires/évasions/défaites',
     },
     {
         id: 2,
         key: PlayerStatType.DamageDealt,
-        displayText: 'Dég. infligés',
+        displayText: 'Dégats infligés',
         explanations: 'Nombre de points de dégats infligés sur les joueurs adverses',
     },
     {
@@ -287,7 +287,7 @@ export const PLAYER_STAT_TYPES: PostGameStat[] = [
     {
         id: 4,
         key: PlayerStatType.ItemsObtained,
-        displayText: 'Obj. récup.',
+        displayText: 'Objets ramassés',
         explanations: "Nombre d'objets distincts ramassés par le joueur au cours de la partie",
     },
     {
@@ -336,26 +336,3 @@ export enum SortOrder {
     Ascending = 'ascending',
     Descending = 'descending',
 }
-
-export const TILE_DESCRIPTIONS = [
-    ['Tuile par défaut du jeu (tuile de terrain)', 'Les joueurs et les objects peuvent y être posés dessus', 'coût: 1'],
-    [
-        'Un joueur qui y marche dessus à 10% de chance de perdre pied et tomber, terminant instantanément le tour du joueur',
-        'tant que le joueur se trouve sur de la glace, ses attributs « attaque » et « défense » souffrent d’un malus de 2.',
-        'coût: 0',
-    ],
-    ['Tuile de terrain', 'Coût: 2'],
-    [
-        'Obstacles infranchissables par les joueurs à moins que le joueur obtienne un item spécial',
-        'Aucun objet y est placé dessus',
-        'Pas considée comme une tuile de terrain',
-    ],
-
-    [
-        "Une porte fermée doit être ouverte par le joueur en interagissant avent le bouton 'Porte' s'il désire y passer à travers.",
-        'Sinon il agit comme un obstacle infranchissable comme une tuile de mur.',
-    ],
-    ['Une porte ouverte agit comme une tuile de gazon', "Elle peut être fermée par le joueur en interagissant avec le bouton 'Porte'."],
-];
-
-export const TILE_NAMES = ['Gazon', 'Glace', 'Eau', 'Mur', 'Porte fermée', 'Porte ouverte'];

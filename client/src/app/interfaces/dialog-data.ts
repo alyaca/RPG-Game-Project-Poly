@@ -7,4 +7,5 @@ export interface DialogData {
     confirm: boolean;
     itemSwap?: ItemSwap;
     isInput?: boolean;
+    image?: string;
 }
