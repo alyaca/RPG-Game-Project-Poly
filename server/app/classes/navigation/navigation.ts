@@ -25,15 +25,19 @@ export class Navigation {
     }
 
     removeUnusedSpawnPoints() {
-        for (const position of this.positions) {
-            if (position.includes(ObjectType.Spawn)) {
-                position.fill(0);
-            }
-        }
+        console.log('before', this.positions);
+        this.positions.forEach((row, x) => {
+            row.forEach((tile, y) => {
+                if (tile === ObjectType.Spawn) {
+                    this.positions[x][y] = 0;
+                }
+            });
+        });
         this.players.forEach((player) => {
             const { x, y } = player.position;
             this.positions[x][y] = ObjectType.Spawn;
         });
+        console.log('after', this.positions);
     }
 
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
