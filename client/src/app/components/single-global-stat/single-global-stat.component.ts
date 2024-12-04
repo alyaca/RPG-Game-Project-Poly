@@ -22,7 +22,7 @@ export class SingleGlobalStatComponent {
             case GlobalStatType.GlobalTilesVisited:
                 return this.postGameService.globalTilesVisitedPercentage.toString() + '%';
             default:
-                return this.postGameService.globalStats[this.globalStat.key].toString() ?? -1;
+                return this.postGameService.globalStats[this.globalStat.key].toString();
         }
     }
 }

@@ -7,6 +7,8 @@ import { mockInventoryPlayer, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
 import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
+import { Attributes, Player } from '@common/interfaces/player';
+import { ServerToClientEvent } from '@common/socket.events';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
@@ -30,6 +32,35 @@ describe('PlayerInfoInventoryComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should update movementPointsArray when UpdateAllPlayers event is triggered', () => {
+        const mockPlayerList = [{ id: component.player.id, attributes: { movementPointsLeft: 1 } } as Player];
+
+        socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
+            if (event === ServerToClientEvent.UpdateAllPlayers) {
+                callback(mockPlayerList as T);
+            }
+        });
+        component.player = mockInventoryPlayer;
+        component.ngOnInit();
+        expect(component.movementPointsArray).toEqual(Array(1));
+    });
+
+    describe('getActionArray', () => {
+        it('should return empty array if actionPoints is negative', () => {
+            component.activePlayer = { id: 'matchingId', attributes: { actionPoints: -1 } } as Player;
+            component.player.attributes = { actionPoints: 0 } as Attributes;
+            component.player.id = 'matchingId';
+            const result = component.getActionArray();
+            expect(result).toEqual([]);
+        });
+        it('should return the correct action array for the current player', () => {
+            component.activePlayer = { id: 'someOtherId', attributes: { actionPoints: 2 } } as Player;
+            component.player.attributes = { actionPoints: 2 } as Attributes;
+            const result = component.getActionArray();
+            expect(result).toEqual(Array(2));
+        });
     });
 
     it('should get the good number of empty slots', () => {

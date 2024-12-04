@@ -142,6 +142,7 @@ export class GameService {
 
     onStartGame(socket: Socket) {
         const room = this.roomService.getRoom(socket);
+        this.initTileHistory(room);
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
@@ -155,6 +156,7 @@ export class GameService {
 
     onStartTurn(room: Room) {
         const activePlayer = this.getActivePlayer(room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.OtherPlayerTurn, activePlayer.name);
         this.gameLogsService.sendPlayerLog(room.roomId, this.getServer(), activePlayer, LogType.StartTurn);
 
@@ -276,8 +278,11 @@ export class GameService {
         const playerId = player.id;
         if (room.navigation.isTileValid(position.x, position.y)) {
             player.position = position;
+            this.addUniqueTileToHistory(player.positionHistory, position);
+            this.addUniqueTileToHistory(room.globalPostGameStats.globalTilesVisited, position);
             this.emitEventToRoom(room.roomId, ServerToClientEvent.TeleportPlayer, { position, playerId });
         }
+
         const reachability = room.navigation.findReachableTiles(player, room);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.EndMovement);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);
@@ -323,7 +328,6 @@ export class GameService {
         this.isPlayerFell = false;
         let pickedUpItem = false;
         const player = this.getActivePlayer(room);
-        this.initTileHistory(room);
         for (const tile of path) {
             this.isMoving = true;
             player.position = tile;
@@ -349,6 +353,7 @@ export class GameService {
                 break;
             }
             player.attributes.movementPointsLeft -= this.getCost(room.gameMap.tiles[tile.x][tile.y], player);
+            this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateAllPlayers, room.listPlayers);
             if (pickedUpItem) break;
         }
 

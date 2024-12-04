@@ -458,6 +458,7 @@ describe('GameService', () => {
         service['emitStartGameEvents'] = jest.fn();
         jest.spyOn(matchService, 'processMapObjects');
 
+        service['addUniqueTileToHistory'] = jest.fn();
         service['sortPlayersBySpeed'] = jest.fn();
         service.onStartGame(mockSocket);
         expect(room.gameStatus).toEqual(GameStatus.Started);

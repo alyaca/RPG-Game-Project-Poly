@@ -3,9 +3,9 @@
     <div class="player">
         <img class="player-img" [ngClass]="getStatusClass()" [src]='player.avatar?.src' alt="player-avatar">
         @if (isWinner()){
-            <img class="decoration" src='./assets/images/leaves/leafL.webp' alt="left-leaf">
+            <img class="decoration" src='./assets/images/leaves/leafL_light.webp' alt="left-leaf">
             <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
-            <img class="decoration" src='./assets/images/leaves/leafR.webp' alt="right-leaf">
+            <img class="decoration" src='./assets/images/leaves/leafR_light.webp' alt="right-leaf">
         }
         @else {
             <p class="name" [ngClass]="getStatusClass()">{{ player.name }}</p>
