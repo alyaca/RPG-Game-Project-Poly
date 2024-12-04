@@ -8,6 +8,8 @@ export const mockNavigation = {
     initializeNavigation: jest.fn(),
     findFastestPath: jest.fn(),
     haveActions: jest.fn(),
+    removeUnusedSpawnPoints: jest.fn(),
+
     players: mockPlayers,
     gameMap: mockGame,
 } as unknown as jest.Mocked<Navigation>;

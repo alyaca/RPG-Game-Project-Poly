@@ -25,7 +25,7 @@ export class Navigation {
     }
 
     removeUnusedSpawnPoints() {
-        for (let position of this.positions) {
+        for (const position of this.positions) {
             if (position.includes(ObjectType.Spawn)) {
                 position.fill(0);
             }

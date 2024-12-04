@@ -694,12 +694,10 @@ export class GameService {
 
     private removePlayerFromWall(room: Room, previousActivePlayer: Player) {
         room.gameMap.itemPlacement[previousActivePlayer.position.x][previousActivePlayer.position.y] = 0;
-        this.getServer()
-            .to(room.roomId)
-            .emit(ServerToClientEvent.UpdateObjectsAfterCombat, {
-                newGrid: room.gameMap.itemPlacement,
-                position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
-            });
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateObjectsAfterCombat, {
+            newGrid: room.gameMap.itemPlacement,
+            position: { x: previousActivePlayer.position.x, y: previousActivePlayer.position.y },
+        });
 
         const destination = room.navigation.movePlayerFromWall(room, previousActivePlayer);
         room.navigation.findFastestPath(previousActivePlayer, destination, room);
