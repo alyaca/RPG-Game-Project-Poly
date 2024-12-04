@@ -13,9 +13,9 @@
         (contextmenu)="handleRightClick($event, rowIndex, colIndex)"
     >
         <img class="tile-image" [src]="getTileImage(col)" (mouseover)="findPath(rowIndex, colIndex)" draggable="false" />
-        @if(objectsArray[rowIndex][colIndex] > 8){
+        @if(objectsArray[rowIndex][colIndex] > 8 && objectsArray[rowIndex][colIndex] !== 21){
         <img class="player-on-spawn-points" [src]="getObjectImage(objectsArray[rowIndex][colIndex])" draggable="false" />
-        } @else if(objectsArray[rowIndex][colIndex] < 9) {
+        } @else if(objectsArray[rowIndex][colIndex] < 9 || objectsArray[rowIndex][colIndex] === 21) {
         <img
             class="overlay-object"
             [src]="getObjectImage(objectsArray[rowIndex][colIndex])"
