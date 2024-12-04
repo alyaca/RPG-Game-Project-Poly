@@ -1304,7 +1304,7 @@ describe('GameService', () => {
         });
         it('should place item on ground', () => {
             room.navigation.findClosestValidTile = jest.fn().mockReturnValue({ x: 0, y: 1 });
-            playerInventoryService.removeItemEffects = jest.fn();
+            playerInventoryService.restoreInitialStats = jest.fn();
             const player = { position: { x: 0, y: 0 }, inventory: [gameObjects[0]] } as Player;
             room.listPlayers = [player];
 

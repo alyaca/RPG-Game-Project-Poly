@@ -280,9 +280,9 @@ export class GameService {
     placeItemsOnGround(room: Room, player: Player) {
         const playerToDropItems = room.listPlayers.find((p) => p.id === player.id);
         if (playerToDropItems.inventory.length === 0) return;
+        this.playerInventoryService.restoreInitialStats(playerToDropItems);
         for (const items of playerToDropItems.inventory) {
             const position = room.navigation.findClosestValidTile(playerToDropItems, room);
-            this.playerInventoryService.removeItemEffects(playerToDropItems, items.id);
             room.gameMap.itemPlacement[position.x][position.y] = items.id;
             this.emitEventToRoom(room.roomId, ServerToClientEvent.UpdateObjectsAfterCombat, { newGrid: room.gameMap.itemPlacement, position });
         }
