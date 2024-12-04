@@ -83,7 +83,7 @@ export class CreateGamePageComponent implements OnDestroy {
             this.roomCode = roomInfo.roomId;
             this.gameService.setRoomId(this.roomCode);
             this.gameService.joinRoom(this.roomCode);
-            this.router.navigate([PathRoute.WAIT], { queryParams: { roomCode: this.roomCode } });
+            this.router.navigate([PathRoute.Lobby], { queryParams: { roomCode: this.roomCode } });
         });
     }
 

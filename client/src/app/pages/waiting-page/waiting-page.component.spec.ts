@@ -43,12 +43,11 @@ describe('WaitingPageComponent', () => {
         gameServiceSpy = jasmine.createSpyObj('GameService', [
             'joinRoom',
             'getPlayerNumber',
-            'onRoomDeleted',
-            'onLeftRoom',
-            'onLeftRoom',
-            'onKickPlayer',
+            'handleRoomDeleted',
+            'handleLeftRoom',
+            'handleKickPlayer',
             'openDialog',
-            'onPlayerQuit',
+            'openPlayerQuitDialog',
         ]);
         socketCommunicationServiceSpy = jasmine.createSpyObj('SocketCommunicationService', ['on', 'send', 'off']);
         dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
@@ -105,18 +104,18 @@ describe('WaitingPageComponent', () => {
         it('should navigate to /home if no game is selected (refresh page)', () => {
             gameListServiceSpy.chosenGameSubject.next(null);
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
         });
 
         it('should navigate to /home if no game is received', () => {
             component.accessCode = accessCode;
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
         });
 
         it('should navigate to /home if no room is created', () => {
             component.ngOnInit();
-            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.HOME]);
+            expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Home]);
         });
 
         it('should set chosenGame when a game is selected', () => {
@@ -136,9 +135,9 @@ describe('WaitingPageComponent', () => {
     describe('initSocketListeners', () => {
         it('should call onRoomDeleted, onLeftRoom, onKickPlayer when receive corresponding event', () => {
             component.initSocketListeners();
-            expect(gameServiceSpy.onRoomDeleted).toHaveBeenCalled();
-            expect(gameServiceSpy.onLeftRoom).toHaveBeenCalled();
-            expect(gameServiceSpy.onKickPlayer).toHaveBeenCalled();
+            expect(gameServiceSpy.handleRoomDeleted).toHaveBeenCalled();
+            expect(gameServiceSpy.handleLeftRoom).toHaveBeenCalled();
+            expect(gameServiceSpy.handleKickPlayer).toHaveBeenCalled();
         });
 
         it('should set player list when it is updated', () => {
@@ -179,9 +178,9 @@ describe('WaitingPageComponent', () => {
         });
     });
 
-    it('should called onPlayerQuit in handleExit', () => {
+    it('should called openPlayerQuitDialog in handleExit', () => {
         component.handleExit(accessCode);
-        expect(gameServiceSpy.onPlayerQuit).toHaveBeenCalledWith(accessCode);
+        expect(gameServiceSpy.openPlayerQuitDialog).toHaveBeenCalledWith(accessCode);
     });
 
     it('should update gameService isRoomLocked and send event', () => {

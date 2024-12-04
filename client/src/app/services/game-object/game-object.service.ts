@@ -3,9 +3,12 @@ import { ITEM_COUNT, NO_OBJECT, OBJECT_COUNT_MAP } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { MapPosition } from '@app/interfaces/map-position';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { TileService } from '@app/services/tile/tile.service';
+import { ToolService } from '@app/services/tool/tool.service';
 import { ObjectType } from '@common/avatars-info';
 import { TileType } from '@common/constants';
-import { TileRemoval } from '@common/interfaces/tile-removal';
+import { GridOperationsInfo } from '@common/interfaces/grid-operations-info';
+import { Position } from '@common/interfaces/position';
 import { gameObjects } from '@common/objects-info';
 import { Subscription } from 'rxjs';
 
@@ -25,11 +28,36 @@ export class GameObjectService implements OnDestroy {
     private mapSize: string | null;
     private sizeSubscription!: Subscription;
 
-    constructor(private gameCreationService: GameCreationService) {
+    constructor(
+        private gameCreationService: GameCreationService,
+        private toolService: ToolService,
+        private tileService: TileService,
+    ) {
         this.sizeSubscription = this.gameCreationService.sizeSubject.subscribe(() => {
             this.mapSize = this.gameCreationService.getStoredSize();
             this.gridSize = this.gameCreationService.updateDimensions() as number;
         });
+    }
+
+    startMouseDrag(position: Position, isMouseDown: boolean) {
+        if (this.gameCreationService.isModifiable) {
+            this.onDragStart(position.x, position.y);
+            this.toolService.deactivateTileApplicator();
+            return false;
+        }
+        return isMouseDown;
+    }
+
+    handleTileClick(position: MapPosition, tiles: number[][], selectedTile: string) {
+        this.tileService.setTile(selectedTile, position.row, position.col, tiles);
+        this.handleGameObjectOnTile(position, tiles);
+        return tiles;
+    }
+
+    startDropItem(event: DragEvent, tileInfo: GridOperationsInfo) {
+        this.onDrop(event, tileInfo);
+        this.toolService.setSelectedTile('');
+        return false;
     }
 
     initObjectsArray(): number[][] {
@@ -38,6 +66,16 @@ export class GameObjectService implements OnDestroy {
             this.maxCount = OBJECT_COUNT_MAP[this.mapSize];
         }
         return this.objectsArray;
+    }
+
+    removeOnRightClick(event: MouseEvent, tileRemoval: GridOperationsInfo) {
+        if (this.gameCreationService.isModifiable) {
+            const newGrid = this.tileService.removeTile(event, tileRemoval);
+            this.removeObjectByClick(event, { row: tileRemoval.position.x, col: tileRemoval.position.y });
+            return newGrid;
+        } else {
+            return tileRemoval.tiles;
+        }
     }
 
     resetObjectsCount() {
@@ -79,10 +117,10 @@ export class GameObjectService implements OnDestroy {
         this.resetDrag();
     }
 
-    removeObjectByClick(event: MouseEvent, row: number, col: number) {
+    removeObjectByClick(event: MouseEvent, position: MapPosition) {
         event.preventDefault();
-        this.selectedTile = { row, col };
-        const gameObject = this.getGameObjectOnTile(row, col);
+        this.selectedTile = position;
+        const gameObject = this.getGameObjectOnTile(position.row, position.col);
 
         if (gameObject?.id !== NO_OBJECT && gameObject) {
             this.removeObjectFromGrid(gameObject);
@@ -123,14 +161,14 @@ export class GameObjectService implements OnDestroy {
         return validTileType.includes(tiles[row][col]);
     }
 
-    onDrop(event: DragEvent, { position, tiles, objects }: TileRemoval) {
+    onDrop(event: DragEvent, { position, tiles, objects }: GridOperationsInfo) {
         event.preventDefault();
         if (this.draggedObject && objects[position.x][position.y] === NO_OBJECT && this.isValidTileForObject(position.x, position.y, tiles)) {
             this.updateObjectGridPosition(this.draggedObject, position.x, position.y);
         }
     }
 
-    handleGameObjectOnTile(row: number, col: number, tiles: number[][]) {
+    handleGameObjectOnTile({ row, col }: MapPosition, tiles: number[][]) {
         const gameObject = this.getGameObjectOnTile(row, col);
         if (gameObject && gameObject?.id !== 0 && !this.isValidTileForObject(row, col, tiles)) {
             this.selectedTile = { row, col };

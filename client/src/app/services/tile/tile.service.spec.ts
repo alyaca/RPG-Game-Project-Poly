@@ -81,41 +81,6 @@ describe('TileService', () => {
         });
     });
 
-    it('should return loadedTiles when isNewGame is false', () => {
-        gameCreationServiceSpy.isNewGame = false;
-        const mapSize = 3;
-        const array = [
-            [TileType.Ground, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Ground],
-        ];
-
-        const result = service.resetGrid(mapSize, array);
-        expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
-    });
-
-    it('should reset the grid to Ground tiles when isNewGame is true', () => {
-        const mapSize = 3;
-        const result = service.resetGrid(mapSize, []);
-        expect(result).toEqual([
-            [TileType.Ground, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Ground],
-            [TileType.Ground, TileType.Ground, TileType.Ground],
-        ]);
-    });
-
-    it('should return loaded grid when existing game', () => {
-        gameCreationServiceSpy.isNewGame = false;
-        const loadedTiles = [
-            [1, 2],
-            [0, 1],
-        ];
-        gameCreationServiceSpy.loadedTiles = loadedTiles;
-        const mapSize = 3;
-        const result = service.resetGrid(mapSize, []);
-        expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
-    });
-
     describe('removeTile', () => {
         it('should not change tiles if it is already a Ground tile and no object', () => {
             const mockEvent = new MouseEvent('click', { button: 2 });
@@ -169,16 +134,6 @@ describe('TileService', () => {
                 ],
             });
             expect(result).toEqual(mockTiles);
-        });
-    });
-
-    describe('resetGrid', () => {
-        it('should return loadedTiles when isNewGame is false', () => {
-            gameCreationServiceSpy.isNewGame = false;
-            const mapSize = 3;
-            const result = service.resetGrid(mapSize, []);
-
-            expect(result).toEqual(gameCreationServiceSpy.loadedTiles);
         });
     });
 });

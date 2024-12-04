@@ -39,7 +39,7 @@ export class SimpleDialogComponent {
             input: this.data.isInput ? this.inputValue : null,
         });
         if (this.data.title === 'Sauvegarde réussie') {
-            this.router.navigate([PathRoute.ADMIN]);
+            this.router.navigate([PathRoute.Admin]);
         }
     }
 

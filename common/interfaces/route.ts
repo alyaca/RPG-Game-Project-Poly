@@ -1,8 +1,10 @@
 export enum PathRoute {
-    HOME = '/home',
-    ADMIN = '/administration',
-    EDIT = '/edit-map',
-    WAIT = '/waiting-page',
-    CREATE = '/game-creation',
-    JOIN = '/join-game',
+    Home = '/home',
+    Admin = '/administration',
+    EditGame = '/edit-map',
+    Lobby = '/waiting-page',
+    CreateGame = '/game-creation',
+    JoinGame = '/join-game',
+    PostGame = '/post-game-lobby',
+    GamePage = '/game-page',
 }

@@ -66,7 +66,7 @@ export class JoinGameService {
             this.handleLockedRoom();
         } else {
             this.socketCommunicationService.send(ClientToServerEvent.CreatePlayer, player);
-            this.router.navigate([PathRoute.WAIT], { queryParams: { roomCode: this.gameService.roomId } });
+            this.router.navigate([PathRoute.Lobby], { queryParams: { roomCode: this.gameService.roomId } });
         }
     }
 
@@ -84,7 +84,7 @@ export class JoinGameService {
         dialogRef.afterClosed().subscribe((result) => {
             if (result.action === 'left') {
                 this.socketCommunicationService.send(ClientToServerEvent.LeaveRoom, this.gameService.roomId);
-                this.router.navigate([PathRoute.HOME]);
+                this.router.navigate([PathRoute.Home]);
             }
         });
     }

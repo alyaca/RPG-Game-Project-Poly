@@ -66,8 +66,8 @@ export class CharacterCreatorComponent implements OnDestroy {
         return this.attributesService.isButtonSelected(buttonName);
     }
 
-    getAttributValue(attribute: keyof Attributes) {
-        return this.attributesService.getAttributValue(attribute);
+    getAttributeValue(attribute: keyof Attributes) {
+        return this.attributesService.getAttributeValue(attribute);
     }
 
     addHealth() {

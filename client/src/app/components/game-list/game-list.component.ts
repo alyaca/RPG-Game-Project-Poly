@@ -102,7 +102,7 @@ export class GameListComponent implements OnInit {
 
         this.selectGame(game);
 
-        this.router.navigate([PathRoute.EDIT]);
+        this.router.navigate([PathRoute.EditGame]);
     }
 
     exportGame(game: Game) {

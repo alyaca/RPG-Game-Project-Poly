@@ -1,14 +1,13 @@
 import { ElementRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DEFAULT_ATTRIBUTE } from '@app/constants';
 import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockPlayer } from '@app/mocks/mock-player';
-import { mockInventoryPlayer, mockPlayers } from '@app/mocks/mock-players';
+import { mockInventoryPlayer, mockInventoryPlayerWithXiphos, mockPlayers } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
-import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
 import { Attributes, Player } from '@common/interfaces/player';
 import { ServerToClientEvent } from '@common/socket.events';
+import { PlayerInfoInventoryComponent } from './player-info-inventory.component';
 
 describe('PlayerInfoInventoryComponent', () => {
     let component: PlayerInfoInventoryComponent;
@@ -71,14 +70,9 @@ describe('PlayerInfoInventoryComponent', () => {
         expect(component.emptySlots).toEqual([0, 0]);
     });
 
-    it('should update the movement value', () => {
-        component.player = mockLobbyPlayers[0];
-        component.player.attributes.movementPointsLeft = 1;
-        component.increaseMovement();
-        expect(component.player.attributes.movementPointsLeft).toBe(mockLobbyPlayers[0].attributes.movementPointsLeft);
-
-        component.decreaseMovement();
-        expect(component.player.attributes.movementPointsLeft).toBe(mockLobbyPlayers[0].attributes.movementPointsLeft);
+    it('should return the correct value for hasXiphos', () => {
+        expect(component.hasXiphos(mockInventoryPlayer)).toBeUndefined();
+        expect(component.hasXiphos(mockInventoryPlayerWithXiphos)).toBeDefined();
     });
 
     it('should set the info on updateInventory', () => {
@@ -92,60 +86,6 @@ describe('PlayerInfoInventoryComponent', () => {
         expect(component.player.attributes).toEqual(mockInventoryPlayer.attributes);
         expect(component.player.inventory).toEqual(mockInventoryPlayer.inventory);
         expect(component.player.attributes.currentHp).toEqual(mockInventoryPlayer.attributes.totalHp);
-    });
-
-    it('should not update the movement points if you already have max or minimum value for it', () => {
-        component.player = mockLobbyPlayers[0];
-        component.player.attributes.movementPointsLeft = component.player.attributes.speed;
-        component.increaseMovement();
-        expect(component.player.attributes.movementPointsLeft).toBe(mockLobbyPlayers[0].attributes.speed);
-
-        component.player.attributes.movementPointsLeft = 0;
-        component.decreaseMovement();
-        expect(component.player.attributes.movementPointsLeft).toBe(0);
-    });
-
-    it('should update the action points', () => {
-        const initialActionPoints = 2;
-        component.player = mockLobbyPlayers[0];
-        component.player.attributes.actionPoints = initialActionPoints;
-        component.increaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(initialActionPoints + 1);
-
-        component.decreaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(initialActionPoints);
-    });
-
-    it('should not update the action points value if it is already at the max or min', () => {
-        component.player.attributes.actionPoints = mockLobbyPlayers[0].attributes.maxActionPoints;
-        component.player.attributes.maxActionPoints = mockLobbyPlayers[0].attributes.maxActionPoints;
-        component.increaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(mockLobbyPlayers[0].attributes.maxActionPoints);
-
-        component.player.attributes.actionPoints = 0;
-        component.decreaseActionPoints();
-        expect(component.player.attributes.actionPoints).toBe(0);
-    });
-
-    it('should update the totalHp value', () => {
-        component.player = mockLobbyPlayers[0];
-        component.player.attributes.currentHp = 1;
-        component.increaseHP();
-        expect(component.player.attributes.currentHp).toBe(2);
-
-        component.decreaseHP();
-        expect(component.player.attributes.currentHp).toBe(1);
-    });
-
-    it('should not update the totalHp value if already at max or min', () => {
-        component.player.attributes.totalHp = mockLobbyPlayers[0].attributes.totalHp;
-        component.player.attributes.currentHp = mockLobbyPlayers[0].attributes.totalHp;
-        component.increaseHP();
-        expect(component.player.attributes.currentHp).toBe(component.player.attributes.totalHp);
-
-        component.player.attributes.currentHp = 0;
-        component.decreaseHP();
-        expect(component.player.attributes.currentHp).toBe(0);
     });
 
     it('should subscribe to mapInformation and update player data', () => {
@@ -163,22 +103,5 @@ describe('PlayerInfoInventoryComponent', () => {
 
         expect(component.player).toEqual(mockLobbyPlayers[0]);
         expect(component.movementPointsArray).toEqual(Array(mockLobbyPlayers[0].attributes.speed));
-    });
-
-    it('should not increase movement points if they are equal to speed', () => {
-        component.player.attributes.movementPointsLeft = component.player.attributes.speed;
-
-        component.increaseMovement();
-
-        expect(component.player.attributes.movementPointsLeft).toBe(component.player.attributes.speed);
-    });
-
-    it('should increase movement points and update movementPointsArray if movementPointsLeft is less than speed', () => {
-        component.player.attributes.movementPointsLeft = DEFAULT_ATTRIBUTE - 1;
-        const initialMovementPoints = component.player.attributes.movementPointsLeft;
-
-        component.increaseMovement();
-
-        expect(component.player.attributes.movementPointsLeft).toBe(initialMovementPoints + 1);
     });
 });

@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
@@ -30,13 +31,13 @@ export class SaveGameService {
     ) {}
 
     saveNewGame(informations: Info) {
-        const playerNumber = this.getPlayerNumber(informations.height);
+        const playerNumber = this.getPlayerNumber(informations.height!);
         const mapToStore = this.createMapObject(informations, playerNumber, '');
         return this.http.post(this.apiURL, mapToStore).subscribe();
     }
 
     replaceMap(informations: Info, id: string) {
-        const playerNumber = this.getPlayerNumber(informations.height);
+        const playerNumber = this.getPlayerNumber(informations.height!);
         const mapToReplace = this.createMapObject(informations, playerNumber, id);
         return this.http.put(this.apiURL, mapToReplace).subscribe();
     }
@@ -85,7 +86,7 @@ export class SaveGameService {
     }
 
     saveImportedGame(informations: Info) {
-        const playerNumber = this.getPlayerNumber(informations.height);
+        const playerNumber = this.getPlayerNumber(informations.height!);
         const mapToStore = this.createMapObject(informations, playerNumber, null);
         return this.http.post(this.apiURL, mapToStore);
     }
@@ -98,7 +99,7 @@ export class SaveGameService {
                 } else if (newName.length < MIN_LEN_MAP_TITLE || newName.length > MAX_LEN_MAP_TITLE) {
                     return throwError(() => new Error(ErrorMessages.TitleInvalidLength));
                 }
-                const playerNumber = this.getPlayerNumber(this.gameInfoImported.height);
+                const playerNumber = this.getPlayerNumber(this.gameInfoImported.height!);
                 const mapToStore = this.createMapObject(this.gameInfoImported, playerNumber, null);
                 mapToStore.name = newName;
                 return this.http.post(this.apiURL, mapToStore);

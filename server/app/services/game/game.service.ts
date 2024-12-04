@@ -146,7 +146,6 @@ export class GameService {
         room.stopwatch = new Stopwatch();
         room.stopwatch.start();
         room.navigation = new Navigation(room.gameMap, room.gameMap.itemPlacement, room.listPlayers);
-
         this.matchService.processMapObjects(socket);
         room.gameStatus = GameStatus.Started;
         this.sortPlayersBySpeed(room);
@@ -450,6 +449,7 @@ export class GameService {
         const activePlayer = this.getActivePlayer(room);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.StartGame, room);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.MapInformation, room);
+        this.emitEventToRoom(room.roomId, ServerToClientEvent.GameGridMapInfo, room);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.ActivePlayer, activePlayer);
         const reachability = room.navigation.findReachableTiles(activePlayer, room);
         this.emitEventToRoom(room.roomId, ServerToClientEvent.ReachableTiles, reachability);

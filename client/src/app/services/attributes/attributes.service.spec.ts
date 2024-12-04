@@ -146,12 +146,12 @@ describe('AttributesService', () => {
         expect(attribute.defDiceMax).toEqual(DEFAULT_ATTRIBUTE);
     });
 
-    describe('getAttributValue', () => {
+    describe('getAttributeValue', () => {
         it('should return the dice message when chosenAttribute is atkDiceMax and hasSelectedDice() is true', () => {
             service.attributes.atkDiceMax = HIGH_ATTRIBUTE;
             spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
-            service.getAttributValue('atkDiceMax');
+            service.getAttributeValue('atkDiceMax');
             expect(service.getDiceMessage).toHaveBeenCalledWith('atkDiceMax');
         });
 
@@ -159,14 +159,14 @@ describe('AttributesService', () => {
             service.attributes.defDiceMax = HIGH_ATTRIBUTE;
             spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
-            service.getAttributValue('atkDiceMax');
+            service.getAttributeValue('atkDiceMax');
             expect(service.getDiceMessage).toHaveBeenCalledWith('atkDiceMax');
         });
 
         it('should return DEFAULT_ATTRIBUTE when chosenAttribute is defDiceMax and hasSelectedDice() is false', () => {
             spyOn<any>(service, 'hasSelectedDice').and.returnValue(false);
             spyOn(service, 'getDiceMessage').and.returnValue(DICE_6);
-            const result = service.getAttributValue('atkDiceMax');
+            const result = service.getAttributeValue('atkDiceMax');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
             expect(result).toBe(DEFAULT_ATTRIBUTE);
         });
@@ -174,7 +174,7 @@ describe('AttributesService', () => {
         it('should return DEFAULT_ATTRIBUTE when chosenAttribute is totalHp and hasSelectedDice() is true', () => {
             spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage');
-            const result = service.getAttributValue('totalHp');
+            const result = service.getAttributeValue('totalHp');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
             expect(result).toBe(DEFAULT_ATTRIBUTE);
         });
@@ -182,7 +182,7 @@ describe('AttributesService', () => {
         it('should return DEFAUL_ATTRIBUTE when chosenAttribute is speed and hasSelectedDice() is true', () => {
             spyOn<any>(service, 'hasSelectedDice').and.returnValue(true);
             spyOn(service, 'getDiceMessage');
-            const result = service.getAttributValue('speed');
+            const result = service.getAttributeValue('speed');
             expect(service.getDiceMessage).not.toHaveBeenCalled();
             expect(result).toBe(DEFAULT_ATTRIBUTE);
         });

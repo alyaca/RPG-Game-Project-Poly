@@ -1,9 +1,9 @@
 export interface Info {
-    image: string;
-    name: string;
-    description: string;
-    grid: number[][];
-    items: number[][];
-    height: number;
+    image?: string;
+    name?: string;
+    description?: string;
+    grid?: number[][];
+    items?: number[][];
+    height?: number;
     mode: string;
 }

@@ -43,6 +43,7 @@ export class MapEditorService {
     isMapValid() {
         return this.mapValidatorService.validMap;
     }
+
     setMapToEdit(map: Game) {
         this.mapToEdit = map;
     }
