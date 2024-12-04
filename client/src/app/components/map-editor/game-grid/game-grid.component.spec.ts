@@ -2,7 +2,6 @@ import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameObjectsContainerComponent } from '@app/components/map-editor/game-objects-container/game-objects-container.component';
 import { NO_OBJECT, SIZE_SMALL_MAP } from '@app/constants';
-import { mockLobbyPlayers } from '@app/mocks/mock-lobby-players';
 import { mockGameNavigation, mockPositions } from '@app/mocks/mock-map';
 import { mockObjects } from '@app/mocks/mock-object';
 import { mockPlayer } from '@app/mocks/mock-player';
@@ -434,31 +433,23 @@ describe('GameGridComponent', () => {
             expect(component['tilesGrid']).toEqual(mockGameNavigation.tiles);
         });
 
-        it('should listen to isActive event onInit', () => {
-            const player = mockLobbyPlayers[0];
-            socketCommunicationServiceSpy.socket.id = player.id;
-            navigationServiceSpy.players = mockLobbyPlayers;
-
+        it('should call handleActivePlayer on ActivePlayer event', () => {
+            spyOn(component, 'handleActivePlayer');
             socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
                 if (event === ServerToClientEvent.ActivePlayer) {
-                    callback(player as T);
+                    callback({ ...mockPlayers[0] } as T);
                 }
             });
-
-            component.ngOnInit();
-            expect(component.currentPlayer).toEqual(player);
+            component.initGameListeners();
+            expect(component.handleActivePlayer).toHaveBeenCalledWith({ ...mockPlayers[0] });
         });
 
-        it('should set isActivePlayer and currentPlayer when playerId matches socket ID', () => {
-            socketCommunicationServiceSpy.socket.id = mockLobbyPlayers[0].id;
-            navigationServiceSpy.players = mockLobbyPlayers;
-            socketCommunicationServiceSpy.on.and.callFake(<T>(event: string, callback: (data: T) => void) => {
-                if (event === ServerToClientEvent.ActivePlayer) {
-                    callback(mockLobbyPlayers[0] as T);
-                }
-            });
-            component.ngOnInit();
-            expect(component['currentPlayer']).toEqual(mockLobbyPlayers[0]);
+        it('handleActivePlayer should set the attributes', () => {
+            component['activePlayer'] = { ...mockPlayers[0] };
+            mockSocket.id = 'admin1234';
+            component.handleActivePlayer({ ...mockPlayers[1] });
+            expect(component.isActivePlayer).toBeFalse();
+            expect(component['activePlayer']).toEqual({ ...mockPlayers[1] });
         });
 
         it('should listen to endMovement event onInit', () => {

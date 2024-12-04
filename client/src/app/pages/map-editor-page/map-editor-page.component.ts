@@ -173,5 +173,4 @@ export class MapEditorPageComponent implements OnInit {
             }
         });
     }
-
 }

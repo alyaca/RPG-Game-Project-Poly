@@ -1,5 +1,6 @@
 /* eslint max-lines: ["off"] */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable  @typescript-eslint/no-non-null-assertion */
 import { TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -433,9 +434,10 @@ describe('GameService', () => {
                 callback(data as T);
             }
         });
+        const trident = gameObjects.find((items) => items.id === ObjectType.Trident);
         spyOn<any>(service, 'openSwitchItemDialog');
         service.handleOpenItemSwitchModal();
-        expect(service['openSwitchItemDialog']).toHaveBeenCalledWith(data.activePlayer, gameObjects[0]);
+        expect(service['openSwitchItemDialog']).toHaveBeenCalledWith(data.activePlayer, trident!);
     });
 
     it('should open dialog for handleExit', () => {

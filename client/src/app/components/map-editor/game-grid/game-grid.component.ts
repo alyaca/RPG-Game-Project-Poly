@@ -54,14 +54,13 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     isActivePlayer: boolean = false;
     tileInfoVisible: boolean = false;
     fastestPath: Position[] = [];
-    currentPlayer: Player;
     objectsArray: number[][];
     tilesGrid: number[][];
     gridSize: number;
+    navigationService = inject(NavigationService);
 
     previousRow: number | null = null;
     previousCol: number | null = null;
-    navigationService = inject(NavigationService);
 
     private oldMapName: string;
     private activePlayer: Player | undefined;
@@ -103,10 +102,9 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
             this.navigationService.initialize(room, this.objectsArray);
             this.displayPortraitOnSpawnPoints(room.listPlayers);
         });
-        
+
         this.gridSize = this.gameCreationService.updateDimensions() as number;
         this.handleMapLoading();
-
 
         this.initGameListeners();
         this.initObjectsListeners();
@@ -216,9 +214,6 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     handleActivePlayer(activePlayer: Player) {
         this.isActivePlayer = activePlayer.id === this.socketCommunicationService.socket.id;
         this.activePlayer = activePlayer;
-        if (this.activePlayer && this.isActivePlayer) {
-            this.currentPlayer = this.activePlayer;
-        }
     }
 
     getTileImage(col: number) {
