@@ -478,9 +478,10 @@ describe('Navigation', () => {
     });
 
     it('should initialize distances with Infinity and set the player’s position to 0', () => {
+        const distance = 3;
         navigation['initializeDistances'](mockPlayer, mockGame);
-        expect(navigation['distances'].length).toBe(3);
-        expect(navigation['distances'][0].length).toBe(3);
+        expect(navigation['distances'].length).toBe(distance);
+        expect(navigation['distances'][0].length).toBe(distance);
         navigation['distances'].forEach((row, rowIndex) => {
             row.forEach((value, colIndex) => {
                 if (rowIndex === 1 && colIndex === 1) {
@@ -535,7 +536,7 @@ describe('Navigation', () => {
 
     describe('getCombatOpponent', () => {
         it('should return opponent if is player', () => {
-            const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
+            // const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
             navigation['getNeighborPlayers'] = jest.fn().mockReturnValue([playerNavigation]);
             navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(true);
             navigation['getPlayerWithPosition'] = jest.fn().mockReturnValue(playerNavigation);
@@ -545,7 +546,7 @@ describe('Navigation', () => {
         });
 
         it('should return null if no target found', () => {
-            const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
+            // const combatActionData = { clickedPosition: { x: 1, y: 1 }, player: mockPlayer };
             navigation['getNeighborPlayers'] = jest.fn().mockReturnValue([playerNavigation]);
             navigation['hasPlayerOnTile'] = jest.fn().mockReturnValue(false);
 

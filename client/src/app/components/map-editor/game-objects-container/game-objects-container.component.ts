@@ -6,6 +6,7 @@ import { ObjectType } from '@app/constants';
 import { GameObject } from '@app/interfaces/game-object';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { GameObjectService } from '@app/services/game-object/game-object.service';
+import { MapEditorService } from '@app/services/map-editor/map-editor.service';
 import { ToolButtonService } from '@app/services/tool-button/tool-button.service';
 import { GameMode } from '@common/constants';
 
@@ -25,12 +26,17 @@ export class GameObjectsContainerComponent implements OnInit {
     constructor(
         private gameObjectService: GameObjectService,
         private toolButtonService: ToolButtonService,
-
+        private mapEditorService: MapEditorService,
         private gameCreationService: GameCreationService,
     ) {}
 
     ngOnInit() {
-        const isFlagMode = this.gameCreationService.getGameMode() === GameMode.CaptureTheFlag;
+        let isFlagMode;
+        if (this.gameCreationService.isNewGame) {
+            isFlagMode = this.gameCreationService.getGameMode() === GameMode.CaptureTheFlag;
+        } else {
+            isFlagMode = this.mapEditorService.mapToEdit.mode === GameMode.CaptureTheFlag;
+        }
         this.gameObjects = Array.from(this.gameObjectService.objects).filter(
             (object) => object.id <= ObjectType.Spawn || (isFlagMode && object.id === ObjectType.Flag),
         );

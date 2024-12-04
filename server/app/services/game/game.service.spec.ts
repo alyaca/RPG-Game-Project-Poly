@@ -21,7 +21,7 @@ import { MatchService } from '@app/services/match/match.service';
 import { PlayerInventoryService } from '@app/services/player-inventory/player-inventory.service';
 import { RoomService } from '@app/services/room/room.service';
 import { avatars, ObjectType } from '@common/avatars-info';
-import { TileCost, TileType } from '@common/constants';
+import { GameMode, TileCost, TileType } from '@common/constants';
 import { Behavior, Player, Position, Status } from '@common/interfaces/player';
 import { GameStatus, Room } from '@common/interfaces/room';
 import { gameObjects } from '@common/objects-info';
@@ -742,6 +742,7 @@ describe('GameService', () => {
             server.getActivePlayer = jest.fn().mockReturnValue(mockPlayers[0]);
             room.navigation.isTileValidTeleport = jest.fn().mockReturnValue(true);
             service.emitEventToRoom = jest.fn();
+            mockRoom.gameMap.mode = GameMode.Classic;
 
             service.processTeleportation(room, position);
             expect(mockPlayers[0].position).toEqual(position);
