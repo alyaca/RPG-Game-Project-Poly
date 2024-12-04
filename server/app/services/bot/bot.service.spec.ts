@@ -383,8 +383,10 @@ describe('BotService', () => {
     });
 
     it('should return true for an attack item', () => {
-        const result = (service as any).isAttackItem(ObjectType.Lightning);
-        expect(result).toBe(true);
+        expect(service['isAttackItem'](ObjectType.Lightning)).toBe(true);
+        expect(service['isAttackItem'](ObjectType.Xiphos)).toBe(true);
+        expect(service['isAttackItem'](ObjectType.Sandal)).toBe(true);
+        expect(service['isAttackItem'](ObjectType.Armor)).toBe(true);
     });
 
     it('should return the spawn position if it is in reachability', () => {

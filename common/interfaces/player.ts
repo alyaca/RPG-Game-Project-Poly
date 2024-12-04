@@ -39,6 +39,10 @@ export interface Player {
 }
 
 export interface Attributes {
+    initialHp?: number;
+    initialSpeed?: number;
+    initialAttack?: number;
+    initialDefense?: number;
     totalHp: number;
     currentHp: number;
     speed: number;

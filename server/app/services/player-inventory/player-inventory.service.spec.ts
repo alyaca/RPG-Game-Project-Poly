@@ -10,6 +10,7 @@ import {
 } from '@app/constants';
 import { InfoSwap } from '@app/interfaces/info-item-swap';
 import { playerItemSwap } from '@app/mocks/mock-player';
+import { mockPlayerInventory } from '@app/mocks/mock-players';
 import { mockRoom } from '@app/mocks/mock-room';
 import { GameLogsService } from '@app/services/game-logs/game-logs.service';
 import { RoomService } from '@app/services/room/room.service';
@@ -402,5 +403,11 @@ describe('PlayerInventoryService', () => {
             const result = service['determineItemToDropAggressive']([], gameObjects[0]);
             expect(result).toEqual(gameObjects[0]);
         });
+    });
+
+    it('should set stat to default', () => {
+        const player = JSON.parse(JSON.stringify(mockPlayerInventory[0]));
+        service.restoreInitialStats(player);
+        expect(player.attributes.attack).toEqual(player.attributes.initialAttack);
     });
 });

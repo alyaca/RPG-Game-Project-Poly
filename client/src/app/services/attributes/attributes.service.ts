@@ -96,6 +96,10 @@ export class AttributesService {
     private setAllStats() {
         this.attributes.currentHp = this.attributes.totalHp;
         this.attributes.movementPointsLeft = this.attributes.speed;
+        this.attributes.initialHp = this.attributes.totalHp;
+        this.attributes.initialAttack = this.attributes.attack;
+        this.attributes.initialDefense = this.attributes.defense;
+        this.attributes.initialSpeed = this.attributes.speed;
     }
 
     private hasName() {

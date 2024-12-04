@@ -54,6 +54,14 @@ export class PlayerInventoryService {
         this.updateItemEffects(player, itemToUndo, false);
     }
 
+    restoreInitialStats(player: Player) {
+        player.attributes.totalHp = player.attributes.initialHp;
+        player.attributes.currentHp = player.attributes.initialHp;
+        player.attributes.speed = player.attributes.initialSpeed;
+        player.attributes.attack = player.attributes.initialAttack;
+        player.attributes.defense = player.attributes.initialDefense;
+    }
+
     updatePlayerAfterSwap(infoSwap: InfoSwap) {
         const room = this.roomService.getRoom(infoSwap.client);
         const playerToUpdate = room.listPlayers.find((player) => player.id === infoSwap.client.id);

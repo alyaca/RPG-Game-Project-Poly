@@ -129,7 +129,9 @@ export class BotService {
         if (target.status !== Status.Bot) {
             server.to(target.id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
         } else {
-            server.to(this.getEventHost(room).id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
+            const host = this.getEventHost(room);
+            if (!host) return;
+            server.to(host.id).emit(ServerToClientEvent.BotAttack, { clickedPosition: target.position, player: activePlayer });
         }
     }
 

@@ -3,6 +3,10 @@ import { Attributes, Behavior, Player, PostGameStats, Status } from '@common/int
 import { gameObjects } from '@common/objects-info';
 
 export const mockAttributes: Attributes = {
+    initialHp: 4,
+    initialSpeed: 4,
+    initialAttack: 4,
+    initialDefense: 4,
     totalHp: 4,
     currentHp: 4,
     speed: 4,
