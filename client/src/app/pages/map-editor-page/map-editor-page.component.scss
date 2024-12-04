@@ -1,8 +1,8 @@
 .background {
-    min-width: 100vh;
-    min-height: 100vh;
-    height: auto;
-    width: auto;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100vw;
+    height: 100vh;
     background-size: cover;
     background-position: left;
     background-repeat: no-repeat;
@@ -10,8 +10,10 @@
 }
 
 .buttons-container {
+    padding: 0;
     text-align: left;
     margin-left: 2em;
+    margin-top: 0;
 }
 
 .button {
@@ -87,7 +89,7 @@ label {
 .map-input {
     display: flex;
     flex-direction: column;
-    margin-bottom: 4%;
+    margin-bottom: 2%;
     margin-left: 6%;
     padding: 2%;
     width: 75%;
@@ -101,11 +103,12 @@ label {
 }
 
 #return-button {
-    margin-top: 3.5em;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
 }
 
 #save-button {
-    margin-top: 18vh;
+    margin-top: 5vh;
 }
 
 .title {
@@ -125,10 +128,11 @@ label {
 
 .left-container {
     margin-left: 2%;
-    margin-top: 10%;
+    margin-top: 8%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
+    height: 90vh;
 }
 
 .right-container {
