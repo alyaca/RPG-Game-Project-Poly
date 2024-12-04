@@ -202,11 +202,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     handleMapLoading() {
+        this.gameCreationService.isModifiable = true;
         if (this.gameCreationService.isNewGame) {
-            this.gameCreationService.isModifiable = true;
             this.loadNewGame();
         } else {
-            this.gameCreationService.isModifiable = true;
             this.loadExistingGame();
         }
     }
@@ -226,10 +225,10 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     loadExistingGame() {
-        this.gameObjectService.loadExistingGame();
         this.tilesGrid = this.gameCreationService.loadExistingTiles();
         this.objectsArray = this.gameCreationService.loadExistingObjects();
         this.oldMapName = this.gameCreationService.loadedMapName;
+        this.gameObjectService.objectsArray = this.objectsArray;
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -358,6 +357,7 @@ export class GameGridComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     findPath(row: number, col: number) {
+        if (this.gameCreationService.isModifiable) return;
         this.fastestPath = this.navigationService.findPath({ row, col }, this.activePlayer!, this.fastestPath);
         if (this.navigationService.isReachableTile({ row, col }) && this.isActivePlayer) {
             this.socketCommunicationService.send(ClientToServerEvent.FindPath, { x: row, y: col });

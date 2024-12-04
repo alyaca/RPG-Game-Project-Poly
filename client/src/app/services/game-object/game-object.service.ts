@@ -39,10 +39,6 @@ export class GameObjectService implements OnDestroy {
         });
     }
 
-    loadExistingGame() {
-        this.objectsArray = this.gameCreationService.loadedObjects;
-    }
-
     startMouseDrag(position: Position, isMouseDown: boolean) {
         if (this.gameCreationService.isModifiable) {
             this.onDragStart(position.x, position.y);
