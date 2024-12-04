@@ -76,6 +76,21 @@ export const mockInventoryPlayer: Player = {
     positionHistory: [],
 };
 
+export const mockInventoryPlayerWithXiphos: Player = {
+    id: 'admin1234',
+    attributes: mockAttributes,
+    avatar: undefined,
+    isActive: true,
+    name: 'name',
+    status: Status.Player,
+    inventory: [gameObjects[0], gameObjects[4]],
+    position: { x: 0, y: 0 },
+    behavior: Behavior.Sentient,
+    spawnPosition: { x: 0, y: 0 },
+    postGameStats: defaultPostGameStats,
+    positionHistory: [],
+};
+
 export const baseBot: Player = {
     id: '0',
     avatar: { name: 'a', src: '', isSelected: true, isTaken: true },

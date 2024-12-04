@@ -135,7 +135,7 @@ describe('CreateGamePageComponent', () => {
         expect(gameServiceSpy.selectedGame).toBe(roomInfo.gameMap);
         expect(gameServiceSpy.setRoomId).toHaveBeenCalledWith(roomInfo.roomId);
         expect(gameServiceSpy.joinRoom).toHaveBeenCalledWith(roomInfo.roomId);
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.WAIT], { queryParams: { roomCode: roomInfo.roomId } });
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Lobby], { queryParams: { roomCode: roomInfo.roomId } });
     });
 
     it('should call createRoom when joinLobby is called', () => {

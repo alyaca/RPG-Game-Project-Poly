@@ -6,6 +6,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { SimpleDialogMessageComponent } from '@app/components/simple-dialog-message/simple-dialog-message.component';
 import { PathRoute } from '@common/interfaces/route';
+import { gameObjects } from '@common/objects-info';
 import { SimpleDialogComponent } from './simple-dialog.component';
 
 describe('SimpleDialogComponent', () => {
@@ -80,7 +81,7 @@ describe('SimpleDialogComponent', () => {
             action: 'left',
             input: '',
         });
-        expect(mockRouter.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
+        expect(mockRouter.navigate).toHaveBeenCalledWith([PathRoute.Admin]);
     });
 
     it('should close dialog when close is called', () => {
@@ -134,5 +135,12 @@ describe('SimpleDialogComponent', () => {
         component.inputValue = 'Valid Input';
         component.onCancel();
         expect(component.showError).toBeFalse();
+    });
+
+    it('should return either the itemSwap structure or null on swapItems', () => {
+        const itemSwap = { currentItem1: gameObjects[0], currentItem2: gameObjects[1], pickedUpItem: gameObjects[2] };
+        expect(component.swapItems(true, itemSwap)).toBeNull();
+        component.data.itemSwap = itemSwap;
+        expect(component.swapItems(true, itemSwap)).toEqual(component.data.itemSwap);
     });
 });

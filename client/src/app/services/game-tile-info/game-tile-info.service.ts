@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { gameObjects } from '@common/objects-info';
-
-import { NavigationService } from '@app/services/navigation/navigation.service';
 import { TileService } from '@app/services/tile/tile.service';
 import { GameTile } from '@common/interfaces/game-tile';
 import { Player } from '@common/interfaces/player';
 import { Room } from '@common/interfaces/room';
+import { gameObjects } from '@common/objects-info';
 import { gameTiles } from '@common/tile-info';
 
 @Injectable({
@@ -24,10 +22,7 @@ export class GameTileInfoService {
         image: '',
     };
 
-    constructor(
-        public tileService: TileService,
-        public navigationService: NavigationService,
-    ) {}
+    constructor(public tileService: TileService) {}
 
     getItem() {
         const foundItem = gameObjects.find((item) => item.id === this.itemId);

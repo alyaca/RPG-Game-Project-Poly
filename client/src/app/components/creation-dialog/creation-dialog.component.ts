@@ -50,7 +50,8 @@ export class CreationDialogComponent {
                 duration: MESSAGE_DURATION_SAVE_CHOICE,
             });
         } else {
-            this.router.navigate([PathRoute.EDIT]);
+            this.gameCreationService.isModifiable = true;
+            this.router.navigate([PathRoute.EditGame]);
             this.dialogRef.close();
         }
     }

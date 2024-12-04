@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { SIZE_LARGE_MAP, SIZE_MEDIUM_MAP, SIZE_SMALL_MAP } from '@app/constants';
-import { MapSize } from '@common/constants';
+import { GameTileInfoService } from '@app/services/game-tile-info/game-tile-info.service';
+import { NavigationService } from '@app/services/navigation/navigation.service';
+import { SocketCommunicationService } from '@app/services/sockets/socket-communication/socket-communication.service';
+import { MapSize, TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
+import { Position } from '@common/interfaces/position';
+import { ClientToServerEvent } from '@common/socket.events';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -9,7 +14,6 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class GameCreationService {
     sizeSubject = new BehaviorSubject<string | null>(null);
-
     isNewGame: boolean = true;
     isModifiable: boolean = true;
     loadedTiles: number[][] = [];
@@ -17,6 +21,11 @@ export class GameCreationService {
     loadedMapName: string = '';
     loadedMapDescription: string = '';
     gameMode: string = '';
+    constructor(
+        private socketCommunicationService: SocketCommunicationService,
+        private navigationService: NavigationService,
+        private gameTileInfoService: GameTileInfoService,
+    ) {}
 
     setSelectedSize(size: string) {
         this.sizeSubject.next(size);
@@ -43,6 +52,51 @@ export class GameCreationService {
         } else if (size === MapSize.Large) {
             return SIZE_LARGE_MAP;
         }
+    }
+
+    resetGrid(mapSize: number, array: number[][]): number[][] {
+        if (!this.isNewGame) {
+            return this.loadedTiles;
+        }
+        array = Array.from({ length: mapSize }, () => Array(mapSize).fill(TileType.Ground));
+        return array;
+    }
+
+    canTeleport(hasStarted: boolean, isActive: boolean) {
+        return this.navigationService.isDebugMode && !this.isModifiable && hasStarted && isActive;
+    }
+
+    rightClick(position: Position, hasStarted: boolean, isActive: boolean) {
+        const isMovingAndTileInfoVisible = [];
+        if (this.canTeleport(hasStarted, isActive)) {
+            this.socketCommunicationService.send(ClientToServerEvent.TeleportPlayer, position);
+        } else {
+            isMovingAndTileInfoVisible[1] = this.showDetails(position);
+        }
+        isMovingAndTileInfoVisible[0] = false;
+        return isMovingAndTileInfoVisible;
+    }
+
+    showDetails(position: Position) {
+        if (!this.isModifiable) {
+            this.socketCommunicationService.send(ClientToServerEvent.GetRoom);
+            this.gameTileInfoService.selectedRow = position.x;
+            this.gameTileInfoService.selectedCol = position.y;
+            return true;
+        }
+        return false;
+    }
+
+    deepCopyMatrix(matrix: number[][] | null) {
+        return matrix ? JSON.parse(JSON.stringify(matrix)) : [];
+    }
+
+    loadExistingTiles() {
+        return this.deepCopyMatrix(this.loadedTiles);
+    }
+
+    loadExistingObjects() {
+        return this.deepCopyMatrix(this.loadedObjects);
     }
 
     convertMapDimension(game: Game): string {

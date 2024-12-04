@@ -34,7 +34,13 @@ describe('MapEditorPageComponent', () => {
     beforeEach(async () => {
         gameObjectsContainerSpy = jasmine.createSpyObj('GameObjectsContainerComponent', ['objects']);
         saveGameServiceSpy = jasmine.createSpyObj('SaveGameService', ['saveNewGame', 'replaceMap']);
-        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['isNewGame', 'updateDimensions', 'sizeSubject', 'getGameMode']);
+        gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', [
+            'isNewGame',
+            'updateDimensions',
+            'sizeSubject',
+            'resetGrid',
+            'getGameMode',
+        ]);
         gameObjectServiceSpy = jasmine.createSpyObj('GameObjectService', [
             'initObjectsArray',
             'resetObjectsCount',
@@ -206,7 +212,7 @@ describe('MapEditorPageComponent', () => {
         component.handleExit();
         expect(dialogSpy.open).toHaveBeenCalled();
         tick();
-        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.ADMIN]);
+        expect(routerSpy.navigate).toHaveBeenCalledWith([PathRoute.Admin]);
     }));
 
     it('should update the map name when updateMapName is called', () => {

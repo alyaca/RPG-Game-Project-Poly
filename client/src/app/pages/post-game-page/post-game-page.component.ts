@@ -32,7 +32,7 @@ export class PostGamePageComponent implements OnInit, OnDestroy {
     }
 
     quitPostGameLobby() {
-        this.gameService.onQuitPostGameLobby(this.postGameService.gameRoom.roomId);
+        this.gameService.openQuitPostGameLobby(this.postGameService.gameRoom.roomId);
     }
 
     getPostGameStatTypes() {

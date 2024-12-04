@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+import { MapPosition } from '@app/interfaces/map-position';
 import { ObjectType } from '@common/avatars-info';
+import { TileType } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { Player, Position } from '@common/interfaces/player';
+import { Room } from '@common/interfaces/room';
 
 const godNameToObjectType = new Map<string, ObjectType>([
     ['Hestia', ObjectType.Hestia],
@@ -32,11 +35,13 @@ export class NavigationService {
     isDebugMode: boolean = false;
     reachableTiles: Position[];
     objects: number[][];
+    room: Room;
 
-    initialize(game: Game, players: Player[], objects: number[][]): void {
+    initialize(room: Room, objects: number[][]): void {
+        this.room = room;
         this.objects = JSON.parse(JSON.stringify(objects));
-        this.gameMap = game;
-        this.players = players;
+        this.gameMap = room.gameMap;
+        this.players = room.listPlayers;
         this.positions = objects;
         this.initializeObjects(objects);
     }
@@ -74,6 +79,19 @@ export class NavigationService {
         return this.objects[position.x][position.y];
     }
 
+    handleInventoryEvent(updatedPlayer: Player, activePlayer: Player | undefined) {
+        const index = this.players.findIndex((players) => players.name === updatedPlayer.name);
+        if (activePlayer) {
+            activePlayer.inventory = updatedPlayer.inventory;
+            activePlayer.attributes = updatedPlayer.attributes;
+            activePlayer.attributes.currentHp = updatedPlayer.attributes.totalHp;
+            return activePlayer;
+        }
+        this.players[index].attributes = updatedPlayer.attributes;
+        this.players[index].inventory = updatedPlayer.inventory;
+        return undefined;
+    }
+
     initializeObjects(objects: number[][]): void {
         for (let i = 0; i < this.objects.length; i++) {
             for (let j = 0; j < this.objects[i].length; j++) {
@@ -86,10 +104,59 @@ export class NavigationService {
         this.setInitialPositions();
     }
 
+    displayPortraitsOnSpawnPoints(players: Player[], objects: number[][]) {
+        for (const player of players) {
+            const { x, y } = player.position;
+            if (this.isPositionWithinBounds(x, y, objects)) {
+                objects[x][y] = this.getPortraitId(player.avatar?.name);
+            }
+        }
+        return objects;
+    }
+
+    placeAvatar(playerToPlace: Player, objects: number[][]) {
+        objects[playerToPlace.position.x][playerToPlace.position.y] = this.getPortraitId(playerToPlace.avatar?.name);
+        return objects;
+    }
+
+    navigateToTile(position: Position, player: Player, objects: number[][]): [number[][], Player] {
+        this.reachableTiles = [];
+        this.updateTile(player);
+        player.position = position;
+        return [this.placeAvatar(player, objects), player];
+    }
+
+    respawnPlayer(position: Position, player: Player, objects: number[][]) {
+        const playerToPlace = this.players.find((players) => players.id === player.id);
+        if (!playerToPlace) return objects;
+        playerToPlace.position = position;
+        this.updateTile(playerToPlace);
+        return this.placeAvatar(player, objects);
+    }
+
     setInitialPositions(): void {
         for (const player of this.players) {
             this.initialPositions.push({ x: player.position.x, y: player.position.y });
         }
+    }
+
+    isPlayerOnTile(position: MapPosition, player: Player) {
+        return player.position.x === position.row && player.position.y === position.col;
+    }
+
+    isInteractionPossible(position: MapPosition, tiles: number[][], player: Player) {
+        return this.isReachableTile(position) && this.isTileAClosedDoor(tiles, position) && this.isPlayerOnTile(position, player);
+    }
+
+    isTileAClosedDoor(tiles: number[][], position: MapPosition) {
+        return tiles[position.row][position.col] === TileType.ClosedDoor;
+    }
+
+    findPath(position: MapPosition, activePlayer: Player, defaultPath: Position[]) {
+        if (this.isPlayerOnTile(position, activePlayer)) {
+            return [];
+        }
+        return defaultPath;
     }
 
     placePlayers(): Position[] {
@@ -104,13 +171,13 @@ export class NavigationService {
         return godNameToObjectType.get(godName || '') ?? ObjectType.Spawn;
     }
 
-    isReachableTile(row: number, col: number): boolean {
-        return this.reachableTiles.some((tile) => tile.x === row && tile.y === col);
+    isReachableTile(position: MapPosition): boolean {
+        return this.reachableTiles.some((tile) => tile.x === position.row && tile.y === position.col);
     }
 
-    isNeighbor(row: number, col: number, player: Player): boolean {
+    isNeighbor({ x, y }: Position, player: Player): boolean {
         const neighbors = this.getNeighbors(player.position, this.gameMap);
-        return neighbors.some((neighbor) => neighbor.x === row && neighbor.y === col);
+        return neighbors.some((neighbor) => neighbor.x === x && neighbor.y === y);
     }
 
     getNeighbors(position: Position, game: Game): Position[] {

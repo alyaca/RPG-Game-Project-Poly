@@ -43,7 +43,7 @@ export class AttributesService {
         this.attributes = { ...defaultAttributes };
     }
 
-    getAttributValue(chosenAttribute: keyof Attributes) {
+    getAttributeValue(chosenAttribute: keyof Attributes) {
         if (chosenAttribute.includes('DiceMax') && this.hasSelectedDice()) {
             return this.getDiceMessage(chosenAttribute);
         }
