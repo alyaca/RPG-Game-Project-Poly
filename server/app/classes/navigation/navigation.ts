@@ -25,7 +25,6 @@ export class Navigation {
     }
 
     removeUnusedSpawnPoints() {
-        console.log('before', this.positions);
         this.positions.forEach((row, x) => {
             row.forEach((tile, y) => {
                 if (tile === ObjectType.Spawn) {
@@ -37,7 +36,6 @@ export class Navigation {
             const { x, y } = player.position;
             this.positions[x][y] = ObjectType.Spawn;
         });
-        console.log('after', this.positions);
     }
 
     findFastestPath(player: Player, destination: Position, room: Room): Position[] {
